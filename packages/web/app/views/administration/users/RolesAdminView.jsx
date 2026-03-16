@@ -4,58 +4,20 @@ import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { PlusIcon } from '../../../assets/icons/PlusIcon';
-import { Button, DataFetchingTable, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
 import { AddRoleModal } from './AddRoleModal';
-import { Article } from './RolesAndDesignationsAdminView';
+import {
+  AddButton,
+  Article,
+  Header,
+  plusIcon,
+  StyledDataFetchingTable,
+} from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
-
-const Header = styled.header`
-  align-items: flex-end;
-  background-color: ${Colors.white};
-  border-block-start: 1px solid ${Colors.outline};
-  border-inline: 1px solid ${Colors.outline};
-  border-start-end-radius: 0.3125rem;
-  border-start-start-radius: 0.3125rem;
-  display: grid;
-  gap: 0.625rem;
-  grid-template-columns: auto minmax(min-content, max-content);
-  padding-block: 0.625rem;
-  padding-inline: 1.25rem;
-`;
-
-const AddButton = styled(Button)`
-  align-self: flex-end;
-`;
-
-const plusIcon = (
-  <PlusIcon
-    aria-hidden
-    width={18}
-    height={18}
-    style={{ color: 'oklch(from currentColor l c h / 96%)', marginInlineEnd: '0.5em' }}
-  />
-);
-
-const StyledDataFetchingTable = styled(DataFetchingTable)`
-  border-start-end-radius: 0;
-  border-start-start-radius: 0;
-  box-shadow: unset;
-  tbody tr:hover {
-    background-color: ${Colors.veryLightBlue};
-  }
-
-  /* Fit to meatball menu button width; let browser distribute remaining columns */
-  th:last-of-type,
-  td:last-of-type {
-    inline-size: 0;
-  }
-`;
 
 const STATIC_COLUMNS = /** @type {const} */ ([
   {

@@ -2,7 +2,8 @@ import React from 'react';
 import { Outlet, useMatch, useNavigate } from 'react-router';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../../components';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
+import { Button, DataFetchingTable, TranslatedText } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
@@ -12,6 +13,48 @@ const StyledTabDisplay = styled(TabDisplay)`
   grid-template-rows: auto 1fr;
   .MuiTab-root:first-of-type {
     margin-inline-start: 30px;
+  }
+`;
+
+export const Header = styled.header`
+  align-items: flex-end;
+  background-color: ${Colors.white};
+  border-block-start: 1px solid ${Colors.outline};
+  border-inline: 1px solid ${Colors.outline};
+  border-start-end-radius: 0.3125rem;
+  border-start-start-radius: 0.3125rem;
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: auto minmax(min-content, max-content);
+  padding-block: 0.625rem;
+  padding-inline: 1.25rem;
+`;
+
+export const AddButton = styled(Button)`
+  align-self: flex-end;
+`;
+
+export const plusIcon = (
+  <PlusIcon
+    aria-hidden
+    width={18}
+    height={18}
+    style={{ color: 'oklch(from currentColor l c h / 96%)', marginInlineEnd: '0.5em' }}
+  />
+);
+
+export const StyledDataFetchingTable = styled(DataFetchingTable)`
+  border-start-end-radius: 0;
+  border-start-start-radius: 0;
+  box-shadow: unset;
+  tbody tr:hover {
+    background-color: ${Colors.veryLightBlue};
+  }
+
+  /* Fit to meatball menu button width; let browser distribute remaining columns */
+  th:last-of-type,
+  td:last-of-type {
+    inline-size: 0;
   }
 `;
 
