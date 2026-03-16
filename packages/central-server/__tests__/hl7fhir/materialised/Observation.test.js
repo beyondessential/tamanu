@@ -138,7 +138,7 @@ describe('Create Observation', () => {
         code: {
           coding: testCode.coding.filter(
             ({ system }) =>
-              system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+              system === getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
           ),
         },
         valueString: result,

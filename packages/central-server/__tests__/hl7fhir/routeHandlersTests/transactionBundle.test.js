@@ -1,6 +1,5 @@
-import config from 'config';
-
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
@@ -176,11 +175,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -287,11 +286,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -632,11 +631,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
