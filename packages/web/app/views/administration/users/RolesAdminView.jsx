@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
+import { Form, FormSubmitButton, getTranslatedOptions, TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, TranslatedText } from '../../../components';
@@ -44,7 +44,6 @@ const StyledForm = styled(Form)`
 `;
 
 const StyledField = styled(Field).attrs({
-  placeholder: 'Search…',
   size: 'small',
 })``;
 
@@ -134,6 +133,8 @@ export const RolesAdminView = () => {
   // DataFetchingTable state
   const [roleToDelete, setRoleToDelete] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+
+  const { getTranslation } = useTranslation();
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
@@ -231,12 +232,14 @@ export const RolesAdminView = () => {
                   inputProps={{ 'data-testid': 'roles-search-name-input' }}
                   label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
                   name="name"
+                  placeholder={getTranslation('general.action.search...', 'Search…')}
                 />
                 <StyledField
                   component={AutocompleteField}
                   data-testid="roles-search-id"
                   label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
                   name="id"
+                  placeholder={getTranslation('general.action.search...', 'Search…')}
                   suggester={roleSuggester}
                 />
                 <ButtonGroup>
