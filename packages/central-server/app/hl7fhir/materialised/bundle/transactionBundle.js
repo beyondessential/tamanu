@@ -26,14 +26,14 @@ export const transactionBundleHandler = () => {
     try {
       await store.sequelize.transaction(async () => {
         for (const { resource: rawResource } of validatedBundle.entry) {
-          checkFhirWritePermissionForResource(req.ability, rawResource.resourceType);
-
           const FhirResource = creatableResources.find(
             r => r.fhirName === rawResource.resourceType,
           );
           if (!FhirResource) {
             throw new Invalid(`Resource type ${rawResource.resourceType} not found`);
           }
+
+          checkFhirWritePermissionForResource(req.ability, rawResource.resourceType);
 
           const hydratedResource = FhirResource.hydrateRawResourceFromBundle(
             validatedBundle,
