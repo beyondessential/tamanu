@@ -1,4 +1,5 @@
 import { Ability, AbilityBuilder } from '@casl/ability';
+import { FHIR_PERMISSION_NOUNS, FHIR_INTEGRATION_VERB } from '@tamanu/constants';
 
 export function buildAbility(permissions, options = {}) {
   const { can, build } = new AbilityBuilder(Ability);
@@ -26,10 +27,29 @@ export function buildAdminAbility() {
   ]);
 }
 
+function isFhirPermission({ verb, noun }) {
+  return verb === FHIR_INTEGRATION_VERB || FHIR_PERMISSION_NOUNS.has(noun);
+}
+
+function validateNoMixedPermissions(permissions) {
+  const hasFhir = permissions.some(isFhirPermission);
+  const hasRegular = permissions.some(p => !isFhirPermission(p));
+  if (hasFhir && hasRegular) {
+    const fhir = permissions.filter(isFhirPermission).map(p => `${p.verb}:${p.noun}`);
+    const regular = permissions.filter(p => !isFhirPermission(p)).map(p => `${p.verb}:${p.noun}`);
+    throw new Error(
+      `Role mixes FHIR and regular permissions. ` +
+      `FHIR: ${fhir.join(', ')}. Regular: ${regular.join(', ')}`,
+    );
+  }
+}
+
 export function buildAbilityForUser(user, permissions) {
   if (user.role === 'admin') {
     return buildAdminAbility();
   }
+
+  validateNoMixedPermissions(permissions);
 
   return buildAbility([
     ...permissions,

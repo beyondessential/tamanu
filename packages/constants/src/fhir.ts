@@ -402,3 +402,10 @@ export const FHIR_INTEGRATION_PERMISSIONS: Record<
     write: [],
   },
 };
+
+export const FHIR_PERMISSION_NOUNS: ReadonlySet<string> = new Set([
+  ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
+  ...Object.values(SERVICE_REQUEST_PERMISSION_NOUNS),
+  ...Object.keys(FHIR_INTEGRATION_PERMISSIONS),
+  ...Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => [...c.read, ...c.write]),
+]);
