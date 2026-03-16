@@ -161,6 +161,8 @@ export async function exportProgram(context, programId) {
       ['registryCode', programRegistry?.code],
       ['visibilityStatus', programRegistry?.visibilityStatus],
       ['currentlyAtType', programRegistry?.currentlyAtType],
+      ['lossToFollowUpEnabled', programRegistry?.lossToFollowUpEnabled],
+      ['lossToFollowUpThresholdDays', programRegistry?.lossToFollowUpThresholdDays],
       [],
       ['code', 'name', 'color', 'visibilityStatus'],
     ],
