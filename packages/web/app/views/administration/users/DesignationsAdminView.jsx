@@ -81,26 +81,27 @@ export const DesignationsAdminView = () => {
   });
 
   const columns = useMemo(
-    () => [
-      ...STATIC_COLUMNS,
-      {
-        CellComponent: ({ data }) => (
-          <ThreeDotMenu
-            items={[
-              {
-                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                onClick: () => setDesignationToDelete(data),
-              },
-            ]}
-          />
-        ),
-        dontCallRowInput: true,
-        key: 'actions',
-        numeric: true, // Not really, but applies align="right" to MUI TableCell
-        sortable: false,
-        title: '',
-      },
-    ],
+    () =>
+      /** @type {const} */ ([
+        ...STATIC_COLUMNS,
+        {
+          CellComponent: ({ data }) => (
+            <ThreeDotMenu
+              items={[
+                {
+                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                  onClick: () => setDesignationToDelete(data),
+                },
+              ]}
+            />
+          ),
+          dontCallRowInput: true,
+          key: 'actions',
+          numeric: true, // Not really, but applies align="right" to MUI TableCell
+          sortable: false,
+          title: '',
+        },
+      ]),
     [],
   );
 
