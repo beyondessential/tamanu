@@ -248,7 +248,6 @@ const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
     padding: 60px;
-    ${(props) => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
   }
   ${(props) => (props.$statusCellStyle ? props.$statusCellStyle : '')}
@@ -347,11 +346,11 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
   <RowContainer className={className} data-testid="rowcontainer-x9xp">
     <StatusTableCell
-      $color={textColor}
       colSpan={colSpan}
       align="center"
       $statusCellStyle={statusCellStyle}
       data-testid="statustablecell-rwkq"
+      style={{ color: textColor }}
     >
       {children}
     </StatusTableCell>
