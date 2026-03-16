@@ -84,10 +84,6 @@ export const DesignationsAdminView = () => {
     () => [
       ...STATIC_COLUMNS,
       {
-        key: 'actions',
-        title: '',
-        sortable: false,
-        dontCallRowInput: true,
         CellComponent: ({ data }) => (
           <ThreeDotMenu
             items={[
@@ -98,6 +94,11 @@ export const DesignationsAdminView = () => {
             ]}
           />
         ),
+        dontCallRowInput: true,
+        key: 'actions',
+        numeric: true, // Not really, but applies align="right" to MUI TableCell
+        sortable: false,
+        title: '',
       },
     ],
     [],
