@@ -4,21 +4,18 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
-  FHIR_INTEGRATION_PERMISSIONS,
+  FHIR_RESOURCE_TO_PERMISSION_NOUN,
+  SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
-function integrationPermissionsToTuples({ read = [], write = [] }) {
-  return [
-    ...read.map(noun => ['read', noun]),
-    ...write.map(noun => ['write', noun]),
-  ];
-}
-
 const allPermsMap = new Map();
-for (const perms of Object.values(FHIR_INTEGRATION_PERMISSIONS)) {
-  for (const tuple of integrationPermissionsToTuples(perms)) {
-    allPermsMap.set(`${tuple[0]}:${tuple[1]}`, tuple);
+for (const noun of [
+  ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
+  ...Object.values(SERVICE_REQUEST_PERMISSION_NOUNS),
+]) {
+  for (const verb of ['read', 'write']) {
+    allPermsMap.set(`${verb}:${noun}`, [verb, noun]);
   }
 }
 export const ALL_FHIR_PERMISSIONS = [...allPermsMap.values()];
