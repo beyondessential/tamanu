@@ -53,22 +53,11 @@ export function createFhirCommand(ApplicationContext) {
     await app.close();
   }
 
-  async function doRefresh(resource, { existing, missing, since }) {
-    const app = await new ApplicationContext().init();
+  async function refreshResource(app, resource, { existing, missing, since }) {
     const materialisableResources = resourcesThatCanDo(
       app.store.models,
       FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
     );
-
-    if (resource.toLowerCase() === 'all') {
-      await app.close(); // Close the app as we don't want to keep the database connection open for the entire duration of the refresh
-      for (const Resource of materialisableResources) {
-        if (!Resource?.UpstreamModels || Resource.UpstreamModels.length === 0) continue;
-        await doRefresh(Resource.fhirName, { existing, missing, since });
-      }
-      return;
-    }
-
     const Resource = materialisableResources.find(
       r => r.fhirName.toLowerCase() === resource.toLowerCase(),
     );
@@ -119,6 +108,25 @@ export function createFhirCommand(ApplicationContext) {
     await Resource.resolveUpstreams();
 
     log.info(`Done refreshing ${done} ${Resource.fhirName} records`);
+  }
+
+  async function doRefresh(resource, { existing, missing, since }) {
+    const app = await new ApplicationContext().init();
+    const materialisableResources = resourcesThatCanDo(
+      app.store.models,
+      FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+    );
+
+    if (resource.toLowerCase() === 'all') {
+      await app.close(); // Close the app as we don't want to keep the database connection open for the entire duration of the refresh
+      for (const Resource of materialisableResources) {
+        if (!Resource?.UpstreamModels || Resource.UpstreamModels.length === 0) continue;
+        await refreshResource(app, Resource.fhirName, { existing, missing, since });
+      }
+    } else {
+      await refreshResource(app, resource, { existing, missing, since });
+    }
+
     await app.close();
   }
 
