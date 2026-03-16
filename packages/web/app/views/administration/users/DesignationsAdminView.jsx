@@ -8,6 +8,7 @@ import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { DESIGNATIONS_ENDPOINT } from '../constants';
+import { DesignationsSearchForm } from './DesignationsSearchForm';
 import {
   AddButton,
   Article,
@@ -15,7 +16,6 @@ import {
   plusIcon,
   StyledDataFetchingTable,
 } from './RolesAndDesignationsAdminView';
-import { DesignationsSearchForm } from './DesignationsSearchForm';
 import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 
 const STATIC_COLUMNS = /** @type {const} */ ([
