@@ -1,5 +1,5 @@
-import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { convertISO9075toRFC3339 } from '@tamanu/utils/dateTime';
 
 import { labTestTypeToLOINCCode } from './loinc';
