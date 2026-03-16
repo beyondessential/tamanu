@@ -288,6 +288,12 @@ describe('FHIR Permissions', () => {
           {
             resource: {
               resourceType: 'Observation',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${fhirServiceRequest.id}`,
+                },
+              ],
               status: FHIR_OBSERVATION_STATUS.FINAL,
               code: {
                 coding: [{ system: 'http://loinc.org', code: '1234-5', display: 'Test obs' }],
@@ -332,6 +338,12 @@ describe('FHIR Permissions', () => {
           {
             resource: {
               resourceType: 'Observation',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${fhirServiceRequest.id}`,
+                },
+              ],
               status: FHIR_OBSERVATION_STATUS.FINAL,
               code: {
                 coding: [{ system: 'http://loinc.org', code: '1234-5', display: 'Test obs' }],
