@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form } from '@tamanu/ui-components';
+import { Form, ModalContent } from '@tamanu/ui-components';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
 import { Field, TextField } from '../../../components/Field';
 import { useRoleCreateMutation } from './useRoleCreateMutation';
@@ -17,6 +17,17 @@ const CREATE_ROLE_VALIDATION = yup.object().shape({
     .string()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
+
+const StyledFormModal = styled(FormModal)`
+  ${ModalContent} {
+    padding-block: 32px 0;
+    border: 2px solid red;
+    padding-inline: 0;
+    form > * {
+      padding-inline: 32px;
+    }
+  }
+`;
 
 const Fieldset = styled.fieldset`
   display: grid;
@@ -31,8 +42,13 @@ const RequiredTextField = styled(Field).attrs({
 })``;
 
 const Footer = styled.footer`
+  border-block-start: 1px solid ${props => props.theme.palette.divider};
   display: flex;
   flex-direction: row-reverse;
+  gap: 16px;
+  justify-content: end;
+  margin-block-start: 32px;
+  padding-block: 20px;
 `;
 
 export const AddRoleModal = ({ open, onClose, onSuccess }) => {
@@ -68,7 +84,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
         />
       </Fieldset>
       <Footer>
-        <Button onClick={submitForm} isSubmitting={isPending}>
+        <Button isSubmitting={isPending} onClick={submitForm}>
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </Button>
         <OutlinedButton onClick={onClose} disabled={isPending}>
@@ -79,7 +95,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
   );
 
   return (
-    <FormModal
+    <StyledFormModal
       title={<TranslatedText stringId="admin.roles.add.title" fallback="Add role" />}
       open={open}
       onClose={onClose}
@@ -90,6 +106,6 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
         render={renderForm}
         validationSchema={CREATE_ROLE_VALIDATION}
       />
-    </FormModal>
+    </StyledFormModal>
   );
 };

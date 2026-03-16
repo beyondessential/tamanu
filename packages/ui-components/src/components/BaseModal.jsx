@@ -37,7 +37,7 @@ const Dialog = styled(MuiDialog)`
   }
 `;
 
-const ModalContent = styled.div`
+export const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
     ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
@@ -175,7 +175,7 @@ export const BaseModal = memo(
           >
             {children}
           </ModalContent>
-          <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>
+          {actions && <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>}
         </ModalContainer>
         {fixedBottomRow && bottomRowContent}
       </Dialog>
