@@ -1,6 +1,5 @@
-import config from 'config';
-
 import { LAB_REQUEST_STATUSES, FHIR_OBSERVATION_STATUS } from '@tamanu/constants';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
@@ -74,7 +73,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -90,7 +89,7 @@ describe('Create Observation', () => {
         status: FHIR_OBSERVATION_STATUS.FINAL,
         code: {
           coding: testCode.coding.filter(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
           ),
         },
         valueString: result,
@@ -122,7 +121,7 @@ describe('Create Observation', () => {
         where: {
           labRequestId: labRequest.id,
           '$labTestType.code$': testCode.coding.find(
-            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ({ system }) => system === getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
           )?.code,
         },
       });
@@ -184,7 +183,7 @@ describe('Create Observation', () => {
         code: {
           coding: [
             {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
               code: labTest.labTestType.code,
             },
           ],
@@ -214,7 +213,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
                 code: 'TEST_CODE',
               },
             ],
@@ -269,7 +268,7 @@ describe('Create Observation', () => {
           code: {
             coding: [
               {
-                system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
                 code: invalidCode,
               },
             ],

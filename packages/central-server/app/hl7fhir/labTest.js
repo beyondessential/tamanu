@@ -72,7 +72,7 @@ function labTestMethodToHL7Extension(labTestMethod) {
     return [];
   }
 
-  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const groupNamespace = `${getFhirDataDictionaries().testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
   return [
@@ -102,7 +102,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: 'official',
-        system: config.hl7.dataDictionaries.labRequestDisplayId,
+        system: getFhirDataDictionaries().labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],
