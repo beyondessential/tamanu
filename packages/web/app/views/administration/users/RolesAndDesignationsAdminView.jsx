@@ -47,9 +47,6 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
   border-start-start-radius: 0;
   box-shadow: unset;
-  tbody tr:hover {
-    background-color: ${Colors.veryLightBlue};
-  }
 
   /* Fit to meatball menu button width; let browser distribute remaining columns */
   th:last-of-type,
