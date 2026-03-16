@@ -110,16 +110,16 @@ const { Manage, Delete, Create, Write, List, Read, Run, Submit } = PermissionVer
 // Verbs allowed at the per-object level for nouns that support objectId.
 // These are typically a subset of PERMISSION_SCHEMA[noun] — noun-level-only
 // verbs like List and Create are excluded.
-export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+export const OBJECT_ID_PERMISSION_SCHEMA = {
   Survey: [Read, Write, Submit],
   StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
   ProgramRegistry: [Read],
-};
+} as const satisfies Readonly<Record<string, readonly PermissionVerb[]>>;
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
 
-export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+export const PERMISSION_SCHEMA = {
   all: [Manage],
   AdministeredVaccine: [List, Read, Write, Create],
   Appointment: [List, Read, Write, Create],
@@ -213,9 +213,9 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Triage: [List, Read, Write, Create],
   User: [List, Read, Write, Create],
   Vitals: [List, Read, Write, Create],
-};
+} as const satisfies Readonly<Record<string, readonly PermissionVerb[]>>;
 
-export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
+export const VERB_ABBREVIATIONS = {
   [List]: 'L',
   [Read]: 'R',
   [Write]: 'W',
@@ -224,15 +224,23 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Manage]: 'M',
   [Run]: 'X',
   [Submit]: 'S',
-};
+} as const satisfies Record<PermissionVerb, string>;
 
 export const HIDDEN_PERMISSION_NOUNS = new Set(['all']);
 
 // Verbs ordered high → low; selecting a verb auto-selects all verbs after it.
 // If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
-export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
+export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'] as const;
 
 // Canonical left-to-right column order for summary display (L R W C D X S).
 // Every noun gets the same number of columns so summaries stay aligned.
 // `manage` is excluded because its only noun (`all`) is hidden.
-export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit'];
+export const VERB_DISPLAY_ORDER = [
+  'list',
+  'read',
+  'write',
+  'create',
+  'delete',
+  'run',
+  'submit',
+] as const;
