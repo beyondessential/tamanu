@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef } from 'react';
+import MuiBox from '@material-ui/core/Box';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import {
   connect as formikConnect,
@@ -7,11 +7,11 @@ import {
   useField,
   useFormikContext,
 } from 'formik';
-import MuiBox from '@material-ui/core/Box';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
-import { FormTooltip } from '../FormTooltip';
 export const Field = formikConnect(
   ({
     formik: {
@@ -20,7 +20,6 @@ export const Field = formikConnect(
       validateField,
       values,
     },
-    label,
     name,
     component = TextField,
     onChange,
@@ -31,7 +30,6 @@ export const Field = formikConnect(
     const error = submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
-    const inputId = useId();
     const { setFieldTouched } = useFormikContext();
     const [field] = useField(name);
     const fieldValue = getIn(values, name);
@@ -69,9 +67,7 @@ export const Field = formikConnect(
     return (
       <FormikField
         {...props}
-        id={inputId}
         component={component}
-        label={<label htmlFor={inputId}>{label}</label>}
         error={error}
         helperText={message}
         name={name}
