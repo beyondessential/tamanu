@@ -16,9 +16,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
   let ctx;
   let app;
   let resources;
+  let dataDicts;
 
   beforeAll(async () => {
     ctx = await createTestContext({ initFhir: true });
+    dataDicts = getFhirDataDictionaries();
     app = await ctx.baseApp.asRole('practitioner');
 
     const {
@@ -175,11 +177,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -286,11 +288,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -631,11 +633,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
