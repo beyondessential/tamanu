@@ -70,16 +70,28 @@ const STATIC_COLUMNS = /** @type {const} */ ([
   },
 ]);
 
-const DeleteConfirmationModal = styled(ConfirmModal).attrs({
-  confirmButtonText: (
-    <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-  ),
-  title: <TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />,
-})``;
+const DeleteConfirmationModal = ({ roleName, ...confirmModalProps }) => (
+  <ConfirmModal
+    confirmButtonText={
+      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+    }
+    title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
+    customContent={
+      <DeleteConfirmationModalContent>
+        <Typography variant="body2">
+          <TranslatedText
+            stringId="admin.roles.delete.confirmation"
+            fallback="Are you sure you would like to delete the selected role?"
+          />
+          &nbsp;&ndash; <strong>{roleName}</strong>
+        </Typography>
+      </DeleteConfirmationModalContent>
+    }
+    {...confirmModalProps}
+  />
+);
 
-const DeleteConfirmationModalContent = styled(Typography).attrs({
-  variant: 'body2',
-})`
+const DeleteConfirmationModalContent = styled.div`
   min-block-size: 8rem;
   display: grid;
   place-items: center stretch;
@@ -158,7 +170,6 @@ export const RolesAdminView = () => {
       <StyledDataFetchingTable
         allowExport={false}
         columns={columns}
-        defaultRowsPerPage={10}
         endpoint={ROLES_ENDPOINT}
         fetchOptions={{ id: idQuery, name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
@@ -178,14 +189,7 @@ export const RolesAdminView = () => {
         open={Boolean(roleToDelete)}
         onCancel={() => setRoleToDelete(null)}
         onConfirm={handleConfirmDelete}
-        customContent={
-          <DeleteConfirmationModalContent>
-            <TranslatedText
-              stringId="admin.roles.delete.confirmation"
-              fallback="Are you sure you would like to delete this role?"
-            />
-          </DeleteConfirmationModalContent>
-        }
+        roleName={roleToDelete?.name}
       />
     </Article>
   );
