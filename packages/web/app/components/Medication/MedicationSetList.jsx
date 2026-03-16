@@ -99,7 +99,7 @@ export const MedicationSetList = forwardRef(
       return (
         <ListContainer ref={ref}>
           <BodyText pl="16px">
-            <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+            <TranslatedText stringId="general.table.loading" fallback="Loading…" />
           </BodyText>
         </ListContainer>
       );

@@ -612,7 +612,7 @@ export const DispenseMedicationWorkflowModal = memo(
 
               {isLoadingDispensables ? (
                 <Box p={4} textAlign="center">
-                  <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+                  <TranslatedText stringId="general.table.loading" fallback="Loading…" />
                 </Box>
               ) : dispensablesError ? (
                 <Box p={4} textAlign="center" color={Colors.alert}>
