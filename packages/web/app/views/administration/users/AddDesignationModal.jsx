@@ -7,7 +7,7 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, ModalContent } from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
-import { AutocompleteField, Field, TextField } from '../../../components/Field';
+import { AutocompleteField, Field } from '../../../components/Field';
 import { useUserDesignationCreateMutation } from './useUserDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
@@ -29,18 +29,15 @@ const StyledFormModal = styled(FormModal)`
   }
 `;
 
+const RequiredAutocompleteField = props => (
+  <Field component={AutocompleteField} required {...props} />
+);
+
 const Fieldset = styled.fieldset`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 0.8rem;
 `;
-
-const RequiredTextField = styled(Field).attrs({
-  autoComplete: 'off',
-  component: TextField,
-  required: true,
-})``;
-
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -54,6 +51,7 @@ const Footer = styled.footer`
 
 export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   const userSuggester = useSuggester('practitioner');
+  const designationSuggester = useSuggester('designation');
   const { isLoading, mutateAsync: createUserDesignation } = useUserDesignationCreateMutation({
     onSuccess: () => {
       onSuccess?.();
@@ -84,16 +82,15 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   const renderForm = ({ submitForm }) => (
     <>
       <Fieldset disabled={isLoading}>
-        <Field
-          component={AutocompleteField}
+        <RequiredAutocompleteField
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
           name="name"
-          required
           suggester={userSuggester}
         />
-        <RequiredTextField
+        <RequiredAutocompleteField
           label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
           name="id"
+          suggester={designationSuggester}
         />
       </Fieldset>
       <Footer>
