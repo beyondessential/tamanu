@@ -53,3 +53,34 @@ export function checkJSONCriteria(criteria, allComponents, values) {
     ? Object.entries(criteriaObject).every(checkIfQuestionMeetsCriteria)
     : Object.entries(criteriaObject).some(checkIfQuestionMeetsCriteria);
 }
+
+/**
+ * Returns question codes referenced in form visibility criteria JSON.
+ * @param {string} visibilityCriteria - JSON string e.g. '{"QUESTION_CODE": "Yes"}'
+ * @returns {string[]}
+ */
+export function getQuestionCodesFromFormVisibilityCriteria(visibilityCriteria) {
+  if (!visibilityCriteria || !visibilityCriteria.trim()) return [];
+  try {
+    const criteria = JSON.parse(visibilityCriteria);
+    if (!criteria || typeof criteria !== 'object') return [];
+    return Object.keys(criteria).filter(key => key !== '_conjunction' && key !== 'hidden');
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Evaluates form-level visibility criteria (same JSON format as question-level visibility).
+ * @param {string} criteria - JSON string e.g. '{"QUESTION_CODE": "Yes"}'
+ * @param {Record<string, any>} valuesByCode - Map of question code to last answer value
+ * @param {Record<string, string>} dataElementTypesByCode - Map of question code to ProgramDataElement type (for multi-select handling)
+ * @returns {boolean}
+ */
+export function checkFormVisibilityCriteria(criteria, valuesByCode, dataElementTypesByCode = {}) {
+  if (!criteria || !criteria.trim()) return true;
+  const allComponents = Object.entries(dataElementTypesByCode).map(([code, type]) => ({
+    dataElement: { code, type },
+  }));
+  return checkJSONCriteria(criteria, allComponents, valuesByCode);
+}

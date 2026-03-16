@@ -1,7 +1,8 @@
 import { utils } from 'xlsx';
 import { CHARTING_SURVEY_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { getQuestionCodesFromFormVisibilityCriteria } from '@tamanu/shared/utils/criteria';
 
-import { ImporterMetadataError } from '../errors';
+import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importer/importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
@@ -11,6 +12,26 @@ import {
   validateVitalsSurvey,
 } from './validation';
 import { validateProgramDataElementRecords } from './programDataElementValidation';
+
+async function validateFormVisibilityCriteriaQuestionCodes(context, surveyInfo) {
+  const { visibilityCriteria, rowIndex, name } = surveyInfo;
+  const questionCodes = getQuestionCodesFromFormVisibilityCriteria(visibilityCriteria);
+  if (questionCodes.length === 0) return;
+
+  const { models } = context;
+  for (const code of questionCodes) {
+    const dataElement = await models.ProgramDataElement.findOne({
+      where: { code },
+    });
+    if (!dataElement) {
+      throw new ValidationError(
+        'Metadata',
+        rowIndex,
+        `Survey "${name}" has form visibility criteria referencing question code "${code}" which does not exist. The question code must exist in the database (from this or another program).`,
+      );
+    }
+  }
+}
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -54,6 +75,10 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   if (CHARTING_SURVEY_TYPES.includes(surveyType)) {
     await validateChartingSurvey(context, surveyInfo);
+  }
+
+  if (surveyInfo.visibilityCriteria) {
+    await validateFormVisibilityCriteriaQuestionCodes(context, surveyInfo);
   }
 
   surveyInfo.notifiable ??= false;
