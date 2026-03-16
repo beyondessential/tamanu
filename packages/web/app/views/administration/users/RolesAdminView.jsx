@@ -74,14 +74,8 @@ const DeleteConfirmationModal = styled(ConfirmModal).attrs({
   confirmButtonText: (
     <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
   ),
-  'data-testid': 'confirm-modal-delete-role',
-  title: (
-    <TranslatedText
-      stringId="admin.roles.delete.title"
-      fallback="Delete role"
-      data-testid="translatedtext-delete-role-title"
-    />
-  ),
+
+  title: <TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />,
 })``;
 
 const DeleteConfirmationModalContent = styled(Typography).attrs({
@@ -155,7 +149,7 @@ export const RolesAdminView = () => {
     <Article>
       <Header>
         <RolesSearchForm />
-        <AddButton data-testid="roles-add-role-button" onClick={() => navigate('new')}>
+        <AddButton onClick={() => navigate('new')}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </AddButton>
@@ -163,7 +157,6 @@ export const RolesAdminView = () => {
       <StyledDataFetchingTable
         allowExport={false}
         columns={columns}
-        data-testid="roles-table"
         defaultRowsPerPage={10}
         endpoint={ROLES_ENDPOINT}
         fetchOptions={{ id: idQuery, name: nameQuery }}
@@ -189,7 +182,6 @@ export const RolesAdminView = () => {
             <TranslatedText
               stringId="admin.roles.delete.confirmation"
               fallback="Are you sure you would like to delete this role?"
-              data-testid="translatedtext-delete-role-text"
             />
           </DeleteConfirmationModalContent>
         }
