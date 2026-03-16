@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { escapeRegExp } from 'lodash';
 import { Op } from 'sequelize';
 import { z } from 'zod';
 
@@ -19,20 +20,32 @@ designationsRouter.get(
     req.checkPermission('list', 'UserDesignation');
 
     const filters = [];
-    const userIdQuery = req.query.user_id?.trim();
-    if (userIdQuery) {
-      filters.push({
-        userId: userIdQuery,
-      });
-    }
     const designationIdQuery = req.query.designationId?.trim();
     if (designationIdQuery) {
-      filters.push({
-        designationId: designationIdQuery,
-      });
+      filters.push({ designationId: designationIdQuery });
     }
 
-    const options = {};
+    const displayNameQuery = req.query.display_name?.trim();
+    const displayNameClause = displayNameQuery
+      ? {
+          displayName: { [Op.iRegexp]: `\\m${escapeRegExp(displayNameQuery)}` },
+        }
+      : undefined;
+
+    const {
+      store: { models },
+    } = req;
+    const options = {
+      include: [
+        {
+          model: models.User,
+          as: 'user',
+          attributes: ['id', 'displayName'],
+          required: Boolean(displayNameQuery),
+          where: displayNameClause,
+        },
+      ],
+    };
     if (filters.length > 0) {
       options.additionalFilters = filters.length === 1 ? filters[0] : { [Op.and]: filters };
     }
