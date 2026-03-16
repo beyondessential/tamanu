@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
@@ -9,19 +10,21 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 
-const getAverageWaitTime = (categoryData) => {
+const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
   if (categoryData.length === 0) {
     return 0;
   }
 
-  const summedWaitTime = categoryData.reduce(
-    (prev, curr) => prev + Math.round(new Date() - new Date(curr.triageTime)),
-    0,
-  );
-  return summedWaitTime / categoryData.length;
+  const now = Date.now();
+  const triageTimes = categoryData
+    .map(triage => triage.triageTime)
+    .map(storedDateTimeToEpochMilliseconds)
+    .filter(time => time != null);
+  const summedWaitTime = triageTimes.reduce((prev, curr) => prev + Math.round(now - curr), 0);
+  return summedWaitTime / triageTimes.length;
 };
 
-const useTriageData = () => {
+const useTriageData = storedDateTimeToEpochMilliseconds => {
   const api = useApi();
   const { facilityId } = useAuth();
   const [data, setData] = useState([]);
@@ -40,13 +43,13 @@ const useTriageData = () => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return triageCategories?.map((category) => {
+  return triageCategories?.map(category => {
     const categoryData = data.filter(
-      (triage) =>
+      triage =>
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );
-    const averageWaitTime = getAverageWaitTime(categoryData);
+    const averageWaitTime = getAverageWaitTime(categoryData, storedDateTimeToEpochMilliseconds);
     return {
       averageWaitTime,
       numberOfPatients: categoryData.length,
@@ -105,7 +108,8 @@ const CardFooter = ({ averageWaitTime, color }) => {
 };
 
 export const TriageDashboard = () => {
-  const data = useTriageData();
+  const { storedDateTimeToEpochMilliseconds } = useDateTime();
+  const data = useTriageData(storedDateTimeToEpochMilliseconds);
 
   if (!data) {
     return null;
