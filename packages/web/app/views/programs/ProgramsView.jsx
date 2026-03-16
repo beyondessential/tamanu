@@ -90,17 +90,19 @@ const SurveyFlow = ({ patient, currentUser }) => {
         return;
       }
 
-      const { data } = await api.get(`program/${programId}/surveys`);
+      const { data } = await api.get(`program/${programId}/surveys`, {
+        params: patient?.id ? { patientId: patient.id } : {},
+      });
+      const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
       setSurveys(
-        data
-          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map(x => ({
-            value: x.id,
-            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
-          })),
+        programSurveys.map(x => ({
+          value: x.id,
+          label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
+          passesFormVisibility: x.passesFormVisibility,
+        })),
       );
     },
-    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
+    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId, patient?.id],
   );
 
   const submitSurveyResponse = async data => {
