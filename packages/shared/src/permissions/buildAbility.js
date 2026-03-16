@@ -32,15 +32,11 @@ function isFhirPermission({ verb, noun }) {
 }
 
 function validateNoMixedPermissions(permissions) {
-  const { fhir, regular } = permissions.reduce(
-    (acc, p) => {
-      acc[isFhirPermission(p) ? 'fhir' : 'regular'].push(`${p.verb}:${p.noun}`);
-      return acc;
-    },
-    { fhir: [], regular: [] },
-  );
-
-  if (fhir.length > 0 && regular.length > 0) {
+  const hasFhir = permissions.some(isFhirPermission);
+  const hasRegular = permissions.some(p => !isFhirPermission(p));
+  if (hasFhir && hasRegular) {
+    const fhir = permissions.filter(isFhirPermission).map(p => `${p.verb}:${p.noun}`);
+    const regular = permissions.filter(p => !isFhirPermission(p)).map(p => `${p.verb}:${p.noun}`);
     throw new Error(
       `Role mixes FHIR and regular permissions. ` +
       `FHIR: ${fhir.join(', ')}. Regular: ${regular.join(', ')}`,
