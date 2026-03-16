@@ -195,7 +195,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   ReportDefinition: [List, Read, Write, Create, Run],
   ReportDefinitionVersion: [List, Read, Write, Create],
   ReportRequest: [List, Read, Write, Create],
-  Role: [List, Read, Write, Create],
+  Role: [List, Read, Write, Create, Delete],
   ScheduledVaccine: [List, Read, Write, Create],
   SensitiveLabRequest: [List, Read, Write, Create],
   SensitiveMedication: [List, Read, Write, Create],
