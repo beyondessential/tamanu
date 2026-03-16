@@ -46,6 +46,7 @@ export async function exportProgram(context, programId) {
         'visibilityStatus',
         'notifiable',
         'notifyEmailAddresses',
+        'visibilityCriteria',
       ],
       ...surveys.map(survey => [
         survey.code,
@@ -58,6 +59,7 @@ export async function exportProgram(context, programId) {
         survey.visibilityStatus,
         survey.notifiable,
         survey.notifyEmailAddresses.join(','),
+        survey.visibilityCriteria ?? '',
       ]),
     ],
   };
