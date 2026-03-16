@@ -4,7 +4,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 
-const OuterLabel = styled.div`
+const OuterLabel = styled.label`
   display: inline-block;
   margin-bottom: 4px;
   color: ${TAMANU_COLORS.darkText};
@@ -33,12 +33,22 @@ const StyledInfoIcon = styled(InfoIcon)`
 export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(
     (
-      { children, required, label, infoTooltip, style, className, size, 'data-testid': dataTestId },
+      {
+        children,
+        className,
+        htmlFor,
+        infoTooltip,
+        label,
+        required,
+        size,
+        style,
+        'data-testid': dataTestId,
+      },
       ref,
     ) => (
       <div style={style} className={className} ref={ref} data-testid={dataTestId}>
         {label && (
-          <OuterLabel className="label-field" size={size}>
+          <OuterLabel htmlFor={htmlFor} className="label-field" size={size}>
             {label}
             {required && <OuterLabelRequired className="required-indicator">*</OuterLabelRequired>}
           </OuterLabel>
