@@ -12,7 +12,7 @@ insurerPaymentRoute.get(
     const insurerPayments = await req.models.InvoiceInsurerPayment.findAll({
       include: [
         { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
-        { model: req.models.ReferenceData, as: 'insurer' },
+        { model: req.models.InvoiceInsurancePlan, as: 'insurer' },
       ],
     }).then(payments =>
       payments.map(payment => ({
