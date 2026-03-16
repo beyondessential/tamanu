@@ -7,7 +7,7 @@ import {
   SERVICE_REQUEST_PERMISSION_NOUNS,
   SERVICE_REQUEST_CATEGORY_CODES,
 } from '@tamanu/constants';
-import { FhirError } from '@tamanu/shared/utils/fhir';
+import { FhirError, NotFound } from '@tamanu/shared/utils/fhir';
 
 class FhirForbiddenError extends FhirError {
   constructor(message) {
@@ -113,6 +113,6 @@ export function checkServiceRequestRecordAccess(ability, record) {
 
   const hasAccess = recordCodes.some(code => allowedCategories.includes(code));
   if (!hasAccess) {
-    throw new FhirForbiddenError('No permission to read this ServiceRequest');
+    throw new NotFound(`no ServiceRequest with id ${record.id}`);
   }
 }

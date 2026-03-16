@@ -217,12 +217,12 @@ describe('FHIR Permissions', () => {
       expect(entries.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('blocks read of a lab ServiceRequest when user only has imaging permission', async () => {
+    it('returns 404 for a lab ServiceRequest when user only has imaging permission', async () => {
       const app = await ctx.baseApp.asNewRole([['read', 'FhirImagingServiceRequest']]);
       const response = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${labServiceRequest.id}`,
       );
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
     });
 
     it('allows read of a lab ServiceRequest with lab permission', async () => {
@@ -301,7 +301,7 @@ describe('FHIR Permissions', () => {
       expect(response.status).toBe(403);
     });
 
-    it('allows bundle when user has write permission for all resources', async () => {
+    it('allows bundle when user has write permission for all included resources', async () => {
       const app = await ctx.baseApp.asNewRole([
         ['write', 'FhirDiagnosticReport'],
         ['write', 'FhirObservation'],
@@ -328,6 +328,17 @@ describe('FHIR Permissions', () => {
               },
             },
             request: { method: 'POST', url: 'DiagnosticReport' },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [{ system: 'http://loinc.org', code: '1234-5', display: 'Test obs' }],
+              },
+              valueString: 'positive',
+            },
+            request: { method: 'POST', url: 'Observation' },
           },
         ],
       });
