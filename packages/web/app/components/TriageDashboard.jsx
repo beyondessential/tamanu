@@ -16,14 +16,15 @@ const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => 
   }
 
   const now = Date.now();
-  const summedWaitTime = categoryData.reduce((prev, curr) => {
-    const startMs = storedDateTimeToEpochMilliseconds(curr.triageTime);
-    return prev + (startMs != null ? Math.round(now - startMs) : 0);
-  }, 0);
-  return summedWaitTime / categoryData.length;
+  const triageTimes = categoryData
+    .map(triage => triage.triageTime)
+    .map(storedDateTimeToEpochMilliseconds)
+    .filter(time => time != null);
+  const summedWaitTime = triageTimes.reduce((prev, curr) => prev + Math.round(now - curr), 0);
+  return summedWaitTime / triageTimes.length;
 };
 
-const useTriageData = (storedDateTimeToEpochMilliseconds) => {
+const useTriageData = storedDateTimeToEpochMilliseconds => {
   const api = useApi();
   const { facilityId } = useAuth();
   const [data, setData] = useState([]);
@@ -42,9 +43,9 @@ const useTriageData = (storedDateTimeToEpochMilliseconds) => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return triageCategories?.map((category) => {
+  return triageCategories?.map(category => {
     const categoryData = data.filter(
-      (triage) =>
+      triage =>
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );
