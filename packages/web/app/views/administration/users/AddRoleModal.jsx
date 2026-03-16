@@ -51,7 +51,7 @@ const Footer = styled.footer`
 `;
 
 export const AddRoleModal = ({ open, onClose, onSuccess }) => {
-  const { mutateAsync: createRole, isPending } = useRoleCreateMutation({
+  const { isLoading, mutateAsync: createRole } = useRoleCreateMutation({
     onSuccess: () => {
       onSuccess?.();
       onClose();
@@ -72,7 +72,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
 
   const renderForm = ({ submitForm }) => (
     <>
-      <Fieldset disabled={isPending}>
+      <Fieldset disabled={isLoading}>
         <RequiredTextField
           label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
           name="name"
@@ -83,10 +83,10 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
         />
       </Fieldset>
       <Footer>
-        <Button isSubmitting={isPending} onClick={submitForm}>
+        <Button isSubmitting={isLoading} onClick={submitForm}>
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </Button>
-        <OutlinedButton onClick={onClose} disabled={isPending}>
+        <OutlinedButton onClick={onClose} disabled={isLoading}>
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </OutlinedButton>
       </Footer>
