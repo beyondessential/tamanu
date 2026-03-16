@@ -118,26 +118,27 @@ export const RolesAdminView = () => {
   });
 
   const columns = useMemo(
-    () => [
-      ...STATIC_COLUMNS,
-      {
-        key: 'actions',
-        title: '',
-        sortable: false,
-        numeric: true, // Not really, but applies align="right" to MUI TableCell
-        dontCallRowInput: true,
-        CellComponent: ({ data }) => (
-          <ThreeDotMenu
-            items={[
-              {
-                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                onClick: () => setRoleToDelete(data),
-              },
-            ]}
-          />
-        ),
-      },
-    ],
+    () =>
+      /** @type {const} */ ([
+        ...STATIC_COLUMNS,
+        {
+          key: 'actions',
+          title: '',
+          sortable: false,
+          numeric: true, // Not really, but applies align="right" to MUI TableCell
+          dontCallRowInput: true,
+          CellComponent: ({ data }) => (
+            <ThreeDotMenu
+              items={[
+                {
+                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                  onClick: () => setRoleToDelete(data),
+                },
+              ]}
+            />
+          ),
+        },
+      ]),
     [],
   );
 
