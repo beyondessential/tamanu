@@ -31,7 +31,6 @@ export class FhirTransactionBundle extends FhirBundle {
               .required(),
           }),
         )
-        .min(1)
         .required(),
     });
   }
