@@ -1,4 +1,3 @@
-import { Command } from 'commander';
 import { QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -10,10 +9,11 @@ import { prepareQuery } from './prepareQuery';
 
 /**
  * Create the FHIR CLI command. Shared between central-server and facility-server.
+ * @param {typeof import('commander').Command} Command - Commander Command class (injected so shared does not depend on commander).
  * @param {new () => { init: (opts?: object) => Promise<{ store: { models: object }, close: () => Promise<void> }> }} ApplicationContext - Application context class with .init() returning .store.models and .close()
- * @returns {Command}
+ * @returns {import('commander').Command}
  */
-export function createFhirCommand(ApplicationContext) {
+export function createFhirCommand(Command, ApplicationContext) {
   async function showStatus() {
     const app = await new ApplicationContext().init();
     const materialisableResources = resourcesThatCanDo(
