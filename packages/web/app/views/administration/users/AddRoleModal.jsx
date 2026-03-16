@@ -21,7 +21,6 @@ const CREATE_ROLE_VALIDATION = yup.object().shape({
 const StyledFormModal = styled(FormModal)`
   ${ModalContent} {
     padding-block: 32px 0;
-    border: 2px solid red;
     padding-inline: 0;
     form > * {
       padding-inline: 32px;
