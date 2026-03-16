@@ -47,4 +47,22 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
       .orderBy('response.startTime', 'DESC')
       .getOne();
   }
+
+  /**
+   * Returns map of question code -> most recent answer body for a patient.
+   * Used for form-level visibility criteria evaluation.
+   */
+  static async getLastAnswerValuesByQuestionCodes(
+    patientId: string,
+    questionCodes: string[],
+  ): Promise<Record<string, string>> {
+    const valuesByCode: Record<string, string> = {};
+    for (const code of questionCodes) {
+      const answer = await this.getLatestAnswerForPatient(patientId, code);
+      if (answer?.body !== undefined) {
+        valuesByCode[code] = answer.body ?? '';
+      }
+    }
+    return valuesByCode;
+  }
 }
