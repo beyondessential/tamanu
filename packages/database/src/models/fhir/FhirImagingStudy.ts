@@ -68,6 +68,7 @@ export class FhirImagingStudy extends FhirResource {
     requesterId: string;
   }) {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
+    const dataDicts = getFhirDataDictionaries();
     const serviceRequestFhirId = this.basedOn
       ?.map((ref) => ref.fhirTypeAndId())
       .filter(Boolean)
@@ -75,12 +76,12 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === getFhirDataDictionaries().serviceRequestImagingId,
+        b?.identifier?.system === dataDicts.serviceRequestImagingId,
     )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === getFhirDataDictionaries().serviceRequestImagingDisplayId,
+        b?.identifier?.system === dataDicts.serviceRequestImagingDisplayId,
     )?.identifier.value;
 
     let upstreamRequest;
@@ -151,7 +152,7 @@ export class FhirImagingStudy extends FhirResource {
         FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
       ].includes(this.status)
     ) {
-      return await this.attachResults(imagingRequest);
+      return await this.attachResults(imagingRequest, dataDicts);
     }
 
     if (this.status === FHIR_IMAGING_STUDY_STATUS.CANCELLED) {
@@ -182,9 +183,9 @@ export class FhirImagingStudy extends FhirResource {
     });
   }
 
-  async attachResults(imagingRequest: ImagingRequest) {
+  async attachResults(imagingRequest: ImagingRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
     const imagingAccessCode = this.identifier?.find(
-      (i) => i?.system === getFhirDataDictionaries().imagingStudyAccessionId,
+      (i) => i?.system === dataDicts.imagingStudyAccessionId,
     )?.value;
     const resultImageUrl = this.contained?.[0]?.address;
     if (!imagingAccessCode && !resultImageUrl) {
