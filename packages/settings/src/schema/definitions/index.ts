@@ -29,4 +29,7 @@ export {
   fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
+  fhirNullLastNameSchema,
+  fhirAssignersSchema,
+  fhirDataDictionariesSchema,
 } from './fhir';

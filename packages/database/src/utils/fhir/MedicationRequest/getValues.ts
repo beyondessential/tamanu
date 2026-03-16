@@ -12,7 +12,7 @@ import {
   FhirDoseAndRate,
   FhirPeriod,
 } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
@@ -22,6 +22,7 @@ const CATEGORY_CODE_SYSTEM = 'https://hl7.org/fhir/R4B/codesystem-medicationrequ
 
 export async function getValues(upstream: PharmacyOrderPrescription, models: Models) {
   const { PharmacyOrder } = models;
+  const dataDicts = getFhirDataDictionaries();
   const pharmacyOrder = await PharmacyOrder.findOne({ where: { id: upstream.pharmacyOrderId } });
   if (!pharmacyOrder) {
     throw new Error(`Pharmacy order not found for ${upstream.id}`);
@@ -38,7 +39,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.pharmacyOrderPrescriptionId,
+        system: dataDicts.pharmacyOrderPrescriptionId,
         value: upstream.id,
       }),
     ],
@@ -47,13 +48,13 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     category: category(pharmacyOrder),
     groupIdentifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.pharmacyOrderId,
+        system: dataDicts.pharmacyOrderId,
         value: pharmacyOrder.id,
       }),
     ],
-    medication: await medication(upstream, models),
+    medication: await medication(upstream, models, dataDicts),
     authoredOn: pharmacyOrder.createdAt,
-    dosageInstruction: await dosageInstruction(upstream, models),
+    dosageInstruction: await dosageInstruction(upstream, models, dataDicts),
     dispenseRequest: {
       quantity: upstream.quantity,
       numberOfRepeatsAllowed: upstream.repeats,
@@ -115,7 +116,7 @@ async function recorderRef(pharmacyOrder: PharmacyOrder, models: Models) {
   });
 }
 
-async function medication(pharmacyOrderPrescription: PharmacyOrderPrescription, models: Models) {
+async function medication(pharmacyOrderPrescription: PharmacyOrderPrescription, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const prescription = await models.Prescription.findOne({
     where: { id: pharmacyOrderPrescription.prescriptionId },
   });
@@ -125,7 +126,7 @@ async function medication(pharmacyOrderPrescription: PharmacyOrderPrescription, 
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.medicationCodeSystem,
+        system: dataDicts.medicationCodeSystem,
         code: medication?.code,
         display: medication?.name,
       }),
@@ -136,6 +137,7 @@ async function medication(pharmacyOrderPrescription: PharmacyOrderPrescription, 
 async function dosageInstruction(
   pharmacyOrderPrescription: PharmacyOrderPrescription,
   models: Models,
+  dataDicts: ReturnType<typeof getFhirDataDictionaries>,
 ) {
   const prescription = await models.Prescription.findOne({
     where: { id: pharmacyOrderPrescription.prescriptionId },
@@ -176,7 +178,7 @@ async function dosageInstruction(
     route: new FhirCodeableConcept({
       coding: [
         new FhirCoding({
-          system: config.hl7.dataDictionaries.medicationRouteCodeSystem,
+          system: dataDicts.medicationRouteCodeSystem,
           code: prescription.route,
         }),
       ],

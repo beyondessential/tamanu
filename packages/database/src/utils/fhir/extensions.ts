@@ -1,6 +1,5 @@
-import config from 'config';
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from '@tamanu/shared/services/fhirTypes';
-import { getFhirExtensionSettings } from '@tamanu/shared/utils/fhir';
+import { getFhirDataDictionaries, getFhirExtensionSettings } from '@tamanu/shared/utils/fhir';
 import type { Patient } from '../../models';
 
 function getEthnicity(ethnicityId?: string) {
@@ -28,7 +27,7 @@ export function nzEthnicity(patient: Patient, extensionSettingsOverride?: Record
       valueCodeableConcept: new FhirCodeableConcept({
         coding: [
           new FhirCoding({
-            system: config.hl7.dataDictionaries.ethnicityId,
+            system: getFhirDataDictionaries().ethnicityId,
             code,
             display,
           }),
