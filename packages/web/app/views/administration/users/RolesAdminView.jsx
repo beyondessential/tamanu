@@ -74,7 +74,6 @@ const DeleteConfirmationModal = styled(ConfirmModal).attrs({
   confirmButtonText: (
     <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
   ),
-
   title: <TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />,
 })``;
 
