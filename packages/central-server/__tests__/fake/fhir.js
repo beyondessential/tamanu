@@ -5,6 +5,7 @@ import {
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
   FHIR_RESOURCE_TO_PERMISSION_NOUN,
+  FHIR_INTEGRATION_PERMISSIONS,
   SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +14,7 @@ const allPermsMap = new Map();
 for (const noun of [
   ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
   ...Object.values(SERVICE_REQUEST_PERMISSION_NOUNS),
+  ...Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => [...c.read, ...c.write]),
 ]) {
   for (const verb of ['read', 'write']) {
     allPermsMap.set(`${verb}:${noun}`, [verb, noun]);
