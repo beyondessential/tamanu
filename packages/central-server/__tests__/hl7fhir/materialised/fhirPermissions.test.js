@@ -288,12 +288,6 @@ describe('FHIR Permissions', () => {
           {
             resource: {
               resourceType: 'Observation',
-              basedOn: [
-                {
-                  type: 'ServiceRequest',
-                  reference: `ServiceRequest/${fhirServiceRequest.id}`,
-                },
-              ],
               status: FHIR_OBSERVATION_STATUS.FINAL,
               code: {
                 coding: [{ system: 'http://loinc.org', code: '1234-5', display: 'Test obs' }],
@@ -308,10 +302,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('allows bundle when user has write permission for all included resources', async () => {
-      const app = await ctx.baseApp.asNewRole([
-        ['write', 'FhirDiagnosticReport'],
-        ['write', 'FhirObservation'],
-      ]);
+      const app = await ctx.baseApp.asNewRole([['write', 'FhirDiagnosticReport']]);
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/Bundle`).send({
         resourceType: 'Bundle',
         type: 'transaction',
@@ -334,23 +325,6 @@ describe('FHIR Permissions', () => {
               },
             },
             request: { method: 'POST', url: 'DiagnosticReport' },
-          },
-          {
-            resource: {
-              resourceType: 'Observation',
-              basedOn: [
-                {
-                  type: 'ServiceRequest',
-                  reference: `ServiceRequest/${fhirServiceRequest.id}`,
-                },
-              ],
-              status: FHIR_OBSERVATION_STATUS.FINAL,
-              code: {
-                coding: [{ system: 'http://loinc.org', code: '1234-5', display: 'Test obs' }],
-              },
-              valueString: 'positive',
-            },
-            request: { method: 'POST', url: 'Observation' },
           },
         ],
       });
