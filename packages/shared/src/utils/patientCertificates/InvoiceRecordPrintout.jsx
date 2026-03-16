@@ -644,7 +644,6 @@ const InvoiceRecordPrintoutComponent = ({
   getSetting,
   clinicianText,
   invoice,
-  enablePatientInsurer,
 }) => {
   const { formatShort } = useDateTime();
   const formatters = { formatShort };
@@ -677,12 +676,7 @@ const InvoiceRecordPrintoutComponent = ({
           clinicianText={clinicianText}
         />
         <SectionSpacing />
-        <InvoiceDetails
-          encounter={encounter}
-          invoice={invoice}
-          patient={patientData}
-          enablePatientInsurer={enablePatientInsurer}
-        />
+        <InvoiceDetails encounter={encounter} invoice={invoice} />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
           <InvoiceItemTableSection
