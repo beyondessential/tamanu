@@ -60,13 +60,13 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 const STATIC_COLUMNS = /** @type {const} */ ([
   {
     key: 'name',
-    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
     sortable: true,
+    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
   },
   {
     key: 'id',
-    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
     sortable: true,
+    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
   },
 ]);
 
@@ -124,6 +124,7 @@ export const RolesAdminView = () => {
         key: 'actions',
         title: '',
         sortable: false,
+        numeric: true, // Not really, but applies align="right" to MUI TableCell
         dontCallRowInput: true,
         CellComponent: ({ data }) => (
           <ThreeDotMenu
