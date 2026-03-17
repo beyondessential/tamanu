@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { literal, Op } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -52,14 +52,15 @@ roleRouter.post(
     const { Role } = req.store.models;
     const { id, name } = await createRoleSchema.parseAsync(req.body);
 
-    const role = await req.store.sequelize.transaction(async () => {
-      const exists = Boolean(await Role.findOne({ attributes: [literal('1')], where: { id } }));
-      if (exists) {
+    let role;
+    try {
+      role = await Role.create({ id, name });
+    } catch (err) {
+      if (err instanceof UniqueConstraintError) {
         throw new DatabaseDuplicateError(`A role already exists with ID ‘${id}’`);
       }
-
-      return Role.create({ id, name });
-    });
+      throw err;
+    }
 
     res.status(201).send(role);
   }),
@@ -90,7 +91,7 @@ roleRouter.delete(
       if (count > 0) {
         const objectVerb = count === 1 ? 'user is' : 'users are';
         throw new InvalidOperationError(
-          `Cannot delete role with ID ’${id}’. ${count} ${objectVerb} assigned to it.`,
+          `Cannot delete role with ID ‘${id}’. ${count} ${objectVerb} assigned to it.`,
         );
       }
 
