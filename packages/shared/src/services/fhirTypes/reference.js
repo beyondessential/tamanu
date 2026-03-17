@@ -62,6 +62,19 @@ export class FhirReference extends FhirBaseType {
     });
   }
 
+  /**
+   * Parse a FHIR reference string into its resourceType and id components.
+   * Handles bare ids ("abc-123"), Type/id ("Patient/abc-123"),
+   * and full URLs ("http://example.com/fhir/Patient/123").
+   */
+  static parse(reference) {
+    const parts = reference.split('/');
+    return {
+      resourceType: parts.length >= 2 ? parts[parts.length - 2] : null,
+      id: parts[parts.length - 1],
+    };
+  }
+
   fhirTypeAndId() {
     const TYPE_ID_URL_REGEX = /\/?(?<type>\w+)\/(?<id>[0-9a-f-]+)$/i;
 

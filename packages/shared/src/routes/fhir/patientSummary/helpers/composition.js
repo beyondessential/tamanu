@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate } from '../../../../utils/fhir';
+import { escapeHtml } from '../utils';
 
 export const getComposition = ({
   patient,
@@ -17,7 +18,7 @@ export const getComposition = ({
     resourceType: FHIR_RESOURCE_TYPES.COMPOSITION,
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">This is the Composition for ${patient.displayName}.. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">This is the Composition for ${escapeHtml(patient.displayName)}.. Please review the data for more detail.</div>`,
     },
     status: 'final',
     type: {
@@ -78,7 +79,7 @@ export const getComposition = ({
         title: 'Medication',
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">This is the Medication for ${patient.displayName}.. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">This is the Medication for ${escapeHtml(patient.displayName)}.. Please review the data for more detail.</div>`,
         },
         code: {
           coding: [
@@ -97,7 +98,7 @@ export const getComposition = ({
         title: 'Allergies and Intolerances',
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergies for ${patient.displayName}.. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergies for ${escapeHtml(patient.displayName)}.. Please review the data for more detail.</div>`,
         },
         code: {
           coding: [
@@ -116,7 +117,7 @@ export const getComposition = ({
         title: 'Active Problems',
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Active Problems for ${patient.displayName}.. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Active Problems for ${escapeHtml(patient.displayName)}.. Please review the data for more detail.</div>`,
         },
         code: {
           coding: [
@@ -135,7 +136,7 @@ export const getComposition = ({
         title: 'Immunizations',
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${patient.displayName}.. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${escapeHtml(patient.displayName)}.. Please review the data for more detail.</div>`,
         },
         code: {
           coding: [

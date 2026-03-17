@@ -1,9 +1,8 @@
+import { getBaseUrl, getHL7Link } from '@tamanu/shared/routes/fhir/utils';
 import {
   addPaginationToWhere,
   createBundledResource,
   decodeIdentifier,
-  getBaseUrl,
-  getHL7Link,
   hl7SortToTamanu,
   parseQuery,
   toSearchId,

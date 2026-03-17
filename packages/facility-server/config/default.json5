@@ -154,4 +154,29 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "canonicalHostName": "http://localhost:4000",
+  "hl7": {
+    "dataDictionaries": {
+      "ips": {
+        "medicationEncoding": "http://nzmt.org.nz",
+        "allergyIntoleranceEncoding": "http://snomed.info/sct",
+        "conditionEncoding": "http://snomed.info/sct",
+        "immunizationEncoding": "http://nzmt.org.nz",
+        "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
+      },
+    },
+  },
+  "integrations": {
+    "fhir": {
+      "enabled": false,
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
+      },
+    },
+  },
 }

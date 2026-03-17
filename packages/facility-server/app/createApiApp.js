@@ -5,10 +5,13 @@ import helmet from 'helmet';
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { fhirRoutes } from '@tamanu/shared/routes/fhir';
+import { log } from '@tamanu/shared/services/logging';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
+import { authMiddleware } from './middleware/auth';
 
 import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
@@ -19,6 +22,7 @@ import { addFacilityMiddleware } from './addFacilityMiddleware';
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
 export async function createApiApp({
+  store,
   sequelize,
   reportSchemaStores,
   models,
@@ -52,6 +56,7 @@ export async function createApiApp({
   express.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.store = store;
     req.reportSchemaStores = reportSchemaStores;
     req.syncConnection = syncConnection;
     req.deviceId = deviceId;
@@ -73,6 +78,14 @@ export async function createApiApp({
       index: true,
     });
   });
+
+  if (config.integrations?.fhir?.enabled) {
+    const ctx = { store };
+    const fhir = fhirRoutes(ctx);
+    log.info('FHIR integration enabled, mounting routes');
+    express.use('/api/integration/fhir', authMiddleware, fhir);
+    express.use('/v1/integration/fhir', authMiddleware, fhir);
+  }
 
   express.use('/', routes);
 

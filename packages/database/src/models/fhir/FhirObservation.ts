@@ -9,7 +9,8 @@ import {
   FhirReference,
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
-import { getFhirDataDictionaries, Invalid } from '@tamanu/shared/utils/fhir';
+
+import { Invalid, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
@@ -126,14 +127,13 @@ export class FhirObservation extends FhirResource {
       });
     }
     const { type, reference } = this.basedOn[0]!;
+    const { resourceType, id: serviceRequestFhirId } = FhirReference.parse(reference);
 
-    const ref = reference.split('/');
-    if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
+    if (type !== 'ServiceRequest' || resourceType !== 'ServiceRequest') {
       throw new Invalid(`Invalid ServiceRequest reference`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const serviceRequestFhirId = ref[1];
 
     const serviceRequest = await FhirServiceRequest.findOne({
       where: { id: serviceRequestFhirId },
@@ -184,16 +184,12 @@ export class FhirObservation extends FhirResource {
     )?.code;
 
     const labTestExternalCode = validatedCodings.find(
-      coding =>
-        coding.system === dd.serviceRequestLabTestExternalCodeSystem,
+      coding => coding.system === dd.serviceRequestLabTestExternalCodeSystem,
     )?.code;
 
     if (!labTestCode && !labTestExternalCode) {
       throw new Invalid('Invalid code, must provide a code of one of the configured systems:', {
-        systems: [
-          dd.serviceRequestLabTestCodeSystem,
-          dd.serviceRequestLabTestExternalCodeSystem,
-        ],
+        systems: [dd.serviceRequestLabTestCodeSystem, dd.serviceRequestLabTestExternalCodeSystem],
       });
     }
 

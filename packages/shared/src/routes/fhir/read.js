@@ -1,7 +1,7 @@
 import { formatRFC7231 } from 'date-fns';
 import asyncHandler from 'express-async-handler';
 
-import { NotFound } from '@tamanu/shared/utils/fhir';
+import { NotFound } from '../../utils/fhir';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { ValidationError } from '@tamanu/errors';
 

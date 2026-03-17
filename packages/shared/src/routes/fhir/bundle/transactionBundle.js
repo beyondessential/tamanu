@@ -3,9 +3,9 @@ import { FHIR_BUNDLE_TYPES, FHIR_INTERACTIONS } from '@tamanu/constants';
 import {
   FhirTransactionBundle,
   FhirTransactionResponseBundle,
-} from '@tamanu/shared/services/fhirTypes';
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
-import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+} from '../../../services/fhirTypes';
+import { OperationOutcome } from '../../../utils/fhir';
+import { resourcesThatCanDo } from '../../../utils/fhir/resources';
 import { createResource } from '../create';
 import { InvalidOperationError } from '@tamanu/errors';
 
