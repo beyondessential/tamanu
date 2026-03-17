@@ -212,7 +212,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   TreatmentPlanNote: [Write],
   Triage: [List, Read, Write, Create],
   User: [List, Read, Write, Create],
-  UserDesignation: [List, Read, Write, Create, Delete],
+  UserDesignation: [List, Read, Write, Create],
   Vitals: [List, Read, Write, Create],
 };
 
