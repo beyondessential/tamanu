@@ -118,7 +118,7 @@ function sortParameter(sortableParameters) {
   };
 }
 
-const resourceParamCache = new Map();
+const paramCache = new Map();
 
 export async function normaliseParameters(FhirResource, settings) {
   const cacheKey = FhirResource.fhirName;
@@ -126,13 +126,13 @@ export async function normaliseParameters(FhirResource, settings) {
     throw new Error('DEV: not a proper Resource');
   }
 
-  let { resourceParameters, sortableParameters } = resourceParamCache.get(cacheKey) ?? {};
-  if (!resourceParameters) {
-    resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
-    // eslint-disable-next-line no-unused-vars
-    sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
-    resourceParamCache.set(cacheKey, { resourceParameters, sortableParameters });
+  if (paramCache.has(cacheKey)) {
+    return paramCache.get(cacheKey);
   }
+
+  const resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
+  // eslint-disable-next-line no-unused-vars
+  const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
 
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
@@ -144,5 +144,7 @@ export async function normaliseParameters(FhirResource, settings) {
     }),
   );
 
-  return new Map([...resourceParameters, ...resultParameters]);
+  const parameters = new Map([...resourceParameters, ...resultParameters]);
+  paramCache.set(cacheKey, parameters);
+  return parameters;
 }
