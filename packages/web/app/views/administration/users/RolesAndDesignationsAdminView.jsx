@@ -47,12 +47,6 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
   border-start-start-radius: 0;
   box-shadow: unset;
-
-  /* Fit to meatball menu button width; let browser distribute remaining columns */
-  th:last-of-type,
-  td:last-of-type {
-    inline-size: 0;
-  }
 `;
 
 export const Article = styled.article`
