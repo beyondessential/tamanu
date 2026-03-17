@@ -20,14 +20,12 @@ rolesRouter.get(
     const filters = [];
     const idQuery = req.query.id?.trim();
     if (idQuery) {
-      filters.push({
-        id: { [Op.iLike]: `%${idQuery}%` },
-      });
+      filters.push({ id: idQuery });
     }
     const nameQuery = req.query.name?.trim();
     if (nameQuery) {
       filters.push({
-        name: { [Op.iLike]: `%${nameQuery}%` },
+        name: { [Op.iRegexp]: `\\m${nameQuery}` },
       });
     }
 
