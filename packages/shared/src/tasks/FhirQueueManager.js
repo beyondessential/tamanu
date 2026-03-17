@@ -4,7 +4,6 @@ import ms from 'ms';
 import { hostname } from 'os';
 
 import { getTracer } from '../services/logging';
-import { getFhirWorkerSettings } from '../utils/fhir/fhirSettings';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
@@ -21,14 +20,15 @@ export class FhirQueueManager {
   // in "testMode" it's disabled.
   testMode = false;
 
-  constructor(context, log) {
+  constructor(context, settings, log) {
     this.models = context.models;
     this.sequelize = context.sequelize;
+    this.settings = settings;
     this.log = log;
   }
 
   async start() {
-    const { FhirJobWorker, Setting } = this.models;
+    const { FhirJobWorker } = this.models;
     const { enabled } = this.config;
 
     if (!enabled) {
@@ -36,7 +36,7 @@ export class FhirQueueManager {
       return;
     }
 
-    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirQueueManager: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
     this.log.debug('FhirQueueManager: added some jitter to the heartbeat', { heartbeat });
@@ -113,8 +113,10 @@ export class FhirQueueManager {
    *
    * @returns {number} Total capacity of the queue manager.
    */
-  totalCapacity() {
-    return Math.max(0, this._concurrency ?? getFhirWorkerSettings().concurrency);
+  async totalCapacity() {
+    if (this._concurrency != null) return Math.max(0, this._concurrency);
+    const concurrency = await this.settings.get('fhir.worker.concurrency');
+    return Math.max(0, concurrency);
   }
 
   /**
@@ -126,10 +128,11 @@ export class FhirQueueManager {
    *
    * @returns {number} Amount of jobs to run in parallel for a topic.
    */
-  parallelisationPerTopic() {
+  async parallelisationPerTopic() {
+    const capacity = await this.totalCapacity();
     return Math.max(
-      this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
-      Math.floor(this.totalCapacity() / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
+      capacity > 0 ? 1 : 0, // return at least 1 if there's any capacity
+      Math.floor(capacity / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
     );
   }
 
@@ -155,7 +158,7 @@ export class FhirQueueManager {
         });
 
         try {
-          if (this.totalCapacity() === 0) {
+          if ((await this.totalCapacity()) === 0) {
             this.log.debug('FhirQueueManager: no capacity');
             return;
           }

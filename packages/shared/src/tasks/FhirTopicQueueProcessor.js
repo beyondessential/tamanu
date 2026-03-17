@@ -36,7 +36,8 @@ export class FhirTopicQueueProcessor {
         }
 
         // Start as many job runs as we have capacity
-        for (let i = this.jobRuns.size; i < this.manager.parallelisationPerTopic(); i++) {
+        const parallelisation = await this.manager.parallelisationPerTopic();
+        for (let i = this.jobRuns.size; i < parallelisation; i++) {
           this.startJobRun();
         }
 
