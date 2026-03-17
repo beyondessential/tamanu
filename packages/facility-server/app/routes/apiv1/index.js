@@ -1,17 +1,19 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler';
-import { keyBy, mapValues } from 'lodash';
 
-import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
-import { settingsCache } from '@tamanu/settings';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { settingsCache } from '@tamanu/settings';
+import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { suggestions } from '@tamanu/shared/services/suggestions';
+
 import {
   authMiddleware,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
+import asyncHandler from 'express-async-handler';
+import { keyBy, mapValues } from 'lodash';
+
 import { allergy } from './allergy';
 import { appointments } from './appointments';
 import { asset } from './asset';
@@ -25,17 +27,17 @@ import { facility } from './facility';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
 import { invoices } from './invoice';
-import { labRequestLog } from './labRequestLog';
 import { labRequest, labTest, labTestPanel, labTestType } from './labs';
+import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
-import { notifications } from './notifications';
 import { ongoingCondition } from './ongoingCondition';
 import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
 import { patientFacility } from './patientFacility';
+import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
 import { programRegistry } from './programRegistry';
@@ -50,14 +52,14 @@ import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
-import { tasks } from './task/tasks';
-import { telegramRoutes } from './telegram/telegramRoutes';
-import { template } from './template';
-import { translation } from './translation';
 import { triage } from './triage';
-import { upcomingVaccinations } from './upcomingVaccinations';
 import { user } from './user';
 import { vitals } from './vitals';
+import { translation } from './translation';
+import { upcomingVaccinations } from './upcomingVaccinations';
+import { telegramRoutes } from './telegram/telegramRoutes';
+import { tasks } from './task/tasks';
+import { notifications } from './notifications';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
