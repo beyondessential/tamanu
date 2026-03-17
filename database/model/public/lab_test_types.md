@@ -61,3 +61,7 @@ External code for the test (such as for LIMS).
 {% docs lab_test_types__is_sensitive %}
 Used to indicate if the lab test type is sensitive and should be hidden accordingly.
 {% enddocs %}
+
+{% docs lab_test_types__available_facilities %}
+JSON array of facility IDs where this lab test type is available. If null, the test type is available at all facilities.
+{% enddocs %}

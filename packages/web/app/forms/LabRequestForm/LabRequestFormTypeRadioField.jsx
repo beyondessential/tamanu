@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
+import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
@@ -94,12 +95,13 @@ const RadioItemSkeleton = ({ itemsLength }) => (
 
 const useLabRequestFormTypeOptions = () => {
   const api = useApi();
+  const { facilityId } = useAuth();
   const { getSetting } = useSettings();
   const onlyAllowLabPanels = getSetting('features.onlyAllowLabPanels');
 
   const { data, isSuccess, isLoading, isFetching } = useQuery(
-    ['suggestions/labTestPanel/all'],
-    () => api.get(`suggestions/labTestPanel/all`),
+    ['suggestions/labTestPanel/all', facilityId],
+    () => api.get(`suggestions/labTestPanel/all`, { facilityId }),
   );
   const options =
     isSuccess && !isFetching

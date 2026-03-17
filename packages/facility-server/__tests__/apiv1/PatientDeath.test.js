@@ -55,6 +55,7 @@ describe('PatientDeath', () => {
     const makeCommon = (condition) => {
       const dataValues = Object.assign({}, condition.dataValues);
       delete dataValues.deletedAt;
+      delete dataValues.availableFacilities;
       return {
         ...dataValues,
         createdAt: condition.createdAt.toISOString(),

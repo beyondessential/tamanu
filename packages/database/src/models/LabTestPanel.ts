@@ -8,6 +8,7 @@ export class LabTestPanel extends Model {
   declare code: string;
   declare name: string;
   declare visibilityStatus: string;
+  declare availableFacilities: string[] | null;
   declare externalCode?: string;
   declare categoryId?: string;
 
@@ -26,6 +27,11 @@ export class LabTestPanel extends Model {
         visibilityStatus: {
           type: DataTypes.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        availableFacilities: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+          defaultValue: null,
         },
         externalCode: DataTypes.TEXT,
       },
@@ -60,4 +66,5 @@ export class LabTestPanel extends Model {
   static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
+
 }

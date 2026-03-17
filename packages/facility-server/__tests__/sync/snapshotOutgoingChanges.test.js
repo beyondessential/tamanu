@@ -67,6 +67,7 @@ describe('snapshotOutgoingChanges', () => {
             type: row.type,
             visibilityStatus: row.visibilityStatus,
             systemRequired: row.systemRequired,
+            availableFacilities: row.availableFacilities,
           },
         },
       ]);
@@ -99,6 +100,7 @@ describe('snapshotOutgoingChanges', () => {
             type: row.type,
             visibilityStatus: row.visibilityStatus,
             systemRequired: row.systemRequired,
+            availableFacilities: row.availableFacilities,
           },
         },
       ]);
@@ -131,6 +133,7 @@ describe('snapshotOutgoingChanges', () => {
             type: rowBefore.type,
             visibilityStatus: rowBefore.visibilityStatus,
             systemRequired: rowBefore.systemRequired,
+            availableFacilities: rowBefore.availableFacilities,
           },
         },
         {
@@ -145,6 +148,7 @@ describe('snapshotOutgoingChanges', () => {
             type: rowAfter.type,
             visibilityStatus: rowAfter.visibilityStatus,
             systemRequired: rowAfter.systemRequired,
+            availableFacilities: rowAfter.availableFacilities,
           },
         },
       ]);
@@ -223,6 +227,7 @@ describe('snapshotOutgoingChanges', () => {
             type: rowBefore.type,
             visibilityStatus: rowBefore.visibilityStatus,
             systemRequired: rowBefore.systemRequired,
+            availableFacilities: rowBefore.availableFacilities,
           },
         },
       ]);
@@ -304,6 +309,7 @@ describe('snapshotOutgoingChanges', () => {
               type: rowBefore.type,
               visibilityStatus: rowBefore.visibilityStatus,
               systemRequired: rowBefore.systemRequired,
+              availableFacilities: rowBefore.availableFacilities,
             },
           },
         ].sort(byId),

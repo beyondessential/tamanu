@@ -26,8 +26,24 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
+function parseAvailableFacilities(value) {
+  if (!value) return null;
+  if (Array.isArray(value)) return value;
+
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (e) {
+    // Fall through to throw an error below.
+  }
+
+  throw new Error('availableFacilities must be null or a JSON array of facility IDs');
+}
+
 export function referenceDataLoaderFactory(type) {
-  return ({ id, code, name, visibilityStatus }) => [
+  return ({ id, code, name, visibilityStatus, availableFacilities }) => [
     {
       model: 'ReferenceData',
       values: {
@@ -36,6 +52,7 @@ export function referenceDataLoaderFactory(type) {
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
+        availableFacilities: parseAvailableFacilities(availableFacilities),
       },
     },
   ];
@@ -300,7 +317,7 @@ export async function permissionLoader(item, { models, pushError }) {
 }
 
 export function labTestPanelLoader(item) {
-  const { id, testTypesInPanel, ...otherFields } = item;
+  const { id, testTypesInPanel, availableFacilities, ...otherFields } = item;
   const rows = [];
 
   rows.push({
@@ -308,6 +325,7 @@ export function labTestPanelLoader(item) {
     values: {
       id,
       ...otherFields,
+      availableFacilities: parseAvailableFacilities(availableFacilities),
     },
   });
 
@@ -516,6 +534,7 @@ export async function drugLoader(item, { models, pushError }) {
     visibilityStatus,
     code,
     systemRequired,
+    availableFacilities,
     ...rest
   } = item;
   /* eslint-enable no-unused-vars */
