@@ -13,7 +13,7 @@ export class FhirQueueManager {
 
   worker = null;
 
-  config = theConfig.integrations.fhir.worker;
+  config = theConfig.integrations?.fhir?.worker;
 
   // if false, immediately reprocess the queue after a job is completed
   // to work through the backlog promptly; this makes testing harder, so
@@ -29,7 +29,7 @@ export class FhirQueueManager {
 
   async start() {
     const { FhirJobWorker } = this.models;
-    const { enabled } = this.config;
+    const { enabled } = this.config ?? {};
 
     if (!enabled) {
       this.log.info('FhirQueueManager: disabled');
