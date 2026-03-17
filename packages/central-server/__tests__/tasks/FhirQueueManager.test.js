@@ -104,7 +104,7 @@ describe('FhirQueueManager', () => {
 
     beforeEach(async () => {
       logger = jest.fn();
-      queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+      queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
       queueManager.testMode = true;
       await queueManager.start();
       await queueManager.setHandler('test', testHandler);
@@ -155,7 +155,7 @@ describe('FhirQueueManager', () => {
         await models.FhirJob.truncate();
 
         logger = jest.fn();
-        queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+        queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
         queueManager.testMode = true;
         queueManager._concurrency = 1;
         await queueManager.setHandler('test1', testHandler);
