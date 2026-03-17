@@ -54,11 +54,9 @@ designationsRouter.post(
     const { id, name } = await createDesignationSchema.parseAsync(req.body);
 
     const designation = await sequelize.transaction(async () => {
-      const exists = await ReferenceData.findOne({
-        where: { id, type: REFERENCE_TYPES.DESIGNATION },
-      });
+      const exists = await ReferenceData.findByPk(id);
       if (exists) {
-        throw new DatabaseDuplicateError(`A designation already exists with ID ‘${id}’.`);
+        throw new DatabaseDuplicateError(`A reference datum already exists with ID ‘${id}’.`);
       }
 
       return ReferenceData.create({
