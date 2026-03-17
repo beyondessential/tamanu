@@ -21,12 +21,12 @@ import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 
 const STATIC_COLUMNS = /** @type {const} */ ([
   {
-    key: 'user.displayName',
+    key: 'name',
     title: <TranslatedText stringId="admin.designations.name.column" fallback="Name" />,
     sortable: true,
   },
   {
-    key: 'designationId',
+    key: 'id',
     title: <TranslatedText stringId="admin.designations.id.column" fallback="ID" />,
     sortable: true,
   },
@@ -111,7 +111,7 @@ export const DesignationsAdminView = () => {
   );
 
   const handleConfirmDelete = useCallback(() => {
-    if (designationToDelete) deleteDesignation(designationToDelete.designationId);
+    if (designationToDelete) deleteDesignation(designationToDelete.id);
   }, [deleteDesignation, designationToDelete]);
 
   return (
@@ -129,10 +129,10 @@ export const DesignationsAdminView = () => {
         defaultRowsPerPage={10}
         endpoint={DESIGNATIONS_ENDPOINT}
         fetchOptions={{
-          designationId: idQuery,
+          id: idQuery,
           display_name: nameQuery,
         }}
-        initialSort={{ orderBy: 'user.displayName', order: 'asc' }}
+        initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={
           <TranslatedText
             stringId="admin.designations.noData.message"

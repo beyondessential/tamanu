@@ -8,49 +8,31 @@ import { REFERENCE_TYPES } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
-/** `/admin/designation` endpoint for CRUD-ing a single user_designation */
+/** `/admin/designation` endpoint for a single designation (ReferenceData) */
 export const designationRouter = express.Router();
 
-/** `/admin/designations` endpoint for CRUD-ing multiple user designations at once */
+/** `/admin/designations` endpoint for listing and creating designation types (ReferenceData) */
 export const designationsRouter = express.Router();
 
 designationsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'UserDesignation');
+    req.checkPermission('list', 'ReferenceData');
 
-    const filters = [];
-    const designationIdQuery = req.query.designationId?.trim();
-    if (designationIdQuery) {
-      filters.push({ designationId: designationIdQuery });
-    }
+    const idQuery = req.query.id?.trim();
+    const nameQuery = req.query.display_name?.trim();
 
-    const displayNameQuery = req.query.display_name?.trim();
-    const displayNameClause = displayNameQuery
-      ? {
-          displayName: { [Op.iRegexp]: `\\m${escapeRegExp(displayNameQuery)}` },
-        }
-      : undefined;
-
-    const {
-      store: { models },
-    } = req;
-    const options = {
-      include: [
-        {
-          model: models.User,
-          as: 'user',
-          attributes: ['id', 'displayName'],
-          required: Boolean(displayNameQuery),
-          where: displayNameClause,
-        },
-      ],
+    const additionalFilters = {
+      type: REFERENCE_TYPES.DESIGNATION,
+      ...(idQuery && { id: idQuery }),
+      ...(nameQuery && {
+        name: { [Op.iRegexp]: `\\m${escapeRegExp(nameQuery)}` },
+      }),
     };
-    if (filters.length > 0) {
-      options.additionalFilters = filters.length === 1 ? filters[0] : { [Op.and]: filters };
-    }
 
-    const response = await getResourceList(req, 'UserDesignation', '', options);
+    const response = await getResourceList(req, 'ReferenceData', '', {
+      additionalFilters,
+    });
     res.send(response);
   }),
 );
@@ -82,10 +64,10 @@ designationsRouter.post(
       }
 
       return ReferenceData.create({
-        id: id.trim(),
         code: id.trim(),
-        type: REFERENCE_TYPES.DESIGNATION,
+        id: id.trim(),
         name: name.trim(),
+        type: REFERENCE_TYPES.DESIGNATION,
       });
     });
 
@@ -126,7 +108,7 @@ designationRouter.post(
 designationRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'UserDesignation');
+    req.checkPermission('delete', 'ReferenceData');
 
     const {
       store: {

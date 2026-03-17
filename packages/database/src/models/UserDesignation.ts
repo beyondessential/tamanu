@@ -17,7 +17,7 @@ export class UserDesignation extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['user'];
+    return ['referenceData'];
   }
 
   static initRelations(models: Models) {

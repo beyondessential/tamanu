@@ -5,9 +5,8 @@ import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, ModalContent } from '@tamanu/ui-components';
-import { useSuggester } from '../../../api';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
-import { AutocompleteField, Field } from '../../../components/Field';
+import { RequiredTextField } from './RolesAndDesignationsAdminView';
 import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
@@ -29,10 +28,6 @@ const StyledFormModal = styled(FormModal)`
   }
 `;
 
-const RequiredAutocompleteField = props => (
-  <Field component={AutocompleteField} required {...props} />
-);
-
 const Fieldset = styled.fieldset`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
@@ -50,9 +45,7 @@ const Footer = styled.footer`
 `;
 
 export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
-  const userSuggester = useSuggester('practitioner');
-  const designationSuggester = useSuggester('designation');
-  const { isLoading, mutateAsync: createUserDesignation } = useDesignationCreateMutation({
+  const { isLoading, mutateAsync: createDesignation } = useDesignationCreateMutation({
     onSuccess: () => {
       onSuccess?.();
       onClose();
@@ -73,24 +66,22 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   });
 
   const onSubmit = async values => {
-    await createUserDesignation({
-      userId: values.name.trim(),
-      designationId: values.id.trim(),
+    await createDesignation({
+      id: values.id.trim(),
+      name: values.name.trim(),
     });
   };
 
   const renderForm = ({ submitForm }) => (
     <>
       <Fieldset disabled={isLoading}>
-        <RequiredAutocompleteField
+        <RequiredTextField
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
           name="name"
-          suggester={userSuggester}
         />
-        <RequiredAutocompleteField
+        <RequiredTextField
           label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
           name="id"
-          suggester={designationSuggester}
         />
       </Fieldset>
       <Footer>

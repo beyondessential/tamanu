@@ -3,7 +3,7 @@ import { Outlet, useMatch, useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
-import { Button, DataFetchingTable, TranslatedText } from '../../../components';
+import { Button, DataFetchingTable, Field, TextField, TranslatedText } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
@@ -58,6 +58,10 @@ export const Article = styled.article`
     background-color: #f7f9fb;
   }
 `;
+
+export const RequiredTextField = props => (
+  <Field autoComplete="off" component={TextField} required {...props} />
+);
 
 const TAB = /** @type {const} */ ({
   ROLES: 'roles',
