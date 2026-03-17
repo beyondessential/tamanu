@@ -30,9 +30,7 @@ designationsRouter.get(
       }),
     };
 
-    const response = await getResourceList(req, 'ReferenceData', '', {
-      additionalFilters,
-    });
+    const response = await getResourceList(req, 'ReferenceData', '', { additionalFilters });
     res.send(response);
   }),
 );
