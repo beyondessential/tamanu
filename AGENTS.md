@@ -8,7 +8,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 
 - **Git Workflow**: See @llm/project-rules/git-workflow.md for branch naming, commit format, and allowed conventional types
 - **Pull Requests**: See @llm/project-rules/pull-requests.md for PR template usage and conventional commit types
-- **Release Branches**: See @llm/project-rules/release-branches.md for finding releasesp
+- **Release Branches**: See @llm/project-rules/release-branches.md for finding releases
 - **Configuration Guides**: See @llm/project-rules/write-config-guides.md for creating config and usage documentation
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
