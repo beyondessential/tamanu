@@ -79,7 +79,7 @@ async function getResultParameters(settings) {
 }
 
 export function getResultParameterNames() {
-  return ['_sort', ...Object.keys(getResultParameters())];
+  return ['_sort', '_total', '_summary', '_count', '_page', '_include', '_revinclude'];
 }
 
 function sortParameter(sortableParameters) {
