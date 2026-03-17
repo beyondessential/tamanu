@@ -5,9 +5,6 @@ import { log } from '../../services/logging';
 const fhirDefaults = globalDefaults.fhir;
 const DEFAULTS = {
   resourceMaterialisationEnabled: fhirDefaults.worker.resourceMaterialisationEnabled,
-  countDefault: fhirDefaults.parameters._count.default,
-  countMax: fhirDefaults.parameters._count.max,
-  concurrency: fhirDefaults.worker.concurrency,
   extensions: fhirDefaults.extensions,
   nullLastNameValue: fhirDefaults.nullLastNameValue,
   assigners: fhirDefaults.assigners,
@@ -53,9 +50,6 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
 
     settings = { // eslint-disable-line require-atomic-updates
       resourceMaterialisationEnabled: mergedMatEnabled,
-      countDefault: fhir.parameters._count.default,
-      countMax: fhir.parameters._count.max,
-      concurrency: fhir.worker.concurrency,
       extensions: fhir.extensions,
       nullLastNameValue: fhir.nullLastNameValue,
       assigners: fhir.assigners,
@@ -71,15 +65,7 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
 export function getFhirWorkerSettings() {
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
-    concurrency: settings.concurrency,
     resourceMaterialisationEnabled: settings.resourceMaterialisationEnabled,
-  };
-}
-
-export function getFhirCountSettings() {
-  return {
-    default: settings.countDefault,
-    max: settings.countMax,
   };
 }
 
