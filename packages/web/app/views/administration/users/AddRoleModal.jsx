@@ -65,10 +65,6 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     },
   });
 
-  const onSubmit = async values => {
-    await createRole({ id: values.id.trim(), name: values.name.trim() });
-  };
-
   const renderForm = ({ submitForm }) => (
     <>
       <Fieldset disabled={isLoading}>
@@ -100,7 +96,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     >
       <Form
         formType={FORM_TYPES.CREATE_FORM}
-        onSubmit={onSubmit}
+        onSubmit={createRole}
         render={renderForm}
         validationSchema={CREATE_ROLE_VALIDATION}
       />
