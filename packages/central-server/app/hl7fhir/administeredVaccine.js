@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { format } from '@tamanu/utils/dateTime';
 
 import { INJECTION_SITE_VALUES } from '@tamanu/constants';
-import { parseFhirReference } from '@tamanu/shared/utils/fhir';
+import { FhirReference } from '@tamanu/shared/services/fhirTypes';
 
 import { administeredVaccineStatusToHL7Status } from '@tamanu/shared/routes/fhir/patientSummary/utils';
 export { administeredVaccineStatusToHL7Status };
@@ -156,7 +156,7 @@ export function getAdministeredVaccineInclude(_, query) {
         {
           association: 'patient',
           required: true,
-          ...(patient && { where: { id: parseFhirReference(patient).id } }),
+          ...(patient && { where: { id: FhirReference.parse(patient).id } }),
         },
       ],
     },

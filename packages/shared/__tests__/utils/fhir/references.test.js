@@ -1,12 +1,12 @@
-import { parseFhirReference } from '../../../src/utils/fhir/references';
+import { FhirReference } from '../../../src/services/fhirTypes/reference';
 
-describe('parseFhirReference', () => {
+describe('FhirReference.parse', () => {
   it('extracts id from a bare id', () => {
-    expect(parseFhirReference('abc-123')).toEqual({ resourceType: null, id: 'abc-123' });
+    expect(FhirReference.parse('abc-123')).toEqual({ resourceType: null, id: 'abc-123' });
   });
 
   it('extracts resourceType and id from Type/id', () => {
-    expect(parseFhirReference('Patient/abc-123')).toEqual({
+    expect(FhirReference.parse('Patient/abc-123')).toEqual({
       resourceType: 'Patient',
       id: 'abc-123',
     });
@@ -14,7 +14,7 @@ describe('parseFhirReference', () => {
 
   it('extracts resourceType and id from a full URL', () => {
     const ref = 'http://example.com/fhir/ServiceRequest/sr-456';
-    const { resourceType, id } = parseFhirReference(ref);
+    const { resourceType, id } = FhirReference.parse(ref);
     expect(resourceType).toBe('ServiceRequest');
     expect(id).toBe('sr-456');
   });

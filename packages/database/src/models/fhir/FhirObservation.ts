@@ -10,7 +10,7 @@ import {
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
 
-import { Invalid, parseFhirReference, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
+import { Invalid, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
@@ -127,7 +127,7 @@ export class FhirObservation extends FhirResource {
       });
     }
     const { type, reference } = this.basedOn[0]!;
-    const { resourceType, id: serviceRequestFhirId } = parseFhirReference(reference);
+    const { resourceType, id: serviceRequestFhirId } = FhirReference.parse(reference);
 
     if (type !== 'ServiceRequest' || resourceType !== 'ServiceRequest') {
       throw new Invalid(`Invalid ServiceRequest reference`, {
