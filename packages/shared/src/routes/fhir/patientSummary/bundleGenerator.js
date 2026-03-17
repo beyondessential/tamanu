@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
-import { NotFound, formatFhirDate } from '../../../utils/fhir';
+import { NotFound, formatFhirDate, getFhirDataDictionaries } from '../../../utils/fhir';
 
 import {
   getComposition,
@@ -17,7 +17,7 @@ import {
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
 export const generateIPSBundle = async (fhirPatientId, user, models) => {
-  const dataDictionariesIps = config.hl7?.dataDictionaries?.ips;
+  const dataDictionariesIps = getFhirDataDictionaries().ips;
   const integrationsIps = config.integrations?.ips;
 
   if (!dataDictionariesIps) {

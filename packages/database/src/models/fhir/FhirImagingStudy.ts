@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes, type Attributes, type WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
@@ -11,7 +10,7 @@ import {
 } from '@tamanu/constants';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '@tamanu/shared/services/fhirTypes';
-import { Deleted, Invalid } from '@tamanu/shared/utils/fhir';
+import { Deleted, getFhirDataDictionaries, Invalid } from '@tamanu/shared/utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { FhirResource } from './Resource';
 import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';
@@ -69,6 +68,7 @@ export class FhirImagingStudy extends FhirResource {
     requesterId: string;
   }) {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
+    const dataDicts = getFhirDataDictionaries();
     const serviceRequestFhirId = this.basedOn
       ?.map((ref) => ref.fhirTypeAndId())
       .filter(Boolean)
@@ -76,12 +76,12 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingId,
+        b?.identifier?.system === dataDicts.serviceRequestImagingId,
     )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        b?.identifier?.system === dataDicts.serviceRequestImagingDisplayId,
     )?.identifier.value;
 
     let upstreamRequest;
@@ -152,7 +152,7 @@ export class FhirImagingStudy extends FhirResource {
         FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
       ].includes(this.status)
     ) {
-      return await this.attachResults(imagingRequest);
+      return await this.attachResults(imagingRequest, dataDicts);
     }
 
     if (this.status === FHIR_IMAGING_STUDY_STATUS.CANCELLED) {
@@ -183,9 +183,9 @@ export class FhirImagingStudy extends FhirResource {
     });
   }
 
-  async attachResults(imagingRequest: ImagingRequest) {
+  async attachResults(imagingRequest: ImagingRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
     const imagingAccessCode = this.identifier?.find(
-      (i) => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
+      (i) => i?.system === dataDicts.imagingStudyAccessionId,
     )?.value;
     const resultImageUrl = this.contained?.[0]?.address;
     if (!imagingAccessCode && !resultImageUrl) {

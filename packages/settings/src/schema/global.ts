@@ -24,6 +24,9 @@ import {
   fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
+  fhirNullLastNameSchema,
+  fhirAssignersSchema,
+  fhirDataDictionariesSchema,
 } from './definitions';
 import {
   layoutModuleProperties,
@@ -460,6 +463,9 @@ export const globalSettings = {
         },
         parameters: fhirCountParametersSchema,
         extensions: fhirExtensionsSchema,
+        nullLastNameValue: fhirNullLastNameSchema,
+        assigners: fhirAssignersSchema,
+        dataDictionaries: fhirDataDictionariesSchema,
       },
     },
     fields: {

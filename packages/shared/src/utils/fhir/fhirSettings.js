@@ -1,23 +1,17 @@
 import config from 'config';
+import { globalDefaults } from '@tamanu/settings';
 import { log } from '../../services/logging';
 
+const fhirDefaults = globalDefaults.fhir;
 const DEFAULTS = {
-  resourceMaterialisationEnabled: {
-    Patient: true,
-    Encounter: false,
-    Immunization: false,
-    MediciReport: false,
-    Organization: false,
-    Practitioner: false,
-    ServiceRequest: false,
-    Specimen: false,
-    MedicationRequest: false,
-    DiagnosticReport: false,
-  },
-  countDefault: 100,
-  countMax: 1000,
-  concurrency: 10,
-  extensions: { Patient: { newZealandEthnicity: false } },
+  resourceMaterialisationEnabled: fhirDefaults.worker.resourceMaterialisationEnabled,
+  countDefault: fhirDefaults.parameters._count.default,
+  countMax: fhirDefaults.parameters._count.max,
+  concurrency: fhirDefaults.worker.concurrency,
+  extensions: fhirDefaults.extensions,
+  nullLastNameValue: fhirDefaults.nullLastNameValue,
+  assigners: fhirDefaults.assigners,
+  dataDictionaries: fhirDefaults.dataDictionaries,
 };
 
 let settings = structuredClone(DEFAULTS);
@@ -63,6 +57,9 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
       countMax: fhir.parameters._count.max,
       concurrency: fhir.worker.concurrency,
       extensions: fhir.extensions,
+      nullLastNameValue: fhir.nullLastNameValue,
+      assigners: fhir.assigners,
+      dataDictionaries: fhir.dataDictionaries,
     };
     initialised = true; // eslint-disable-line require-atomic-updates
   } catch (error) {
@@ -88,4 +85,16 @@ export function getFhirCountSettings() {
 
 export function getFhirExtensionSettings() {
   return settings.extensions;
+}
+
+export function getFhirNullLastNameValue() {
+  return settings.nullLastNameValue;
+}
+
+export function getFhirAssigners() {
+  return settings.assigners;
+}
+
+export function getFhirDataDictionaries() {
+  return settings.dataDictionaries;
 }
