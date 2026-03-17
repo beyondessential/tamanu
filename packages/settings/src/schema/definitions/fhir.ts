@@ -91,7 +91,6 @@ export const fhirExtensionsSchema = {
 export const fhirWorkerConcurrencySchema = {
   name: 'Concurrency',
   description: 'Maximum number of FHIR jobs processed simultaneously by the worker',
-  requiresRestart: true,
   type: yup.number().integer().positive(),
   defaultValue: 10,
 };
@@ -99,7 +98,6 @@ export const fhirWorkerConcurrencySchema = {
 export const fhirCountParametersSchema = {
   name: 'Parameters',
   description: 'FHIR search parameter configuration',
-  requiresRestart: true,
   properties: {
     _count: {
       name: 'Count',

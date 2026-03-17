@@ -8,15 +8,13 @@ import {
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
-import { getFhirCountSettings } from './fhirSettings';
 
-export function getFhirCountSettingsDefault() {
-  return getFhirCountSettings().default || FHIR_MAX_RESOURCES_PER_PAGE;
-}
-
-function getFhirCountSettingsMax() {
-  const { max } = getFhirCountSettings();
-  return Math.max(max || 0, getFhirCountSettingsDefault());
+async function getCountSettings(settings) {
+  const { default: settingsDefault, max: settingsMax } = await settings.get('fhir.parameters._count');
+  return {
+    default: settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE,
+    max: Math.max(settingsMax || 0, settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE),
+  };
 }
 
 export function normaliseParameter([key, param], overrides = {}) {
@@ -43,7 +41,10 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-function getResultParameters() {
+const RESULT_PARAMETER_NAMES = ['_total', '_summary', '_count', '_page', '_include', '_revinclude'];
+
+async function getResultParameters(settings) {
+  const count = await getCountSettings(settings);
   return {
     _total: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
@@ -59,8 +60,8 @@ function getResultParameters() {
         .number()
         .integer()
         .min(0) // equivalent to _summary=count
-        .max(getFhirCountSettingsMax())
-        .default(getFhirCountSettingsDefault()),
+        .max(count.max)
+        .default(count.default),
     },
     _page: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
@@ -78,7 +79,7 @@ function getResultParameters() {
 }
 
 export function getResultParameterNames() {
-  return ['_sort', ...Object.keys(getResultParameters())];
+  return ['_sort', ...RESULT_PARAMETER_NAMES];
 }
 
 function sortParameter(sortableParameters) {
@@ -117,27 +118,25 @@ function sortParameter(sortableParameters) {
   };
 }
 
-const cache = new Map();
+const resourceParamCache = new Map();
 
-export function normaliseParameters(FhirResource) {
+export async function normaliseParameters(FhirResource, settings) {
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
     throw new Error('DEV: not a proper Resource');
   }
 
-  if (cache.has(cacheKey)) {
-    return cache.get(cacheKey);
+  let { resourceParameters, sortableParameters } = resourceParamCache.get(cacheKey) ?? {};
+  if (!resourceParameters) {
+    resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
+    // eslint-disable-next-line no-unused-vars
+    sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
+    resourceParamCache.set(cacheKey, { resourceParameters, sortableParameters });
   }
-
-  const resourceParameters = Object.entries(FhirResource.searchParameters()).map(
-    normaliseParameter,
-  );
-  // eslint-disable-next-line no-unused-vars
-  const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
 
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
-    ...getResultParameters(),
+    ...(await getResultParameters(settings)),
   }).map(param =>
     normaliseParameter(param, {
       path: [],
@@ -145,7 +144,5 @@ export function normaliseParameters(FhirResource) {
     }),
   );
 
-  const parameters = new Map([...resourceParameters, ...resultParameters]);
-  cache.set(cacheKey, parameters);
-  return parameters;
+  return new Map([...resourceParameters, ...resultParameters]);
 }
