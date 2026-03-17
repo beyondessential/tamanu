@@ -69,10 +69,12 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     <>
       <Fieldset disabled={isLoading}>
         <RequiredTextField
+          inputProps={{ minLength: 1, maxLength: 255 }}
           label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
           name="name"
         />
         <RequiredTextField
+          inputProps={{ minLength: 1, maxLength: 255 }}
           label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
           name="id"
         />
