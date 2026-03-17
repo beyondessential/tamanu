@@ -96,7 +96,9 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     >
       <Form
         formType={FORM_TYPES.CREATE_FORM}
-        onSubmit={createRole}
+        // Passing `createRole` works; but Form.jsx can’t detect that UseMutateAsyncFunction
+        // is async. This suppresses the non-async-onSubmit dev warning.
+        onSubmit={async values => await createRole(values)}
         render={renderForm}
         validationSchema={CREATE_ROLE_VALIDATION}
       />
