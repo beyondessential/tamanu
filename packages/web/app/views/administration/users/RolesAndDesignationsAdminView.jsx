@@ -70,7 +70,7 @@ const TAB = /** @type {const} */ ({
 
 export const RolesAndDesignationsAdminView = () => {
   const navigate = useNavigate();
-  const isDesignationsRoute = Boolean(useMatch('/admin/users/designations'));
+  const isDesignationsRoute = Boolean(useMatch('/admin/users/designations/*'));
   const currentTab = isDesignationsRoute ? TAB.DESIGNATIONS : TAB.ROLES;
 
   const onTabSelect = tabKey => {

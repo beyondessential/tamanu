@@ -77,13 +77,13 @@ export const DesignationsSearchForm = () => {
     <>
       <Field
         component={TextField}
-        label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
+        label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
         name="name"
         placeholder={placeholder}
       />
       <Field
         component={AutocompleteField}
-        label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
+        label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
         name="id"
         placeholder={placeholder}
         suggester={designationSuggester}
