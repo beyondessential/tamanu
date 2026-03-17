@@ -10,10 +10,10 @@ import { RequiredTextField } from './RolesAndDesignationsAdminView';
 import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
-  name: yup
+  id: yup
     .string()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-  id: yup
+  name: yup
     .string()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
@@ -76,10 +76,12 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
     <>
       <Fieldset disabled={isLoading}>
         <RequiredTextField
+          inputProps={{ minLength: 1 }}
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
           name="name"
         />
         <RequiredTextField
+          inputProps={{ minLength: 1, maxLength: 255 }}
           label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
           name="id"
         />
