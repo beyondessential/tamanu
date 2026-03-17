@@ -114,8 +114,8 @@ export class FhirQueueManager {
    * @returns {number} Total capacity of the queue manager.
    */
   async totalCapacity() {
-    if (this._concurrency != null) return Math.max(0, this._concurrency);
-    const concurrency = await this.settings.get('fhir.worker.concurrency');
+    const concurrency =
+      this._concurrency ?? (await this.settings.get('fhir.worker.concurrency')) ?? 0;
     return Math.max(0, concurrency);
   }
 
@@ -126,13 +126,14 @@ export class FhirQueueManager {
    * Every topic can run at least 1 job (regardless of total capacity), and the remaining capacity
    * is divided evenly among the topics.
    *
+   * @param {number} [capacity] - Pre-fetched capacity to avoid a redundant settings read.
    * @returns {number} Amount of jobs to run in parallel for a topic.
    */
-  async parallelisationPerTopic() {
-    const capacity = await this.totalCapacity();
+  async parallelisationPerTopic(capacity) {
+    const cap = capacity ?? (await this.totalCapacity());
     return Math.max(
-      capacity > 0 ? 1 : 0, // return at least 1 if there's any capacity
-      Math.floor(capacity / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
+      cap > 0 ? 1 : 0, // return at least 1 if there's any capacity
+      Math.floor(cap / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
     );
   }
 
@@ -158,7 +159,8 @@ export class FhirQueueManager {
         });
 
         try {
-          if ((await this.totalCapacity()) === 0) {
+          const capacity = await this.totalCapacity();
+          if (capacity === 0) {
             this.log.debug('FhirQueueManager: no capacity');
             return;
           }
@@ -169,7 +171,7 @@ export class FhirQueueManager {
             return;
           }
 
-          await this.queueProcessors.get(topic).processQueue();
+          await queueProcessor.processQueue(capacity);
         } catch (err) {
           this.log.debug('Trouble retrieving the backlog');
           span.recordException(err);

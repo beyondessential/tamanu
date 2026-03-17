@@ -10,13 +10,11 @@ import {
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
 async function getCountSettings(settings) {
-  const countDefault =
-    (await settings.get('fhir.parameters._count.default')) || FHIR_MAX_RESOURCES_PER_PAGE;
-  const countMax = Math.max(
-    (await settings.get('fhir.parameters._count.max')) || 0,
-    countDefault,
-  );
-  return { default: countDefault, max: countMax };
+  const { default: settingsDefault, max: settingsMax } = await settings.get('fhir.parameters._count');
+  return {
+    default: settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE,
+    max: Math.max(settingsMax || 0, settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE),
+  };
 }
 
 export function normaliseParameter([key, param], overrides = {}) {
@@ -120,17 +118,21 @@ function sortParameter(sortableParameters) {
   };
 }
 
+const resourceParamCache = new Map();
+
 export async function normaliseParameters(FhirResource, settings) {
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
     throw new Error('DEV: not a proper Resource');
   }
 
-  const resourceParameters = Object.entries(FhirResource.searchParameters()).map(
-    normaliseParameter,
-  );
-  // eslint-disable-next-line no-unused-vars
-  const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
+  let { resourceParameters, sortableParameters } = resourceParamCache.get(cacheKey) ?? {};
+  if (!resourceParameters) {
+    resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
+    // eslint-disable-next-line no-unused-vars
+    sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
+    resourceParamCache.set(cacheKey, { resourceParameters, sortableParameters });
+  }
 
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
