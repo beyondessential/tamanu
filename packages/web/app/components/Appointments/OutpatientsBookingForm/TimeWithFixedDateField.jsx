@@ -1,6 +1,6 @@
 import React from 'react';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { set as dateFnsSet, parse } from 'date-fns';
+import { set as dateFnsSet, parse, isValid } from 'date-fns';
 import { useDateTime } from '@tamanu/ui-components';
 import { TimeInput } from '../../Field';
 
@@ -20,6 +20,7 @@ export const TimeWithFixedDateField = ({ field, date, ...props }) => {
     }
     const [year, month, day] = date.split('-').map(Number);
     const timeDate = parse(event.target.value, 'HH:mm:ss', getFacilityNowDate() ?? new Date());
+    if (!isValid(timeDate)) return;
     const facilityDateTime = toDateTimeString(
       dateFnsSet(timeDate, {
         year,
