@@ -117,6 +117,50 @@ export const saveChangesForModel = async (
   }
 };
 
+const persistBatchWithDiagnostics = async (
+  model: typeof Model,
+  batchRecords: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
+  isCentralServer: boolean,
+  log: Logger,
+): Promise<void> => {
+  if (batchRecords.length === 0) {
+    return;
+  }
+
+  try {
+    await model.sequelize.transaction(async () => {
+      const { snapshotRecords, changelogRecords } =
+        extractChangelogFromSnapshotRecords(batchRecords);
+      await saveChangesForModel(model, snapshotRecords, isCentralServer, log);
+      await insertChangelogRecords(model.sequelize.models, changelogRecords);
+    });
+  } catch (error) {
+    if (batchRecords.length > 1) {
+      log.warn('Sync: Batch failed, splitting and retrying', {
+        batchSize: batchRecords.length,
+      });
+      const mid = Math.floor(batchRecords.length / 2);
+      const leftHalf = batchRecords.slice(0, mid);
+      const rightHalf = batchRecords.slice(mid);
+
+      await persistBatchWithDiagnostics(model, leftHalf, isCentralServer, log);
+      await persistBatchWithDiagnostics(model, rightHalf, isCentralServer, log);
+    } else {
+      const failedRecord = batchRecords[0];
+      log.error('Sync: Isolated exact failing sync record', {
+        modelName: model.name,
+        tableName: model.tableName,
+        snapshotRecordId: failedRecord?.id,
+        recordId: failedRecord?.data?.id,
+        isDeleted: failedRecord?.isDeleted,
+        rawRecordData: failedRecord?.data,
+        originalError: error,
+      });
+      throw error;
+    }
+  }
+};
+
 const saveChangesForModelInBatches = async (
   model: typeof Model,
   sequelize: Sequelize,
@@ -157,10 +201,7 @@ const saveChangesForModelInBatches = async (
         total: syncRecordsCount,
       });
 
-      const { snapshotRecords, changelogRecords } =
-        extractChangelogFromSnapshotRecords(batchRecords);
-      await saveChangesForModel(model, snapshotRecords, isCentralServer, log);
-      await insertChangelogRecords(model.sequelize.models, changelogRecords);
+      await persistBatchWithDiagnostics(model, batchRecords, isCentralServer, log);
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
     } catch (error) {
