@@ -8,7 +8,7 @@ import { Form, ModalContent } from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
 import { AutocompleteField, Field } from '../../../components/Field';
-import { useUserDesignationCreateMutation } from './useUserDesignationCreateMutation';
+import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
   name: yup
@@ -52,7 +52,7 @@ const Footer = styled.footer`
 export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   const userSuggester = useSuggester('practitioner');
   const designationSuggester = useSuggester('designation');
-  const { isLoading, mutateAsync: createUserDesignation } = useUserDesignationCreateMutation({
+  const { isLoading, mutateAsync: createUserDesignation } = useDesignationCreateMutation({
     onSuccess: () => {
       onSuccess?.();
       onClose();
@@ -106,9 +106,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
 
   return (
     <StyledFormModal
-      title={
-        <TranslatedText stringId="admin.designations.add.title" fallback="Add designation" />
-      }
+      title={<TranslatedText stringId="admin.designations.add.title" fallback="Add designation" />}
       open={open}
       onClose={onClose}
     >
