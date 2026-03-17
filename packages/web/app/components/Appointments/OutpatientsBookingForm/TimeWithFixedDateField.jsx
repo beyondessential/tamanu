@@ -9,7 +9,7 @@ import { TimeInput } from '../../Field';
  * The resulting date-time will match the provided `date` (YYYY-MM-DD string) with the time set by the user.
  */
 export const TimeWithFixedDateField = ({ field, date, ...props }) => {
-  const { toFacilityDateTime, toStoredDateTime } = useDateTime();
+  const { toFacilityDateTime, toStoredDateTime, getFacilityNowDate } = useDateTime();
 
   const displayValue = toFacilityDateTime(field.value);
 
@@ -19,7 +19,7 @@ export const TimeWithFixedDateField = ({ field, date, ...props }) => {
       return;
     }
     const [year, month, day] = date.split('-').map(Number);
-    const timeDate = parse(event.target.value, 'HH:mm:ss', new Date());
+    const timeDate = parse(event.target.value, 'HH:mm:ss', getFacilityNowDate() ?? new Date());
     const facilityDateTime = toDateTimeString(
       dateFnsSet(timeDate, {
         year,
