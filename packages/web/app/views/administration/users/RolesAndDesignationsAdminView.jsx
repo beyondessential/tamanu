@@ -17,6 +17,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 
 export const Article = styled.article`
   border-block-start: 1px solid ${Colors.outline};
+  overflow: auto;
   padding-block: 26px;
   padding-inline: 30px;
   ${ContentContainer}:has(&) {
