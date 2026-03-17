@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
+import { escapeRegExp } from 'lodash';
+import { ForeignKeyConstraintError, Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -25,7 +26,7 @@ rolesRouter.get(
     const nameQuery = req.query.name?.trim();
     if (nameQuery) {
       filters.push({
-        name: { [Op.iRegexp]: `\\m${nameQuery}` },
+        name: { [Op.iRegexp]: `\\m${escapeRegExp(nameQuery)}` },
       });
     }
 
