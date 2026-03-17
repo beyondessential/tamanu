@@ -32,14 +32,17 @@ const STATIC_COLUMNS = /** @type {const} */ ([
   },
 ]);
 
-const DeleteConfirmationModal = styled(ConfirmModal).attrs({
-  confirmButtonText: (
-    <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
-  ),
-  title: (
-    <TranslatedText stringId="admin.designations.delete.title" fallback="Delete designation" />
-  ),
-})``;
+const DeleteConfirmationModal = props => (
+  <ConfirmModal
+    confirmButtonText={
+      <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
+    }
+    title={
+      <TranslatedText stringId="admin.designations.delete.title" fallback="Delete designation" />
+    }
+    {...props}
+  />
+);
 
 const DeleteConfirmationModalContent = styled(Typography).attrs({
   variant: 'body2',
