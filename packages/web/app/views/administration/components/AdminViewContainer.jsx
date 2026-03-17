@@ -32,11 +32,15 @@ const TitleContainer = styled.div`
   background-color: ${Colors.white};
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding-inline: 30px;
+  padding-block: 20px;
 `;
 
 const Title = styled.h1`
-  margin: 0px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.33333333;
+  margin: 0;
 `;
 
 const TitleActions = styled.div`

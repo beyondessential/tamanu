@@ -8,6 +8,8 @@ import { Colors } from '../../../constants';
 import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
 
 const StyledTabDisplay = styled(TabDisplay)`
+  display: grid;
+  grid-template-rows: auto 1fr;
   .MuiTab-root:first-of-type {
     margin-inline-start: 30px;
   }
