@@ -10,7 +10,9 @@ import {
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
 async function getCountSettings(settings) {
-  const { default: settingsDefault, max: settingsMax } = await settings.get('fhir.parameters._count');
+  const { default: settingsDefault, max: settingsMax } = settings
+    ? await settings.get('fhir.parameters._count')
+    : {};
   return {
     default: settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE,
     max: Math.max(settingsMax || 0, settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE),
@@ -118,7 +120,7 @@ function sortParameter(sortableParameters) {
   };
 }
 
-const paramCache = new Map();
+const resourceParamCache = new Map();
 
 export async function normaliseParameters(FhirResource, settings) {
   const cacheKey = FhirResource.fhirName;
@@ -126,13 +128,13 @@ export async function normaliseParameters(FhirResource, settings) {
     throw new Error('DEV: not a proper Resource');
   }
 
-  if (paramCache.has(cacheKey)) {
-    return paramCache.get(cacheKey);
+  let { resourceParameters, sortableParameters } = resourceParamCache.get(cacheKey) ?? {};
+  if (!resourceParameters) {
+    resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
+    // eslint-disable-next-line no-unused-vars
+    sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
+    resourceParamCache.set(cacheKey, { resourceParameters, sortableParameters });
   }
-
-  const resourceParameters = Object.entries(FhirResource.searchParameters()).map(normaliseParameter);
-  // eslint-disable-next-line no-unused-vars
-  const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
 
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
@@ -144,7 +146,5 @@ export async function normaliseParameters(FhirResource, settings) {
     }),
   );
 
-  const parameters = new Map([...resourceParameters, ...resultParameters]);
-  paramCache.set(cacheKey, parameters);
-  return parameters;
+  return new Map([...resourceParameters, ...resultParameters]);
 }
