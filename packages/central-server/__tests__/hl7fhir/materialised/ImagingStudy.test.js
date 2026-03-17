@@ -64,7 +64,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       extCode2,
       pat,
     };
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('create', () => {

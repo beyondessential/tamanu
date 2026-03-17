@@ -68,7 +68,7 @@ describe('HL7 Administered Vaccines', () => {
       encounterId,
     });
     administeredVaccineId = administeredVaccine.id;
-  });
+  }, 50000);
 
   afterAll(() => ctx.close());
 

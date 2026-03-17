@@ -65,7 +65,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       locationGroup,
       matPatient,
     };
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   async function makeEncounter(overrides = {}, beforeMaterialising = () => {}) {

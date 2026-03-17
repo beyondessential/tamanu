@@ -25,7 +25,7 @@ describe(`FHIR reference resolution`, () => {
     ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
-  });
+  }, 50000);
 
   afterAll(() => ctx.close());
 

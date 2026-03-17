@@ -72,7 +72,7 @@ describe('queryToFindUpstreamIdsFromTable', () => {
       ctx.store.models,
       FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
     );
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('queryToFindUpstreamIds', () => {

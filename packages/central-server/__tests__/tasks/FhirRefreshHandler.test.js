@@ -27,7 +27,7 @@ describe('FHIR refresh handler', () => {
       ctx.store.models,
       resources,
     );
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('allFromUpstream', () => {

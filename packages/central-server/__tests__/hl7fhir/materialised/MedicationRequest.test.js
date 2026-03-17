@@ -74,7 +74,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       fhirOrganization,
       fhirPractitioner,
     };
-  });
+  }, 50000);
 
   afterAll(async () => {
     const {

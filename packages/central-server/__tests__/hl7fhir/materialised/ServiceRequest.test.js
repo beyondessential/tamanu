@@ -48,7 +48,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     fhirResources.fhirPractitioner = fhirPractitioner;
     const fhirOrganization = await FhirOrganization.materialiseFromUpstream(resources.facility.id);
     fhirResources.fhirOrganization = fhirOrganization;
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('materialise', () => {

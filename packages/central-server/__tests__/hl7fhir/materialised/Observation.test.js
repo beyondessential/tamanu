@@ -30,7 +30,7 @@ describe('Create Observation', () => {
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('create', () => {

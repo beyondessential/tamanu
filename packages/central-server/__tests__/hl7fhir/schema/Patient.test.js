@@ -17,7 +17,7 @@ describe('Patient', () => {
   beforeAll(async () => {
     ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   it(

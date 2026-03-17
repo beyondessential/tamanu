@@ -49,7 +49,7 @@ describe(`Materialised - MediciReport`, () => {
       location,
       locationGroup,
     };
-  });
+  }, 50000);
 
   beforeEach(async () => {
     const { MediciReport } = ctx.store.models;

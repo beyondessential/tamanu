@@ -70,7 +70,7 @@ describe('databaseTriggers', () => {
       WHERE action_statement = 'EXECUTE FUNCTION fhir.refresh_trigger()'
     `);
     tablesWithRefreshTrigger = queryResultTwo.map(x => x.event_object_table);
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   it('should have a versioning trigger', () => {

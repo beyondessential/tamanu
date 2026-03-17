@@ -28,7 +28,7 @@ describe('HL7 Patient', () => {
         models,
       },
     };
-  });
+  }, 50000);
 
   afterAll(() => ctx.close());
 

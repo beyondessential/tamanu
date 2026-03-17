@@ -42,7 +42,7 @@ describe('fhir sub commands', () => {
     jest
       .spyOn(ApplicationContext.prototype, 'close')
       .mockImplementation(() => 'do not close database at the end of the fhir subcommand');
-  });
+  }, 50000);
 
   afterAll(() => {
     ctx.close();

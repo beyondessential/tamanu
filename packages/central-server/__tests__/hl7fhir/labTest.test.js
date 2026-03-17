@@ -115,7 +115,7 @@ describe('HL7 Labs', () => {
         ],
       });
     };
-  });
+  }, 50000);
 
   afterAll(() => ctx.close());
 

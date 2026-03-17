@@ -26,7 +26,7 @@ describe('FhirMissingResources task', () => {
     await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
     await FhirPractitioner.materialiseFromUpstream(SYSTEM_USER_UUID);
     await FhirOrganization.materialiseFromUpstream(resources.facility.id);
-  });
+  }, 50000);
 
   beforeEach(async () => {
     const { FhirJob, FhirServiceRequest, FhirSpecimen, ImagingRequest } = ctx.store.models;

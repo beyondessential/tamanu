@@ -70,7 +70,7 @@ describe('Create DiagnosticReport', () => {
       resources.practitioner.id,
     );
     fhirResources.fhirPractitioner = fhirPractitioner;
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('create', () => {

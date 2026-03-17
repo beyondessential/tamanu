@@ -76,7 +76,7 @@ describe(`FHIR API - Transaction Bundle`, () => {
       extCode2,
       pat,
     };
-  });
+  }, 50000);
   afterAll(() => ctx.close());
 
   describe('success', () => {

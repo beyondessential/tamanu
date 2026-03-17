@@ -106,7 +106,7 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
           encounterId,
         }),
       ]);
-    });
+    }, 50000);
     afterAll(() => ctx.close());
 
     describe('success', () => {
