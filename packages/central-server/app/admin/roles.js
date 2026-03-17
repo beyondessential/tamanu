@@ -41,8 +41,16 @@ rolesRouter.get(
 );
 
 const createRoleSchema = z.object({
-  id: z.string().trim().min(1),
-  name: z.string().trim().min(1),
+  id: z
+    .string()
+    .trim()
+    .min(1, { message: '`id` must be at least 1 character' })
+    .max(255, { message: '`id` must be no longer than 255 characters' }),
+  name: z
+    .string()
+    .trim()
+    .min(1, { message: '`name` must be at least 1 character' })
+    .max(255, { message: '`name` must be no longer than 255 characters' }),
 });
 
 roleRouter.post(
