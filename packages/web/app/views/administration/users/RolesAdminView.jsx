@@ -100,8 +100,8 @@ const DeleteConfirmationModalContent = styled.div`
 export const RolesAdminView = () => {
   // Search state
   const [searchParams] = useSearchParams();
-  const nameQuery = searchParams.get('name');
-  const idQuery = searchParams.get('id');
+  const nameQuery = searchParams.get('name') ?? undefined;
+  const idQuery = searchParams.get('id') ?? undefined;
 
   // ‘Add role’ modal state
   const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
