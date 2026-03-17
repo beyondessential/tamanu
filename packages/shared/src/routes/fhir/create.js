@@ -3,6 +3,7 @@ import * as yup from 'yup';
 
 import { OperationOutcome } from '../../utils/fhir';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { resolveSettings } from './utils';
 
 async function mapErr(promise, fn) {
   try {
@@ -40,14 +41,6 @@ export const createResource = async (store, FhirResource, data, requesterId, set
     });
   }
 };
-
-function resolveSettings(req) {
-  const { settings, facilityId } = req;
-  if (!settings) return undefined;
-  if (typeof settings.get === 'function') return settings;
-  if (facilityId && settings[facilityId]) return settings[facilityId];
-  return undefined;
-}
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
