@@ -22,7 +22,7 @@ export function searchHandler(FhirResource) {
       includes = resolveIncludes(req.store.models, query, parameters, FhirResource);
     }
 
-    const sqlQuery = await buildSearchQuery(query, parameters, FhirResource, req.settings);
+    const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
     const { included, errors } = await retrieveIncludes(

@@ -43,6 +43,8 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
+const RESULT_PARAMETER_NAMES = ['_total', '_summary', '_count', '_page', '_include', '_revinclude'];
+
 async function getResultParameters(settings) {
   const count = await getCountSettings(settings);
   return {
@@ -79,7 +81,7 @@ async function getResultParameters(settings) {
 }
 
 export function getResultParameterNames() {
-  return ['_sort', '_total', '_summary', '_count', '_page', '_include', '_revinclude'];
+  return ['_sort', ...RESULT_PARAMETER_NAMES];
 }
 
 function sortParameter(sortableParameters) {
