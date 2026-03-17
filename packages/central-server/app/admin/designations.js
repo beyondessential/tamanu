@@ -40,7 +40,7 @@ const createDesignationSchema = z.object({
   name: z.string().trim().min(1),
 });
 
-designationsRouter.post(
+designationRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'ReferenceData');
@@ -68,36 +68,6 @@ designationsRouter.post(
     });
 
     res.status(201).send(designation);
-  }),
-);
-
-const createUserDesignationSchema = z.object({
-  userId: z.string().trim().min(1),
-  designationId: z.string().trim().min(1),
-});
-
-designationRouter.post(
-  '/',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'UserDesignation');
-
-    const { UserDesignation } = req.store.models;
-    const { userId, designationId } = await createUserDesignationSchema.parseAsync(req.body);
-
-    const userDesignation = await req.store.sequelize.transaction(async () => {
-      const exists = await UserDesignation.findOne({
-        where: { userId, designationId },
-      });
-      if (exists) {
-        throw new DatabaseDuplicateError(
-          `A user designation already exists for user ‘${userId}’ and designation ‘${designationId}’.`,
-        );
-      }
-
-      return UserDesignation.create({ userId, designationId });
-    });
-
-    res.status(201).send(userDesignation);
   }),
 );
 
