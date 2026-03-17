@@ -182,7 +182,10 @@ export const RolesAdminView = () => {
       <AddRoleModal
         open={isAddRoute}
         onClose={() => navigate('..')}
-        onSuccess={() => setRefreshCount(c => c + 1)}
+        onSuccess={() => {
+          setRefreshCount(c => c + 1);
+          navigate('..');
+        }}
       />
 
       <DeleteConfirmationModal
