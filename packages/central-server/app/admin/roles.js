@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
-import { ForeignKeyConstraintError, Op, UniqueConstraintError } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -83,29 +83,29 @@ roleRouter.delete(
     const {
       store: {
         models: { Role, User },
+        sequelize,
       },
       params: { id },
     } = req;
 
-    const role = await Role.findByPk(id);
-    if (!role) {
-      throw new NotFoundError(`No role found with ID ${id}`);
-    }
+    await sequelize.transaction(async () => {
+      const role = await Role.findByPk(id);
+      if (!role) {
+        throw new NotFoundError(`No role found with ID ${id}`);
+      }
 
-    try {
-      await role.destroy();
-    } catch (err) {
-      if (err instanceof ForeignKeyConstraintError) {
-        const count = await User.count({
-          where: { role: role.id },
-        });
+      const count = await User.count({
+        where: { role: role.id }, // No FK constraint!
+      });
+      if (count > 0) {
         const objectVerb = count === 1 ? 'user is' : 'users are';
         throw new InvalidOperationError(
-          `Cannot delete role with ID '${id}'. ${count} ${objectVerb} assigned to it.`,
+          `Cannot delete role with ID ‘${id}’. ${count} ${objectVerb} assigned to it.`,
         );
       }
-      throw err;
-    }
+
+      await role.destroy();
+    });
     res.status(204).send();
   }),
 );
