@@ -36,7 +36,7 @@ export const DesignationsSearchForm = () => {
   const nameQuery = searchParams.get('name');
 
   const { getTranslation } = useTranslation();
-  const placeholder = getTranslation('general.action.search...', 'Search…');
+  const placeholder = getTranslation('general.placeholder.search...', 'Search…');
 
   const designationSuggester = useSuggester('designation', {
     formatter: ({ id }) => ({ label: id, value: id }),
