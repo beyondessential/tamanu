@@ -81,22 +81,22 @@ designationRouter.delete(
         models: { UserDesignation, ReferenceData },
         sequelize,
       },
-      params: { id },
+      params: { id: designationId },
     } = req;
 
     await sequelize.transaction(async () => {
-      const designation = await ReferenceData.findByPk(id);
+      const designation = await ReferenceData.findByPk(designationId);
       if (!designation) {
-        throw new NotFoundError(`No designation found with ID ${id}`);
+        throw new NotFoundError(`No designation found with ID ${designationId}`);
       }
 
       const count = await UserDesignation.count({
-        where: { designationId: id },
+        where: { designationId: designationId },
       });
       if (count > 0) {
         const objectVerb = count === 1 ? 'user is' : 'users are';
         throw new InvalidOperationError(
-          `Cannot delete designation with ID ’${id}’. ${count} ${objectVerb} assigned to it.`,
+          `Cannot delete designation with ID ’${designationId}’. ${count} ${objectVerb} assigned to it.`,
         );
       }
 
