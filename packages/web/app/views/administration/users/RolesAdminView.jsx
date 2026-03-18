@@ -162,7 +162,7 @@ export const RolesAdminView = () => {
     <Article>
       <Header>
         <RolesSearchForm />
-        <AddButton onClick={() => navigate('new')}>
+        <AddButton onClick={() => navigate({ pathname: 'new', search: window.location.search })}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </AddButton>
@@ -181,10 +181,10 @@ export const RolesAdminView = () => {
 
       <AddRoleModal
         open={isAddRoute}
-        onClose={() => navigate('..')}
+        onClose={() => navigate({ pathname: '..', search: window.location.search })}
         onSuccess={() => {
           setRefreshCount(c => c + 1);
-          navigate('..');
+          navigate({ pathname: '..', search: window.location.search });
         }}
       />
 
