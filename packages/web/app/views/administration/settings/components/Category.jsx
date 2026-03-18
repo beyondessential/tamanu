@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
 
@@ -31,6 +31,7 @@ const SettingLine = styled(BodyText)`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  scroll-margin-top: 1rem;
 `;
 
 const SettingNameLabel = styled(LargeBodyText)`
@@ -97,7 +98,41 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
+/**
+ * Wraps a SettingLine and scrolls it into view when its path matches scrollToPath.
+ */
+const ScrollableSettingLine = ({
+  settingPath,
+  scrollToPath,
+  onScrollComplete,
+  children,
+  ...props
+}) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (scrollToPath === settingPath && ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      onScrollComplete?.();
+    }
+  }, [scrollToPath, settingPath, onScrollComplete]);
+
+  return (
+    <SettingLine ref={ref} {...props}>
+      {children}
+    </SettingLine>
+  );
+};
+
+export const Category = ({
+  schema,
+  path = '',
+  getSettingValue,
+  handleChangeSetting,
+  facilityId,
+  scrollToPath,
+  onScrollComplete,
+}) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -114,21 +149,20 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
         const testIdSuffix = newPath.replace(/\./g, '-');
-        const {
-          name,
-          description,
-          type,
-          defaultValue,
-          unit,
-          highRisk,
-          suggesterEndpoint,
-        } = propertySchema;
+        const { name, description, type, defaultValue, unit, highRisk, suggesterEndpoint } =
+          propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
-          <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
+          <ScrollableSettingLine
+            key={newPath}
+            settingPath={newPath}
+            scrollToPath={scrollToPath}
+            onScrollComplete={onScrollComplete}
+            data-testid={`settingline-55rw-${testIdSuffix}`}
+          >
             <SettingName
               disabled={disabled}
               path={newPath}
@@ -148,7 +182,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               facilityId={facilityId}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
-          </SettingLine>
+          </ScrollableSettingLine>
         ) : (
           <Category
             key={newPath}
@@ -158,6 +192,8 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             getSettingValue={getSettingValue}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
+            scrollToPath={scrollToPath}
+            onScrollComplete={onScrollComplete}
             data-testid={`category-9y74-${testIdSuffix}`}
           />
         );
