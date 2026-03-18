@@ -130,7 +130,6 @@ const PRINT_OPTIONS = {
         data-testid="translatedtext-y3mu"
       />
     ),
-    // TODO: Replace with new icon
     icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
     condition: (_, ability) => ability?.can('create', 'IPSRequest'),
