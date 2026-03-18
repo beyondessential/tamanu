@@ -39,8 +39,10 @@ export function productMatrixByCodeLoaderFactory(config) {
 
     if (!state.initialized) {
       // Use sheet header when available so we get all columns even if the first data row has empty cells
+      // Note: Excel may parse number-like headers as numbers, so we coerce to string.
+      // Map null/undefined to empty string to avoid literal "null"/"undefined" in headers.
       const rawHeaders = Array.isArray(sheetHeader)
-        ? sheetHeader.map(h => (typeof h === 'string' ? h.trim() : `${h}`.trim()))
+        ? sheetHeader.map(h => (h == null ? '' : String(h).trim()))
         : Object.keys(item);
       const headers = rawHeaders.filter(Boolean);
       const invoiceProductKey = headers.find(h => h.toLowerCase() === 'invoiceproductid');
