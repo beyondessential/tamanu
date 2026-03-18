@@ -12,9 +12,11 @@ import { RequiredTextField } from './RolesAndDesignationsAdminView';
 const CREATE_ROLE_VALIDATION = yup.object().shape({
   name: yup
     .string()
+    .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   id: yup
     .string()
+    .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
 
