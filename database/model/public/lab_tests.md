@@ -40,15 +40,16 @@ May be a verifying or supervising officer's name, a department, lab notes...
 [Deprecated] Timestamp at which the test was completed.
 {% enddocs %}
 
+{% docs lab_tests__secondary_result %}
+Optional secondary result value for the test.
+
+Only applicable when the test type has `supports_secondary_results` enabled. Used to record an additional result value alongside the primary result, typically for tests that require multiple measurements or interpretations.
+{% enddocs %}
+
 {% docs lab_tests__reference_range_min %}
 Custom reference range for this individual lab test, minimum value.
 {% enddocs %}
 
 {% docs lab_tests__reference_range_max %}
 Custom reference range for this individual lab test, maximum value.
-
-{% docs lab_tests__secondary_result %}
-Optional secondary result value for the test.
-
-Only applicable when the test type has `supports_secondary_results` enabled. Used to record an additional result value alongside the primary result, typically for tests that require multiple measurements or interpretations.
 {% enddocs %}
