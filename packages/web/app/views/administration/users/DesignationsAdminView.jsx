@@ -118,7 +118,7 @@ export const DesignationsAdminView = () => {
     <Article>
       <Header>
         <DesignationsSearchForm />
-        <AddButton onClick={() => navigate('new')}>
+        <AddButton onClick={() => navigate({ pathname: 'new', search: window.location.search })}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-designation" fallback="Add designation" />
         </AddButton>
@@ -144,7 +144,7 @@ export const DesignationsAdminView = () => {
 
       <AddDesignationModal
         open={isAddRoute}
-        onClose={() => navigate('..')}
+        onClose={() => navigate({ pathname: '..', search: window.location.search })}
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
