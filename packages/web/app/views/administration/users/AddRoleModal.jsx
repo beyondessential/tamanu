@@ -55,8 +55,9 @@ const Footer = styled.footer`
 export const AddRoleModal = ({ open, onClose, onSuccess }) => {
   const { isLoading, mutateAsync: createRole } = useRoleCreateMutation({
     onSuccess: () => {
-      toast.success(<TranslatedText stringId="admin.roles.add.success" fallback="Role created" />);
+      onClose?.();
       onSuccess?.();
+      toast.success(<TranslatedText stringId="admin.roles.add.success" fallback="Role created" />);
     },
     onError: error => {
       toast.error(
