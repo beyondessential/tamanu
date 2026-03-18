@@ -37,7 +37,10 @@ const useSidebarFactory = (ITEMS, configKey) => {
 
   return ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
-    if (!localisedItem) return [...topLevelItems, item];
+    if (!localisedItem) {
+      topLevelItems.push(item);
+      return topLevelItems;
+    }
     if (localisedItem.hidden) return topLevelItems;
 
     let children = [];
@@ -46,10 +49,14 @@ const useSidebarFactory = (ITEMS, configKey) => {
       children = item.children
         ?.reduce((childItems, child) => {
           const localisedChild = localisedItem[child.key];
-          if (!localisedChild) return [...childItems, child];
-          if (localisedChild.hidden) return childItems;
-
-          return [...childItems, { ...child, sortPriority: localisedChild.sortPriority }];
+          if (!localisedChild) {
+            childItems.push(child);
+          } else if (localisedChild.hidden) {
+            // Skip
+          } else {
+            childItems.push({ ...child, sortPriority: localisedChild.sortPriority });
+          }
+          return childItems;
         }, [])
         .sort(sortChildItems);
     }
@@ -57,20 +64,17 @@ const useSidebarFactory = (ITEMS, configKey) => {
     if (item.abilities?.length > 0) {
       const hasAtLeastOneAbility = item.abilities.some(ability => checkAbility(ability));
       if (!hasAtLeastOneAbility) return topLevelItems;
-
       children = children.filter(child =>
         child.abilities?.length > 0 ? child.abilities.some(ability => checkAbility(ability)) : true,
       );
     }
 
-    return [
-      ...topLevelItems,
-      {
-        ...item,
-        sortPriority: localisedItem.sortPriority,
-        ...(children.length > 0 && { children }),
-      },
-    ];
+    topLevelItems.push({
+      ...item,
+      sortPriority: localisedItem.sortPriority,
+      ...(children.length > 0 && { children }),
+    });
+    return topLevelItems;
   }, []).sort(sortTopLevelItems);
 };
 
