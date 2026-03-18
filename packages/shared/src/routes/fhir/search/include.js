@@ -1,7 +1,7 @@
 import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
-import { FhirReference } from '@tamanu/shared/services/fhirTypes/reference';
-import { FhirError, Processing, Unsupported } from '@tamanu/shared/utils/fhir';
-import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { FhirReference } from '../../../services/fhirTypes/reference';
+import { FhirError, Processing, Unsupported } from '../../../utils/fhir';
+import { resourcesThatCanDo } from '../../../utils/fhir/resources';
 
 export function resolveIncludes(models, query, parameters, FhirResource) {
   const includes = new Map();

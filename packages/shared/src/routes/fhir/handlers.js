@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
-import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { OperationOutcome } from '../../utils/fhir';
+import { resourcesThatCanDo } from '../../utils/fhir/resources';
 
-import { log } from '@tamanu/shared/services/logging';
+import { log } from '../../services/logging';
 
-import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
+import { requireClientHeaders as requireClientHeadersMiddleware } from './middleware/requireClientHeaders';
 
 import { patientSummaryHandler } from './patientSummary';
 import { readHandler } from './read';

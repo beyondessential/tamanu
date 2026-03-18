@@ -1,9 +1,9 @@
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
-import { FhirSearchSetBundle } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate, OperationOutcome } from '@tamanu/shared/utils/fhir';
+import { FhirSearchSetBundle } from '../../../services/fhirTypes';
+import { formatFhirDate, OperationOutcome } from '../../../utils/fhir';
 import crypto from 'crypto';
 
-import { getBaseUrl, getHL7Link } from '../../utils';
+import { getBaseUrl, getHL7Link } from '../utils';
 
 export class SearchBundleResponse {
   included = [];

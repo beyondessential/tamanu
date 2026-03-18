@@ -1,8 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
+import { OperationOutcome } from '../../utils/fhir';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { resolveSettings } from './utils';
 
 async function mapErr(promise, fn) {
   try {
@@ -43,7 +44,7 @@ export const createResource = async (store, FhirResource, data, requesterId, set
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    await createResource(req.store, FhirResource, req.body, req.user?.id, req.settings);
+    await createResource(req.store, FhirResource, req.body, req.user?.id, resolveSettings(req));
 
     // in spec, we should Location: to the resource, but we don't have it yet
     // TODO: generate ID here, and return it (if resource can be materialised)

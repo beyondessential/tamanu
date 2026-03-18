@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
-import { NotFound, formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
+import { NotFound, formatFhirDate, getFhirDataDictionaries } from '../../../utils/fhir';
 
 import {
   getComposition,
@@ -18,7 +18,14 @@ import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
 export const generateIPSBundle = async (fhirPatientId, user, models) => {
   const dataDictionariesIps = getFhirDataDictionaries().ips;
-  const integrationsIps = config.integrations.ips;
+  const integrationsIps = config.integrations?.ips;
+
+  if (!dataDictionariesIps) {
+    throw new Error('Missing config: hl7.dataDictionaries.ips is required for IPS bundle generation');
+  }
+  if (!integrationsIps) {
+    throw new Error('Missing config: integrations.ips is required for IPS bundle generation');
+  }
 
   const fhirPatient = await models.FhirPatient.findByPk(fhirPatientId);
   if (!fhirPatient) throw new NotFound(`No FHIR patient with id ${fhirPatientId}`);

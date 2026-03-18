@@ -10,7 +10,9 @@ import {
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
 async function getCountSettings(settings) {
-  const { default: settingsDefault, max: settingsMax } = await settings.get('fhir.parameters._count');
+  const { default: settingsDefault, max: settingsMax } = settings
+    ? await settings.get('fhir.parameters._count')
+    : {};
   return {
     default: settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE,
     max: Math.max(settingsMax || 0, settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE),

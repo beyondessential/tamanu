@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate } from '../../../../utils/fhir';
 
-import { getEntryResourceSubject } from '../utils';
+import { escapeHtml, getEntryResourceSubject } from '../utils';
 
 export const getConditions = async ({ patient, models, dataDictionariesIps }) => {
   const patientConditions = await models.PatientCondition.findAll({
@@ -45,7 +45,7 @@ export const getConditions = async ({ patient, models, dataDictionariesIps }) =>
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Condition details for ${patient.displayName} for ${conditionCodingDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Condition details for ${escapeHtml(patient.displayName)} for ${escapeHtml(conditionCodingDisplay)}. Please review the data for more detail.</div>`,
         },
       },
     ];
@@ -66,7 +66,7 @@ export const getConditions = async ({ patient, models, dataDictionariesIps }) =>
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Condition details for ${patient.displayName} for ${patientCondition.condition.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Condition details for ${escapeHtml(patient.displayName)} for ${escapeHtml(patientCondition.condition.name)}. Please review the data for more detail.</div>`,
     },
     onsetPeriod: {
       end: formatFhirDate(patientCondition.resolutionDate),

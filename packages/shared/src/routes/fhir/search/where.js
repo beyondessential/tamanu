@@ -8,7 +8,7 @@ import {
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
 } from '@tamanu/constants';
-import { Invalid, getResultParameterNames, Unsupported } from '@tamanu/shared/utils/fhir';
+import { Invalid, getResultParameterNames, Unsupported } from '../../../utils/fhir';
 
 import { findField } from './common';
 import { getJsonbPath, getJsonbQueryFn } from './jsonb';

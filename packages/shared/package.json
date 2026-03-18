@@ -50,6 +50,22 @@
       "require": "./dist/cjs/test-helpers/*.js",
       "import": "./dist/esm/test-helpers/*.js"
     },
+    "./routes/fhir": {
+      "require": "./dist/cjs/routes/fhir/index.js",
+      "import": "./dist/esm/routes/fhir/index.js"
+    },
+    "./routes/fhir/*": {
+      "require": "./dist/cjs/routes/fhir/*.js",
+      "import": "./dist/esm/routes/fhir/*.js"
+    },
+    "./routes/fhir/utils": {
+      "require": "./dist/cjs/routes/fhir/utils/index.js",
+      "import": "./dist/esm/routes/fhir/utils/index.js"
+    },
+    "./routes/fhir/patientSummary/*": {
+      "require": "./dist/cjs/routes/fhir/patientSummary/*.js",
+      "import": "./dist/esm/routes/fhir/patientSummary/*.js"
+    },
     "./utils/fhir": {
       "require": "./dist/cjs/utils/fhir/index.js",
       "import": "./dist/esm/utils/fhir/index.js"

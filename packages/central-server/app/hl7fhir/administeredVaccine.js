@@ -1,33 +1,17 @@
 import { Op } from 'sequelize';
 import { format } from '@tamanu/utils/dateTime';
 
-import { INJECTION_SITE_VALUES, VACCINE_STATUS } from '@tamanu/constants';
-import { parseHL7Reference } from './utils';
+import { INJECTION_SITE_VALUES } from '@tamanu/constants';
+import { FhirReference } from '@tamanu/shared/services/fhirTypes';
+
+import { administeredVaccineStatusToHL7Status } from '@tamanu/shared/routes/fhir/patientSummary/utils';
+export { administeredVaccineStatusToHL7Status };
 
 // These are the only ones that we support at the moment,
 // so OK to hardcode them for now.
 const HL7_INJECTION_SITE_URL = 'http://terminology.hl7.org/CodeSystem/v3-ActSite';
 const AIRV_TERMINOLOGY_URL =
   'https://www.healthterminologies.gov.au/integration/R4/fhir/ValueSet/australian-immunisation-register-vaccine-1';
-
-export function administeredVaccineStatusToHL7Status(status) {
-  switch (status) {
-    case VACCINE_STATUS.GIVEN:
-      return 'completed';
-    case VACCINE_STATUS.RECORDED_IN_ERROR:
-      return 'entered-in-error';
-    case VACCINE_STATUS.NOT_GIVEN:
-    case VACCINE_STATUS.SCHEDULED:
-    case VACCINE_STATUS.MISSED:
-    case VACCINE_STATUS.DUE:
-    case VACCINE_STATUS.UPCOMING:
-    case VACCINE_STATUS.OVERDUE:
-    case VACCINE_STATUS.UNKNOWN:
-      return 'not-done';
-    default:
-      throw new Error(`Administered vaccine status is not one of []: ${status}`);
-  }
-}
 
 // All known vaccines are reference data IDs (type 'drug')
 const KNOWN_VACCINE_IDS = {
@@ -172,7 +156,7 @@ export function getAdministeredVaccineInclude(_, query) {
         {
           association: 'patient',
           required: true,
-          ...(patient && { where: { id: parseHL7Reference(patient) } }),
+          ...(patient && { where: { id: FhirReference.parse(patient).id } }),
         },
       ],
     },

@@ -1,4 +1,5 @@
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
+import { escapeHtml } from '../utils';
 
 export const getHl7Patient = async ({ patient = {}, models }) => {
   const {
@@ -19,7 +20,7 @@ export const getHl7Patient = async ({ patient = {}, models }) => {
     resourceType: FHIR_RESOURCE_TYPES.PATIENT,
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the details for ${patient.displayName}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the details for ${escapeHtml(patient.displayName)}. Please review the data for more detail.</div>`,
     },
     identifier: [
       {

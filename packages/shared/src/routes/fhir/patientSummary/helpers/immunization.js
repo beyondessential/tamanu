@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate } from '../../../../utils/fhir';
 
-import { getEntryResourceSubject } from '../utils';
-import { administeredVaccineStatusToHL7Status } from '../../../administeredVaccine';
+import { escapeHtml, getEntryResourceSubject, administeredVaccineStatusToHL7Status } from '../utils';
 
 export const getImmunizations = async ({ patient, models, dataDictionariesIps }) => {
   const administeredVaccines = await models.AdministeredVaccine.findAll({
@@ -45,7 +44,7 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${patient.displayName} for ${immunizationCodingDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${escapeHtml(patient.displayName)} for ${escapeHtml(immunizationCodingDisplay)}. Please review the data for more detail.</div>`,
         },
         occurrenceString: 'unknown',
         status: 'not-done',
@@ -67,7 +66,7 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunization details for ${patient.displayName} for ${administeredVaccine.scheduledVaccine.vaccine.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunization details for ${escapeHtml(patient.displayName)} for ${escapeHtml(administeredVaccine.scheduledVaccine.vaccine.name)}. Please review the data for more detail.</div>`,
     },
     status: administeredVaccineStatusToHL7Status(administeredVaccine.status),
     ...(administeredVaccine.date

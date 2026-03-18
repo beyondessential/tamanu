@@ -5,16 +5,17 @@ import {
   normaliseParameters,
   OperationOutcome,
   Unsupported,
-} from '@tamanu/shared/utils/fhir';
+} from '../../../utils/fhir';
 
 import { SearchBundleResponse } from './SearchBundleResponse';
 import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
+import { resolveSettings } from '../utils';
 
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const parameters = await normaliseParameters(FhirResource, req.settings);
+    const parameters = await normaliseParameters(FhirResource, resolveSettings(req));
     const query = await parseRequest(req, parameters);
 
     let includes = null;
