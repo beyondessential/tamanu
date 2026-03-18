@@ -1,8 +1,8 @@
-import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
 import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getFhirAssigners, getFhirDataDictionaries, getFhirNullLastNameValue } from '@tamanu/shared/utils/fhir';
 
 import {
   getBaseUrl,
@@ -22,7 +22,7 @@ function patientName(patient, additional) {
     // lastName is not a mandatory field in Tamanu, but is in HL7
     // Some patients genuinely do not have last names, so, just send
     // a preconfigured string in this circumstance.
-    family: patient.lastName || config.hl7.nullLastNameValue,
+    family: patient.lastName || getFhirNullLastNameValue(),
     given: [patient.firstName, patient.middleName].filter(x => x),
   };
 
@@ -44,17 +44,17 @@ function patientIds(patient, additional) {
     {
       use: 'usual',
       value: patient.displayId,
-      assigner: config.hl7.assigners.patientDisplayId,
-      system: config.hl7.dataDictionaries.patientDisplayId,
+      assigner: getFhirAssigners().patientDisplayId,
+      system: getFhirDataDictionaries().patientDisplayId,
     },
     {
       use: 'secondary',
-      assigner: config.hl7.assigners.patientPassport,
+      assigner: getFhirAssigners().patientPassport,
       value: additional.passportNumber,
     },
     {
       use: 'secondary',
-      assigner: config.hl7.assigners.patientDrivingLicense,
+      assigner: getFhirAssigners().patientDrivingLicense,
       value: additional.drivingLicense,
     },
   ].filter(x => x.value);

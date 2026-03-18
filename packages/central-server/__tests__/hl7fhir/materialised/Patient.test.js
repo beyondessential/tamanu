@@ -8,7 +8,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
+import { getIdentifierNamespace } from '../../../dist/hl7fhir/utils';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -16,7 +16,7 @@ describe(`Materialised FHIR - Patient`, () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
@@ -128,7 +128,7 @@ describe(`Materialised FHIR - Patient`, () => {
       await patient.reload(); // saving PatientAdditionalData updates the patient too
       const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
-      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const id = encodeURIComponent(`${getIdentifierNamespace()}|${patient.displayId}`);
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
 
       // act
@@ -738,7 +738,7 @@ describe(`Materialised FHIR - Patient`, () => {
         [patientOne, patientTwo].map(({ id }) => FhirPatient.materialiseFromUpstream(id)),
       );
 
-      const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
+      const identifier = encodeURIComponent(`${getIdentifierNamespace()}|${patientOne.displayId}`);
       const path = `/api/integration/${INTEGRATION_ROUTE}/Patient?identifier=${identifier}`;
       const response = await app.get(path);
 

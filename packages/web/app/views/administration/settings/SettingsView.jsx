@@ -98,6 +98,15 @@ export const SettingsView = () => {
     },
   );
 
+  const { data: globalSettings } = useAdminSettingsQuery(
+    SETTINGS_SCOPES.GLOBAL,
+    null,
+    {
+      enabled: scope === SETTINGS_SCOPES.FACILITY,
+      select: (data) => applyDefaults(data, SETTINGS_SCOPES.GLOBAL),
+    },
+  );
+
   const queryClient = useQueryClient();
 
   const handleSubmit = async ({ settings }) => {
@@ -144,6 +153,7 @@ export const SettingsView = () => {
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
+              globalSettings={scope === SETTINGS_SCOPES.FACILITY ? globalSettings : undefined}
               data-testid="settingsform-lqhf"
             />
           )}
@@ -167,6 +177,7 @@ const SettingsForm = ({
   setScope,
   facilityId,
   setFacilityId,
+  globalSettings,
 }) => {
   const { ability } = useAuth();
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
@@ -232,6 +243,7 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
+        globalSettings={globalSettings}
         data-testid="styledtabdisplay-teef"
       />
       <WarningModal

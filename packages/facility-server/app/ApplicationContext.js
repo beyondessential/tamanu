@@ -5,6 +5,7 @@ import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { closeDatabase, initDatabase } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -53,6 +54,11 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+
+    if (config.integrations?.fhir?.enabled || config.integrations?.fhir?.worker?.enabled) {
+      const facilityReaders = facilityIds.map(id => this.settings[id]);
+      await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    }
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting(this.store);
     }

@@ -1,6 +1,6 @@
-import config from 'config';
-
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
+
+import { getFhirWorkerSettings } from './fhirSettings';
 
 /**
  * @param {Model[]} models
@@ -8,13 +8,14 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
  * @returns {FhirResource[]}
  */
 export function resourcesThatCanDo(models, ...interactions) {
+  const workerSettings = getFhirWorkerSettings();
   return Object.values(models).filter((Resource) =>
     interactions.every((interaction) => {
       // Check if materialisation of resource is enabled
       if (
-        !config.integrations.fhir.worker.enabled ||
+        !workerSettings.enabled ||
         (interaction === FHIR_INTERACTIONS.INTERNAL.MATERIALISE &&
-          !config.integrations.fhir.worker.resourceMaterialisationEnabled[Resource.fhirName])
+          !workerSettings.resourceMaterialisationEnabled[Resource.fhirName])
       ) {
         return false;
       }

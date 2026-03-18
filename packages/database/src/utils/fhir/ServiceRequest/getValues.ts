@@ -19,7 +19,7 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
-import { Exception, formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { Exception, formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { Model } from '../../../models/Model';
 import type { ImagingRequest, LabRequest, Note } from '../../../models';
@@ -34,6 +34,7 @@ export async function getValues(upstream: Model, models: Models) {
 
 async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Models) {
   const { ImagingAreaExternalCode } = models;
+  const dataDicts = getFhirDataDictionaries();
 
   const areaExtCodes = new Map(
     (
@@ -60,11 +61,11 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: dataDicts.serviceRequestImagingId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: dataDicts.serviceRequestImagingDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -81,7 +82,7 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: await imagingCode(upstream, models),
+    code: await imagingCode(upstream, models, dataDicts),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -90,7 +91,7 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
               coding: [
                 new FhirCoding({
                   code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
+                  system: dataDicts.areaExternalCode,
                 }),
               ],
             }),
@@ -108,6 +109,7 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
 }
 
 async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
+  const dataDicts = getFhirDataDictionaries();
   const subject = await FhirReference.to(models.FhirPatient, upstream.encounter?.patient?.id, {
     display: `${upstream.encounter?.patient?.firstName} ${upstream.encounter?.patient?.lastName}`,
   });
@@ -121,11 +123,11 @@ async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabId,
+        system: dataDicts.serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
+        system: dataDicts.serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -142,8 +144,8 @@ async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
       }),
     ],
     priority: validatePriority(upstream.priority?.name),
-    code: labCode(upstream),
-    orderDetail: labOrderDetails(upstream),
+    code: labCode(upstream, dataDicts),
+    orderDetail: labOrderDetails(upstream, dataDicts),
     subject,
     encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
@@ -165,7 +167,7 @@ function resolveSpecimen(upstream: LabRequest, models: Models) {
   return FhirReference.to(models.FhirSpecimen, upstream.id);
 }
 
-async function imagingCode(upstream: ImagingRequest, models: Models) {
+async function imagingCode(upstream: ImagingRequest, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const { ImagingTypeExternalCode } = models;
   const { imagingTypes } = config.localisation.data;
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
@@ -184,7 +186,7 @@ async function imagingCode(upstream: ImagingRequest, models: Models) {
     code,
     undefined,
     label,
-    config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,
+    dataDicts.serviceRequestImagingTypeCodeSystem,
   );
 }
 
@@ -277,7 +279,7 @@ export function shouldForceRematerialise(
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
-function labCode(upstream: LabRequest) {
+function labCode(upstream: LabRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const { labTestPanelRequest } = upstream;
 
   // ServiceRequests may not have a panel
@@ -289,12 +291,12 @@ function labCode(upstream: LabRequest) {
     code,
     externalCode,
     name,
-    config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
-    config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem,
+    dataDicts.serviceRequestLabPanelCodeSystem,
+    dataDicts.serviceRequestLabPanelExternalCodeSystem,
   );
 }
 
-function labOrderDetails({ tests }: LabRequest) {
+function labOrderDetails({ tests }: LabRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   if (tests.length) {
     return tests.map(({ labTestType }) => {
       if (!labTestType) throw new Exception('Received a null test');
@@ -305,8 +307,8 @@ function labOrderDetails({ tests }: LabRequest) {
         code,
         externalCode,
         name,
-        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+        dataDicts.serviceRequestLabTestCodeSystem,
+        dataDicts.serviceRequestLabTestExternalCodeSystem,
       );
     });
   }

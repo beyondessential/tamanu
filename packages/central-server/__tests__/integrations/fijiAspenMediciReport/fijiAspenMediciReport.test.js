@@ -336,7 +336,7 @@ const fakeAllData = async (models, ctx) => {
   await models.MediciReport.materialiseFromUpstream(encounterId);
   await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne();
+  const medici = await models.MediciReport.findOne({ where: { upstreamId: encounterId } });
 
   await medici.update({
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
@@ -353,6 +353,18 @@ describe('fijiAspenMediciReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+
+    // The report SQL compares a timestamptz column against a bare timestamp
+    // (result of AT TIME ZONE), so PG implicitly casts back using the session
+    // timezone. Ensure every pool connection has it set correctly.
+    const { sequelize } = ctx.store;
+    const poolMax = sequelize.options.pool?.max || 5;
+    await Promise.all(
+      Array.from({ length: poolMax }, () =>
+        sequelize.query(`SET timezone TO '${PRIMARY_TIME_ZONE}'`),
+      ),
+    );
+
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, ctx);

@@ -8,7 +8,7 @@ describe('sortResourcesInDependencyOrder', () => {
   let models;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
   });
 
@@ -30,6 +30,7 @@ describe('sortResourcesInDependencyOrder', () => {
       'FhirEncounter',
       'FhirImmunization',
       'FhirServiceRequest',
+      'FhirMedicationRequest',
     ]);
   });
 });

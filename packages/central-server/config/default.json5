@@ -335,30 +335,7 @@
       // the FHIR API being exposed to the public in a deployment that doesn't need it.
       "enabled": false, // the HTTP routes
       "worker": {
-        "enabled": true, // the materialisation worker
-        "concurrency": 10,
-        "resourceMaterialisationEnabled": {
-          "Patient": true,
-          "Encounter": false,
-          "Immunization": false,
-          "MediciReport": false,
-          "Organization": false,
-          "Practitioner": false,
-          "ServiceRequest": false,
-          "Specimen": false,
-          "MedicationRequest": false
-        }
-      },
-      "parameters": {
-        "_count": {
-          "default": 100,
-          "max": 1000
-        }
-      },
-      "extensions": {
-        "Patient": {
-          "newZealandEthnicity": false
-        }
+        "enabled": true // the materialisation worker
       }
     },
     "omniLab": {
@@ -406,46 +383,6 @@
 
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
-    }
-  },
-  "hl7": {
-    "nullLastNameValue": "NoLastName",
-    "assigners": {
-      "patientDisplayId": "Tamanu",
-      "patientDrivingLicense": "RTA",
-      "patientPassport": "Fiji Passport Office"
-    },
-    "dataDictionaries": {
-      "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
-      "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
-      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
-      "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
-      "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-      "pharmacyOrderPrescriptionId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html",
-      "pharmacyOrderId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html",
-      "medicationCodeSystem": "http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html",
-      "medicationRouteCodeSystem": "http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html",
-      "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
-      "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
-      "serviceRequestImagingTypeCodeSystem": "http://tamanu.io/data-dictionary/imaging-type-code.html",
-      "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
-      "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
-      "serviceRequestLabPanelCodeSystem": "https://www.senaite.com/profileCodes.html",
-      "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
-      "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
-      "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
-      "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
-      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
-      "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
-      "ips": {
-        "medicationEncoding": "http://nzmt.org.nz",
-        "allergyIntoleranceEncoding": "http://snomed.info/sct",
-        "conditionEncoding": "http://snomed.info/sct",
-        "immunizationEncoding": "http://nzmt.org.nz",
-        "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
-      },
-      "specimenType": "http://www.senaite.com/data/sample_types",
-      "sampleBodySite": "http://bodySITE.NEW"
     }
   },
   "s3": {

@@ -30,7 +30,7 @@ describe('FhirQueueManager', () => {
   let models;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
   });
 
@@ -104,7 +104,7 @@ describe('FhirQueueManager', () => {
 
     beforeEach(async () => {
       logger = jest.fn();
-      queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+      queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
       queueManager.testMode = true;
       await queueManager.start();
       await queueManager.setHandler('test', testHandler);
@@ -155,9 +155,9 @@ describe('FhirQueueManager', () => {
         await models.FhirJob.truncate();
 
         logger = jest.fn();
-        queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+        queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
         queueManager.testMode = true;
-        queueManager.config.concurrency = 1;
+        queueManager._concurrency = 1;
         await queueManager.setHandler('test1', testHandler);
         await queueManager.setHandler('test2', testHandler);
         await queueManager.start();
@@ -259,7 +259,7 @@ describe('FhirQueueManager', () => {
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        queueManager.config.concurrency = 10;
+        queueManager._concurrency = 10;
         await queueManager.setHandler('test3', testHandler);
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');

@@ -84,6 +84,7 @@ export const SettingInput = ({
   path,
   value,
   defaultValue,
+  globalValue,
   handleChangeSetting,
   unit,
   typeSchema,
@@ -95,9 +96,10 @@ export const SettingInput = ({
   const [error, setError] = useState(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
+  const resetValue = !isUndefined(globalValue) ? globalValue : defaultValue;
+  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(resetValue)), [
     value,
-    defaultValue,
+    resetValue,
   ]);
 
   useEffect(() => {
@@ -113,33 +115,29 @@ export const SettingInput = ({
     }
   }, [value, typeSchema, type]);
 
+  const hasGlobalOverride = !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
+  const resetLabel = hasGlobalOverride
+    ? <TranslatedText stringId="admin.settings.action.resetToGlobal" fallback="Reset to global" data-testid="translatedtext-8elp" />
+    : <TranslatedText stringId="admin.settings.action.resetToDefault" fallback="Reset to default" data-testid="translatedtext-8elp" />;
+  const unchangedTooltip = hasGlobalOverride
+    ? <TranslatedText stringId="admin.settings.action.resetToGlobal.unchangedTooltip" fallback="This setting matches the global value" data-testid="translatedtext-1kr8" />
+    : <TranslatedText stringId="admin.settings.action.resetToDefault.unchangedTooltip" fallback="This setting is already at its default value" data-testid="translatedtext-1kr8" />;
+
   const DefaultButton = () => {
     if (disabled) return null;
     return (
       <ConditionalTooltip
         visible={isUnchangedFromDefault}
-        title={
-          isUnchangedFromDefault && (
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault.unchangedTooltip"
-              fallback="This setting is already at its default value"
-              data-testid="translatedtext-1kr8"
-            />
-          )
-        }
+        title={isUnchangedFromDefault && unchangedTooltip}
         data-testid="conditionaltooltip-qp1v"
       >
         <div>
           <DefaultSettingButton
             disabled={isUnchangedFromDefault}
-            onClick={() => handleChangeSetting(path, defaultValue)}
+            onClick={() => handleChangeSetting(path, resetValue)}
             data-testid="defaultsettingbutton-4vbq"
           >
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault"
-              fallback="Reset to default"
-              data-testid="translatedtext-8elp"
-            />
+            {resetLabel}
           </DefaultSettingButton>
         </div>
       </ConditionalTooltip>
@@ -151,7 +149,8 @@ export const SettingInput = ({
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
-  const displayValue = isUndefined(value) ? defaultValue : value;
+  const effectiveDefault = hasGlobalOverride ? globalValue : defaultValue;
+  const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
   const key = path.split('.').pop();
@@ -170,6 +169,7 @@ export const SettingInput = ({
               helperText={error?.message}
             />
             <DefaultButton data-testid="defaultbutton-qsdq" />
+
           </Flexbox>
         );
       case SETTING_TYPES.STRING:
@@ -184,6 +184,7 @@ export const SettingInput = ({
               helperText={error?.message}
             />
             <DefaultButton data-testid="defaultbutton-qsdq" />
+
           </Flexbox>
         );
       default:

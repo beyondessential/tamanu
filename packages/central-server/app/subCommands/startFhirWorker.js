@@ -21,7 +21,7 @@ export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
     log.info(`FHIR worker restricted to topics: ${topics.join(', ')}`);
   }
 
-  const worker = await startFhirWorkerTasks({ store: context.store, topics });
+  const worker = await startFhirWorkerTasks({ store: context.store, settings: context.settings, topics });
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, async () => {

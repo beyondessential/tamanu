@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -11,7 +9,7 @@ import {
   FhirReference,
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
-import { Invalid } from '@tamanu/shared/utils/fhir';
+import { getFhirDataDictionaries, Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
@@ -180,20 +178,21 @@ export class FhirObservation extends FhirResource {
       FhirCoding.asYup().validateSync(coding),
     );
 
+    const dd = getFhirDataDictionaries();
     const labTestCode = validatedCodings.find(
-      coding => coding.system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+      coding => coding.system === dd.serviceRequestLabTestCodeSystem,
     )?.code;
 
     const labTestExternalCode = validatedCodings.find(
       coding =>
-        coding.system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+        coding.system === dd.serviceRequestLabTestExternalCodeSystem,
     )?.code;
 
     if (!labTestCode && !labTestExternalCode) {
       throw new Invalid('Invalid code, must provide a code of one of the configured systems:', {
         systems: [
-          config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-          config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+          dd.serviceRequestLabTestCodeSystem,
+          dd.serviceRequestLabTestExternalCodeSystem,
         ],
       });
     }

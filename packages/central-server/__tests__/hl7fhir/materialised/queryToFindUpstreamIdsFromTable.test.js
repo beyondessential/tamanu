@@ -67,7 +67,7 @@ describe('queryToFindUpstreamIdsFromTable', () => {
   let ctx;
   let materialisableResources;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     materialisableResources = resourcesThatCanDo(
       ctx.store.models,
       FHIR_INTERACTIONS.INTERNAL.MATERIALISE,

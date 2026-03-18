@@ -13,29 +13,30 @@ export class FhirQueueManager {
 
   worker = null;
 
-  config = theConfig.integrations.fhir.worker;
+  config = theConfig.integrations?.fhir?.worker;
 
   // if false, immediately reprocess the queue after a job is completed
   // to work through the backlog promptly; this makes testing harder, so
   // in "testMode" it's disabled.
   testMode = false;
 
-  constructor(context, log) {
+  constructor(context, settings, log) {
     this.models = context.models;
     this.sequelize = context.sequelize;
+    this.settings = settings;
     this.log = log;
   }
 
   async start() {
-    const { FhirJobWorker, Setting } = this.models;
-    const { enabled } = this.config;
+    const { FhirJobWorker } = this.models;
+    const { enabled } = this.config ?? {};
 
     if (!enabled) {
       this.log.info('FhirQueueManager: disabled');
       return;
     }
 
-    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirQueueManager: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
     this.log.debug('FhirQueueManager: added some jitter to the heartbeat', { heartbeat });
@@ -112,8 +113,10 @@ export class FhirQueueManager {
    *
    * @returns {number} Total capacity of the queue manager.
    */
-  totalCapacity() {
-    return Math.max(0, this.config.concurrency);
+  async totalCapacity() {
+    const concurrency =
+      this._concurrency ?? (await this.settings.get('fhir.worker.concurrency')) ?? 0;
+    return Math.max(0, concurrency);
   }
 
   /**
@@ -123,12 +126,14 @@ export class FhirQueueManager {
    * Every topic can run at least 1 job (regardless of total capacity), and the remaining capacity
    * is divided evenly among the topics.
    *
+   * @param {number} [capacity] - Pre-fetched capacity to avoid a redundant settings read.
    * @returns {number} Amount of jobs to run in parallel for a topic.
    */
-  parallelisationPerTopic() {
+  async parallelisationPerTopic(capacity) {
+    const cap = capacity ?? (await this.totalCapacity());
     return Math.max(
-      this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
-      Math.floor(this.totalCapacity() / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
+      cap > 0 ? 1 : 0, // return at least 1 if there's any capacity
+      Math.floor(cap / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
     );
   }
 
@@ -154,7 +159,8 @@ export class FhirQueueManager {
         });
 
         try {
-          if (this.totalCapacity() === 0) {
+          const capacity = await this.totalCapacity();
+          if (capacity === 0) {
             this.log.debug('FhirQueueManager: no capacity');
             return;
           }
@@ -165,7 +171,7 @@ export class FhirQueueManager {
             return;
           }
 
-          await this.queueProcessors.get(topic).processQueue();
+          await queueProcessor.processQueue(capacity);
         } catch (err) {
           this.log.debug('Trouble retrieving the backlog');
           span.recordException(err);

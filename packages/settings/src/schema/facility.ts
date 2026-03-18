@@ -10,6 +10,7 @@ import {
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
+  fhirResourceMaterialisationSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -192,6 +193,24 @@ export const facilitySettings = {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
+        },
+      },
+    },
+    fhir: {
+      name: 'FHIR',
+      description: 'FHIR integration settings (facility-level overrides)',
+      highRisk: true,
+      properties: {
+        worker: {
+          name: 'FHIR worker',
+          description: 'FHIR worker settings',
+          properties: {
+            resourceMaterialisationEnabled: {
+              ...fhirResourceMaterialisationSchema,
+              infoBanner:
+                'Resource materialisation settings are merged across all facilities on this server. Enabling a resource type here will enable it server-wide, even if other facilities have it disabled.',
+            },
+          },
         },
       },
     },

@@ -1,7 +1,5 @@
-import config from 'config';
-
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { LabRequest } from '../../../models';
 import type { Model } from '../../../models/Model';
@@ -14,6 +12,7 @@ export async function getValues(upstream: Model, models: Models) {
 }
 
 async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
+  const dataDicts = getFhirDataDictionaries();
   const collector = await collectorRef(upstream, models);
   const request = await requestRef(upstream, models);
   return {
@@ -21,9 +20,9 @@ async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
     collection: createCollection(
       formatFhirDate(upstream.sampleTime),
       collector,
-      await resolveBodySite(upstream, models),
+      await resolveBodySite(upstream, models, dataDicts),
     ),
-    type: await resolveSpecimenType(upstream, models),
+    type: await resolveSpecimenType(upstream, models, dataDicts),
     request: [request],
     resolved: request.isResolved() && (collector ? collector.isResolved() : true),
   };
@@ -65,7 +64,7 @@ async function collectorRef(labRequest: LabRequest, models: Models) {
   });
 }
 
-async function resolveBodySite(upstream: LabRequest, models: Models) {
+async function resolveBodySite(upstream: LabRequest, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const { ReferenceData } = models;
   const { labSampleSiteId } = upstream;
 
@@ -78,7 +77,7 @@ async function resolveBodySite(upstream: LabRequest, models: Models) {
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.sampleBodySite,
+        system: dataDicts.sampleBodySite,
         code: bodySite.code,
         display: bodySite.name,
       }),
@@ -86,7 +85,7 @@ async function resolveBodySite(upstream: LabRequest, models: Models) {
   });
 }
 
-async function resolveSpecimenType(upstream: LabRequest, models: Models) {
+async function resolveSpecimenType(upstream: LabRequest, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const { ReferenceData } = models;
   const { specimenTypeId } = upstream;
 
@@ -99,7 +98,7 @@ async function resolveSpecimenType(upstream: LabRequest, models: Models) {
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.specimenType,
+        system: dataDicts.specimenType,
         code: specimenType.code,
         display: specimenType.name,
       }),
