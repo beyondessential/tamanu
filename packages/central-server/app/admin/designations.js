@@ -85,9 +85,7 @@ designationRouter.delete(
     } = req;
 
     await sequelize.transaction(async () => {
-      const designation = await ReferenceData.findOne({
-        where: { id, type: REFERENCE_TYPES.DESIGNATION },
-      });
+      const designation = await ReferenceData.findByPk(id);
       if (!designation) {
         throw new NotFoundError(`No designation found with ID ${id}`);
       }
