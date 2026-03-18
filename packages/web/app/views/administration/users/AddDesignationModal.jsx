@@ -47,8 +47,8 @@ const Footer = styled.footer`
 export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   const { isLoading, mutateAsync: createDesignation } = useDesignationCreateMutation({
     onSuccess: () => {
+      onClose?.();
       onSuccess?.();
-      onClose();
       toast.success(
         <TranslatedText stringId="admin.designations.add.success" fallback="Designation created" />,
       );
