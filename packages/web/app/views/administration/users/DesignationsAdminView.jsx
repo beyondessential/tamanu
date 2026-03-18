@@ -54,8 +54,8 @@ const DeleteConfirmationModalContent = styled(Typography).attrs({
 
 export const DesignationsAdminView = () => {
   const [searchParams] = useSearchParams();
-  const idQuery = searchParams.get('id');
-  const nameQuery = searchParams.get('name');
+  const idQuery = searchParams.get('id') ?? undefined;
+  const nameQuery = searchParams.get('name') ?? undefined;
 
   const isAddRoute = Boolean(useMatch('/admin/users/designations/new'));
   const navigate = useNavigate();
