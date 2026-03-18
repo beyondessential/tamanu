@@ -138,7 +138,7 @@ export class Model<
     const models = this.sequelize.models;
     const resultInit = Object.entries(this.dataValues)
       .filter(([, val]) => val !== null)
-      .reduce<Record<string, unknown>>((obj, [key, val]) => {
+      .reduce<Record<string, any>>((obj, [key, val]) => {
         obj[key] = val;
         return obj;
       }, {});
@@ -151,7 +151,7 @@ export class Model<
     // if the structure of a nested object differs significantly from its database representation,
     // it's probably more correct to implement that as a separate endpoint rather than putting the
     // logic here.
-    return references.reduce((result: Record<string, any>, referenceName: string) => {
+    return references.reduce<Record<string, any>>((result, referenceName) => {
       const referenceVal = result[referenceName];
       if (!referenceVal) return result;
       result[firstLetterLowercase(referenceName)] = referenceVal.dataValues;
@@ -167,7 +167,7 @@ export class Model<
     return this.constructor.name;
   }
 
-  static getListReferenceAssociations(_models?: Models): any | undefined {
+  static getListReferenceAssociations(_models?: Models): readonly string[] | undefined {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
     //
