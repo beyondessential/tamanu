@@ -171,13 +171,22 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="lab.modal.testResult.value.laboratoryOfficer"
-                fallback="Laboratory Officer"
-                data-testid="translatedtext-s10n"
+                stringId="lab.modal.testResult.value.testMethod"
+                fallback="Test Method"
+                data-testid="translatedtext-xhkj"
               />
             }
-            value={labTest?.laboratoryOfficer}
-            data-testid="valuedisplay-n6cd"
+            value={
+              labTest?.labTestMethod?.name && (
+                <TranslatedReferenceData
+                  fallback={labTest.labTestMethod.name}
+                  value={labTest.labTestMethod.id}
+                  category="labTestMethod"
+                  data-testid="translatedreferencedata-8ker"
+                />
+              )
+            }
+            data-testid="valuedisplay-op8r"
           />
           <ValueDisplay
             title={
@@ -220,22 +229,13 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="lab.modal.testResult.value.testMethod"
-                fallback="Test Method"
-                data-testid="translatedtext-xhkj"
+                stringId="lab.modal.testResult.value.laboratoryOfficer"
+                fallback="Laboratory Officer"
+                data-testid="translatedtext-s10n"
               />
             }
-            value={
-              labTest?.labTestMethod?.name && (
-                <TranslatedReferenceData
-                  fallback={labTest.labTestMethod.name}
-                  value={labTest.labTestMethod.id}
-                  category="labTestMethod"
-                  data-testid="translatedreferencedata-8ker"
-                />
-              )
-            }
-            data-testid="valuedisplay-op8r"
+            value={labTest?.laboratoryOfficer}
+            data-testid="valuedisplay-n6cd"
           />
         </Column>
       </ModalBody>
