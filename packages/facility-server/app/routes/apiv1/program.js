@@ -55,7 +55,8 @@ programRelations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
     const { models, params, query, ability } = req;
-    const patientId = query.patientId;
+    // Frontend may pass `patientId` as `params[patientId]` depending on how the query string is built.
+    const patientId = query.patientId ?? query.params?.patientId;
 
     const records = await models.Survey.findAll({
       where: {
