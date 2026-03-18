@@ -122,7 +122,7 @@ export const RolesAdminView = () => {
     },
     onError: error => {
       toast.error(
-        error.message ?? (
+        error.message || (
           <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
         ),
       );
