@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Button, TextButton, ButtonRow } from '@tamanu/ui-components';
+import { Button, TextButton, ButtonRow, SelectInput } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
 import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
-import { ProgramSurveyList } from '../../components/ProgramSurveyList';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -43,33 +42,39 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
   );
 };
 
+const blockedTooltip = (
+  <TranslatedText
+    stringId="program.formVisibility.blockedTooltip"
+    fallback="An earlier requirement in this workflow has not been completed"
+  />
+);
+
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
   const [open, setOpen] = useState(false);
 
-  const handleSelectSurvey = surveyId => {
-    onChange(surveyId);
+  const options = (surveys || []).map(survey => ({
+    value: survey.value,
+    label: survey.label,
+    isDisabled: survey.passesFormVisibility === false,
+    tooltip: survey.passesFormVisibility === false ? blockedTooltip : undefined,
+  }));
+
+  const handleChange = e => {
+    onChange(e.target.value);
   };
 
   const handleSubmit = () => {
     onSubmit(value);
   };
 
-  const items = (surveys || []).map(survey => {
-    const disabled = survey.passesFormVisibility === false;
-    return {
-      value: survey.value,
-      label: survey.label,
-      disabled,
-      showVisibilityTooltip: disabled,
-    };
-  });
-
   return (
     <>
-      <ProgramSurveyList
-        items={items}
-        selectedValue={value}
-        onSelect={handleSelectSurvey}
+      <SelectInput
+        name="survey"
+        options={options}
+        value={value ?? ''}
+        onChange={handleChange}
+        data-testid="surveyselector-survey-select"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
         <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />

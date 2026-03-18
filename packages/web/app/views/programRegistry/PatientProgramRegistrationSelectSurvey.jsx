@@ -6,7 +6,8 @@ import { REGISTRATION_STATUSES, SURVEY_TYPES, FORM_TYPES } from '@tamanu/constan
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
 import { Heading5 } from '../../components/Typography';
-import { Form, Button, FormGrid } from '@tamanu/ui-components';
+import { Field } from 'formik';
+import { Form, Button, FormGrid, BaseSelectField } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -15,8 +16,6 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
-import { ProgramSurveyList } from '../../components/ProgramSurveyList';
-
 const DisplayContainer = styled.div`
   border: 1px solid ${Colors.outline};
   padding: 0 15px 20px 20px;
@@ -73,6 +72,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     <DisplayContainer>
       <Form
         showInlineErrorsOnly
+        initialValues={{ surveyId: '' }}
         onSubmit={async values => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
@@ -82,16 +82,27 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           );
         }}
         formType={FORM_TYPES.CREATE_FORM}
-        render={({ values, setFieldValue, submitForm }) => {
+        render={({ submitForm, values }) => {
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
-          const items = (surveys || []).map(survey => {
-            const disabled = isRemoved || !survey.passesFormVisibility;
+          const surveyOptions = (surveys || []).map(survey => {
+            const visibilityBlocked = survey.passesFormVisibility === false;
+            const disabled = isRemoved || visibilityBlocked;
             return {
               value: survey.value,
               label: survey.label,
-              disabled,
-              showVisibilityTooltip: disabled && !isRemoved,
+              isDisabled: disabled,
+              tooltip: isRemoved ? (
+                <TranslatedText
+                  stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
+                  fallback="Patient must be active"
+                />
+              ) : visibilityBlocked ? (
+                <TranslatedText
+                  stringId="program.formVisibility.blockedTooltip"
+                  fallback="An earlier requirement in this workflow has not been completed"
+                />
+              ) : undefined,
             };
           });
           return (
@@ -109,13 +120,23 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     }}
                   />
                 </Heading5>
-                <ConditionalTooltip visible={isRemoved} title="Patient must be active">
-                  <ProgramSurveyList
-                    items={items}
-                    selectedValue={values.surveyId}
-                    onSelect={id => setFieldValue('surveyId', id)}
-                    listMarginBottom={8}
-                  />
+                <ConditionalTooltip
+                  visible={isRemoved}
+                  title={
+                    <TranslatedText
+                      stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
+                      fallback="Patient must be active"
+                    />
+                  }
+                >
+                  <div>
+                    <Field
+                      name="surveyId"
+                      component={BaseSelectField}
+                      options={surveyOptions}
+                      data-testid="program-registry-survey-select"
+                    />
+                  </div>
                 </ConditionalTooltip>
               </div>
               <ConditionalTooltip
