@@ -52,7 +52,7 @@ const PRINT_OPTIONS = {
     caption: (
       <TranslatedText
         stringId="patientDetails.resources.idCard.caption"
-        fallback="Patient identification card"
+        fallback="Patient identification card with barcode"
         data-testid="translatedtext-mxwh"
       />
     ),
