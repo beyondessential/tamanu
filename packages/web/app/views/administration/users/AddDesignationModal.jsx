@@ -55,7 +55,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
     },
     onError: error => {
       toast.error(
-        error.message ?? (
+        error.message || (
           <TranslatedText
             stringId="admin.designations.add.error"
             fallback="Couldn’t create designation"

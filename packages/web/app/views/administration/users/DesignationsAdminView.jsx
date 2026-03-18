@@ -75,7 +75,7 @@ export const DesignationsAdminView = () => {
     },
     onError: error => {
       toast.error(
-        error.message ?? (
+        error.message || (
           <TranslatedText
             stringId="admin.designations.delete.error"
             fallback="Couldn’t delete designation"
