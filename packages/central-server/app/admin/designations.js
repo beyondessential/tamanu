@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
-import { Op } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
@@ -45,27 +45,23 @@ designationRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'ReferenceData');
 
-    const {
-      store: {
-        models: { ReferenceData },
-        sequelize,
-      },
-    } = req;
+    const { ReferenceData } = req.store.models;
     const { id, name } = await createDesignationSchema.parseAsync(req.body);
 
-    const designation = await sequelize.transaction(async () => {
-      const exists = await ReferenceData.findByPk(id);
-      if (exists) {
-        throw new DatabaseDuplicateError(`A reference datum already exists with ID ‘${id}’.`);
-      }
-
-      return ReferenceData.create({
+    let designation;
+    try {
+      designation = await ReferenceData.create({
         code: id.trim(),
         id: id.trim(),
         name: name.trim(),
         type: REFERENCE_TYPES.DESIGNATION,
       });
-    });
+    } catch (err) {
+      if (err instanceof UniqueConstraintError) {
+        throw new DatabaseDuplicateError(`A reference datum already exists with ID ‘${id}’.`);
+      }
+      throw err;
+    }
 
     res.status(201).send(designation);
   }),
