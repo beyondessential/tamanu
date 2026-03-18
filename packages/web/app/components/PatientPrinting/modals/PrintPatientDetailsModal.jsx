@@ -45,7 +45,7 @@ const PRINT_OPTIONS = {
     label: (
       <TranslatedText
         stringId="patientDetails.resources.idCard"
-        fallback="ID Card"
+        fallback="ID card"
         data-testid="translatedtext-nq3p"
       />
     ),
