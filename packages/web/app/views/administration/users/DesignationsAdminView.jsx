@@ -57,7 +57,7 @@ export const DesignationsAdminView = () => {
   const idQuery = searchParams.get('id') ?? undefined;
   const nameQuery = searchParams.get('name') ?? undefined;
 
-  const isAddRoute = Boolean(useMatch('/admin/users/designations/new'));
+  const isAddRoute = Boolean(useMatch('/admin/users/rolesAndDesignations/designations/new'));
   const navigate = useNavigate();
   const [designationToDelete, setDesignationToDelete] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);

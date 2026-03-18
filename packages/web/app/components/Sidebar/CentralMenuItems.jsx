@@ -108,7 +108,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
             data-testid="translatedtext-roles-designations"
           />
         ),
-        path: '/admin/users/roles',
+        path: '/admin/users/rolesAndDesignations',
         key: 'rolesAndDesignations',
       },
     ],

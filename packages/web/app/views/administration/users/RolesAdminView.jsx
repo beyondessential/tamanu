@@ -66,7 +66,7 @@ export const RolesAdminView = () => {
   const idQuery = searchParams.get('id') ?? undefined;
 
   // ‘Add role’ modal state
-  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
+  const isAddRoute = Boolean(useMatch('/admin/users/rolesAndDesignations/roles/new'));
   const navigate = useNavigate();
 
   // DataFetchingTable state
