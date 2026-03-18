@@ -77,7 +77,7 @@ export class LabRequestModalBase {
       heading: 'heading3-keat',
       description: 'styledbodytext-8egc',
       requestingClinicianInput: 'field-z6gb-input',
-      requestDateTimeInput: 'field-y6ku-input',
+      requestDateTimeInput: 'field-y6ku',
       departmentInput: 'field-wobc-input',
       prioritySelect: 'selectinput-phtg-select',
       panelRadioButton: 'radio-il3t-panel',
@@ -92,7 +92,7 @@ export class LabRequestModalBase {
       selectedCategoryList: 'testitemwrapper-o7ha',
       clearAllButton: 'clearallbutton-ao0r',
       testSelectionError: 'formhelpertext-198r',
-      dateTimeCollectedInputs: 'styledfield-ratc-input',
+      dateTimeCollectedInputs: 'styledfield-ratc',
       collectedByInputs: 'styledfield-wifm-input',
       collectedBySuggestionsList: 'styledfield-wifm-suggestionslist',
       specimenTypeInputs: 'styledfield-8g4b-input',
@@ -126,7 +126,7 @@ export class LabRequestModalBase {
     
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');

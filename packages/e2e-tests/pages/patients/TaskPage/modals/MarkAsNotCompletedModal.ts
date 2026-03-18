@@ -16,7 +16,7 @@ export class MarkAsNotCompletedModal {
 
     const testIds = {
       recordedByInput: 'field-maud-input',
-      recordDateTimeField: 'field-sgto-input',
+      recordDateTimeField: 'field-sgto',
       reasonNotCompletedInput: 'field-r3a1-input',
       confirmButton: 'formsubmitcancelrow-y08n-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',

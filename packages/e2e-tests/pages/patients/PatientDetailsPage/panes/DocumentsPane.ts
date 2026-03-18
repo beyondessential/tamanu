@@ -12,7 +12,7 @@ export class DocumentsPane {
     this.page = page;
 
     const testIds = {
-        addDocumentButton: 'component-enxe',
+        addDocumentButton: 'buttonwithpermissioncheck-slv7',
         noteDataContainer: 'statustablecell-rwkq',
 
     } as const;

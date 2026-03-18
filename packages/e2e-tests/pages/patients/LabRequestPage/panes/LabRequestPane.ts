@@ -27,7 +27,7 @@ export class LabRequestPane {
 
   constructor(page: Page) {
     this.page = page;
-    this.newLabRequestButton = page.getByTestId('component-enxe').getByText('New Lab Request');
+    this.newLabRequestButton = page.getByTestId('buttonwithpermissioncheck-kcrs');
     
     // Table locators
     this.labRequestTable = page.getByTestId('styledtable-1dlu');

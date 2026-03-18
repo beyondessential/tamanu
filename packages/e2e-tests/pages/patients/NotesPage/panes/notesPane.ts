@@ -43,7 +43,7 @@ export class NotesPane {
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
       noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
-      newNoteButton: 'component-enxe',
+      newNoteButton: 'buttonwithpermissioncheck-qbou',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
       editIcons: 'styledediticon-nmdz',

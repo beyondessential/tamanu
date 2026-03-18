@@ -26,7 +26,7 @@ export class AddReferralModal {
     this.referralFormGrid = this.page.getByTestId('formgrid-prtu');
     this.surveySelector = this.referralFormGrid.getByTestId('selectinput-4g3c-select');
     this.formFields = this.page.getByTestId('formgrid-h378');
-    this.referralDateInput = this.formFields.getByText('Referral date').locator('..').getByTestId('wrapperfieldcomponent-mkjr-input').locator('input');
+    this.referralDateInput = this.formFields.getByText('Referral date').locator('..').getByTestId('wrapperfieldcomponent-mkjr').locator('input');
     this.referralHealthFacility = this.formFields.getByText('Referring health facility').locator('..').getByTestId('autocompletefield-efuf-input');
     this.referralCompletedBy = this.formFields.getByText('Referral completed by').locator('..').getByTestId('autocompletefield-efuf-input');
     this.reasonForReferral = this.formFields.getByText('Reason for referral').locator('..').getByTestId('wrapperfieldcomponent-mkjr-input');

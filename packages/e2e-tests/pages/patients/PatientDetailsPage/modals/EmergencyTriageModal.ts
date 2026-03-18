@@ -71,9 +71,9 @@ export class EmergencyTriageModal {
       // Form fields
       form: 'styledform-5o5i',
       arrivalDateTimeField: 'field-mhav',
-      arrivalDateTimeInput: 'field-mhav-input',
+      arrivalDateTimeInput: 'field-mhav',
       triageDateTimeField: 'field-9hxy',
-      triageDateTimeInput: 'field-9hxy-input',
+      triageDateTimeInput: 'field-9hxy',
       areaField: 'field-ipih-group-input',
       locationField: 'field-ipih-location-input',
       arrivalModeSelect: 'selectinput-phtg-select',
