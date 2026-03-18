@@ -8,8 +8,14 @@ import { TranslatedText } from './Translation/TranslatedText';
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-const getDuration = startTime => {
-  const time = new Date() - new Date(startTime);
+/**
+ * Duration from stored arrival time to now. Uses primary timezone to parse the stored
+ * datetime so the result is not offset by the user's browser timezone.
+ */
+const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
+  const startMs = storedDateTimeToEpochMilliseconds(startTime);
+  if (startMs == null) return '—';
+  const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
   return `${hours}hrs ${minutes}mins`;
@@ -49,7 +55,7 @@ const TriageCell = ({ arrivalTime, children }) => {
 export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {
     const [, updateState] = useState({});
-    const { formatTimeCompact } = useDateTime();
+    const { formatTimeCompact, storedDateTimeToEpochMilliseconds } = useDateTime();
 
     // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
     // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
@@ -69,7 +75,7 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.TRIAGE:
         return (
           <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-xrcr">
-            <div>{getDuration(assumedArrivalTime)}</div>
+            <div>{getDuration(assumedArrivalTime, storedDateTimeToEpochMilliseconds)}</div>
             <div>
               <TranslatedText
                 stringId="patientList.triage.table.waitTime.cell.triageTime"

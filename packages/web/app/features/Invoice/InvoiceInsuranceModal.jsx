@@ -10,6 +10,7 @@ import { usePatientInsurancePlansQuery } from '../../api/queries';
 import { SuggesterSelectField } from '../../components/Field';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -53,7 +54,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
 
   const handleGoToPatientDetails = () => {
     onClose();
-    navigateToPatient(patientId);
+    navigateToPatient(patientId, { tab: PATIENT_TABS.DETAILS });
   };
 
   if (isLoadingInsurancePlans) {
