@@ -9,6 +9,7 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
+import type { Ability } from '@casl/ability';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import { objectAsFhir } from '../../utils/fhir/utils';
 import { Model } from '../Model';
@@ -100,6 +101,17 @@ export class FhirResource extends Model {
   // yup schema for validating incoming resource
   // TODO: derive from the sequelize attributes by default
   static INTAKE_SCHEMA: unknown;
+
+  static applyPermissionsFilterToSearchQuery(
+    query: Record<string, any>,
+    _ability: Ability,
+  ): Record<string, any> {
+    return query;
+  }
+
+  static checkRecordAccess(_ability: Ability, _record: FhirResource): void {
+    // no-op by default; override in subclasses with permission-specific logic
+  }
 
   // Resource specific logic to find referenced resources in the bundle
   // and using them to hydrate any missing fields in the raw resource

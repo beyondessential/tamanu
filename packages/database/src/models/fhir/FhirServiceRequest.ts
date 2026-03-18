@@ -1,6 +1,13 @@
-import { DataTypes, type InitOptions } from 'sequelize';
+import { DataTypes, Op, Sequelize, type InitOptions } from 'sequelize';
+import type { Ability } from '@casl/ability';
 
-import { FHIR_INTERACTIONS } from '@tamanu/constants';
+import {
+  FHIR_INTERACTIONS,
+  SERVICE_REQUEST_CATEGORY_CODES,
+  SERVICE_REQUEST_PERMISSION_NOUNS,
+  FHIR_INTEGRATION_VERB,
+  FHIR_INTEGRATION_PERMISSIONS,
+} from '@tamanu/constants';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -12,6 +19,30 @@ import {
   searchParameters,
   shouldForceRematerialise,
 } from '../../utils/fhir/ServiceRequest';
+
+function hasFhirPermission(ability: Ability, verb: string, noun: string): boolean {
+  if (ability.can(verb, noun)) return true;
+
+  for (const [type, config] of Object.entries(FHIR_INTEGRATION_PERMISSIONS)) {
+    const hasFullAccess = ability.can(FHIR_INTEGRATION_VERB, type);
+    const hasVerbAccess = ability.can(verb, type);
+    if (!hasFullAccess && !hasVerbAccess) continue;
+    if (verb === 'read' && config.read.includes(noun)) return true;
+    if (verb === 'write' && config.write.includes(noun)) return true;
+  }
+  return false;
+}
+
+function getAllowedCategories(ability: Ability): string[] {
+  const categories: string[] = [];
+  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
+    categories.push(SERVICE_REQUEST_CATEGORY_CODES.LAB);
+  }
+  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
+    categories.push(SERVICE_REQUEST_CATEGORY_CODES.IMAGING);
+  }
+  return categories;
+}
 
 export class FhirServiceRequest extends FhirResource {
   declare identifier?: Record<string, any>;
@@ -92,6 +123,51 @@ export class FhirServiceRequest extends FhirResource {
     FHIR_INTERACTIONS.TYPE.SEARCH,
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
   ]);
+
+  static applyPermissionsFilterToSearchQuery(
+    query: Record<string, any>,
+    ability: Ability,
+  ): Record<string, any> {
+    const allowedCategories = getAllowedCategories(ability);
+    if (allowedCategories.length === 0) return query;
+
+    const categoryConditions = allowedCategories.map(code =>
+      Sequelize.literal(`category @> '[{"coding": [{"code": "${code}"}]}]'::jsonb`),
+    );
+
+    const categoryWhere =
+      categoryConditions.length === 1
+        ? categoryConditions[0]
+        : { [Op.or]: categoryConditions };
+
+    return {
+      ...query,
+      where: {
+        ...query.where,
+        [Op.and]: [
+          ...(query.where?.[Op.and] ?? []),
+          categoryWhere,
+        ],
+      },
+    };
+  }
+
+  static checkRecordAccess(ability: Ability, record: FhirResource): void {
+    const allowedCategories = getAllowedCategories(ability);
+    if (allowedCategories.length === 0) {
+      throw new Error('No permission to read ServiceRequest');
+    }
+
+    const serviceRequest = record as FhirServiceRequest;
+    const recordCategories = serviceRequest.category ?? [];
+    const recordCodes = (recordCategories as any[]).flatMap((cat: any) =>
+      (cat.coding ?? []).map((coding: any) => coding.code),
+    );
+
+    if (!recordCodes.some(code => allowedCategories.includes(code))) {
+      throw new Error(`no ServiceRequest with id ${record.id}`);
+    }
+  }
 
   async updateMaterialisation() {
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));

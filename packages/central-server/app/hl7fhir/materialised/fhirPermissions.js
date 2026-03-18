@@ -5,9 +5,8 @@ import {
   FHIR_INTEGRATION_PERMISSIONS,
   FHIR_INTEGRATION_VERB,
   SERVICE_REQUEST_PERMISSION_NOUNS,
-  SERVICE_REQUEST_CATEGORY_CODES,
 } from '@tamanu/constants';
-import { FhirError, NotFound } from '@tamanu/shared/utils/fhir';
+import { FhirError } from '@tamanu/shared/utils/fhir';
 
 class FhirForbiddenError extends FhirError {
   constructor(message) {
@@ -35,15 +34,10 @@ export function hasFhirPermission(ability, verb, noun) {
   return false;
 }
 
-function getServiceRequestAllowedCategories(ability) {
-  const categories = [];
-  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
-    categories.push(SERVICE_REQUEST_CATEGORY_CODES.LAB);
-  }
-  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
-    categories.push(SERVICE_REQUEST_CATEGORY_CODES.IMAGING);
-  }
-  return categories;
+function hasAnyServiceRequestReadPermission(ability) {
+  return Object.values(SERVICE_REQUEST_PERMISSION_NOUNS).some(noun =>
+    hasFhirPermission(ability, 'read', noun),
+  );
 }
 
 export function checkFhirReadPermission(FhirResource) {
@@ -51,11 +45,9 @@ export function checkFhirReadPermission(FhirResource) {
     const { ability } = req;
 
     if (FhirResource.fhirName === 'ServiceRequest') {
-      const allowedCategories = getServiceRequestAllowedCategories(ability);
-      if (allowedCategories.length === 0) {
+      if (!hasAnyServiceRequestReadPermission(ability)) {
         throw new FhirForbiddenError('No permission to read ServiceRequest');
       }
-      req.fhirAllowedServiceRequestCategories = allowedCategories;
     } else {
       const noun = getPermissionNoun(FhirResource.fhirName);
       if (!noun || !hasFhirPermission(ability, 'read', noun)) {
@@ -104,22 +96,5 @@ export function checkFhirWritePermissionForResource(ability, fhirResourceName) {
   const noun = getPermissionNoun(fhirResourceName);
   if (!noun || !hasFhirPermission(ability, 'write', noun)) {
     throw new FhirForbiddenError(`No permission to write ${fhirResourceName}`);
-  }
-}
-
-export function checkServiceRequestRecordAccess(ability, record) {
-  const allowedCategories = getServiceRequestAllowedCategories(ability);
-  if (allowedCategories.length === 0) {
-    throw new FhirForbiddenError('No permission to read ServiceRequest');
-  }
-
-  const recordCategories = record.category ?? [];
-  const recordCodes = recordCategories.flatMap(cat =>
-    (cat.coding ?? []).map(coding => coding.code),
-  );
-
-  const hasAccess = recordCodes.some(code => allowedCategories.includes(code));
-  if (!hasAccess) {
-    throw new NotFound(`no ServiceRequest with id ${record.id}`);
   }
 }
