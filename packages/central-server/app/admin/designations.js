@@ -59,9 +59,9 @@ designationRouter.post(
     let designation;
     try {
       designation = await ReferenceData.create({
-        code: id.trim(),
-        id: id.trim(),
-        name: name.trim(),
+        code: id,
+        id,
+        name,
         type: REFERENCE_TYPES.DESIGNATION,
       });
     } catch (err) {
