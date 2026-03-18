@@ -68,8 +68,36 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  test:
+  build-for-tests:
     needs: node_modules_cache
+    name: Build packages for tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm i
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/facility-server build
+      - run: npm run --workspace @tamanu/central-server build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: packages/*/dist/
+          retention-days: 1
+
+  test:
+    needs: [node_modules_cache, build-for-tests]
     strategy:
       fail-fast: false
       matrix:
@@ -97,9 +125,9 @@ jobs:
           - { package: "@tamanu/database",                    postgres: 18 }
           - { package: "@tamanu/settings"                                  }
           - { package: "@tamanu/shared"                                    }
-          - { package: "@tamanu/upgrade"                                   }
+          - { package: "@tamanu/upgrade",          needs-build: true       }
           - { package: "@tamanu/utils"                                     }
-          - { package: "@tamanu/web-frontend"                              }
+          - { package: "@tamanu/web-frontend",     needs-build: true       }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -117,8 +145,15 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
-      - run: npm run build-shared
-      - run: npm run --workspace ${{ matrix.package }} build
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .
+
+      - name: Build package
+        if: matrix.needs-build
+        run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
         if: matrix.postgres
@@ -383,6 +418,7 @@ jobs:
     name: Tests pass
     needs:
       - node_version
+      - build-for-tests
       - test
       - build-all
       - lint
