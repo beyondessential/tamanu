@@ -109,10 +109,6 @@ export class FhirResource extends Model {
     return query;
   }
 
-  static checkRecordAccess(_ability: Ability, _record: FhirResource): void {
-    // no-op by default; override in subclasses with permission-specific logic
-  }
-
   // Resource specific logic to find referenced resources in the bundle
   // and using them to hydrate any missing fields in the raw resource
   static hydrateRawResourceFromBundle(

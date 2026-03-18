@@ -3,10 +3,12 @@ import {
   FHIR_ISSUE_TYPE,
   FHIR_RESOURCE_TO_PERMISSION_NOUN,
   FHIR_INTEGRATION_PERMISSIONS,
-  FHIR_INTEGRATION_VERB,
   SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
 import { FhirError } from '@tamanu/shared/utils/fhir';
+import { hasFhirPermission } from '@tamanu/shared/permissions/hasFhirPermission';
+
+export { hasFhirPermission };
 
 class FhirForbiddenError extends FhirError {
   constructor(message) {
@@ -19,19 +21,6 @@ class FhirForbiddenError extends FhirError {
 
 function getPermissionNoun(fhirResourceName) {
   return FHIR_RESOURCE_TO_PERMISSION_NOUN[fhirResourceName];
-}
-
-export function hasFhirPermission(ability, verb, noun) {
-  if (ability.can(verb, noun)) return true;
-
-  for (const [type, config] of Object.entries(FHIR_INTEGRATION_PERMISSIONS)) {
-    const hasFullAccess = ability.can(FHIR_INTEGRATION_VERB, type);
-    const hasVerbAccess = ability.can(verb, type);
-    if (!hasFullAccess && !hasVerbAccess) continue;
-    if (verb === 'read' && config.read.includes(noun)) return true;
-    if (verb === 'write' && config.write.includes(noun)) return true;
-  }
-  return false;
 }
 
 function hasAnyServiceRequestReadPermission(ability) {
