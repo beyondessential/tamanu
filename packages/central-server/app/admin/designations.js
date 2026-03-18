@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
-import { Op, UniqueConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
@@ -74,30 +74,30 @@ designationRouter.delete(
 
     const {
       store: {
-        models: { UserDesignation, ReferenceData },
-        sequelize,
+        models: { ReferenceData, UserDesignation },
       },
       params: { id: designationId },
     } = req;
 
-    await sequelize.transaction(async () => {
-      const designation = await ReferenceData.findByPk(designationId);
-      if (!designation) {
-        throw new NotFoundError(`No designation found with ID ${designationId}`);
-      }
+    const designation = await ReferenceData.findByPk(designationId);
+    if (!designation) {
+      throw new NotFoundError(`No designation found with ID ${designationId}`);
+    }
 
-      const count = await UserDesignation.count({
-        where: { designationId: designationId },
-      });
-      if (count > 0) {
+    try {
+      await designation.destroy();
+    } catch (err) {
+      if (err instanceof ForeignKeyConstraintError) {
+        const count = await UserDesignation.count({
+          where: { designationId },
+        });
         const objectVerb = count === 1 ? 'user is' : 'users are';
         throw new InvalidOperationError(
           `Cannot delete designation with ID ’${designationId}’. ${count} ${objectVerb} assigned to it.`,
         );
       }
-
-      await designation.destroy();
-    });
+      throw err;
+    }
     res.status(204).send();
   }),
 );
