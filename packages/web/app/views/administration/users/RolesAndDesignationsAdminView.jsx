@@ -77,9 +77,7 @@ export const RolesAndDesignationsAdminView = () => {
 
   const onTabSelect = tabKey => {
     navigate(
-      tabKey === TAB.DESIGNATIONS
-        ? '/admin/users/rolesAndDesignations/designations'
-        : '/admin/users/rolesAndDesignations/roles',
+      `/admin/users/rolesAndDesignations/${tabKey === TAB.DESIGNATIONS ? 'designations' : 'roles'}`,
     );
   };
 
