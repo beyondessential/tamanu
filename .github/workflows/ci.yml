@@ -20,6 +20,17 @@ env:
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
+  BUILD_SHARED_PATHS: |
+    packages/api-client/dist
+    packages/constants/dist
+    packages/database/dist
+    packages/errors/dist
+    packages/fake-data/dist
+    packages/settings/dist
+    packages/shared/dist
+    packages/ui-components/dist
+    packages/upgrade/dist
+    packages/utils/dist
 
 jobs:
   node_version:
@@ -68,8 +79,39 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  test:
+  build_shared_cache:
     needs: node_modules_cache
+    name: Build shared packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        id: build-cache
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
+      - if: steps.build-cache.outputs.cache-hit != 'true'
+        run: npm i
+      - if: steps.build-cache.outputs.cache-hit != 'true'
+        run: npm run build-shared
+      - if: steps.build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
+
+  test:
+    needs: [node_modules_cache, build_shared_cache]
     strategy:
       fail-fast: false
       matrix:
@@ -115,9 +157,12 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
 
       - run: npm i
-      - run: npm run build-shared
       - run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
@@ -179,7 +224,7 @@ jobs:
         run: npm run lint-all
 
   migrations:
-    needs: node_modules_cache
+    needs: [node_modules_cache, build_shared_cache]
     strategy:
       fail-fast: false
       matrix:
@@ -207,9 +252,12 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
 
       - run: npm i
-      - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
@@ -219,7 +267,7 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    needs: node_modules_cache
+    needs: [node_modules_cache, build_shared_cache]
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
@@ -234,9 +282,12 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
 
       - run: npm i
-      - run: npm run build-shared
 
       - run: npm run test
         working-directory: packages/mobile
@@ -294,7 +345,7 @@ jobs:
       - run: git diff --exit-code
 
   dbt-model:
-    needs: node_modules_cache
+    needs: [node_modules_cache, build_shared_cache]
     name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
@@ -309,6 +360,10 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-shared-${{ github.sha }}
+          path: ${{ env.BUILD_SHARED_PATHS }}
 
       - name: Install and start postgres
         run: |
@@ -322,7 +377,6 @@ jobs:
       - name: Build
         run: |
           npm i
-          npm run build-shared
           npm run --workspace @tamanu/central-server build
       - name: Configure Tamanu
         run: |
@@ -383,6 +437,7 @@ jobs:
     name: Tests pass
     needs:
       - node_version
+      - build_shared_cache
       - test
       - build-all
       - lint
