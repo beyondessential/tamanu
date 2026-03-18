@@ -31,7 +31,6 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   });
   const { getSetting } = useSettings();
   const { primaryTimeZone } = useDateTime();
-  const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
   const { encounter } = useEncounter();
@@ -85,7 +84,6 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}
-          enablePatientInsurer={enablePatientInsurer}
           primaryTimeZone={primaryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />

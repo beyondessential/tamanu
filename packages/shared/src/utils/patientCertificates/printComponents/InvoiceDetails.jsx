@@ -29,12 +29,9 @@ const getInvoicePaymentStatus = invoice => {
   );
 };
 
-export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
+export const InvoiceDetails = ({ encounter, invoice }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
-  const {
-    additionalData: { insurer, insurerPolicyNumber },
-  } = patient;
   return (
     <>
       <DataSection
@@ -46,12 +43,6 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('general.date.label', 'Date')}
             value={formatShort(invoice.date)}
           />
-          {enablePatientInsurer && (
-            <DataItem
-              label={getTranslation('invoice.insurer.label', 'Insurer')}
-              value={insurer?.name}
-            />
-          )}
           <DataItem
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}
             value={INVOICE_STATUS_LABELS[invoice.status]}
@@ -66,12 +57,6 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('encounter.admission.label', 'Admission')}
             value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]}
           />
-          {enablePatientInsurer && (
-            <DataItem
-              label={getTranslation('invoice.policyNumber.label', 'Policy number')}
-              value={insurerPolicyNumber}
-            />
-          )}
           <DataItem
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
             value={getInvoicePaymentStatus(invoice)}
