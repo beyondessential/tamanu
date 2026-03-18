@@ -55,7 +55,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     },
     onError: error => {
       toast.error(
-        error.message ?? (
+        error.message || (
           <TranslatedText stringId="admin.roles.add.error" fallback="Couldn’t create role" />
         ),
       );
