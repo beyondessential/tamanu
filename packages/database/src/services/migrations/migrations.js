@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
@@ -200,6 +200,70 @@ export async function migrate(log, sequelize, direction) {
     return migrateUp(log, sequelize);
   }
   throw new Error(`Unrecognised migrate direction: ${direction}`);
+}
+
+/**
+ * In test mode, loads a pre-generated schema snapshot instead of running hundreds
+ * of old migrations. Returns true if the snapshot was loaded, false otherwise.
+ * The caller should still run migrate('up') afterwards to apply remaining migrations.
+ */
+export async function loadSnapshotIfAvailable(log, sequelize) {
+  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+  const snapshotDir = path.join(migrationsDir, '__snapshot__');
+  const schemaPath = path.join(snapshotDir, 'schema.sql');
+  const appliedPath = path.join(snapshotDir, 'applied.json');
+
+  if (!existsSync(schemaPath) || !existsSync(appliedPath)) {
+    return false;
+  }
+
+  // Only load into a fresh DB (empty SequelizeMeta)
+  const [metaCheck] = await sequelize.query(
+    `SELECT EXISTS (
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'SequelizeMeta'
+    ) AS "exists"`,
+  );
+  if (metaCheck[0].exists) {
+    const [countResult] = await sequelize.query(`SELECT count(*)::int AS count FROM "SequelizeMeta"`);
+    if (countResult[0].count > 0) {
+      return false;
+    }
+  }
+
+  const applied = JSON.parse(readFileSync(appliedPath, 'utf8'));
+
+  // Staleness guard: ensure every migration in the snapshot still exists on disk
+  const migrationFiles = new Set(
+    readdirSync(migrationsDir).filter(f => /\.(js|ts)$/.test(f)),
+  );
+  // In dist, .ts files are compiled to .js — applied.json already uses .js names
+  const staleEntries = applied.filter(name => !migrationFiles.has(name));
+  if (staleEntries.length > 0) {
+    log.warn(
+      `Test snapshot is stale: ${staleEntries.length} migration(s) in applied.json not found on disk ` +
+        `(first: ${staleEntries[0]}). Falling back to full migration run.`,
+    );
+    return false;
+  }
+
+  log.info(`Loading test schema snapshot (${applied.length} migrations)...`);
+
+  const schemaSql = readFileSync(schemaPath, 'utf8');
+  await sequelize.query(schemaSql);
+
+  await sequelize.query(`
+    CREATE TABLE IF NOT EXISTS "SequelizeMeta" (
+      "name" VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY
+    );
+  `);
+
+  // Bulk-insert all snapshot migration names so Umzug considers them "already applied"
+  const values = applied.map(name => `('${name.replace(/'/g, "''")}')`).join(',');
+  await sequelize.query(`INSERT INTO "SequelizeMeta" ("name") VALUES ${values}`);
+
+  log.info('Schema snapshot loaded successfully.');
+  return true;
 }
 
 export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
