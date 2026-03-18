@@ -672,24 +672,23 @@ labTest.get(
       raw: false,
     });
 
-    const distinctChanges = [];
-    let lastResult;
-
-    for (const changeLog of changeLogs) {
-      const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
-      const { result } = recordData;
-
-      if (result !== lastResult) {
-        distinctChanges.push({
+    const distinctChanges = changeLogs
+      .map(changeLog => {
+        const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
+        const { result } = recordData;
+        return {
           id,
           loggedAt,
           result,
           updatedByUserId,
           updatedByDisplayName: updatedByUser?.displayName,
-        });
-        lastResult = result;
-      }
-    }
+        };
+      })
+      .filter((change, index, array) => {
+        if (index === array.length - 1) return true;
+        const nextChange = array[index + 1];
+        return change.result !== nextChange.result;
+      });
 
     res.send(distinctChanges);
   }),
