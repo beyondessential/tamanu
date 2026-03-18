@@ -141,8 +141,10 @@
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
   },
-  // this should be an IANA tzdata timezone
-  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  // IANA tzdata timezone for all stored datetimes.
+  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
+  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "tasking": {

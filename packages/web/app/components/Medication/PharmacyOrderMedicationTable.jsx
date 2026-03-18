@@ -2,17 +2,17 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { TextInput, DateDisplay, TimeDisplay, ThemedTooltip, ConditionalTooltip } from '@tamanu/ui-components';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 
-import { TextInput, ConditionalTooltip, ThemedTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { singularize } from '../../utils';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -230,7 +230,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ date }) => formatShortest(date),
+      accessor: ({ date }) => <DateDisplay date={trimToDate(date)} format="shortest" />,
     },
     {
       key: COLUMN_KEYS.LAST_SENT,
@@ -253,9 +253,9 @@ const getColumns = (
         return (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
-              {formatShortest(lastOrderedAt)}
+              <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
-                {formatTime(lastOrderedAt).toLowerCase()}
+                <TimeDisplay date={lastOrderedAt} format="compact" />
               </Box>
             </Box>
           </NoWrapCell>

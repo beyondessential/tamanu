@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const TABLES = {
   patients: {
@@ -21,10 +22,10 @@ const TABLES = {
 // DATE cast will be kept/changed to whatever timezone is set in the config.
 // DATETIMESTRING cast will assume that's the correct one.
 export async function up(query) {
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Save previously set time zone
@@ -32,7 +33,7 @@ export async function up(query) {
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
 
   // Set time zone defined in config
-  await query.sequelize.query(`SET timezone to '${COUNTRY_TIMEZONE}'`);
+  await query.sequelize.query(`SET timezone to '${PRIMARY_TIME_ZONE}'`);
 
   for (const [tableName, columns] of Object.entries(TABLES)) {
     for (const [columnName, columnType] of Object.entries(columns)) {

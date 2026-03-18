@@ -1,13 +1,13 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 import queryString from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { UnstyledHtmlButton, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { getPatientNameAsString } from '../PatientNameDisplay';
@@ -62,16 +62,6 @@ const Tile = styled(UnstyledHtmlButton)`
   `}
 `;
 
-const Time = styled.time`
-  margin-inline-end: 0.3em; // Approximates a wordspace
-`;
-
-const Timestamp = ({ date }) => (
-  <Time dateTime={date.toISOString()} data-testid="time-no0k">
-    {format(date, 'h:mmaaa')}
-  </Time>
-);
-
 const Label = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -88,6 +78,10 @@ const IconGroup = styled.div`
   align-items: center;
   display: flex;
   justify-content: end;
+`;
+
+const StyledTimeDisplay = styled(TimeDisplay)`
+  margin-inline-end: 0.3em; // Approximates a wordspace
 `;
 
 export const AppointmentTile = ({
@@ -131,7 +125,7 @@ export const AppointmentTile = ({
 
   const tileText = (
     <>
-      {!hideTime && <Timestamp date={startTime} data-testid="timestamp-icgz" />}
+      {!hideTime && <StyledTimeDisplay date={startTimeStr} format="compact" noTooltip />} 
       {getPatientNameAsString(patient)}
     </>
   );

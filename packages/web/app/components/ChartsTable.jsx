@@ -9,7 +9,7 @@ import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
-import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
+import { useChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useSettings } from '../contexts/Settings';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -61,7 +61,7 @@ export const ChartsTable = React.memo(
     }, []);
 
     // create a column for each reading
-    const columns = getChartsTableColumns(
+    const columns = useChartsTableColumns(
       selectedChartSurveyName,
       patient,
       recordedDates,

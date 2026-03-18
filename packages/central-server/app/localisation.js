@@ -45,10 +45,8 @@ const rootLocalisationSchema = yup
     },
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
-    previewUvciFormat: yup
-      .string()
-      .required()
-      .oneOf(['tamanu', 'eudcc', 'icao']),
+    // Deprecated: retained so existing configs with this field don't fail noUnknown() validation
+    previewUvciFormat: yup.string().oneOf(['tamanu', 'eudcc', 'icao']).optional().strip(),
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
   })

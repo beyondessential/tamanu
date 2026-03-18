@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
@@ -15,11 +14,12 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedSex,
+  DateDisplay,
+  DateTimeRangeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
-import { DateDisplay } from '../DateDisplay';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
@@ -153,15 +153,6 @@ const PatientInfo = ({ patient }) => {
   );
 };
 
-const AppointmentTime = ({ startTime, endTime }) => (
-  <span>
-    {format(new Date(startTime), 'ccc dd LLL')}
-    {' - '}
-    {format(new Date(startTime), 'h:mm aaa')}
-    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
-  </span>
-);
-
 const Row = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -205,7 +196,13 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         }{' '}
         <PatientNameDisplay patient={patient} data-testid="patientnamedisplay-bdl0" />
         {' - '}
-        <AppointmentTime {...appointment} data-testid="appointmenttime-e45m" />
+        <DateTimeRangeDisplay
+          start={appointment.startTime}
+          end={appointment.endTime}
+          weekdayFormat="short"
+          dateFormat="dayMonth"
+          data-testid="datetimerangedisplay-e45m"
+        />
       </Details>
       <Row data-testid="row-b2f3">
         <DeleteButton onClick={onConfirm} data-testid="deletebutton-iisx">
@@ -340,7 +337,13 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             />
           </Heading>
           <div>
-            <AppointmentTime {...appointment} data-testid="appointmenttime-qco2" />
+            <DateTimeRangeDisplay
+              start={appointment.startTime}
+              end={appointment.endTime}
+              weekdayFormat="short"
+              dateFormat="dayMonth"
+              data-testid="datetimerangedisplay-qco2"
+            />
           </div>
         </div>
         <Select

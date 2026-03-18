@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { type EntityManager } from 'typeorm';
 
 import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
@@ -27,7 +28,7 @@ import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
 import { type TransactingModel } from './utils/getModelsForDirection';
 import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { type EntityManager } from 'typeorm';
+import { deferForeignKeys } from './utils/deferForeignKeys';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -388,13 +389,14 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
 
-    const { useUnsafeSchemaForInitialSync = true } = this.syncSettings;
+    const { useUnsafeSchemaForInitialSync = false } = this.syncSettings;
     if (useUnsafeSchemaForInitialSync) {
       await Database.setUnsafePragma();
     }
 
     try {
       await Database.client.transaction(async transactionEntityManager => {
+        await deferForeignKeys(transactionEntityManager);
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -447,6 +449,7 @@ export class MobileSyncManager {
     };
     await Database.client.transaction(async transactionEntityManager => {
       try {
+        await deferForeignKeys(transactionEntityManager);
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,

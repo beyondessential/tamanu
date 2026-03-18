@@ -1,5 +1,6 @@
 import { DataTypes, QueryTypes } from 'sequelize';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 
@@ -12,10 +13,10 @@ const alterSchemaOnly = async (query, table, field) => {
 };
 
 const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Copy data to legacy columns for backup
@@ -29,7 +30,7 @@ const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
   return query.sequelize.query(`
     ALTER TABLE ${table}
     ALTER COLUMN ${field} TYPE date_time_string
-    USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}');
+    USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${PRIMARY_TIME_ZONE}', '${ISO9075_DATE_TIME_FMT}');
   `);
 };
 

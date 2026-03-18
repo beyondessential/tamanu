@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
-import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
+import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription/PharmacyOrderPrescription';
 
 export class PharmacyOrder extends Model {
   declare id: string;

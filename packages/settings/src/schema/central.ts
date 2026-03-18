@@ -61,6 +61,7 @@ export const centralSettings = {
     },
     mobileSync: {
       description: 'Settings related to mobile sync',
+      exposedToWeb: true,
       highRisk: true,
       properties: {
         useUnsafeSchemaForInitialSync: {
@@ -203,8 +204,7 @@ export const centralSettings = {
               defaultValue: '09:00',
             },
             endTime: {
-              description:
-                'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
+              description: 'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
               type: datelessTimeStringSchema,
               defaultValue: '17:00',
             },
@@ -215,7 +215,7 @@ export const centralSettings = {
               defaultValue: '30min',
             },
           },
-        },        
+        },
       },
     },
     integrations: {

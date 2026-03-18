@@ -94,7 +94,6 @@ export const LabRequestsSearchBar = ({ statuses }) => {
                   data-testid="translatedtext-v0cq"
                 />
               }
-              saveDateAsString
               component={DateField}
               data-testid="field-ifhe"
             />
@@ -234,7 +233,6 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               data-testid="translatedtext-0gk7"
             />
           }
-          saveDateAsString
           component={DateField}
           $joined
           data-testid="localisedfield-vo15"
@@ -248,7 +246,6 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               data-testid="translatedtext-l4xg"
             />
           }
-          saveDateAsString
           component={DateField}
           data-testid="localisedfield-kswp"
         />

@@ -1,6 +1,5 @@
 import { SEX_LABELS } from '@tamanu/constants';
-import { formatShort } from '@tamanu/utils/dateTime';
-import { format, startOfWeek, parseISO } from 'date-fns';
+import { startOfWeek, parseISO } from 'date-fns';
 import type {
   Location,
   Appointment,
@@ -9,12 +8,21 @@ import type {
   AdministeredVaccine,
 } from '@tamanu/shared/schemas/patientPortal';
 
+const locale = globalThis.navigator?.language ?? 'default';
+
+const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'short' });
+const dateTimeFormatter = new Intl.DateTimeFormat(locale, {
+  dateStyle: 'short',
+  timeStyle: 'short',
+});
+
 export const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return '--/--/----';
+  const emptyDate = '‒‒/‒‒/‒‒‒‒'; // Figure dashes U+2012
+  if (!dateString) return emptyDate;
   try {
-    return formatShort(dateString) || '--/--/----';
+    return dateFormatter.format(parseISO(dateString));
   } catch {
-    return '--/--/----';
+    return emptyDate;
   }
 };
 
@@ -83,7 +91,7 @@ export const formatWeekOf = (dateString: string | null | undefined) => {
   if (!dateString) return '--';
   try {
     const mondayDate = startOfWeek(parseISO(dateString), { weekStartsOn: 1 });
-    return `Week of ${format(mondayDate, 'dd/MM/yyyy')}`;
+    return `Week of ${dateFormatter.format(mondayDate)}`;
   } catch {
     return '--';
   }
@@ -95,8 +103,7 @@ export const formatAppointmentDateTime = (
 ) => {
   if (!startTime) return '--';
   try {
-    const date = parseISO(startTime);
-    return format(date, 'dd/MM/yy h:mmaa');
+    return dateTimeFormatter.format(parseISO(startTime));
   } catch {
     return '--';
   }

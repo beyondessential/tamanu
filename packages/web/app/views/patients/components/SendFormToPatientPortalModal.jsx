@@ -2,15 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  BodyText,
-  FormSubmitCancelRow,
-  Modal,
-  ModalActionRow,
-  ModalGenericButtonRow,
-  TranslatedText,
-} from '../../../components';
+import { useDateTime } from '@tamanu/ui-components';
+import { BodyText, FormSubmitCancelRow, Modal, ModalActionRow, ModalGenericButtonRow, TranslatedText } from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { usePatientPortalSurveyAssignments, usePatientDataQuery } from '../../../api/queries';
@@ -149,6 +142,7 @@ const useIsAssignedToSurvey = (patientId, surveyId) => {
 export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
+  const { getCurrentDateTime } = useDateTime();
   const isAssignedToSurvey = useIsAssignedToSurvey(patientId, formId);
   const isRegistered = Boolean(patient?.portalUser);
 
@@ -165,7 +159,7 @@ export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const handleSubmit = ({ email } = {}) => {
     sendPatientPortalForm({
       formId,
-      assignedAt: getCurrentDateTimeString(),
+      assignedAt: getCurrentDateTime(),
       email,
     });
   };

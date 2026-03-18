@@ -1,39 +1,33 @@
 import { get as lodashGet, pick } from 'lodash';
-import { SettingPath } from '../types';
+import { ExposedFlag, SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
+import { globalSettings } from '../schema/global';
+import { facilitySettings } from '../schema/facility';
+import { centralSettings } from '../schema/central';
 
-export const KEYS_EXPOSED_TO_FRONT_END = [
-  'audit',
-  'appointments',
-  'ageDisplayFormat',
-  'customisations',
-  'features',
-  'fields',
-  'fsmCrvsCertificates',
-  'imagingCancellationReasons',
-  'imagingPriorities',
-  'insurer',
-  'customisations',
-  'locationAssignments',
-  'printMeasures',
-  'invoice',
-  'labsCancellationReasons',
-  'templates',
-  'layouts',
-  'security.mobile',
-  'triageCategories',
-  'upcomingVaccinations',
-  'vaccinations',
-  'vitalEditReasons',
-  'medications',
-  'sync',
-  'mobileSync',
-  'patientDisplayIdPattern',
-] as const;
+const allSchemas = [globalSettings, facilitySettings, centralSettings];
 
-export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
+// Recursively walks the schema tree collecting keys that have the given flag set.
+// When a node has the flag, its full dot-notated path is included and children are
+// skipped (the whole subtree is exposed). When a node is a nested schema without the
+// flag, we recurse into it to check its children (e.g. security.mobile).
+const extractExposedKeys = (schema: SettingsSchema, flag: ExposedFlag, prefix = ''): string[] => {
+  const keys: string[] = [];
+  for (const [key, value] of Object.entries(schema.properties)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (value[flag]) {
+      keys.push(fullKey);
+    } else if ('properties' in value) {
+      keys.push(...extractExposedKeys(value as SettingsSchema, flag, fullKey));
+    }
+  }
+  return keys;
+};
+
+export const getKeysByFlag = (flag: ExposedFlag): string[] =>
+  allSchemas.flatMap(schema => extractExposedKeys(schema, flag));
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -50,14 +44,15 @@ export class ReadSettings<Path = SettingPath> {
 
   // This is what is called on tamanu-web login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
+  // Settings are automatically extracted based on exposedToWeb: true in the schema
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+    return pick(allSettings, getKeysByFlag('exposedToWeb'));
   }
 
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    return pick(allSettings, getKeysByFlag('exposedToPatientPortal'));
   }
 
   async getAll() {

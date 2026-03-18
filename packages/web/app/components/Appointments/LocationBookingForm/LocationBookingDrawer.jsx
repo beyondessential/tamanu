@@ -1,11 +1,11 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { sub } from 'date-fns';
 
-import { formatShort, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
@@ -127,7 +127,29 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
+  const { formatShort, toStoredDateTime, toFacilityDateTime } = useDateTime();
   const isEdit = !!initialValues.id;
+
+  const processedInitialValues = useMemo(() => {
+    if (!initialValues.startTime) return initialValues;
+    const facilityStartStr = toFacilityDateTime(initialValues.startTime);
+    if (!facilityStartStr) return initialValues;
+
+    const facilityEndStr = initialValues.endTime ? toFacilityDateTime(initialValues.endTime) : null;
+
+    const startDate = trimToDate(facilityStartStr);
+    const endDate = trimToDate(facilityEndStr);
+
+    return {
+      ...initialValues,
+      startTime: facilityStartStr,
+      endTime: facilityEndStr,
+      date: startDate ?? initialValues.startDate,
+      startDate: startDate ?? initialValues.startDate,
+      endDate: endDate ?? initialValues.endDate,
+      overnight: startDate && endDate ? startDate !== endDate : initialValues.overnight,
+    };
+  }, [initialValues, toFacilityDateTime]);
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();
 
@@ -140,12 +162,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(
     initialValues?.additionalClinicianId ?? null,
   );
-  const [selectedDate, setSelectedDate] = useState(initialValues?.date ?? null);
+  const [selectedDate, setSelectedDate] = useState(processedInitialValues?.date ?? null);
   const [selectedSeparateDate, setSelectedSeparateDate] = useState({
-    startDate: initialValues?.startDate ?? null,
-    endDate: initialValues?.endDate ?? null,
+    startDate: processedInitialValues?.startDate ?? null,
+    endDate: processedInitialValues?.endDate ?? null,
   });
-  const [isOvernight, setIsOvernight] = useState(initialValues?.overnight ?? false);
+  const [isOvernight, setIsOvernight] = useState(processedInitialValues?.overnight ?? false);
   const [clinicianHasLeave, setClinicianHasLeave] = useState(false);
   const [additionalClinicianHasLeave, setAdditionalClinicianHasLeave] = useState(false);
 
@@ -284,8 +306,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       {
         id: initialValues.id, // Undefined when creating new booking
         locationId,
-        startTime: toDateTimeString(startTime),
-        endTime: toDateTimeString(endTime),
+        startTime: toStoredDateTime(startTime),
+        endTime: toStoredDateTime(endTime),
         patientId,
         bookingTypeId,
         clinicianId,
@@ -310,36 +332,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
       is: value => !value,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
-    endTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
+    startTime: yup.date().nullable().required(requiredMessage),
+    endTime: yup.date().nullable().required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),
@@ -601,7 +608,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     <>
       <Form
         enableReinitialize
-        initialValues={initialValues}
+        initialValues={processedInitialValues}
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         onSubmit={handleSubmit}
         render={renderForm}

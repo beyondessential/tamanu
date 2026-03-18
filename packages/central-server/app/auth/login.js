@@ -5,6 +5,7 @@ import * as jose from 'jose';
 import { SERVER_TYPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
@@ -102,6 +103,8 @@ export const login = asyncHandler(async (req, res) => {
 
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
+  const { canonicalHostName: centralHost } = config;
+  const primaryTimeZone = getPrimaryTimeZone(config);
   res.send({
     token,
     refreshToken,
@@ -111,7 +114,8 @@ export const login = asyncHandler(async (req, res) => {
     role: role?.forResponse() ?? null,
     allowedFacilities,
     localisation,
-    centralHost: config.canonicalHostName,
+    centralHost,
+    primaryTimeZone,
     settings: userSettings,
   });
 });

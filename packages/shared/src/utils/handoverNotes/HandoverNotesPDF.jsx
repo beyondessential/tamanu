@@ -4,13 +4,13 @@ import { Box, styles } from '../patientCertificates/Layout';
 import { HandoverHeaderSection } from './HandoverHeaderSection';
 import { HandoverPatient } from './HandoverPatient';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const HandoverNotesPDFComponent = ({
   handoverNotes = [],
   locationGroupName,
   logoSrc,
-  getLocalisation,
   getSetting,
   letterheadConfig,
 }) => (
@@ -33,7 +33,6 @@ const HandoverNotesPDFComponent = ({
               arrivalDate={arrivalDate}
               notes={notes}
               isEdited={isEdited}
-              getLocalisation={getLocalisation}
               getSetting={getSetting}
             />
           ),
@@ -43,4 +42,6 @@ const HandoverNotesPDFComponent = ({
   </Document>
 );
 
-export const HandoverNotesPDF = withLanguageContext(HandoverNotesPDFComponent);
+export const HandoverNotesPDF = withLanguageContext(
+  withDateTimeContext(HandoverNotesPDFComponent),
+);

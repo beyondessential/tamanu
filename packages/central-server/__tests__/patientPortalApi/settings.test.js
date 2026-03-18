@@ -1,6 +1,6 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
-import { KEYS_EXPOSED_TO_PATIENT_PORTAL } from '@tamanu/settings';
+import { getKeysByFlag } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
 import { describe } from 'node:test';
@@ -72,7 +72,7 @@ describe('Patient Portal Settings', () => {
 
       // Check that response contains only exposed keys
       const responseKeys = Object.keys(response.body);
-      const exposedKeys = [...KEYS_EXPOSED_TO_PATIENT_PORTAL];
+      const exposedKeys = getKeysByFlag('exposedToPatientPortal');
 
       // Verify each response key is in the allowed list
       responseKeys.forEach(key => {
@@ -127,7 +127,7 @@ describe('Patient Portal Settings', () => {
 
       // Response should still only contain allowed keys
       const responseKeys = Object.keys(response.body);
-      const exposedKeys = [...KEYS_EXPOSED_TO_PATIENT_PORTAL];
+      const exposedKeys = getKeysByFlag('exposedToPatientPortal');
 
       responseKeys.forEach(key => {
         expect(exposedKeys).toContain(key);
@@ -141,8 +141,8 @@ describe('Patient Portal Settings', () => {
 
       expect(response).toHaveSucceeded();
 
-      // Verify the response structure matches KEYS_EXPOSED_TO_PATIENT_PORTAL
-      const allowedKeys = new Set(KEYS_EXPOSED_TO_PATIENT_PORTAL);
+      // Verify the response structure matches exposedToPatientPortal keys
+      const allowedKeys = new Set(getKeysByFlag('exposedToPatientPortal'));
       const responseKeys = new Set(Object.keys(response.body));
 
       // All response keys should be in allowed keys

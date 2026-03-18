@@ -13,6 +13,7 @@ import {
   FormGrid,
   ConfirmCancelRow,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FormModal } from '../../FormModal';
@@ -99,6 +100,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { toStoredDateTime } = useDateTime();
   const [showWarningModal, setShowWarningModal] = useState('');
 
   const initialStatus = marInfo?.status;
@@ -146,7 +148,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
-          givenTime: toDateTimeString(givenTime),
+          givenTime: toStoredDateTime(toDateTimeString(givenTime)),
           givenByUserId,
           recordedByUserId,
         },

@@ -16,7 +16,7 @@ import {
 import { z } from 'zod';
 import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
 import { ForbiddenError } from '@tamanu/errors';
@@ -282,7 +282,7 @@ user.get(
         '$encounter->location.facility_id$': facilityId,
         status: TASK_STATUSES.TODO,
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
         [Op.and]: [

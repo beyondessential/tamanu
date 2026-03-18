@@ -14,6 +14,7 @@ import {
   mergePatientFieldValues,
   mergePatientProgramRegistrations,
   mergePortalUser,
+  mergePatientInvoiceInsurancePlans,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -278,6 +279,19 @@ export class PatientMergeMaintainer extends ScheduledTask {
       );
       if (mergedPortalUser) {
         records.push(mergedPortalUser);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientInvoiceInsurancePlan() {
+    const { PatientInvoiceInsurancePlan } = this.models;
+    const patientInvoiceInsurancePlanMerges = await this.findPendingMergePatients(PatientInvoiceInsurancePlan);
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientInvoiceInsurancePlanMerges) {
+      const mergedPatientInvoiceInsurancePlans = await mergePatientInvoiceInsurancePlans(this.models, keepPatientId, mergedPatientId);
+      if (mergedPatientInvoiceInsurancePlans?.length) {
+        records.push(...mergedPatientInvoiceInsurancePlans);
       }
     }
     return records;

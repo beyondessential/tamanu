@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
@@ -9,6 +8,7 @@ import {
   Form,
   FormSubmitCancelRow,
   FormGrid,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
@@ -29,6 +29,7 @@ export function CarePlanNoteForm({
   onCancel,
 }) {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
 
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
@@ -55,7 +56,7 @@ export function CarePlanNoteForm({
         // reload notes on failure just in case it was recorded
         onReloadNotes();
       }}
-      initialValues={note || { date: getCurrentDateTimeString() }}
+      initialValues={note || { date: getCurrentDateTime() }}
       validationSchema={yup.object().shape({
         content: yup
           .string()
@@ -96,7 +97,6 @@ export function CarePlanNoteForm({
                   />
                 }
                 component={DateTimeField}
-                saveDateAsString
                 data-testid="field-qouz"
               />
             </NoteModalActionBlocker>

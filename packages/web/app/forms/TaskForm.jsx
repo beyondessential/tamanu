@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  TextField,
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, Divider } from '@material-ui/core';
@@ -78,6 +84,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
@@ -208,10 +215,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       data-testid="translatedtext-as4z"
                     />
                   }
-                  saveDateAsString
                   required
                   component={DateTimeField}
-                  min={getCurrentDateTimeString().slice(0, -3)}
+                  min={getCurrentDateTime()}
                   data-testid="field-om46"
                 />
               </FormGrid>
@@ -239,7 +245,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       data-testid="translatedtext-342j"
                     />
                   }
-                  saveDateAsString
                   required
                   component={DateTimeField}
                   data-testid="field-yduo"
@@ -400,7 +405,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)),
+              new Date(new Date().setHours(0, 0, 0, 0)), 
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
@@ -438,8 +443,8 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         ['frequencyValue', 'frequencyUnit'],
       )}
       initialValues={{
-        startTime: getCurrentDateTimeString(),
-        requestTime: getCurrentDateTimeString(),
+        startTime: getCurrentDateTime(),
+        requestTime: getCurrentDateTime(),
         requestedByUserId: currentUser?.id,
       }}
       data-testid="form-gy7l"

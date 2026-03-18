@@ -1,4 +1,4 @@
-import { formatISO, isEqual, format } from 'date-fns';
+import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -7,9 +7,9 @@ import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignm
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
-import { TranslatedReferenceData } from '../../../components';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { useDateTime, TranslatedReferenceData } from '@tamanu/ui-components';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};
@@ -37,11 +37,8 @@ const AssignmentUser = styled.div`
   opacity: 0.9;
 `;
 
-const formatTime = (time) => {
-  return format(new Date(time), 'h:mma').toLowerCase();
-};
-
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
+  const { formatTimeCompact } = useDateTime();
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
   const hasReadPermission = ability?.can?.('read', 'LocationSchedule');
@@ -61,7 +58,7 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        {formatTime(startTime)} - {formatTime(endTime)}
+        {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}

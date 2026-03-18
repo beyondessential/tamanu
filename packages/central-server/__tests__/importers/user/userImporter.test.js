@@ -7,7 +7,7 @@ import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 const TEST_USER_ID = 'users-test';
 

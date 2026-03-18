@@ -6,6 +6,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  DateDisplay,
   TextInput,
   Form,
 } from '@tamanu/ui-components';
@@ -15,7 +16,7 @@ import styled from 'styled-components';
 import { AutocompleteField, CheckInput, Field } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import { formatShortest, TableFormFields } from '..';
+import { TableFormFields } from '..';
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
@@ -299,7 +300,8 @@ const getColumns = (
   {
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
-    accessor: data => formatShortest(data.date),
+    sortable: false,
+    accessor: data => <DateDisplay date={data.date} format="shortest" />,
   },
 ];
 

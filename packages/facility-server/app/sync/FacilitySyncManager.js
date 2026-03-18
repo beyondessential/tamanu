@@ -13,6 +13,7 @@ import {
   getModelsForPull,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
+  withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
@@ -258,7 +259,9 @@ export class FacilitySyncManager {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
-        await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
+        await withDeferredSyncSafeguards(this.sequelize, async () =>
+          saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId),
+        );
       }
 
       // update the last successful sync in the same save transaction - if updating the cursor fails,

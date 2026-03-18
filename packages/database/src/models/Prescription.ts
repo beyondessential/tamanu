@@ -1,5 +1,11 @@
-import { DataTypes } from 'sequelize';
-import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes, Op } from 'sequelize';
+import {
+  NOTIFICATION_TYPES,
+  SYNC_DIRECTIONS,
+  ADMINISTRATION_STATUS,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -153,6 +159,13 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'medicationAdministrationRecords',
     });
+
+    this.hasOne(models.InvoiceItem, {
+      foreignKey: 'sourceRecordId',
+      as: 'invoiceItem',
+      constraints: false,
+      scope: { source_record_type: this.name },
+    });
   }
 
   static getListReferenceAssociations() {
@@ -169,7 +182,7 @@ export class Prescription extends Model {
       LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
       WHERE (
         (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
-        OR 
+        OR
         (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
       AND prescriptions.updated_at_sync_tick > :since
@@ -189,5 +202,118 @@ export class Prescription extends Model {
         LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
     };
+  }
+
+  async recalculateAndApplyInvoiceQuantity(userId?: string) {
+    const {
+      Encounter,
+      InvoiceProduct,
+      Invoice,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
+      PharmacyOrderPrescription,
+      PharmacyOrder,
+    } = this.sequelize.models;
+
+    const prescription = this;
+
+    const encounter = prescription.encounterPrescription?.encounter;
+
+    if (!encounter) return;
+
+    const invoiceProduct = await InvoiceProduct.findOne({
+      where: {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordId: prescription.medicationId,
+      },
+    });
+
+    if (!invoiceProduct) return;
+
+    const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
+      where: { prescriptionId: prescription.id },
+      include: [
+        { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
+      ],
+    });
+
+    const hasPharmacy = pharmacyOrderPrescriptions.length > 0;
+    const earliestPharmacyDate = hasPharmacy
+      ? pharmacyOrderPrescriptions
+          .map(p => p.pharmacyOrder!.date)
+          .sort((a, b) => a.localeCompare(b))[0]
+      : undefined;
+
+    const totalSentQty = pharmacyOrderPrescriptions.reduce(
+      (sum: number, p: any) => sum + (Number(p.quantity) || 0),
+      0,
+    );
+
+    let marQty = 0;
+    const givenMars = await MedicationAdministrationRecord.findAll({
+      where: {
+        prescriptionId: prescription.id,
+        status: ADMINISTRATION_STATUS.GIVEN,
+      },
+      attributes: ['id'],
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          required: true,
+          include: [
+            {
+              model: EncounterPrescription,
+              as: 'encounterPrescription',
+              required: true,
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  required: true,
+                  where: {
+                    encounterType: { [Op.in]: INVOICEABLE_MEDICATION_ENCOUNTER_TYPES },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (givenMars.length > 0) {
+      const marIds = givenMars.map((m: any) => m.id);
+
+      const doses = await MedicationAdministrationRecordDose.findAll({
+        where: {
+          marId: { [Op.in]: marIds },
+          isRemoved: { [Op.or]: [false, null] },
+          ...(earliestPharmacyDate
+            ? {
+                givenTime: { [Op.lte]: earliestPharmacyDate }, // Don't include doses given after pharmacy order
+              }
+            : {}),
+        },
+        attributes: ['doseAmount'],
+      });
+
+      marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
+    }
+
+    // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
+    const finalQty = marQty + totalSentQty;
+
+    if (finalQty > 0) {
+      await Invoice.addItemToInvoice(
+        prescription,
+        encounter.id,
+        invoiceProduct,
+        userId || pharmacyOrderPrescriptions[0]?.pharmacyOrder?.orderingClinicianId,
+        { quantity: finalQty },
+      );
+    } else {
+      await Invoice.removeItemFromInvoice(prescription, encounter.id);
+    }
   }
 }

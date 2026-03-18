@@ -10,9 +10,9 @@ import {
   Modal,
   ModalLoader,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
@@ -24,6 +24,7 @@ import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
@@ -99,8 +100,14 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validateOnBlur
       validationSchema={validationSchema}
       initialValues={{
-        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTime(),
+        ...getFormInitialValues({
+          components: currentComponents,
+          additionalData: patientAdditionalData,
+          patient,
+          getCurrentDateTime,
+        }
+        ),
       }}
       validate={values => {
         if (

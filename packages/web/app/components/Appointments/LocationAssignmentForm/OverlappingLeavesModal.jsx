@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { DateDisplay } from '@tamanu/ui-components';
+
 import { ConfirmModal } from '../../ConfirmModal';
 import { TranslatedText } from '../../Translation';
 import { Colors } from '../../../constants';
 import { BodyText } from '../../Typography';
-import { formatShort } from '@tamanu/utils/dateTime';
 
 const StyledConfirmModal = styled(ConfirmModal)`
   & .MuiPaper-root {
@@ -71,7 +72,7 @@ export const OverlappingLeavesModal = ({ open, onClose, onConfirm, overlappingLe
             </BodyText>
             {overlappingLeaves?.map(leave => (
               <BodyText color={Colors.darkestText} fontWeight={500} key={leave.id}>
-                {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
+                <DateDisplay date={leave.startDate} /> - <DateDisplay date={leave.endDate} />
               </BodyText>
             ))}
           </ScheduledLeaveWrapper>

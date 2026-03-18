@@ -1,9 +1,11 @@
 import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
+import config from 'config';
 import path from 'path';
-import QRCode from 'qrcode';
 import { get } from 'lodash';
+import ReactPDF from '@react-pdf/renderer';
+
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import {
   CovidVaccineCertificate,
@@ -31,7 +33,7 @@ async function getCertificateAssets(models, footerAssetName) {
           : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
       ].map(name => name && models.Asset.findOne({ raw: true, where: { name, facilityId: null } })),
     )
-  ).map(record => record?.data); // avoids having to do ?.data in the prop later
+  ).map(record => record?.data);
 
   return { logo, signingImage: footerAssetData || signingImage, watermark };
 }
@@ -74,8 +76,6 @@ export const makeCovidVaccineCertificate = async ({
   patient,
   printedBy,
   printedDate,
-  qrData = null,
-  uvci,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
@@ -87,21 +87,19 @@ export const makeCovidVaccineCertificate = async ({
     ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   );
   const { certifiableVaccines, patientData } = await getPatientVaccines(models, patient);
-  const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
   return renderPdf(
     <CovidVaccineCertificate
       patient={patientData}
       printedBy={printedBy}
       printedDate={printedDate}
-      uvci={uvci}
       vaccinations={certifiableVaccines}
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
-      vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      primaryTimeZone={getPrimaryTimeZone(config)}
       language={language}
     />,
     fileName,
@@ -147,6 +145,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
+      primaryTimeZone={getPrimaryTimeZone(config)}
     />,
     fileName,
   );
@@ -159,10 +158,8 @@ export const makeCovidCertificate = async ({
   language,
   patient,
   printedBy,
-  vdsData = null,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
-  const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings.getAll();
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
@@ -171,7 +168,6 @@ export const makeCovidCertificate = async ({
       ? ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER
       : ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
   const { logo, signingImage, watermark } = await getCertificateAssets(models, footerAssetName);
-  const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
@@ -215,9 +211,8 @@ export const makeCovidCertificate = async ({
       watermarkSrc={watermark}
       logoSrc={logo}
       printedBy={printedBy}
-      vdsSrc={vds}
-      getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      primaryTimeZone={getPrimaryTimeZone(config)}
       certType={certType}
       language={language}
     />,

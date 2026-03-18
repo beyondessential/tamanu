@@ -9,7 +9,7 @@ import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
-import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
+import { useVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 
@@ -36,7 +36,7 @@ export const VitalsTable = React.memo(() => {
     setSelectedCell(clickedCell);
   }, []);
 
-  const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
+  const columns = useVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
   const translatedData = data.map(record => {
     // First translate the element heading

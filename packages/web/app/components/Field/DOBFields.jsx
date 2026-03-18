@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+
+import { useDateTime } from '@tamanu/ui-components';
 
 import { DateField } from './DateField';
 import { Field } from './Field';
@@ -20,51 +21,51 @@ const JoinedField = styled(Field)`
   }
 `;
 
-export const DOBFields = ({ showExactBirth = true }) => (
-  <>
-    {showExactBirth && (
-      <Field
-        name="dateOfBirthExact"
+export const DOBFields = ({ showExactBirth = true }) => {
+  const { getCurrentDate } = useDateTime();
+  return (
+    <>
+      {showExactBirth && (
+        <Field
+          name="dateOfBirthExact"
+          component={DateField}
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label.short"
+              fallback="DOB"
+              data-testid="translatedtext-skqd"
+            />
+          }
+          max={getCurrentDate()}
+          data-testid="field-h3d3"
+        />
+      )}
+      <JoinedField
+        name="dateOfBirthFrom"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
-            stringId="general.localisedField.dateOfBirth.label.short"
-            fallback="DOB"
-            data-testid="translatedtext-skqd"
+            stringId="general.localisedField.dateOfBirthFrom.label.short"
+            fallback="DOB from"
+            data-testid="translatedtext-2nkk"
           />
         }
-        max={getCurrentDateString()}
-        data-testid="field-h3d3"
+        max={getCurrentDate()}
+        data-testid="joinedfield-swzm"
       />
-    )}
-    <JoinedField
-      name="dateOfBirthFrom"
-      component={DateField}
-      saveDateAsString
-      label={
-        <TranslatedText
-          stringId="general.localisedField.dateOfBirthFrom.label.short"
-          fallback="DOB from"
-          data-testid="translatedtext-2nkk"
-        />
-      }
-      max={getCurrentDateString()}
-      data-testid="joinedfield-swzm"
-    />
-    <Field
-      name="dateOfBirthTo"
-      component={DateField}
-      saveDateAsString
-      label={
-        <TranslatedText
-          stringId="general.localisedField.dateOfBirthTo.label.short"
-          fallback="DOB to"
-          data-testid="translatedtext-v82q"
-        />
-      }
-      max={getCurrentDateString()}
-      data-testid="field-aax5"
-    />
-  </>
-);
+      <Field
+        name="dateOfBirthTo"
+        component={DateField}
+        label={
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirthTo.label.short"
+            fallback="DOB to"
+            data-testid="translatedtext-v82q"
+          />
+        }
+        max={getCurrentDate()}
+        data-testid="field-aax5"
+      />
+    </>
+  );
+};

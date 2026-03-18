@@ -11,9 +11,7 @@ import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
-import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
-import { SignerRenewalChecker } from './SignerRenewalChecker';
-import { SignerRenewalSender } from './SignerRenewalSender';
+
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { IPSRequestProcessor } from './IPSRequestProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
@@ -66,9 +64,6 @@ export async function startScheduledTasks(context) {
 
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
-  }
-  if (config.integrations.signer.enabled) {
-    taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
   const reportSchedulers = await getReportSchedulers(context);

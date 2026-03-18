@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
@@ -69,6 +69,8 @@ export const VaccineGivenForm = ({
   setValues,
   vaccineConsentEnabled,
 }) => {
+  const { getCurrentDateTime } = useDateTime();
+  
   return (
     <TwoTwoGrid data-testid="twotwogrid-2swz">
       {!editMode && (
@@ -97,7 +99,7 @@ export const VaccineGivenForm = ({
                 delete newValues.givenBy;
                 if (!value) {
                   delete newValues.circumstanceIds;
-                  newValues.date = getCurrentDateTimeString();
+                  newValues.date = getCurrentDateTime();
                 } else {
                   delete newValues.date;
                 }
@@ -166,8 +168,7 @@ export const VaccineGivenForm = ({
         }
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
-        max={getCurrentDateString()}
-        keepIncorrectValue
+        max={getCurrentDateTime()}
         data-testid="vaccinedatefield-z99f"
       />
       <InjectionSiteField data-testid="injectionsitefield-hu3i" />

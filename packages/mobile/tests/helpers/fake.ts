@@ -26,6 +26,7 @@ import { ID } from '~/types/ID';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { getCurrentDateTimeString } from '../../App/ui/helpers/date';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { Task } from '~/models/Task';
 
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
@@ -286,3 +287,15 @@ export const createWithRelations = async (model: typeof BaseModel, record: any) 
     }
   }
 };
+
+export const fakeTask = (encounterId: string, requestedByUserId: string, overrides: Partial<Task> = {}): Partial<Task> => ({
+  id: uuidv4(),
+  name: 'test-task',
+  dueTime: new Date().toISOString(),
+  requestTime: new Date().toISOString(),
+  status: 'todo',
+  taskType: 'normal_task',
+  encounterId,
+  requestedByUserId,
+  ...overrides,
+});

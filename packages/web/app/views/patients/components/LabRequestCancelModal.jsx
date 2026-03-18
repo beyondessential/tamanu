@@ -1,8 +1,8 @@
 import React from 'react';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi } from '../../../api';
 import { CancelModal } from '../../../components/CancelModal';
+import { useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -11,6 +11,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
   const api = useApi();
   const auth = useAuth();
   const { getSetting } = useSettings();
+  const { getCurrentDateTime } = useDateTime();
   const cancellationReasonOptions = getSetting('labsCancellationReasons');
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
@@ -32,7 +33,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       content: note,
       authorId: auth.currentUser.id,
       noteTypeId: NOTE_TYPES.OTHER,
-      date: getCurrentDateTimeString(),
+      date: getCurrentDateTime(),
     });
 
     await updateLabReq({

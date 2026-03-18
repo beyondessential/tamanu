@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { kebabCase } from 'lodash';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
@@ -13,7 +14,6 @@ import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -203,7 +203,8 @@ const Card = ({ notification }) => {
           data-testid="bodytext-xa84"
         />
         <CardDatetime data-testid="carddatetime-vyqg">
-          {`${formatTime(createdTime).replace(' ', '')} ${formatShortest(createdTime)}`}
+          <TimeDisplay date={createdTime} noTooltip />{' '}
+          <DateDisplay date={createdTime} format="shortest" />
         </CardDatetime>
       </Box>
     </CardContainer>

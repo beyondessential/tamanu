@@ -123,7 +123,7 @@ export const SurveyQuestion = ({
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = (
+  const helperText = componentDetail && (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}

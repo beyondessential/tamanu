@@ -13,7 +13,7 @@ export const NON_SYNCING_TABLES = [
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
-  'public.signers',
+  'public.signers_historical',
   'public.sync_device_ticks',
   'public.sync_lookup',
   'public.sync_lookup_ticks',
@@ -45,8 +45,8 @@ export const NON_LOGGED_TABLES = [
   'public.fhir_materialise_jobs',
   'public.patient_vrs_data',
 
-  // internal and also signers.privateKey needs to be hard-deletable
-  'public.signers',
+  // historical signer records retained for compliance, no sensitive data remains
+  'public.signers_historical',
 
   // internal configuration
   'public.local_system_facts',

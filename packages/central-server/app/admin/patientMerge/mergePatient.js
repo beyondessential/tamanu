@@ -55,6 +55,7 @@ export const specificUpdateModels = [
   'PatientFacility',
   'PatientFieldValue',
   'PortalUser',
+  'PatientInvoiceInsurancePlan',
 ];
 
 // These columns should be omitted as we never want
@@ -356,6 +357,55 @@ export async function mergePortalUser(models, keepPatientId, unwantedPatientId) 
     // Keep the existing account and delete the unwanted one
     await existingUnwantedPortalUser.destroy();
     return existingKeepPortalUser;
+  }
+}
+
+export async function mergePatientInvoiceInsurancePlans(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+    where: { patientId: unwantedPatientId },
+    paranoid: false,
+  });
+  if (!existingUnwantedInvoiceInsurancePlans.length) {
+    return [];
+  }
+  const existingKeepInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+    where: { patientId: keepPatientId },
+    paranoid: false,
+  });
+
+  const affectedRecords = [];
+
+  // For each unwanted invoice insurance plan,
+  // update the patientId to the keep patient if it doesn't exist in the keep patient
+  for (const unwantedInvoiceInsurancePlan of existingUnwantedInvoiceInsurancePlans) {
+    if (
+      !existingKeepInvoiceInsurancePlans.some(
+        p => p.invoiceInsurancePlanId === unwantedInvoiceInsurancePlan.invoiceInsurancePlanId,
+      )
+    ) {
+      await unwantedInvoiceInsurancePlan.update({
+        patientId: keepPatientId,
+      });
+      affectedRecords.push(unwantedInvoiceInsurancePlan);
+    }
+  }
+
+  // For each keep invoice insurance plan,
+  // if it matches an unwanted invoice insurance plan AND it is soft deleted, restore it
+  for (const keepInvoiceInsurancePlan of existingKeepInvoiceInsurancePlans) {
+    const matchedUnwantedInvoiceInsurancePlan = existingUnwantedInvoiceInsurancePlans.find(
+      p =>
+        p.invoiceInsurancePlanId === keepInvoiceInsurancePlan.invoiceInsurancePlanId
+    );
+    // If
+    // 1. the unwanted invoice insurance plan exists and is not soft deleted, and
+    // 2. the keep invoice insurance plan is soft deleted,
+    // then restore the keep invoice insurance plan
+    const shouldRestore = matchedUnwantedInvoiceInsurancePlan && !matchedUnwantedInvoiceInsurancePlan.deletedAt && keepInvoiceInsurancePlan.deletedAt;
+    if (shouldRestore) {
+      await keepInvoiceInsurancePlan.restore();
+      affectedRecords.push(keepInvoiceInsurancePlan);
+    }
   }
 }
 

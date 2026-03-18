@@ -7,12 +7,13 @@ import { getLocationName } from '../../patientAccessors';
 import { Col, Row } from '../Layout';
 import { HorizontalRule } from './HorizontalRule';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 import { P } from '../Typography';
 
 export const InvoiceEncounterDetails = ({ encounter }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
 
   const filterAndSortDiagnoses = (isPrimary) =>
     diagnoses

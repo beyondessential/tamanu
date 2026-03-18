@@ -122,7 +122,7 @@ const sortKeys = {
   // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
   // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
   // is undefined
-  arrivalTime: 'Coalesce(arrival_time,triage_time)',
+  arrivalTime: 'COALESCE(arrival_time, triage_time)',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
   id: 'patients.display_id',

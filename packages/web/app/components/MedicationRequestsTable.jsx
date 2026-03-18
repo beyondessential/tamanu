@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
-import { DateDisplay, formatTime } from './DateDisplay';
+import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -10,13 +10,21 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData } from '@tamanu/ui-components';
+import {
+  ThemedTooltip,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
 import { getStockStatus } from '../utils/medications';
+import { getApprovalStatus } from '../utils/invoice';
+import { ApprovedColumnTitle } from './ApprovedColumnTitle';
+import { useSettings } from '../contexts/Settings';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -106,25 +114,28 @@ const getMedication = ({ prescription }) => {
 const getPrescriber = ({ prescription }) => {
   return prescription?.prescriber?.displayName;
 };
-const getDateSent = ({ pharmacyOrder }) => (
-  <div>
-    <DateDisplay
-      date={pharmacyOrder?.date}
-      timeOnlyTooltip
-      shortYear
-      data-testid="datedisplay-date-sent"
-    />
-    <BodyText fontSize="11px !important" color={Colors.midText}>
-      {formatTime(pharmacyOrder?.date)}
-    </BodyText>
-  </div>
-);
+const getDateSent = ({ pharmacyOrder }, formatTime) => {
+  return (
+    <div>
+      <DateDisplay
+        date={pharmacyOrder?.date}
+        timeOnlyTooltip
+        shortYear
+        data-testid="datedisplay-date-sent"
+      />
+      <BodyText fontSize="11px !important" color={Colors.midText}>
+        {formatTime(pharmacyOrder?.date)}
+      </BodyText>
+    </div>
+  );
+};
 
 export const MedicationRequestsTable = () => {
+  const { formatTime } = useDateTime();
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
-
+  const { getSetting } = useSettings();
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -133,6 +144,7 @@ export const MedicationRequestsTable = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
 
+  const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
   const canDispenseMedication = ability.can('create', 'MedicationDispense');
   const canDeleteMedicationDispense = ability.can('delete', 'MedicationDispense');
@@ -249,9 +261,19 @@ export const MedicationRequestsTable = () => {
           data-testid="translatedtext-date-sent-column-title"
         />
       ),
-      accessor: getDateSent,
+      accessor: row => getDateSent(row, formatTime),
       sortable: true,
     },
+    ...(isInvoicingEnabled
+      ? [
+          {
+            key: 'prescription.invoiceItem.approved',
+            title: <ApprovedColumnTitle />,
+            accessor: ({ prescription }) => getApprovalStatus(prescription?.invoiceItem?.approved),
+            sortable: true,
+          },
+        ]
+      : []),
     {
       key: 'stockStatus',
       title: (
@@ -289,7 +311,13 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const fetchOptions = { ...searchParameters, facilityId };
+  const fetchOptions = useMemo(
+    () => ({
+      ...searchParameters,
+      facilityId,
+    }),
+    [searchParameters, facilityId],
+  );
 
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;

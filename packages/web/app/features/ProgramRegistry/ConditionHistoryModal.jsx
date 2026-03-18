@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import { TranslatedText, TranslatedReferenceData, Button, Modal } from '@tamanu/ui-components';
 import {
@@ -46,8 +47,8 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       id: 'date',
       title: <TranslatedText stringId="programRegistry.dateAdded" fallback="Date added" />,
       width: '25%',
-      accessor: ({ date }) => <DateDisplay date={date} />,
-    },
+      accessor: ({ date }) => <DateDisplay date={trimToDate(date)} />,
+    },  
     {
       id: 'category',
       title: <TranslatedText stringId="programRegistry.category" fallback="Category" />,

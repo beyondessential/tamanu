@@ -39,6 +39,17 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
   };
 });
 
+/** Mock `useDateTime` to avoid needing full provider setup */
+vi.mock('@tamanu/ui-components', async () => {
+  const actual = await vi.importActual('@tamanu/ui-components');
+  return {
+    ...actual,
+    useDateTime: vi.fn(() => ({
+      getCurrentDate: () => getCurrentDateString(),
+    })),
+  };
+});
+
 const chance = new Chance();
 
 const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
@@ -56,7 +67,7 @@ const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
 /** {@link DownloadDataButton} must be rendered within a translation context */
-const render = (element) => renderElementWithTranslatedText(element, null, mockTranslationContext);
+const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
 
 describe('DownloadDataButton', () => {
   const columns = [
@@ -94,7 +105,7 @@ describe('DownloadDataButton', () => {
     const stringId = chance.string();
     const translationFallback = chance.string();
     const testId = chance.string();
-    const ExportButton = (props) => (
+    const ExportButton = props => (
       <button data-testid={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>
