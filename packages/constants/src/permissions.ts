@@ -188,7 +188,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   ProgramRegistryClinicalStatus: [List, Read],
   ProgramRegistryCondition: [List, Read],
   ProgramRegistryConditionCategory: [List, Read],
-  ReferenceData: [List, Read, Write, Create],
+  ReferenceData: [List, Read, Write, Create, Delete],
   ReferenceDataRelation: [List, Read, Write, Create],
   Referral: [List, Read, Write, Create, Delete],
   ReportDbSchema: [Write],
