@@ -153,7 +153,10 @@ export class Model<
     // logic here.
     return references.reduce<Record<string, any>>((result, referenceName) => {
       const referenceVal = result[referenceName];
+      delete result[referenceName];
+
       if (!referenceVal) return result;
+
       result[firstLetterLowercase(referenceName)] = referenceVal.dataValues;
       return result;
     }, resultInit);
