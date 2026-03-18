@@ -8,8 +8,10 @@ import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  cursor: default;
   table tbody tr:last-child td {
     border-bottom: none;
   }
@@ -20,6 +22,10 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const ResultCell = styled.span`
+  display: inline-block;
+`;
+
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
   const columns = useMemo(
@@ -27,8 +33,8 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       {
         title: (
           <TranslatedText
-            stringId="lab.testType.label"
-            fallback="Test type"
+            stringId="lab.test.label"
+            fallback="Test"
             data-testid="translatedtext-bk9k"
           />
         ),
@@ -52,18 +58,34 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'result',
-        accessor: ({ labTestType, result }) => {
-          const { options, id: labTestTypeId } = labTestType;
-          if (options && options.length > 0) {
-            return (
+        accessor: ({ labTestType, result, secondaryResult }) => {
+          const { options, id: labTestTypeId, supportsSecondaryResults } = labTestType;
+
+          const resultText =
+            options && options.length > 0 ? (
               <TranslatedOption
                 value={result}
                 referenceDataId={labTestTypeId}
                 referenceDataCategory="labTestType"
               />
+            ) : (
+              result
             );
-          }
-          return result || '–';
+
+          return (
+            <ResultCell>
+              <ConditionalTooltip
+                visible={supportsSecondaryResults && !!secondaryResult}
+                title={getTranslation(
+                  'lab.results.tooltip.secondaryResult',
+                  'Secondary result: :secondaryResult',
+                  { replacements: { secondaryResult } },
+                )}
+              >
+                {resultText || '–'}
+              </ConditionalTooltip>
+            </ResultCell>
+          );
         },
         sortable: false,
       },
@@ -160,6 +182,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       elevated={false}
       refreshCount={refreshCount}
       data-testid="styleddatafetchingtable-brdm"
+      allowExport={false}
     />
   );
 });

@@ -104,13 +104,13 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
   const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
   const { getCurrentDate, getDayBoundaries } = useDateTime();
-  
+
   // Get today's date boundaries in facility timezone, converted to primary timezone for query
-  const todayFacility = getCurrentDate(); 
+  const todayFacility = getCurrentDate();
   const boundaries = getDayBoundaries(todayFacility);
   const start = boundaries?.start;
   const end = boundaries?.end;
-  
+
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -138,7 +138,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         <Heading4 margin={0} data-testid="heading4-14lj">
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.title"
-            fallback="Today's appointments"
+            fallback="Today’s appointments"
             data-testid="translatedtext-5ugr"
           />
         </Heading4>

@@ -8,18 +8,15 @@ export class FhirPeriod extends FhirBaseType {
   static SCHEMA() {
     return yup
       .object({
-        start: yup
-          .string()
-          .nullable()
-          .default(null),
+        start: yup.string().nullable().default(null),
         end: yup
           .string()
           .when('start', (start, schema) =>
             start
               ? schema.test(
                   'is-later-than-start',
-                  'end must be later than start',
-                  end => end === null || end > start,
+                  'end must be later than or equal to start',
+                  end => end === null || end >= start,
                 )
               : schema,
           )
