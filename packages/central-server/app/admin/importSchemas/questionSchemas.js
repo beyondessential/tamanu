@@ -29,17 +29,13 @@ const patientDataColumnString = allowedLocations =>
     .string()
     .test(
       'test-valid-patient-data-field',
-      `\${path} must be one of the predefined patient data fields or a valid custom patient field ID`,
-      async (value, { options, createError, path }) => {
+      (value, { options, createError, path }) => {
         if (!value) return true;
 
         if (allowedLocations.includes(value)) return true;
 
-        const { models } = options.context;
-        if (models) {
-          const customField = await models.PatientFieldDefinition.findByPk(value);
-          if (customField) return true;
-        }
+        const { customPatientFieldIds } = options.context;
+        if (customPatientFieldIds && customPatientFieldIds.includes(value)) return true;
 
         return createError({
           path,
