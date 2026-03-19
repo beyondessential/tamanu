@@ -12,7 +12,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/TranslationContext';
-import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumInput';
 import { extractTranslationFromComponent } from '../Translation/utils';
 
 const ExpandMoreIcon = styled(ChevronIcon)`
