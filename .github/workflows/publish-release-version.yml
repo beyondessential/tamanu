@@ -26,13 +26,13 @@ jobs:
         echo "This workflow can only be run on a release branch"
         exit 1
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
         fetch-depth: 0 # fetch all history so we can generate release notes
         fetch-tags: true
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version-file: '.node-version'
 
