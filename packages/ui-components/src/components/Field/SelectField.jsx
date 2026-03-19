@@ -79,7 +79,7 @@ const Option = ({ children, ['data-testid']: dataTestId, ...props }) => {
 
   return (
     <components.Option {...props}>
-      <ThemedTooltip title={tooltip} placement="left">
+      <ThemedTooltip title={tooltip} placement="top">
         <span style={{ display: 'block', width: '100%' }}>{content}</span>
       </ThemedTooltip>
     </components.Option>
