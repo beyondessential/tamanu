@@ -8,12 +8,12 @@ import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 import { initFhirSettingsFromDb, resetFhirSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase } from '../dist/database';
-import { setFhirRefreshTriggers } from '../dist/database/setFhirRefreshTriggers';
 import { initIntegrations } from '../dist/integrations';
 
 class MockApplicationContext {
