@@ -33,14 +33,18 @@ export function productMatrixByCodeLoaderFactory(config) {
     parentIdCache: new Map(),
   };
 
-  return async (rawItem, { pushError, models }) => {
+  return async (rawItem, { pushError, models, header: sheetHeader }) => {
     // Normalize keys (trim)
-    const item = Object.fromEntries(
-      Object.entries(rawItem).map(([k, v]) => [k?.trim?.() ?? k, v]),
-    );
+    const item = Object.fromEntries(Object.entries(rawItem).map(([k, v]) => [k?.trim?.() ?? k, v]));
 
     if (!state.initialized) {
-      const headers = Object.keys(item);
+      // Use sheet header when available so we get all columns even if the first data row has empty cells
+      // Note: Excel may parse number-like headers as numbers, so we coerce to string.
+      // Map null/undefined to empty string to avoid literal "null"/"undefined" in headers.
+      const rawHeaders = Array.isArray(sheetHeader)
+        ? sheetHeader.map(h => (h == null ? '' : String(h).trim()))
+        : Object.keys(item);
+      const headers = rawHeaders.filter(Boolean);
       const invoiceProductKey = headers.find(h => h.toLowerCase() === 'invoiceproductid');
       if (!invoiceProductKey) {
         pushError('Missing required column: invoiceProductId', itemModel);

@@ -25,24 +25,18 @@ export const formatShort = createFormatter(
   '--/--/----',
 );
 
-/** "12:30 am" */
-export const formatTime = createFormatter({ timeStyle: 'short', hour12: true }, '__:__');
+/** "12:30am" */
+export const formatTime = createFormatter({ timeStyle: 'short', hour12: true }, '__:__', compactTime);
 
-/** "12:30:00 am" */
+/** "12:30:00am" */
 export const formatTimeWithSeconds = createFormatter(
   { timeStyle: 'medium', hour12: true },
   '__:__:__',
+  compactTime,
 );
 
 /** "3pm" - hour only, no minutes or seconds */
 export const formatTimeSlot = createFormatter({ hour: 'numeric', hour12: true }, '__', compactTime);
-
-/** "3:30pm" - time with minutes, no space */
-export const formatTimeCompact = createFormatter(
-  { hour: 'numeric', minute: '2-digit', hour12: true },
-  '__:__',
-  compactTime,
-);
 
 /** "Thu" */
 export const formatWeekdayShort = createFormatter({ weekday: 'short' }, 'Unknown');
@@ -71,7 +65,7 @@ export const formatShortestExplicit = createFormatter(
 /** "15 Mar" */
 export const formatDayMonth = createFormatter({ month: 'short', day: 'numeric' }, 'Unknown');
 
-/** "12/04/2024 12:30 am" */
+/** "12/04/2024 12:30am" */
 export const formatShortDateTime = (
   date: DateInput,
   primaryTimeZone: string,
@@ -79,7 +73,7 @@ export const formatShortDateTime = (
 ) =>
   `${formatShort(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;
 
-/** "12/04/24 12:30 am" */
+/** "12/04/24 12:30am" */
 export const formatShortestDateTime = (
   date: DateInput,
   primaryTimeZone: string,
