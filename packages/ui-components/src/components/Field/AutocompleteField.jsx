@@ -521,7 +521,7 @@ export class AutocompleteInput extends Component {
       className,
       error,
       helperText,
-      placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
+      placeholder = this.context.getTranslation('general.placeholder.search...', 'Search…'),
       multiSection,
       'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
