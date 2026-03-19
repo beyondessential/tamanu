@@ -12,9 +12,11 @@ import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
   id: yup
     .string()
+    .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   name: yup
     .string()
+    .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
 
