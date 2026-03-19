@@ -1,5 +1,9 @@
 import { Ability, AbilityBuilder } from '@casl/ability';
-import { FHIR_PERMISSION_NOUNS, FHIR_INTEGRATION_VERB } from '@tamanu/constants';
+import {
+  FHIR_PERMISSION_NOUNS,
+  FHIR_INTEGRATION_VERB,
+  FHIR_INTEGRATION_PERMISSIONS,
+} from '@tamanu/constants';
 
 export function buildAbility(permissions, options = {}) {
   const { can, build } = new AbilityBuilder(Ability);
@@ -13,6 +17,18 @@ export function buildAbility(permissions, options = {}) {
       }
 
       can(a.verb, a.noun);
+
+      const integrationConfig = FHIR_INTEGRATION_PERMISSIONS[a.noun];
+      if (integrationConfig) {
+        if (a.verb === FHIR_INTEGRATION_VERB) {
+          integrationConfig.read.forEach(noun => can('read', noun));
+          integrationConfig.write.forEach(noun => can('write', noun));
+        } else if (a.verb === 'read') {
+          integrationConfig.read.forEach(noun => can('read', noun));
+        } else if (a.verb === 'write') {
+          integrationConfig.write.forEach(noun => can('write', noun));
+        }
+      }
     }
   });
 

@@ -6,7 +6,6 @@ import {
   SERVICE_REQUEST_CATEGORY_CODES,
   SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
-import { hasFhirPermission } from '@tamanu/shared/permissions/hasFhirPermission';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -21,10 +20,10 @@ import {
 
 function getAllowedCategories(ability: Ability): string[] {
   const categories: string[] = [];
-  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
+  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
     categories.push(SERVICE_REQUEST_CATEGORY_CODES.LAB);
   }
-  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
+  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
     categories.push(SERVICE_REQUEST_CATEGORY_CODES.IMAGING);
   }
   return categories;

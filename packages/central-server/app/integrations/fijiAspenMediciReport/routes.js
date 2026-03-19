@@ -12,7 +12,6 @@ import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetim
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 import { InvalidOperationError, ForbiddenError } from '@tamanu/errors';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import { hasFhirPermission } from '../../hl7fhir/materialised/fhirPermissions';
 
 export const routes = express.Router();
 
@@ -30,7 +29,7 @@ function formatDate(date) {
 
 function checkMediciReportPermission(req, _res, next) {
   const { ability } = req;
-  if (!hasFhirPermission(ability, 'read', 'MediciReport')) {
+  if (!ability.can('read', 'MediciReport')) {
     throw new ForbiddenError('No permission to read MediciReport');
   }
   next();
