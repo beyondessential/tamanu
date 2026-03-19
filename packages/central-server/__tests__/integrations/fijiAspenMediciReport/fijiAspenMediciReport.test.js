@@ -143,10 +143,11 @@ const fakeAllData = async (models, ctx) => {
     }),
   );
   // open encounter
-  const { id: openEncounterId } = await models.Encounter.create(
+  await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      endDate: null,
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
@@ -335,13 +336,13 @@ const fakeAllData = async (models, ctx) => {
   );
 
   await models.MediciReport.materialiseFromUpstream(encounterId);
-  await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne();
+  const medici = await models.MediciReport.findOne({ where: { upstreamId: encounterId } });
 
-  await medici.update({
-    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
-  });
+  const utcInstant = new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 224));
+
+  medici.setDataValue('lastUpdated', utcInstant);
+  await medici.save();
 
   return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
@@ -362,30 +363,108 @@ describe('fijiAspenMediciReport', () => {
   afterAll(() => ctx.close());
 
   describe('should filter encounters correctly', () => {
+    const basePeriod = '2022-06-12T00:02:53Z';
+    const basePeriodEnd = '2022-06-12T00:59:00Z';
+    const encounterEndTimestamp = '2022-06-12T00:02:54Z';
+    const encounterEndLocalNoZ = createLocalDateTimeStringFromUTC(
+      2022,
+      6 - 1,
+      12,
+      0,
+      2,
+      54,
+    ).replace(' ', 'T');
+
     it.each([
-      // [ expectedResults, period.start, period.end ]
-      [0, '2022-06-12T00:02:53-02:00', '2022-06-12T00:03:53-02:00'],
-      [1, '2022-06-12T00:02:53Z', '2022-06-12T00:59:00Z'],
-      [0, '2022-06-12T00:02:55Z', '2022-06-12T00:59:00Z'],
-      [1, '2022-06-12T00:02:55+01:00', '2022-06-12T01:02:55+01:00'],
-      [0, '2022-06-12T00:02:53-01:00', '2022-06-12T01:02:53-01:00'],
-      // Dates/times input without timezone will be server timezone
+      // [ expectedResults, period.start, period.end, description, discharge_date param(s) ]
+      [
+        0,
+        '2022-06-12T00:02:53-02:00',
+        '2022-06-12T00:03:53-02:00',
+        ' (period in -02:00, outside last_updated range)',
+        undefined,
+      ],
+      [1, basePeriod, basePeriodEnd, ' (period includes last_updated)', undefined],
+      [0, '2022-06-12T00:02:55Z', basePeriodEnd, ' (period start after last_updated)', undefined],
+      [
+        1,
+        '2022-06-12T00:02:55+01:00',
+        '2022-06-12T01:02:55+01:00',
+        ' (period in +01:00, includes last_updated)',
+        undefined,
+      ],
+      [
+        0,
+        '2022-06-12T00:02:53-01:00',
+        '2022-06-12T01:02:53-01:00',
+        ' (period in -01:00, outside last_updated range)',
+        undefined,
+      ],
       [
         0,
         createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'),
         createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 59, 0).replace(' ', 'T'),
+        ' (period in server TZ, start after last_updated)',
+        undefined,
       ],
       [
         1,
         createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'),
         createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 59, 0).replace(' ', 'T'),
+        ' (period in server TZ, includes last_updated)',
+        undefined,
+      ],
+      // discharge_date (filters on encounterEndDate = 2022-06-12T00:02:54Z)
+      [0, basePeriod, basePeriodEnd, ' (discharge_date gt excludes)', `gt${encounterEndTimestamp}`],
+      [1, basePeriod, basePeriodEnd, ' (discharge_date gt includes)', 'gt2022-06-12T00:02:53Z'],
+      [1, basePeriod, basePeriodEnd, ' (discharge_date lt includes)', 'lt2022-06-12T00:02:55Z'],
+      [0, basePeriod, basePeriodEnd, ' (discharge_date lt excludes)', 'lt2022-06-12T00:02:54Z'],
+      [1, basePeriod, basePeriodEnd, ' (discharge_date ge includes)', `ge${encounterEndTimestamp}`],
+      [0, basePeriod, basePeriodEnd, ' (discharge_date ge excludes)', 'ge2022-06-12T00:02:55Z'],
+      [1, basePeriod, basePeriodEnd, ' (discharge_date le includes)', `le${encounterEndTimestamp}`],
+      [0, basePeriod, basePeriodEnd, ' (discharge_date le excludes)', 'le2022-06-12T00:02:53Z'],
+      [1, basePeriod, basePeriodEnd, ' (discharge_date eq includes)', `eq${encounterEndTimestamp}`],
+      [0, basePeriod, basePeriodEnd, ' (discharge_date eq excludes)', 'eq2022-06-12T00:02:55Z'],
+      [
+        1,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date without prefix = eq)',
+        encounterEndTimestamp,
+      ],
+      [
+        1,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date range ge+le)',
+        ['ge2022-06-12T00:02:54Z', 'le2022-06-12T00:02:54Z'],
+      ],
+      [
+        0,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date range excludes)',
+        ['gt2022-06-12T00:02:53Z', 'lt2022-06-12T00:02:54Z'],
+      ],
+      [
+        1,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date without Z = local equivalent of encounter end)',
+        `eq${encounterEndLocalNoZ}`,
       ],
     ])(
-      'Date filtering: Should return %p result(s) between %p and %s',
-      async (expectedResults, start, end) => {
-        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
-          end,
-        )}`;
+      'Should return %p result(s) between %p and %s%s',
+      async (expectedResults, start, end, _description, dischargeDateParam) => {
+        let query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
+        if (dischargeDateParam !== undefined) {
+          const params = Array.isArray(dischargeDateParam)
+            ? dischargeDateParam
+            : [dischargeDateParam];
+          params.forEach(p => {
+            query += `&discharge_date=${encodeURIComponent(p)}`;
+          });
+        }
         const response = await app
           .get(`/api/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });

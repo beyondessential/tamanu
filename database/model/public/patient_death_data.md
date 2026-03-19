@@ -157,3 +157,7 @@ Whether the deceased infant happened in a multiple pregnancy.
 {% docs patient_death_data__mother_condition_description %}
 A text description stating the conditions of mother that affected the fetus/newborn, if the death was perinatal.
 {% enddocs %}
+
+{% docs patient_death_data__extra_data %}
+A JSONB column to store any arbitrary data we might want to append to the death data record.
+{% enddocs %}
