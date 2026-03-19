@@ -52,11 +52,18 @@ Read `.github/pull_request_template.md` **from the target branch** (templates ma
 
 The summary should give reviewers context — what changed, why, and any notable details. Keep it concise (a short paragraph is fine).
 
+**Important:** Do NOT use command substitution (`$(...)`) in `gh pr create` — it triggers permission prompts. Instead, use separate steps:
+
+1. Read the template using the Read tool (path: `.github/pull_request_template.md`)
+2. Replace the placeholder text with your summary
+3. Write the final body to a temp file
+4. Pass the temp file to `gh pr create --body-file`
+
 ```bash
-# Read the template from the target branch, replace the placeholder, and create the PR
-TEMPLATE="$(git show origin/<base-branch>:.github/pull_request_template.md)"
-BODY="${TEMPLATE/_Add a brief description of the changes in this PR to help give the reviewer context._/Your summary here.}"
-gh pr create --title "feat(scope): TICKET-123: description" --body "$BODY"
+# Step 1-3: Read template with Read tool, construct body, write to temp file (.claude/tmp/ is gitignored)
+# Step 4: Create PR using the temp file, then clean up
+gh pr create --title "feat(scope): TICKET-123: description" --body-file .claude/tmp/pr-body.md
+rm .claude/tmp/pr-body.md
 ```
 
 **Don't:**
