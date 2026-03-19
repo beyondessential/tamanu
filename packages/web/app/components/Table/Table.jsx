@@ -365,7 +365,7 @@ class TableComponent extends React.Component {
       return (
         <TranslatedText
           stringId="general.table.loading"
-          fallback="Loading..."
+          fallback="Loading…"
           data-testid="translatedtext-yvlt"
         />
       );
