@@ -9,7 +9,7 @@ import { TranslatedOptionSelectField } from '../../../components/Translation/Tra
 
 const StyledField = styled(Field)`
   .Mui-disabled {
-    background: ${Colors.softOutline};
+    background: ${Colors.background2};
     .MuiOutlinedInput-notchedOutline {
       border-color: #dedede;
     }

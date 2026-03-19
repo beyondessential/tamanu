@@ -115,6 +115,12 @@ sources:
             config:
               meta:
                 masking: date
+          - name: secondary_result
+            data_type: text
+            description: "{{ doc('lab_tests__secondary_result') }}"
+            config:
+              meta:
+                masking: text
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_tests."
