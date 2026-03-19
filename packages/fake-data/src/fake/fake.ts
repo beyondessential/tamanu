@@ -238,6 +238,8 @@ const FIELD_HANDLERS = {
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
+  'DOUBLE PRECISION': fakeFloat,
+  DOUBLE: fakeFloat,
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
@@ -281,10 +283,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
       reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
     };
   },
-  LabTest: () => ({
-    referenceRangeMin: null,
-    referenceRangeMax: null,
-  }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     const nameGender: 'male' | 'female' =
@@ -550,10 +548,11 @@ export const fake = (
   const overrideFields = Object.keys(overrides);
 
   function fakeField(name: string, attribute: any) {
-    const { type, fieldName, defaultValue } = attribute;
+    const { type, defaultValue } = attribute;
+    const fieldName = attribute.fieldName ?? attribute.field ?? name;
 
-    if (overrideFields.includes(fieldName)) {
-      return overrides[fieldName];
+    if (overrideFields.includes(fieldName) || overrideFields.includes(name)) {
+      return overrides[fieldName] ?? overrides[name];
     }
 
     if (attribute.references) {
