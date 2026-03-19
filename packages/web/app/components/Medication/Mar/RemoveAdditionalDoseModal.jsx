@@ -107,7 +107,7 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
           <MidText>
             <TranslatedText stringId="medication.mar.timeGiven" fallback="Time given" />
           </MidText>
-          <DarkestText mt={'3px'}><TimeDisplay date={dose.givenTime} format="compact" noTooltip /></DarkestText>
+          <DarkestText mt={'3px'}><TimeDisplay date={dose.givenTime} noTooltip /></DarkestText>
           <MidText mt={'15px'}>
             <TranslatedText stringId="medication.mar.recordedBy" fallback="Recorded by" />
           </MidText>

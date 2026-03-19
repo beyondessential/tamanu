@@ -298,6 +298,7 @@ export const DateInput = ({
   const handleClose = useCallback(() => setOpen(false), []);
   const handleSetToday = useCallback(() => {
     handleChange(getFacilityNowDate?.() ?? new Date());
+    setOpen(false);
   }, [handleChange, getFacilityNowDate]);
 
   const handleClear = useCallback(() => {
