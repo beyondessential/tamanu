@@ -65,6 +65,12 @@ export async function importSurvey(context, workbook, surveyInfo) {
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
 
+  const customPatientFieldIds = (
+    await context.models.PatientFieldDefinition.findAll({
+      attributes: ['id'],
+    })
+  ).map(f => f.id);
+
   return importRows(
     context,
     {
@@ -75,6 +81,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
     {
       models: context.models,
       programId,
+      customPatientFieldIds,
     },
   );
 }

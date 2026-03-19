@@ -27,7 +27,22 @@ export const SSCUserData = SurveyScreenComponent.shape({
 const patientDataColumnString = allowedLocations =>
   yup
     .string()
-    .oneOf(allowedLocations)
+    .test(
+      'test-valid-patient-data-field',
+      (value, { options, createError, path }) => {
+        if (!value) return true;
+
+        if (allowedLocations.includes(value)) return true;
+
+        const { customPatientFieldIds } = options.context;
+        if (customPatientFieldIds && customPatientFieldIds.includes(value)) return true;
+
+        return createError({
+          path,
+          message: `${path} must be one of the following values: ${allowedLocations.join(', ')}, or a valid custom patient field ID`,
+        });
+      },
+    )
     .test('test-program-registry-conditions', async (value, { options, createError, path }) => {
       // No need to validate non-program registry fields
       if (!PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(value)) return true;
