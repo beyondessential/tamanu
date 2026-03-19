@@ -48,8 +48,10 @@ const DateTooltip = ({
 
   const dateTooltip = timeOnlyTooltip ? (
     <TimeDisplay date={rawDate} noTooltip />
+  ) : isDateOnly ? (
+    <DateDisplay date={rawDate} format="long" weekdayFormat="long" noTooltip />
   ) : (
-    <DateDisplay date={rawDate} timeFormat={!isDateOnly ? 'default' : null} noTooltip />
+    <DateDisplay date={rawDate} timeFormat="default" noTooltip />
   );
 
   const tooltipTitle = debug ? (
