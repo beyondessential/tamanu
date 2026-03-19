@@ -177,12 +177,10 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
   const startMs = storedDateTimeToEpochMilliseconds(startDate);
   const endMs = endDate ? storedDateTimeToEpochMilliseconds(endDate) : Date.now();
 
-  if (startMs == null || (endDate != null && endMs == null)) return null;
+  if (startMs === null || (endDate !== null && endMs === null)) return null;
 
-  const startAsDate = new Date(startMs);
-  const endAsDate = new Date(endMs);
-  const duration = intervalToDuration({ start: startAsDate, end: endAsDate });
-  const totalMinutes = differenceInMinutes(endAsDate, startAsDate);
+  const duration = intervalToDuration({ start: startMs, end: endMs });
+  const totalMinutes = differenceInMinutes(endMs, startMs);
 
   let formattedDuration;
   if (totalMinutes === 0) {
