@@ -53,8 +53,8 @@ lints.md
 /dockercfg
 /docker-volumes/
 
-# Claude Code
-.claude/tmp/
+# Claude Code temp files
+.tmp/
 
 # IDEs
 .idea

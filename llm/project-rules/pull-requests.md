@@ -60,10 +60,10 @@ The summary should give reviewers context — what changed, why, and any notable
 4. Pass the temp file to `gh pr create --body-file`
 
 ```bash
-# Step 1-3: Read template with Read tool, construct body, write to temp file (.claude/tmp/ is gitignored)
+# Step 1-3: Read template with Read tool, construct body, write to temp file (.tmp/ is gitignored)
 # Step 4: Create PR using the temp file, then clean up
-gh pr create --title "feat(scope): TICKET-123: description" --body-file .claude/tmp/pr-body.md
-rm .claude/tmp/pr-body.md
+gh pr create --title "feat(scope): TICKET-123: description" --body-file .tmp/pr-body.md
+rm .tmp/pr-body.md
 ```
 
 **Don't:**
