@@ -43,7 +43,7 @@ export function buildAdminAbility() {
   ]);
 }
 
-function isFhirPermission({ verb, noun }) {
+export function isFhirPermission({ verb, noun }) {
   return verb === FHIR_INTEGRATION_VERB || FHIR_PERMISSION_NOUNS.has(noun);
 }
 

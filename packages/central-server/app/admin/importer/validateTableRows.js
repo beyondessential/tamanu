@@ -1,9 +1,5 @@
 import { Op } from 'sequelize';
-import { FHIR_PERMISSION_NOUNS, FHIR_INTEGRATION_VERB } from '@tamanu/constants';
-
-function isFhirPermission({ verb, noun }) {
-  return verb === FHIR_INTEGRATION_VERB || FHIR_PERMISSION_NOUNS.has(noun);
-}
+import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
 
 async function validatePermissions(models, rows, pushErrorFn) {
   const permissionsByRole = {};
