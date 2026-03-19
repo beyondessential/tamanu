@@ -137,6 +137,7 @@ export async function up(query: QueryInterface) {
     },
   });
 
+  const otherNoteType = NOTE_TYPE_REFERENCE_DATA.find(({ code }) => code === 'other')!;
   const upCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${code}' THEN '${id}'`,
   ).join('\n        ');
@@ -144,6 +145,7 @@ export async function up(query: QueryInterface) {
     UPDATE notes
     SET note_type_id = CASE note_type
         ${upCaseExpression}
+        ELSE '${otherNoteType.id}'
     END
   `);
 
@@ -161,6 +163,7 @@ export async function down(query: QueryInterface) {
     allowNull: true,
   });
 
+  const otherNoteType = NOTE_TYPE_REFERENCE_DATA.find(({ code }) => code === 'other')!;
   const downCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${id}' THEN '${code}'`,
   ).join('\n        ');
@@ -168,6 +171,7 @@ export async function down(query: QueryInterface) {
     UPDATE notes
     SET note_type = CASE note_type_id
         ${downCaseExpression}
+        ELSE '${otherNoteType.code}'
     END
   `);
 
