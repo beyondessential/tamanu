@@ -68,7 +68,13 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, insurancePlans, onSubmit }) => {
+export const PatientDetailsForm = ({
+  patient,
+  additionalData,
+  birthData,
+  insurancePlans,
+  onSubmit,
+}) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
