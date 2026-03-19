@@ -140,7 +140,7 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: <DateDisplay date={medication.startDate} format="shortest" timeFormat="compact" />,
+      value: <DateDisplay date={medication.startDate} format="shortest" timeFormat="default" />,
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
@@ -200,7 +200,7 @@ export const MedicationDetails = ({
           label: (
             <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
           ),
-          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />,
+          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />,
         },
       ]),
     {
@@ -307,7 +307,7 @@ export const MedicationDetails = ({
                         <DateDisplay date={medication.discontinuedDate} format="shortest" />{' '}
                         <TimeDisplay
                           date={medication.discontinuedDate}
-                          timeFormat="compact"
+                          timeFormat="default"
                           noTooltip
                         />
                       </DarkestText>
@@ -345,7 +345,7 @@ export const MedicationDetails = ({
                         <DateDisplay
                           date={pauseData.pauseEndDate}
                           format="shortest"
-                          timeFormat="compact"
+                          timeFormat="default"
                         />
                       </DarkestText>
                     </Box>
@@ -512,7 +512,6 @@ export const MedicationDetails = ({
                             <MidText key={time}>
                               <TimeDisplay
                                 date={getDateFromTimeString(time)}
-                                format="compact"
                                 noTooltip
                               />
                             </MidText>
