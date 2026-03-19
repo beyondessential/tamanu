@@ -55,7 +55,7 @@ const TriageCell = ({ arrivalTime, children }) => {
 export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {
     const [, updateState] = useState({});
-    const { formatTimeCompact, storedDateTimeToEpochMilliseconds } = useDateTime();
+    const { formatTime, storedDateTimeToEpochMilliseconds } = useDateTime();
 
     // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
     // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
@@ -80,7 +80,7 @@ export const TriageWaitTimeCell = React.memo(
               <TranslatedText
                 stringId="patientList.triage.table.waitTime.cell.triageTime"
                 fallback="Triage at :triageDate"
-                replacements={{ triageDate: formatTimeCompact(triageTime) }}
+                replacements={{ triageDate: formatTime(triageTime) }}
                 data-testid="translatedtext-wovf"
               />
             </div>
@@ -93,7 +93,7 @@ export const TriageWaitTimeCell = React.memo(
             <TranslatedText
               stringId="patientList.triage.table.waitTime.cell.closedTime"
               fallback="Seen at :triageDate"
-              replacements={{ triageDate: formatTimeCompact(closedTime) }}
+              replacements={{ triageDate: formatTime(closedTime) }}
               data-testid="translatedtext-hfkc"
             />
           </TriageCell>
