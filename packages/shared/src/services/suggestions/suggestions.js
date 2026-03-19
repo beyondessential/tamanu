@@ -201,6 +201,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn,
       });
 
       if (!record) throw new NotFoundError();
+      req.checkPermission('read', record);
 
       res.send(await mapper(record));
     }),
