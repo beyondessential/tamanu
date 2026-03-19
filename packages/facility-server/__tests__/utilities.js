@@ -17,9 +17,12 @@ import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { asNewRole, showError } from '@tamanu/shared/test-helpers';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { createApiApp } from '../dist/createApiApp';
 import { buildToken } from '../dist/middleware/auth';
+import { initDatabase } from '../dist/database';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
@@ -39,6 +42,39 @@ const formatError = response => `
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
 `;
+
+class MockApplicationContext extends ApplicationContext {
+  async init({ appType, databaseOverrides, dbKey, initFhirTriggers = false } = {}) {
+    const facilityIds = selectFacilityIds(config);
+    const key = dbKey ?? appType ?? 'main';
+    this.store = await initDatabase(databaseOverrides ?? {}, key);
+    this.sequelize = this.store.sequelize;
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
+    this.models = this.store.models;
+
+    this.settings = facilityIds.reduce((acc, facilityId) => {
+      acc[facilityId] = new ReadSettings(this.models, facilityId);
+      return acc;
+    }, {});
+    this.settings.global = new ReadSettings(this.models);
+
+    const fhirWorkerEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+
+    const facilityReaders = facilityIds.map(id => this.settings[id]);
+    await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    if (initFhirTriggers) {
+      await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
+    }
+
+    if (config.db.reportSchemas?.enabled) {
+      this.reportSchemaStores = await initReporting(this.store);
+    }
+    return this;
+  }
+}
 
 export function extendExpect(expect) {
   expect.extend({
@@ -127,8 +163,12 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
-  const context = await new ApplicationContext().init({ databaseOverrides });
+export async function createTestContext({
+  enableReportInstances,
+  databaseOverrides,
+  initFhirTriggers = false,
+} = {}) {
+  const context = await new MockApplicationContext().init({ databaseOverrides, initFhirTriggers });
   // create mock reporting schema + roles if test requires it
   // init reporting instances for these roles
   if (enableReportInstances) {
