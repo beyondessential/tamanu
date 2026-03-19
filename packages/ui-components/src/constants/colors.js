@@ -1,3 +1,6 @@
+// These should match the figma colour library
+// https://www.figma.com/design/0zuHw8wmEMhEL5IJ0apjBd/Tamanu-Design-System?node-id=748-43&t=LNpNE3ODzbeEbdyN-0
+
 export const TAMANU_COLORS = {
   primary: '#326699',
   primary30: '#C2D2E1',
@@ -16,6 +19,7 @@ export const TAMANU_COLORS = {
   outline: '#dedede',
   softOutline: '#ebebeb',
   background: '#f3f5f7',
+  background2: '#f9fafb',
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',

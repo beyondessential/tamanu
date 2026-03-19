@@ -13,7 +13,12 @@ const Container = styled(FormGrid)`
   padding-bottom: 1.2rem;
 `;
 
-export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
+export const HierarchyFields = ({
+  fields,
+  leafNodeType,
+  relationType,
+  removeContainer = false,
+}) => {
   const { values } = useFormikContext();
   const { data: hierarchyTypes = [] } = useHierarchyTypesQuery({ leafNodeType, relationType });
 
@@ -33,8 +38,10 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
     return null;
   }
 
+  const Wrapper = removeContainer ? React.Fragment : Container;
+
   return (
-    <Container data-testid="container-bmjc">
+    <Wrapper data-testid="container-bmjc">
       {matchedHierarchyTypes.map((type, index) => {
         const fieldData = fieldsToShow.find((f) => f.referenceType === type);
         const parentFieldData = fieldsToShow.find((f) => f.referenceType === matchedHierarchyTypes[index - 1]);
@@ -51,6 +58,6 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
           />
         );
       })}
-    </Container>
+    </Wrapper>
   );
 };
