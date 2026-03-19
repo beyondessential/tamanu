@@ -137,18 +137,15 @@ export async function up(query: QueryInterface) {
     },
   });
 
-  await query.sequelize.query(
-    `
+  const upCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
+    ({ id, code }) => `WHEN '${code}' THEN '${id}'`,
+  ).join('\n        ');
+  await query.sequelize.query(`
     UPDATE notes
-    SET note_type_id = reference_data.id
-    FROM reference_data
-    WHERE reference_data.type = :noteType
-      AND reference_data.code = notes.note_type
-    `,
-    {
-      replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
-    },
-  );
+    SET note_type_id = CASE note_type
+        ${upCaseExpression}
+    END
+  `);
 
   await query.changeColumn('notes', 'note_type_id', {
     type: DataTypes.STRING(255),
@@ -164,18 +161,15 @@ export async function down(query: QueryInterface) {
     allowNull: true,
   });
 
-  await query.sequelize.query(
-    `
+  const downCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
+    ({ id, code }) => `WHEN '${id}' THEN '${code}'`,
+  ).join('\n        ');
+  await query.sequelize.query(`
     UPDATE notes
-    SET note_type = reference_data.code
-    FROM reference_data
-    WHERE reference_data.id = notes.note_type_id
-      AND reference_data.type = :noteType
-    `,
-    {
-      replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
-    },
-  );
+    SET note_type = CASE note_type_id
+        ${downCaseExpression}
+    END
+  `);
 
   await query.changeColumn('notes', 'note_type', {
     type: DataTypes.STRING(255),
@@ -184,10 +178,7 @@ export async function down(query: QueryInterface) {
 
   await query.removeColumn('notes', 'note_type_id');
 
-  await query.sequelize.query(
-    `DELETE FROM reference_data WHERE type = :noteType`,
-    {
-      replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
-    },
-  );
+  await query.sequelize.query(`DELETE FROM reference_data WHERE type = :noteType`, {
+    replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
+  });
 }
