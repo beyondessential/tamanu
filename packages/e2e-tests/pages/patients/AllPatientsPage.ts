@@ -4,7 +4,7 @@ import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import { convertDateFormat, formatForDatePicker, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
 import { ERROR_RED_RGB } from '@utils/testColors';
 
 export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
@@ -119,18 +119,18 @@ export class AllPatientsPage extends BasePatientListPage {
     
     // Override specific locators that need additional processing
     this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
+    this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl').locator('input');
     this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
     this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.DOBInput = page.getByTestId('field-qk60').locator('input');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input');
+    this.DOBToTxt = page.getByTestId('field-aax5').locator('input');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');
@@ -189,7 +189,7 @@ export class AllPatientsPage extends BasePatientListPage {
       await this.lastNameInput.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBInput.fill(searchCriteria.DOB);
+      await this.DOBInput.fill(formatForDatePicker(searchCriteria.DOB));
     }
     if (searchCriteria.culturalName) {
       await this.culturalNameInput.fill(searchCriteria.culturalName);
@@ -203,16 +203,16 @@ export class AllPatientsPage extends BasePatientListPage {
     }
     if (searchCriteria.sex){
       await this.sexDropDownIcon.click();
-      await this.page.getByTestId(TWO_COLUMNS_FIELD_TEST_ID).getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
+      await this.page.getByRole('option', { name: new RegExp(`^${searchCriteria.sex}$`, 'i') }).click();
     }
     if (searchCriteria.deceased) {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(searchCriteria.DOBFrom);
+      await this.DOBFromTxt.fill(formatForDatePicker(searchCriteria.DOBFrom));
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(searchCriteria.DOBTo);
+      await this.DOBToTxt.fill(formatForDatePicker(searchCriteria.DOBTo));
     }
     
     await this.searchBtn.click();
@@ -317,9 +317,8 @@ export class AllPatientsPage extends BasePatientListPage {
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const [monthA, dayA, yearA] = a.split('/');
-      const [monthB, dayB, yearB] = b.split('/');
+      const [dayA, monthA, yearA] = a.split('/');
+      const [dayB, monthB, yearB] = b.split('/');
       const dateA = `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`;
       const dateB = `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`;
       return isAscending 

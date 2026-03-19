@@ -126,7 +126,7 @@ export class LabRequestModalBase {
     
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
@@ -178,7 +178,7 @@ export class LabRequestModalBase {
   }
 
   getCurrentDateTime(): string {
-    return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+    return format(new Date(), "dd/MM/yyyy hh:mm a");
   }
 
   /**

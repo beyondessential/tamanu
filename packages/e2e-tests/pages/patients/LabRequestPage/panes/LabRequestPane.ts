@@ -85,9 +85,8 @@ export class LabRequestPane {
       // Validate requested date
       const dateCell = this.getRequestedDateCell(i);
       const actualDate = await dateCell.textContent();
-      // Convert ISO date format to MM/DD/YYYY format for comparison
       const date = new Date(requestedDate);
-      const expectedDate = format(date, 'MM/dd/yyyy');
+      const expectedDate = format(date, 'dd/MM/yyyy');
       await expect(actualDate).toBe(expectedDate);
       
       // Validate requested by

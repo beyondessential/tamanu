@@ -209,7 +209,7 @@ test.describe('Basic tests', () => {
       await newImagingRequestModal.waitForModalToLoad();
       const imagingRequestCode= await newImagingRequestModal.imagingRequestCodeInput.inputValue();
 
-      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'yyyy-MM-dd\'T\'HH:mm');
+      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'dd/MM/yyyy hh:mm a');
 
       const defaultRequestingClinician = await newImagingRequestModal.requestingClinicianInput.inputValue();
       expect(defaultRequestingClinician).toBe(currentUserDisplayName);
@@ -229,7 +229,7 @@ test.describe('Basic tests', () => {
        const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
        expect(requestId[0]).toBe(imagingRequestCode);
        const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-       expect(requestedAtTime[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+       expect(requestedAtTime[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
        const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
        expect(requestedBy[0]).toBe(formValues.requestingClinician);
        const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
@@ -261,7 +261,7 @@ test.describe('Basic tests', () => {
     const department = await getTableItems(documentsPane.page, 1, 'department.name')
     expect(department[0]).toBe(formValues.department);
     const dateUploaded = await getTableItems(documentsPane.page, 1, 'documentUploadedAt');
-    expect(dateUploaded[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+    expect(dateUploaded[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
   });
   test.skip('[BT-0010][AT-2008]add a document and download it', async () => {
     // we can't inspect the download document modal, a blocker to write this test
@@ -278,7 +278,7 @@ test.describe('Basic tests', () => {
     const sidebarPage = new SidebarPage(patientDetailsPage.page);
     expect(encounterValues.facilityName).toBe(await sidebarPage.getFacilityName());
     expect(encounterValues.area).toBe(formValues.area);
-    expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
+    expect(encounterValues.startDate).toBe(`${format(new Date(), 'dd/MM/yyyy')} – Current`);
   });
   test.skip('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     test.setTimeout(60000);
@@ -326,7 +326,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();  
-    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'yyyy-MM-dd'));
+    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'dd/MM/yyyy'));
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
@@ -567,7 +567,7 @@ test.describe('Basic tests', () => {
     await addReferralModal.selectSurvey(referralType);
     await addReferralModal.waitForFormFieldsToBeVisible();
     const formValues = await addReferralModal.fillCVDPrimaryScreeningForm({
-      referralDate: format(new Date(), 'yyyy-MM-dd'),
+      referralDate: format(new Date(), 'dd/MM/yyyy'),
       referralReason: 'Reason for referral',
       relevantScreeningHistory: false
     });
@@ -575,7 +575,7 @@ test.describe('Basic tests', () => {
     await addReferralModal.completeReferralButton.click();
     await referralPane.waitForPageToLoad();
     const referralDate = await getTableItems(referralPane.page, 1, 'date');
-    expect(referralDate[0]).toBe(format(new Date(formValues.referralDate), 'MM/dd/yyyy'));
+    expect(referralDate[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
     const referralTypeValue = await getTableItems(referralPane.page, 1, 'referralType');
     expect(referralTypeValue[0]).toBe(referralType);
     const referralCompletedBy = await getTableItems(referralPane.page, 1, 'referredBy');

@@ -3,22 +3,56 @@ import { subYears, addYears, format, parse } from 'date-fns';
 
 export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
-// Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
+/**
+ * Converts an ISO date to MM/dd/yyyy — matches the table display format
+ * when the browser locale is en-US (Playwright default).
+ */
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
-  
-  let dateString: string;
-  
+
   if (dateInput instanceof Date) {
-    dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  } else {
-    dateString = dateInput;
+    const day = String(dateInput.getDate()).padStart(2, '0');
+    const month = String(dateInput.getMonth() + 1).padStart(2, '0');
+    return `${month}/${day}/${dateInput.getFullYear()}`;
   }
-  
-  if (!dateString) return '';
-  
-  const [year, month, day] = dateString.split('-');
-  return `${month}/${day}/${year}`;
+
+  if (dateInput.includes('-')) {
+    const datePart = dateInput.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    return `${month}/${day}/${year}`;
+  }
+
+  if (dateInput.includes('/')) {
+    return dateInput.split(' ')[0];
+  }
+
+  return dateInput;
+};
+
+/**
+ * Converts an ISO date to dd/MM/yyyy — matches the MUI DatePicker display
+ * format used in Tamanu (DISPLAY_FORMATS.date in DateField.jsx).
+ */
+export const formatForDatePicker = (dateInput: string | Date | undefined): string => {
+  if (!dateInput) return '';
+
+  if (dateInput instanceof Date) {
+    const day = String(dateInput.getDate()).padStart(2, '0');
+    const month = String(dateInput.getMonth() + 1).padStart(2, '0');
+    return `${day}/${month}/${dateInput.getFullYear()}`;
+  }
+
+  if (dateInput.includes('-')) {
+    const datePart = dateInput.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  if (dateInput.includes('/')) {
+    return dateInput.split(' ')[0];
+  }
+
+  return dateInput;
 };
 
 /**
@@ -65,24 +99,29 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
 }
 
 /**
- * Formats a date to 'MM/dd/yyyy h:mmam' style (lowercase am/pm, no space) to match the app's display format.
+ * Formats a date to 'dd/MM/yyyy h:mmam' style (lowercase am/pm, no space) to match the app's display format.
  * @param date - The Date object to format
- * @returns Formatted string (e.g., "02/12/2026 9:31am")
+ * @returns Formatted string (e.g., "12/02/2026 9:31am")
  */
 export function formatDateTimeForDisplay(date: Date): string {
-  return format(date, 'MM/dd/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
+  return format(date, 'dd/MM/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
 }
 
 /**
- * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11am12/01/25")
+ * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11am01/12/25")
  * @param dateTimeString - ISO format dateTime string (e.g., "2025-12-01T06:11")
- * @returns Formatted string matching table display format (e.g., "6:11am12/01/25")
+ * @returns Formatted string matching table display format (e.g., "6:11am01/12/25")
  */
 export function formatDateTimeForTable(dateTimeString: string): string {
-  const dateFromForm = new Date(dateTimeString);
-  const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
-  const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
-  return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
+  let dateFromForm: Date;
+  if (dateTimeString.includes('T')) {
+    dateFromForm = new Date(dateTimeString);
+  } else {
+    dateFromForm = parse(dateTimeString, 'dd/MM/yyyy hh:mm a', new Date());
+  }
+  const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase();
+  const formattedDate = format(dateFromForm, 'dd/MM/yy');
+  return `${formattedTime}${formattedDate}`;
 }
 
 /**
@@ -102,10 +141,22 @@ export function compareAlphabetically(order: 'asc' | 'desc') {
  */
 export function compareByDate(order: 'asc' | 'desc') {
   return (a: { dateGiven: string }, b: { dateGiven: string }) => {
-    const dateA = new Date(a.dateGiven).getTime();
-    const dateB = new Date(b.dateGiven).getTime();
+    const dateA = parseDateDisplayString(a.dateGiven).getTime();
+    const dateB = parseDateDisplayString(b.dateGiven).getTime();
     return order === 'asc' ? dateA - dateB : dateB - dateA;
   };
+}
+
+/**
+ * Parses a date string in either dd/MM/yyyy (display) or yyyy-MM-dd (ISO) format into a Date.
+ */
+export function parseDateDisplayString(dateStr: string): Date {
+  const datePart = dateStr.split(' ')[0];
+  if (datePart.includes('-')) {
+    return new Date(datePart);
+  }
+  const [day, month, year] = datePart.split('/');
+  return new Date(`${year}-${month}-${day}`);
 }
 
 /**
@@ -120,15 +171,14 @@ export function offsetYear(
   offset: 'increase' | 'decrease',
   amountToOffset: number
 ): string {
-  //Convert to date format so utility functions can be used
-  const formattedDateToOffset = new Date(dateToOffset);
+  const formattedDateToOffset = parseDateDisplayString(dateToOffset);
   let newDate = undefined;
 
   if (offset === 'increase') newDate = addYears(formattedDateToOffset, amountToOffset);
   else if (offset === 'decrease') newDate = subYears(formattedDateToOffset, amountToOffset);
   else throw new Error('Invalid offset');
 
-  return format(newDate, 'yyyy-MM-dd');
+  return format(newDate, 'dd/MM/yyyy');
 }
 
 // Reusable function to select first option from any dropdown

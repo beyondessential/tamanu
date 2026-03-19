@@ -134,23 +134,19 @@ export class PatientDetailsPage extends BasePatientPage {
     this.ongoingConditionNameField = this.page
       .getByTestId('field-j30y-input')
       .getByRole('textbox', { name: 'Search...' });
-    this.ongoingConditionDateRecordedField = this.page
-      .getByTestId('field-2775-input')
-      .getByRole('textbox');
+    this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775').locator('input');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
     this.savedOnGoingConditionName = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-j30y-input')
-      .getByRole('textbox');
+      .getByTestId('field-j30y-input');
     this.savedOnGoingConditionDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-2775-input')
-      .getByRole('textbox');
+      .getByTestId('field-2775')
+      .locator('input');
     this.savedOnGoingConditionClinician = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-9miu-input')
-      .getByRole('textbox');
+      .getByTestId('field-9miu-input');
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
@@ -170,12 +166,11 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox', { name: 'Search...' });
     this.savedAllergyName = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-hwfk-input')
-      .getByRole('textbox');
+      .getByTestId('field-hwfk-input');
     this.savedAllergyDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-gmf8-input')
-      .getByRole('textbox');
+      .getByTestId('field-gmf8')
+      .locator('input');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page
       .getByTestId('formsubmitcancelrow-nx2z-confirmButton')
@@ -188,9 +183,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.familyHistoryDiagnosisField = this.page
       .getByTestId('field-3b4u-input')
       .getByRole('textbox', { name: 'Search...' });
-    this.familyHistoryDateRecordedField = this.page
-      .getByTestId('field-wrp3-input')
-      .getByRole('textbox');
+    this.familyHistoryDateRecordedField = this.page.getByTestId('field-wrp3').locator('input');
     this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
     this.familyHistoryNotes = this.page.getByTestId('field-mgiu-input');
@@ -200,15 +193,14 @@ export class PatientDetailsPage extends BasePatientPage {
 
     this.savedFamilyHistoryDateRecorded = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-wrp3-input')
-      .getByRole('textbox');
+      .getByTestId('field-wrp3')
+      .locator('input');
     this.savedFamilyHistoryRelationship = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-t0k5-input');
     this.savedFamilyClinician = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-kbwi-input')
-      .getByRole('textbox');
+      .getByTestId('field-kbwi-input');
     this.savedFamilyHistoryNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-mgiu-input');
@@ -222,8 +214,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-urg2-input')
-      .getByRole('textbox');
+      .getByTestId('field-urg2')
+      .locator('input');
     this.savedOtherPatientIssueNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-nj3s-input');
@@ -254,8 +246,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
     this.savedFamilyHistoryName = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-3b4u-input')
-      .getByRole('textbox');
+      .getByTestId('field-3b4u-input');
     this.submitEditsButton = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
@@ -290,6 +281,7 @@ export class PatientDetailsPage extends BasePatientPage {
     if (!this.patientVaccinePane) {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
+    await this.patientVaccinePane.recordVaccineButton.waitFor({ state: 'visible' });
     return this.patientVaccinePane;
   }
 
@@ -399,6 +391,7 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
+    await this.page.waitForLoadState('networkidle');
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
@@ -529,11 +522,8 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  /**
-   * Gets current browser date in the YYYY-MM-DD format in the browser timezone
-   */
-  getCurrentBrowserDateISOFormat() {
-    return format(new Date(), 'yyyy-MM-dd');
+  getCurrentBrowserDate() {
+    return format(new Date(), 'dd/MM/yyyy');
   }
 
   // Helper methods for handling multiple buttons with the same test ID

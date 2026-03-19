@@ -292,7 +292,7 @@ export class LabRequestDetailsPage {
     await this.enterResultsModal.selectResult(result);
     await this.enterResultsModal.selectLabTestMethod(labTestMethod);
     await this.enterResultsModal.verificationFirstRow.fill(verification);
-    const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");
+    const dateToUse = completedDate || format(new Date(), "dd/MM/yyyy hh:mm a");
     await this.enterResultsModal.completedDateFirstRow.fill(dateToUse);
     await this.enterResultsModal.confirmButton.click();
   }

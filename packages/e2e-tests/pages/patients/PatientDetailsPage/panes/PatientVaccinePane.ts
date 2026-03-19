@@ -63,6 +63,7 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
+    await this.recordVaccineButton.waitFor({ state: 'visible' });
     await this.recordVaccineButton.click();
     if (!this.recordVaccineModal) {
       this.recordVaccineModal = new RecordVaccineModal(this.page);

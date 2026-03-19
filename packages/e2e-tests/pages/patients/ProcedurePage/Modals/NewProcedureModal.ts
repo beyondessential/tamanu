@@ -41,7 +41,7 @@ export class NewProcedureModal extends BasePage {
     
     const testIds = {
       procedureInput: 'field-87c2-input',
-      procedureDateInput: 'field-3a5v-input',
+      procedureDateInput: 'field-3a5v',
       procedureAreaInput: 'field-p4ef-group-input',
       procedureLocationInput: 'field-p4ef-location-input',
       leadClinicianInput: 'field-lit6-input',
@@ -49,10 +49,10 @@ export class NewProcedureModal extends BasePage {
       anaesthetistInput: 'field-96eg-input',
       assistantAnaesthetistInput: 'field-96eg1-input',
       anaestheticTypeInput: 'field-w9b5-input',
-      timeInInput: 'field-khml1-input',
-      timeOutInput: 'field-hgzz1-input',
-      timeStartedInput: 'field-khml-input',
-      timeEndedInput: 'field-hgzz-input',
+      timeInInput: 'field-khml1',
+      timeOutInput: 'field-hgzz1',
+      timeStartedInput: 'field-khml',
+      timeEndedInput: 'field-hgzz',
       notesInput: 'field-7en7-input',
       completedNotesInput: 'field-qrv7-input',
       assistantCliniciansInput: 'styledformcontrol-td30', 

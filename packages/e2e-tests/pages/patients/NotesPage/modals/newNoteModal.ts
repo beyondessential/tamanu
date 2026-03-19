@@ -53,7 +53,7 @@ export class NewNoteModal extends BaseNoteModal {
 
   // Helper method to create a basic note
   async createBasicNote(noteType: string, content: string): Promise<string> {
-    const dateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
+    const dateTime = format(new Date(), 'dd/MM/yyyy hh:mm a');
     await this.waitForModalToLoad();
     await this.selectType(noteType);
     await this.noteContentTextarea.fill(content);

@@ -464,7 +464,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleButton.click();
       await labRequestDetailsPage.recordSampleModal.waitForModalToLoad();
       const date = new Date();
-      const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
+      const currentDateTime = format(date, "dd/MM/yyyy hh:mm a");
       const expectedDateTime = formatDateTimeForDisplay(date);
       await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
@@ -559,7 +559,7 @@ test.describe('Lab Request Tests', () => {
       const tableVerificationItems = await getTableItems(page, 1, 'verification')
       await expect(tableVerificationItems[0]).toBe(verification);  
       const tableCompletedDateItems = await getTableItems(page, 1, 'completedDate')
-      await expect(tableCompletedDateItems[0]).toBe(format(new Date(currentDateTime), 'MM/dd/yyyy'));  
+      await expect(tableCompletedDateItems[0]).toBe(format(date, 'dd/MM/yyyy'));  
     });
   });
 });

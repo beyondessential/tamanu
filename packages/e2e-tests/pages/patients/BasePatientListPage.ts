@@ -224,9 +224,8 @@ export abstract class BasePatientListPage extends BasePage {
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const [monthA, dayA, yearA] = a.split('/');
-      const [monthB, dayB, yearB] = b.split('/');
+      const [dayA, monthA, yearA] = a.split('/');
+      const [dayB, monthB, yearB] = b.split('/');
       const dateA = new Date(
         `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
       ).getTime();

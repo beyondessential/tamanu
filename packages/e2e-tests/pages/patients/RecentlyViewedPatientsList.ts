@@ -33,9 +33,9 @@ export class RecentlyViewedPatientsList {
   static formatDateForRecentlyViewed(dateOfBirth: string): string {
     const formatted = dateOfBirth.includes('/') ? dateOfBirth : convertDateFormat(dateOfBirth);
 
-    const [month, day, year] = formatted.split('/');
+    const [day, month, year] = formatted.split('/');
     const shortYear = year.slice(-2);
-    return `${month}/${day}/${shortYear}`;
+    return `${day}/${month}/${shortYear}`;
   }
 
   async getRecentlyViewedPatientNameColor(): Promise<string> {

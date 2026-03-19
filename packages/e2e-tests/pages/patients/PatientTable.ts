@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, SelectingFromSearchBox ,STYLED_TABLE_CELL_PREFIX} from '../../utils/testHelper';
+import { convertDateFormat, formatForDatePicker, SelectingFromSearchBox, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
 import { routes } from '../../config/routes';
 import { Patient } from '../../types/Patient'; 
 import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
@@ -101,10 +101,10 @@ export class PatientTable {
       .locator('svg');
     this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
-    this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.DOBTxt = page.getByTestId('field-qk60').locator('input');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input');
+    this.DOBToTxt = page.getByTestId('field-aax5').locator('input');
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
     this.patientPageRecordCount25 = page
       .getByTestId('styledmenuitem-fkrw-undefined')
@@ -244,14 +244,12 @@ export class PatientTable {
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      const [month, day, year] = a.split('/');
-      const dateA = new Date(`${year}-${month}-${day}`).getTime();
-      const [monthB, dayB, yearB] = b.split('/');
+      const [dayA, monthA, yearA] = a.split('/');
+      const dateA = new Date(`${yearA}-${monthA}-${dayA}`).getTime();
+      const [dayB, monthB, yearB] = b.split('/');
       const dateB = new Date(`${yearB}-${monthB}-${dayB}`).getTime();
       return isAscending ? dateA - dateB : dateB - dateA;
     });
-    console.log('result', dateValues);
-    console.log('expected', sortedValues);
     expect(dateValues).toEqual(sortedValues);
     
   }
@@ -283,7 +281,7 @@ export class PatientTable {
       await this.lastNameTxt.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBTxt.fill(searchCriteria.DOB);
+      await this.DOBTxt.fill(formatForDatePicker(searchCriteria.DOB));
     }
     if (searchCriteria.culturalName) {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
@@ -297,19 +295,16 @@ export class PatientTable {
     }
     if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
-      await this.page
-        .getByTestId(TWO_COLUMNS_FIELD_TEST_ID)
-        .getByText(new RegExp(`^${searchCriteria.sex}$`, 'i'))
-        .click();
+      await this.page.getByRole('option', { name: new RegExp(`^${searchCriteria.sex}$`, 'i') }).click();
     }
     if (searchCriteria.deceased) {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(searchCriteria.DOBFrom);
+      await this.DOBFromTxt.fill(formatForDatePicker(searchCriteria.DOBFrom));
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(searchCriteria.DOBTo);
+      await this.DOBToTxt.fill(formatForDatePicker(searchCriteria.DOBTo));
     }
 
     await this.searchBtn.click();

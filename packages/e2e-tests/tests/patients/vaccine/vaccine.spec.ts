@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { convertDateFormat, offsetYear } from '@utils/testHelper';
+import { offsetYear } from '@utils/testHelper';
 import {
   addVaccineAndAssert,
   triggerDateError,
@@ -238,18 +238,18 @@ test.describe('Vaccines', () => {
   test('[T-0432][AT-1040]Add vaccine and confirm default date is today', async ({
     patientDetailsPage,
   }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
 
     await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
-      convertDateFormat(currentBrowserDate),
+      currentBrowserDate,
     );
   });
 
   test('[T-0432][AT-1041]Add vaccine with custom date given', async ({ patientDetailsPage }) => {
     //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
     const dateGiven = offsetYear(currentBrowserDate, 'decrease', 1);
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -258,7 +258,7 @@ test.describe('Vaccines', () => {
     });
 
     await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
-      convertDateFormat(dateGiven),
+      dateGiven,
     );
   });
 
@@ -274,7 +274,7 @@ test.describe('Vaccines', () => {
   });
 
   test('[T-0432][AT-1043]Date given cannot be in the future', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
     const futureDateGiven = offsetYear(currentBrowserDate, 'increase', 1);
     const expectedErrorMessage = 'Date cannot be in the future';
 
@@ -328,7 +328,7 @@ test.describe('Vaccines', () => {
     const category = 'Routine';
     const fillOptionalFields = true;
 
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
     //The vaccine is created with today's date and this edits it to be one year ago
     //A patient is always 18+ years old so one year ago avoids any validation errors
     const editedDateGiven = offsetYear(currentBrowserDate, 'decrease', 1);
@@ -592,7 +592,7 @@ test.describe('Vaccines', () => {
   test('[T-0448][AT-1025]Recorded vaccines table can be sorted by clicking column headers', async ({
     patientDetailsPage,
   }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
     const dateOneYearAgo = offsetYear(currentBrowserDate, 'decrease', 1);
     const dateTwoYearsAgo = offsetYear(currentBrowserDate, 'decrease', 2);
 

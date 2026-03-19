@@ -2,6 +2,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { formatForDatePicker } from '../../../../utils/testHelper';
 
 
 export interface PatientDetails {
@@ -115,7 +116,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       middleNameInput: 'localisedfield-l6hc-input',
       lastNameInput: 'localisedfield-41un-input',
       culturalNameInput: 'localisedfield-ew4s-input',
-      dateOfBirthInput: 'localisedfield-oafl-input',
+      dateOfBirthInput: 'localisedfield-oafl',
       emailInput: 'localisedfield-j8v5-input',
       nationalHealthNumberInput: 'localisedfield-a0ac-input',
       birthCertificateInput: 'localisedfield-0jtf-birthCertificate-input',
@@ -179,7 +180,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       await this.culturalNameInput.fill(patientDetails.culturalName);
     }
     if (patientDetails.dateOfBirth) {
-      await this.dateOfBirthInput.locator('input').fill(patientDetails.dateOfBirth);
+      await this.dateOfBirthInput.locator('input').fill(formatForDatePicker(patientDetails.dateOfBirth));
     }
     if (patientDetails.sex) {
       if (patientDetails.sex === 'female') {

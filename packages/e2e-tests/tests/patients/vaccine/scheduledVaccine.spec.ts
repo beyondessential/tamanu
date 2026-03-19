@@ -15,7 +15,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const birthDueDate = await expectedDueDateWeek(currentDate, 1);
     const status = 'Due';
     const schedule = 'Birth';
@@ -46,7 +46,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const status = 'Scheduled';
 
     const sixWeekDueDate = await expectedDueDateWeek(currentDate, 6);
@@ -93,7 +93,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const status = 'Scheduled';
 
     //Weeks are used in this calculation because this is how its calculated in the database
@@ -133,7 +133,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'Td Booster';
     const schedule = '10 years';
@@ -163,7 +163,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'COVID-19 AZ';
@@ -198,7 +198,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
 
     const due = {
@@ -314,7 +314,7 @@ test.describe('Scheduled vaccines', () => {
       api,
       patientDetailsPage,
     }) => {
-      const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+      const currentDate = new Date();
       const birthDate = getBirthDate(currentDate);
       const dueDate = await getDueDate(birthDate);
 
@@ -336,7 +336,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const vaccine = 'BCG';
     const schedule = 'Birth';
     const status = 'Due';
@@ -368,7 +368,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date();
     const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'COVID-19 AZ';

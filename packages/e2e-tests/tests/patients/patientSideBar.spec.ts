@@ -7,7 +7,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('[T-0040][AT-0096]Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
 
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
@@ -22,7 +22,7 @@ test.describe('Patient Side Bar', () => {
   test('[T-0040][AT-0097]Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Jaw dislocation',
-      '2024-06-20',
+      '20/06/2024',
       'Initial Admin',
       'This is a note',
     );
@@ -32,7 +32,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Jaw dislocation');
-    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-06-20');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('20/06/2024');
     await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is a note');
   });
@@ -54,7 +54,7 @@ test.describe('Patient Side Bar', () => {
   test('[AT-0099]Edit ongoing condition', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Eating habits inadequate',
-      '2024-07-13',
+      '13/07/2024',
       'Initial Admin',
       'Temporary note',
     );
@@ -72,7 +72,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue(
       'Eating habits inadequate',
     );
-    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-07-13');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('13/07/2024');
     await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('Edited note');
     await expect(patientDetailsPage.page.getByText('Temporary note')).toBeHidden();
@@ -81,7 +81,7 @@ test.describe('Patient Side Bar', () => {
   test('[AT-0100]Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Pain in hand',
-      '2024-08-14',
+      '14/08/2024',
       'Initial Admin',
       'This is to test resolving a note',
     );
@@ -97,7 +97,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Pain in hand');
-    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-08-14');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('14/08/2024');
     await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue(
       'This is to test resolving a note',
@@ -109,7 +109,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('[T-0042][AT-0101]Add allergy with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
 
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
@@ -168,7 +168,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('[T-0044][AT-0105]Add family history with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
 
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
@@ -183,7 +183,7 @@ test.describe('Patient Side Bar', () => {
   test('[T-0044][AT-0106]Add family history with all fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithAllFields(
       'Ear burn',
-      '2025-05-26',
+      '26/05/2025',
       'Mother',
       'Initial Admin',
       'Family history note',
@@ -194,7 +194,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Ear burn');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-26');
+    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('26/05/2025');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Family history note');
@@ -205,7 +205,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.firstListItem.click();
 
-    await patientDetailsPage.savedFamilyHistoryDateRecorded.fill('2025-05-25');
+    await patientDetailsPage.savedFamilyHistoryDateRecorded.fill('25/05/2025');
     await patientDetailsPage.savedFamilyHistoryRelationship.fill('Mother');
     await patientDetailsPage.savedFamilyClinician.click();
     await patientDetailsPage.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
@@ -215,7 +215,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('25/05/2025');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('First edit to note');
@@ -226,7 +226,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('25/05/2025');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Second edit to note');
@@ -238,7 +238,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.initiateNewOtherPatientIssuesAddButton.click();
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
 
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
 
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
@@ -290,7 +290,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Test warning');
 
     await patientDetailsPage.savedOtherPatientIssueNote.fill('Edited warning');
-    await patientDetailsPage.savedOtherPatientIssueDate.fill('2025-09-17');
+    await patientDetailsPage.savedOtherPatientIssueDate.fill('17/09/2025');
     await patientDetailsPage.getOtherPatientIssuesEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
@@ -311,14 +311,14 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
-    await expect(patientDetailsPage.savedOtherPatientIssueDate).toHaveValue('2025-09-17');
+    await expect(patientDetailsPage.savedOtherPatientIssueDate).toHaveValue('17/09/2025');
     await expect(patientDetailsPage.page.getByText('Test warning')).toBeHidden();
   });
 
   test('[T-0047][AT-0112]Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDate();
     const defaultDate = await newCarePlanModal.carePlanDate.inputValue();
     await expect(defaultDate).toContain(currentBrowserDate);
 
@@ -393,7 +393,7 @@ test.describe('Patient Side Bar', () => {
     await additionalNoteKebabMenu.click();
     await completedCarePlanModal.additionalNoteEditButton.click();
 
-    await completedCarePlanModal.additionalNoteSavedDate.fill('2025-04-26T15:40');
+    await completedCarePlanModal.additionalNoteSavedDate.fill('26/04/2025 03:40 PM');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
     await completedCarePlanModal.getSaveButton().click();
 
@@ -401,7 +401,7 @@ test.describe('Patient Side Bar', () => {
       'Edited note',
     );
     await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
-      '04/26/2025',
+      '26/04/2025',
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'This is the main care plan note which should not be edited',
