@@ -534,7 +534,7 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              <TimeDisplay date={dose.givenTime} format="compact" noTooltip />
+                              <TimeDisplay date={dose.givenTime} noTooltip />
                             </DarkestText>
                             <MidText mt={'15px'}>
                               <TranslatedText

@@ -157,7 +157,8 @@ const TABS = [
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} data-testid="invoicespane-ihh3" />,
-    condition: ability => ability.can('list', 'Invoice'),
+    condition: (ability, getSetting) =>
+      getSetting('features.invoicing.enabled') && ability.can('list', 'Invoice'),
   },
 ];
 
@@ -173,7 +174,8 @@ const usePatientTabs = () => {
   const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
+      patientTabSettings?.[tab.key]?.hidden !== true &&
+      (!tab.condition || tab.condition(ability, getSetting)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
