@@ -29,16 +29,20 @@ const Divider = styled(MuiDivider)`
  * (startTime/timeIn), the date portion is rolled forward to the next day.
  * Non-rollover time fields are synced to the procedure date.
  */
+const extractTime = value => (value && value.length > 10 ? value.slice(11) : value || '');
+
 const syncTimeDate = (time, targetDate, setFieldValue, fieldName) => {
   if (!time) return;
-  const timePart = time.slice(11);
+  const timePart = extractTime(time);
+  if (!timePart) return;
   const expected = `${targetDate}T${timePart}`;
   if (time !== expected) {
     setFieldValue(fieldName, expected);
   }
 };
 
-const isRollover = (time, refTime) => time && refTime && time.slice(11, 16) < refTime.slice(11, 16);
+const isRollover = (time, refTime) =>
+  time && refTime && extractTime(time).slice(0, 5) < extractTime(refTime).slice(0, 5);
 
 const ProcedureDateSync = () => {
   const { values, setFieldValue } = useFormikContext();
