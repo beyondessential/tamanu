@@ -11,6 +11,17 @@ const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): st
 
 const quote = (identifier: string): string => `"${identifier}"`;
 
+// Since sync only sends populated columns, we need to check all rows to get all columns
+const getAllColumns = (rows: DataToPersist[]) => {
+  const columnSet = new Set<string>();
+  for (const row of rows) {
+    for (const key in row) {
+      columnSet.add(key);
+    }
+  }
+  return [...columnSet];
+};
+
 /**
  * Much faster than typeorm bulk insert or save
  * Prepare a raw query and execute it with the values
@@ -25,7 +36,7 @@ export const executePreparedInsert = async (
 
   const { tableName } = repository.metadata;
 
-  const columns = Object.keys(rows[0]);
+  const columns = getAllColumns(rows);
   const columnNames = columns.map(quote).join(', ');
 
   const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
@@ -66,7 +77,7 @@ export const executePreparedUpdate = async (
 
   const { tableName } = repository.metadata;
 
-  const columns = Object.keys(rows[0]);
+  const columns = getAllColumns(rows);
   const updatableColumns = columns.filter(col => col !== 'id');
   const updateColumnsQuoted = updatableColumns.map(quote);
   const cteColumns = [quote('id'), ...updateColumnsQuoted];
