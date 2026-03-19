@@ -280,7 +280,8 @@ export const MultilineDatetimeDisplay = React.memo(
  */
 export const TimeRangeDisplay = ({ range: { start, end } }) => (
   <>
-    <TimeDisplay date={start} noTooltip /> &ndash; <TimeDisplay date={end} noTooltip />
+    <TimeDisplay date={start} noTooltip /> &ndash;{' '}
+    <TimeDisplay date={end} noTooltip />
   </>
 );
 
