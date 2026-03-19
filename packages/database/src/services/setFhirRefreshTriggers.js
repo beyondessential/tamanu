@@ -30,7 +30,7 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
 
       log.info(`Adding fhir_refresh trigger to ${schema}.${table}`);
       await sequelize.query(`
-          CREATE OR REPLACE TRIGGER fhir_refresh_${table}
+          CREATE TRIGGER fhir_refresh_${table}
           AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}" FOR EACH ROW
           EXECUTE FUNCTION fhir.refresh_trigger();
       `);
