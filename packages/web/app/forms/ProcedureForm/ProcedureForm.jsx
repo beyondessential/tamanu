@@ -29,7 +29,7 @@ const Divider = styled(MuiDivider)`
  * (startTime/timeIn), the date portion is rolled forward to the next day.
  * Non-rollover time fields are synced to the procedure date.
  */
-const extractTime = value => (value && value.length > 10 ? value.slice(11) : value || '');
+const extractTime = value => (value?.includes('T') ? value.split('T')[1] : value || '');
 
 const syncTimeDate = (time, targetDate, setFieldValue, fieldName) => {
   if (!time) return;
