@@ -9,7 +9,6 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
  * @param {{ fhirWorkerEnabled: boolean }} options - fhirWorkerEnabled: when true, add triggers; when false, remove them
  */
 export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) => {
-  // add fhir_refresh trigger to upstream tables of enabled fhir resources
   const materialisableResources = resourcesThatCanDo(
     Object.values(sequelize.models),
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
@@ -29,13 +28,17 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
       }
 
       log.info(`Adding fhir_refresh trigger to ${schema}.${table}`);
+      // Use a PL/pgSQL block to handle the race where multiple concurrent
+      // ApplicationContext.init() calls (api, fhir-worker, tasks) all see the
+      // trigger as missing and try to create it simultaneously.
       await sequelize.query(`
-          DROP TRIGGER IF EXISTS fhir_refresh_${table} ON "${schema}"."${table}";
-      `);
-      await sequelize.query(`
-          CREATE TRIGGER fhir_refresh_${table}
-          AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}" FOR EACH ROW
-          EXECUTE FUNCTION fhir.refresh_trigger();
+          DO $$ BEGIN
+            CREATE TRIGGER fhir_refresh_${table}
+            AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}" FOR EACH ROW
+            EXECUTE FUNCTION fhir.refresh_trigger();
+          EXCEPTION WHEN duplicate_object THEN
+            NULL;
+          END $$;
       `);
     }
 
