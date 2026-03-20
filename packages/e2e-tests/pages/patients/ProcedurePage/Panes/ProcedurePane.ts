@@ -43,7 +43,7 @@ export class ProcedurePane extends BasePatientPane {
     const testIds = {
       tabPane: 'tabpane-q1xp',
       styledForm: 'styledform-5o5i',
-      newProcedureButton: 'component-enxe',
+      newProcedureButton: 'buttonwithpermissioncheck-h58o',
       tableContainer: 'styledtablecontainer-3ttp',
       table: 'styledtable-1dlu',
       tableHead: 'styledtablehead-ays3',

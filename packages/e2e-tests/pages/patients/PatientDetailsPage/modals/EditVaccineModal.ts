@@ -48,7 +48,7 @@ export class EditVaccineModal extends BasePatientModal {
     this.recordedBy = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-e9ru');
     this.facility = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-iukb');
     this.batch = this.page.getByTestId('field-865y-input');
-    this.dateGiven = this.page.getByTestId('field-8sou-input').getByRole('textbox');
+    this.dateGiven = this.page.getByTestId('field-8sou').getByRole('textbox');
     this.injectionSite = this.page.getByTestId('field-jz48-select');
     this.area = this.page.getByTestId('field-zrlv-group-input');
     this.areaSearch = this.page

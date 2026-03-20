@@ -77,7 +77,7 @@ export class AllPatientsPage extends BasePatientListPage {
       lastNameInput: 'localisedfield-ngsn-input',
       
       // AllPatients-specific locators
-      addNewPatientBtn: 'component-enxe',
+      addNewPatientBtn: 'buttonwithpermissioncheck-itoq',
       NewPatientFirstName: 'localisedfield-cqua-input',
       NewPatientLastName: 'localisedfield-41un-input',
       NewPatientDOBtxt: 'localisedfield-oafl-input',
@@ -119,18 +119,18 @@ export class AllPatientsPage extends BasePatientListPage {
     
     // Override specific locators that need additional processing
     this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
+    this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl').getByRole('textbox');
     this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
     this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.DOBInput = page.getByTestId('field-qk60').locator('input[type="date"]');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input[type="date"]');
+    this.DOBToTxt = page.getByTestId('field-aax5').locator('input[type="date"]');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');

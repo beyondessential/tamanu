@@ -101,7 +101,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.vaccineBatchField = this.page.getByTestId('field-865y-input');
     this.injectionSiteField = this.page.getByTestId('field-jz48-select');
     this.consentGivenByField = this.page.getByTestId('field-inc8-input');
-    this.dateField = this.page.getByTestId('field-8sou-input').getByRole('textbox');
+    this.dateField = this.page.getByTestId('field-8sou').getByRole('textbox');
     this.notGivenReasonField = this.page.getByTestId('selectinput-phtg-select');
     this.notGivenClinicianField = this.page.getByTestId('field-xycc-input');
     this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');

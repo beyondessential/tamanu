@@ -135,7 +135,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('field-j30y-input')
       .getByRole('textbox', { name: 'Search...' });
     this.ongoingConditionDateRecordedField = this.page
-      .getByTestId('field-2775-input')
+      .getByTestId('field-2775')
       .getByRole('textbox');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
@@ -145,7 +145,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox');
     this.savedOnGoingConditionDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-2775-input')
+      .getByTestId('field-2775')
       .getByRole('textbox');
     this.savedOnGoingConditionClinician = this.page
       .getByTestId('collapse-0a33')
@@ -174,7 +174,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox');
     this.savedAllergyDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-gmf8-input')
+      .getByTestId('field-gmf8')
       .getByRole('textbox');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page
@@ -189,7 +189,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('field-3b4u-input')
       .getByRole('textbox', { name: 'Search...' });
     this.familyHistoryDateRecordedField = this.page
-      .getByTestId('field-wrp3-input')
+      .getByTestId('field-wrp3')
       .getByRole('textbox');
     this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
@@ -200,7 +200,7 @@ export class PatientDetailsPage extends BasePatientPage {
 
     this.savedFamilyHistoryDateRecorded = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-wrp3-input')
+      .getByTestId('field-wrp3')
       .getByRole('textbox');
     this.savedFamilyHistoryRelationship = this.page
       .getByTestId('collapse-0a33')
@@ -222,7 +222,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-urg2-input')
+      .getByTestId('field-urg2')
       .getByRole('textbox');
     this.savedOtherPatientIssueNote = this.page
       .getByTestId('collapse-0a33')
@@ -273,7 +273,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
     this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
     this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
+    this.admitOrCheckinButton=this.page.getByTestId('buttonwithpermissioncheck-o4ea');
     this.patientDetailsTab=this.page.getByTestId('tab-details');
     this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
     this.threeDotMenuButton=this.page.getByTestId('stylediconbutton-szh8');

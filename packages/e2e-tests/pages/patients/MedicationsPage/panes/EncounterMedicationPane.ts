@@ -45,9 +45,7 @@ export class EncounterMedicationPane extends BasePatientPane {
       (this as any)[key] = page.getByTestId(testId);
     }
 
-    this.newPrescriptionButton = page
-      .getByTestId('component-enxe')
-      .filter({ hasText: 'New prescription' });
+    this.newPrescriptionButton = page.getByTestId('styledbuttonwithpermissioncheck-cagj');
     this.medicationAdminRecordButton = page.getByRole('button', {
       name: 'Medication admin record',
       exact: true,

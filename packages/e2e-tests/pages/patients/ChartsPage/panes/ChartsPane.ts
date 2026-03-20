@@ -14,7 +14,7 @@ export class ChartsPane {
     this.page = page;
 
     const testIds = {
-      recordChartButton: 'component-enxe',
+      recordChartButton: 'styledbuttonwithpermissioncheck-ruv4',
       chartTypeSelect: 'styledtranslatedselectfield-vwze-select',
     } as const;
 
