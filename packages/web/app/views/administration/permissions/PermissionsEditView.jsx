@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useTranslation } from '@tamanu/ui-components';
+import { useAuth, useTranslation } from '@tamanu/ui-components';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -17,6 +17,7 @@ import { buildNouns } from './utils';
 import { useNounOptions } from './useNounOptions';
 import { useFilteredNouns } from './useFilteredNouns';
 import { NOUN_TYPES } from './constants';
+import { NoPermissionScreen } from '../../NoPermissionScreen';
 
 const OuterContainer = styled.div`
   display: grid;
@@ -112,8 +113,13 @@ const EmptyMessage = styled.div`
   color: ${Colors.midText};
 `;
 
+const StyledNoPermissionContainer = styled(NoPermissionScreen)`
+  border: none;
+`;
+
 export const PermissionsEditView = () => {
   const { getTranslation } = useTranslation();
+  const { ability } = useAuth();
   const [selectedRoleIds, setSelectedRoleIds] = useState([]);
   const [selectedNoun, setSelectedNoun] = useState(null);
 
@@ -173,12 +179,18 @@ export const PermissionsEditView = () => {
 
   const isActuallyLoading = isLoading && isFetching;
 
+  const hasReadPermission = ability.can('read', 'Permissions');
+
+  if (!hasReadPermission) {
+    return <StyledNoPermissionContainer showBackgroundImage />;
+  }
+
   return (
     <OuterContainer>
       <FiltersRow data-testid="permissions-edit-filters-row">
         <FilterFieldContainer>
           <AutocompleteField
-            placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Search noun')}
+            placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Select noun')}
             field={{ name: 'noun', value: selectedNoun, onChange: handleNounChange }}
             options={nounOptions}
             allowFreeTextForExistingValue
