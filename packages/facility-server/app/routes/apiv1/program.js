@@ -37,7 +37,9 @@ program.get(
     // Don't include programs that don't have any permitted survey to submit
     const canSubmit = survey => ability.can('submit', survey);
     const hasAnySurveys = programRecord => programRecord.surveys.some(canSubmit);
-    const filteredRecords = records.filter(hasAnySurveys);
+    const filteredRecords = records
+      .filter(record => ability.can('list', record))
+      .filter(hasAnySurveys);
     const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
@@ -53,6 +55,8 @@ programRelations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
     const { models, params, ability } = req;
+    const programRecord = await models.Program.findByPk(params.id);
+    req.checkPermission('read', programRecord);
     const records = await models.Survey.findAll({
       where: {
         programId: params.id,

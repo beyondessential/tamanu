@@ -27,6 +27,7 @@ import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedReferenceData } from '../../components';
+import { ForbiddenError } from '@tamanu/errors';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -39,10 +40,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
+  const [programsLoading, setProgramsLoading] = useState(true);
   const [selectedProgramId, setSelectedProgramId] = useState('');
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
+  const [programReadError, setProgramReadError] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
 
   useEffect(() => {
@@ -53,8 +56,18 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get('program');
-      setPrograms(data);
+      try {
+        const { data } = await api.get('program');
+        setPrograms(data);
+      } catch (error) {
+        if (error instanceof ForbiddenError || error?.status === 403) {
+          setPrograms([]);
+        } else {
+          throw error;
+        }
+      } finally {
+        setProgramsLoading(false);
+      }
     })();
   }, [api]);
 
@@ -84,21 +97,31 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
       setSelectedProgramId(programId);
       setProgramRegistryIdByProgramId(programId);
+      setProgramReadError(null);
 
       if (!programId) {
         clearProgram();
         return;
       }
 
-      const { data } = await api.get(`program/${programId}/surveys`);
-      setSurveys(
-        data
-          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map(x => ({
-            value: x.id,
-            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
-          })),
-      );
+      try {
+        const { data } = await api.get(`program/${programId}/surveys`);
+        setSurveys(
+          data
+            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+            .map(x => ({
+              value: x.id,
+              label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
+            })),
+        );
+      } catch (error) {
+        if (error instanceof ForbiddenError || error?.status === 403) {
+          clearProgram();
+          setProgramReadError(error?.detail || error?.message || error?.title || null);
+          return;
+        }
+        throw error;
+      }
     },
     [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
@@ -126,7 +149,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     patient.id,
   );
 
-  if (isLoading || !programs) {
+  if (isLoading || programsLoading || !programs) {
     return <LoadingIndicator data-testid="loadingindicator-43uf" />;
   }
 
@@ -181,6 +204,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
+            disabled={Boolean(programReadError)}
+            errorText={programReadError}
             buttonText={
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
