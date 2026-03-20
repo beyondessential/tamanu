@@ -67,7 +67,7 @@ export const NoPermissionScreen = ({ showBackgroundImage = true, className }) =>
           />
         </Description>
       </Message>
-      {showBackgroundImage && <BackgroundImage src={backgroundImage} alt="" />}
+      {showBackgroundImage && <BackgroundImage src={backgroundImage} />}
     </Container>
   );
 };
