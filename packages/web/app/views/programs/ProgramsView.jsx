@@ -2,12 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  getAnswersFromData,
-  SelectInput,
-  FormGrid,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { getAnswersFromData, SelectInput, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
@@ -117,7 +112,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       } catch (error) {
         if (error instanceof ForbiddenError || error?.status === 403) {
           clearProgram();
-          setProgramReadError(error?.detail || error?.message || error?.title || null);
+          setProgramReadError(error?.detail ?? error?.message ?? error?.title ?? null);
           return;
         }
         throw error;
@@ -145,9 +140,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   };
 
-  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
+  const {
+    isLoading,
+    data: patientAdditionalData,
+    isError,
+    error,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   if (isLoading || programsLoading || !programs) {
     return <LoadingIndicator data-testid="loadingindicator-43uf" />;

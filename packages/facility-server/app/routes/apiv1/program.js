@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from '@tamanu/errors';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import {
   permissionCheckingRouter,
@@ -56,6 +57,9 @@ programRelations.get(
     req.checkPermission('list', 'Survey');
     const { models, params, ability } = req;
     const programRecord = await models.Program.findByPk(params.id);
+    if (!programRecord) {
+      throw new NotFoundError('Program not found');
+    }
     req.checkPermission('read', programRecord);
     const records = await models.Survey.findAll({
       where: {

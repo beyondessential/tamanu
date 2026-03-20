@@ -64,8 +64,6 @@ export const SurveySelector = React.memo(
           value={value ?? ''}
           onChange={handleChange}
           disabled={disabled}
-          error={Boolean(errorText)}
-          helperText={errorText}
           data-testid="selectinput-4g3c"
         />
         {disabled && errorText && (
