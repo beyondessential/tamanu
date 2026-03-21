@@ -14,10 +14,6 @@ export function muiDateTextbox(fieldRoot: Locator): Locator {
   return fieldRoot.getByRole('textbox');
 }
 
-export function muiDateTextboxByTestId(page: Page, testId: string): Locator {
-  return muiDateTextbox(page.getByTestId(testId));
-}
-
 // ---------------------------------------------------------------------------
 // Format conversion — ISO ↔ MUI display strings
 // ---------------------------------------------------------------------------
@@ -77,7 +73,10 @@ export async function fillDateField(textbox: Locator, isoDate: string): Promise<
  * Fill a MUI DateTimePicker textbox with an ISO-ish datetime string.
  * Converts to display format, types it in, and blurs to commit the value.
  */
-export async function fillDateTimeField(textbox: Locator, isoDateTime: string | Date): Promise<void> {
+export async function fillDateTimeField(
+  textbox: Locator,
+  isoDateTime: string | Date,
+): Promise<void> {
   const display = formatDateTimeForInput(isoDateTime);
   await clearAndType(textbox, display);
 }
@@ -115,7 +114,10 @@ export async function expectDateFieldValue(textbox: Locator, expectedIso: string
  * Assert that a MUI datetime textbox currently holds a value matching the
  * given ISO datetime string (compared via display format).
  */
-export async function expectDateTimeFieldValue(textbox: Locator, expectedIso: string | Date): Promise<void> {
+export async function expectDateTimeFieldValue(
+  textbox: Locator,
+  expectedIso: string | Date,
+): Promise<void> {
   const expectedDisplay = formatDateTimeForInput(expectedIso);
   await expect(textbox).toHaveValue(expectedDisplay);
 }
@@ -132,16 +134,16 @@ async function clearAndType(textbox: Locator, displayValue: string): Promise<voi
 }
 
 function parseIsoish(value: string): Date {
-  // Try native Date first (handles ISO 8601 and yyyy-MM-dd'T'HH:mm)
-  let date = new Date(value);
+  // Try date-only format first (yyyy-MM-dd) to avoid UTC midnight parsing issues
+  let date = parse(value, 'yyyy-MM-dd', new Date());
   if (isValid(date)) return date;
 
   // Fallback: yyyy-MM-dd HH:mm:ss (ISO 9075 / SQL style)
   date = parse(value, 'yyyy-MM-dd HH:mm:ss', new Date());
   if (isValid(date)) return date;
 
-  // Fallback: plain date
-  date = parse(value, 'yyyy-MM-dd', new Date());
+  // Fallback: native Date (handles ISO 8601 and yyyy-MM-dd'T'HH:mm)
+  date = new Date(value);
   if (isValid(date)) return date;
 
   throw new Error(`Cannot parse date value: "${value}"`);
