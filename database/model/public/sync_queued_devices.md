@@ -21,3 +21,7 @@ A way for a device to bump its priority in the queue.
 {% docs sync_queued_devices__facility_ids %}
 Reference to the [facilities](#!/source/source.tamanu.tamanu.facilities) this device is associated with.
 {% enddocs %}
+
+{% docs sync_queued_devices__consecutive_failures %}
+Number of this device’s most recent completed sync sessions that ended in error, counted from newest backward until a successful session. Used to order the queue so devices with fewer consecutive failures are chosen first.
+{% enddocs %}

@@ -87,7 +87,6 @@ export const buildSyncRoutes = ctx => {
         });
       }
 
-      // now update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
         lastSyncedTick,
         urgent,
@@ -121,10 +120,8 @@ export const buildSyncRoutes = ctx => {
 
       try {
         // remove our place in the queue before starting sync
-        // (if the resulting sync has an error, we'll be knocked to the back of the queue
-        // but that's fine. It will leave some room for non-errored devices to sync, and
-        // our requests will get priority once our error resolves as we'll have an older
-        // lastSyncedTick)
+        // (if the resulting sync has an error, the device will be deprioritised via
+        // consecutiveFailures when it re-queues, leaving room for healthy devices)
         await queueRecord.destroy();
 
         const { sessionId, tick } = await syncManager.startSession({

@@ -242,5 +242,70 @@ const MAX_CONCURRENT_SESSIONS = 1;
         generateDbUuidSpy.mockRestore();
       }
     });
+
+    it('Should deprioritise a device with consecutive sync failures', async () => {
+      const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
+
+      const now = toDateTimeString(new Date());
+      await models.SyncQueuedDevice.create({
+        id: 'queue-B',
+        facilityIds: ['facilityB'],
+        lastSeenTime: now,
+        lastSyncedTick: 10,
+        urgent: false,
+        consecutiveFailures: 1,
+      });
+      await models.SyncQueuedDevice.create({
+        id: 'queue-C',
+        facilityIds: ['facilityC'],
+        lastSeenTime: now,
+        lastSyncedTick: 200,
+        urgent: false,
+        consecutiveFailures: 0,
+      });
+
+      await closeActiveSyncSessions();
+
+      // C should win even though B has an older lastSyncedTick, because B has failures
+      const waiting = await requestSync('B', 10);
+      expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
+
+      const started = await requestSync('C', 200);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
+    });
+
+    it('Should reset consecutive failures after a successful sync', async () => {
+      const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
+
+      await requestSync('B', 10);
+      await requestSync('C', 200);
+
+      await closeActiveSyncSessions();
+
+      // Seed sessions for B after closeActiveSyncSessions (which bulk-updates completedAt
+      // on all rows) so the timestamps we set here are preserved
+      await models.SyncSession.create({
+        startTime: new Date(Date.now() - 60000),
+        lastConnectionTime: new Date(Date.now() - 60000),
+        completedAt: new Date(Date.now() - 60000),
+        errors: ['something broke'],
+        parameters: { deviceId: 'queue-B', facilityIds: ['facilityB'] },
+      });
+      await models.SyncSession.create({
+        startTime: new Date(),
+        lastConnectionTime: new Date(),
+        completedAt: new Date(),
+        parameters: { deviceId: 'queue-B', facilityIds: ['facilityB'] },
+      });
+
+      // B should be at the front because it has 0 consecutive failures and the oldest tick
+      const waiting = await requestSync('C', 200);
+      expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
+
+      const started = await requestSync('B', 10);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
+    });
   }),
 );
