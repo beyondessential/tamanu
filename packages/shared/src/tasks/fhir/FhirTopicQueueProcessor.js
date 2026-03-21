@@ -1,7 +1,7 @@
 import { SpanStatusCode } from '@opentelemetry/api';
 import { formatRFC3339 } from 'date-fns';
 
-import { getTracer, spanWrapFn } from '../services/logging';
+import { getTracer, spanWrapFn } from '../../services/logging';
 import { v4 as uuidv4 } from 'uuid';
 
 export class FhirTopicQueueProcessor {

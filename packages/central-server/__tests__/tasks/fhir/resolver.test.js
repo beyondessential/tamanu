@@ -1,5 +1,9 @@
+/**
+ * Tests for sortResourcesInDependencyOrder (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { sortResourcesInDependencyOrder } from '../../../dist/tasks/fhir/resolver';
+import { sortResourcesInDependencyOrder } from '@tamanu/shared/tasks';
 import { createTestContext } from '../../utilities';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 

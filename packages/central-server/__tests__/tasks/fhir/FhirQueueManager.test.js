@@ -1,10 +1,14 @@
+/**
+ * Tests for FhirQueueManager (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { describe, expect, it, jest } from '@jest/globals';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FhirQueueManager } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { createTestContext } from '../utilities';
+import { createTestContext } from '../../utilities';
 import { JOB_PRIORITIES } from '@tamanu/constants';
 
 function makeLogger(mock, topData = {}) {
@@ -40,11 +44,9 @@ describe('FhirQueueManager', () => {
     it(
       'with defaults',
       withErrorShown(async () => {
-        // Act
         const { FhirJob: Job } = models;
         const id = await Job.submit('topic', { payload: 'value' });
 
-        // Assert
         const job = await Job.findByPk(id);
         expect(job).toMatchObject({
           topic: 'topic',
@@ -60,11 +62,9 @@ describe('FhirQueueManager', () => {
     it(
       'with a priority',
       withErrorShown(async () => {
-        // Act
         const { FhirJob: Job } = models;
         const id = await Job.submit('topic', { payload: 'value' }, { priority: 4321 });
 
-        // Assert
         const job = await Job.findByPk(id);
         expect(job).toMatchObject({
           topic: 'topic',
@@ -80,12 +80,10 @@ describe('FhirQueueManager', () => {
     it(
       'with a discriminant',
       withErrorShown(async () => {
-        // Act
         const { FhirJob: Job } = models;
         const first = await Job.submit('topic', { payload: 'first' }, { discriminant: 'unique' });
         const second = await Job.submit('topic', { payload: 'second' }, { discriminant: 'unique' });
 
-        // Assert
         const job = await Job.findByPk(first);
         expect(job).toMatchObject({
           topic: 'topic',
@@ -119,11 +117,9 @@ describe('FhirQueueManager', () => {
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
 
-        // Act
         const id = await Job.submit('test');
         await queueManager.processQueue('test');
 
-        // Assert
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -133,11 +129,9 @@ describe('FhirQueueManager', () => {
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
 
-        // Act
         const id = await Job.submit('test', { error: true });
         await queueManager.processQueue('test');
 
-        // Assert
         expect(await Job.findByPk(id)).toMatchObject({
           status: 'Errored',
           error: expect.any(String),
@@ -175,7 +169,6 @@ describe('FhirQueueManager', () => {
         const id1 = await Job.submit('test1');
         const id2 = await Job.submit('test2');
 
-        // Act 1
         await queueManager.processQueue('test1');
 
         expect(await Job.findByPk(id1)).toBeNull();
@@ -199,10 +192,8 @@ describe('FhirQueueManager', () => {
         const id1Normal = await Job.submit('test1');
         const id1High = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.HIGH });
 
-        // Act
         await queueManager.processQueue('test1');
 
-        // Assert
         expect(jobCompletionOrder).toEqual([id1High, id1Normal, id1Low]);
       }),
     );
@@ -214,10 +205,8 @@ describe('FhirQueueManager', () => {
         const id = await Job.submit('test1');
         await Job.update({ status: 'Grabbed', workerId: fakeUUID() }, { where: { id } });
 
-        // Act
-        await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
+        await sleepAsync(11_000);
 
-        // Assert
         await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
@@ -233,10 +222,8 @@ describe('FhirQueueManager', () => {
           { where: { id } },
         );
 
-        // Act
-        await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
+        await sleepAsync(11_000);
 
-        // Assert
         await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
@@ -249,7 +236,6 @@ describe('FhirQueueManager', () => {
         const id = await Job.submit('test1');
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
-        // Assert
         await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
@@ -265,10 +251,8 @@ describe('FhirQueueManager', () => {
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
 
-        // Act 1 (high)
         await queueManager.processQueue('test3');
 
-        // Assert
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toBeNull();
         expect(await Job.findByPk(id3)).toBeNull();
@@ -279,7 +263,7 @@ describe('FhirQueueManager', () => {
       'slow running jobs will not block other jobs from being processed',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        await Job.submit('slowJob', {}, { priority: JOB_PRIORITIES.HIGH }); // Ensure slow job gets picked up first
+        await Job.submit('slowJob', {}, { priority: JOB_PRIORITIES.HIGH });
         const fastJobs = [
           await Job.submit('fastJob'),
           await Job.submit('fastJob'),
@@ -307,13 +291,11 @@ describe('FhirQueueManager', () => {
         };
         await queueManager.setHandler('slowJob', slowJob);
 
-        // Act
         await Promise.all([
           queueManager.processQueue('slowJob'),
           queueManager.processQueue('fastJob'),
         ]);
 
-        // Assert
         expect(await Job.count()).toBe(0);
       }),
     );

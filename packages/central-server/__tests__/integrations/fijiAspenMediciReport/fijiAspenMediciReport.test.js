@@ -14,7 +14,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../../utilities';
-import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+import { allFromUpstream } from '@tamanu/shared/tasks';
 
 jest.setTimeout(50000);
 

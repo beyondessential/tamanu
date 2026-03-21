@@ -1,14 +1,16 @@
+/**
+ * Tests for FHIR refresh handler / allFromUpstream (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { Op } from 'sequelize';
-
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
-
-import { createTestContext } from '../utilities';
+import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
-} from '../fake/fhir';
-import { allFromUpstream } from '../../dist/tasks/fhir/refresh/allFromUpstream';
+} from '../../fake/fhir';
+import { allFromUpstream } from '@tamanu/shared/tasks';
 
 describe('FHIR refresh handler', () => {
   let ctx;
@@ -116,7 +118,7 @@ describe('FHIR refresh handler', () => {
           topic: 'fhir.refresh.fromUpstream',
           payload: {
             resource: {
-              [Op.ne]: 'MediciReport', // excluding created MediciReport job as it doesn't ignore SurveyResponses
+              [Op.ne]: 'MediciReport',
             },
           },
         },

@@ -1,12 +1,16 @@
+/**
+ * Tests for FhirMissingResources (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { fake } from '@tamanu/fake-data/fake';
 import { Op } from 'sequelize';
-import { createTestContext } from '../utilities';
+import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
   fakeResourcesOfFhirSpecimen,
-} from '../fake/fhir';
-import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
+} from '../../fake/fhir';
+import { FhirMissingResources } from '@tamanu/shared/tasks';
 import { JOB_PRIORITIES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 describe('FhirMissingResources task', () => {
@@ -53,7 +57,7 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(2); // 1 ServiceRequest, 1 Specimen
+    expect(count).toEqual(2);
     rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
 
     await labRequest.destroy();
@@ -69,7 +73,7 @@ describe('FhirMissingResources task', () => {
     const name = fhirMissingResourcesWorker.getName();
     expect(name).toEqual('FhirMissingResources');
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(1); // 1 ServiceRequest
+    expect(countQueue).toEqual(1);
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -92,7 +96,6 @@ describe('FhirMissingResources task', () => {
   it('should not create one FHIR fromUpstream job if the missing upstream resource do not meet pre-filter criteria', async () => {
     const { Encounter } = ctx.store.models;
 
-    // A new encounter That should not be materialised
     const encounter = await Encounter.create(
       fake(Encounter, {
         patientId: resources.patient.id,
@@ -136,7 +139,7 @@ describe('FhirMissingResources task', () => {
     });
 
     const countQueue = await fhirMissingResourcesCreatedAfterWorker.countQueue();
-    expect(countQueue).toEqual(2); // 1 ServiceRequest, 1 Specimen
+    expect(countQueue).toEqual(2);
     await fhirMissingResourcesCreatedAfterWorker.run();
 
     const { count, rows } = await FhirJob.findAndCountAll({

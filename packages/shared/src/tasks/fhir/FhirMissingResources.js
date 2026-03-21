@@ -1,9 +1,9 @@
 import config from 'config';
 import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
-import { ScheduledTask } from '@tamanu/shared/tasks';
+import { ScheduledTask } from '../ScheduledTask';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { prepareQuery } from '../utils/prepareQuery';
+import { prepareQuery } from './prepareQuery';
 import { Op } from 'sequelize';
 
 export class FhirMissingResources extends ScheduledTask {

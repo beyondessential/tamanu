@@ -14,6 +14,8 @@ import {
   startApiCommand,
   startSyncCommand,
   startTasksCommand,
+  startFhirWorkerCommand,
+  fhirCommand,
   syncCommand,
   upgradeCommand,
 } from './subCommands';
@@ -25,6 +27,8 @@ async function run() {
   program.addCommand(startApiCommand);
   program.addCommand(startSyncCommand);
   program.addCommand(startTasksCommand);
+  program.addCommand(startFhirWorkerCommand);
+  program.addCommand(fhirCommand);
   program.addCommand(reportCommand);
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);

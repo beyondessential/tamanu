@@ -1,4 +1,8 @@
-import { prepareQuery } from '../../dist/utils/prepareQuery';
+/**
+ * Tests for prepareQuery (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
+import { prepareQuery } from '@tamanu/shared/tasks';
 import { createTestContext } from '../utilities';
 
 describe('prepareQuery()', () => {

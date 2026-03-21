@@ -3,7 +3,7 @@ import theConfig from 'config';
 import ms from 'ms';
 import { hostname } from 'os';
 
-import { getTracer } from '../services/logging';
+import { getTracer } from '../../services/logging';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
@@ -135,6 +135,15 @@ export class FhirQueueManager {
       cap > 0 ? 1 : 0, // return at least 1 if there's any capacity
       Math.floor(cap / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
     );
+  }
+
+  /**
+   * Get the list of topics that are being processed.
+   *
+   * @returns {string[]} List of topics.
+   */
+  topics() {
+    return Array.from(this.queueProcessors.keys());
   }
 
   processQueueNow(topic) {
