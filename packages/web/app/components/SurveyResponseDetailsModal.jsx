@@ -111,7 +111,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       >
         <TranslatedText
           stringId="general.table.loading"
-          fallback="Loading..."
+          fallback="Loading…"
           data-testid="translatedtext-ec13"
         />
       </Modal>

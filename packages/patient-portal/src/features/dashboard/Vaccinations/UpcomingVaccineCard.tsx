@@ -42,7 +42,8 @@ export const UpcomingVaccineCard: React.FC<UpcomingVaccineCardProps> = ({ vaccin
         <Typography variant="h4">{vaccine.scheduledVaccine.label || 'Unknown vaccine'}</Typography>
         <DetailsContainer>
           <Typography variant="body1">
-            {vaccine.scheduledVaccine.doseLabel || 'Unknown dose'} • {formatWeekOf(vaccine.dueDate)}
+            {vaccine.scheduledVaccine.doseLabel || 'Unknown dose'} &middot;{' '}
+            {formatWeekOf(vaccine.dueDate)}
           </Typography>
           <Chip
             label={vaccine.status}

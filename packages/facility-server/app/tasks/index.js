@@ -4,6 +4,7 @@ import {
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
 
+import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 
@@ -14,6 +15,7 @@ const DEFAULT_TASK_CLASSES = [
   SendStatusToMetaServer,
   TimeSyncTask,
   FhirMissingResources,
+  mSupplyMedIntegrationProcessor,
 ];
 
 export function startScheduledTasks(context, taskClasses) {

@@ -14,7 +14,7 @@ export const RecordedVaccineCard: React.FC<RecordedVaccineCardProps> = ({ vaccin
       <CardContent>
         <Typography variant="h4">{vaccine.scheduledVaccine?.label || '--'}</Typography>
         <Typography>
-          {vaccine.scheduledVaccine?.doseLabel || '--'} •{' '}
+          {vaccine.scheduledVaccine?.doseLabel || '--'} &middot;{' '}
           {vaccine.date ? formatDate(vaccine.date) : '--'}
         </Typography>
         <Typography>Given by: {formatVaccineGivenBy(vaccine)}</Typography>
