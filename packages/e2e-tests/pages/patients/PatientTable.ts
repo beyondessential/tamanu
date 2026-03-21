@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import { convertDateFormat, SelectingFromSearchBox ,STYLED_TABLE_CELL_PREFIX} from '../../utils/testHelper';
+import { muiDateTextbox } from '../../utils/dateFieldHelpers';
 import { routes } from '../../config/routes';
 import { Patient } from '../../types/Patient'; 
 import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
@@ -101,10 +102,10 @@ export class PatientTable {
       .locator('svg');
     this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
-    this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.DOBTxt = muiDateTextbox(page.getByTestId('field-qk60-input'));
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.DOBFromTxt = muiDateTextbox(page.getByTestId('joinedfield-swzm-input'));
+    this.DOBToTxt = muiDateTextbox(page.getByTestId('field-aax5-input'));
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
     this.patientPageRecordCount25 = page
       .getByTestId('styledmenuitem-fkrw-undefined')

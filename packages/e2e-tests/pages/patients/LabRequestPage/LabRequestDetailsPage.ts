@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { format } from 'date-fns';
+import { fillDateTimeField } from '@utils/dateFieldHelpers';
 import { RecordSampleModal } from './modals/RecordSampleModal';
 import { StatusLogModal } from './modals/StatusLogModal';
 import { ChangeLaboratoryModal } from './modals/ChangeLaboratoryModal';
@@ -293,7 +294,7 @@ export class LabRequestDetailsPage {
     await this.enterResultsModal.selectLabTestMethod(labTestMethod);
     await this.enterResultsModal.verificationFirstRow.fill(verification);
     const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");
-    await this.enterResultsModal.completedDateFirstRow.fill(dateToUse);
+    await fillDateTimeField(this.enterResultsModal.completedDateFirstRow, dateToUse);
     await this.enterResultsModal.confirmButton.click();
   }
 }

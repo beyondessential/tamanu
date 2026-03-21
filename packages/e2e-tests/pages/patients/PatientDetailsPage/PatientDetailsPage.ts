@@ -2,6 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { Patient } from '@tamanu/database';
 import { constructFacilityUrl } from '@utils/navigation';
 import { routes } from '@config/routes';
+import { fillDateField } from '@utils/dateFieldHelpers';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
@@ -460,7 +461,7 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewFamilyHistoryAddButton.click();
     await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
     await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
-    await this.familyHistoryDateRecordedField.fill(dateRecorded);
+    await fillDateField(this.familyHistoryDateRecordedField, dateRecorded);
     await this.familyHistoryRelationshipField.fill(relationship);
     await this.familyHistoryClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();

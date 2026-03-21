@@ -3,6 +3,7 @@ import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format } from 'date-fns';
+import { fillDateField } from './dateFieldHelpers';
 
 interface AddVaccineOptions {
   specificVaccine?: string | null;
@@ -110,7 +111,7 @@ export async function triggerDateError(
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
   //Attempt to submit a date that should trigger a validation error
-  await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField.fill(date);
+  await fillDateField(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField!, date);
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
   //Assert the validation error appears

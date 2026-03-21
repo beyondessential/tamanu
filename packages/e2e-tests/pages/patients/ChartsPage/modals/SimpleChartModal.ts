@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
+import { muiDateTextbox, fillDateTimeField } from '../../../../utils/dateFieldHelpers';
 
 export interface SimpleChartFormValues {
     dateTime?: string;
@@ -53,7 +54,7 @@ export class SimpleChartModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    this.dateTimeInput = this.form.getByText('Date & time').locator('..').locator('input');
+    this.dateTimeInput = this.form.getByText('Date & time').locator('..').getByRole('textbox');
     this.gcsEyeOpeningSelect = this.form.getByText('GCS Eye opening').locator('..').getByTestId('wrapperfieldcomponent-mkjr-select');
     this.gcsVerbalResponseSelect = this.form.getByText('GCS Verbal response').locator('..').getByTestId('wrapperfieldcomponent-mkjr-select');
     this.gcsMotorResponseSelect = this.form.getByText('GCS Motor response').locator('..').getByTestId('wrapperfieldcomponent-mkjr-select');
@@ -98,7 +99,7 @@ export class SimpleChartModal {
     let leftPupilsReaction: string | undefined;
 
     if (values.dateTime) {
-      await this.dateTimeInput.fill(values.dateTime);
+      await fillDateTimeField(this.dateTimeInput, values.dateTime);
     }
     if (values.gcsEyeOpening) {
       gcsEyeOpening = await selectFieldOption(this.page, this.gcsEyeOpeningSelect, {

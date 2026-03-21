@@ -2,6 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 import { editFieldOption } from '@utils/fieldHelpers';
+import { fillDateField, formatDateForInput } from '@utils/dateFieldHelpers';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class EditVaccineModal extends BasePatientModal {
@@ -121,7 +122,7 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await this.dateGiven.fill(dateGiven);
+      await fillDateField(this.dateGiven, dateGiven);
       editedFields.dateGiven = dateGiven;
     }
 
@@ -238,7 +239,7 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await expect(this.dateGiven).toHaveValue(dateGiven);
+      await expect(this.dateGiven).toHaveValue(formatDateForInput(dateGiven));
     }
 
     if (injectionSite) {

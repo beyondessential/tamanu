@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { muiDateTextbox } from '@utils/dateFieldHelpers';
 
 export class EnterResultsModal {
   readonly page: Page;
@@ -46,7 +47,7 @@ export class EnterResultsModal {
     this.labTestMethodFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).locator('input').locator('..').locator('div');
     this.labTestMethodFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).getByTestId('selectinput-phtg-expandmoreicon-h115');
     this.verificationFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-verification`).locator('input');
-    this.completedDateFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-completedDate`).locator('input');
+    this.completedDateFirstRow = muiDateTextbox(page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-completedDate`));
     
     // Dropdown option locators
     this.resultOptions = page.getByTestId('styledfield-h653-option');

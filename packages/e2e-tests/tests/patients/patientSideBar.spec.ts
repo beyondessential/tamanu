@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/baseFixture';
+import { fillDateField, fillDateTimeField, expectDateFieldValue, expectDateTimeFieldValue } from '@utils/dateFieldHelpers';
 
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
@@ -177,7 +178,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue(currentBrowserDate);
+    await expectDateFieldValue(patientDetailsPage.savedFamilyHistoryDateRecorded, currentBrowserDate);
   });
 
   test('[T-0044][AT-0106]Add family history with all fields', async ({ patientDetailsPage }) => {
@@ -194,7 +195,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Ear burn');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-26');
+    await expectDateFieldValue(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-26');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Family history note');
@@ -205,7 +206,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.firstListItem.click();
 
-    await patientDetailsPage.savedFamilyHistoryDateRecorded.fill('2025-05-25');
+    await fillDateField(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-25');
     await patientDetailsPage.savedFamilyHistoryRelationship.fill('Mother');
     await patientDetailsPage.savedFamilyClinician.click();
     await patientDetailsPage.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
@@ -215,7 +216,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expectDateFieldValue(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-25');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('First edit to note');
@@ -226,7 +227,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
-    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expectDateFieldValue(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-25');
     await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
     await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Second edit to note');
@@ -248,7 +249,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(patientDetailsPage.savedIssueType).toContainText('Issue');
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('New issue note');
-    await expect(patientDetailsPage.savedOtherPatientIssueDate).toHaveValue(currentBrowserDate);
+    await expectDateFieldValue(patientDetailsPage.savedOtherPatientIssueDate, currentBrowserDate);
   });
 
   test('[T-0045][AT-0109]Add other patient issue: warning', async ({ patientDetailsPage }) => {
@@ -290,7 +291,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Test warning');
 
     await patientDetailsPage.savedOtherPatientIssueNote.fill('Edited warning');
-    await patientDetailsPage.savedOtherPatientIssueDate.fill('2025-09-17');
+    await fillDateField(patientDetailsPage.savedOtherPatientIssueDate, '2025-09-17');
     await patientDetailsPage.getOtherPatientIssuesEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
@@ -393,7 +394,7 @@ test.describe('Patient Side Bar', () => {
     await additionalNoteKebabMenu.click();
     await completedCarePlanModal.additionalNoteEditButton.click();
 
-    await completedCarePlanModal.additionalNoteSavedDate.fill('2025-04-26T15:40');
+    await fillDateTimeField(completedCarePlanModal.additionalNoteSavedDate, '2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
     await completedCarePlanModal.getSaveButton().click();
 

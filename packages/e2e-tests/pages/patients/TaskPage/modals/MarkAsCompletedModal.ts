@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { muiDateTextbox } from '@utils/dateFieldHelpers';
 
 export class MarkAsCompletedModal {
   readonly page: Page;
@@ -25,8 +26,7 @@ export class MarkAsCompletedModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    // Field that needs nested locator
-    this.completedDateTimeInput = this.completedDateTimeField.locator('input');
+    this.completedDateTimeInput = muiDateTextbox(this.completedDateTimeField);
   }
 
   async waitForModalToLoad(): Promise<void> {

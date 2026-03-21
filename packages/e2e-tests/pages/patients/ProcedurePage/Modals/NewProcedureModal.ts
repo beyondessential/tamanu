@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../BasePage';
 import { selectAutocompleteFieldOption } from '../../../../utils/fieldHelpers';
+import { muiDateTextbox, fillTimeField } from '../../../../utils/dateFieldHelpers';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
 
 /**
@@ -118,10 +119,10 @@ export class NewProcedureModal extends BasePage {
     const notes = 'This is a test note';
     const completedNotes = 'This is a test completed note';
 
-    await this.timeInInput.locator('input').fill(timeIn);
-    await this.timeOutInput.locator('input').fill(timeOut);
-    await this.timeStartedInput.locator('input').fill(timeStarted);
-    await this.timeEndedInput.locator('input').fill(timeEnded);
+    await fillTimeField(muiDateTextbox(this.timeInInput), `1970-01-01T${timeIn}`);
+    await fillTimeField(muiDateTextbox(this.timeOutInput), `1970-01-01T${timeOut}`);
+    await fillTimeField(muiDateTextbox(this.timeStartedInput), `1970-01-01T${timeStarted}`);
+    await fillTimeField(muiDateTextbox(this.timeEndedInput), `1970-01-01T${timeEnded}`);
     await this.notesInput.fill(notes);
     await this.completedCheckbox.check();
     await this.completedNotesInput.fill(completedNotes);

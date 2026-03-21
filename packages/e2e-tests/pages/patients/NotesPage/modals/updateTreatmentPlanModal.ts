@@ -2,6 +2,7 @@ import { Page, Locator } from '@playwright/test';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
 import * as fieldHelpers from '@utils/fieldHelpers';
+import { fillDateTimeField } from '@utils/dateFieldHelpers';
 
 export class UpdateTreatmentPlanModal extends BaseNoteModal {
   // Additional fields specific to update treatment plan
@@ -36,7 +37,7 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
       optionToSelect: updatedBy,
     });
     const updatedDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
-    await this.dateTimeInput.fill(updatedDateTime);
+    await fillDateTimeField(this.dateTimeInput, updatedDateTime);
     await this.noteContentTextarea.fill(updatedContent);
     await this.confirmButton.click();
     await this.waitForModalToClose();

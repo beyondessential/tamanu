@@ -6,6 +6,7 @@ import {
   selectAutocompleteFieldOption,
   returnAllOptionsFromDropdown,
 } from '@utils/fieldHelpers';
+import { fillDateField, readDateFieldValue, parseDateDisplayToIso } from '@utils/dateFieldHelpers';
 
 interface RecordVaccineOptions {
   specificVaccine?: string;
@@ -245,10 +246,11 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     if (specificDate) {
-      await this.dateField.fill(specificDate);
+      await fillDateField(this.dateField, specificDate);
     }
 
-    const dateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
+    const dateGivenDisplay = await readDateFieldValue(this.dateField);
+    const dateGiven = parseDateDisplayToIso(dateGivenDisplay) ?? dateGivenDisplay;
 
     if (category !== 'Other') {
       if (recordScheduledVaccine) {

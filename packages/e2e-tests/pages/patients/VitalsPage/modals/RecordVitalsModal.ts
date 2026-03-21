@@ -47,8 +47,8 @@ export class RecordVitalsModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    // Inputs (by name attributes or specific selectors from provided HTML)
-    this.dateInput = page.locator('input[type="datetime-local"]');
+    // Inputs (by name attributes)
+    this.dateInput = page.locator('input[name="pde-PatientVitalsDate"]');
     this.sbpInput = page.locator('input[name="pde-PatientVitalsSBP"]');
     this.dbpInput = page.locator('input[name="pde-PatientVitalsDBP"]');
     this.heartRateInput = page.locator('input[name="pde-PatientVitalsHeartRate"]');
