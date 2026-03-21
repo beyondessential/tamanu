@@ -47,7 +47,7 @@ export class RecordVitalsModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    this.dateInput = page.getByRole('textbox').first();
+    this.dateInput = page.locator('input[name="pde-PatientVitalsDate"]');
     this.sbpInput = page.locator('input[name="pde-PatientVitalsSBP"]');
     this.dbpInput = page.locator('input[name="pde-PatientVitalsDBP"]');
     this.heartRateInput = page.locator('input[name="pde-PatientVitalsHeartRate"]');

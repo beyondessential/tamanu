@@ -4,8 +4,7 @@ import { subYears, addYears, format, parse } from 'date-fns';
 export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
 /**
- * Converts an ISO date to MM/dd/yyyy — matches the table display format
- * when the browser locale is en-US (Playwright default).
+ * Converts an ISO date to dd/MM/yyyy — matches the table display format.
  */
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
@@ -13,13 +12,13 @@ export const convertDateFormat = (dateInput: string | Date | undefined): string 
   if (dateInput instanceof Date) {
     const day = String(dateInput.getDate()).padStart(2, '0');
     const month = String(dateInput.getMonth() + 1).padStart(2, '0');
-    return `${month}/${day}/${dateInput.getFullYear()}`;
+    return `${day}/${month}/${dateInput.getFullYear()}`;
   }
 
   if (dateInput.includes('-')) {
     const datePart = dateInput.split('T')[0];
     const [year, month, day] = datePart.split('-');
-    return `${month}/${day}/${year}`;
+    return `${day}/${month}/${year}`;
   }
 
   if (dateInput.includes('/')) {
