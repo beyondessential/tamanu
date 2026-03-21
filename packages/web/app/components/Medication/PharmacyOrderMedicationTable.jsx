@@ -255,7 +255,7 @@ const getColumns = (
             <Box>
               <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} format="compact" />
+                <TimeDisplay date={lastOrderedAt} />
               </Box>
             </Box>
           </NoWrapCell>

@@ -7,6 +7,7 @@ import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
+import { Colors } from '../../constants/styles';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -42,41 +43,52 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
   );
 };
 
-export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
-  const [open, setOpen] = useState(false);
+export const SurveySelector = React.memo(
+  ({ value, onChange, onSubmit, surveys, buttonText, disabled = false, errorText = null }) => {
+    const [open, setOpen] = useState(false);
 
-  const handleChange = event => {
-    const surveyId = event.target.value;
-    onChange(surveyId);
-  };
+    const handleChange = event => {
+      const surveyId = event.target.value;
+      onChange(surveyId);
+    };
 
-  const handleSubmit = () => {
-    onSubmit(value);
-  };
+    const handleSubmit = () => {
+      onSubmit(value);
+    };
 
-  return (
-    <>
-      <SelectInput
-        name="survey"
-        options={surveys}
-        value={value ?? ''}
-        onChange={handleChange}
-        data-testid="selectinput-4g3c"
-      />
-      <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
-        <Button
-          onClick={handleSubmit}
-          disabled={!value}
-          variant="contained"
-          color="primary"
-          data-testid="button-qsbg"
-          style={{ marginLeft: 'auto' }}
-        >
-          {buttonText}
-        </Button>
-      </StyledButtonRow>
-      <SendFormToPatientPortalModal formId={value} open={open} setOpen={setOpen} />
-    </>
-  );
-});
+    return (
+      <>
+        <SelectInput
+          name="survey"
+          options={surveys}
+          value={value ?? ''}
+          onChange={handleChange}
+          disabled={disabled}
+          data-testid="selectinput-4g3c"
+        />
+        {disabled && errorText && (
+          <div style={{ marginTop: 4, color: Colors.alert }}>
+            <TranslatedText
+              stringId="program.modal.selectSurvey.selectSurvey.error.noReadProgram"
+              fallback={errorText}
+            />
+          </div>
+        )}
+        <StyledButtonRow data-testid="styledbuttonrow-nem0">
+          <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value || disabled} />
+          <Button
+            onClick={handleSubmit}
+            disabled={!value || disabled}
+            variant="contained"
+            color="primary"
+            data-testid="button-qsbg"
+            style={{ marginLeft: 'auto' }}
+          >
+            {buttonText}
+          </Button>
+        </StyledButtonRow>
+        <SendFormToPatientPortalModal formId={value} open={open} setOpen={setOpen} />
+      </>
+    );
+  },
+);
