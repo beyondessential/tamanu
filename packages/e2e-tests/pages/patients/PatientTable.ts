@@ -4,6 +4,7 @@ import { convertDateFormat, SelectingFromSearchBox ,STYLED_TABLE_CELL_PREFIX} fr
 import { routes } from '../../config/routes';
 import { Patient } from '../../types/Patient'; 
 import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
+import { fillDateField } from '../../utils/dateFieldHelpers';
 type PatientTableRow = Locator & {
   getPatientInfo(): Promise<Patient>;
 };
@@ -283,7 +284,7 @@ export class PatientTable {
       await this.lastNameTxt.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBTxt.fill(searchCriteria.DOB);
+      await fillDateField(this.DOBTxt, searchCriteria.DOB);
     }
     if (searchCriteria.culturalName) {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
@@ -306,10 +307,10 @@ export class PatientTable {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(searchCriteria.DOBFrom);
+      await fillDateField(this.DOBFromTxt, searchCriteria.DOBFrom);
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(searchCriteria.DOBTo);
+      await fillDateField(this.DOBToTxt, searchCriteria.DOBTo);
     }
 
     await this.searchBtn.click();

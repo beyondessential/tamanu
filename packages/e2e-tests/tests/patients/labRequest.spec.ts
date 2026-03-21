@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { LabRequestDetailsPage, LAB_REQUEST_STATUS } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
 import { testData } from '@utils/testData';
 import { getTableItems, selectFirstFromDropdown, formatDateTimeForDisplay } from '@utils/testHelper';
+import { fillDateTimeField, muiDateTextbox } from '@utils/dateFieldHelpers';
 test.setTimeout(80000);
 
 test.describe('Lab Request Tests', () => {
@@ -466,7 +467,7 @@ test.describe('Lab Request Tests', () => {
       const date = new Date();
       const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
       const expectedDateTime = formatDateTimeForDisplay(date);
-      await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
+      await fillDateTimeField(muiDateTextbox(labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput), currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
       await labRequestDetailsPage.recordSampleModal.recordSampleConfirmButton.click();
       await labRequestDetailsPage.recordSampleModal.waitForSampleCollectedModalToClose();
