@@ -1,5 +1,4 @@
 import { Page, Locator } from '@playwright/test';
-import { muiDateTextbox } from '../../../../../utils/dateFieldHelpers';
 
 export abstract class BaseNoteModal {
   readonly page: Page;
@@ -28,7 +27,7 @@ export abstract class BaseNoteModal {
     
     // Special cases that need additional processing
     this.writtenByInput = page.getByTestId('field-ar9q-input').locator('input');
-    this.dateTimeInput = muiDateTextbox(page.getByTestId('field-nwwl-input'));
+    this.dateTimeInput = page.getByTestId('field-nwwl-input');
     this.noteContentTextarea = page.getByTestId('field-wxzr').locator('textarea').nth(0);
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
   }

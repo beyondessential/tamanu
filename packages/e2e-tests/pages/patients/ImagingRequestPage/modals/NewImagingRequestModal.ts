@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
-import { muiDateTextbox, fillDateTimeField } from '../../../../utils/dateFieldHelpers';
+import { fillDateTimeField } from '../../../../utils/dateFieldHelpers';
 
 export interface ImagingRequestFormValues {
   orderDateTime?: string;
@@ -54,7 +54,7 @@ export class NewImagingRequestModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    this.orderDateTimeInput = muiDateTextbox(this.orderDateTimeField);
+    this.orderDateTimeInput = this.orderDateTimeField;
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');
     this.finaliseButton = this.page.getByTestId('formgrid-4uzw').getByTestId('mainbuttoncomponent-06gp');
     this.areasToBeImagedSelect = this.page.getByText('Areas to be imaged').locator('..').getByTestId('multiselectinput-dvij');

@@ -2,7 +2,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
-import { muiDateTextbox, fillDateField } from '../../../../utils/dateFieldHelpers';
+import { fillDateField } from '../../../../utils/dateFieldHelpers';
 
 
 export interface PatientDetails {
@@ -180,7 +180,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       await this.culturalNameInput.fill(patientDetails.culturalName);
     }
     if (patientDetails.dateOfBirth) {
-      await fillDateField(muiDateTextbox(this.dateOfBirthInput), patientDetails.dateOfBirth);
+      await fillDateField(this.dateOfBirthInput, patientDetails.dateOfBirth);
     }
     if (patientDetails.sex) {
       if (patientDetails.sex === 'female') {

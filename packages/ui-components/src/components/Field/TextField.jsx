@@ -137,6 +137,7 @@ export const TextInput = ({
   return (
     <OuterLabelFieldWrapper label={label} data-testid={dataTestId} {...props}>
       <StyledTextField
+        {...props}
         value={value}
         variant="outlined"
         onPaste={onPaste}
@@ -147,7 +148,6 @@ export const TextInput = ({
           ...props.inputProps,
           'data-testid': `${dataTestId}-input`,
         }}
-        {...props}
       />
     </OuterLabelFieldWrapper>
   );

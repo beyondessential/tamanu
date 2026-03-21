@@ -2,7 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { format } from 'date-fns';
-import { muiDateTextbox, fillDateTimeField, formatDateTimeForInput } from '../../../../utils/dateFieldHelpers';
+import { fillDateTimeField, formatDateTimeForInput } from '../../../../utils/dateFieldHelpers';
 import { getTableItems } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
@@ -127,7 +127,7 @@ export class LabRequestModalBase {
     
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = muiDateTextbox(page.getByTestId('field-y6ku-input'));
+    this.requestDateTimeInput = page.getByTestId('field-y6ku-input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
@@ -247,7 +247,7 @@ export class LabRequestModalBase {
    * @param index - The index of the input to set
    */
   async setDateTimeCollected(dateTime: string, index: number = 0) {
-    const input = muiDateTextbox(this.dateTimeCollectedInputs.nth(index));
+    const input = this.dateTimeCollectedInputs.nth(index);
     await input.waitFor({ state: 'visible' });
     await fillDateTimeField(input, dateTime);
   }

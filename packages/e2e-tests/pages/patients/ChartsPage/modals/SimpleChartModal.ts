@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
-import { muiDateTextbox, fillDateTimeField } from '../../../../utils/dateFieldHelpers';
+import { fillDateTimeField } from '../../../../utils/dateFieldHelpers';
 
 export interface SimpleChartFormValues {
     dateTime?: string;

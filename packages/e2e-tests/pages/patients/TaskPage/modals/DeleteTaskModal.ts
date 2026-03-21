@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
-import { muiDateTextbox, fillDateTimeField } from '@utils/dateFieldHelpers';
+import { fillDateTimeField } from '@utils/dateFieldHelpers';
 
 export class DeleteTaskModal {
   readonly page: Page;
@@ -27,7 +27,7 @@ export class DeleteTaskModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    this.recordDateTimeInput = muiDateTextbox(this.recordDateTimeField);
+    this.recordDateTimeInput = this.recordDateTimeField;
   }
 
   async waitForModalToLoad(): Promise<void> {

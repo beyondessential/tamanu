@@ -2,7 +2,7 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
-import { muiDateTextbox, fillDateField } from '../../utils/dateFieldHelpers';
+import { fillDateField } from '../../utils/dateFieldHelpers';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
 import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
@@ -127,11 +127,11 @@ export class AllPatientsPage extends BasePatientListPage {
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = muiDateTextbox(page.getByTestId('field-qk60-input'));
+    this.DOBInput = page.getByTestId('field-qk60-input');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.DOBFromTxt = muiDateTextbox(page.getByTestId('joinedfield-swzm-input'));
-    this.DOBToTxt = muiDateTextbox(page.getByTestId('field-aax5-input'));
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input');
+    this.DOBToTxt = page.getByTestId('field-aax5-input');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');

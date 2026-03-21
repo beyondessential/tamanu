@@ -2,7 +2,7 @@ import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
 import { assertRecentDateTime, convertDateFormat, getTableItems, formatDateTimeForTable } from '@utils/testHelper';
-import { muiDateTextbox, expectDateFieldValue } from '@utils/dateFieldHelpers';
+import { expectDateFieldValue, formatDateForInput } from '@utils/dateFieldHelpers';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
@@ -172,7 +172,7 @@ test.describe('Basic tests', () => {
 
      await expect(patientDetailsTabPage2.firstNameInput).toHaveValue(patientDetails.firstName as string);
      await expect(patientDetailsTabPage2.lastNameInput).toHaveValue(patientDetails.lastName as string);
-     await expectDateFieldValue(muiDateTextbox(patientDetailsTabPage2.dateOfBirthInput), '1990-01-01');
+     await expectDateFieldValue(patientDetailsTabPage2.dateOfBirthInput, '1990-01-01');
      if ((patientDetails.sex) === 'female') {
        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
      } else if ((patientDetails.sex ) === 'male') {
@@ -327,7 +327,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();  
-    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'yyyy-MM-dd'));
+    expect(await diagnosisModal.dateInput.inputValue()).toBe(formatDateForInput(format(new Date(), 'yyyy-MM-dd')));
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();

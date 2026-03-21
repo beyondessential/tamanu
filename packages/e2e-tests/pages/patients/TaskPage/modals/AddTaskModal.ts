@@ -1,6 +1,5 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
-
 export class AddTaskModal {
   readonly page: Page;
 
@@ -45,9 +44,9 @@ export class AddTaskModal {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    // Fields that need nested locators
-    this.startDateTimeInput = this.startDateTimeField.locator('input');
-    this.requestDateTimeInput = this.requestDateTimeField.locator('input');
+    // DateTime pickers: test ids end with -input on the actual textbox
+    this.startDateTimeInput = this.startDateTimeField;
+    this.requestDateTimeInput = this.requestDateTimeField;
     this.requestedByInput = this.requestedByField.locator('input');
     this.notesInput = this.notesField.locator('textarea').first();
     this.frequencyValueInput = this.frequencyValueField.locator('input');
