@@ -39,11 +39,16 @@ interface User {
   displayName: string;
 }
 
+interface AvailableFacility {
+  id: string;
+  name: string;
+}
+
 interface LoginData {
   token: string;
   refreshToken: string;
   permissions?: string[];
-  availableFacilities?: { id: string; name?: string; [key: string]: any }[];
+  availableFacilities?: AvailableFacility[];
 }
 
 interface LoginResponse extends LoginData {
@@ -111,7 +116,7 @@ interface LoginResponseData {
   token: string;
   refreshToken: string;
   permissions?: string[];
-  availableFacilities?: { id: string; name?: string; [key: string]: any }[];
+  availableFacilities?: AvailableFacility[];
   server?: {
     type: string;
     centralHost?: string;

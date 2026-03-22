@@ -13,24 +13,13 @@ const WHITELISTED_ENTITIES = {
   department: 'Department',
 };
 
-const getModelName = entity => {
-  return WHITELISTED_ENTITIES[entity];
-};
-
 export const random = express.Router();
 
-// This endpoint is solely for testing purposes. It should not be accessible outside of test environments.
 random.get(
   '/:entity',
   asyncHandler(async (req, res) => {
-    if (process.env.NODE_ENV !== 'test') {
-      // Avoids missing permission check error
-      req.flagPermissionChecked();
-      return res.status(404).send();
-    }
-
     const { entity } = req.params;
-    const modelName = getModelName(entity);
+    const modelName = WHITELISTED_ENTITIES[entity];
 
     if (!modelName) {
       throw new NotFoundError('Invalid entity');
@@ -38,22 +27,18 @@ random.get(
 
     req.checkPermission('read', modelName);
 
-    const { models, db, facilityId } = req;
+    const { models, facilityId } = req;
 
-    let where = {};
+    const where =
+      facilityId && models[modelName].rawAttributes.facilityId ? { facilityId } : {};
 
-    if (facilityId && models[modelName].rawAttributes.facilityId) {
-      where.facilityId = facilityId;
-    }
-
-    const record = await models[modelName].findOne({
-      where,
-      order: [db.literal('RANDOM()')],
-    });
-
-    if (!record) {
+    const count = await models[modelName].count({ where });
+    if (count === 0) {
       throw new NotFoundError('No record found');
     }
+
+    const offset = Math.floor(Math.random() * count);
+    const record = await models[modelName].findOne({ where, offset });
 
     res.send(record);
   }),

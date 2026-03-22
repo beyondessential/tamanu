@@ -8,7 +8,6 @@ export class RandomEntityFetcher {
   }
 
   async getRandom(entity: string) {
-    const response = await this.api.get(`random/${entity}`);
-    return response.data ?? response;
+    return this.api.get(`random/${entity}`);
   }
 }

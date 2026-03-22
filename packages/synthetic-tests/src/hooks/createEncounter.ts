@@ -7,9 +7,11 @@ import { fakeCreateEncounterRequestBody } from '@tamanu/fake-data/fake/fakeReque
 export async function generateEncounterPayload(context: any, _events: any): Promise<void> {
   const { entityFetcher } = context.vars;
 
-  const randomPatient = await entityFetcher.getRandom('patient');
-  const randomLocation = await entityFetcher.getRandom('location');
-  const randomDepartment = await entityFetcher.getRandom('department');
+  const [randomPatient, randomLocation, randomDepartment] = await Promise.all([
+    entityFetcher.getRandom('patient'),
+    entityFetcher.getRandom('location'),
+    entityFetcher.getRandom('department'),
+  ]);
 
   const encounterPayload = fakeCreateEncounterRequestBody({
     patientId: randomPatient.id,

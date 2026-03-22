@@ -3,34 +3,49 @@ import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetc
 import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';
 
+const DEVICE_ID_POOL_SIZE = 5;
+const deviceIds = Array.from({ length: DEVICE_ID_POOL_SIZE }, (_, i) => `synthetic-tests-${i}`);
+
+function pickDeviceId(): string {
+  return deviceIds[Math.floor(Math.random() * deviceIds.length)];
+}
+
+async function resolveToken(
+  api: TamanuApi,
+  loginToken: string,
+  facilityId: string,
+): Promise<string> {
+  const setFacilityResponse = await api.post('setFacility', { facilityId });
+  if (setFacilityResponse?.token) {
+    api.setToken(setFacilityResponse.token);
+    return setFacilityResponse.token;
+  }
+  return loginToken;
+}
+
 /**
  * Authenticates the user and stores the token, facility ID, and user ID in context.vars.
  */
 export async function authenticate(context: any, _events: any): Promise<void> {
   const { email = 'admin@tamanu.io', password = 'admin' } = context.vars;
 
-  const deviceId = `synthetic-tests-${crypto.randomUUID()}`;
-
   const api = new TamanuApi({
     endpoint: `${context.vars.target}/api`,
     agentName: 'Tamanu Desktop',
     agentVersion: version,
-    deviceId,
+    deviceId: pickDeviceId(),
     logger: console,
   });
 
-  const loginResponse = await api.login(email, password);
+  const loginResponse: any = await api.login(email, password);
   const { user, availableFacilities } = loginResponse;
 
-  let token = loginResponse.token;
-  const facilityId = availableFacilities?.[0]?.id ?? null;
-  if (facilityId) {
-    const setFacilityResponse = await api.post('setFacility', { facilityId });
-    if (setFacilityResponse?.token) {
-      token = setFacilityResponse.token;
-      api.setToken(token);
-    }
+  const facilityId = availableFacilities?.[0]?.id;
+  if (!facilityId) {
+    throw new Error('No available facilities — cannot run synthetic tests without a facility');
   }
+
+  const token = await resolveToken(api, loginResponse.token, facilityId);
 
   context.vars = {
     ...context.vars,
@@ -40,6 +55,5 @@ export async function authenticate(context: any, _events: any): Promise<void> {
     userId: user.id,
     facilityId,
     availableFacilities,
-    deviceId,
   };
 }

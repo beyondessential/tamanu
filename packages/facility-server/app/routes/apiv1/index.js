@@ -188,5 +188,6 @@ syncRoutes.use('/sync', sync);
 syncRoutes.use('/syncHealth', syncHealth);
 syncRoutes.use('/patientFacility', patientFacility);
 
-// random entities for testing
-apiv1.use('/random', random);
+if (process.env.NODE_ENV === 'test') {
+  apiv1.use('/random', random);
+}
