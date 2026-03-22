@@ -53,6 +53,27 @@ const createRoleSchema = z.object({
     .max(255, { message: '`name` must be no longer than 255 characters' }),
 });
 
+roleRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Role');
+
+    const {
+      store: {
+        models: { Role },
+      },
+      params: { id },
+    } = req;
+
+    const role = await Role.findByPk(id);
+    if (!role) {
+      throw new NotFoundError(`No role found with ID ‘${id}’`);
+    }
+
+    res.send(role);
+  }),
+);
+
 roleRouter.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -91,7 +112,7 @@ roleRouter.delete(
     await sequelize.transaction(async () => {
       const role = await Role.findByPk(id);
       if (!role) {
-        throw new NotFoundError(`No role found with ID ${id}`);
+        throw new NotFoundError(`No role found with ID ‘${id}’`);
       }
 
       const count = await User.count({

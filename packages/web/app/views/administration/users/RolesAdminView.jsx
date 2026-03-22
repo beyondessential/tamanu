@@ -1,5 +1,5 @@
-import { Typography } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import { Skeleton, Typography } from '@mui/material';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
@@ -14,6 +14,7 @@ import { AddRoleModal } from './AddRoleModal';
 import { Article } from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
+import { useRoleQuery } from './useRoleQuery';
 
 const Header = styled.header`
   align-items: flex-end;
@@ -51,67 +52,36 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const STATIC_COLUMNS = /** @type {const} */ ([
-  {
-    key: 'name',
-    sortable: true,
-    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
-  },
-  {
-    key: 'id',
-    sortable: true,
-    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
-  },
-]);
-
-const DeleteConfirmationModal = ({ roleName, ...confirmModalProps }) => (
-  <ConfirmModal
-    confirmButtonText={
-      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-    }
-    title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
-    customContent={
-      <DeleteConfirmationModalContent>
-        <Typography variant="body2">
-          <TranslatedText
-            stringId="admin.roles.delete.confirmation"
-            fallback="Are you sure you would like to delete the selected role?"
-          />
-          &nbsp;&ndash; <strong>{roleName}</strong>
-        </Typography>
-      </DeleteConfirmationModalContent>
-    }
-    {...confirmModalProps}
+const roleNameSkeleton = (
+  <Skeleton
+    animation="wave"
+    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
+    width="12ch"
   />
 );
 
-const DeleteConfirmationModalContent = styled.div`
-  min-block-size: 8rem;
-  display: grid;
-  place-items: center stretch;
-`;
+const DeleteConfirmationModal = ({ onSuccess }) => {
+  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const roleId = deleteMatch?.params.id;
+  const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
+  const isRoleNotFound = roleQueryError?.status === 404;
 
-export const RolesAdminView = () => {
-  // Search state
-  const [searchParams] = useSearchParams();
-  const nameQuery = searchParams.get('name') ?? undefined;
-  const idQuery = searchParams.get('id') ?? undefined;
-
-  // ‘Add role’ modal state
-  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
   const navigate = useNavigate();
-
-  // DataFetchingTable state
-  const [roleToDelete, setRoleToDelete] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const dismiss = useCallback(
+    () => navigate({ pathname: '..', search: window.location.search }),
+    [navigate],
+  );
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
-      // Imperatively refetch because DataFetchingTable isn’t built on useQuery
-      setRefreshCount(c => c + 1);
-      setRoleToDelete(null);
+      onSuccess?.();
+      dismiss();
       toast.success(
-        <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
+        <TranslatedText
+          stringId="admin.roles.delete.success"
+          fallback="Deleted role ‘:roleName’"
+          replacements={{ roleName: role?.name }}
+        />,
       );
     },
     onError: error => {
@@ -123,34 +93,106 @@ export const RolesAdminView = () => {
     },
   });
 
-  const columns = useMemo(
-    () =>
-      /** @type {const} */ ([
-        ...STATIC_COLUMNS,
-        {
-          key: 'actions',
-          title: '',
-          sortable: false,
-          numeric: true, // Not really, but applies align="right" to MUI TableCell
-          dontCallRowInput: true,
-          CellComponent: ({ data }) => (
-            <ThreeDotMenu
-              items={[
-                {
-                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                  onClick: () => setRoleToDelete(data),
-                },
-              ]}
-            />
-          ),
-        },
-      ]),
-    [],
-  );
+  useLayoutEffect(() => {
+    if (roleId && isRoleNotFound) dismiss();
+  }, [roleId, isRoleNotFound, dismiss]);
 
-  const handleConfirmDelete = useCallback(() => {
-    if (roleToDelete) deleteRole(roleToDelete.id);
-  }, [deleteRole, roleToDelete]);
+  const handleCancel = useCallback(() => {
+    dismiss();
+  }, [dismiss]);
+
+  const handleConfirm = useCallback(() => {
+    if (roleId) deleteRole(roleId);
+  }, [deleteRole, roleId]);
+
+  return (
+    <ConfirmModal
+      confirmButtonText={
+        <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+      }
+      title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
+      customContent={
+        <DeleteConfirmationModalContent>
+          <Typography variant="body2">
+            <TranslatedText
+              stringId="admin.roles.delete.confirmation"
+              fallback="Are you sure you would like to delete the selected role?"
+            />
+            &nbsp;&ndash;{' '}
+            <strong aria-busy={isRoleLoading}>
+              {isRoleLoading ? roleNameSkeleton : role?.name}
+            </strong>
+          </Typography>
+        </DeleteConfirmationModalContent>
+      }
+      open={Boolean(roleId) && !isRoleNotFound}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+    />
+  );
+};
+
+const DeleteConfirmationModalContent = styled.div`
+  min-block-size: 8rem;
+  display: grid;
+  place-items: center stretch;
+`;
+
+const ActionMenu = ({ data }) => {
+  const navigate = useNavigate();
+
+  return (
+    <ThreeDotMenu
+      items={[
+        {
+          label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+          onClick: () =>
+            navigate({
+              pathname: `delete/${encodeURIComponent(data.id)}`,
+              search: window.location.search,
+            }),
+        },
+      ]}
+    />
+  );
+};
+
+const columns = /** @type {const} */ ([
+  {
+    key: 'name',
+    sortable: true,
+    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
+  },
+  {
+    key: 'id',
+    sortable: true,
+    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
+  },
+  {
+    CellComponent: ActionMenu,
+    dontCallRowInput: true,
+    isExportable: false,
+    key: 'actions',
+    numeric: true, // Not really, but applies align="right" to MUI TableCell
+    sortable: false,
+    title: '',
+  },
+]);
+
+export const RolesAdminView = () => {
+  // Search state
+  const [searchParams] = useSearchParams();
+  const nameQuery = searchParams.get('name') ?? undefined;
+  const idQuery = searchParams.get('id') ?? undefined;
+
+  // DataFetchingTable state
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  // ‘Add role’ and ‘Delete role’ modal routes
+  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
+
+  const navigate = useNavigate();
+  const refreshDataTable = useCallback(() => setRefreshCount(c => c + 1), []);
 
   return (
     <Article>
@@ -178,12 +220,7 @@ export const RolesAdminView = () => {
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
-      <DeleteConfirmationModal
-        open={Boolean(roleToDelete)}
-        onCancel={() => setRoleToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        roleName={roleToDelete?.name}
-      />
+      <DeleteConfirmationModal onSuccess={refreshDataTable} />
     </Article>
   );
 };
