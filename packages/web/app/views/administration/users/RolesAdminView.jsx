@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Skeleton, Typography } from '@mui/material';
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -74,7 +74,7 @@ const STATIC_COLUMNS = /** @type {const} */ ([
 const DeleteConfirmationModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
-  const { data: role, error: roleQueryError } = useRoleQuery(roleId);
+  const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;
 
   const navigate = useNavigate();
@@ -123,7 +123,16 @@ const DeleteConfirmationModal = ({ onSuccess }) => {
               stringId="admin.roles.delete.confirmation"
               fallback="Are you sure you would like to delete the selected role?"
             />
-            &nbsp;&ndash; <strong>{role?.name}</strong>
+            &nbsp;&ndash;{' '}
+            {isRoleLoading ? (
+              <Skeleton
+                animation="wave"
+                sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
+                width="12ch"
+              />
+            ) : (
+              <strong>{role?.name}</strong>
+            )}
           </Typography>
         </DeleteConfirmationModalContent>
       }
