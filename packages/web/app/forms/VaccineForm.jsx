@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
+import {
+  SETTING_KEYS,
+  VACCINE_CATEGORIES,
+  VACCINE_RECORDING_TYPES,
+  FORM_TYPES,
+} from '@tamanu/constants';
 import { parseDate } from '@tamanu/utils/dateTime';
 import { Form, useDateTime } from '@tamanu/ui-components';
 
@@ -20,7 +25,7 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
-import { isAfter, isBefore } from 'date-fns';
+import { isBefore } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
@@ -43,7 +48,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getSetting } = useSettings();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime, storedDateTimeToEpochMilliseconds } = useDateTime();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
   const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
@@ -64,7 +69,7 @@ export const VaccineForm = ({
   const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
 
   const selectedVaccine = useMemo(
-    () => vaccineOptions.find((v) => v.value === vaccineLabel),
+    () => vaccineOptions.find(v => v.value === vaccineLabel),
     [vaccineLabel, vaccineOptions],
   );
 
@@ -79,7 +84,7 @@ export const VaccineForm = ({
         }
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
-          availableScheduledVaccines.map((vaccine) => ({
+          availableScheduledVaccines.map(vaccine => ({
             label: (
               <TranslatedReferenceData
                 fallback={vaccine.label}
@@ -149,11 +154,14 @@ export const VaccineForm = ({
           fallback="Date cannot be in the future"
           data-testid="translatedtext-rure"
         />,
-        (value) => {
+        value => {
           if (!value) return true;
-          const date = parseDate(value);
-          if (!date) return true;
-          return !isAfter(date, new Date());
+          const storedMs = storedDateTimeToEpochMilliseconds(value);
+          if (storedMs === null) {
+            return true;
+          }
+
+          return storedMs <= Date.now();
         },
       ),
     locationId: yup.string().when(['status', 'givenElsewhere'], {
@@ -171,7 +179,7 @@ export const VaccineForm = ({
   const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
     category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     vaccineLabel: yup.string().when('category', {
-      is: (categoryValue) => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
+      is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
       then: yup.string().nullable().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
@@ -181,7 +189,7 @@ export const VaccineForm = ({
       otherwise: yup.string().nullable(),
     }),
     scheduledVaccineId: yup.string().when('category', {
-      is: (categoryValue) => categoryValue !== VACCINE_CATEGORIES.OTHER,
+      is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
       then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
@@ -222,7 +230,7 @@ export const VaccineForm = ({
 
   return (
     <Form
-      onSubmit={async (data) => onSubmit({ ...data, category })}
+      onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
       formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
