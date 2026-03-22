@@ -71,26 +71,68 @@ const STATIC_COLUMNS = /** @type {const} */ ([
   },
 ]);
 
-const DeleteConfirmationModal = ({ roleName, ...confirmModalProps }) => (
-  <ConfirmModal
-    confirmButtonText={
-      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+const DeleteConfirmationModal = ({ onSuccess }) => {
+  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const roleId = deleteMatch?.params.id;
+  const { data: role, error: roleQueryError } = useRoleQuery(roleId);
+  const isRoleNotFound = roleQueryError?.status === 404;
+
+  const navigate = useNavigate();
+
+  const { mutate: deleteRole } = useRoleDeleteMutation({
+    onSuccess: () => {
+      onSuccess?.();
+      navigate({ pathname: '..', search: window.location.search });
+      toast.success(
+        <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
+      );
+    },
+    onError: error => {
+      toast.error(
+        error.detail || error.message || (
+          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
+        ),
+      );
+    },
+  });
+
+  useLayoutEffect(() => {
+    if (roleId && isRoleNotFound) {
+      navigate({ pathname: '..', search: window.location.search });
     }
-    title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
-    customContent={
-      <DeleteConfirmationModalContent>
-        <Typography variant="body2">
-          <TranslatedText
-            stringId="admin.roles.delete.confirmation"
-            fallback="Are you sure you would like to delete the selected role?"
-          />
-          &nbsp;&ndash; <strong>{roleName}</strong>
-        </Typography>
-      </DeleteConfirmationModalContent>
-    }
-    {...confirmModalProps}
-  />
-);
+  }, [roleId, isRoleNotFound, navigate]);
+
+  const handleCancel = useCallback(() => {
+    navigate({ pathname: '..', search: window.location.search });
+  }, [navigate]);
+
+  const handleConfirm = useCallback(() => {
+    if (roleId) deleteRole(roleId);
+  }, [deleteRole, roleId]);
+
+  return (
+    <ConfirmModal
+      confirmButtonText={
+        <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+      }
+      title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
+      customContent={
+        <DeleteConfirmationModalContent>
+          <Typography variant="body2">
+            <TranslatedText
+              stringId="admin.roles.delete.confirmation"
+              fallback="Are you sure you would like to delete the selected role?"
+            />
+            &nbsp;&ndash; <strong>{role?.name}</strong>
+          </Typography>
+        </DeleteConfirmationModalContent>
+      }
+      open={Boolean(roleId) && !isRoleNotFound}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+    />
+  );
+};
 
 const DeleteConfirmationModalContent = styled.div`
   min-block-size: 8rem;
@@ -128,36 +170,9 @@ export const RolesAdminView = () => {
 
   // ‘Add role’ and ‘Delete role’ modal routes
   const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
-  const deleteRoleId = deleteMatch?.params.id;
+
   const navigate = useNavigate();
-
-  const { data: roleForDelete, error: roleQueryError } = useRoleQuery(deleteRoleId);
-  const isRoleNotFound = roleQueryError?.status === 404;
-
-  useLayoutEffect(() => {
-    if (deleteRoleId && isRoleNotFound) {
-      navigate({ pathname: '..', search: window.location.search });
-    }
-  }, [deleteRoleId, isRoleNotFound, navigate]);
-
-  const { mutate: deleteRole } = useRoleDeleteMutation({
-    onSuccess: () => {
-      // Imperatively refetch because DataFetchingTable isn’t built on useQuery
-      setRefreshCount(c => c + 1);
-      navigate({ pathname: '..', search: window.location.search });
-      toast.success(
-        <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
-      );
-    },
-    onError: error => {
-      toast.error(
-        error.detail || error.message || (
-          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
-        ),
-      );
-    },
-  });
+  const refreshDataTable = useCallback(() => setRefreshCount(c => c + 1), []);
 
   const columns = useMemo(
     () =>
@@ -174,14 +189,6 @@ export const RolesAdminView = () => {
       ]),
     [],
   );
-
-  const closeDeleteModal = useCallback(() => {
-    navigate({ pathname: '..', search: window.location.search });
-  }, [navigate]);
-
-  const handleConfirmDelete = useCallback(() => {
-    if (deleteRoleId) deleteRole(deleteRoleId);
-  }, [deleteRole, deleteRoleId]);
 
   return (
     <Article>
@@ -210,12 +217,7 @@ export const RolesAdminView = () => {
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
-      <DeleteConfirmationModal
-        open={Boolean(deleteRoleId) && !isRoleNotFound}
-        onCancel={closeDeleteModal}
-        onConfirm={handleConfirmDelete}
-        roleName={roleForDelete?.name}
-      />
+      <DeleteConfirmationModal onSuccess={refreshDataTable} />
     </Article>
   );
 };
