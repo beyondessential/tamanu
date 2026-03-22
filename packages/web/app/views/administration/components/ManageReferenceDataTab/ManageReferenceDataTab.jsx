@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { startCase } from 'lodash';
 import styled from 'styled-components';
 import { SelectInput, Button } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
@@ -94,7 +95,7 @@ export const ManageReferenceDataTab = memo(() => {
     () =>
       columns.map(col => ({
         key: col.key,
-        title: col.key,
+        title: startCase(col.key),
         sortable: true,
       })),
     [columns],

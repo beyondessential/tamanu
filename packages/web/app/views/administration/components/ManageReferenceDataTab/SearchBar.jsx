@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { startCase } from 'lodash';
 import { TextField } from '@tamanu/ui-components';
 import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
 import { Field } from '../../../../components/Field';
@@ -11,7 +12,7 @@ const renderSearchField = col => (
     key={col.key}
     component={TextField}
     name={col.key}
-    label={col.key}
+    label={startCase(col.key)}
     placeholder="Search..."
     data-testid={`searchfield-${col.key}`}
   />
