@@ -50,8 +50,8 @@ export const AdministrationRoutes = React.memo(() => (
       <Route path="profiles" element={<UserProfilesAdminView />} />
       <Route path="roles" element={<RolesAndDesignationsAdminView />}>
         <Route index element={<RolesAdminView />} />
-        {/* Modal route. Its state (opened/closed) is managed internally by RolesAdminView */}
         <Route path="new" element={<RolesAdminView />} />
+        <Route path="delete/:id" element={<RolesAdminView />} />
       </Route>
       <Route path="designations" element={<RolesAndDesignationsAdminView />}>
         <Route index element={<DesignationsAdminView />} />

@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
@@ -14,6 +14,7 @@ import { AddRoleModal } from './AddRoleModal';
 import { Article } from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
+import { useRoleQuery } from './useRoleQuery';
 
 const Header = styled.header`
   align-items: flex-end;
@@ -97,25 +98,54 @@ const DeleteConfirmationModalContent = styled.div`
   place-items: center stretch;
 `;
 
+const ActionMenu = ({ data }) => {
+  const navigate = useNavigate();
+
+  return (
+    <ThreeDotMenu
+      items={[
+        {
+          label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+          onClick: () =>
+            navigate({
+              pathname: `delete/${encodeURIComponent(data.id)}`,
+              search: window.location.search,
+            }),
+        },
+      ]}
+    />
+  );
+};
+
 export const RolesAdminView = () => {
   // Search state
   const [searchParams] = useSearchParams();
   const nameQuery = searchParams.get('name') ?? undefined;
   const idQuery = searchParams.get('id') ?? undefined;
 
-  // ‘Add role’ modal state
+  // DataFetchingTable state
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  // ‘Add role’ and ‘Delete role’ modal routes
   const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
+  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const deleteRoleId = deleteMatch?.params.id;
   const navigate = useNavigate();
 
-  // DataFetchingTable state
-  const [roleToDelete, setRoleToDelete] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
+  const { data: roleForDelete, error: roleQueryError } = useRoleQuery(deleteRoleId);
+  const isRoleNotFound = roleQueryError?.status === 404;
+
+  useLayoutEffect(() => {
+    if (deleteRoleId && isRoleNotFound) {
+      navigate({ pathname: '..', search: window.location.search });
+    }
+  }, [deleteRoleId, isRoleNotFound, navigate]);
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
       // Imperatively refetch because DataFetchingTable isn’t built on useQuery
       setRefreshCount(c => c + 1);
-      setRoleToDelete(null);
+      navigate({ pathname: '..', search: window.location.search });
       toast.success(
         <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
       );
@@ -139,24 +169,19 @@ export const RolesAdminView = () => {
           sortable: false,
           numeric: true, // Not really, but applies align="right" to MUI TableCell
           dontCallRowInput: true,
-          CellComponent: ({ data }) => (
-            <ThreeDotMenu
-              items={[
-                {
-                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                  onClick: () => setRoleToDelete(data),
-                },
-              ]}
-            />
-          ),
+          CellComponent: ActionMenu,
         },
       ]),
     [],
   );
 
+  const closeDeleteModal = useCallback(() => {
+    navigate({ pathname: '..', search: window.location.search });
+  }, [navigate]);
+
   const handleConfirmDelete = useCallback(() => {
-    if (roleToDelete) deleteRole(roleToDelete.id);
-  }, [deleteRole, roleToDelete]);
+    if (deleteRoleId) deleteRole(deleteRoleId);
+  }, [deleteRole, deleteRoleId]);
 
   return (
     <Article>
@@ -186,10 +211,10 @@ export const RolesAdminView = () => {
       />
 
       <DeleteConfirmationModal
-        open={Boolean(roleToDelete)}
-        onCancel={() => setRoleToDelete(null)}
+        open={Boolean(deleteRoleId) && !isRoleNotFound}
+        onCancel={closeDeleteModal}
         onConfirm={handleConfirmDelete}
-        roleName={roleToDelete?.name}
+        roleName={roleForDelete?.name}
       />
     </Article>
   );
