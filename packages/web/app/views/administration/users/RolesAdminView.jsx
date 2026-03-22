@@ -59,6 +59,7 @@ const roleNameSkeleton = (
     width="12ch"
   />
 );
+
 const DeleteConfirmationModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
