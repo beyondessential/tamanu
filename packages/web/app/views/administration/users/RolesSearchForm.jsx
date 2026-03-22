@@ -36,7 +36,6 @@ export const RolesSearchForm = () => {
   const nameQuery = searchParams.get('name');
 
   const { getTranslation } = useTranslation();
-  const placeholder = getTranslation('general.placeholder.search...', 'Search…');
 
   const roleSuggester = useSuggester('role', {
     formatter: ({ id }) => ({ label: id, value: id }),
@@ -79,13 +78,13 @@ export const RolesSearchForm = () => {
         component={TextField}
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
         name="name"
-        placeholder={placeholder}
+        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
       />
       <Field
         component={AutocompleteField}
         label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
         name="id"
-        placeholder={placeholder}
+        placeholder={getTranslation('general.placeholder.select', 'Select')}
         suggester={roleSuggester}
       />
       <ButtonGroup>
