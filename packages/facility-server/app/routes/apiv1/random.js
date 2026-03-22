@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 
 const WHITELISTED_ENTITIES = {
   patient: 'Patient',
-  user: 'User',
   facility: 'Facility',
   location: 'Location',
   locationGroup: 'LocationGroup',
