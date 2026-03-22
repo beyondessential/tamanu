@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
@@ -70,6 +70,7 @@ const getValidationSchema = storedDateTimeToEpochMilliseconds =>
 
       const proposedPauseEndMs = add(new Date(), { [pauseTimeUnit]: pauseDuration }).getTime();
       const medicationEndMs = storedDateTimeToEpochMilliseconds(endDate);
+      // Fail-open: if endDate can't be parsed, allow the pause to avoid blocking medication management
       if (medicationEndMs == null) return true;
       return proposedPauseEndMs < medicationEndMs;
     }),
@@ -79,6 +80,11 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
   const { getCurrentDateTime, storedDateTimeToEpochMilliseconds } = useDateTime();
   const { encounter } = useEncounter();
   const api = useApi();
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(storedDateTimeToEpochMilliseconds),
+    [storedDateTimeToEpochMilliseconds],
+  );
 
   const onSubmit = async data => {
     await api.post(`medication/${medication.id}/pause`, {
@@ -105,7 +111,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
           medication,
           encounterId: encounter.id,
         }}
-        validationSchema={getValidationSchema(storedDateTimeToEpochMilliseconds)}
+        validationSchema={validationSchema}
         render={({ submitForm, errors }) => (
           <>
             <Box px={1} pt={2.75} pb={5}>

@@ -158,6 +158,7 @@ const getIsDiscontinued = ({
   if (dueAt) {
     const dueAtMs = storedDateTimeToEpochMilliseconds(dueAt);
     const discontinuedDateMs = storedDateTimeToEpochMilliseconds(discontinuedDate);
+    // Fail-open: if dates can't be parsed, assume not discontinued to avoid blocking medication administration
     if (dueAtMs == null || discontinuedDateMs == null) return false;
     return dueAtMs > discontinuedDateMs;
   }

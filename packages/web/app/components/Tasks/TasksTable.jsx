@@ -26,6 +26,8 @@ import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
 import { useDateTime } from '@tamanu/ui-components';
 
+const OVERDUE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
+
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
   font-size: 16px;
@@ -390,7 +392,7 @@ const FrequencyCell = ({ task, isEncounterDischarged }) => {
 const getIsTaskOverdue = (task, storedDateTimeToEpochMilliseconds) => {
   const dueTimeMs = storedDateTimeToEpochMilliseconds(task?.dueTime);
   if (dueTimeMs == null) return false;
-  return Date.now() - dueTimeMs >= 48 * 60 * 60 * 1000;
+  return Date.now() - dueTimeMs >= OVERDUE_THRESHOLD_MS;
 };
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
