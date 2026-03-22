@@ -3,9 +3,9 @@
   "version": "2.53.0",
   "private": true,
   "dependencies": {
+    "@tamanu/api-client": "*",
     "@tamanu/fake-data": "*",
-    "js-yaml": "^4.1.0",
-    "jose": "^5.9.6"
+    "js-yaml": "^4.1.0"
   },
   "scripts": {
     "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",

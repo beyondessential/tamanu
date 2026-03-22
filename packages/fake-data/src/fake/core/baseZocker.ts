@@ -10,9 +10,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { foreignKey } from '@tamanu/shared/schemas/types';
 
-export const createBaseZocker: <TSchema extends z.ZodType>(
-  schema: TSchema,
-) => ReturnType<typeof zocker> = schema => {
+export const createBaseZocker = <TSchema extends z.ZodType>(schema: TSchema) => {
   return zocker(schema)
     .supply(foreignKey, undefined)
     .supply(datetimeCustomValidation, () => toDateTimeString(faker.date.recent()))

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zocker } from 'zocker';
 
 import { createBaseZocker } from 'fake/core/baseZocker';
 import { KeyList } from 'fake/utils/types';
@@ -10,7 +9,7 @@ export type BuildOptions<TSchema extends z.ZodType> = {
 };
 
 export class FakeEntityBuilder<TSchema extends z.ZodType> {
-  private faker: ReturnType<typeof zocker>;
+  private faker: ReturnType<typeof createBaseZocker>;
 
   constructor(schema: TSchema) {
     this.faker = createBaseZocker(schema);
