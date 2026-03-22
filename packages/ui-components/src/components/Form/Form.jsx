@@ -1,20 +1,21 @@
-import React, { isValidElement, useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik';
-import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import { Formik, useFormikContext } from 'formik';
+import { isObject } from 'lodash';
+import React, { isValidElement, useEffect } from 'react';
 import styled from 'styled-components';
+import { ValidationError } from 'yup';
 
-import { flattenObject } from './flattenObject';
-import { Dialog } from '../Dialog';
 import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import { useFormSubmission } from '../../contexts/FormSubmissionContext';
 import { IS_DEVELOPMENT } from '../../utils/env';
+import { Dialog } from '../Dialog';
 import { TranslatedText } from '../Translation';
+import { flattenObject } from './flattenObject';
 
 const ErrorMessage = ({ error }) => {
-  if (isValidElement(error)) return error;
-  return `${JSON.stringify(error)}`;
+  if (isValidElement(error) || !isObject(error) /* is primitive */) return error;
+  return JSON.stringify(error);
 };
 
 const FormErrors = ({ errors }) => {
@@ -23,7 +24,7 @@ const FormErrors = ({ errors }) => {
   return Object.entries(allErrors).map(
     ([name, error], index) =>
       error && (
-        <Typography key={name} variant="subtitle2" data-testid={`typography-vmhk-${index}`}>
+        <Typography key={name} variant="body2" data-testid={`typography-vmhk-${index}`}>
           <ErrorMessage error={error} data-testid={`errormessage-sjd4-${index}`} />
         </Typography>
       ),
