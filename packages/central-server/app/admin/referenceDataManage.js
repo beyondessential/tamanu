@@ -4,6 +4,7 @@ import { upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import {
   REFERENCE_TYPE_VALUES,
+  OTHER_REFERENCE_TYPE_VALUES,
   GENERAL_IMPORTABLE_DATA_TYPES,
   SUGGESTER_ENDPOINTS,
   SEARCHABLE_COLUMN_TYPES,
@@ -24,6 +25,9 @@ const getModelForType = (models, type) => {
   }
   return { model, typeFilter: {} };
 };
+
+// Types that can be managed via this endpoint (must match the frontend MANAGEABLE_DATA_TYPES)
+const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFERENCE_TYPE_VALUES];
 
 const HIDDEN_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 // Fields that are always read-only (create and edit)
@@ -92,9 +96,16 @@ const assertValidType = (type) => {
     throw new InvalidOperationError('type is required in request body');
   }
 
-  if (!GENERAL_IMPORTABLE_DATA_TYPES.includes(type)) {
+  if (!MANAGEABLE_REFERENCE_DATA_TYPES.includes(type)) {
     throw new InvalidOperationError(`Invalid reference data type: ${type}`);
   }
+};
+
+const getWritableData = (columns, data, isEditMode) => {
+  const writableKeys = new Set(
+    columns.filter((c) => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map((c) => c.key),
+  );
+  return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
 };
 
 referenceDataManageRouter.post(
@@ -102,21 +113,13 @@ referenceDataManageRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'ReferenceData');
 
-    const { type, ...data } = req.body;
+    const { type, ...rawData } = req.body;
 
     assertValidType(type);
 
     const { model, typeFilter } = getModelForType(req.store.models, type);
-
-    // Check ID uniqueness if provided
-    if (data.id) {
-      const existing = await model.findByPk(data.id, { paranoid: false });
-      if (existing) {
-        throw new InvalidOperationError(
-          `A record with id "${data.id}" already exists`,
-        );
-      }
-    }
+    const columns = getColumnsForModel(model);
+    const data = getWritableData(columns, rawData, false);
 
     // Check single-column unique fields for conflicts
     const uniqueFields = getUniqueFields(model);
@@ -143,7 +146,7 @@ referenceDataManageRouter.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'ReferenceData');
 
-    const { type, ...data } = req.body;
+    const { type, ...rawData } = req.body;
     const { id } = req.params;
 
     assertValidType(type);
@@ -155,14 +158,8 @@ referenceDataManageRouter.put(
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    // Strip read-only fields and FK fields from the update
-    const fkSuggesters = getForeignKeySuggesters(model);
-    for (const field of READ_ONLY_COLUMNS) {
-      delete data[field];
-    }
-    for (const field of Object.keys(fkSuggesters)) {
-      delete data[field];
-    }
+    const columns = getColumnsForModel(model);
+    const data = getWritableData(columns, rawData, true);
 
     await record.update(data);
     res.send(record.forResponse());
@@ -205,6 +202,11 @@ referenceDataManageRouter.get(
       throw new InvalidOperationError(`Invalid orderBy value: ${orderBy}`);
     }
 
+    const normalizedOrder = order.toUpperCase();
+    if (!['ASC', 'DESC'].includes(normalizedOrder)) {
+      throw new InvalidOperationError(`Invalid order value: ${order}`);
+    }
+
     for (const [key, value] of Object.entries(filters)) {
       if (stringColumnKeys.has(key) && value) {
         searchWhere[key] = { [Op.iLike]: `%${value}%` };
@@ -216,7 +218,7 @@ referenceDataManageRouter.get(
     const count = await model.count({ where });
     const data = await model.findAll({
       where,
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      order: [[orderBy, normalizedOrder]],
       limit: Number(rowsPerPage),
       offset: Number(page) * Number(rowsPerPage),
     });
