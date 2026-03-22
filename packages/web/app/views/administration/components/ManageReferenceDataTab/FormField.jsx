@@ -37,11 +37,10 @@ const getFieldComponent = columnType => {
 
 const SuggesterFormField = memo(({ col, disabled }) => {
   const suggester = useSuggester(col.suggesterEndpoint);
-  console.log('suggesterrrr', suggester);
   return (
     <Field
       name={col.key}
-      label={col.key}
+      label={startCase(col.key)}
       component={AutocompleteField}
       suggester={suggester}
       required={!col.allowNull}
@@ -62,7 +61,7 @@ export const FormField = memo(({ col, isEditMode }) => {
     return (
       <Field
         name={col.key}
-        label={col.key}
+        label={startCase(col.key)}
         component={SelectField}
         options={VISIBILITY_STATUS_OPTIONS}
         required={!col.allowNull}
@@ -75,7 +74,7 @@ export const FormField = memo(({ col, isEditMode }) => {
   const field = (
     <Field
       name={col.key}
-      label={col.key}
+      label={startCase(col.key)}
       component={getFieldComponent(col.type)}
       required={!col.allowNull}
       disabled={disabled}
