@@ -43,6 +43,7 @@ interface LoginData {
   token: string;
   refreshToken: string;
   permissions?: string[];
+  availableFacilities?: { id: string; name?: string; [key: string]: any }[];
 }
 
 interface LoginResponse extends LoginData {
@@ -110,6 +111,7 @@ interface LoginResponseData {
   token: string;
   refreshToken: string;
   permissions?: string[];
+  availableFacilities?: { id: string; name?: string; [key: string]: any }[];
   server?: {
     type: string;
     centralHost?: string;

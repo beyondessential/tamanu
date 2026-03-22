@@ -19,7 +19,7 @@ export async function authenticate(context: any, _events: any): Promise<void> {
     logger: console,
   });
 
-  const loginResponse: any = await api.login(email, password);
+  const loginResponse = await api.login(email, password);
   const { user, availableFacilities } = loginResponse;
 
   const facilityId = availableFacilities?.[0]?.id ?? null;
