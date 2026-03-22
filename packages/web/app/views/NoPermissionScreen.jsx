@@ -21,7 +21,7 @@ const Container = styled.div`
 const Message = styled.div`
   width: 50%;
   text-align: center;
-  margin-top: 15%;
+  margin-top: 15vh;
 `;
 
 const BackgroundImage = styled.img`
