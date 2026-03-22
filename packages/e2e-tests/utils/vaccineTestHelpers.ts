@@ -1,4 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
+import { formatForMuiDateTimePicker } from '@utils/testHelper';
 import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
@@ -109,14 +110,21 @@ export async function triggerDateError(
 
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
+  const page = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.page;
+  const dateField = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.dateField;
+
   //Attempt to submit a date that should trigger a validation error
-  await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField.fill(date);
+  await dateField.fill(formatForMuiDateTimePicker(date));
+  await dateField.blur();
+
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
-  //Assert the validation error appears
-  await expect(
-    patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!,
-  ).toContainText(expectedErrorMessage);
+  const recordVaccineDialog = page
+    .getByTestId('dialog-g9qi')
+    .filter({ visible: true })
+    .filter({ hasText: /Record vaccine/i });
+
+  await expect(recordVaccineDialog.getByText(expectedErrorMessage, { exact: true })).toBeVisible();
 }
 
 /**
