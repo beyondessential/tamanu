@@ -21,6 +21,8 @@ const { Manage, Delete, Create, Write, List, Read, Run, Submit } = PermissionVer
 
 // Verbs allowed at the per-object level for nouns that support objectId.
 export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+  // Charting intentionally includes List and Create at the per-object level so
+  // that access can be restricted to specific chart types (identified by objectId).
   Charting: [List, Read, Write, Create, Delete],
   Survey: [Read, Write, Submit],
   StaticReport: [Run],
