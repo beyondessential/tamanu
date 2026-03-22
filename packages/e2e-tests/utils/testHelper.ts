@@ -53,12 +53,12 @@ export function parseTamanuDate(raw: string): Date | null {
 
   const isoDate = s.match(/^(\d{4}-\d{2}-\d{2})/);
   if (isoDate) {
-    const d = parse(isoDate[1], 'yyyy-MM-dd', new Date());
+    const d = parse(isoDate[1], 'yyyy-MM-dd', new Date(0));
     return isValid(d) ? d : null;
   }
 
   for (const pattern of DISPLAY_DATE_TIME_PATTERNS) {
-    const d = parse(s, pattern, new Date());
+    const d = parse(s, pattern, new Date(0));
     if (isValid(d)) return d;
   }
 
