@@ -235,9 +235,7 @@ export class PatientVaccinePane extends BasePatientPane {
     } else {
       const displayLocationValue = await getSidebarFacilityDisplayName(this.page);
       if (!displayLocationValue) {
-        throw new Error(
-          'Display location value is not defined - likely the country was not selected',
-        );
+        throw new Error('Could not retrieve facility name from sidebar for display location check');
       }
 
       const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
