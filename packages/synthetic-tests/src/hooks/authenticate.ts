@@ -22,11 +22,13 @@ export async function authenticate(context: any, _events: any): Promise<void> {
   const loginResponse = await api.login(email, password);
   const { user, availableFacilities } = loginResponse;
 
+  let token = loginResponse.token;
   const facilityId = availableFacilities?.[0]?.id ?? null;
   if (facilityId) {
     const setFacilityResponse = await api.post('setFacility', { facilityId });
     if (setFacilityResponse?.token) {
-      api.setToken(setFacilityResponse.token);
+      token = setFacilityResponse.token;
+      api.setToken(token);
     }
   }
 
@@ -34,6 +36,7 @@ export async function authenticate(context: any, _events: any): Promise<void> {
     ...context.vars,
     api,
     entityFetcher: new RandomEntityFetcher(api),
+    token,
     userId: user.id,
     facilityId,
     availableFacilities,
