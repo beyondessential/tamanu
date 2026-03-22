@@ -52,6 +52,13 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const roleNameSkeleton = (
+  <Skeleton
+    animation="wave"
+    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
+    width="12ch"
+  />
+);
 const DeleteConfirmationModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
@@ -105,15 +112,9 @@ const DeleteConfirmationModal = ({ onSuccess }) => {
               fallback="Are you sure you would like to delete the selected role?"
             />
             &nbsp;&ndash;{' '}
-            {isRoleLoading ? (
-              <Skeleton
-                animation="wave"
-                sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-                width="12ch"
-              />
-            ) : (
-              <strong>{role?.name}</strong>
-            )}
+            <strong aria-busy={isRoleLoading}>
+              {isRoleLoading ? roleNameSkeleton : role?.name}
+            </strong>
           </Typography>
         </DeleteConfirmationModalContent>
       }
