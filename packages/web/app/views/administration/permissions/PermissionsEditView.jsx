@@ -179,7 +179,7 @@ export const PermissionsEditView = () => {
 
   const isActuallyLoading = isLoading && isFetching;
 
-  const hasReadPermission = ability.can('read', 'Permissions');
+  const hasReadPermission = ability.can('read', 'Permission');
 
   if (!hasReadPermission) {
     return <StyledNoPermissionContainer showBackgroundImage />;
