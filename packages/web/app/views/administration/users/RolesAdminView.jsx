@@ -58,19 +58,6 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const STATIC_COLUMNS = /** @type {const} */ ([
-  {
-    key: 'name',
-    sortable: true,
-    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
-  },
-  {
-    key: 'id',
-    sortable: true,
-    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
-  },
-]);
-
 const DeleteConfirmationModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
@@ -168,6 +155,28 @@ const ActionMenu = ({ data }) => {
   );
 };
 
+const columns = /** @type {const} */ ([
+  {
+    key: 'name',
+    sortable: true,
+    title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
+  },
+  {
+    key: 'id',
+    sortable: true,
+    title: <TranslatedText stringId="admin.roles.id.column" fallback="ID" />,
+  },
+  {
+    CellComponent: ActionMenu,
+    dontCallRowInput: true,
+    isExportable: false,
+    key: 'actions',
+    numeric: true, // Not really, but applies align="right" to MUI TableCell
+    sortable: false,
+    title: '',
+  },
+]);
+
 export const RolesAdminView = () => {
   // Search state
   const [searchParams] = useSearchParams();
@@ -182,22 +191,6 @@ export const RolesAdminView = () => {
 
   const navigate = useNavigate();
   const refreshDataTable = useCallback(() => setRefreshCount(c => c + 1), []);
-
-  const columns = useMemo(
-    () =>
-      /** @type {const} */ ([
-        ...STATIC_COLUMNS,
-        {
-          key: 'actions',
-          title: '',
-          sortable: false,
-          numeric: true, // Not really, but applies align="right" to MUI TableCell
-          dontCallRowInput: true,
-          CellComponent: ActionMenu,
-        },
-      ]),
-    [],
-  );
 
   return (
     <Article>
