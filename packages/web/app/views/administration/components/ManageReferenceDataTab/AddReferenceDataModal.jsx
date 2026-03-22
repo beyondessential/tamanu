@@ -2,6 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import { FormModal } from '../../../../components/FormModal';
 import { useApi } from '../../../../api';
+import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReferenceDataForm } from './ReferenceDataForm';
 import { ENDPOINT } from './constants';
 
@@ -20,7 +21,14 @@ export const AddReferenceDataModal = memo(
 
     return (
       <FormModal
-        title={`Add ${startCase(selectedType)}`}
+        title={
+          <TranslatedText
+            stringId="admin.referenceData.addTitle"
+            fallback="Add :type"
+            replacements={{ type: startCase(selectedType) }}
+            data-testid="translatedtext-add-refdata-title"
+          />
+        }
         open={open}
         onClose={onClose}
         data-testid="formmodal-add-refdata"
