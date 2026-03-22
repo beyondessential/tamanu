@@ -675,7 +675,7 @@ export class TamanuApi {
       // message sent from the server is received in one go by the
       // client: the transport could fragment messages at arbitrary
       // boundaries, or could concatenate messages together.
-      let buffer = Buffer.alloc(0);
+      let buffer: Buffer = Buffer.alloc(0);
       reader: while (true) {
         const { done, value } = await reader.read();
 
