@@ -12,6 +12,7 @@ import { patientSummaryHandler } from './patientSummary';
 import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
+import { transactionBundleHandler } from './bundle';
 
 export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();
@@ -50,6 +51,8 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.TYPE.CREATE)) {
     routes.post(`/${Resource.fhirName}`, createHandler(Resource));
   }
+
+  routes.post(`/Bundle`, transactionBundleHandler());
 
   routes.use((err, _req, res, next) => {
     if (res.headersSent) {

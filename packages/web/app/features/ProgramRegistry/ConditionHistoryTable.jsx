@@ -1,17 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
+import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
 import {
-  DateDisplay,
-  Heading5,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
-} from '../../components';
-import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
-import {
-  useProgramRegistryConditionCategoriesQuery,
-} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+} from '@tamanu/ui-components';
+import { DateDisplay, Heading5 } from '../../components';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { Colors } from '../../constants';
 
 const HistorySection = styled.section`
   display: flex;
@@ -67,12 +64,7 @@ const ConditionCategoryDisplay = ({ data, conditionCategories }) => {
   }
 
   // For backwards compatibility with the old enum values
-  return (
-    <TranslatedEnum
-      value={data.conditionCategory}
-      enumValues={DEPRECATED_PRCC_LABELS}
-    />
-  );
+  return <TranslatedEnum value={data.conditionCategory} enumValues={DEPRECATED_PRCC_LABELS} />;
 };
 
 export const ConditionHistoryTable = ({ historyData = [], programRegistryId = '' }) => {
@@ -117,7 +109,7 @@ export const ConditionHistoryTable = ({ historyData = [], programRegistryId = ''
             )}
             <SmallText>
               <span>{entry.clinician.displayName}</span>
-              <DateDisplay date={entry.date} showTime />
+              <DateDisplay date={entry.date} timeFormat="default" />
             </SmallText>
           </HistoryItem>
         ))}

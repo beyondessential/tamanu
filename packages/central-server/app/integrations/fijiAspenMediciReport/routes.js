@@ -10,11 +10,12 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const routes = express.Router();
 
-const COUNTRY_TIMEZONE = config?.countryTimeZone;
+const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {
@@ -77,14 +78,51 @@ WHERE true
   ELSE
     true
   END
+  AND CASE WHEN coalesce($discharge_date_gt, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz > $discharge_date_gt::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_lt, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz < $discharge_date_lt::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_ge, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz >= $discharge_date_ge::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_le, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz <= $discharge_date_le::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_eq, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz = $discharge_date_eq::timestamptz
+    ELSE true
+  END
 
 ORDER BY last_updated DESC
 LIMIT $limit OFFSET $offset;
 `;
 
+const DISCHARGE_DATE_PREFIXES = ['gt', 'lt', 'ge', 'le', 'eq'];
+
 const parseDateParam = date => {
-  const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
+  const { plain: parsedDate } = parseDateTime(date, { withTz: PRIMARY_TIME_ZONE });
   return parsedDate || null;
+};
+
+/**
+ * Parse a discharge_date query value that may include a FHIR-style prefix (gt, lt, ge, le).
+ * Uses the same parsing as period.start/period.end (parseDateParam), so timestamps without
+ * an explicit timezone are interpreted in COUNTRY_TIMEZONE.
+ */
+const parseDischargeDateParam = param => {
+  if (!param || typeof param !== 'string') return null;
+  const trimmed = param.trim();
+  const prefixMatch = DISCHARGE_DATE_PREFIXES.find(p => trimmed.startsWith(p));
+  const prefix = prefixMatch || 'eq';
+  const valueStr = prefixMatch ? trimmed.slice(prefixMatch.length) : trimmed;
+  const parsed = parseDateParam(valueStr);
+  return parsed ? { prefix, value: parsed } : null;
 };
 
 const checkTimePeriod = (fromDate, toDate) => {
@@ -106,9 +144,10 @@ routes.get(
       limit = 100,
       encounters,
       offset = 0,
+      discharge_date: dischargeDateParam,
     } = req.query;
-    if (!COUNTRY_TIMEZONE) {
-      throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
+    if (!PRIMARY_TIME_ZONE) {
+      throw new Error('A primaryTimeZone must be configured in local.json5 for this report to run');
     }
 
     if (!encounters && (!fromDate || !toDate)) {
@@ -133,16 +172,35 @@ routes.get(
       throw new InvalidOperationError('The time period must be within 1 hour');
     }
 
+    const dischargeDateBind = {
+      discharge_date_gt: null,
+      discharge_date_lt: null,
+      discharge_date_ge: null,
+      discharge_date_le: null,
+      discharge_date_eq: null,
+    };
+    const dischargeDateParams = [].concat(dischargeDateParam ?? []);
+    for (const param of dischargeDateParams) {
+      const parsed = parseDischargeDateParam(param);
+      if (parsed) {
+        const bindKey = `discharge_date_${parsed.prefix}`;
+        if (Object.prototype.hasOwnProperty.call(dischargeDateBind, bindKey)) {
+          dischargeDateBind[bindKey] = parsed.value;
+        }
+      }
+    }
+
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: fromDate ? parseDateParam(fromDate, COUNTRY_TIMEZONE) : null,
-        to_date: toDate ? parseDateParam(toDate, COUNTRY_TIMEZONE) : null,
+        from_date: fromDate ? parseDateParam(fromDate) : null,
+        to_date: toDate ? parseDateParam(toDate) : null,
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: COUNTRY_TIMEZONE,
+        timezone_string: PRIMARY_TIME_ZONE,
+        ...dischargeDateBind,
       },
     });
 

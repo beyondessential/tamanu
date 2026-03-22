@@ -14,7 +14,6 @@ describe('FacilitySyncManager integration', () => {
   let sequelize;
   let syncManager;
 
-
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
@@ -25,6 +24,7 @@ describe('FacilitySyncManager integration', () => {
   afterAll(() => ctx.close());
 
   const mockCentralServer = {
+    streaming: () => false,
     startSyncSession: jest.fn().mockResolvedValue({
       sessionId: 'test-session-sync',
       startedAtTick: 200
@@ -96,6 +96,7 @@ describe('FacilitySyncManager integration', () => {
 
   afterEach(async () => {
     await models.Patient.destroy({ where: { id: ['patient-1', 'patient-2'] }, force: true });
+    await models.Setting.destroy({ where: { facilityId: 'facility-1' }, force: true });
     await models.Facility.destroy({ where: { id: 'facility-1' }, force: true });
     await sequelize.query("DELETE FROM logs.changes WHERE record_id IN ('patient-1', 'patient-2', 'facility-1')");
   });
@@ -157,6 +158,4 @@ describe('FacilitySyncManager integration', () => {
     );
     expect(syncAuditLogs).toHaveLength(0);
   });
-
-
 });

@@ -48,8 +48,12 @@ export class ModelExporter {
   }
 
   getHeadersFromData(data) {
-    const row = data.length <= 0 ? {} : data[0] instanceof Model ? data[0].dataValues : data[0];
-    return Object.keys(row);
+    const allKeys = new Set();
+    data.forEach(row => {
+      const rowData = row instanceof Model ? row.dataValues : row;
+      Object.keys(rowData).forEach(key => allKeys.add(key));
+    });
+    return Array.from(allKeys);
   }
 
   customHiddenColumns() {

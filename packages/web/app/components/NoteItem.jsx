@@ -119,7 +119,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
             />
           </span>
         ) : null}
-        <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-5hu9${index}`} />
+        <DateDisplay date={noteItem.date} timeFormat="default" data-testid={`datedisplay-5hu9${index}`} />
       </StyledNoteItemLogMetadata>
 
       <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>
@@ -156,7 +156,7 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
             />
           </span>
         ) : null}
-        <DateDisplay date={noteItem.date} showTime data-testid="datedisplay-zaes" />
+        <DateDisplay date={noteItem.date} timeFormat="default" data-testid="datedisplay-zaes" />
         {noteItem?.noteItems?.length > 0 && (
           <>
             <span>

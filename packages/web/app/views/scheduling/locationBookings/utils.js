@@ -1,34 +1,42 @@
-import { eachDayOfInterval, isSameDay, isValid, parseISO } from 'date-fns';
+import { eachDayOfInterval } from 'date-fns';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
 
 import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
 import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
 
-export const appointmentToFormValues = (appointment) => {
+export const appointmentToFormValues = appointment => {
   if (!appointment) return {};
 
-  const { bookingTypeId, clinicianId, endTime, id, locationId, patientId, startDate, startTime } =
-    appointment;
-  const startTimeObj = startTime ? new Date(startTime) : null;
-  const endTimeObj = endTime ? new Date(endTime) : null;
-
-  const startIsValid = isValid(startTimeObj);
-  const endIsValid = isValid(endTimeObj);
-
-  const dateFromStartTime = toDateString(startTimeObj);
-  const dateFromEndTime = toDateString(endTimeObj);
-  const overnight = startIsValid && endIsValid && !isSameDay(startTimeObj, endTimeObj);
+  const {
+    bookingTypeId,
+    clinicianId,
+    endTime,
+    id,
+    locationId,
+    patientId,
+    startDate,
+    startTime,
+    additionalClinicianId,
+    appointmentProcedureTypes,
+    linkEncounterId,
+  } = appointment;
+  const dateFromStartTime = trimToDate(startTime);
+  const dateFromEndTime = trimToDate(endTime);
+  const overnight =
+    dateFromStartTime && dateFromEndTime ? dateFromStartTime !== dateFromEndTime : false;
 
   return {
     // Semantically significant values
     locationId,
     patientId,
-    startTime: startIsValid ? startTime : null,
-    endTime: endIsValid ? endTime : null,
+    startTime: startTime ?? null,
+    endTime: endTime ?? null,
     bookingTypeId,
     clinicianId,
-
+    additionalClinicianId,
+    procedureTypeIds: appointmentProcedureTypes?.map(type => type.procedureTypeId) || [],
+    linkEncounterId,
     // Only for user input purposes
     overnight,
     date: dateFromStartTime ?? startDate,
@@ -41,34 +49,42 @@ export const appointmentToFormValues = (appointment) => {
 };
 
 /** Record<LocationId, Record<Date, Appointment> */
-export const partitionAppointmentsByLocation = (appointments) =>
+export const partitionAppointmentsByLocation = appointments =>
   appointments.reduce((acc, appt) => {
     const locationId = appt.locationId;
     (acc[locationId] ?? (acc[locationId] = [])).push(appt);
     return acc;
   }, {});
 
-export const partitionAppointmentsByDate = (appointments) =>
+export const partitionAppointmentsByDate = (appointments, toFacilityDateTime) =>
   appointments.reduce((acc, appt) => {
-    const start = parseISO(appt.startTime);
-    const end = parseISO(appt.endTime);
+    const startStr = toFacilityDateTime?.(appt.startTime);
+    if (!startStr) return acc;
+    const startDate = trimToDate(startStr);
 
-    const dates = appt.endTime
-      ? eachDayOfInterval({ start, end }).map(toDateString)
-      : [appt.startTime.slice(0, 10)]; // Slice out datestring without converting to Date and back
+    const endStr = appt.endTime ? toFacilityDateTime(appt.endTime) : null;
+    const endDate = trimToDate(endStr);
+
+    const dates =
+      endDate && endDate !== startDate
+        ? eachDayOfInterval({
+            start: new Date(`${startDate}T00:00:00`),
+            end: new Date(`${endDate}T00:00:00`),
+          }).map(toDateString)
+        : [startDate];
     for (const date of dates) (acc[date] ?? (acc[date] = [])).push(appt);
 
     return acc;
   }, {});
 
-export const generateIdFromCell = (cell) => `${cell.locationId}.${cell.date.valueOf()}`;
+export const generateIdFromCell = cell => `${cell.locationId}.${cell.date.valueOf()}`;
 
-export const scrollToThisWeek = (scrollIntoViewOptions) =>
+export const scrollToThisWeek = scrollIntoViewOptions =>
   document
     .getElementById(THIS_WEEK_ID)
     ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
 
-export const scrollToBeginning = (scrollToOptions) =>
+export const scrollToBeginning = scrollToOptions =>
   document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0, ...scrollToOptions });
 
 export const scrollToCell = (cell, scrollIntoViewOptions) =>

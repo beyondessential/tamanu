@@ -1,7 +1,7 @@
 import util from 'util';
 
 import { log } from '@tamanu/shared/services/logging';
-import { InvalidOperationError, RemoteCallFailedError } from '@tamanu/shared/errors';
+import { InvalidOperationError, RemoteCallError } from '@tamanu/errors';
 
 import * as schema from './schema';
 
@@ -113,11 +113,12 @@ export class VRSActionHandler {
     try {
       await this.remote.acknowledge(fetchId);
     } catch (e) {
-      throw new RemoteCallFailedError(
-        `vrs: Patient import succeeded, but received an error while acknowledging: (displayId=${
-          patient.displayId
-        }, error=${util.inspect(e)}`,
-      );
+      throw new RemoteCallError(
+        'vrs: Patient import succeeded, but received an error while acknowledging',
+      ).withExtraData({
+        displayId: patient.displayId,
+        error: util.inspect(e),
+      });
     }
   }
 }

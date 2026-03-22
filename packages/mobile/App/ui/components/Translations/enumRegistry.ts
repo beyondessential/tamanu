@@ -2,6 +2,7 @@ import {
   DEPRECATED_PRCC_LABELS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
 } from '~/constants/programRegistries';
+import { MEDICATION_DURATION_UNITS_LABELS } from '~/constants/medications';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -13,11 +14,13 @@ type EnumEntries = [EnumKeys, EnumValues][];
 const registeredEnums = {
   PROGRAM_REGISTRATION_STATUS_LABELS,
   DEPRECATED_PRCC_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
 };
 
 const translationPrefixes: Record<EnumKeys, string> = {
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
   DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
+  MEDICATION_DURATION_UNITS_LABELS: 'medication.property.durationUnit',
 };
 
 const prefixMap = new Map(

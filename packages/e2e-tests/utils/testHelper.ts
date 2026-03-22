@@ -1,5 +1,7 @@
-import { Locator } from '@playwright/test';
-import { subYears, addYears, format } from 'date-fns';
+import { Locator, Page, expect } from '@playwright/test';
+import { subYears, addYears, format, parse } from 'date-fns';
+
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
@@ -40,8 +42,47 @@ export async function SelectingFromSearchBox(
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
   } catch (error) {
-    throw new Error(`Failed to handle search box suggestion: ${error.message}`);
+    throw new Error(`Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+/**
+ * Utility method to get table items
+ * @param page 
+ * @param tableRowCount 
+ * @param columnName 
+ * @returns An array of table items
+ */
+export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
+  const items: string[] = [];
+  for (let i = 0; i < tableRowCount; i++) {
+    const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
+    const itemText = await itemLocator.first().textContent();
+    if (itemText) {
+      items.push(itemText);
+    }
+  }
+  return items;
+}
+
+/**
+ * Formats a date to 'MM/dd/yyyy h:mmam' style (lowercase am/pm, no space) to match the app's display format.
+ * @param date - The Date object to format
+ * @returns Formatted string (e.g., "02/12/2026 9:31am")
+ */
+export function formatDateTimeForDisplay(date: Date): string {
+  return format(date, 'MM/dd/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
+}
+
+/**
+ * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11am12/01/25")
+ * @param dateTimeString - ISO format dateTime string (e.g., "2025-12-01T06:11")
+ * @returns Formatted string matching table display format (e.g., "6:11am12/01/25")
+ */
+export function formatDateTimeForTable(dateTimeString: string): string {
+  const dateFromForm = new Date(dateTimeString);
+  const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
+  const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
+  return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
 }
 
 /**
@@ -88,4 +129,30 @@ export function offsetYear(
   else throw new Error('Invalid offset');
 
   return format(newDate, 'yyyy-MM-dd');
+}
+
+// Reusable function to select first option from any dropdown
+export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
+  await input.click();
+  const firstOption = page.locator('[role="listbox"] li').first();
+  await firstOption.click();
+  return await firstOption.textContent() || '';
+};
+
+/**
+ * Asserts that a datetime input field contains a recent datetime value
+ * @param inputLocator - The locator for the datetime input field
+ * @param dateFormat - The format string for parsing the date (e.g., 'yyyy-MM-dd\'T\'HH:mm')
+ * @param thresholdMinutes - Optional threshold in minutes for what is considered "recent" (default: 2)
+ */
+export async function assertRecentDateTime(
+  inputLocator: Locator,
+  dateFormat: string,
+  thresholdMinutes: number = 2,
+): Promise<void> {
+  const inputDateTimeValue = await inputLocator.inputValue();
+  const parsedInputDate = parse(inputDateTimeValue, dateFormat, new Date());
+  const now = new Date();
+  const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
+  expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
 }

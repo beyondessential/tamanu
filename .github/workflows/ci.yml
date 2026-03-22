@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
@@ -19,16 +22,38 @@ env:
     packages/*/node_modules
 
 jobs:
+  node_version:
+    name: Check node version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - name: Check package.json against .node-version
+        run: |
+          json=$(jq -r .dependencies.node package.json | cut -c2-)
+          file=$(cat .node-version | cut -c2-)
+          echo "Node.js in package.json:  $json"
+          echo "Node.js in .node-version: $file"
+          test "$json" = "$file"
+      - name: Check dockerfile against .node-version
+        run: |
+          file=$(cat .node-version | cut -c2- | cut -d. -f1)
+          dckr=$(grep -oP '(?<=^FROM node:)\d+' Dockerfile)
+          echo "Node.js major in Dockerfile:    $dckr"
+          echo "Node.js major in .node-version: $file"
+          test "$dckr" = "$file"
+
   node_modules_cache:
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         id: cache
@@ -49,36 +74,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: "@tamanu/facility-server", shard: 1/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 2/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 3/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 4/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 5/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 6/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 1/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 2/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 3/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 4/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 5/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 6/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 1/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 2/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 3/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 4/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 5/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 6/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 7/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 8/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 1/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 2/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 3/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 4/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 5/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 6/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 7/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 8/8, postgres: 17 }
           - { package: "@tamanu/database",                    postgres: 12 }
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/shared",                                   }
-          - { package: "@tamanu/utils",                                    }
-          - { package: "@tamanu/web-frontend" }
-          - { package: "@tamanu/settings" }
+          - { package: "@tamanu/database",                    postgres: 18 }
+          - { package: "@tamanu/settings"                                  }
+          - { package: "@tamanu/shared"                                    }
+          - { package: "@tamanu/upgrade"                                   }
+          - { package: "@tamanu/utils"                                     }
+          - { package: "@tamanu/web-frontend"                              }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -108,12 +139,12 @@ jobs:
     name: Build all packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -128,12 +159,12 @@ jobs:
     name: Lint packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -146,29 +177,6 @@ jobs:
 
       - name: Lint warnings
         run: npm run lint-all
-
-  storybook:
-    needs: node_modules_cache
-    # Workaround for define plugin conflict warning
-    env:
-      NODE_ENV: development
-    continue-on-error: true
-    name: Test storybook
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: npm
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-      - run: npm i
-      - run: npm run build-shared
-      - run: npm run --workspace @tamanu/web-frontend test-storybook
 
   migrations:
     needs: node_modules_cache
@@ -188,12 +196,12 @@ jobs:
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -215,12 +223,12 @@ jobs:
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -228,6 +236,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
+      - run: npm run build-shared
 
       - run: npm run test
         working-directory: packages/mobile
@@ -237,12 +246,12 @@ jobs:
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -270,12 +279,12 @@ jobs:
     name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -289,12 +298,12 @@ jobs:
     name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -343,12 +352,12 @@ jobs:
     name: DBT model TODOs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -362,9 +371,9 @@ jobs:
     name: Spellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check spelling
-        uses: crate-ci/typos@master
+        uses: crate-ci/typos@v1.36.3
         with:
           config: .typos.toml
 
@@ -373,6 +382,7 @@ jobs:
     if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
+      - node_version
       - test
       - build-all
       - lint

@@ -4,20 +4,18 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
-import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
-import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { SurveyQuestion } from '../components/Surveys';
-import { getValidationSchema } from '../utils';
-import { Colors, FORM_TYPES } from '../constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
+import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
+import { Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedOption } from '../components/Translation/TranslatedOptions';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -109,14 +107,25 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       )}
       <LogTextSmall data-testid="logtextsmall-2hok">
         {userDisplayName}{' '}
-        <DateDisplay date={date} showTime shortYear data-testid="datedisplay-tviy" />
+        <DateDisplay date={date} timeFormat="default" format="shortest" data-testid="datedisplay-tviy" />
       </LogTextSmall>
     </LogContainer>
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital }) => {
+export const EditVitalCellForm = ({ 
+  vitalLabel, 
+  dataPoint, 
+  handleClose, 
+  isVital,
+  // Program registry context props (optional)
+  programRegistryPatientId,
+  programRegistrySurveyId,
+  programRegistryInstanceId,
+  isPatientRemoved = false,
+}) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -132,14 +141,14 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
   const permissionSubject = isVital
     ? 'Vitals'
     : subject('Charting', { id: dataPoint.component.surveyId });
-  const hasPermission = ability.can(permissionVerb, permissionSubject);
+  const hasPermission = ability.can(permissionVerb, permissionSubject) && !isPatientRemoved;
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, isReasonMandatory);
   const validationSchema = getValidationSchema(editVitalData, getTranslation, {
-    encounterType: encounter.encounterType,
+    encounterType: encounter?.encounterType,
   });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
@@ -150,7 +159,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
   );
   const handleSubmit = async data => {
     const newShapeData = {
-      date: getCurrentDateTimeString(),
+      date: getCurrentDateTime(),
       surveyId: dataPoint.component.surveyId,
     };
     Object.entries(data).forEach(([key, value]) => {
@@ -169,13 +178,24 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
       const newVitalData = {
         ...newShapeData,
         dataElementId: valueName,
-        encounterId: encounter.id,
+        encounterId: encounter?.id,
         recordedDate: dataPoint.recordedDate,
       };
       await api.post(`surveyResponseAnswer/${directory}`, { facilityId, ...newVitalData });
     }
     const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
-    queryClient.invalidateQueries([primaryQueryKey, encounter.id]);
+    queryClient.invalidateQueries([primaryQueryKey, encounter?.id]);
+    
+    // Also invalidate program registry queries if in program registry context
+    if (!isVital && programRegistryPatientId && programRegistrySurveyId) {
+      queryClient.invalidateQueries([
+        'programRegistryPatientCharts',
+        programRegistryPatientId,
+        programRegistrySurveyId,
+        programRegistryInstanceId,
+      ]);
+    }
+    
     handleClose();
   };
   const validateFn = values => {
@@ -198,6 +218,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
+              getComponentForQuestionType={getComponentForQuestionType}
               disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
             />

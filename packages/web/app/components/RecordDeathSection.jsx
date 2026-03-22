@@ -3,24 +3,30 @@ import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { Colors } from '../constants';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
-import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './BaseModal';
-import { TranslatedText } from './Translation/TranslatedText';
+import {
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
-  text-decoration: underline;
   text-align: right;
   cursor: pointer;
   padding-top: 10px;
   margin-top: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const marginBottom = 58;

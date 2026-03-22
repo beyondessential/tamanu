@@ -36,6 +36,10 @@ Tamanu implements FHIR (Fast Healthcare Interoperability Resources) through a ma
 
 FHIR resources include: Patient, Encounter, Practitioner, Organization, ServiceRequest, Specimen, etc.
 
+### Multiple Timezone Support
+
+Tamanu stores all datetimes as timezone-naive ISO 9075 strings interpreted in a server-wide **primary timezone**. Each facility can optionally set a **facility timezone** to shift the display layer for staff in a different timezone.
+
 ## Technology Stack
 
 - **Backend**: Node.js with Express, Sequelize ORM, PostgreSQL

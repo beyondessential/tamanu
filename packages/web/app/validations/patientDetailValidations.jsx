@@ -40,7 +40,7 @@ const requiredBirthFieldWhenConfiguredMandatory = (
     otherwise: baseType,
   });
 
-export const getPatientDetailsValidation = (patientRegistryType, getSetting, getTranslation) => {
+export const getPatientDetailsValidation = (patientRegistryType, getSetting, getTranslation, insurancePlansInUse = []) => {
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup
       .string()
@@ -77,7 +77,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         .translatedLabel(
           <TranslatedText
             stringId="general.localisedField.culturalName.label"
-            fallback="Cultural name"
+            fallback="Cultural/traditional name"
           />,
         ),
       'Cultural name',
@@ -300,6 +300,23 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         ),
       'Single/Plural birth',
     ),
+    birthOrder: yup.number().when('birthType', {
+      is: value => value === BIRTH_TYPES.PLURAL,
+      then: requiredBirthFieldWhenConfiguredMandatory(
+        getSetting,
+        getTranslation,
+        patientRegistryType,
+        'birthOrder',
+        yup.number().min(1).max(10).translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthOrder.label"
+            fallback="Birth order"
+          />,
+        ),
+        'Birth order',
+      ),
+      otherwise: yup.number().min(1).max(10),
+    }),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getSetting,
       getTranslation,
@@ -783,6 +800,45 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
       ),
       otherwise: yup.string(),
     }),
+    invoiceInsurancePlanId: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'invoiceInsurancePlanId',
+      yup
+        .array()
+        .of(yup.string())
+        .test(
+          'insurance-plan-not-in-use',
+          '',
+          function testInsurancePlanNotInUse(value) {
+            if (!insurancePlansInUse?.length) {
+              return true;
+            }
+
+            const currentPlanIds = value || [];
+            const removedInUsePlans = insurancePlansInUse.filter(
+              plan => !currentPlanIds.includes(plan.invoiceInsurancePlanId),
+            );
+            if (removedInUsePlans.length === 0) {
+              return true;
+            }
+            const planNames = removedInUsePlans.map(plan => plan.name).join(', ');
+            const message = removedInUsePlans.length > 1
+              ? getTranslation(
+                  'patient.validation.insurancePlansInUse',
+                  ':planNames have been added to one or more in-progress invoices. Please remove the insurance plans from the invoices first.',
+                )
+              : getTranslation(
+                  'patient.validation.insurancePlanInUse',
+                  ':planNames has been added to one or more in-progress invoices. Please remove the insurance plan from the invoices first.',
+                );
+            return this.createError({
+              message: message.replace(':planNames', planNames),
+            });
+          },
+        ),
+      'Insurance plan',
+    ),
   });
 
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);

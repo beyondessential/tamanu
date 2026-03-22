@@ -40,4 +40,6 @@ export interface Vaccine {
   disease?: string;
   notGivenClinician?: string;
   notGivenReason?: string;
+  givenElsewhereReason?: string;
+  givenElsewhereCountry?: string;
 }

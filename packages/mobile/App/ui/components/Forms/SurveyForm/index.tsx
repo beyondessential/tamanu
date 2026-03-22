@@ -21,6 +21,7 @@ import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -52,6 +53,9 @@ export const SurveyForm = ({
 }: SurveyFormProps): ReactElement => {
   const { getTranslation } = useTranslation();
   const currentUser = useSelector(authUserSelector);
+  const { customPatientFieldValues } = usePatientAdditionalData(
+    patient?.id,
+  );
   const initialValues = useMemo(
     () =>
       getFormInitialValues(
@@ -60,8 +64,9 @@ export const SurveyForm = ({
         patient,
         patientAdditionalData,
         patientProgramRegistration,
+        customPatientFieldValues,
       ),
-    [components, currentUser, patient, patientAdditionalData, patientProgramRegistration],
+    [components, currentUser, patient, patientAdditionalData, patientProgramRegistration, customPatientFieldValues],
   );
   const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {

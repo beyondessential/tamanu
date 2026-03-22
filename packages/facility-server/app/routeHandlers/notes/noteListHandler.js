@@ -7,7 +7,7 @@ import { checkNotePermission } from '../../utils/checkNotePermission';
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { order = 'ASC', orderBy, noteType, rowsPerPage, page } = query;
+    const { order = 'ASC', orderBy, noteTypeId, rowsPerPage, page } = query;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
@@ -20,6 +20,10 @@ export const noteListHandler = recordType =>
       {
         model: models.User,
         as: 'onBehalfOf',
+      },
+      {
+        model: models.ReferenceData,
+        as: 'noteTypeReference',
       },
       {
         model: models.Note,
@@ -46,13 +50,13 @@ export const noteListHandler = recordType =>
       -- first create a sub-table with only the notes for this record.
       -- this will make the DISTINCT stuff way faster
       this_record_notes AS (
-        SELECT 
+        SELECT
           *,
           CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain
         FROM notes n
         WHERE record_type = :recordType
           AND record_id = :recordId
-          AND deleted_at IS NULL 
+          AND deleted_at IS NULL
       )
 
       -- now filter out anything except the latest revision for each note
@@ -78,7 +82,7 @@ export const noteListHandler = recordType =>
         [Op.in]: idRows.map(x => x.id),
       },
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      ...(noteType ? { noteType } : {}),
+      ...(noteTypeId ? { noteTypeId } : {}),
     };
 
     const queryOrder = orderBy
@@ -87,7 +91,7 @@ export const noteListHandler = recordType =>
           [
             // Pin TREATMENT_PLAN on top
             Sequelize.literal(
-              `case when "Note"."note_type" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
+              `case when "Note"."note_type_id" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
             ),
           ],
           [
@@ -124,6 +128,7 @@ export const notesWithSingleItemListHandler = recordType =>
       include: [
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
+        { model: models.ReferenceData, as: 'noteTypeReference' },
       ],
       where: {
         recordId,

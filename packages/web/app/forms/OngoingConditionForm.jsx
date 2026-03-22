@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-  Form,
   TextField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { FormCancelButton, FormSubmitButton } from '../components/Button';
+  Form,
+  FormCancelButton,
+  FormSubmitButton,
+  FormSubmitCancelRow,
+  FormGrid,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
-import { Colors, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';
@@ -59,6 +59,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
+  const { getCurrentDate } = useDateTime();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
@@ -115,7 +116,6 @@ export const OngoingConditionForm = ({
                 data-testid="translatedtext-hd0f"
               />
             }
-            saveDateAsString
             component={DateField}
             disabled={resolving}
             data-testid="field-2775"
@@ -163,7 +163,6 @@ export const OngoingConditionForm = ({
             <FormGrid columns={1} data-testid="formgrid-to6o">
               <Field
                 name="resolutionDate"
-                saveDateAsString
                 label={
                   <TranslatedText
                     stringId="conditions.resolutionDate.label"
@@ -259,16 +258,28 @@ export const OngoingConditionForm = ({
     await onSubmit(fields);
   };
 
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently both dates are dateTime type in the database, so we need to convert them to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: trimToDate(editedObject.recordedDate),
+        resolutionDate: trimToDate(editedObject.resolutionDate),
+      };
+    }
+    return {
+      recordedDate: getCurrentDate(),
+      resolutionDate: getCurrentDate(),
+      resolved: false,
+    };
+  };
+
   return (
     <Form
       onSubmit={onDataSubmit}
       render={RenderForm}
-      initialValues={{
-        recordedDate: getCurrentDateTimeString(),
-        resolutionDate: getCurrentDateTimeString(),
-        resolved: false,
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         conditionId: foreignKey().translatedLabel(

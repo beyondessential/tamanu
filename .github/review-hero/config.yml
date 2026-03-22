@@ -1,0 +1,7 @@
+project: Tamanu
+description: a healthcare management system
+
+agents:
+  bes-requirements:
+    name: "BES Requirements"
+    description: "Tamanu conventions, migrations, FHIR, sync, Australian English, TranslatedText, permissions"

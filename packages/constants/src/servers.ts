@@ -1,6 +1,8 @@
+export const VERSION_MAXIMUM_PROBLEM_KEY = 'compatible-version-maximum';
+export const VERSION_MINIMUM_PROBLEM_KEY = 'compatible-version-minimum';
 export const VERSION_COMPATIBILITY_ERRORS = {
-  LOW: 'Client version too low',
-  HIGH: 'Client version too high',
+  LOW: 'too low',
+  HIGH: 'too high',
 };
 
 // Size in bytes
@@ -22,4 +24,5 @@ export const SERVER_TYPES = {
   WEBAPP: 'Tamanu Desktop',
 
   MOBILE: 'Tamanu Mobile',
-};
+} as const;
+export type ServerType = (typeof SERVER_TYPES)[keyof typeof SERVER_TYPES];

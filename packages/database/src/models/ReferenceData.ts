@@ -1,6 +1,6 @@
 import { DataTypes, ValidationError } from 'sequelize';
 import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -10,6 +10,7 @@ export class ReferenceData extends Model {
   declare type: string;
   declare name: string;
   declare visibilityStatus: string;
+  declare systemRequired: boolean;
   declare parent?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -31,6 +32,11 @@ export class ReferenceData extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        systemRequired: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {
@@ -74,6 +80,12 @@ export class ReferenceData extends Model {
       through: models.UserDesignation,
       as: 'designationUsers',
       foreignKey: 'designationId',
+    });
+
+    this.belongsToMany(models.Survey, {
+      through: models.ProcedureTypeSurvey,
+      as: 'surveys',
+      foreignKey: 'procedureTypeId',
     });
 
     this.belongsToMany(this, {
@@ -197,7 +209,7 @@ export class ReferenceData extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

@@ -51,13 +51,17 @@ export class ReferenceDrug extends Model {
       foreignKey: 'referenceDataId',
       as: 'referenceData',
     });
+    this.hasMany(models.ReferenceDrugFacility, {
+      foreignKey: 'referenceDrugId',
+      as: 'facilities',
+    });
   }
 
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 

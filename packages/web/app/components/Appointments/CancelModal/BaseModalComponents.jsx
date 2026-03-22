@@ -1,8 +1,8 @@
 import React from 'react';
 import Box from '@mui/material/Box';
+import { ConfirmCancelRow } from '@tamanu/ui-components';
 import styled from '@mui/system/styled';
 import { Colors } from '../../../constants';
-import { ConfirmCancelRow } from '../../ButtonRow';
 
 const FlexCol = styled(Box)`
   display: flex;

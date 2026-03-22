@@ -5,27 +5,29 @@ export const GLOBAL_EXCLUDE_TABLES = [
 
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
+  'logs.dhis2_pushes',
+  'logs.m_supply_pushes',
   'logs.fhir_writes',
+  'public.devices',
   'public.fhir_materialise_jobs',
   'public.local_system_facts',
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
-  'public.signers',
+  'public.signers_historical',
   'public.sync_device_ticks',
-  'public.sync_lookup_ticks',
   'public.sync_lookup',
+  'public.sync_lookup_ticks',
   'public.sync_queued_devices',
   'public.sync_sessions',
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',
+  'public.portal_one_time_tokens',
 ];
 
 export const NON_LOGGED_TABLES = [
   // logs
-  'logs.changes',
-  'logs.accesses',
-  'logs.debug_logs',
+  'logs.*',
 
   // internal authentication tables
   'public.one_time_logins',
@@ -44,8 +46,8 @@ export const NON_LOGGED_TABLES = [
   'public.fhir_materialise_jobs',
   'public.patient_vrs_data',
 
-  // internal and also signers.privateKey needs to be hard-deletable
-  'public.signers',
+  // historical signer records retained for compliance, no sensitive data remains
+  'public.signers_historical',
 
   // internal configuration
   'public.local_system_facts',

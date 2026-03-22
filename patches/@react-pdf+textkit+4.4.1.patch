@@ -1,0 +1,26 @@
+diff --git a/node_modules/@react-pdf/textkit/lib/textkit.cjs b/node_modules/@react-pdf/textkit/lib/textkit.cjs
+index 7879740..a61f6eb 100644
+--- a/node_modules/@react-pdf/textkit/lib/textkit.cjs
++++ b/node_modules/@react-pdf/textkit/lib/textkit.cjs
+@@ -2915,7 +2915,7 @@ var advanceWidthBetween = function advanceWidthBetween(start, end, attributedStr
+  * @typedef {import('../../types.js').Attributes} Attributes
+  */
+
+-var HYPHEN = 0x002d;
++var HYPHEN = '';
+ var TOLERANCE_STEPS = 5;
+ var TOLERANCE_LIMIT = 50;
+ var opts = {
+diff --git a/node_modules/@react-pdf/textkit/lib/textkit.js b/node_modules/@react-pdf/textkit/lib/textkit.js
+index 9c407c8..cd9d6de 100644
+--- a/node_modules/@react-pdf/textkit/lib/textkit.js
++++ b/node_modules/@react-pdf/textkit/lib/textkit.js
+@@ -2901,7 +2901,7 @@ var advanceWidthBetween = function advanceWidthBetween(start, end, attributedStr
+  * @typedef {import('../../types.js').Attributes} Attributes
+  */
+
+-var HYPHEN = 0x002d;
++var HYPHEN = '';
+ var TOLERANCE_STEPS = 5;
+ var TOLERANCE_LIMIT = 50;
+ var opts = {

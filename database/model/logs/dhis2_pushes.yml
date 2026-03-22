@@ -1,0 +1,72 @@
+version: 2
+sources:
+  - name: logs__tamanu
+    schema: logs
+    description: "{{ doc('logs__generic__schema') }}"
+    tables:
+      - name: dhis2_pushes
+        description: "{{ doc('logs__table__dhis2_pushes') }}"
+        config:
+          tags: []
+          meta:
+            triggers: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('logs__dhis2_pushes__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__dhis2_pushes__created_at') }}"
+            data_tests:
+              - not_null
+          - name: report_id
+            data_type: text
+            description: "{{ doc('logs__dhis2_pushes__report_id') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: status
+            data_type: text
+            description: "{{ doc('logs__dhis2_pushes__status') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: imported
+            data_type: integer
+            description: "{{ doc('logs__dhis2_pushes__imported') }}"
+          - name: updated
+            data_type: integer
+            description: "{{ doc('logs__dhis2_pushes__updated') }}"
+          - name: deleted
+            data_type: integer
+            description: "{{ doc('logs__dhis2_pushes__deleted') }}"
+          - name: ignored
+            data_type: integer
+            description: "{{ doc('logs__dhis2_pushes__ignored') }}"
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__dhis2_pushes__updated_at') }}"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__dhis2_pushes__deleted_at') }}"
+          - name: conflicts
+            data_type: json
+            description: "{{ doc('logs__dhis2_pushes__conflicts') }}"
+            config:
+              meta:
+                masking: text
+          - name: message
+            data_type: text
+            description: "{{ doc('logs__dhis2_pushes__message') }}"
+            config:
+              meta:
+                masking: text

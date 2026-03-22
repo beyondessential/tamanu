@@ -2,7 +2,7 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { fake } from '@tamanu/fake-data/fake';
 
 import config from 'config';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -38,7 +38,7 @@ describe('Reports', () => {
       const definition = await models.ReportDefinition.create({
         ...fake(models.ReportDefinition),
         name: 'test-report',
-        dbSchema: REPORT_DB_SCHEMAS.RAW,
+        dbSchema: REPORT_DB_CONNECTIONS.RAW,
       });
       reportDefinitionVersion = await models.ReportDefinitionVersion.create({
         versionNumber: 1,
@@ -114,7 +114,7 @@ describe('Reports', () => {
   describe('post permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post(`/api/reports/${reportId}`),
+      (reportApp, reportId, data = {}) => reportApp.post(`/api/reports/${reportId}`).send(data),
     );
   });
 
@@ -122,7 +122,7 @@ describe('Reports', () => {
     disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
-      const result = await app.post('/api/reports/incomplete-referrals', {});
+      const result = await app.post('/api/reports/generic-survey-export-line-list', {});
       expect(result).toBeForbidden();
     });
 
@@ -135,9 +135,21 @@ describe('Reports', () => {
     });
 
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
-      const app = await baseApp.asNewRole([['run', 'StaticReport', 'incomplete-referrals']]);
-      const res = await app.post('/api/reports/incomplete-referrals').send({
+      const { models } = ctx;
+      // Create a survey for the test
+      const program = await models.Program.create(fake(models.Program));
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        programId: program.id,
+      });
+
+      const app = await baseApp.asNewRole([
+        ['run', 'StaticReport', 'generic-survey-export-line-list'],
+        ['read', 'Survey', survey.id],
+      ]);
+      const res = await app.post('/api/reports/generic-survey-export-line-list').send({
         parameters: {
+          surveyId: survey.id,
           fromDate: '2020-01-01',
           toDate: 'invalid-date',
         },

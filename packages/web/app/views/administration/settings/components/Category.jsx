@@ -97,7 +97,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
+export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -114,7 +114,15 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
         const testIdSuffix = newPath.replace(/\./g, '-');
-        const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
+        const {
+          name,
+          description,
+          type,
+          defaultValue,
+          unit,
+          highRisk,
+          suggesterEndpoint,
+        } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
@@ -130,12 +138,14 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             />
             <SettingInput
               typeSchema={type}
+              suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
               defaultValue={defaultValue}
               path={newPath}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
+              facilityId={facilityId}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -147,6 +157,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
             handleChangeSetting={handleChangeSetting}
+            facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}
           />
         );

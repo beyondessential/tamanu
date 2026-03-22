@@ -1,7 +1,10 @@
-import { resolve } from 'node:path';
+import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep } from 'lodash';
+import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
+import { utils } from 'xlsx';
+import fs from 'node:fs';
+import JSON5 from 'json5';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -15,15 +18,79 @@ import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
+import { normaliseSheetName } from '../admin/importer/importerEndpoint';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+
+/**
+ * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
+ * @returns {WorkBook}
+ */
+const parseDefaultProvisioningJsonSheets = dir => {
+  const entries = fs
+    .readdirSync(dir)
+    .filter(f => f.endsWith('.json5'))
+    .sort()
+    .map(f => ({
+      sheetName: parse(f).name,
+      filePath: join(dir, f),
+    }));
+
+  const wb = utils.book_new();
+
+  entries.forEach(({ sheetName, filePath }) => {
+    const payload = JSON5.parse(fs.readFileSync(filePath, 'utf8'));
+    const name = payload.sheetName || sheetName;
+    if (!Array.isArray(payload.columns) || payload.columns.length === 0) {
+      throw new Error(`Invalid sheet JSON (missing non-empty "columns") in ${filePath}`);
+    }
+    if (!Array.isArray(payload.data)) {
+      throw new Error(`Invalid sheet JSON (missing "data" array) in ${filePath}`);
+    }
+    const data = payload.data;
+    const ws = utils.json_to_sheet(data, { header: payload.columns });
+
+    utils.book_append_sheet(wb, ws, name);
+  });
+
+  return wb;
+};
+
+/**
+ * Validates that a reference data file contains all sheets importable through the reference data importer
+ * @param {string} file - File path
+ */
+function validateFullReferenceDataImport(workbook) {
+  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+
+  const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
+
+  // Check all required data types are present and have data
+  const missingDataTypes = [];
+  for (const dataType of GENERAL_IMPORTABLE_DATA_TYPES) {
+    if (EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType)) continue;
+    const sheetName = sheetNameDictionary[dataType];
+    if (!sheetName || utils.sheet_to_json(workbook.Sheets[sheetName]).length === 0) {
+      missingDataTypes.push(dataType);
+    }
+  }
+
+  if (missingDataTypes.length > 0) {
+    throw new Error(
+      `Reference data file has no rows for the following data types:\n${missingDataTypes.join('\n')}`,
+    );
+  }
+
+  log.info('Reference data file validation passed - all required sheets contain data');
+}
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count({
     where: {
       id: { [Op.ne]: SYSTEM_USER_UUID },
-    }
+    },
   });
 
   if (userCount > 0) {
@@ -64,9 +131,28 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   for (const {
     file: referenceDataFile = null,
     url: referenceDataUrl = null,
+    defaultSpreadsheet: isUsingDefaultSpreadsheet = false,
     ...rest
   } of referenceData ?? []) {
-    if (!referenceDataFile && !referenceDataUrl) {
+    if (isUsingDefaultSpreadsheet) {
+      const defaultProvisioningDataDirectory = resolve(__dirname, 'defaultProvisioningData');
+      log.info('Using reference data json files from this branch', {
+        directory: defaultProvisioningDataDirectory,
+      });
+
+      const defaultReferenceDataWorkbook = parseDefaultProvisioningJsonSheets(
+        defaultProvisioningDataDirectory,
+      );
+
+      // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
+      validateFullReferenceDataImport(defaultReferenceDataWorkbook);
+      await referenceDataImporter({
+        workbook: defaultReferenceDataWorkbook,
+        ...importerOptions,
+      });
+    }
+
+    if (!referenceDataFile && !referenceDataUrl && !isUsingDefaultSpreadsheet) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
@@ -129,7 +215,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const combineSettings = async (settingData, scope, facilityId) => {
     const existing = await store.models.Setting.get('', facilityId, scope);
     const combined = defaultsDeep(settingData, existing);
-    return store.models.Settings.set('', combined, scope, facilityId);
+    return store.models.Setting.set('', combined, scope, facilityId);
   };
 
   if (settings.global) {

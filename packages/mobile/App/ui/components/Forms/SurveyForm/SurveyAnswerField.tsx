@@ -37,8 +37,16 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
   }, []);
 
   return (
-    <StyledView alignItems='flex-start'>
-      {sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}
+    <StyledView alignItems="flex-start">
+      {sourceQuestion ? (
+        renderAnswer({
+          type: sourceQuestion.dataElement.type,
+          config: sourceQuestion.config,
+          answer,
+        })
+      ) : (
+        <Text>{answer}</Text>
+      )}
     </StyledView>
   );
 };

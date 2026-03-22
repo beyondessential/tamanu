@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
 import {
-  ButtonWithPermissionCheck,
   TableButtonRow,
   NoteModalActionBlocker,
 } from '../../../components';

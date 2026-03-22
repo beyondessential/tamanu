@@ -1,0 +1,40 @@
+{
+  "sheetName": "Social Media Platform",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "socialMedia-Facebook",
+      "code": "Facebook",
+      "name": "Facebook"
+    },
+    {
+      "id": "socialMedia-Instagram",
+      "code": "Instagram",
+      "name": "Instagram"
+    },
+    {
+      "id": "socialMedia-LinkedIn",
+      "code": "LinkedIn",
+      "name": "LinkedIn"
+    },
+    {
+      "id": "socialMedia-Twitter",
+      "code": "Twitter",
+      "name": "Twitter"
+    },
+    {
+      "id": "socialMedia-Viber",
+      "code": "Viber",
+      "name": "Viber"
+    },
+    {
+      "id": "socialMedia-WhatsApp",
+      "code": "WhatsApp",
+      "name": "WhatsApp"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import {
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,

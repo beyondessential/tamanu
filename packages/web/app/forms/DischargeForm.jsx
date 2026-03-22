@@ -2,43 +2,47 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { REPEATS_LABELS } from '@tamanu/constants';
+import {
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+  ENCOUNTER_TYPES,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  NOTE_TYPES,
+  MAX_REPEATS,
+} from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
-import { isFuture, parseISO, set } from 'date-fns';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { isFuture, parseISO } from 'date-fns';
+import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import {
+  TextField,
+  StyledTextField,
+  TextInput,
+  FormGrid,
+  FormConfirmCancelBackRow,
+  FormSubmitButton,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-
+import { Colors } from '../constants';
 import {
   AutocompleteField,
-  CheckField,
   DefaultFormScreen,
   Field,
   LocalisedField,
   PaginatedForm,
-  StyledTextField,
-  TextField,
-  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TextInput } from '../components/Field/TextField';
-import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { FormConfirmCancelBackRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  BodyText,
-  FormSubmitButton,
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  SmallBodyText,
-} from '../components';
+import { BodyText, SmallBodyText } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
@@ -50,6 +54,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOn
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../utils/medications';
+import { preventInvalidRepeatsInput, singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -137,8 +142,8 @@ const TableContainer = styled(Box)`
         padding-right: 0;
       }
       ${({ $isEmpty }) =>
-        $isEmpty &&
-        `
+    $isEmpty &&
+    `
         padding: 0;
         padding-top: 15px;
       `}
@@ -163,24 +168,24 @@ const dischargingClinicianLabel = (
   />
 );
 
-const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
+const getDischargeInitialValues = ({
+  encounter,
+  currentUser,
+  dischargeNotes,
+  medicationInitialValues,
+  getCurrentDateTime,
+}) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
-  const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
-        // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        return toDateTimeString(
-          set(encounterStartDate, {
-            hours: today.getHours(),
-            minutes: today.getMinutes(),
-            seconds: today.getSeconds(),
-          }),
-        );
+        const primaryNow = getCurrentDateTime();
+        const time = trimToTime(primaryNow);
+        return time ? `${trimToDate(encounter.startDate)} ${time}` : primaryNow;
       } else {
-        return getCurrentDateTimeString();
+        return getCurrentDateTime();
       }
     }
     return encounter?.dischargeDraft?.endDate;
@@ -189,13 +194,12 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId,
+      dischargerId: dischargeDraft?.dischargerId || currentUser?.id,
       dispositionId: dischargeDraft?.dispositionId,
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
-    // Used in creation of associated notes
-    submittedTime: getCurrentDateTimeString(),
+    submittedTime: getCurrentDateTime(),
   };
 };
 
@@ -259,6 +263,17 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 
 const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
   const { medication: medicationReferenceData } = medication;
+  const translatedUnit = getEnumTranslation(
+    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+    medication.durationUnit,
+  );
+  const durationDisplay =
+    medication.durationValue && translatedUnit
+      ? `${medication.durationValue} ${singularize(
+        translatedUnit,
+        medication.durationValue,
+      ).toLowerCase()}`
+      : null;
   return (
     <Box>
       <DarkestText>
@@ -269,8 +284,13 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         />
       </DarkestText>
       <Box fontSize={'14px'} color={Colors.midText}>
-        {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-        {getTranslatedFrequency(medication.frequency, getTranslation)}
+        {[
+          getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+          getTranslatedFrequency(medication.frequency, getTranslation),
+          durationDisplay,
+        ]
+          .filter(Boolean)
+          .join(', ')}
       </Box>
     </Box>
   );
@@ -300,78 +320,80 @@ const MEDICATION_COLUMNS = (
   canUpdateMedication,
   canWriteSensitiveMedication,
 ) => [
-  {
-    key: 'medication',
-    title: (
-      <TranslatedText
-        stringId="discharge.table.column.medication"
-        fallback="Medication"
-        data-testid="translatedtext-qyha"
-      />
-    ),
-    accessor: medication => (
-      <MedicationAccessor
-        medication={medication}
-        getTranslation={getTranslation}
-        getEnumTranslation={getEnumTranslation}
-      />
-    ),
-    width: '250px',
-  },
-  {
-    key: 'quantity',
-    title: (
-      <TranslatedText
-        stringId="discharge.table.column.dischargeQuantity"
-        fallback="Discharge qty"
-        data-testid="translatedtext-8e5k"
-      />
-    ),
-    accessor: ({ id, medication }) => (
-      <Field
-        name={`medications.${id}.quantity`}
-        component={NumberFieldWithoutLabel}
-        data-testid="field-ksmf"
-        disabled={
-          !canUpdateMedication ||
-          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
-        }
-      />
-    ),
-    width: '120px',
-  },
-  {
-    key: 'repeats',
-    title: (
-      <TranslatedText
-        stringId="discharge.table.column.repeats"
-        fallback="Repeats"
-        data-testid="translatedtext-opjr"
-      />
-    ),
-    accessor: ({ id, medication }) => (
-      <Field
-        name={`medications.${id}.repeats`}
-        isClearable={false}
-        component={TranslatedSelectField}
-        enumValues={REPEATS_LABELS}
-        data-testid="field-ium3"
-        disabled={
-          !canUpdateMedication ||
-          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
-        }
-      />
-    ),
-    width: '120px',
-  },
-  {
-    key: 'Ongoing',
-    title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
-    accessor: OngoingAccessor,
-    width: '60px',
-  },
-  ...(canUpdateMedication
-    ? [
+    {
+      key: 'medication',
+      title: (
+        <TranslatedText
+          stringId="discharge.table.column.medication"
+          fallback="Medication"
+          data-testid="translatedtext-qyha"
+        />
+      ),
+      accessor: medication => (
+        <MedicationAccessor
+          medication={medication}
+          getTranslation={getTranslation}
+          getEnumTranslation={getEnumTranslation}
+        />
+      ),
+      width: '250px',
+    },
+    {
+      key: 'quantity',
+      title: (
+        <TranslatedText
+          stringId="discharge.table.column.dischargeQuantity"
+          fallback="Discharge qty"
+          data-testid="translatedtext-8e5k"
+        />
+      ),
+      accessor: ({ id, medication }) => (
+        <Field
+          name={`medications.${id}.quantity`}
+          component={NumberFieldWithoutLabel}
+          data-testid="field-ksmf"
+          disabled={
+            !canUpdateMedication ||
+            (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+          }
+        />
+      ),
+      width: '120px',
+    },
+    {
+      key: 'repeats',
+      title: (
+        <TranslatedText
+          stringId="discharge.table.column.repeats"
+          fallback="Repeats"
+          data-testid="translatedtext-opjr"
+        />
+      ),
+      accessor: ({ id, medication }) => (
+        <Field
+          name={`medications.${id}.repeats`}
+          component={NumberFieldWithoutLabel}
+          min={0}
+          max={MAX_REPEATS}
+          data-testid="field-ium3"
+          disabled={
+            !canUpdateMedication ||
+            (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+          }
+          step={1}
+          onInput={preventInvalidRepeatsInput}
+        />
+      ),
+      width: '120px',
+    },
+    {
+      key: 'Ongoing',
+      title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
+      accessor: OngoingAccessor,
+      width: '60px',
+    },
+    ...(canUpdateMedication
+      ? [
         {
           key: 'Discontinued',
           title: '',
@@ -387,15 +409,17 @@ const MEDICATION_COLUMNS = (
           width: '75px',
         },
       ]
-    : []),
-];
+      : []),
+  ];
 
 const EncounterOverview = ({
-  encounter: { procedures, startDate, examiner, reasonForEncounter },
+  encounter: { procedures, startDate, examiner, reasonForEncounter, encounterType },
   currentDiagnoses,
 }) => {
   const { getSetting } = useSettings();
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounterType !== ENCOUNTER_TYPES.CLINIC;
 
   return (
     <>
@@ -498,8 +522,11 @@ const DischargeFormScreen = props => {
     onSubmit,
   } = props;
   const { getSetting } = useSettings();
+  const { encounter } = useEncounter();
 
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {
@@ -514,7 +541,7 @@ const DischargeFormScreen = props => {
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
     } else {
       onStepForward();
     }
@@ -667,8 +694,9 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
-  const { ability } = useAuth();
+  const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
 
@@ -713,7 +741,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
@@ -765,11 +793,13 @@ export const DischargeForm = ({
       <PaginatedForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
-        initialValues={getDischargeInitialValues(
+        initialValues={getDischargeInitialValues({
           encounter,
+          currentUser,
           dischargeNotes,
           medicationInitialValues,
-        )}
+          getCurrentDateTime,
+        })}
         FormScreen={props => (
           <DischargeFormScreen
             {...props}
@@ -784,13 +814,13 @@ export const DischargeForm = ({
           !showWarningScreen
             ? DischargeSummaryScreen
             : props => (
-                <UnsavedChangesScreen
-                  {...props}
-                  showWarningScreen={showWarningScreen}
-                  onSubmit={handleSubmit}
-                  data-testid="unsavedchangesscreen-o64o"
-                />
-              )
+              <UnsavedChangesScreen
+                {...props}
+                showWarningScreen={showWarningScreen}
+                onSubmit={handleSubmit}
+                data-testid="unsavedchangesscreen-o64o"
+              />
+            )
         }
         validationSchema={yup.object().shape({
           endDate: yup
@@ -803,6 +833,16 @@ export const DischargeForm = ({
                 data-testid="translatedtext-542l"
               />,
             ),
+          medications: yup.lazy(obj =>
+            yup.object(
+              Object.keys(obj || {}).reduce((acc, key) => {
+                acc[key] = yup.object().shape({
+                  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
+                });
+                return acc;
+              }, {}),
+            ),
+          ),
           discharge: yup
             .object()
             .shape({
@@ -812,12 +852,12 @@ export const DischargeForm = ({
               }),
               note: dischargeNoteMandatory
                 ? foreignKey().translatedLabel(
-                    <TranslatedText
-                      stringId="discharge.notes.label"
-                      fallback="Discharge treatment plan and follow-up notes"
-                      data-testid="translatedtext-208f"
-                    />,
-                  )
+                  <TranslatedText
+                    stringId="discharge.notes.label"
+                    fallback="Discharge treatment plan and follow-up notes"
+                    data-testid="translatedtext-208f"
+                  />,
+                )
                 : yup.string().optional(),
             })
             .required()
@@ -852,9 +892,8 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
+            min={encounter.startDate}
             required
-            saveDateAsString
             data-testid="field-20tt"
           />
           <Field
@@ -933,27 +972,16 @@ export const DischargeForm = ({
               </TableContainer>
             </MedicationContainer>
           </OuterLabelFieldWrapper>
-          <Field
-            name="sendToPharmacy"
-            label={
-              <TranslatedText
-                stringId="discharge.sendToPharmacy.label"
-                fallback="Send prescription to pharmacy"
-                data-testid="translatedtext-h7xy"
-              />
-            }
-            component={CheckField}
-            helperText={
-              <TranslatedText
-                stringId="discharge.sendToPharmacy.helperText"
-                fallback="Requires mSupply"
-                data-testid="translatedtext-kjqf"
-              />
-            }
-            style={{ gridColumn: '1 / -1' }}
-            disabled
-            data-testid="field-cxfn"
-          />
+
+          <BodyText
+            style={{ gridColumn: '1 / -1', color: Colors.textSecondary }}
+          >
+            <TranslatedText
+              stringId="discharge.pharmacyOrderNote"
+              fallback="Please note, the discharge summary only shows the clinical record. In order to actually order a supply of these medicines from pharmacy, if required, you need to 'Send to pharmacy' from the encounter."
+            />
+          </BodyText>
+
           <Field
             name="discharge.note"
             label={

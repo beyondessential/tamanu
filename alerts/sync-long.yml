@@ -1,7 +1,7 @@
 sql: |
   select
     id, errors::text,
-    json_array_elements_text(parameters->'facilityIds') AS facility_id,
+    jsonb_array_elements_text(parameters->'facilityIds') AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
   from sync_sessions

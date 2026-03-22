@@ -1,20 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
+import { AutocompleteField, DateField, Field, SuggesterSelectField } from '../components/Field';
 import {
-  AutocompleteField,
-  DateField,
-  Field,
-  Form,
   TextField,
-  SuggesterSelectField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
@@ -27,8 +25,22 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
+  const { getCurrentDate } = useDateTime();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: trimToDate(editedObject.recordedDate),
+      };
+    }
+    return {
+      recordedDate: getCurrentDate(),
+    };
+  };
   return (
     <Form
       onSubmit={onSubmit}
@@ -73,7 +85,6 @@ export const AllergyForm = ({
                 />
               }
               component={DateField}
-              saveDateAsString
               required
               data-testid="field-gmf8"
             />
@@ -125,10 +136,7 @@ export const AllergyForm = ({
           </NoteModalActionBlocker>
         </FormGrid>
       )}
-      initialValues={{
-        recordedDate: getCurrentDateTimeString(),
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         allergyId: foreignKey(),

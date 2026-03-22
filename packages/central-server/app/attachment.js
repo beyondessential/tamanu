@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, InsufficientStorageError } from '@tamanu/shared/errors';
+import { ForbiddenError, InsufficientStorageError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 

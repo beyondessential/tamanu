@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/core';
 
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
@@ -16,14 +16,18 @@ export const LocationDetailsSection = (): ReactElement => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
 
-  const villageSuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.Village,
-      },
-    },
-  });
+  const villageSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.Village,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
 
   return (
     <LocalisedField

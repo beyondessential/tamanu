@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
-import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import {
   Invalid,
   normaliseParameters,
@@ -8,7 +7,7 @@ import {
   Unsupported,
 } from '@tamanu/shared/utils/fhir';
 
-import { Bundle } from '../bundle';
+import { SearchBundleResponse } from './SearchBundleResponse';
 import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
@@ -33,7 +32,7 @@ export function searchHandler(FhirResource) {
       FhirResource,
     );
 
-    const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
+    const bundle = new SearchBundleResponse(records, {
       total,
     });
 

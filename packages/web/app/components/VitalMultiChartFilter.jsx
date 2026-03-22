@@ -4,7 +4,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import styled from 'styled-components';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
+import { GreyOutlinedButton as BaseGreyOutlinedButton } from '@tamanu/ui-components';
 import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalChartData } from '../contexts/VitalChartData';

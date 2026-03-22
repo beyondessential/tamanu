@@ -1,4 +1,4 @@
-import { checkVisibility } from './survey';
+import { checkVisibility } from '@tamanu/ui-components';
 
 const isVisible = (values, allQuestionReactElements, reactElement) => {
   const result = checkVisibility(

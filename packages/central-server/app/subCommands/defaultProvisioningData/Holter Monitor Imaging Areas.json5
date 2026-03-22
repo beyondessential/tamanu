@@ -1,0 +1,30 @@
+{
+  "sheetName": "Holter Monitor Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "holterMonitorImagingArea-93001",
+      "code": 93001,
+      "name": "Holter Monitor Imaging Area"
+    },
+    {
+      "id": "holterMonitorImagingArea-93002",
+      "code": 93002,
+      "name": "24-Hour Holter Monitor Area"
+    },
+    {
+      "id": "holterMonitorImagingArea-93003",
+      "code": 93003,
+      "name": "48-Hour Holter Monitor Area"
+    },
+    {
+      "id": "holterMonitorImagingArea-93004",
+      "code": 93004,
+      "name": "Event Monitor Area"
+    }
+  ]
+}

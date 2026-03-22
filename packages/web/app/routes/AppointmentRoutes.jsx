@@ -1,17 +1,20 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 
 import { LocationBookingsContextProvider } from '../contexts/LocationBookings';
 import { LocationBookingsView, OutpatientAppointmentsView } from '../views/scheduling';
 
-export const AppointmentRoutes = React.memo(({ match }) => (
-  <Switch>
-    <Route path={`${match.path}/outpatients`} component={OutpatientAppointmentsView} />
-    <Route path={`${match.path}/locations`}>
-      <LocationBookingsContextProvider>
-        <LocationBookingsView />
-      </LocationBookingsContextProvider>
-    </Route>
-    <Redirect to={`${match.path}/outpatients`} />
-  </Switch>
+export const AppointmentRoutes = React.memo(() => (
+  <Routes>
+    <Route path="outpatients" element={<OutpatientAppointmentsView />} />
+    <Route
+      path="locations"
+      element={
+        <LocationBookingsContextProvider>
+          <LocationBookingsView />
+        </LocationBookingsContextProvider>
+      }
+    />
+    <Route path="*" element={<Navigate to="outpatients" replace />} />
+  </Routes>
 ));

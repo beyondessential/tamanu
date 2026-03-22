@@ -1,0 +1,45 @@
+{
+  "sheetName": "Task Set",
+  "columns": [
+    "id",
+    "code",
+    "type",
+    "name",
+    "visibilityStatus",
+    "tasks"
+  ],
+  "data": [
+    {
+      "id": "taskset-preopcareplan",
+      "code": "preopcareplan",
+      "type": "taskSet",
+      "name": "Pre-op care plan",
+      "visibilityStatus": "current",
+      "tasks": "task-AssessmentDiet,task-Consentform,task-Patienteducation,task-Recordvitals"
+    },
+    {
+      "id": "taskset-postopcareplan",
+      "code": "postopcareplan",
+      "type": "taskSet",
+      "name": "Post-op care plan",
+      "visibilityStatus": "current",
+      "tasks": "task-Changedressing,task-Contactpatientfamilycaretaker,task-Painassessment,task-Recordvitals,task-Transferfrombedtochair"
+    },
+    {
+      "id": "taskset-postfallcareplan",
+      "code": "postfallcareplan",
+      "type": "taskSet",
+      "name": "Post-fall care plan",
+      "visibilityStatus": "current",
+      "tasks": "task-Conductphysicalexam,task-Contactpatientfamilycaretaker,task-Headassessment,task-Painassessment,task-Recordvitals"
+    },
+    {
+      "id": "taskset-dischargeprep",
+      "code": "dischargeprep",
+      "type": "taskSet",
+      "name": "Discharge preparation",
+      "visibilityStatus": "current",
+      "tasks": "task-Contactpatientfamilycaretaker,task-Dischargepreparation"
+    }
+  ]
+}

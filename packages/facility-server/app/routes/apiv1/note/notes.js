@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';
@@ -24,7 +24,7 @@ noteRoute.post(
       recordType: noteData.recordType,
       recordId: noteData.recordId,
       date: noteData.date,
-      noteType: noteData.noteType,
+      noteTypeId: noteData.noteTypeId,
       authorId: noteData.authorId,
       onBehalfOfId: noteData.onBehalfOfId,
       revisedById: noteData.revisedById,
@@ -50,6 +50,10 @@ noteRoute.get(
           model: models.User,
           as: 'onBehalfOf',
         },
+        {
+          model: models.ReferenceData,
+          as: 'noteTypeReference',
+        },
       ],
       where: { id: noteId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
@@ -58,7 +62,7 @@ noteRoute.get(
 
     await req.audit.access({
       recordId: noteId,
-      params,
+      frontEndContext: params,
       model: models.Note,
     });
 

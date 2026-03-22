@@ -10,7 +10,7 @@ describe('`generate fiji` subcommand', () => {
 
   it('inserts patients', async () => {
     // set high so it won't ever be flaky, test should take under 10 seconds on a dev laptop
-    jest.setTimeout(30000);
+    jest.setTimeout(40000);
     const patientsToGenerate = 20;
     const { Patient } = ctx.store.models;
     const numPatients = await Patient.count();

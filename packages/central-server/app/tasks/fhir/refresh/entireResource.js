@@ -22,7 +22,7 @@ export async function entireResource({ payload: { resource } }, { log, sequelize
     // Manually insert jobs in a single query, rather than using Job.submit(),
     // to save on time and memory (pulling all of upstream's IDs). Also because
     // sequelize can't do streaming queries, so doing it correctly in JS would
-    // be a huge pain.
+    // be a huge pain
     await sequelize.query(
       `INSERT INTO fhir.jobs (topic, payload)
         SELECT

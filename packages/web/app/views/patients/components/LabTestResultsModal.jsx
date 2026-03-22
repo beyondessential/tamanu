@@ -5,17 +5,22 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import * as yup from 'yup';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../components/Field';
+import { TextField, Form, ConfirmCancelRow, Field, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
-import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
+import { useLabRequest } from '../../../contexts/LabRequest';
+import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -36,10 +41,32 @@ const StyledTableFormFields = styled(TableFormFields)`
     font-size: 14px;
     font-weight: 500;
     color: ${Colors.midText};
+    padding: 10px;
   }
 
   tbody tr td {
     font-size: 14px;
+    vertical-align: top;
+    padding: 8px;
+    overflow: visible;
+  }
+
+  tbody tr td .MuiFormHelperText-root {
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  thead tr th:first-child,
+  thead tr th:nth-child(3),
+  tbody tr td:first-child,
+  tbody tr td:nth-child(3) {
+    padding-top: 20px;
+    vertical-align: top;
+  }
+
+  thead tr th:first-child,
+  tbody tr td:first-child {
+    padding-left: 20px;
   }
 `;
 
@@ -50,11 +77,56 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
   border-top: 1px solid ${Colors.outline};
 `;
 
+const SkeletonContainer = styled(Box)`
+  padding: 0 30px;
+`;
+
+const SkeletonSection = styled(Box)`
+  margin-bottom: 20px;
+`;
+
+const SkeletonTitle = styled(Skeleton)`
+  font-size: 20px;
+  margin-bottom: 4px;
+`;
+
+const SkeletonSubtitle = styled(Skeleton)`
+  font-size: 12px;
+`;
+
+const SkeletonRect = styled(Skeleton)`
+  border-radius: 4px;
+`;
+
+const ErrorContainer = styled(Box)`
+  padding: 8px 30px 25px 30px;
+`;
+
+const FormHeaderSection = styled(Box)`
+  margin: 0 30px;
+  padding-bottom: 20px;
+`;
+
+const InterpretationFieldSection = styled(Box)`
+  margin: 20px 30px;
+`;
+
+const StyledHeading4 = styled(Heading4)`
+  margin-top: 8px;
+  margin-bottom: 10px;
+`;
+
+const StyledSmallBodyText = styled(SmallBodyText)`
+  margin-bottom: 12px;
+  color: ${Colors.midText};
+`;
+
 const LAB_TEST_PROPERTIES = {
   COMPLETED_DATE: 'completedDate',
   ID: 'id',
   LAB_TEST_METHOD_ID: 'labTestMethodId',
   RESULT: 'result',
+  SECONDARY_RESULT: 'secondaryResult',
   VERIFICATION: 'verification',
 };
 
@@ -63,21 +135,58 @@ const AUTOFILL_FIELD_NAMES = [
   LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
 ];
 
-const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
+const getValidationSchema = getTranslation =>
+  yup.object().shape({
+    labTests: yup.lazy(labTestsObj => {
+      if (!labTestsObj) return yup.object();
+      const shape = {};
+      Object.keys(labTestsObj).forEach(testId => {
+        shape[testId] = yup.object().shape({
+          result: yup.string().when('secondaryResult', {
+            is: secondaryResult => secondaryResult && secondaryResult.trim() !== '',
+            then: yup
+              .string()
+              .required(
+                getTranslation(
+                  'lab.validation.resultRequiredWhenSecondaryResultEntered',
+                  'Result required when secondary result entered',
+                ),
+              ),
+            otherwise: yup.string().nullable(),
+          }),
+          secondaryResult: yup.string().nullable(),
+        });
+      });
+      return yup.object().shape(shape);
+    }),
+    resultsInterpretation: yup.string().nullable(),
+  });
+
+const getColumns = (
+  {
+    labTestResults,
+    onChangeResult,
+    areLabTestResultsReadOnly
+  }
+) => {
+  const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
+  const showSecondaryResultColumn = data?.some(
+    row => row.labTestType?.supportsSecondaryResults,
+  );
   return [
     {
       key: 'labTestType',
       title: (
         <TranslatedText
-          stringId="lab.testType.label"
-          fallback="Test type"
+          stringId="lab.test.label"
+          fallback="Test"
           data-testid="translatedtext-8oo7"
         />
       ),
       width: '120px',
-      accessor: (row) => (
+      accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
@@ -103,7 +212,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             options={options}
             disabled={areLabTestResultsReadOnly}
             name={LAB_TEST_PROPERTIES.RESULT}
-            onChange={(e) => onChangeResult(e.target.value, row.id)}
+            onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
             labTestTypeId={labTestTypeId}
             tabIndex={tabIndex(0, i)}
@@ -122,12 +231,51 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       width: '80px',
-      accessor: (row) => (
+      accessor: row => (
         <BodyText color="textTertiary" data-testid="bodytext-uq3u">
           {row.labTestType.unit || 'N/A'}
         </BodyText>
       ),
     },
+    ...(showSecondaryResultColumn
+      ? [
+        {
+          key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+          title: (
+            <TranslatedText
+              stringId="lab.results.table.column.secondaryResult"
+              fallback="Secondary result"
+              data-testid="translatedtext-secondary-result"
+            />
+          ),
+          accessor: (row, i) => {
+            const { supportsSecondaryResults } = row.labTestType;
+            return (
+              <ConditionalTooltip
+                visible={!supportsSecondaryResults}
+                maxWidth="140px"
+                title={
+                  <TranslatedText
+                    stringId="lab.results.tooltip.secondaryResultNotSupported"
+                    fallback="Secondary result is not supported for this test."
+                    data-testid="translatedtext-secondary-not-supported"
+                  />
+                }
+              >
+                <AccessorField
+                  id={row.id}
+                  component={TextField}
+                  name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                  disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                  tabIndex={tabIndex(1, i)}
+                  data-testid="accessorfield-secondary-result"
+                />
+              </ConditionalTooltip>
+            );
+          },
+        },
+      ]
+      : []),
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
       title: (
@@ -143,7 +291,8 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           endpoint="labTestMethod"
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
-          tabIndex={tabIndex(1, i)}
+          tabIndex={tabIndex(2, i)}
+          clearValue={null}
           data-testid="accessorfield-ik1h"
         />
       ),
@@ -162,7 +311,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={TextField}
           name={LAB_TEST_PROPERTIES.VERIFICATION}
-          tabIndex={tabIndex(2, i)}
+          tabIndex={tabIndex(3, i)}
           data-testid="accessorfield-jhrr"
         />
       ),
@@ -182,8 +331,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
-          tabIndex={tabIndex(3, i)}
-          saveDateAsString
+          tabIndex={tabIndex(4, i)}
           data-testid="accessorfield-k5ef"
         />
       ),
@@ -193,40 +341,37 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
 
 const ResultsFormSkeleton = () => (
   <>
-    <Box padding="0 30px" data-testid="box-40fc">
-      <Box marginBottom="20px" data-testid="box-ccfc">
+    <SkeletonContainer data-testid="box-40fc">
+      <SkeletonSection data-testid="box-ccfc">
         <div>
-          <Skeleton
+          <SkeletonTitle
             variant="text"
             width={124}
-            style={{ fontSize: 20, marginBottom: 4 }}
             data-testid="skeleton-um2y"
           />
-          <Skeleton
+          <SkeletonSubtitle
             variant="text"
             width={270}
-            style={{ fontSize: 12 }}
             data-testid="skeleton-llaz"
           />
         </div>
-      </Box>
-      <Skeleton
+      </SkeletonSection>
+      <SkeletonRect
         variant="rect"
         height={254}
-        style={{ borderRadius: 4 }}
         data-testid="skeleton-dl86"
       />
-    </Box>
+    </SkeletonContainer>
   </>
 );
 
 const ResultsFormError = ({ error }) => (
-  <Box padding="8px 30px 25px 30px" data-testid="box-ta1e">
+  <ErrorContainer data-testid="box-ta1e">
     <Alert severity="error" data-testid="alert-m6oy">
       <AlertTitle data-testid="alerttitle-kpbw">Error</AlertTitle>
       <b>Failed to load result with error:</b> {error.message}
     </Alert>
-  </Box>
+  </ErrorContainer>
 );
 
 const ResultsForm = ({
@@ -238,34 +383,40 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { count, data } = labTestResults;
+  const { getCurrentDateTime } = useDateTime();
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
-   * This occurs in the case that:
+   * In the case of labTestMethod this occurs in the case that:
    * 1. The user has only entered a single unique value for this field across other rows
    * 2. The user has not already entered a value for this field in the current row
    */
   const onChangeResult = useCallback(
     (value, labTestId) => {
-      const rowValues = values[labTestId];
-      if (rowValues?.result || !value) return;
-      AUTOFILL_FIELD_NAMES.forEach((name) => {
-        // Get unique values for this field across all rows
-        const unique = Object.values(values).reduce(
-          (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
-          [],
-        );
-        if (unique.length !== 1 || rowValues?.[name]) return;
-        // Prefill the field with the unique value
-        setFieldValue(`${labTestId}.${name}`, unique[0]);
+      if (!value) return;
+      const rowValues = values.labTests?.[labTestId];
+
+      AUTOFILL_FIELD_NAMES.forEach(name => {
+        if (rowValues?.[name]) return;
+
+        const otherRowsValues = Object.entries(values.labTests || {})
+          .filter(([id, row]) => id !== labTestId && row[name])
+          .map(([, row]) => row[name]);
+
+        const uniqueValues = [...new Set(otherRowsValues)];
+        const fieldName = `labTests.${labTestId}.${name}`;
+        if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
+          setFieldValue(fieldName, getCurrentDateTime());
+        } else if (uniqueValues.length === 1) {
+          setFieldValue(fieldName, uniqueValues[0]);
+        }
       });
     },
-    [values, setFieldValue],
+    [values.labTests, setFieldValue, getCurrentDateTime],
   );
 
   const columns = useMemo(
-    () => getColumns(count, onChangeResult, areLabTestResultsReadOnly),
-    [count, onChangeResult, areLabTestResultsReadOnly],
+    () => getColumns({ labTestResults, onChangeResult, areLabTestResultsReadOnly }),
+    [labTestResults, onChangeResult, areLabTestResultsReadOnly],
   );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
@@ -273,31 +424,42 @@ const ResultsForm = ({
 
   return (
     <Box data-testid="box-miwv">
-      <Box margin="0px 30px" paddingBottom="20px" data-testid="box-jcm4">
+      <FormHeaderSection data-testid="box-jcm4">
         <div>
-          <Heading4 marginBottom="10px" data-testid="heading4-5541">
+          <StyledHeading4 data-testid="heading4-5541">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
               data-testid="translatedtext-8n3h"
             />
-          </Heading4>
-          <SmallBodyText color="textTertiary" data-testid="smallbodytext-4j32">
+          </StyledHeading4>
+          <StyledSmallBodyText data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results and other test result details."
+              fallback="Please record test results, other test result details and any relevant notes."
               data-testid="translatedtext-3nvu"
             />
-          </SmallBodyText>
+          </StyledSmallBodyText>
         </div>
-      </Box>
+      </FormHeaderSection>
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
-          data={data}
+          data={labTestResults?.data}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
+      <InterpretationFieldSection>
+        <Field
+          component={TextField}
+          multiline
+          disabled={areLabTestResultsReadOnly}
+          rows={6}
+          name="resultsInterpretation"
+          label="Results Interpretation"
+          data-testid="field-resultsinterpretation"
+        />
+      </InterpretationFieldSection>
     </Box>
   );
 };
@@ -306,6 +468,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
+  const { loadLabRequest } = useLabRequest();
+  const { getTranslation } = useTranslation();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
 
@@ -318,9 +482,9 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const { displayId } = labRequest;
 
   const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
-    (payload) => api.put(`labRequest/${labRequest.id}/tests`, payload),
+    payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
-      onSuccess: (labTestRes) => {
+      onSuccess: labTestRes => {
         toast.success(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
@@ -329,13 +493,12 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             data-testid="translatedtext-h2yk"
           />,
         );
-        // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
-
+        loadLabRequest(labRequest.id);
         refreshLabTestTable();
         onClose();
       },
-      onError: (err) => {
+      onError: err => {
         toast.error(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
@@ -350,12 +513,14 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
 
   // Select editable values to prefill the form on edit
   const initialData = useMemo(
-    () =>
-      keyBy(
-        labTestResults?.data.map((data) => pick(data, Object.values(LAB_TEST_PROPERTIES))),
+    () => ({
+      labTests: keyBy(
+        labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
         LAB_TEST_PROPERTIES.ID,
       ),
-    [labTestResults],
+      resultsInterpretation: labRequest.resultsInterpretation,
+    }),
+    [labTestResults, labRequest.resultsInterpretation],
   );
 
   return (
@@ -364,7 +529,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       title={
         <TranslatedText
           stringId="patient.lab.modal.enterResults.title"
-          fallback="Enter results | Test ID :testId"
+          fallback="Enter results | Request ID :testId"
           replacements={{ testId: displayId }}
           data-testid="translatedtext-r9ex"
         />
@@ -378,6 +543,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
+        validationSchema={getValidationSchema(getTranslation)}
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {
           const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;

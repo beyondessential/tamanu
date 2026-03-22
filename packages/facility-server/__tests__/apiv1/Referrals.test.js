@@ -98,8 +98,8 @@ describe('Referrals', () => {
     const { departmentId, locationId } = encounter;
     const result = await app.post('/api/referral').send({
       answers,
-      startTime: Date.now(),
-      endTime: Date.now(),
+      startTime: new Date(),
+      endTime: new Date(),
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,
@@ -114,8 +114,8 @@ describe('Referrals', () => {
     // create a second referral
     await app.post('/api/referral').send({
       answers,
-      startTime: Date.now(),
-      endTime: Date.now(),
+      startTime: new Date(),
+      endTime: new Date(),
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,
@@ -137,8 +137,8 @@ describe('Referrals', () => {
     const { locationId } = encounter;
     const result = await app.post('/api/referral').send({
       answers,
-      startTime: Date.now(),
-      endTime: Date.now(),
+      startTime: new Date(),
+      endTime: new Date(),
       patientId: patient.id,
       surveyId: testSurvey.id,
       locationId,
@@ -159,8 +159,8 @@ describe('Referrals', () => {
     const { departmentId } = encounter;
     const result = await app.post('/api/referral').send({
       answers,
-      startTime: Date.now(),
-      endTime: Date.now(),
+      startTime: new Date(),
+      endTime: new Date(),
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,

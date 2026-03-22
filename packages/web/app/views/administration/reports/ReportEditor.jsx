@@ -4,24 +4,25 @@ import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
+  TextField,
+  TranslatedMultiSelectField,
+  TranslatedSelectField,
+  Form,
+  ButtonRow,
+  Button,
+} from '@tamanu/ui-components';
+import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
-  REPORT_DB_SCHEMA_VALUES,
+  REPORT_DB_CONNECTION_LABELS,
+  REPORT_DB_CONNECTION_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
-import {
-  Button,
-  ButtonRow,
-  Field,
-  Form,
-  TextField,
-  TranslatedMultiSelectField,
-  TranslatedSelectField,
-} from '../../../components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Field } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -29,7 +30,6 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 
@@ -109,7 +109,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               }
               name="dbSchema"
               component={TranslatedSelectField}
-              enumValues={REPORT_DB_SCHEMA_LABELS}
+              enumValues={REPORT_DB_CONNECTION_LABELS}
               disabled={isEdit}
               isClearable={false}
               data-testid="styledfield-36lu"
@@ -268,7 +268,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
         dbSchema: yup
           .string()
           .nullable()
-          .oneOf([...REPORT_DB_SCHEMA_VALUES, null]),
+          .oneOf([...REPORT_DB_CONNECTION_VALUES, null]),
         parameters: yup.array().of(
           yup.object().shape({
             name: yup

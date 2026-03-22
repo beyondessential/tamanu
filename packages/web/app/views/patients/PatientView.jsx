@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -22,16 +22,15 @@ import {
 } from './panes';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
-import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
+import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -158,7 +157,8 @@ const TABS = [
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} data-testid="invoicespane-ihh3" />,
-    condition: ability => ability.can('list', 'Invoice'),
+    condition: (ability, getSetting) =>
+      getSetting('features.invoicing.enabled') && ability.can('list', 'Invoice'),
   },
 ];
 
@@ -174,7 +174,8 @@ const usePatientTabs = () => {
   const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
+      patientTabSettings?.[tab.key]?.hidden !== true &&
+      (!tab.condition || tab.condition(ability, getSetting)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
@@ -199,6 +200,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+  const {
+    data: insurancePlans = [],
+    isLoading: isLoadingInsurancePlans,
+  } = usePatientInsurancePlansQuery({ patientId: patient?.id });
 
   useEffect(() => {
     if (patientId && (!patient?.id || patient?.id !== patientId)) {
@@ -235,12 +240,12 @@ export const PatientView = () => {
 
   const visibleTabs = usePatientTabs();
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
+  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans) {
     return <LoadingIndicator data-testid="patient-view-loading" />;
   }
 
   return (
-    <PatientSearchParametersProvider data-testid="patientsearchparametersprovider-q6i8">
+    <>
       <PatientAlert alerts={patient.alerts} data-testid="patientalert-5sl7" />
       <StyledDisplayTabs
         tabs={visibleTabs}
@@ -249,9 +254,10 @@ export const PatientView = () => {
         patient={patient}
         additionalData={additionalData}
         birthData={birthData}
+        insurancePlans={insurancePlans}
         disabled={disabled}
         data-testid="styleddisplaytabs-6gds"
       />
-    </PatientSearchParametersProvider>
+    </>
   );
 };

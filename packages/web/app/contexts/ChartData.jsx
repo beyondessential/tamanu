@@ -18,7 +18,7 @@ export const ChartDataProvider = ({ children }) => {
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
   const userPreferencesQuery = useUserPreferencesQuery();
   const chartWithResponseQuery = useEncounterChartWithResponseQuery(encounter?.id);
-  const chartSurveysQuery = useChartSurveysQuery();
+  const chartSurveysQuery = useChartSurveysQuery(encounter?.id);
   const {
     data: [userPreferences, chartWithResponse, chartSurveys],
     isLoading,

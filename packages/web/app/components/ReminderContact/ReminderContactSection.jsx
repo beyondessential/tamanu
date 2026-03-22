@@ -1,10 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import { Button } from '..';
+import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ReminderContactModal } from './ReminderContactModal';
 import { useAuth } from '../../contexts/Auth';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledButton = styled(Button)`
   padding: 6px 8px !important;

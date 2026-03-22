@@ -7,7 +7,6 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import {
   BodyText,
@@ -15,6 +14,8 @@ import {
   TranslatedText,
   useSelectableColumn,
   DataFetchingTable,
+  DateDisplay,
+  TimeDisplay,
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
@@ -23,6 +24,7 @@ import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
+import { useDateTime } from '@tamanu/ui-components';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -39,6 +41,7 @@ const StyledTable = styled(DataFetchingTable)`
   border-bottom: none;
   border-radius: 0px;
   overflow: visible;
+  min-width: 700px;
   .MuiTableCell-head {
     background-color: ${Colors.white};
     padding-top: 8px !important;
@@ -54,7 +57,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      ${(p) => (p.$canDoAction ? `width: 15px;` : '')}
+      ${p => (p.$canDoAction ? `width: 15px;` : '')}
     }
   }
   .MuiTableCell-body {
@@ -69,14 +72,14 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
     }
     &:nth-child(2) {
-      ${(p) => (p.$canDoAction ? `padding-left: 0px;` : '')}
+      ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     transition: all 250ms;
     &:hover {
-      box-shadow: ${(props) =>
+      box-shadow: ${props =>
         props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
     position: relative;
@@ -178,6 +181,12 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
 `;
 
+const ScrollableTableWrapper = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-left: 8px;
+`;
+
 const StyledDivider = styled(Divider)`
   margin-top: 5px;
   margin-bottom: 5px;
@@ -226,8 +235,12 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     />
     <div>{completedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(completedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-5r41">{formatTime(completedTime)}</LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={completedTime} format="shortest" />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-5r41">
+        <TimeDisplay date={completedTime} />
+      </LowercaseText>
     </div>
     <div>{completedNote}</div>
   </StatusTooltip>
@@ -242,14 +255,18 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     />
     <div>{notCompletedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-w9wo">{formatTime(notCompletedTime)}</LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={notCompletedTime} format="shortest" />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-w9wo">
+        <TimeDisplay date={notCompletedTime} />
+      </LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
 );
 
-const getStatus = (row) => {
+const getStatus = row => {
   const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
@@ -279,10 +296,10 @@ const getDueTime = ({ dueTime }) => {
   return (
     <div>
       <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
-        {formatTime(dueTime)}
+        <TimeDisplay date={dueTime} />
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
-        {formatShortest(dueTime)}
+        <DateDisplay date={dueTime} format="shortest" />
       </SmallBodyText>
     </div>
   );
@@ -292,7 +309,7 @@ const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
   if (!designations?.length) return '-';
 
-  const designationNames = designations.map((assigned) => assigned.name);
+  const designationNames = designations.map(assigned => assigned.name);
 
   if (!isOverflowing) {
     return (
@@ -311,57 +328,57 @@ const AssignedToCell = ({ designations }) => {
   );
 };
 
-const getFrequency = (task, isEncounterDischarged) => {
+const getEndDate = task => {
   const { frequencyValue, frequencyUnit, durationValue, durationUnit, parentTask } = task;
-  const isRepeatingTask = frequencyValue && frequencyUnit;
+  const firstTask = parentTask || task;
+  try {
+    const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+    let endDate = new Date(firstTask.dueTime);
 
-  const getDurationTooltip = () => {
-    // If no duration is set, task is ongoing
-    if (!durationValue || !durationUnit) {
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
-    }
-
-    // Calculate end date based on due time, frequency and duration
-    try {
-      const firstTask = parentTask || task;
-      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
-      let endDate = new Date(firstTask.dueTime);
-
-      switch (durationUnit) {
-        case TASK_DURATION_UNIT.OCCURRENCES:
-          endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
-          break;
-        default: {
-          const duration = ms(`${durationValue} ${durationUnit}`);
-          endDate = addMilliseconds(endDate, duration);
-          let maxDate = new Date(firstTask.dueTime);
-          while (maxDate <= endDate) {
-            maxDate = addMilliseconds(maxDate, frequency);
-          }
-          endDate = subMilliseconds(maxDate, frequency);
-          break;
+    switch (durationUnit) {
+      case TASK_DURATION_UNIT.OCCURRENCES:
+        endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
+        break;
+      default: {
+        const duration = ms(`${durationValue} ${durationUnit}`);
+        endDate = addMilliseconds(endDate, duration);
+        let maxDate = new Date(firstTask.dueTime);
+        while (maxDate <= endDate) {
+          maxDate = addMilliseconds(maxDate, frequency);
         }
+        endDate = subMilliseconds(maxDate, frequency);
+        break;
       }
-
-      return (
-        <TranslatedText
-          stringId="encounter.tasks.table.duration.endDate"
-          fallback={`Ends at :time on :date`}
-          replacements={{
-            time: formatTime(endDate).toLowerCase().replaceAll(' ', ''),
-            date: formatShortest(endDate),
-          }}
-        />
-      );
-    } catch (error) {
-      console.error('Error calculating task end date:', error);
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
     }
-  };
+    return endDate;
+  } catch (error) {
+    console.error('Error calculating task end date:', error);
+    return null;
+  }
+};
 
+const DurationTooltip = ({ endDate }) => {
+  const { formatShortest, formatTime } = useDateTime();
+  return (
+    <TranslatedText
+      stringId="encounter.tasks.table.duration.endDate"
+      fallback={`Ends at :time on :date`}
+      replacements={{
+        time: formatTime(endDate),
+        date: formatShortest(endDate),
+      }}
+    />
+  );
+};
+
+const FrequencyCell = ({ task, isEncounterDischarged }) => {
+  const { frequencyValue, frequencyUnit } = task;
+  const isRepeatingTask = frequencyValue && frequencyUnit;
   if (isRepeatingTask) {
     return (
-      <TableTooltip title={isEncounterDischarged ? '' : getDurationTooltip()}>
+      <TableTooltip
+        title={isEncounterDischarged ? '' : <DurationTooltip endDate={getEndDate(task) || '-'} />}
+      >
         <span>{`${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`}</span>
       </TableTooltip>
     );
@@ -369,7 +386,8 @@ const getFrequency = (task, isEncounterDischarged) => {
 
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
-const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+
+const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
@@ -503,7 +521,8 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+          <DateDisplay date={requestTime} format="shortest" />{' '}
+          <TimeDisplay date={requestTime} />
         </Box>
       </TooltipContainer>
     }
@@ -558,11 +577,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return selectedStatus && status !== selectedStatus;
     },
-    getIsTitleDisabled: (selectedKeys) => {
-      const uniqueStatuses = new Set(data.map((item) => item.status));
+    getIsTitleDisabled: selectedKeys => {
+      const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: (selectedKeys) => (row) => {
+    getRowsFilterer: selectedKeys => row => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
@@ -572,7 +591,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     resetSelection();
   }, [searchParameters, refreshCount, resetSelection]);
 
-  const selectedRowIds = useMemo(() => selectedRows.map((row) => row.id), [selectedRows]);
+  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -597,7 +616,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       key: 'dueTime',
       title: (
         <TranslatedText
-          stringId="encounter.tasks.table.column.task"
+          stringId="encounter.tasks.table.column.dueTime"
           fallback="Due at"
           data-testid="translatedtext-8mqq"
         />
@@ -630,7 +649,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         />
       ),
       maxWidth: 90,
-      accessor: (task) => getFrequency(task, !!encounter?.endDate),
+      accessor: task => <FrequencyCell task={task} isEncounterDischarged={!!encounter?.endDate} />,
       sortable: false,
     },
     {
@@ -642,7 +661,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           data-testid="translatedtext-hvvf"
         />
       ),
-      accessor: (row) => (
+      accessor: row => (
         <NotesCell
           row={row}
           hoveredRow={hoveredRow}
@@ -658,11 +677,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     () =>
       selectedTask?.id
         ? selectedTask?.frequencyValue && selectedTask?.frequencyUnit
-        : selectedRows.some((row) => row.frequencyValue && row.frequencyUnit),
+        : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
 
-  const handleMouseEnterRow = (data) => {
+  const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
 
@@ -691,22 +710,24 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           />
         </div>
       )}
-      <StyledTable
-        endpoint={`encounter/${encounterId}/tasks`}
-        columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
-        noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
-        allowExport={false}
-        onMouseEnterRow={handleMouseEnterRow}
-        onMouseLeaveRow={handleMouseLeaveRow}
-        hideHeader={data.length === 0}
-        fetchOptions={searchParameters}
-        onDataFetched={onDataFetched}
-        refreshCount={refreshCount}
-        defaultRowsPerPage={25}
-        disableHoverEffect={!canDoAction}
-        $canDoAction={canDoAction}
-        data-testid="styledtable-3pst"
-      />
+      <ScrollableTableWrapper data-testid="scrollabletablewrapper-t4sk">
+        <StyledTable
+          endpoint={`encounter/${encounterId}/tasks`}
+          columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
+          noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
+          allowExport={false}
+          onMouseEnterRow={handleMouseEnterRow}
+          onMouseLeaveRow={handleMouseLeaveRow}
+          hideHeader={data.length === 0}
+          fetchOptions={searchParameters}
+          onDataFetched={onDataFetched}
+          refreshCount={refreshCount}
+          defaultRowsPerPage={25}
+          disableHoverEffect={!canDoAction}
+          $canDoAction={canDoAction}
+          data-testid="styledtable-3pst"
+        />
+      </ScrollableTableWrapper>
     </div>
   );
 };

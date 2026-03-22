@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
 
+const { Problem } = require('@tamanu/errors');
+
 require('jest-expect-message');
 const jestExtendedMatchers = require('jest-extended');
 
@@ -49,8 +51,8 @@ expect.extend({
   toHaveRequestError(response, expected) {
     const { statusCode } = response;
     const match = expected === statusCode;
-    const pass = statusCode >= 400 && statusCode !== 403 && (statusCode < 500 || match);
-    let expectedText = 'Expected error status code';
+    const pass = statusCode >= 400 && (statusCode < 500 || match);
+    let expectedText = 'Expected 4xx error status code';
     if (expected) {
       expectedText += ` ${expected}`;
     }
@@ -63,6 +65,26 @@ expect.extend({
     return {
       message: () => `${expectedText}, got ${statusCode}. ${formatError(response)}`,
       pass,
+    };
+  },
+  toBeProblemOfType(error, type) {
+    if (!(error instanceof Problem)) {
+      return {
+        message: () => `Expected a Problem, got a ${error?.name ?? typeof error}`,
+        pass: false,
+      };
+    }
+
+    if (error.type !== type) {
+      return {
+        message: () => `Expected Problem type ${type}, got ${error.type}`,
+        pass: false,
+      };
+    }
+
+    return {
+      message: () => `Expected Problem of type ${type}`,
+      pass: true,
     };
   },
   toHaveSucceeded(response) {

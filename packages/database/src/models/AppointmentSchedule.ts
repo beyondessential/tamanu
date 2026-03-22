@@ -10,7 +10,7 @@ import {
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import type { ReadSettings } from '@tamanu/settings/reader';
@@ -153,9 +153,9 @@ export class AppointmentSchedule extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'appointments.patient_id',
         facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),

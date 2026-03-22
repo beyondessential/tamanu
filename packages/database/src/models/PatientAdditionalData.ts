@@ -147,10 +147,18 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth', 'country', 'nationality', 'ethnicity', 'insurer'];
+    return [
+      'countryOfBirth',
+      'country',
+      'nationality',
+      'ethnicity',
+      'insurer',
+      'division',
+      'subdivision',
+    ];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

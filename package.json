@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.40.0",
+  "version": "2.53.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -8,7 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
-    "prepare": "patch-package",
+    "prepare": "patch-package && npm run patch-package --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
@@ -21,7 +21,7 @@
     "lint-fix": "npm run lint-all -- --fix",
     "admin-panel-start-dev": "npm run admin-start-dev --workspace @tamanu/web-frontend",
     "web-start-dev": "npm run client-start-dev --workspace @tamanu/web-frontend",
-    "storybook": "npm run watch-shared-and @tamanu/web-frontend storybook",
+    "patient-portal-start-dev": "npm run start-dev --workspace @tamanu/patient-portal",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "web-unit-test": "npm run build-shared && npm run --workspace @tamanu/web-frontend test",
     "web-unit-test-watch": "npm run build-shared && npm run --workspace @tamanu/web-frontend test-watch",
@@ -40,9 +40,9 @@
     "central-migrate": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch upgrade",
     "central-migrate-down": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch just-migrate down",
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
-    "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
-    "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
-    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
+    "dbt-generate-model": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/generateModel.js",
+    "dbt-generate-docs": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/generateDocs.js",
+    "dbt-check-todos": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
     "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
@@ -61,6 +61,7 @@
       "packages/constants",
       "packages/database",
       "packages/e2e-tests",
+      "packages/errors",
       "packages/facility-server",
       "packages/fake-data",
       "packages/mobile",
@@ -70,12 +71,13 @@
       "packages/upgrade",
       "packages/utils",
       "packages/web",
+      "packages/patient-portal",
+      "packages/ui-components",
       "packages/synthetic-tests"
     ]
   },
   "devDependencies": {
     "@eslint/js": "^8.55.0",
-    "@octokit/request": "^5.6.3",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.55.0",
@@ -85,26 +87,27 @@
     "globals": "^13.24.0",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.0",
-    "yaml": "^2.2.1"
+    "typescript": "^5.8.0"
   },
   "dependencies": {
-    "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "concurrently": "^8.2.2",
-    "config": "^3.3.9",
-    "jsbarcode": "^3.11.6",
-    "patch-package": "^8.0.0",
-    "pm2": "^5.4.2",
-    "re-resizable": "^6.11.2"
+    "node": "^20.19.4",
+    "patch-package": "^8.0.0"
   },
   "overrides": {
     "axios": "^1.8.2",
+    "ms": "^2.1.3",
     "react": "18.2.0",
     "react-native-svg": "^12.1.0",
     "react-redux": "8.0.2",
     "react-dom": "18.2.0",
     "react-test-renderer": "^18.3.1",
     "@react-pdf/renderer": "^3.4.4",
-    "@react-pdf/layout": "3.11.5"
+    "@react-pdf/layout": "3.11.5",
+    "@mui/material": "~6.1.1",
+    "@mui/system": "~6.1.1",
+    "@mui/icons-material": "~6.1.1",
+    "@mui/styled-engine": "~6.1.1",
+    "@mui/x-date-pickers": "~7.22.0"
   }
 }

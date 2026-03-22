@@ -1,0 +1,60 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: portal_users
+        description: "{{ doc('table__portal_users') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_portal_users_changed
+              - record_portal_users_changelog
+              - set_portal_users_updated_at
+              - set_portal_users_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: text
+            description: "{{ doc('generic__id') }} in portal_users."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in portal_users."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in portal_users."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in portal_users."
+          - name: patient_id
+            data_type: text
+            description: "{{ doc('portal_users__patient_id') }}"
+            data_tests:
+              - not_null
+          - name: email
+            data_type: text
+            description: "{{ doc('portal_users__email') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in portal_users."
+          - name: status
+            data_type: text
+            description: "{{ doc('portal_users__status') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in portal_users."
+            data_tests:
+              - not_null

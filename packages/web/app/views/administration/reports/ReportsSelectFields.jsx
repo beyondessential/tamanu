@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
-import { BaseSelectField } from '../../../components';
+import { BaseSelectField } from '@tamanu/ui-components';
 
 export const ReportSelectField = ({
   includeNameChangeEvent,

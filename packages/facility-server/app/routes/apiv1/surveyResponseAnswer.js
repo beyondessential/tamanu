@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { subject } from '@casl/ability';
-import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -63,11 +63,10 @@ surveyResponseAnswer.get(
       { notTransformDate: true },
     );
     answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
-    answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
 
     await req.audit.access({
       recordId: answer.id,
-      params,
+      frontEndContext: params,
       model: models.SurveyResponseAnswer,
       facilityId,
     });

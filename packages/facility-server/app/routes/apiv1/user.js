@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op, Sequelize } from 'sequelize';
 
-import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import {
   paginatedGetList,
@@ -17,9 +16,11 @@ import {
 import { z } from 'zod';
 import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
+import { ForbiddenError } from '@tamanu/errors';
+import { dateCustomValidation } from '@tamanu/utils/dateTime';
 
 export const user = express.Router();
 
@@ -27,7 +28,7 @@ user.get(
   '/me',
   asyncHandler(async (req, res) => {
     if (!req.user) {
-      throw new BadAuthenticationError('Invalid token (LLh7)');
+      throw new ForbiddenError('authentication required');
     }
     req.checkPermission('read', req.user);
     res.send(req.user);
@@ -166,6 +167,41 @@ user.post(
   }),
 );
 
+const checkOnLeaveSchema = z.object({
+  startDate: dateCustomValidation,
+  endDate: dateCustomValidation,
+});
+
+user.post(
+  '/:userId/check-on-leave',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserLeave },
+      params,
+      body,
+    } = req;
+
+    const { userId } = params;
+    const { startDate, endDate } = await checkOnLeaveSchema.parseAsync(body);
+
+    req.checkPermission('read', 'User');
+
+    const leave = await UserLeave.findOne({
+      where: {
+        userId,
+        startDate: {
+          [Op.lte]: endDate,
+        },
+        endDate: {
+          [Op.gte]: startDate,
+        },
+      },
+    });
+
+    res.send({ isOnLeave: !!leave });
+  }),
+);
+
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -177,9 +213,9 @@ const clinicianTasksQuerySchema = z.object({
   locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
-    .transform(value => value === 'true')
     .optional()
-    .default('false'),
+    .default('false')
+    .transform(value => value === 'true'),
   page: z.coerce.number().optional().default(0),
   rowsPerPage: z.coerce.number().max(50).min(10).optional().default(25),
   facilityId: z.string(),
@@ -189,6 +225,8 @@ user.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('read', 'Tasking');
+
+    const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -244,7 +282,7 @@ user.get(
         '$encounter->location.facility_id$': facilityId,
         status: TASK_STATUSES.TODO,
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
         [Op.and]: [
@@ -259,8 +297,8 @@ user.get(
             [Op.or]: [
               // Include all non-medication tasks
               { taskType: { [Op.ne]: TASK_TYPES.MEDICATION_DUE_TASK } },
-              // For medication_due_task, only include if there's at least one MAR that is NOT recorded AND NOT paused
-              {
+              // For medication_due_task, only include if user has medication permissions AND there's at least one MAR that is NOT recorded AND NOT paused
+              ...(hasMedicationPermission ? [{ 
                 [Op.and]: [
                   { taskType: TASK_TYPES.MEDICATION_DUE_TASK },
                   // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused
@@ -277,66 +315,21 @@ user.get(
                         AND mar.deleted_at IS NULL
 
                         -- Check if MAR is not currently paused
-                        -- A MAR is NOT paused if either:
-                        -- 1. Special case applies: next MAR is recorded and not paused, OR
-                        -- 2. No pause overlaps with this MAR's time slot
-                        AND (
-                          -- Special case: if next MAR (in next time slot) is recorded and not paused,
-                          -- then current MAR should not be marked as paused regardless of pause overlap
-                          -- This matches MarStatus.jsx lines 170-186
-                          EXISTS (
-                            SELECT 1
-                            FROM medication_administration_records next_mar
-                            CROSS JOIN LATERAL get_medication_time_slot(next_mar.due_at::timestamp) AS next_mar_time_slot
-                            WHERE next_mar.prescription_id = mar.prescription_id
-                              AND next_mar.recorded_at IS NOT NULL  -- next MAR is recorded
-                              AND next_mar.deleted_at IS NULL
-                              -- Next MAR is in the time slot immediately after current MAR
-                              AND next_mar_time_slot.start_time = mar_time_slot.end_time
-                              -- There exists a pause that would normally affect current MAR but next MAR is not paused
-                              AND EXISTS (
-                                SELECT 1
-                                FROM encounter_pause_prescriptions epp
-                                WHERE epp.encounter_prescription_id = ep.id
-                                  AND epp.deleted_at IS NULL
-                                  -- Pause starts within current slot and ends after current slot
-                                  -- This matches the frontend logic in MarStatus.jsx lines 173-175
-                                  AND epp.pause_start_date::timestamp >= mar_time_slot.start_time
-                                  AND epp.pause_start_date::timestamp < mar_time_slot.end_time
-                                  AND epp.pause_end_date::timestamp > mar_time_slot.end_time
-                                  -- Check if next MAR would not be paused by this same pause
-                                  AND (
-                                    -- Check if next MAR is recorded before the pause starts
-                                    -- This matches the frontend logic in MarStatus.jsx lines 166-168
-                                    next_mar.recorded_at::timestamp <= epp.pause_start_date::timestamp
-                                    OR NOT (
-                                      -- Check if pause overlaps with the next MAR's time slot
-                                      -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
-                                      -- This matches the frontend logic in MarStatus.jsx line 188
-                                      epp.pause_start_date::timestamp < next_mar_time_slot.end_time
-                                      AND epp.pause_end_date::timestamp >= next_mar_time_slot.end_time
-                                    )
-                                  )
-                              )
-                          )
-                          OR
-                          -- Normal case: no pause overlaps with the MAR's time slot
-                          NOT EXISTS (
-                            SELECT 1
-                            FROM encounter_pause_prescriptions epp
-                            WHERE epp.encounter_prescription_id = ep.id
-                              AND epp.deleted_at IS NULL
-                              -- Check if pause overlaps with the MAR's time slot
-                              -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
-                              -- This matches the frontend logic in MarStatus.jsx line 188
-                              AND epp.pause_start_date::timestamp < mar_time_slot.end_time
-                              AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
-                          )
+                        AND NOT EXISTS (
+                          SELECT 1
+                          FROM encounter_pause_prescriptions epp
+                          WHERE epp.encounter_prescription_id = ep.id
+                            AND epp.deleted_at IS NULL
+                            -- Check if pause overlaps with the MAR's time slot
+                            -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
+                            -- This matches the frontend logic in MarStatus.jsx line 169
+                            AND epp.pause_start_date::timestamp < mar_time_slot.end_time
+                            AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
                         )
                     )
                   `),
                 ],
-              },
+              }] : []),
             ],
           },
         ],

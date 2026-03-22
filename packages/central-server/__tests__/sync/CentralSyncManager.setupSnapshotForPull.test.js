@@ -10,6 +10,8 @@ import { randomLabRequest } from '@tamanu/database/demoData';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+  REFERENCE_TYPES,
   SETTING_KEYS,
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
@@ -87,6 +89,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           await resolveUpdateLookupTableWaitingPromise();
           return mockedModelUpdateLookupTableQueryPromise;
         },
+        models,
       },
       buildSyncFilter: () => null,
       buildSyncLookupQueryDetails: () => null,
@@ -430,6 +433,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
+      
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
         [facility, program, survey].map(r => r.id).sort(),
@@ -896,6 +900,13 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
 
   describe('handles discharging outpatients', () => {
     it("discharge outpatients when encounter's startDate is before today and pull the discharged encounter down ", async () => {
+      await models.ReferenceData.create({
+        id: NOTE_TYPES.SYSTEM,
+        code: 'system',
+        name: 'System',
+        type: REFERENCE_TYPES.NOTE_TYPE,
+      });
+
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '6';
       const facility = await models.Facility.create(fake(models.Facility));

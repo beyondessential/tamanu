@@ -22,10 +22,16 @@ remove_irrelevant_packages() {
   # remove from npm workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
   scripts/list-packages.mjs -- --no-shared -- --paths \
+    | tee debug.json \
     | jq \
       --arg wanted "$1" \
       '(. - ["packages/\($wanted)"])' \
-    > /tmp/unwanted.json
+    > /tmp/unwanted.json || true
+    if [[ ! -s /tmp/unwanted.json ]]; then
+      stat debug.json || true
+      cat debug.json || true
+      exit 1
+    fi
 
   # erase from the package.json
   jq \
@@ -48,10 +54,10 @@ build_server() {
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  remove_irrelevant_packages "$package"
-
   # build the world
   npm run build
+
+  remove_irrelevant_packages "$package"
 
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
@@ -82,6 +88,12 @@ build_web() {
   scripts/precompress-assets.sh packages/web/dist
 }
 
+build_patient_portal() {
+  npm run build-shared
+  npm run build --workspace @tamanu/patient-portal
+  scripts/precompress-assets.sh packages/patient-portal/dist
+}
+
 package="${1:?Expected target or package path}"
 
 common
@@ -89,6 +101,9 @@ common
 case "$package" in
   web)
     build_web
+    ;;
+  patient-portal)
+    build_patient_portal
     ;;
   *)
     build_server

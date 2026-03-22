@@ -11,7 +11,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_lab_tests_changed
               - record_lab_tests_changelog
               - set_lab_tests_updated_at
@@ -45,7 +44,7 @@ sources:
               meta:
                 masking: date
           - name: result
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('lab_tests__result') }}"
             data_tests:
               - not_null
@@ -116,6 +115,12 @@ sources:
             config:
               meta:
                 masking: date
+          - name: secondary_result
+            data_type: text
+            description: "{{ doc('lab_tests__secondary_result') }}"
+            config:
+              meta:
+                masking: text
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_tests."

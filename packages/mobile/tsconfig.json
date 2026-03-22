@@ -28,7 +28,8 @@
       "/presentation/*": ["App/presentation/*"],
       "/migrations/*": ["App/migrations/*"]
     },
-    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "jsx": "react",
     "lib": ["es2019"],

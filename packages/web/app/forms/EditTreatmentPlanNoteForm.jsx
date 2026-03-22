@@ -1,5 +1,7 @@
 import React from 'react';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import styled from 'styled-components';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -11,12 +13,17 @@ import {
 } from '../components/NoteCommonFields';
 import {
   DisabledWrapper,
-  NoteModalDialogContent,
   NoteModalDialogActions,
   NoteModalFormGrid,
+  NoteModalDialogContent,
 } from '../components/NoteModal/NoteModalCommonComponents';
 import { TranslatedText } from '../components';
-import { Colors } from '../constants';
+
+const StyledNoteModalDialogContent = styled(NoteModalDialogContent)`
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+`;
 
 export const EditTreatmentPlanNoteForm = ({
   note,
@@ -29,29 +36,21 @@ export const EditTreatmentPlanNoteForm = ({
 
   return (
     <>
-      <NoteModalDialogContent>
+      <StyledNoteModalDialogContent>
         <DisabledWrapper color={Colors.background}>
           <NoteModalFormGrid columns={2}>
             <NoteTypeField
               noteTypeCountByType={noteTypeCountByType}
-              size="small"
-              fontSize="12px"
+              $fontSize="14px"
               disabled
             />
             <NoteTemplateField
-              noteType={note.noteType}
+              noteTypeId={note.noteTypeId}
               onChangeTemplate={onChangeTemplate}
-              size="small"
-              fontSize="12px"
               disabled
             />
-            <PreviouslyWrittenByField
-              value={noteOnBehalfOfName}
-              size="small"
-              fontSize="12px"
-              disabled
-            />
-            <PreviousDateTimeField value={note.createdAt} size="small" />
+            <PreviouslyWrittenByField value={noteOnBehalfOfName} disabled />
+            <PreviousDateTimeField value={note.createdAt} />
             <WrittenByField
               label={
                 <TranslatedText
@@ -60,16 +59,16 @@ export const EditTreatmentPlanNoteForm = ({
                 />
               }
               required
-              size="small"
             />
-            <NoteDateTimeField required size="small" fontSize="12px" />
+            <NoteDateTimeField required />
           </NoteModalFormGrid>
         </DisabledWrapper>
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
-          size="small"
+          isEditMode
+          isTreatmentPlanNote
         />
-      </NoteModalDialogContent>
+      </StyledNoteModalDialogContent>
       <NoteModalDialogActions>
         <FormSubmitCancelRow
           style={{ marginTop: '0' }}

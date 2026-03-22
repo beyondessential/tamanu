@@ -1,0 +1,35 @@
+{
+  "sheetName": "Endoscopy Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "endoscopyImagingArea-93001",
+      "code": 93001,
+      "name": "Endoscopy Imaging Area"
+    },
+    {
+      "id": "endoscopyImagingArea-93002",
+      "code": 93002,
+      "name": "Upper GI Endoscopy Area"
+    },
+    {
+      "id": "endoscopyImagingArea-93003",
+      "code": 93003,
+      "name": "Bronchoscopy Area"
+    },
+    {
+      "id": "endoscopyImagingArea-93004",
+      "code": 93004,
+      "name": "Cystoscopy Area"
+    },
+    {
+      "id": "endoscopyImagingArea-93005",
+      "code": 93005,
+      "name": "Laparoscopy Area"
+    }
+  ]
+}

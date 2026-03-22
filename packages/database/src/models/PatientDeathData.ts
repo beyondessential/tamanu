@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
@@ -38,7 +38,13 @@ export class PatientDeathData extends Model {
   declare antecedentCause2ConditionId?: string;
   declare antecedentCause3ConditionId?: string;
   declare lastSurgeryReasonId?: string;
-  declare carrierExistingConditionId?: string;
+  declare autopsyRequested?: string;
+  declare autopsyFindingsUsed?: string;
+  declare mannerOfDeathDescription?: string;
+  declare pregnancyMoment?: string;
+  declare multiplePregnancy?: string;
+  declare motherConditionDescription?: string;
+  declare extraData?: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -64,7 +70,14 @@ export class PatientDeathData extends Model {
         antecedentCause1TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause3TimeAfterOnset: DataTypes.INTEGER, // minutes
+        autopsyRequested: DataTypes.STRING, // yes/no/unknown/null
+        autopsyFindingsUsed: DataTypes.STRING, // yes/no/unknown/null
+        mannerOfDeathDescription: DataTypes.TEXT,
+        pregnancyMoment: DataTypes.STRING,
+        multiplePregnancy: DataTypes.STRING, // yes/no/unknown/null
+        motherConditionDescription: DataTypes.TEXT,
         isFinal: DataTypes.BOOLEAN,
+        extraData: DataTypes.JSONB,
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
@@ -94,6 +107,9 @@ export class PatientDeathData extends Model {
               'wasPregnant',
               'pregnancyContributed',
               'stillborn',
+              'autopsyRequested',
+              'autopsyFindingsUsed',
+              'multiplePregnancy',
             ]) {
               if (this[field] && !['yes', 'no', 'unknown'].includes(this[field] as string)) {
                 throw new InvalidOperationError(`${field} must be 'yes', 'no', 'unknown', or null`);
@@ -141,10 +157,6 @@ export class PatientDeathData extends Model {
       foreignKey: 'lastSurgeryReasonId',
       as: 'lastSurgeryReason',
     });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'carrierExistingConditionId',
-      as: 'carrierExistingCondition',
-    });
 
     this.hasMany(models.ContributingDeathCause, {
       foreignKey: 'patientDeathDataId',
@@ -152,7 +164,7 @@ export class PatientDeathData extends Model {
     });
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

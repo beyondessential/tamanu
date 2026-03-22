@@ -4,7 +4,7 @@ export interface IUser {
   id: ID;
   displayId: string;
   email: string;
-  localPassword?: string;
+  password?: string;
   displayName: string;
   role: string;
 }

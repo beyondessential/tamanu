@@ -11,7 +11,6 @@ import { useBackend } from '~/ui/hooks';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
-import { isEqual } from 'lodash';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -39,6 +38,7 @@ export interface DropdownProps extends BaseInputProps {
   clearable?: boolean;
   required?: boolean;
   error?: any;
+  allowResetSingleValue?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -99,6 +99,7 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
     clearable = true,
+    allowResetSingleValue,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
       if (!value) {
@@ -108,17 +109,12 @@ export const Dropdown = React.memo(
       return Array.isArray(value) ? value : [value];
     });
 
-      useEffect(() => {
-        if (Array.isArray(value)) {
-          if (!isEqual(value, selectedItems)) {
-            setSelectedItems(value);
-          }
-        } else {
-          if (value !== selectedItems[0]) {
-            setSelectedItems([value]);
-          }
-        }
-      }, [value]);
+    useEffect(() => {
+      if (!allowResetSingleValue || Array.isArray(value)) return;
+      if (value !== selectedItems[0]) {
+        setSelectedItems([value]);
+      }
+    }, [value, allowResetSingleValue]);
 
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();

@@ -21,6 +21,38 @@ import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { OutdatedVersionError } from '~/services/error';
+import { getLoginErrorMessage } from '@tamanu/errors';
+
+// ErrorBox Component
+interface ErrorBoxProps {
+  errorMessage: string;
+}
+
+const ErrorBox: React.FC<ErrorBoxProps> = ({ errorMessage }) => {
+  if (!errorMessage) return null;
+  return (
+    <StyledView
+      backgroundColor={theme.colors.ERROR_LIGHT}
+      borderColor={theme.colors.ALERT}
+      borderWidth={1}
+      borderRadius={5}
+      padding={16}
+      marginBottom={16}
+      flexDirection="row"
+      alignItems="center"
+    >
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={14}
+        fontWeight={400}
+        flex={1}
+      >
+        {errorMessage}
+      </StyledText>
+    </StyledView>
+  );
+};
 
 interface SignInFormModelValues {
   email: string;
@@ -48,27 +80,32 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
+export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();
 
   const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
+      setErrorMessage('');
       try {
         if (!existingHost && !values.server) {
-          // TODO it would be better to properly respond to form validation and show the error
-          onError(new Error('Please select a server to connect to'));
-          return;
+          throw new Error('Please select a server to connect to');
         }
         await signIn(values);
         onSuccess();
       } catch (error) {
-        onError(error);
+        if (error instanceof OutdatedVersionError) {
+          onOutdatedVersionError(error);
+        } else {
+          const message = getLoginErrorMessage(error);
+          setErrorMessage(message);
+        }
       }
     },
-    [existingHost],
+    [existingHost, signIn,onOutdatedVersionError, onSuccess],
   );
 
   useEffect(() => {
@@ -115,6 +152,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
                 label={<TranslatedText stringId="general.country.label" fallback="Country" />}
               />
             )}
+            <ErrorBox errorMessage={errorMessage} />
             <Field
               name="email"
               keyboardType="email-address"

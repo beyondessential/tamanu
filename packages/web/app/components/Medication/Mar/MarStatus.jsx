@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { addHours, format } from 'date-fns';
+import { addHours, isSameDay } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -11,9 +11,9 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
+import { TranslatedEnum, TranslatedText, DateDisplay, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ConditionalTooltip } from '../../Tooltip';
 import { useTranslation } from '../../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
@@ -106,31 +106,39 @@ const DiscontinuedDivider = styled.div`
   background-color: ${Colors.midText};
 `;
 
-const getIsPast = ({ timeSlot, selectedDate }) => {
+const getIsPast = ({ timeSlot, selectedDate, now }) => {
   const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date() > slotEndDate;
+  return now > slotEndDate;
 };
 
-const getIsCurrent = ({ timeSlot, selectedDate }) => {
+const getIsCurrent = ({ timeSlot, selectedDate, now }) => {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date() >= slotStartDate && new Date() < slotEndDate;
+  return now >= slotStartDate && now < slotEndDate;
 };
 
-const getIsDisabled = ({ hasRecord, timeSlot, selectedDate }) => {
+const getIsDisabled = ({ hasRecord, timeSlot, selectedDate, now }) => {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  if (!hasRecord) {
-    return slotStartDate > new Date();
+  if (!hasRecord || !isSameDay(selectedDate, now)) {
+    return slotStartDate > now;
   }
-  return slotStartDate > addHours(new Date(), 2);
+  return slotStartDate > addHours(now, 2);
 };
 
-const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
+const toFacilityDate = (dateStr, toFacilityDateTime) => {
+  if (!dateStr) return null;
+  const facilityStr = toFacilityDateTime(dateStr);
+  return facilityStr ? new Date(facilityStr) : new Date(dateStr);
+};
+
+const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate, toFacilityDateTime }) => {
   if (hasRecord) {
     return false;
   }
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date(endDate) < endDateOfSlot;
+  const endDateFacility = toFacilityDate(endDate, toFacilityDateTime);
+  if (!endDateFacility) return false;
+  return endDateFacility < endDateOfSlot;
 };
 
 const getIsDiscontinued = ({
@@ -140,6 +148,7 @@ const getIsDiscontinued = ({
   timeSlot,
   selectedDate,
   nextMarInfo,
+  toFacilityDateTime,
 }) => {
   if (isRecordedStatus || !discontinuedDate || nextMarInfo?.status) {
     return false;
@@ -150,39 +159,20 @@ const getIsDiscontinued = ({
   }
 
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date(discontinuedDate) < endDateOfSlot;
+  return toFacilityDate(discontinuedDate, toFacilityDateTime) < endDateOfSlot;
 };
 
-const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMarInfo }) => {
+const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, toFacilityDateTime }) => {
   if (!pauseRecords?.length) return false;
 
-  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
 
   return pauseRecords.some(pauseRecord => {
-    const pauseStartDate = new Date(pauseRecord.pauseStartDate);
-    const pauseEndDate = new Date(pauseRecord.pauseEndDate);
+    const pauseStartDate = toFacilityDate(pauseRecord.pauseStartDate, toFacilityDateTime);
+    const pauseEndDate = toFacilityDate(pauseRecord.pauseEndDate, toFacilityDateTime);
 
-    if (recordedAt && new Date(recordedAt) <= pauseStartDate) {
+    if (recordedAt && toFacilityDate(recordedAt, toFacilityDateTime) <= pauseStartDate) {
       return false;
-    }
-
-    // special case: when user records a dose in the future, then pauses the medication on the current slot, this slot will not be marked as paused
-    if (nextMarInfo?.recordedAt) {
-      if (
-        pauseStartDate >= startDateOfSlot &&
-        pauseStartDate < endDateOfSlot &&
-        pauseEndDate > endDateOfSlot &&
-        !getIsPaused({
-          pauseRecords,
-          timeSlot,
-          selectedDate,
-          recordedAt: nextMarInfo.recordedAt,
-          nextMarInfo: null,
-        })
-      ) {
-        return false;
-      }
     }
 
     return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
@@ -195,9 +185,10 @@ const getIsPausedThenDiscontinued = ({
   timeSlot,
   selectedDate,
   discontinuedDate,
+  toFacilityDateTime,
 }) => {
   const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return isPreviouslyPaused && isDiscontinued && new Date(discontinuedDate) >= startDateOfSlot;
+  return isPreviouslyPaused && isDiscontinued && toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot;
 };
 
 export const MarStatus = ({
@@ -213,6 +204,8 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
+  const { formatTime, getFacilityNowDate, toFacilityDateTime } = useDateTime();
+  const facilityNow = getFacilityNowDate();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
   const canCreateMar = ability.can('create', 'MedicationAdministration');
@@ -229,10 +222,10 @@ export const MarStatus = ({
   const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
 
   const containerRef = useRef(null);
-  const isPast = getIsPast({ timeSlot, selectedDate });
-  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
-  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
-  const isCurrent = getIsCurrent({ timeSlot, selectedDate });
+  const isPast = getIsPast({ timeSlot, selectedDate, now: facilityNow });
+  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate, now: facilityNow });
+  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > facilityNow;
+  const isCurrent = getIsCurrent({ timeSlot, selectedDate, now: facilityNow });
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
@@ -240,14 +233,15 @@ export const MarStatus = ({
     timeSlot,
     selectedDate,
     nextMarInfo,
+    toFacilityDateTime,
   });
-  const isEnd = getIsEnd({ endDate, hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isEnd = getIsEnd({ endDate, hasRecord: !!marInfo, timeSlot, selectedDate, toFacilityDateTime });
   const isPaused = getIsPaused({
     pauseRecords: pauseRecords?.data,
     timeSlot,
     selectedDate,
     recordedAt,
-    nextMarInfo,
+    toFacilityDateTime,
   });
 
   const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
@@ -260,7 +254,7 @@ export const MarStatus = ({
       timeSlot: previousTimeSlot,
       selectedDate,
       recordedAt: previousMarInfo?.recordedAt,
-      nextMarInfo: marInfo,
+      toFacilityDateTime,
     });
 
   const isPausedThenDiscontinued = getIsPausedThenDiscontinued({
@@ -269,6 +263,7 @@ export const MarStatus = ({
     timeSlot,
     selectedDate,
     discontinuedDate,
+    toFacilityDateTime,
   });
 
   const isRecordedOutsideAdministrationSchedule =
@@ -414,7 +409,7 @@ export const MarStatus = ({
       return (
         <Box maxWidth={105}>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
-          <div>{format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}</div>
+          <DateDisplay date={endDate} timeFormat="default" noTooltip />
         </Box>
       );
     }
@@ -461,7 +456,7 @@ export const MarStatus = ({
                         stringId="medication.mar.givenAt.tooltip"
                         fallback="given at :time"
                         replacements={{
-                          time: format(new Date(dose?.givenTime), 'hh:mma').toLowerCase(),
+                          time: formatTime(dose?.givenTime),
                         }}
                       />
                     </div>
@@ -478,7 +473,7 @@ export const MarStatus = ({
                   stringId="medication.mar.future.tooltip"
                   fallback="Cannot record future dose. Due at :dueAt."
                   replacements={{
-                    dueAt: format(new Date(dueAt), 'h:mma').toLowerCase(),
+                    dueAt: formatTime(dueAt),
                   }}
                 />
               </Box>
@@ -491,7 +486,7 @@ export const MarStatus = ({
                   stringId="medication.mar.missed.tooltip"
                   fallback="Missed. Due at :dueAt"
                   replacements={{
-                    dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                    dueAt: formatTime(dueAt),
                   }}
                 />
               </Box>
@@ -503,7 +498,7 @@ export const MarStatus = ({
                 stringId="medication.mar.dueAt.tooltip"
                 fallback="Due at :dueAt"
                 replacements={{
-                  dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                  dueAt: formatTime(dueAt),
                 }}
               />
             </Box>

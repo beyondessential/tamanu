@@ -1,5 +1,11 @@
 export { FhirAddress } from './address';
 export { FhirAnnotation } from './annotation';
+export {
+  FhirBundle,
+  FhirTransactionBundle,
+  FhirTransactionResponseBundle,
+  FhirSearchSetBundle,
+} from './bundle';
 export { FhirCoding } from './coding';
 export { FhirCodeableConcept } from './codeableConcept';
 export { FhirContactPoint } from './contactPoint';
@@ -12,3 +18,7 @@ export { FhirImmunizationProtocolApplied } from './immunizationProtocolApplied';
 export { FhirPatientLink } from './patientLink';
 export { FhirPeriod } from './period';
 export { FhirReference } from './reference';
+export { FhirDosageInstruction } from './dosageInstruction';
+export { FhirDoseAndRate } from './doseAndRate';
+export { FhirQuantity } from './quantity';
+export { FhirTiming } from './timing';

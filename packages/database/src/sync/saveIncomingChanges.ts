@@ -27,26 +27,26 @@ export const saveChangesForModel = async (
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  const incomingRecords = changes.filter((c) => c.data.id).map((c) => c.data);
-  const idsForIncomingRecords = incomingRecords.map((r) => r.id);
+  const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
+  const idsForIncomingRecords = incomingRecords.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map((r) =>
+  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
   const idToExistingRecord: Record<number, (typeof existingRecords)[0]> = Object.fromEntries(
-    existingRecords.map((e) => [e.id, e]),
+    existingRecords.map(e => [e.id, e]),
   );
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
   const idToIncomingRecord: { [key: number]: (typeof changes)[0] } = Object.fromEntries(
-    changes.filter((c) => c.data.id).map((e) => [e.data.id, e]),
+    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
   );
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  existingRecords.forEach((existing) => {
+  existingRecords.forEach(existing => {
     // compares incoming and existing records by id
     const incoming = idToIncomingRecord[existing.id];
     idsForUpdate.add(existing.id);
@@ -64,26 +64,26 @@ export const saveChangesForModel = async (
     }
   });
   const recordsForCreate = changes
-    .filter((c) => idToExistingRecord[c.data.id] === undefined)
+    .filter(c => idToExistingRecord[c.data.id] === undefined)
     .map(({ data, isDeleted }) => {
       // validateRecord(data, null); TODO add in validation
       // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
       return { ...sanitizeData(data), isDeleted };
     });
   const recordsForUpdate = changes
-    .filter((r) => idsForUpdate.has(r.data.id))
+    .filter(r => idsForUpdate.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForRestore = changes
-    .filter((r) => idsForRestore.has(r.data.id))
+    .filter(r => idsForRestore.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForDelete = changes
-    .filter((r) => idsForDelete.has(r.data.id))
+    .filter(r => idsForDelete.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
@@ -142,7 +142,7 @@ const saveChangesForModelInBatches = async (
   let fromId;
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
     const batchRecords = await findSyncSnapshotRecords(
-      sequelize,
+      { sequelize },
       sessionId,
       SYNC_SESSION_DIRECTION.INCOMING,
       fromId,

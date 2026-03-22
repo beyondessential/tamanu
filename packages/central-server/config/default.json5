@@ -1,5 +1,6 @@
 {
   "port": 3000,
+  "deviceId": null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
@@ -36,10 +37,17 @@
       }
     }
   },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
+  },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
@@ -171,6 +179,12 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "portalCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "deceasedPatientDischarger": {
       // once an hour
       "schedule": "29 * * * *",
@@ -196,15 +210,10 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "signerRenewalChecker": {
-      "schedule": "0 0 * * *"
-    },
-    "signerRenewalSender": {
-      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-      "schedule": "30 * * * *"
-    },
-    "signerWorkingPeriodChecker": {
-      "schedule": "0 1 * * *"
+
+    "dhis2IntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *"
     },
     "automaticLabTestResultPublisher": {
       "enabled": false,
@@ -271,10 +280,18 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "medicationDiscontinuer": {
       // every hour
       "schedule": "0 * * * *",
+    },
+    "autoDeleteMedicationRequests": {
+      "enabled": true,
+      // every 6 hours
+      "schedule": "0 */6 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
     },
   },
   "integrations": {
@@ -295,10 +312,7 @@
       "enabled": false,
       "requireClientHeaders": true
     },
-    "euDcc": {
-      "enabled": false,
-      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
-    },
+
     "ips": {
       "attester": "Ministry of Health",
       "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
@@ -306,24 +320,6 @@
         "subject": "Your International Patient Summary",
         "bodyText": "Please scan the QR code attached to view your International Patient Summary"
       }
-    },
-    "vdsNc": {
-      "enabled": false
-    },
-    "signer": {
-      "enabled": false,
-      // Encryption key for ICAO Signer key material (stored in DB).
-      // This must be unique per country/installation AND NEVER CHANGED.
-      // It must be at least 32 bytes of random data in Base64.
-      // $ openssl rand -base64 32
-      "keySecret": null,
-      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
-      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
-      "commonName": "TA",
-      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
-      // "provider": "Tamanu",
-      // Email address for CSCA signing contact
-      "sendRequestTo": "admin@tamanu.io"
     },
     "fijiAspenMediciReport": {
       "enabled": false
@@ -340,7 +336,7 @@
       "enabled": false, // the HTTP routes
       "worker": {
         "enabled": true, // the materialisation worker
-        "concurrency": 100,
+        "concurrency": 10,
         "resourceMaterialisationEnabled": {
           "Patient": true,
           "Encounter": false,
@@ -349,7 +345,8 @@
           "Organization": false,
           "Practitioner": false,
           "ServiceRequest": false,
-          "Specimen": false
+          "Specimen": false,
+          "MedicationRequest": false
         }
       },
       "parameters": {
@@ -367,9 +364,14 @@
     "omniLab": {
       "enabled": false,
       // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
-      // New keys may be issued by running `node dist apiKeys issue fhirIntegration <email> -e '100 years'
+      // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!
@@ -401,12 +403,7 @@
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
-      // UVCI format for vaccine certificate *previews* on Web.
-      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
-      // does *not* affect which format is used for the actual PDF certificate when
-      // generated in the central server. Can be `tamanu` or `icao` or `eudcc`.
-      // `tamanu` implies that the signing integrations are not enabled.
-      "previewUvciFormat": "tamanu",
+
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
@@ -424,6 +421,10 @@
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
       "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "pharmacyOrderPrescriptionId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html",
+      "pharmacyOrderId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html",
+      "medicationCodeSystem": "http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html",
+      "medicationRouteCodeSystem": "http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html",
       "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
       "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
       "serviceRequestImagingTypeCodeSystem": "http://tamanu.io/data-dictionary/imaging-type-code.html",
@@ -486,8 +487,10 @@
   "validateQuestionConfigs": {
     "enabled": true
   },
-  // this should be an IANA tzdata timezone
-  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  // IANA tzdata timezone for all stored datetimes.
+  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
+  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "socket.io": {
@@ -511,4 +514,9 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "patientPortal": {
+    "tokenDuration": "24h",
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 43800 // 1 month
+  }
 }

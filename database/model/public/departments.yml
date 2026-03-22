@@ -11,7 +11,6 @@ sources:
             - reference
           meta:
             triggers:
-              - fhir_refresh
               - notify_departments_changed
               - record_departments_changelog
               - set_departments_updated_at

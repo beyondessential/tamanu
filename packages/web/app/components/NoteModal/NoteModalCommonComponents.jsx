@@ -2,16 +2,17 @@ import React from 'react';
 import { DialogTitle, Box, IconButton, DialogContent, DialogActions } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
+import { FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
-import { Colors } from '../../constants';
-import { FormGrid } from '../FormGrid';
 
 const StyledTitleContents = styled(Box)`
   display: flex;
   align-items: center;
   width: 100%;
   justify-content: space-between;
-  padding: 10px 19px;
+  padding: 4px 19px;
+  font-size: 14px;
 `;
 
 export const NoteModalDialogTitle = ({ title, onClose }) => {

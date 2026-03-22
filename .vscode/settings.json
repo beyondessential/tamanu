@@ -1,6 +1,15 @@
 {
   "cSpell.language": "en-GB",
-  "cSpell.words": ["clearable", "Formik", "ilike", "singularize", "tamanu", "upsert", "upserted"],
+  "cSpell.words": [
+    "clearable",
+    "dhis2",
+    "Formik",
+    "ilike",
+    "singularize",
+    "tamanu",
+    "upsert",
+    "upserted"
+  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.experimental.useFlatConfig": true,
   "eslint.lintTask.enable": true,
@@ -23,4 +32,8 @@
   "yaml.format.enable": true,
   "yaml.customTags": [],
   "yaml.schemaStore.enable": false
+  },
+  "yaml.schemas": {
+    "https://www.artillery.io/schema.json": []
+  }
 }

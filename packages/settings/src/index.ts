@@ -11,5 +11,5 @@ export {
   isSetting,
   applyDefaults,
 } from './schema';
-export { ReadSettings, buildSettings } from './reader';
+export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

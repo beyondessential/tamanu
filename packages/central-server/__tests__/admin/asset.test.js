@@ -31,7 +31,7 @@ describe('Asset upload', () => {
       filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
-    expect(response).toBeForbidden();
+    expect(response).not.toHaveSucceeded();
   });
 
   it('should upload a new asset', async () => {

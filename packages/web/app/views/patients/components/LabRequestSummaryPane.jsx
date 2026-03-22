@@ -2,15 +2,14 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { Colors } from '../../../constants';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
   BodyText,
-  Button,
   DateDisplay,
   FormSeparatorLine,
   Heading3,
-  OutlinedButton,
   Table,
   useSelectableColumn,
 } from '../../../components';
@@ -134,7 +133,7 @@ const getColumns = (type) => [
     sortable: false,
     accessor: ({ sampleTime }) =>
       sampleTime ? (
-        <DateDisplay showTime date={sampleTime} data-testid="datedisplay-6me3" />
+        <DateDisplay timeFormat="default" date={sampleTime} data-testid="datedisplay-6me3" />
       ) : (
         <TranslatedText
           stringId="lab.requestSummary.table.column.sampleDate.notCollected"
@@ -211,7 +210,7 @@ export const LabRequestSummaryPane = React.memo(
                   data-testid="translatedtext-1wh9"
                 />
               }
-              value={<DateDisplay date={requestedDate} showTime data-testid="datedisplay-uuu4" />}
+              value={<DateDisplay date={requestedDate} timeFormat="default" data-testid="datedisplay-uuu4" />}
               data-testid="infocarditem-1bt0"
             />
             <InfoCardItem

@@ -7,6 +7,7 @@ import {
   scheduleIcon,
   vaccineIcon,
   dashboardIcon,
+  medicationIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -129,6 +130,48 @@ export const FACILITY_MENU_ITEMS = [
           />
         ),
         ability: { action: 'read' },
+      },
+    ],
+  },
+  {
+    key: 'medication',
+    label: (
+      <TranslatedText
+        stringId="sidebar.medication"
+        fallback="Medication"
+        data-testid="translatedtext-2132"
+      />
+    ),
+    path: '/medication',
+    icon: medicationIcon,
+    abilities: [
+      { subject: 'MedicationRequest', action: 'read' },
+      { subject: 'MedicationDispense', action: 'read' },
+    ],
+    children: [
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.medication.active"
+            fallback="Active requests"
+            data-testid="translatedtext-2133"
+          />
+        ),
+        path: '/medication/active',
+        key: 'medicationActive',
+        abilities: [{ subject: 'MedicationRequest', action: 'read' }],
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.medication.dispensed"
+            fallback="Dispensed medications"
+            data-testid="translatedtext-2134"
+          />
+        ),
+        path: '/medication/dispensed',
+        key: 'medicationDispensed',
+        abilities: [{ subject: 'MedicationDispense', action: 'read' }],
       },
     ],
   },

@@ -67,6 +67,15 @@ export class Survey extends Model {
       as: 'components',
       foreignKey: 'surveyId',
     });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ProcedureTypeSurvey,
+      as: 'procedureTypes',
+      foreignKey: 'surveyId',
+    });
+    this.hasMany(models.PortalSurveyAssignment, {
+      as: 'portalSurveyAssignments',
+      foreignKey: 'surveyId',
+    });
   }
 
   static getAllReferrals() {
@@ -102,7 +111,7 @@ export class Survey extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

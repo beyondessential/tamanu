@@ -11,10 +11,14 @@ import {
 } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
-import { BaseModal } from '../../BaseModal';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  BaseModal,
+  useDateTime,
+  DateTimeRangeDisplay,
+} from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -34,6 +38,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
+  const { formatShort } = useDateTime();
   const {
     patient,
     startTime,
@@ -66,7 +71,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={formatDateTimeRange(startTime, endTime)}
+          value={
+            <DateTimeRangeDisplay
+              start={startTime}
+              end={endTime}
+              dateFormat="shortest"
+            />
+          }
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay
@@ -195,7 +206,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
         />
       </StyledBodyText>
       <ModifyModeRadioGroup
-        onChange={(event) => setDeletionType(event.target.value)}
+        onChange={event => setDeletionType(event.target.value)}
         value={deletionType}
         data-testid="modifymoderadiogroup-ky32"
       />
@@ -304,7 +315,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
     >
       <BodyContainer data-testid="bodycontainer-mgm8">
         <TranslatedText
-          stringId="locationBooking.modal.cancel.text"
+          stringId="appointment.modal.cancel.text"
           fallback="Are you sure you would like to cancel the below appointment?"
           data-testid="translatedtext-qp2g"
         />

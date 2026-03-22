@@ -4,18 +4,21 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { DateString, ID, INote, IUser, NoteRecordType, NoteType } from '~/types';
+import { DateString, ID, INote, IUser, NoteRecordType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { User } from './User';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('notes')
 export class Note extends BaseModel implements INote {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 
-  @Column({ type: 'varchar', nullable: false })
-  noteType: NoteType;
+  @ReferenceDataRelation()
+  noteType: ReferenceData;
+  @IdRelation()
+  noteTypeId: string;
 
   @DateStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
   date: DateString;
@@ -52,11 +55,11 @@ export class Note extends BaseModel implements INote {
     }
   }
 
-  static async createForRecord({ recordId, recordType, noteType, content, author }): Promise<Note> {
+  static async createForRecord({ recordId, recordType, noteTypeId, content, author }): Promise<Note> {
     return Note.createAndSaveOne<Note>({
       recordId,
       recordType,
-      noteType,
+      noteTypeId,
       date: getCurrentDateTimeString(),
       content,
       author,

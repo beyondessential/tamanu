@@ -1,5 +1,6 @@
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import config from 'config';
+import { Chance } from 'chance';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
@@ -9,6 +10,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -19,6 +21,8 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import { setupSurvey } from '../setupSurvey';
+
+const chance = new Chance();
 
 describe('Encounter', () => {
   const [facilityId] = selectFacilityIds(config);
@@ -134,7 +138,7 @@ describe('Encounter', () => {
         'Test 1',
       ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
       models.Note.createForRecord(
         otherEncounter.id,
         'Encounter',
@@ -147,24 +151,27 @@ describe('Encounter', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    expect(result.body.data[0].noteTypeId).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
-  it('should get a list of notes filtered by noteType', async () => {
+  it('should get a list of notes filtered by noteTypeId', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+
     await Promise.all([
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 6'),
     ]);
 
-    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/notes?noteTypeId=${NOTE_TYPES.TREATMENT_PLAN}`,
+    );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every(x => x.noteTypeId === NOTE_TYPES.TREATMENT_PLAN)).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
@@ -455,7 +462,7 @@ describe('Encounter', () => {
         const notes = await v.getNotes();
         expect(notes).toHaveLength(1);
         expect(
-          notes[0].content.includes('triage') && notes[0].content.includes('admission'),
+          notes[0].content.includes('Triage') && notes[0].content.includes('Admission'),
         ).toEqual(true);
         expect(notes[0].authorId).toEqual(app.user.id);
       });
@@ -555,7 +562,7 @@ describe('Encounter', () => {
 
         expect(result).toHaveSucceeded();
         expect(notes.content).toEqual(
-          `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
+          `• Changed location from ‘${locationGroup.name}, ${location.name}’ to ‘${locationGroup2.name}, ${location2.name}’`,
         );
       });
 
@@ -582,7 +589,7 @@ describe('Encounter', () => {
         const notes = await existingEncounter.getNotes();
         expect(notes).toHaveLength(1);
         expect(notes[0].content).toEqual(
-          `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
+          `• Changed supervising clinician from ‘${fromClinician.displayName}’ to ‘${toClinician.displayName}’`,
         );
         expect(notes[0].authorId).toEqual(app.user.id);
       });
@@ -666,6 +673,79 @@ describe('Encounter', () => {
 
       test.todo('should not admit a patient who is already in an encounter');
       test.todo('should not admit a patient who is dead');
+    });
+
+    describe('automatic invoice creation', () => {
+      const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
+      const validEncounterTypes = Object.values(ENCOUNTER_TYPES).filter(
+        type => !excludedEncounterTypes.includes(type),
+      );
+
+      beforeAll(async () => {
+        await models.Setting.set('features.invoicing.enabled', true);
+      });
+
+      afterAll(async () => {
+        await models.Setting.set('features.invoicing.enabled', false);
+      });
+
+      it('should not automatically create an invoice for a new encounter if invoicing is disabled', async () => {
+        // Disable for this test
+        await models.Setting.set('features.invoicing.enabled', false);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+
+        // Enable for the next test
+        await models.Setting.set('features.invoicing.enabled', true);
+        expect(invoice).toBeNull();
+      });
+
+      it('should not automatically create an invoice for a new encounter if encounter type is survey response or vaccination', async () => {
+        const encounterType = chance.pickone(excludedEncounterTypes);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+        expect(invoice).toBeNull();
+      });
+
+      it('should automatically create an invoice for a new encounter with a valid encounter type', async () => {
+        const encounterType = chance.pickone(validEncounterTypes);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+        expect(invoice).toBeTruthy();
+        expect(invoice.encounterId).toEqual(result.body.id);
+      });
     });
 
     describe('diagnoses', () => {
@@ -819,7 +899,10 @@ describe('Encounter', () => {
 
         const result = await app.post('/api/medication/import-ongoing').send({
           encounterId: medicationEncounter.id,
-          prescriptionIds: [ongoingPrescription1.id, ongoingPrescription2.id],
+          medications: [
+            { prescriptionId: ongoingPrescription1.id, quantity: 10, repeats: 1 },
+            { prescriptionId: ongoingPrescription2.id, quantity: 20, repeats: 2 },
+          ],
           prescriberId: app.user.id,
         });
         expect(result).toHaveSucceeded();
@@ -912,7 +995,7 @@ describe('Encounter', () => {
 
         const result = await app.post('/api/medication/import-ongoing').send({
           encounterId: medicationEncounter.id,
-          prescriptionIds: [ongoingPrescription.id],
+          medications: [{ prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 }],
           prescriberId: app.user.id,
         });
         expect(result).toHaveRequestError();
@@ -944,6 +1027,16 @@ describe('Encounter', () => {
             medicationId: testMedication.id,
           }),
         );
+
+        await models.EncounterPrescription.create({
+          encounterId: pharmacyOrderEncounter.id,
+          prescriptionId: testPrescription.id,
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
       });
 
       it('should record a pharmacy order', async () => {
@@ -953,6 +1046,9 @@ describe('Encounter', () => {
           .send({
             orderingClinicianId: app.user.id,
             comments,
+            isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,
@@ -964,6 +1060,7 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.id).toBeTruthy();
         expect(result.body.comments).toBe(comments);
+        expect(result.body.isDischargePrescription).toBe(true);
         expect(result.body.orderingClinicianId).toBe(app.user.id);
         const pharmacyOrderId = result.body.id;
         const pharmacyOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({
@@ -973,6 +1070,56 @@ describe('Encounter', () => {
         expect(pharmacyOrderPrescriptions[0].prescriptionId).toBe(testPrescription.id);
         expect(pharmacyOrderPrescriptions[0].quantity).toBe(1);
         expect(pharmacyOrderPrescriptions[0].repeats).toBe(1);
+      });
+
+      it('should return the last ordered date time string of the medication has been ordered', async () => {
+        const firstOrderedAt = '2020-01-01 09:00:00';
+        const lastOrderedAt = '2020-01-15 14:30:00';
+
+        const firstOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 1,
+                repeats: 1,
+              },
+            ],
+          });
+        expect(firstOrder).toHaveSucceeded();
+
+        const secondOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 2,
+                repeats: 1,
+              },
+            ],
+          });
+        expect(secondOrder).toHaveSucceeded();
+
+        await models.PharmacyOrder.update(
+          { date: firstOrderedAt },
+          { where: { id: firstOrder.body.id } },
+        );
+        await models.PharmacyOrder.update(
+          { date: lastOrderedAt },
+          { where: { id: secondOrder.body.id } },
+        );
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body.data).toHaveLength(1);
+        expect(body.data[0].lastOrderedAt).toEqual(lastOrderedAt);
       });
     });
 
@@ -1480,7 +1627,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
             actorId: user.id,
           });
         });
@@ -1527,7 +1674,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
             actorId: user.id,
           });
         });
@@ -1575,7 +1722,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Examiner,
+            changeType: [EncounterChangeType.Examiner],
             actorId: user.id,
           });
         });
@@ -1624,7 +1771,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: newEncounterType,
-            changeType: EncounterChangeType.EncounterType,
+            changeType: [EncounterChangeType.EncounterType],
             actorId: user.id,
           });
         });
@@ -1713,7 +1860,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1723,7 +1870,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
 
           const clinicianChangeSubmittedTime = getCurrentDateTimeString();
@@ -1759,7 +1906,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1769,7 +1916,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
           expect(encounterHistoryRecords[3]).toMatchObject({
             date: clinicianChangeSubmittedTime,
@@ -1779,67 +1926,7 @@ describe('Encounter', () => {
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Examiner,
-          });
-        });
-      });
-
-      describe('multiple changes in 1 encounter update', () => {
-        it('throws an error if multiple changes happen in 1 encounter update', async () => {
-          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
-          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
-          const [clinician] = await models.User.findAll({ limit: 1 });
-
-          const result = await app.post('/api/encounter').send({
-            ...(await createDummyEncounter(models)),
-            patientId: patient.id,
-            examinerId: clinician.id,
-            locationId: oldLocation.id,
-            departmentId: oldDepartment.id,
-          });
-
-          expect(result).toHaveSucceeded();
-          const encounter = await models.Encounter.findByPk(result.body.id);
-
-          const locationChangeSubmittedTime = getCurrentDateTimeString();
-          const updateResult = await app.put(`/api/encounter/${encounter.id}`).send({
-            locationId: newLocation.id, // update new location
-            departmentId: newDepartment.id, // update new department
-            examinerId: clinician.id,
-            submittedTime: locationChangeSubmittedTime,
-          });
-
-          expect(updateResult).toHaveRequestError();
-          expect(updateResult.body.error.message).toEqual(
-            'Encounter type, department, location and clinician must be changed in separate operations',
-          );
-
-          const newEncounter = await models.Encounter.findByPk(result.body.id);
-
-          // Confirm that the encounter has not been changed if an error has been thrown
-          expect(newEncounter).toMatchObject({
-            patientId: patient.id,
-            examinerId: clinician.id,
-            locationId: oldLocation.id,
-            departmentId: oldDepartment.id,
-          });
-
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
-            where: {
-              encounterId: encounter.id,
-            },
-            order: [['date', 'ASC']],
-          });
-
-          // only 1 encounter history for initial encounter snapshot
-          expect(encounterHistoryRecords).toHaveLength(1);
-          expect(encounterHistoryRecords[0]).toMatchObject({
-            encounterId: encounter.id,
-            departmentId: encounter.departmentId,
-            locationId: encounter.locationId,
-            examinerId: encounter.examinerId,
-            encounterType: encounter.encounterType,
-            actorId: user.id,
+            changeType: [EncounterChangeType.Examiner],
           });
         });
       });

@@ -1,5 +1,5 @@
 #
-# Edwin and Chris currently own sync, because it's complicated and fragile
+# Edwin, Chris, Rohan, Daniel and Félix currently own sync, because it's complicated and fragile
 # functionality that's core to the app, and sync bugs have scary potential for
 # data loss.
 #
@@ -9,11 +9,11 @@
 # See Slack discussion:
 # https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
 #
-/packages/shared/src/sync/                              @edmofro @chris-bes
-/packages/facility-server/app/sync/                     @edmofro @chris-bes
-/packages/central-server/app/sync/                      @edmofro @chris-bes
-/packages/mobile/App/services/sync/                     @edmofro @chris-bes
-/packages/database/src/sync/                            @edmofro @chris-bes
+/packages/shared/src/sync/                              @edmofro @chris-bes @rohan-bes @dannash100 @passcod
+/packages/facility-server/app/sync/                     @edmofro @chris-bes @rohan-bes @dannash100 @passcod
+/packages/central-server/app/sync/                      @edmofro @chris-bes @rohan-bes @dannash100 @passcod
+/packages/mobile/App/services/sync/                     @edmofro @chris-bes @rohan-bes @dannash100 @passcod
+/packages/database/src/sync/                            @edmofro @chris-bes @rohan-bes @dannash100 @passcod
 
 #
 # The deployment team are code owner of the default config files to make sure
@@ -40,3 +40,8 @@ pm2*.config.js  @beyondessential/kamaka
 /.github/actions/    @beyondessential/kamaka
 /.github/scripts/    @beyondessential/kamaka
 /.github/workflows/  @beyondessential/kamaka
+
+#
+# Maui needs to be across any changes to database tables
+#
+/packages/database/src/migrations/ @beyondessential/maui

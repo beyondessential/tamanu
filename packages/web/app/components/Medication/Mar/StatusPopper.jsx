@@ -7,15 +7,15 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, Button, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import * as yup from 'yup';
-import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
-import { Button } from '../../Button';
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { Field, Form, NumberField } from '../../Field';
+import { Field, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
@@ -251,6 +251,7 @@ const GivenScreen = ({
 }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { getFacilityNowDate, toStoredDateTime } = useDateTime();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
@@ -303,11 +304,11 @@ const GivenScreen = ({
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToGiven({
-      dueAt: toDateTimeString(dueAt),
+      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
       prescriptionId,
       dose: {
         doseAmount,
-        givenTime: toDateTimeString(givenTime),
+        givenTime: toStoredDateTime(toDateTimeString(givenTime)),
       },
     });
   };
@@ -365,7 +366,6 @@ const GivenScreen = ({
               error={errors.timeGiven}
               slotProps={{
                 textField: {
-                  readOnly: true,
                   InputProps: {
                     placeholder: '--:-- --',
                   },
@@ -396,7 +396,7 @@ const GivenScreen = ({
         doseAmount: Number(prescriptionDoseAmount) || '',
         timeGiven: isPast
           ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-          : new Date(),
+          : getFacilityNowDate(),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup
@@ -434,6 +434,7 @@ export const StatusPopper = ({
 }) => {
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
+  const { toStoredDateTime } = useDateTime();
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
@@ -465,7 +466,7 @@ export const StatusPopper = ({
     await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt: toDateTimeString(dueAt),
+      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
       prescriptionId,
     });
 

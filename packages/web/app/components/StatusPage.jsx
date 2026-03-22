@@ -216,7 +216,7 @@ export const MobileStatusPage = ({ platformType }) => {
       <ErrorDescription color="textTertiary" data-testid="errordescription-asrb">
         <TranslatedText
           stringId="splash.mobile.description"
-          fallback=":brandName is not currently supported by mobile or tablet devices. Please access via a desktop computer or laptop."
+          fallback=":brandName is not currently supported on mobile devices. Please access via a desktop computer, laptop, or tablet."
           replacements={{ brandName }}
           data-testid="translatedtext-9p7e"
         />

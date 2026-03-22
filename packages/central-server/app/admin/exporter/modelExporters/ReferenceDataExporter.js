@@ -5,6 +5,7 @@ export class ReferenceDataExporter extends ModelExporter {
     const data = await this.models.ReferenceData.findAll({
       where: {
         type: this.dataType,
+        systemRequired: false,
       },
     });
 
@@ -12,6 +13,6 @@ export class ReferenceDataExporter extends ModelExporter {
   }
 
   customHiddenColumns() {
-    return ['type'];
+    return ['type', 'systemRequired'];
   }
 }

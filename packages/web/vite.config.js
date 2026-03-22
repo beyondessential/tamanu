@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import svgr from 'vite-plugin-svgr';
 import json5Plugin from 'vite-plugin-json5';
 
 /** @see https://vitejs.dev/config */
@@ -23,13 +24,10 @@ export default async () => {
       exclude: ['chunk-SVRLYAES'],
       include: ['buffer'],
     },
-    esbuild: {
-      loader: 'jsx',
+    plugins: [react(), json5Plugin(), svgr()],
+    resolve: {
+      dedupe: ['@mui/x-date-pickers'],
     },
-    plugins: [
-      react(),
-      json5Plugin()
-    ],
 
     define: {
       __VERSION__: JSON.stringify(

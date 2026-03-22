@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { kebabCase } from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
@@ -13,7 +14,6 @@ import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -165,7 +165,7 @@ const Card = ({ notification }) => {
   const { type, createdTime, status, patient, metadata } = notification;
   const { encounterId, id } = metadata;
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const onNotificationClick = async () => {
     if (isMarkingAsRead) return;
@@ -182,11 +182,11 @@ const Card = ({ notification }) => {
     if (patient?.id) await dispatch(reloadPatient(patient.id));
 
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
-      history.push(
+      navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
       );
     } else {
-      history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+      navigate(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
     }
   };
   return (
@@ -203,7 +203,8 @@ const Card = ({ notification }) => {
           data-testid="bodytext-xa84"
         />
         <CardDatetime data-testid="carddatetime-vyqg">
-          {`${formatTime(createdTime).replace(' ', '')} ${formatShortest(createdTime)}`}
+          <TimeDisplay date={createdTime} noTooltip />{' '}
+          <DateDisplay date={createdTime} format="shortest" />
         </CardDatetime>
       </Box>
     </CardContainer>

@@ -18,9 +18,6 @@ export const Routes = {
   SignUpStack: {
     Index: '',
     Intro: '',
-    RegisterAccountStep1: '',
-    RegisterAccountStep2: '',
-    RegisterAccountStep3: '',
     SignIn: '',
     SelectFacility: '',
     ResetPassword: '',

@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { usePatientMove } from '../../../api/mutations';
-import { LargeBodyText, Modal } from '../../../components';
+import { LargeBodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 
 const Container = styled.div`
-  margin: 70px 0 80px;
+  margin: 70px 30px 80px;
 `;
 
 export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) => {
@@ -19,7 +19,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     <Modal
       title={
         <TranslatedText
-          stringId="patient.modal.cancelMove.title"
+          stringId="encounter.action.cancelPatientMove"
           fallback="Cancel move"
           data-testid="translatedtext-cancel-move-title"
         />
@@ -41,8 +41,8 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
       <ModalActionRow
         confirmText={
           <TranslatedText
-            stringId="general.action.confirm"
-            fallback="Confirm"
+            stringId="patient.modal.cancelMove.confirm"
+            fallback="Cancel location move"
             data-testid="translatedtext-confirm-action"
           />
         }

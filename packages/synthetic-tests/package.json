@@ -1,15 +1,11 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.40.0",
+  "version": "2.53.0",
   "private": true,
   "dependencies": {
-    "@tamanu/constants": "*",
     "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "devDependencies": {
-    "@faker-js/faker": "^9.8.0"
+    "jose": "^5.9.6"
   },
   "scripts": {
     "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",

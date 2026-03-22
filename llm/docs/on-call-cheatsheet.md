@@ -363,7 +363,7 @@ Disabling the scheduled task is the most straightforward way.
 
 ```bash
 cd \tamanu\release-v2.x.y\packages\central-server
-node dist shell
+npx node dist shell
 ```
 
 1. Get report from ID:
@@ -486,61 +486,6 @@ To disable any resources that should not be materialised, change this config in 
     "Specimen": false
 }
 ```
-
-## Disabling fhir.jobs
-
-For context and steps, read [here](https://linear.app/bes/issue/TAMOC-267/disabled-fhirworker-still-generates-fhir-jobs) (Use this with caution and with a Dev OTS)
-
-    1. Open psql with read/write - `bestool.exe tamanu psql -W`
-        1. Run the following scripts:
-
-```sql
-ALTER TABLE administered_vaccines DISABLE TRIGGER fhir_refresh;
-ALTER TABLE departments DISABLE TRIGGER fhir_refresh;
-ALTER TABLE discharges DISABLE TRIGGER fhir_refresh;
-ALTER TABLE encounter_diagnoses DISABLE TRIGGER fhir_refresh;
-ALTER TABLE encounter_history DISABLE TRIGGER fhir_refresh;
-ALTER TABLE encounter_medications DISABLE TRIGGER fhir_refresh;
-ALTER TABLE encounters DISABLE TRIGGER fhir_refresh;
-ALTER TABLE facilities DISABLE TRIGGER fhir_refresh;
-ALTER TABLE imaging_area_external_codes DISABLE TRIGGER fhir_refresh;
-ALTER TABLE imaging_request_areas DISABLE TRIGGER fhir_refresh;
-ALTER TABLE imaging_requests DISABLE TRIGGER fhir_refresh;
-ALTER TABLE lab_requests DISABLE TRIGGER fhir_refresh;
-ALTER TABLE lab_test_panel_requests DISABLE TRIGGER fhir_refresh;
-ALTER TABLE lab_test_panels DISABLE TRIGGER fhir_refresh;
-ALTER TABLE lab_test_types DISABLE TRIGGER fhir_refresh;
-ALTER TABLE lab_tests DISABLE TRIGGER fhir_refresh;
-ALTER TABLE location_groups DISABLE TRIGGER fhir_refresh;
-ALTER TABLE locations DISABLE TRIGGER fhir_refresh;
-ALTER TABLE note_items DISABLE TRIGGER fhir_refresh;
-ALTER TABLE note_pages DISABLE TRIGGER fhir_refresh;
-ALTER TABLE notes DISABLE TRIGGER fhir_refresh;
-ALTER TABLE patient_additional_data DISABLE TRIGGER fhir_refresh;
-ALTER TABLE patient_birth_data DISABLE TRIGGER fhir_refresh;
-ALTER TABLE patients DISABLE TRIGGER fhir_refresh;
-ALTER TABLE procedures DISABLE TRIGGER fhir_refresh;
-ALTER TABLE reference_data DISABLE TRIGGER fhir_refresh;
-ALTER TABLE scheduled_vaccines DISABLE TRIGGER fhir_refresh;
-ALTER TABLE triages DISABLE TRIGGER fhir_refresh;
-ALTER TABLE users DISABLE TRIGGER fhir_refresh;
-```
-
-        1. Run - `Truncate table fhir.jobs;`
-
-Check for Sync status for a particular facility (replace xxx with facility name/id):
-
-```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors, debug_info->>'facilityId' as facility_id, debug_info->>'deviceId' as device_id FROM sync_sessions WHERE debug_info->>'facilityId' = 'facility-xxx' ORDER BY updated_at DESC LIMIT 10;
-```
-
-Check Error on Central Server by Device ID  (replace xxx with device name/id):
-
-```
-SELECT     start_time,     snapshot_completed_at - start_time as snapshot_duration,     completed_at - start_time as full_duration,     errors IS NOT NULL as is_error,     debug_info->>'facilityId' as facility_id,    debug_info->>'deviceId' as device_id FROM sync_sessions WHERE debug_info->>'deviceId' = 'mobile-b366eaec-xxx'ORDER BY updated_at DESC LIMIT 10;
-```
-
-
 
 ## Senaite Integration Checklist:
 

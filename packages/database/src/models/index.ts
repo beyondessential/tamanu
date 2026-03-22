@@ -1,7 +1,10 @@
 export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
+export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
+export * from './PortalUser';
+export * from './Device';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -17,6 +20,7 @@ export * from './PatientContact';
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
+export * from './PatientInvoiceInsurancePlan';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';
@@ -35,6 +39,8 @@ export * from './ReferenceDataRelation';
 export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
+export * from './ProcedureAssistantClinician';
+export * from './ProcedureSurveyResponse';
 
 export * from './EncounterDiagnosis';
 export * from './Prescription';
@@ -55,6 +61,7 @@ export * from './LabTestPanelLabTestTypes';
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';
 export * from './ImagingAreaExternalCode';
+export * from './ImagingTypeExternalCode';
 export * from './ImagingResult';
 
 export * from './Program';
@@ -69,6 +76,7 @@ export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
+export * from './PortalSurveyAssignment';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
@@ -88,40 +96,36 @@ export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
+export * from './ProcedureTypeSurvey';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './AppointmentSchedule';
+export * from './AppointmentProcedureType';
 export * from './DocumentMetadata';
 export * from './Template';
 
 export * from './OneTimeLogin';
+export * from './PortalOneTimeToken';
 export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 
 export * from './Invoice';
-export * from './InvoiceProduct';
-export * from './InvoiceDiscount';
-export * from './InvoiceInsurer';
-export * from './InvoiceItem';
-export * from './InvoiceItemDiscount';
-export * from './InvoicePayment';
-export * from './InvoicePatientPayment';
-export * from './InvoiceInsurerPayment';
 
 export * from './ReferenceDrug';
+export * from './ReferenceDrugFacility';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
 export * from './ReferenceMedicationTemplate';
 
 export * from './PharmacyOrder';
 export * from './PharmacyOrderPrescription';
+export * from './MedicationDispense';
 
 export * from './Notification';
 
-export * from './Signer';
 
 export * from './CertificateNotification';
 
@@ -148,3 +152,9 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './UserLeave';
+
+export * from './LocationAssignmentTemplate';
+export * from './LocationAssignment';
+export * from './DHIS2PushLog';
+export * from './MSupplyPushLog';

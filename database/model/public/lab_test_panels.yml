@@ -11,7 +11,6 @@ sources:
             - reference
           meta:
             triggers:
-              - fhir_refresh
               - notify_lab_test_panels_changed
               - record_lab_test_panels_changelog
               - set_lab_test_panels_updated_at

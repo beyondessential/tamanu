@@ -2,7 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '../Button';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
@@ -16,7 +17,6 @@ import {
 import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
-import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
@@ -70,7 +70,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     Form={AllergyForm}
-    getName={(allergy) => (
+    getName={allergy => (
       <TranslatedReferenceData
         fallback={allergy.allergy.name}
         value={allergy.allergy.id}
@@ -97,7 +97,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     Form={FamilyHistoryForm}
-    getName={(historyItem) => {
+    getName={historyItem => {
       const { name } = historyItem.diagnosis;
       const relation = historyItem.relationship;
       if (!relation) return name;
@@ -122,7 +122,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
-    getName={(issue) => issue.note}
+    getName={issue => issue.note}
     data-testid="infopanelist-2y30"
   />
 ));
@@ -203,15 +203,19 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
         data-testid="translatedtext-kzxg"
       />
     }
-    getEditFormName={(programRegistry) => `Program registry: ${programRegistry.name}`}
+    getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
     data-testid="infopanelist-rq17"
   />
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
-    <OutlinedButton size="small" onClick={openModal} data-testid="outlinedbutton-m6uu">
-      Cause of death
-    </OutlinedButton>
+    <Button size="small" onClick={openModal} data-testid="cause-of-death-button">
+      <TranslatedText
+        stringId="death.causeOfDeath.label"
+        fallback="Cause of death"
+        data-testid="translatedtext-h80z"
+      />
+    </Button>
   );
 });
 
@@ -238,16 +242,8 @@ const ListsSection = styled.div`
 
 const Buttons = styled.div`
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-
-  > button {
-    margin-right: 10px;
-
-    &:last-child {
-      margin: 0;
-    }
-  }
+  flex-direction: column;
+  gap: 16px;
 `;
 
 export const PatientInfoPane = () => {
@@ -255,7 +251,7 @@ export const PatientInfoPane = () => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getSetting } = useSettings();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const api = useApi();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const { data: deathData, isFetching } = useQuery(

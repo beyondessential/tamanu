@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
@@ -13,7 +13,6 @@ import { deleteDocumentMetadata } from '../../../routeHandlers/deleteModel';
 const SNAKE_CASE_COLUMN_NAMES = {
   type: 'type',
   documentOwner: 'document_owner',
-  name: 'department.name',
 };
 
 // Filtering functions for sequelize queries
@@ -47,23 +46,8 @@ patientDocumentMetadataRoutes.get(
     const documentFilters = mapQueryFilters(filterParams, [
       { key: 'type', operator: Op.substring, mapFn: caseInsensitiveFilter },
       { key: 'documentOwner', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'departmentId', operator: Op.eq },
     ]);
-    const departmentFilters = mapQueryFilters(filterParams, [
-      {
-        key: 'departmentName',
-        alias: 'name',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
-      },
-    ]);
-
-    // Require it when search has field, otherwise documents
-    // without a specified department won't appear
-    const departmentInclude = {
-      association: 'department',
-      where: departmentFilters,
-      required: (filterParams.departmentName && true) || false,
-    };
 
     // Get all document metadata associated with the patient or any encounter
     // that the patient may have had. Also apply filters from search bar.
@@ -75,7 +59,7 @@ patientDocumentMetadataRoutes.get(
         ],
       },
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
-      include: [departmentInclude],
+      include: [{ association: 'department' }],
       limit: rowsPerPage,
       offset: offset || page * rowsPerPage,
     });

@@ -10,6 +10,8 @@ import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { TranslatedEnum } from '../Translations/TranslatedEnum';
+import { INJECTION_SITE_LABELS } from '@tamanu/constants';
 
 const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -40,7 +42,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
       label={
         <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />
       }
-      value={administeredVaccine.injectionSite}
+      value={<TranslatedEnum value={administeredVaccine.injectionSite} enumValues={INJECTION_SITE_LABELS} />}
     />
     {!administeredVaccine.givenElsewhere ? (
       <View>

@@ -4,13 +4,15 @@ import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { Form, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import { ButtonRow, Form, FormSubmitButton, NoteModalActionBlocker } from '../../components';
+import { NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
+import { usePatientInsurancePlansInUseQuery } from '../../api/queries/usePatientInsurancePlansInUseQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
 
@@ -66,7 +68,13 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
+export const PatientDetailsForm = ({
+  patient,
+  additionalData,
+  birthData,
+  insurancePlans,
+  onSubmit,
+}) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
@@ -102,7 +110,12 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     enabled: Boolean(patient.id),
   });
 
-  const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
+  const {
+    data: insurancePlansInUse,
+    error: insurancePlansInUseError,
+  } = usePatientInsurancePlansInUseQuery({ patientId: patient.id });
+
+  const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
@@ -154,13 +167,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
+        invoiceInsurancePlanId: insurancePlans.map(({ invoiceInsurancePlanId }) => invoiceInsurancePlanId),
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
         patientRegistryType,
         getSetting,
         getTranslation,
-        getSetting,
+        insurancePlansInUse,
       )}
       data-testid="form-9v1j"
     />

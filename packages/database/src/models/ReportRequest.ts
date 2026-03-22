@@ -5,7 +5,7 @@ import {
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 

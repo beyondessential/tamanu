@@ -1,23 +1,30 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import {
+  getFormInitialValues,
+  getValidationSchema,
+  Form,
+  FormSubmitCancelRow,
+  SurveyScreen,
+  Modal,
+  ModalLoader,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
-import { SurveyScreen } from '../components/Surveys';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
-import { getFormInitialValues, getValidationSchema } from '../utils';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
-import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
@@ -27,8 +34,8 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components
-    .filter((c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
-    .map((c) =>
+    .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+    .map(c =>
       c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
         ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
         : c,
@@ -83,7 +90,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     );
   }
 
-  const handleSubmit = async (data) => onSubmit({ survey: vitalsSurvey, ...data });
+  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -93,10 +100,16 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validateOnBlur
       validationSchema={validationSchema}
       initialValues={{
-        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTime(),
+        ...getFormInitialValues({
+          components: currentComponents,
+          additionalData: patientAdditionalData,
+          patient,
+          getCurrentDateTime,
+        }
+        ),
       }}
-      validate={(values) => {
+      validate={values => {
         if (
           Object.entries(values)
             .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
@@ -114,6 +127,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           cols={2}
           values={values}
           setFieldValue={setFieldValue}
+          getComponentForQuestionType={getComponentForQuestionType}
           submitButton={
             <FormSubmitCancelRow
               confirmText={

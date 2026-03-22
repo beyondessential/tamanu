@@ -64,7 +64,7 @@ async function prepopulate(models) {
 
   const pfVaxDrug = await models.ReferenceData.create({
     ...fake(models.ReferenceData),
-    type: 'vaccine',
+    type: 'drug',
     name: 'Comirnaty',
   });
 

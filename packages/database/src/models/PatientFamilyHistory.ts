@@ -43,7 +43,7 @@ export class PatientFamilyHistory extends Model {
     return ['diagnosis'];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

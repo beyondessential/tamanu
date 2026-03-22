@@ -1,17 +1,19 @@
 import { FACT_CURRENT_SYNC_TICK, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
+import { pauseAudit } from '../utils/audit/pauseAudit';
 
 interface tableOid {
   oid: number;
 }
 
 export async function up(query: QueryInterface): Promise<void> {
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Save previously set time zone
@@ -19,7 +21,7 @@ export async function up(query: QueryInterface): Promise<void> {
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
 
   // Set time zone defined in config
-  await query.sequelize.query(`SET timezone to '${COUNTRY_TIMEZONE}'`);
+  await query.sequelize.query(`SET timezone to '${PRIMARY_TIME_ZONE}'`);
 
   const [tableOidQuery]: any = await query.sequelize.query<tableOid>(
     `SELECT oid FROM pg_class WHERE relname = 'patient_program_registrations';`,
@@ -117,6 +119,9 @@ export async function up(query: QueryInterface): Promise<void> {
       ORDER BY patient_id, program_registry_id, date DESC
     ) latest_registrations ON ppr.patient_id = latest_registrations.patient_id AND ppr.program_registry_id = latest_registrations.program_registry_id
   `);
+
+  // Disable audit changes
+  await pauseAudit(query.sequelize);
 
   await query.sequelize.query(`
     UPDATE patient_program_registrations ppr

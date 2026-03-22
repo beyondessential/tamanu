@@ -5,12 +5,12 @@ import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertif
 import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDob, getName, getSex } from '../patientAccessors';
-import { format as formatDate } from '@tamanu/utils/dateTime';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
-export const getCreatedAtDate = ({ documentCreatedAt }) =>
-  documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
+export const getCreatedAtDate = ({ documentCreatedAt }, { formatShort }) =>
+  documentCreatedAt ? formatShort(documentCreatedAt) : 'Unknown';
 
 const DETAIL_FIELDS = [
   { key: 'Patient name', label: 'Patient name', accessor: getName },
@@ -33,8 +33,9 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, data }) => {
+const DetailsSection = ({  data }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -43,7 +44,9 @@ const DetailsSection = ({ getLocalisation, data }) => {
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value =
-                (accessor ? accessor(data, { getLocalisation, getTranslation }) : data[key]) || '';
+                (accessor
+                  ? accessor(data, {  getTranslation, formatShort })
+                  : data[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
                 getTranslation(`general.localisedField.${key}.label`) ||
@@ -64,7 +67,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
+const PatientLetterComponent = ({  data, logoSrc, letterheadConfig }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -78,7 +81,6 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
-            getLocalisation={getLocalisation}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
@@ -93,4 +95,4 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
   );
 };
 
-export const PatientLetter = withLanguageContext(PatientLetterComponent);
+export const PatientLetter = withLanguageContext(withDateTimeContext(PatientLetterComponent));

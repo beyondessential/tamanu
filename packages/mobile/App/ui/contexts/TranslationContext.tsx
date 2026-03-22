@@ -8,12 +8,16 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 import { LanguageOption } from '~/models/TranslatedString';
+import { getEnumStringId } from '../components/Translations/TranslatedEnum';
+import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
+import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -32,6 +36,13 @@ export interface TranslatedTextProps {
   casing?: Casing;
 }
 
+interface TranslatedReferenceDataProps {
+  value: string;
+  category: string;
+  fallback: string;
+  placeholder?: string;
+}
+
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
@@ -41,6 +52,8 @@ interface TranslationContextData {
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;
+  getEnumTranslation: (enumValues: Record<string, string>, value: string) => string;
+  getReferenceDataTranslation: (props: TranslatedReferenceDataProps) => string;
 }
 
 interface TranslationOptions {
@@ -95,11 +108,12 @@ const TranslationContext = createContext<TranslationContextData>({
   setLanguage: () => {},
   host: null,
   setHost: () => {},
+  getEnumTranslation: () => '',
+  getReferenceDataTranslation: () => '',
 } as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
-  const DEFAULT_LANGUAGE = 'en';
-  const { models } = useBackend();
+  const { models, syncManager } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
   const [languageOptions, setLanguageOptions] = useState(null);
@@ -107,17 +121,27 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [host, setHost] = useState(null);
 
   const getLanguageOptions = useCallback(async () => {
-    const languageOptionArray = await models.TranslatedString.getLanguageOptions();
+    let languageOptionArray = await models.TranslatedString.getLanguageOptions();
+
+    // Filter out the default language if we have a custom English language
+    if (languageOptionArray.some(({ languageCode }) => languageCode === ENGLISH_LANGUAGE_CODE)) {
+      languageOptionArray = languageOptionArray.filter(
+        ({ languageCode }) => languageCode !== DEFAULT_LANGUAGE_CODE,
+      );
+    }
+
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
   }, [models.TranslatedString]);
 
-  const setLanguageState = useCallback(
-    async (languageCode: string = DEFAULT_LANGUAGE) => {
+  // Used to routinely fetch the
+  const getLatestTranslations = useCallback(
+    async (languageCode: string | null) => {
+      if (!languageCode) return;
+
       await writeLanguage(languageCode);
-      if (!languageOptions) getLanguageOptions();
       const translations = await models.TranslatedString.getForLanguage(languageCode);
       if (isEmpty(translations) && host) {
-        // If we dont have translations synced down, fetch from the public server endpoint directly
+        // If we don't have translations synced down, fetch from the public server endpoint directly
         const response = await fetch(`${host}/api/public/translation/${languageCode}`);
         const data = await response.json();
         setTranslations(data);
@@ -125,7 +149,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setTranslations(translations);
       }
     },
-    [getLanguageOptions, host, languageOptions, models.TranslatedString],
+    [host, models.TranslatedString],
   );
 
   const getTranslation = (
@@ -139,13 +163,34 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     return replaceStringVariables(translation, translationOptions, translations);
   };
 
+  const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
+    if (!enumValues[value]) {
+      return getTranslation('general.fallback.unknown', 'Unknown');
+    }
+
+    const stringId = getEnumStringId(value, enumValues);
+    const fallback = enumValues[value];
+    return getTranslation(stringId, fallback);
+  };
+
+  const getReferenceDataTranslation = ({
+    value,
+    category,
+    fallback,
+    placeholder,
+  }: TranslatedReferenceDataProps) => {
+    return value
+      ? getTranslation(getReferenceDataStringId(value, category), fallback)
+      : placeholder;
+  };
+
   const writeLanguage = async (languageCode: string) => {
     await writeConfig('language', languageCode);
   };
 
   const restoreLanguage = async () => {
     const languageCode = await readConfig('language');
-    setLanguage(languageCode || DEFAULT_LANGUAGE);
+    setLanguage(languageCode);
   };
 
   useEffect(() => {
@@ -153,14 +198,27 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   }, [translations]);
 
   useEffect(() => {
-    setLanguageState(language);
-  }, [language, setLanguageState, host]);
+    getLanguageOptions();
+    getLatestTranslations(language);
+  }, [language, getLatestTranslations, getLanguageOptions]);
+
+  // Reload latest translations on successful sync
+  useEffect(() => {
+    const handler = () => {
+      getLanguageOptions();
+      getLatestTranslations(language);
+    };
+
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
+
+    return () => syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
+  }, [language, getLatestTranslations, getLanguageOptions, syncManager.emitter]);
 
   useEffect(() => {
     restoreLanguage();
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () =>
-      setIsDebugMode((oldDebugValue) => !oldDebugValue),
+      setIsDebugMode(oldDebugValue => !oldDebugValue),
     );
   }, []);
 
@@ -175,6 +233,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguage,
         host,
         setHost,
+        getEnumTranslation,
+        getReferenceDataTranslation,
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { LAB_TEST_RESULT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -32,6 +32,7 @@ export class LabTestType extends Model {
   declare visibilityStatus: string;
   declare externalCode?: string;
   declare labTestCategoryId?: string;
+  declare supportsSecondaryResults: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -66,6 +67,11 @@ export class LabTestType extends Model {
           allowNull: true,
         },
         isSensitive: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
+        supportsSecondaryResults: {
           type: DataTypes.BOOLEAN,
           defaultValue: false,
           allowNull: false,
@@ -123,7 +129,7 @@ export class LabTestType extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

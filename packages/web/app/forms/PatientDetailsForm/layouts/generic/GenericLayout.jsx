@@ -1,17 +1,15 @@
 import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES, SETTING_KEYS, SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import {
   LocalisedField,
-  TextField,
   DateField,
   AutocompleteField,
-  FormGrid,
   TranslatedRadioField,
   NoteModalActionBlocker,
 } from '../../../../components';
+import { TextField, FormGrid, useDateTime } from '@tamanu/ui-components';
 import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,
@@ -34,6 +32,7 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
+  const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
@@ -119,10 +118,9 @@ export const GenericPrimaryDetailsLayout = ({
                 data-testid="translatedtext-o7gm"
               />
             }
-            max={getCurrentDateString()}
+            max={getCurrentDate()}  
             component={DateField}
             required
-            saveDateAsString
             data-testid="localisedfield-oafl"
           />
 

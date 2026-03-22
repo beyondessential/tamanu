@@ -5,12 +5,16 @@ import { Timesimp } from 'timesimp';
 import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { initReporting } from '@tamanu/database/services/reporting';
 
 import { EmailService } from './services/EmailService';
-import { closeDatabase, initDatabase, initReporting } from './database';
+
+import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
+import { initDeviceId } from '@tamanu/shared/utils';
+import { DEVICE_TYPES } from '@tamanu/constants';
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -43,6 +47,9 @@ export class ApplicationContext {
   /**@type {ReadSettings<CentralSettingPath> | null} */
   settings = null;
 
+  /** @type {string | null} */
+  deviceId = null;
+
   closeHooks = [];
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
@@ -58,7 +65,7 @@ export class ApplicationContext {
 
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
-    this.closePromise = new Promise((resolve) => {
+    this.closePromise = new Promise(resolve => {
       this.onClose(resolve);
     });
 
@@ -69,10 +76,12 @@ export class ApplicationContext {
       return this;
     }
 
+    await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
+
     this.emailService = new EmailService();
 
     if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting();
+      this.reportSchemaStores = await initReporting(this.store);
     }
 
     this.telegramBotService = await defineSingletonTelegramBotService({
@@ -86,16 +95,16 @@ export class ApplicationContext {
     }
 
     this.timesync = new Timesimp(
-      async (err) => {
+      async err => {
         if (err) throw err;
         // we assume central-server time is correct
         return 0;
       },
-      async (err) => {
+      async err => {
         if (err) throw err;
         // we assume central-server time is correct
       },
-      async (err) => {
+      async err => {
         if (err) throw err;
         throw new Error('No upstream timesync server for central');
       },

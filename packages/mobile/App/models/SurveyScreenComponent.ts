@@ -55,20 +55,6 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  getOptions(): any {
-    try {
-      const optionString = this.options || this.dataElement.defaultOptions || '';
-      if (!optionString) {
-        return [];
-      }
-      const optionArray = JSON.parse(optionString);
-      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
   getConfigObject(): any {
     if (!this.config) return {};
 

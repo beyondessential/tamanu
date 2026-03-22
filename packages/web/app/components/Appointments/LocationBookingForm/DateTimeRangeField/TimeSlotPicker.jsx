@@ -4,7 +4,7 @@ import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import {
@@ -14,8 +14,9 @@ import {
   minValidDate,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
-import { useLocationBookingsQuery } from '../../../../api/queries';
+import { useLocationAssignmentsQuery, useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -78,10 +79,13 @@ export const TimeSlotPicker = ({
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   name,
+  type = 'bookings',
+  bookingSlotSettingsOverride,
   ...props
 }) => {
   const [dayStart, dayEnd] = useMemo(() => {
-    return date ? endpointsOfDay(parseISO(date)) : [null, null];
+    const baseDate = date ? parseISO(date) : new Date();
+    return endpointsOfDay(baseDate);
   }, [date]);
 
   const {
@@ -91,14 +95,14 @@ export const TimeSlotPicker = ({
     errors,
     isSubmitting,
   } = useFormikContext();
+  const { toFacilityDateTime, getDayBoundaries } = useDateTime();
 
   const {
     slots: timeSlots,
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart);
-
+  } = useBookingSlots(dayStart, type, bookingSlotSettingsOverride);
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
@@ -110,26 +114,41 @@ export const TimeSlotPicker = ({
    */
   const [selectedToggles, setSelectedToggles] = useState(
     initialInterval
-      ? timeSlots
-          ?.filter((slot) => areIntervalsOverlapping(slot, initialInterval))
-          .map(idOfTimeSlot)
+      ? timeSlots?.filter(slot => areIntervalsOverlapping(slot, initialInterval)).map(idOfTimeSlot)
       : [],
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const { data: existingBookings, isFetching: isFetchingExistingBookings } =
-    useLocationBookingsQuery(
-      {
-        after: toDateTimeString(dayStart),
-        before: toDateTimeString(dayEnd),
-        all: true,
-        locationId: values.locationId,
-      },
-      { enabled: !!date && !!values.locationId },
-    );
+  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date, getDayBoundaries]);
+
+  const locationBookingsQuery = useLocationBookingsQuery(
+    {
+      after: queryBoundaries?.start,
+      before: queryBoundaries?.end,
+      all: true,
+      locationId: values.locationId,
+    },
+    { enabled: !!date && !!values.locationId && !!queryBoundaries && type === 'bookings' },
+  );
+
+  const locationAssignmentsQuery = useLocationAssignmentsQuery(
+    {
+      after: date,
+      before: date,
+      all: true,
+      locationId: values.locationId,
+    },
+    {
+      enabled: !!date && !!values.locationId && type === 'assignments',
+    },
+  );
+  const existingBookings =
+    type === 'bookings' ? locationBookingsQuery.data : locationAssignmentsQuery.data;
+  const isFetchingExistingBookings =
+    type === 'bookings' ? locationBookingsQuery.isFetching : locationAssignmentsQuery.isFetching;
 
   const updateInterval = useCallback(
-    (newInterval) => {
+    newInterval => {
       const { start, end } = newInterval;
       if (start !== undefined) void setFieldValue('startTime', toDateTimeString(start));
       if (end !== undefined) void setFieldValue('endTime', toDateTimeString(end));
@@ -248,14 +267,25 @@ export const TimeSlotPicker = ({
   const bookedIntervals = useMemo(
     () =>
       existingBookings?.data
-        .map(appointmentToInterval)
-        .filter((interval) => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
-    [existingBookings?.data, initialInterval],
+        .map(booking => {
+          if (type === 'bookings') {
+            const facilityStart = toFacilityDateTime(booking.startTime);
+            const facilityEnd = toFacilityDateTime(booking.endTime);
+            if (!facilityStart || !facilityEnd) return null;
+            return appointmentToInterval({
+              startTime: facilityStart,
+              endTime: facilityEnd,
+            });
+          }
+          return appointmentToInterval(booking);
+        })
+        .filter(interval => interval && !isEqual(interval, initialInterval)) ?? [],
+    [existingBookings?.data, initialInterval, toFacilityDateTime, type],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
-    (timeSlot) => {
+    timeSlot => {
       if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE && (!values.startTime || !values.endTime)) {
         // If beginning a fresh selection in the RANGE variant, discontinuity is impossible
         return true;
@@ -283,16 +313,16 @@ export const TimeSlotPicker = ({
       };
       const targetSelection = getTargetSelection();
 
-      return !bookedIntervals.some((interval) =>
-        areIntervalsOverlapping(targetSelection, interval),
-      );
+      return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
     [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
 
+  const lastValuesRef = useRef({ startTime: null, endTime: null });
+
   /**
    * Treating the `startTime` and `endTime` string values from the Formik context as the source of
-   * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
+   * truth, synchronise this {@link TimeSlotPicker}'s selection of {@link ToggleButton}s with the
    * currently selected start and end times.
    *
    * - If the user switches from an overnight booking to non-, preserve only the earliest time
@@ -301,13 +331,23 @@ export const TimeSlotPicker = ({
    *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
    *   conflicts with another appointment, clear the start and/or end times as needed to maintain
    *   legal state.
-   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
+   * - There's no good heuristic for mapping end times between overnight and non-, so end times are
    *   simply discarded when toggling the `overnight` checkbox.
    */
   useEffect(() => {
-    // Not a destructure to convince linter we don’t need `values` object dependency
+    // Not a destructure to convince linter we don't need `values` object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
+
+    // Check if values have actually changed to avoid unnecessary processing
+    if (
+      startTime === lastValuesRef.current.startTime &&
+      endTime === lastValuesRef.current.endTime
+    ) {
+      return;
+    }
+
+    lastValuesRef.current = { startTime, endTime };
 
     const start = parseISO(startTime);
     const end = parseISO(endTime);
@@ -328,12 +368,12 @@ export const TimeSlotPicker = ({
       }
 
       /*
-       * It’s only possible to have a start time but no end time if the user has just switched from
+       * It's only possible to have a start time but no end time if the user has just switched from
        * an overnight booking. Preserve the first time slot from that selection.
        */
       if (!endTime) {
-        const start = parseISO(startTime);
-        const slot = slotContaining(start);
+        const startDate = parseISO(startTime);
+        const slot = slotContaining(startDate);
 
         updateInterval(slot); // Retriggers this useEffect hook, but will fall to the next branch
         return;
@@ -341,7 +381,7 @@ export const TimeSlotPicker = ({
 
       const interval = appointmentToInterval({ startTime, endTime });
       setSelectedToggles(
-        timeSlots?.filter((slot) => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
+        timeSlots?.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
       );
       return;
     }
@@ -352,7 +392,7 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const hasConflict = bookedIntervals.some((interval) =>
+      const hasConflict = bookedIntervals.some(interval =>
         areIntervalsOverlapping({ start, end: dayEnd }, interval),
       );
       if (hasConflict) {
@@ -362,7 +402,7 @@ export const TimeSlotPicker = ({
       }
 
       const startValue = start.valueOf();
-      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter((slotId) => slotId >= startValue));
+      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
       return;
     }
 
@@ -379,7 +419,7 @@ export const TimeSlotPicker = ({
       }
 
       const endValue = end.valueOf();
-      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter((slotId) => slotId < endValue));
+      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
       return;
     }
   }, [
@@ -418,11 +458,11 @@ export const TimeSlotPicker = ({
         {...props}
         data-testid="togglegroup-fxn9"
       >
-        {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
-          <PlaceholderTimeSlotToggles data-testid="placeholdertimeslottoggles-l1fr" />
+        {isFetchingExistingBookings || isTimeSlotsPending ? (
+          <PlaceholderTimeSlotToggles type={type} data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
-          timeSlots?.map((timeSlot) => {
-            const isBooked = bookedIntervals.some((bookedInterval) =>
+          timeSlots?.map(timeSlot => {
+            const isBooked = bookedIntervals.some(bookedInterval =>
               areIntervalsOverlapping(timeSlot, bookedInterval),
             );
             const id = idOfTimeSlot(timeSlot);
@@ -472,7 +512,9 @@ export const TimeSlotPicker = ({
                 selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={id}
-                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(timeSlot.end)}`}
+                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(
+                  timeSlot.end,
+                )}`}
               />
             );
           })

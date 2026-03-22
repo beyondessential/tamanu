@@ -167,7 +167,4 @@ Once there is a Facility server up and running, run this to start the Electron a
 ```bash
 $ npm run web-start-dev
 ```
-
-Note that we also use storybook to develop components in isolation, which you can run from within
-the web directory using `npm run storybook`.
 </details>

@@ -3,16 +3,21 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
-import { AutocompleteField, Field, Form, TextField } from '../components/Field';
-import { FileChooserField } from '../components/Field/FileChooserField';
-import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
-import { FORM_TYPES } from '../constants';
+import {
+  FileChooserField,
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  FormSubmitCancelRow,
+} from '@tamanu/ui-components';
+import { AutocompleteField, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -27,12 +32,12 @@ const MessageTitle = styled(Typography)`
   font-size: 18px;
   line-height: 21px;
   margin-bottom: 10px;
-  color: ${(props) => props.theme.palette.error.main};
+  color: ${props => props.theme.palette.error.main};
 `;
 
 const Message = styled(Typography)`
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   font-size: 16px;
   line-height: 18px;
   margin-bottom: 30px;

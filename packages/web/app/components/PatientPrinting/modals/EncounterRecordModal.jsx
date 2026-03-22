@@ -4,7 +4,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -27,6 +27,7 @@ import { useTranslation } from '../../../contexts/Translation';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -103,7 +104,8 @@ const extractLocationHistory = (notes, encounterData) => {
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
   const { settings } = useSettings();
-  const { localisation, getLocalisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
+  const { primaryTimeZone } = useAuth();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
   const certificateQuery = useCertificate();
@@ -266,16 +268,16 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       medication =>
         (encounter.endDate
           ? medication.encounterPrescription?.isSelectedForDischarge
-          : !medication.discontinued) && !medication.medication.referenceDrug.isSensitive,
+          : !medication.discontinued) && !medication.medication?.referenceDrug?.isSensitive,
     )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
+    return note.noteTypeId !== NOTE_TYPES.SYSTEM;
   });
 
   const systemNotes = notes.filter(note => {
-    return note.noteType === NOTE_TYPES.SYSTEM;
+    return note.noteTypeId === NOTE_TYPES.SYSTEM;
   });
 
   const locationSystemNotes = systemNotes.filter(note => {
@@ -316,9 +318,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          localisation={localisation}
           translations={translations}
           settings={settings}
+          primaryTimeZone={primaryTimeZone}
           data-testid="encounterrecordprintout-yqe1"
         />
       )}

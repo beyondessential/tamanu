@@ -6,6 +6,7 @@ import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -56,7 +57,7 @@ const NoteContent = styled.p`
 
 export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
   const api = useApi();
-  const deleteNote = async (noteId) => api.delete(`notes/${noteId}`);
+  const deleteNote = async noteId => api.delete(`notes/${noteId}`);
   return (
     <NoteContainer data-testid="notecontainer-6fi4">
       <NoteHeaderContainer data-testid="noteheadercontainer-yyig">
@@ -69,7 +70,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
               &nbsp;&nbsp;|&nbsp;&nbsp;
               <TranslatedText
                 stringId="note.table.onBehalfOfText"
-                fallback="On behalf of :changeOnBehalfOfName"
+                fallback="on behalf of :changeOnBehalfOfName"
                 replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
                 data-testid="translatedtext-g90i"
               />
@@ -103,6 +104,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                 action: () => {
                   onEditClicked();
                 },
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
               ...(isMainCarePlan
                 ? []
@@ -119,6 +121,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                         await deleteNote(note.id);
                         onNoteDeleted();
                       },
+                      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
                     },
                   ]),
             ]}

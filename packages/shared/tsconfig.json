@@ -16,9 +16,9 @@
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./dist/esm",
+    "outDir": "./dist/types",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "__tests__", "src/**/*.js", "src/**/*.jsx"]
 }

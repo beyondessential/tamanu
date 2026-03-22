@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
-import { useHistory } from 'react-router-dom';
-import { endOfDay, startOfDay } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useNavigate } from 'react-router';
 import { Box, Link } from '@material-ui/core';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Heading4, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
@@ -102,15 +101,23 @@ const NoDataContainer = styled.div`
 `;
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
+  const { getCurrentDate, getDayBoundaries } = useDateTime();
+
+  // Get today's date boundaries in facility timezone, converted to primary timezone for query
+  const todayFacility = getCurrentDate();
+  const boundaries = getDayBoundaries(todayFacility);
+  const start = boundaries?.start;
+  const end = boundaries?.end;
+
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
       {
         locationGroupId: '',
-        after: toDateTimeString(startOfDay(new Date())),
-        before: toDateTimeString(endOfDay(new Date())),
+        after: start,
+        before: end,
         clinicianId: currentUser?.id,
         all: true,
         facilityId,
@@ -118,12 +125,11 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(
-    (appointment) => appointment.status === 'Seen',
-  ).length;
+  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
+    .length;
 
   const onViewAll = () => {
-    history.push(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
+    navigate(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
   };
 
   return (
@@ -132,7 +138,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         <Heading4 margin={0} data-testid="heading4-14lj">
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.title"
-            fallback="Today's appointments"
+            fallback="Today’s appointments"
             data-testid="translatedtext-5ugr"
           />
         </Heading4>

@@ -30,7 +30,7 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
     "persistUpdateWorkerPoolSize": 5,
-    "assertIfPulledRecordsUpdatedAfterPushSnapshot": false,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
     "jitterTime": "1s",
     "backoff": {
@@ -47,6 +47,7 @@
     }
   },
   "port": 4000,
+  "deviceId": null,
   "db": {
     "name": "tamanu-facility",
     "username": "",
@@ -74,9 +75,11 @@
     }
   },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "senaite": {
     "enabled": false,
@@ -96,6 +99,9 @@
   "serverFacilityId": null,
   "serverFacilityIds": null,
   "debugging": {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
     "requestFailureRate": 0
   },
   "schedules": {
@@ -109,12 +115,26 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "timeSync": {
       "enabled": false,
       // every hour
       "schedule": "0 * * * *",
     },
+    "mSupplyMedIntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+  },
+  "integrations": {
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -134,8 +154,10 @@
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
   },
-  // this should be an IANA tzdata timezone
-  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  // IANA tzdata timezone for all stored datetimes.
+  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
+  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "primaryTimeZone": null,
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "tasking": {

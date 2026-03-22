@@ -4,24 +4,25 @@ import { get, startCase } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_LABELS,
-  NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { formatShort, formatShortest, formatTime, parseDate } from '@tamanu/utils/dateTime';
+import { parseDate, trimToDate } from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
+import { getReferenceDataStringId } from '../translation/getReferenceDataStringId';
 
 const borderStyle = '1 solid black';
 
@@ -95,12 +96,12 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const getDateTitleArray = date => {
+const getDateTitleArray = (date, formatShortest, formatTime) => {
   const parsedDate = parseDate(date);
   const shortestDate = formatShortest(parsedDate);
   const timeWithSeconds = formatTime(parsedDate);
 
-  return [shortestDate, timeWithSeconds.toLowerCase()];
+  return [shortestDate, timeWithSeconds?.toLowerCase()];
 };
 
 const formatValue = (value, config) => {
@@ -118,7 +119,8 @@ const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
+const getVitalsColumn = (startIndex, getTranslation, recordedDates, formatters) => {
+  const { formatShortest, formatTime } = formatters;
   const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
   return [
     {
@@ -130,13 +132,13 @@ const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
     ...dateArray
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: getDateTitleArray(date),
+        title: getDateTitleArray(date, formatShortest, formatTime),
         key: date,
         accessor: cells => {
           const { value, config } = cells[date];
           return formatValue(value, config);
         },
-        style: { width: 60, },
+        style: { width: 60 },
       })),
   ];
 };
@@ -255,10 +257,11 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShortDateTime } = useDateTime();
   return (
     <Text style={textStyles.tableCellFooter}>
       {[
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN &&
+        note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN &&
           `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
         note.author?.displayName,
         note.onBehalfOf &&
@@ -267,8 +270,7 @@ const NoteFooter = ({ note }) => {
               changeOnBehalfOfName: note.onBehalfOf.displayName,
             },
           }),
-        formatShort(note.date),
-        getDisplayDate(note.date, 'h:mma'),
+        formatShortDateTime(note.date),
       ]
         .filter(Boolean)
         .join(' ')}
@@ -291,7 +293,7 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
-  const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { getTranslation } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
@@ -315,7 +317,10 @@ const NotesSection = ({ notes }) => {
                 <NotesCell>
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
-                    title={getEnumTranslation(NOTE_TYPE_LABELS, note.noteType)}
+                    title={getTranslation(
+                      getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
+                      note.noteTypeReference?.name || note.noteTypeId,
+                    )}
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
@@ -353,14 +358,13 @@ const EncounterRecordPrintoutComponent = ({
   notes,
   discharge,
   medications,
-  localisation,
   vitalsData,
   recordedDates,
   settings,
 }) => {
-  const getLocalisation = (key) => get(localisation, key);
-  const getSetting = (key) => get(settings, key);
+  const getSetting = key => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTime();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -375,8 +379,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => formatShortDateTime(date),
         style: { width: '35%' },
       },
     ],
@@ -396,8 +399,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => formatShortDateTime(date),
         style: { width: '35%' },
       },
     ],
@@ -417,7 +419,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'date',
         title: getTranslation('general.date.label', 'Date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -431,7 +433,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'procedureDate',
         title: getTranslation('procedure.date.label', 'Procedure date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -454,14 +456,13 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
-        accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
+        accessor: ({ requestDate }) => formatShort(requestDate),
         style: { width: '17.5%' },
       },
       {
         key: 'publishedDate',
         title: getTranslation('pdf.encounterRecord.publishedDate', 'Published date'),
-        accessor: ({ publishedDate }) =>
-          publishedDate ? formatShort(publishedDate) : '--/--/----',
+        accessor: ({ publishedDate }) => formatShort(publishedDate),
         style: { width: '17.5%' },
       },
     ],
@@ -490,17 +491,13 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
-        accessor: ({ requestedDate }) =>
-          requestedDate ? formatShort(requestedDate) : '--/--/----',
+        accessor: ({ requestedDate }) => formatShort(requestedDate),
         style: { width: '20%' },
       },
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: imagingRequest =>
-          imagingRequest?.results[0]?.completedAt
-            ? formatShort(imagingRequest?.results[0]?.completedAt)
-            : '--/--/----',
+        accessor: imagingRequest => formatShort(imagingRequest?.results[0]?.completedAt),
         style: { width: '20%' },
       },
     ],
@@ -545,7 +542,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(trimToDate(date)),
         style: { width: '23%' },
       },
     ],
@@ -582,7 +579,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
+        <PatientDetailsWithAddress patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
         <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />
@@ -661,7 +658,10 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates, {
+                    formatShortest,
+                    formatTime,
+                  })}
                   type="vitals"
                 />
                 <Footer />
@@ -674,4 +674,6 @@ const EncounterRecordPrintoutComponent = ({
   );
 };
 
-export const EncounterRecordPrintout = withLanguageContext(EncounterRecordPrintoutComponent);
+export const EncounterRecordPrintout = withLanguageContext(
+  withDateTimeContext(EncounterRecordPrintoutComponent),
+);

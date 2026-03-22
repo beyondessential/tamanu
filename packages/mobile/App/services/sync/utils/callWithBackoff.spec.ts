@@ -1,4 +1,5 @@
 import { callWithBackoff } from './callWithBackoff';
+import { RateLimitedError } from '@tamanu/errors';
 
 jest.useRealTimers();
 
@@ -9,8 +10,8 @@ describe('callWithBackoff', () => {
     // arrange
     const fn = jest
       .fn()
-      .mockImplementationOnce(() => Promise.reject(new Error('0')))
-      .mockImplementationOnce(() => Promise.reject(new Error('1')))
+      .mockImplementationOnce(() => Promise.reject(new RateLimitedError(0, '0')))
+      .mockImplementationOnce(() => Promise.reject(new RateLimitedError(0, '1')))
       .mockImplementationOnce(() => Promise.resolve(2));
 
     // act
@@ -23,7 +24,7 @@ describe('callWithBackoff', () => {
 
   it('fails after the maximum number of retries', async () => {
     // arrange
-    const errs = ['0', '1', '2'].map(msg => new Error(msg));
+    const errs = ['0', '1', '2'].map(msg => new RateLimitedError(0, msg));
     const fn = jest
       .fn()
       .mockImplementationOnce(() => Promise.reject(errs[0]))
@@ -42,14 +43,14 @@ describe('callWithBackoff', () => {
     // arrange
     const config = { maxAttempts: 5, maxWaitMs: 10000, multiplierMs: 50 };
     let n = 0;
-    const fn = jest.fn(() => Promise.reject(new Error(`${n++}`)));
+    const fn = jest.fn(() => Promise.reject(new RateLimitedError(0, `${n++}`)));
     const startMs = Date.now();
 
     // act
     const promise = callWithBackoff(fn, config);
 
     // assert
-    await expect(promise).rejects.toHaveProperty('message', (config.maxAttempts - 1).toString());
+    await expect(promise).rejects.toHaveProperty('detail', (config.maxAttempts - 1).toString());
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeGreaterThanOrEqual((1 + 1 + 2 + 3) * config.multiplierMs);
     expect(elapsedMs).toBeLessThan((1 + 1 + 2 + 3 + 5) * config.multiplierMs);
@@ -59,14 +60,14 @@ describe('callWithBackoff', () => {
     // arrange
     const config = { maxAttempts: 5, maxWaitMs: 100, multiplierMs: 100 };
     let n = 0;
-    const fn = jest.fn(() => Promise.reject(new Error(`${n++}`)));
+    const fn = jest.fn(() => Promise.reject(new RateLimitedError(0, `${n++}`)));
     const startMs = Date.now();
 
     // act
     const promise = callWithBackoff(fn, config);
 
     // assert
-    await expect(promise).rejects.toHaveProperty('message', (config.maxAttempts - 1).toString());
+    await expect(promise).rejects.toHaveProperty('detail', (config.maxAttempts - 1).toString());
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeGreaterThanOrEqual((config.maxAttempts - 1) * config.maxWaitMs);
     expect(elapsedMs).toBeLessThan(config.maxAttempts * config.maxWaitMs);

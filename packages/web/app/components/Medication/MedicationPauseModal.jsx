@@ -2,26 +2,24 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-
+import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
-  BaseModal,
-  Field,
+  SelectField,
+  TextField,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  NumberField,
-  SelectField,
-  TextField,
+  BaseModal,
   TranslatedText,
-} from '..';
-import { Colors, FORM_TYPES } from '../../constants';
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants';
+import { Field, NumberField } from '..';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';
 import { preventInvalidNumber } from '../../utils';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { add, isBefore } from 'date-fns';
 import { useEncounter } from '../../contexts/Encounter';
 
@@ -73,13 +71,14 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
   const api = useApi();
 
   const onSubmit = async data => {
     await api.post(`medication/${medication.id}/pause`, {
       ...data,
-      pauseStartDate: getCurrentDateTimeString(),
+      pauseStartDate: getCurrentDateTime(),
     });
     onPause();
     onClose();
@@ -90,6 +89,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
       open
       onClose={onClose}
       title={<TranslatedText stringId="medication.pauseModal.title" fallback="Pause medication" />}
+      data-testid="medicationpausemodal-xyz789"
     >
       <Form
         suppressErrorDialog
@@ -111,7 +111,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                 />
               </DarkText>
               <MedicationSummary medication={medication} />
-              <FormGrid>
+              <FormGrid data-testid="formgrid-pausemedication-abc123">
                 <FormGrid nested>
                   <Field
                     name="pauseDuration"
@@ -125,6 +125,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                     min={0}
                     onInput={preventInvalidNumber}
                     required
+                    data-testid="field-pauseduration-input"
                   />
                   <Field
                     name="pauseTimeUnit"
@@ -136,9 +137,10 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                         label,
                       }),
                     )}
+                    data-testid="field-pausetimeunit-select"
                   />
                   {errors.extendBeyondEndDate && (
-                    <ExtendBeyondEndDateError>
+                    <ExtendBeyondEndDateError data-testid="extendbeyondenddateerror-xyz789">
                       <TranslatedText
                         stringId="medication.pauseModal.pauseValidation"
                         fallback="Cannot extend beyond medication end date"
@@ -152,11 +154,15 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                     <TranslatedText stringId="medication.pauseModal.notes.label" fallback="Notes" />
                   }
                   component={TextField}
+                  data-testid="field-notes-input"
                 />
               </FormGrid>
             </Box>
-            <StyledFormActions>
-              <FormCancelButton onClick={onClose}>
+            <StyledFormActions data-testid="styledformactions-pause-abc123">
+              <FormCancelButton 
+                onClick={onClose}
+                data-testid="formcancelbutton-cancel-abc123"
+              >
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton
@@ -164,6 +170,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                 onClick={data => {
                   submitForm(data);
                 }}
+                data-testid="formsubmitbutton-pause-xyz789"
               >
                 <TranslatedText stringId="medication.details.pause" fallback="Pause" />
               </FormSubmitButton>

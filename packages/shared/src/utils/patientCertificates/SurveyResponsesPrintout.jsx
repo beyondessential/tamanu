@@ -13,8 +13,8 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
 
 const pageStyles = StyleSheet.create({
@@ -72,15 +72,7 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({
-  answer,
-  sourceType,
-  type,
-  getTranslation,
-  dataElementId,
-  config,
-  originalBody,
-}) => {
+const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody, formatShort }) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -95,7 +87,7 @@ const getAnswers = ({
     );
   };
 
-  switch (sourceType || type) {
+  switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
@@ -112,13 +104,15 @@ const getAnswers = ({
       return JSON.parse(answer).map(translateOption);
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return translateReferenceData(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
+      return answer;
     default:
       return translateOption(answer);
   }
 };
 
-const ResponseItem = ({ row, getTranslation }) => {
-  const { name, answer, type, sourceType, dataElementId, config, originalBody } = row;
+const ResponseItem = ({ row, getTranslation, formatShort }) => {
+  const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>
@@ -128,22 +122,22 @@ const ResponseItem = ({ row, getTranslation }) => {
         {getAnswers({
           answer,
           type,
-          sourceType,
           getTranslation,
           dataElementId,
           config,
           originalBody,
+          formatShort,
         })}
       </Text>
     </View>
   );
 };
 
-const ResponsesGroup = ({ rows, getTranslation }) => {
+const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem getTranslation={getTranslation} key={row.id} row={row} />
+        <ResponseItem getTranslation={getTranslation} formatShort={formatShort} key={row.id} row={row} />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -153,7 +147,6 @@ const ResponsesGroup = ({ rows, getTranslation }) => {
 const SurveyResponsesPrintoutComponent = ({
   patientData,
   certificateData,
-  getLocalisation,
   getTranslation,
   surveyResponse,
   isReferral,
@@ -161,6 +154,7 @@ const SurveyResponsesPrintoutComponent = ({
   currentUser,
   getSetting,
 }) => {
+  const { formatShort } = useDateTime();
   const { watermark, logo } = certificateData;
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
@@ -193,7 +187,6 @@ const SurveyResponsesPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle={title}
             certificateSubtitle={surveyResponse.title}
@@ -201,7 +194,10 @@ const SurveyResponsesPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
+        <PatientDetails
+          patient={patientData}
+          getSetting={getSetting}
+        />
 
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />
@@ -214,7 +210,7 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup getTranslation={getTranslation} key={index} rows={group} />
+          <ResponsesGroup getTranslation={getTranslation} formatShort={formatShort} key={index} rows={group} />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
@@ -223,4 +219,6 @@ const SurveyResponsesPrintoutComponent = ({
   );
 };
 
-export const SurveyResponsesPrintout = withLanguageContext(SurveyResponsesPrintoutComponent);
+export const SurveyResponsesPrintout = withLanguageContext(
+  withDateTimeContext(SurveyResponsesPrintoutComponent),
+);

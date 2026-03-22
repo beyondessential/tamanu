@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getNormalRangeByAge, useDateTime } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
   USER_PREFERENCES_KEYS,
 } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
   DateBodyCell,
@@ -15,10 +15,8 @@ import {
   RangeTooltipCell,
   RangeValidatedCell,
 } from './FormattedTableCell';
-import { DateDisplay } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
@@ -27,12 +25,6 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
-
-const getExportOverrideTitle = (date) => {
-  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
-  return `${shortestDate} ${timeWithSeconds}`;
-};
 
 const parseMultiselectValue = value => {
   if (!value) return;
@@ -128,7 +120,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
@@ -160,12 +152,11 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 });
 
 const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
-  return (cells) => {
+  return cells => {
     const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
     const isCalculatedQuestion =
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-    const isMultiSelect =
-      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
     const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
     const handleCellClick = () => {
       onCellClick(cells[date]);
@@ -204,21 +195,24 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
   };
 };
 
-export const getChartsTableColumns = (
+export const useChartsTableColumns = (
   selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
   isEditEnabled = false,
 ) => {
+  const { formatShortest, formatTimeWithSeconds } = useDateTime();
   return [
     {
       key: 'measure',
-      title: <TranslatedText
-        stringId="general.table.column.measure"
-        fallback="Measure"
-        data-testid="translatedtext-l9f5"
-      />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.measure"
+          fallback="Measure"
+          data-testid="translatedtext-l9f5"
+        />
+      ),
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -236,7 +230,7 @@ export const getChartsTableColumns = (
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map((date) => ({
+      .map(date => ({
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
@@ -248,14 +242,14 @@ export const getChartsTableColumns = (
           selectedChartSurveyName,
         ),
         exportOverrides: {
-          title: getExportOverrideTitle(date),
+          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
         },
       })),
   ];
 };
 
-export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
-  return getChartsTableColumns(
+export const useVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+  return useChartsTableColumns(
     <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,

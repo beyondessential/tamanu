@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import { SelectInput } from './SelectField';
-import { MultiselectInput } from './MultiselectField';
+import { MultiselectInput, SelectInput } from '@tamanu/ui-components';
 import { useSuggesterOptions } from '../../hooks';
 
 export const SuggesterSelectField = React.memo(

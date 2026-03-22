@@ -1,17 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
-import {
-  format,
-  isAfter,
-  parseISO,
-  add,
-  set as dateFnsSet,
-  getYear,
-  getDate,
-  getMonth,
-} from 'date-fns';
-import { useFormikContext } from 'formik';
+import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -19,47 +9,38 @@ import {
   DAYS_OF_WEEK,
   MODIFY_REPEATING_APPOINTMENT_MODE,
   REPEAT_FREQUENCY,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  toDateString,
+  toDateTimeString,
+  toWeekdayCode,
+  trimToDate,
+} from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
-import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import {
-  AutocompleteField,
-  CheckField,
-  DynamicSelectField,
-  Field,
-  Form,
-  TextField,
-  SwitchField,
-} from '../../Field';
-import { FormGrid } from '../../FormGrid';
+import { AutocompleteField, CheckField, DynamicSelectField, Field, SwitchField } from '../../Field';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
-import { ENDS_MODES, RepeatingAppointmentFields } from './RepeatingAppointmentFields';
+import { RepeatingFields } from '../RepeatingFields';
+import { APPOINTMENT_SCHEDULE_INITIAL_VALUES } from '../../../constants/locationAssignments';
+import { EmailSection } from '../EmailSection';
+
+export const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
 
 const IconLabel = styled.div`
   display: flex;
   align-items: center;
 `;
-
-// The amount of months in future to default the repeat until date to
-const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
-
-const APPOINTMENT_SCHEDULE_INITIAL_VALUES = {
-  interval: 1,
-  frequency: REPEAT_FREQUENCY.WEEKLY,
-  endsMode: ENDS_MODES.ON,
-};
 
 const formStyles = {
   overflowY: 'auto',
@@ -97,7 +78,7 @@ const getDescription = (isEdit, isLockedPatient) => {
 };
 
 const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = (confirmed) => {
+  const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
@@ -177,50 +158,9 @@ const ErrorMessage = ({ isEdit = false, error }) => {
   );
 };
 
-const EmailFields = ({ patientId }) => {
-  const { setFieldValue } = useFormikContext();
-  const { data: patient } = usePatientDataQuery(patientId);
-
-  // Keep form state up to date with relevant selected patient email
-  useEffect(() => {
-    setFieldValue('email', patient?.email ?? '');
-    setFieldValue('confirmEmail', '');
-  }, [patient?.email, setFieldValue]);
-
-  return (
-    <>
-      <Field
-        name="email"
-        label={
-          <TranslatedText
-            stringId="appointment.emailAddress.label"
-            fallback="Email address"
-            data-testid="translatedtext-7bci"
-          />
-        }
-        required
-        component={TextField}
-        data-testid="field-bnf9"
-      />
-      <Field
-        name="confirmEmail"
-        label={
-          <TranslatedText
-            stringId="appointment.confirmEmailAddress.label"
-            fallback="Confirm email address"
-            data-testid="translatedtext-em08"
-          />
-        }
-        required
-        component={TextField}
-        data-testid="field-2bi5"
-      />
-    </>
-  );
-};
-
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -249,9 +189,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         ),
         (value, { parent }) => {
           if (!value) return true;
-          const startTime = parseISO(parent.startTime);
-          const endTime = parseISO(value);
-          return isAfter(endTime, startTime);
+          return isAfter(parseISO(value), parseISO(parent.startTime));
         },
       ),
     patientId: yup.string().required(requiredMessage),
@@ -280,7 +218,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           interval: yup.number().required(requiredMessage),
           frequency: yup.string().required(requiredMessage),
           occurrenceCount: yup.mixed().when('untilDate', {
-            is: (val) => !val,
+            is: val => !val,
             then: yup
               .number()
               .required(requiredMessage)
@@ -293,7 +231,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             otherwise: yup.number().nullable(),
           }),
           untilDate: yup.mixed().when('occurrenceCount', {
-            is: (val) => !isNumber(val),
+            is: val => !isNumber(val),
             then: yup.string().required(requiredMessage),
             otherwise: yup.string().nullable(),
           }),
@@ -326,7 +264,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       resetForm();
     };
 
-    const handleResetRepeatUntilDate = (startTimeDate) => {
+    const handleResetRepeatUntilDate = startTimeDate => {
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
@@ -335,13 +273,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       );
     };
 
-    const handleResetEmailFields = (e) => {
-      if (e.target.checked) return;
-      setFieldValue('email', '');
-      setFieldValue('confirmEmail', '');
-    };
-
-    const handleChangeIsRepeatingAppointment = async (e) => {
+    const handleChangeIsRepeatingAppointment = async e => {
       if (e.target.checked) {
         setValues(set(values, 'schedule', APPOINTMENT_SCHEDULE_INITIAL_VALUES));
         handleUpdateScheduleToStartTime(parseISO(values.startTime));
@@ -352,7 +284,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       }
     };
 
-    const handleUpdateScheduleToStartTime = (startTimeDate) => {
+    const handleUpdateScheduleToStartTime = startTimeDate => {
       if (!values.schedule) return;
       const { frequency } = values.schedule;
       // Update the ordinal positioning of the new date
@@ -361,7 +293,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [toWeekdayCode(startTimeDate)]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {
@@ -369,21 +301,22 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       }
     };
 
-    const handleUpdateStartTime = (event) => {
+    const handleUpdateStartTime = event => {
       const startTimeDate = parseISO(event.target.value);
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
-      // Update the end time to match the new start time date
-      setFieldValue(
-        'endTime',
-        toDateTimeString(
-          dateFnsSet(parseISO(values.endTime), {
-            year: getYear(startTimeDate),
-            date: getDate(startTimeDate),
-            month: getMonth(startTimeDate),
-          }),
-        ),
+      const facilityStartStr = toFacilityDateTime(event.target.value);
+      const facilityEndStr = toFacilityDateTime(values.endTime);
+      if (!facilityStartStr || !facilityEndStr) return;
+      const [year, month, day] = trimToDate(facilityStartStr).split('-').map(Number);
+      const updatedFacilityEnd = toDateTimeString(
+        dateFnsSet(parseISO(facilityEndStr), {
+          year,
+          date: day,
+          month: month - 1,
+        }),
       );
+      setFieldValue('endTime', toStoredDateTime(updatedFacilityEnd));
     };
 
     return (
@@ -477,7 +410,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           <Field
             name="endTime"
             disabled={!values.startTime}
-            date={values.startTime && parseISO(values.startTime)}
+            date={
+              values.startTime ? trimToDate(toFacilityDateTime(values.startTime)) : undefined
+            }
             label={
               <TranslatedText
                 stringId="general.endTime.label"
@@ -486,7 +421,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
               />
             }
             component={TimeWithFixedDateField}
-            saveDateAsString
             data-testid="field-6mrp"
           />
           <Field
@@ -511,8 +445,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             component={CheckField}
             data-testid="field-vyk1"
           />
-          <Field
-            name="shouldEmailAppointment"
+          <EmailSection
             label={
               <TranslatedText
                 stringId="appointment.emailAppointment.label"
@@ -520,13 +453,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
                 data-testid="translatedtext-edpi"
               />
             }
-            component={CheckField}
-            onChange={handleResetEmailFields}
-            data-testid="field-160d"
           />
-          {values.shouldEmailAppointment && (
-            <EmailFields patientId={values.patientId} data-testid="emailfields-eexe" />
-          )}
           {!hideIsRepeatingToggle && (
             <Field
               name="isRepeatingAppointment"
@@ -545,9 +472,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             />
           )}
           {values.schedule && (
-            <RepeatingAppointmentFields
+            <RepeatingFields
               initialValues={initialValues}
-              values={values}
+              schedule={values.schedule}
+              startTime={values.startTime}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
@@ -562,7 +490,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   };
 
   const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
@@ -572,7 +500,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       notifySuccess(<SuccessMessage isEdit={isEdit} data-testid="successmessage-0rtl" />);
       onClose();
     },
-    onError: (error) => {
+    onError: error => {
       notifyError(<ErrorMessage isEdit={isEdit} error={error} data-testid="errormessage-26wp" />);
     },
   });

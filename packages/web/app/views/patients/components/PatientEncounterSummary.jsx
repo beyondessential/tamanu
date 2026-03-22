@@ -2,8 +2,9 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
+import { ButtonWithPermissionCheck, Button, DateDisplay } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -17,6 +18,9 @@ import {
 } from '../../../components/Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { useAuth } from '../../../contexts/Auth';
+import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -50,12 +54,12 @@ const Header = styled.div`
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-row-gap: 8px;
   padding: 12px 20px 12px 16px;
 `;
 
 const ContentItem = styled.div`
   display: flex;
-  padding: 8px 0;
 `;
 
 const Title = styled(Typography)`
@@ -99,6 +103,37 @@ const ButtonRow = styled(Box)`
   }
 `;
 
+const DeathLocationDisplay = ({ deathData }) => {
+  if (deathData?.outsideHealthFacility) {
+    return (
+      <TranslatedText
+        stringId="death.outsideHealthFacility.label"
+        fallback="Died outside health facility"
+        data-testid="translatedtext-n2t4"
+      />
+    );
+  }
+
+  if (deathData?.facility?.name) {
+    return (
+      <TranslatedReferenceData
+        fallback={deathData.facility.name}
+        value={deathData?.facility.id}
+        category="facility"
+        data-testid="translatedreferencedata-w40f"
+      />
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="general.fallback.unknown"
+      fallback="Unknown"
+      data-testid="translatedtext-p25g"
+    />
+  );
+};
+
 const DataStatusMessage = ({ message }) => (
   <NoVisitContainer data-testid="novisitcontainer-xlql">
     <Typography variant="h6" data-testid="typography-vg0z">
@@ -133,7 +168,11 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           data-testid="box-5a71"
         >
           <BoldTitle variant="h3" data-testid="boldtitle-eb0y">
-            Deceased
+            <TranslatedText
+              stringId="death.deceased.label"
+              fallback="Deceased"
+              data-testid="translatedtext-b4u4"
+            />
           </BoldTitle>
           <DeathCertificateModal
             patient={patient}
@@ -144,18 +183,16 @@ const PatientDeathSummary = React.memo(({ patient }) => {
       </Header>
       <Content data-testid="content-y0fh">
         <ContentItem data-testid="contentitem-xxod">
-          <ContentLabel data-testid="contentlabel-nvid">Place of death:</ContentLabel>
+          <ContentLabel data-testid="contentlabel-nvid">
+            <TranslatedText
+              stringId="death.locationOfDeath.label"
+              fallback="Location of death"
+              data-testid="translatedtext-5x5z"
+            />
+            :
+          </ContentLabel>
           <ContentText data-testid="contenttext-genv">
-            {(deathData?.outsideHealthFacility && 'Died outside health facility') ||
-              (deathData?.facility?.name && (
-                <TranslatedReferenceData
-                  fallback={deathData.facility.name}
-                  value={deathData?.facility.id}
-                  category="facility"
-                  data-testid="translatedreferencedata-c4cx"
-                />
-              )) ||
-              'Unknown'}
+            <DeathLocationDisplay deathData={deathData} />
           </ContentText>
         </ContentItem>
         <ContentItem data-testid="contentitem-sw3j">
@@ -173,7 +210,12 @@ const PatientDeathSummary = React.memo(({ patient }) => {
         </ContentItem>
         <ContentItem style={{ gridColumn: '1/-1' }} data-testid="contentitem-evco">
           <ContentLabel data-testid="contentlabel-4c0x">
-            Underlying condition causing death:
+            <TranslatedText
+              stringId="death.underlyingConditionCausingDeath.label"
+              fallback="Underlying condition causing death"
+              data-testid="translatedtext-z6kv"
+            />
+            :
           </ContentLabel>
           <ContentText data-testid="contenttext-usv8">
             {deathData?.causes?.primary?.condition.id ? (
@@ -193,7 +235,14 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           </ContentText>
         </ContentItem>
         <ContentItem data-testid="contentitem-ld97">
-          <ContentLabel data-testid="contentlabel-yujn">Date of death:</ContentLabel>
+          <ContentLabel data-testid="contentlabel-yujn">
+            <TranslatedText
+              stringId="death.dateOfDeath.label"
+              fallback="Date of death"
+              data-testid="translatedtext-4s11"
+            />
+            :
+          </ContentLabel>
           <ContentText data-testid="contenttext-08c1">
             <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
           </ContentText>
@@ -203,9 +252,11 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn }) => {
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
+  const triage = encounter?.triages?.[0];
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} data-testid="patientdeathsummary-uven" />;
@@ -217,7 +268,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         message={
           <TranslatedText
             stringId="general.status.loading"
-            fallback="Loading..."
+            fallback="Loading…"
             data-testid="translatedtext-jp7h"
           />
         }
@@ -243,7 +294,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <ButtonRow data-testid="buttonrow-qss7">
           <NoteModalActionBlocker>
             <ButtonWithPermissionCheck
-              onClick={openCheckin}
+              onClick={openCheckIn}
               verb="create"
               noun="Encounter"
               data-testid="buttonwithpermissioncheck-o4ea"
@@ -272,6 +323,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   } = encounter;
 
   const patientStatus = getPatientStatus(encounterType);
+  const canReadEncounter = ability.can('read', 'Encounter');
 
   return (
     <Container patientStatus={patientStatus} data-testid="container-2i3h">
@@ -301,7 +353,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
-        <Button onClick={() => viewEncounter(id)} size="small" data-testid="button-t8zb">
+        <Button
+          onClick={() => viewEncounter(id)}
+          size="small"
+          data-testid="button-t8zb"
+          disabled={!canReadEncounter}
+        >
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
             fallback="View encounter"
@@ -379,28 +436,64 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         )}
         <ContentItem data-testid="contentitem-o4pq">
           <ContentLabel data-testid="contentlabel-ws92">
-            <TranslatedText
-              stringId="patient.encounterSummary.arrivalDate"
-              fallback="Arrival date"
-              data-testid="translatedtext-dn4a"
-            />
-            :
+            {getEncounterStartDateLabel(encounterType)}:
           </ContentLabel>
           <ContentText data-testid="contenttext-nw17">
             <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
           </ContentText>
         </ContentItem>
-        <ContentItem data-testid="contentitem-t8nz">
-          <ContentLabel data-testid="contentlabel-p85w">
-            <TranslatedText
-              stringId="encounter.reasonForEncounter.label"
-              fallback="Reason for encounter"
-              data-testid="translatedtext-5vij"
-            />
-            :
-          </ContentLabel>
-          <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
-        </ContentItem>
+        {isEmergencyPatient(encounterType) ? (
+          <>
+            <ContentItem style={{ gridColumn: 2 }} data-testid="contentitem-chiefcomplaint">
+              <ContentLabel data-testid="contentlabel-chiefcomplaint">
+                <TranslatedText
+                  stringId="triage.chiefComplaint.label"
+                  fallback="Chief complaint"
+                  data-testid="translatedtext-chiefcomplaint"
+                />
+                :
+              </ContentLabel>
+              <ContentText data-testid="contenttext-chiefcomplaint">
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.chiefComplaint?.id}
+                  fallback={triage?.chiefComplaint?.name}
+                  placeholder="—"
+                />
+              </ContentText>
+            </ContentItem>
+            <ContentItem style={{ gridColumn: 2 }} data-testid="contentitem-secondarycomplaint">
+              <ContentLabel data-testid="contentlabel-secondarycomplaint">
+                <TranslatedText
+                  stringId="triage.secondaryComplaint.label"
+                  fallback="Secondary complaint"
+                  data-testid="translatedtext-secondarycomplaint"
+                />
+                :
+              </ContentLabel>
+              <ContentText data-testid="contenttext-secondarycomplaint">
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.secondaryComplaint?.id}
+                  fallback={triage?.secondaryComplaint?.name}
+                  placeholder="—"
+                />
+              </ContentText>
+            </ContentItem>
+          </>
+        ) : (
+          <ContentItem data-testid="contentitem-t8nz">
+            <ContentLabel data-testid="contentlabel-p85w">
+              <TranslatedText
+                stringId="encounter.reasonForEncounter.label"
+                fallback="Reason for encounter"
+                data-testid="translatedtext-5vij"
+              />
+              :
+            </ContentLabel>
+            <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
+          </ContentItem>
+        )}
       </Content>
     </Container>
   );

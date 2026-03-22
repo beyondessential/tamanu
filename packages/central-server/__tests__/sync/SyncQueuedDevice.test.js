@@ -1,78 +1,116 @@
 import { beforeAll, describe, it } from '@jest/globals';
+import { Op } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
 import { createTestContext } from '../utilities';
+import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 
-describe('SyncQueuedDevice', () => {
-  let ctx;
-  let models;
-  let baseApp;
-  let app;
+const MAX_CONCURRENT_SESSIONS = 1;
 
-  const closeActiveSyncSessions = async () => {
-    await models.SyncSession.update(
-      {
-        completedAt: new Date(),
-      },
-      { where: {} },
-    );
-  };
+[true, false].map(withDeviceIdInBody =>
+  describe(`SyncQueuedDevice${withDeviceIdInBody ? ' (with legacy device ID in sync request body)' : ''}`, () => {
+    let ctx;
+    let models;
+    let baseApp;
+    let user;
 
-  const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
-    const result = await app.post('/api/sync').send({
-      deviceId: `queue-${device}`,
-      facilityIds: [`facility${device}`],
-      lastSyncedTick,
-      urgent,
-    });
-    expect(result).toHaveSucceeded();
-    return result;
-  };
-
-  beforeAll(async () => {
-    ctx = await createTestContext();
-    baseApp = ctx.baseApp;
-    models = ctx.store.models;
-    app = await baseApp.asRole('admin');
-
-    await Promise.all(
-      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map((id) =>
-        models.Facility.create(fake(models.Facility, { id, name: id })),
-      ),
-    );
-
-    const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
-    CentralSyncManager.overrideConfig({
-      sync: {
-        awaitPreparation: true,
-        maxConcurrentSessions: 1,
-        maxRecordsPerSnapshotChunk: 1000000000,
-        lookupTable: {
-          enabled: true,
+    const closeActiveSyncSessions = async () => {
+      await models.SyncSession.update(
+        {
+          completedAt: new Date(),
         },
-      },
+        { where: {} },
+      );
+    };
+
+    const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
+      const result = await requestSyncUnchecked(device, lastSyncedTick, urgent);
+      expect(result).toHaveSucceeded();
+      return result;
+    };
+
+    const requestSyncUnchecked = async (device, lastSyncedTick = 0, urgent = false) => {
+      const response = await baseApp
+        .post('/api/login')
+        .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+        .send({
+          email: user.email,
+          password: 'password',
+          deviceId: `queue-${device}`,
+          scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+        });
+
+      return baseApp
+        .post('/api/sync')
+        .set('Authorization', `Bearer ${response.body.token}`)
+        .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+        .send({
+          deviceId: withDeviceIdInBody ? `queue-${device}` : undefined,
+          facilityIds: [`facility${device}`],
+          lastSyncedTick,
+          urgent,
+        });
+    };
+
+    beforeAll(async () => {
+      ctx = await createTestContext();
+      baseApp = ctx.baseApp;
+      models = ctx.store.models;
+      user = await models.User.create(fake(models.User, { password: 'password', role: 'admin' }));
+
+      await Promise.all(
+        ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map(id =>
+          models.Facility.create(fake(models.Facility, { id, name: id })),
+        ),
+      );
+
+      await Promise.all(
+        ['A', 'B', 'C', 'D', 'E'].map(id =>
+          models.Device.create(
+            fake(models.Device, {
+              id: `queue-${id}`,
+              registeredById: user.id,
+              scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+            }),
+          ),
+        ),
+      );
+
+      const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
+      CentralSyncManager.overrideConfig({
+        sync: {
+          awaitPreparation: true,
+          maxConcurrentSessions: MAX_CONCURRENT_SESSIONS,
+          maxRecordsPerSnapshotChunk: 1000000000,
+          lookupTable: {
+            enabled: true,
+          },
+        },
+      });
+
+      await new CentralSyncManager(ctx).updateLookupTable();
     });
 
-    await new CentralSyncManager(ctx).updateLookupTable();
-  });
+    beforeEach(async () => {
+      await models.SyncSession.truncate({ cascade: true, force: true });
+      await models.SyncQueuedDevice.truncate({ cascade: true, force: true });
+    });
 
-  beforeEach(async () => {
-    await models.SyncSession.truncate({ cascade: true, force: true });
-    await models.SyncQueuedDevice.truncate({ cascade: true, force: true });
-  });
+    afterAll(() => ctx.close());
 
-  afterAll(() => ctx.close());
-
-  describe('Basic queueing', () => {
     it('Should start a sync if the queue is empty', async () => {
       const result = await requestSync('A');
+      expect(result.body).toHaveProperty('status', 'goodToGo');
       expect(result.body).toHaveProperty('sessionId');
     });
 
     it('Should queue if a sync is running', async () => {
       const resultA = await requestSync('A');
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       const resultB = await requestSync('B');
@@ -87,6 +125,7 @@ describe('SyncQueuedDevice', () => {
 
     it('Should pick the oldest syncedTick device given uniform urgency', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       // get some sessions in the queue
@@ -101,11 +140,13 @@ describe('SyncQueuedDevice', () => {
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('E', 10);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should prioritise urgent over lastSyncedTick', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       // get some sessions in the queue
@@ -120,11 +161,13 @@ describe('SyncQueuedDevice', () => {
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('C', 200); // previous urgent flag should stick
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should cancel a session if that device re-queues', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       await requestSync('B', 100);
@@ -137,11 +180,13 @@ describe('SyncQueuedDevice', () => {
       expect(resultTerminate.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('C', 200); // new front-of-queue should succeed
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should exclude an old session from the queue', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       await requestSync('B', 100);
@@ -162,7 +207,40 @@ describe('SyncQueuedDevice', () => {
 
       // now our B device should be at the front of the queue
       const started = await requestSync('B', 200);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
-  });
-});
+
+    it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
+      const sessions = ['A', 'B', 'C'];
+      const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
+      const generateDbUuidSpy = jest
+        .spyOn(models.SyncSession, 'generateDbUuid')
+        .mockImplementation(async () => {
+          await sleepAsync(2000);
+          return originalGenerateDbUuid();
+        });
+      try {
+        const results = await Promise.all(
+          sessions.map(async (device, index) => {
+            await sleepAsync(index * 500);
+            return requestSyncUnchecked(device);
+          }),
+        );
+
+        const goodToGoCount = results.filter(r => r.body?.status === 'goodToGo').length;
+        expect(goodToGoCount).toEqual(MAX_CONCURRENT_SESSIONS);
+
+        const activeCount = await models.SyncSession.count({
+          where: {
+            completedAt: { [Op.is]: null },
+            errors: { [Op.is]: null },
+          },
+        });
+        expect(activeCount).toEqual(MAX_CONCURRENT_SESSIONS);
+      } finally {
+        generateDbUuidSpy.mockRestore();
+      }
+    });
+  }),
+);

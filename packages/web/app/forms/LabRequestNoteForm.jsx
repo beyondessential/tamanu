@@ -3,21 +3,17 @@ import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
-import { NOTE_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
-  Button,
   DateDisplay,
   Field,
-  Form,
-  FormCancelButton,
-  FormSubmitButton,
-  TextField,
 } from '../components';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -81,6 +77,10 @@ const SubmitNoteButton = styled(FormSubmitButton)`
   ${buttonStyle}
 `;
 
+const ShowAddNoteFormButtonContainer = styled.div`
+  display: inline-block;
+`;
+
 const ShowAddNoteFormButton = styled(Button)`
   ${buttonStyle}
 `;
@@ -92,6 +92,7 @@ const CancelAddNoteButton = styled(FormCancelButton)`
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getCurrentDateTime } = useDateTime();
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
@@ -103,8 +104,8 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
-        noteType: NOTE_TYPES.OTHER,
-        date: getCurrentDateTimeString(),
+        noteTypeId: NOTE_TYPES.OTHER,
+        date: getCurrentDateTime(),
       }),
     {
       onSuccess: (responseData, { formProps }) => {
@@ -127,8 +128,9 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                 <Caption data-testid={`caption-gjgp-${index}`}>
                   {note.author?.displayName}{' '}
                   <DateDisplay
+                    noTooltip
                     date={note.date}
-                    showTime
+                    timeFormat="default"
                     data-testid={`datedisplay-ju3f-${index}`}
                   />
                 </Caption>
@@ -166,17 +168,21 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   />
                 </Box>
               ) : (
-                <ShowAddNoteFormButton
-                  $underline
-                  onClick={() => setActive(true)}
-                  data-testid="showaddnoteformbutton-thpi"
-                >
-                  <TranslatedText
-                    stringId="general.action.addNote"
-                    fallback="Add note"
-                    data-testid="translatedtext-6ric"
-                  />
-                </ShowAddNoteFormButton>
+                <ShowAddNoteFormButtonContainer>
+                  <NoteModalActionBlocker>
+                    <ShowAddNoteFormButton
+                      $underline
+                      onClick={() => setActive(true)}
+                      data-testid="showaddnoteformbutton-thpi"
+                    >
+                      <TranslatedText
+                        stringId="general.action.addNote"
+                        fallback="Add note"
+                        data-testid="translatedtext-6ric"
+                      />
+                    </ShowAddNoteFormButton>
+                  </NoteModalActionBlocker>
+                </ShowAddNoteFormButtonContainer>
               );
             }}
             data-testid="form-7jdi"

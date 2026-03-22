@@ -9,6 +9,7 @@ import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 const JS_EXTS = '{js,jsx,mjs,cjs,ts,tsx}';
 const TS_EXTS = '{ts,tsx}';
 const EXTS = `{${JS_EXTS},${TS_EXTS}}`;
+const BROWSER_PACKAGES = '{web,ui-components,patient-portal}';
 
 export default [
   {
@@ -107,19 +108,12 @@ export default [
   {
     files: [
       `packages/*/__{mocks,tests}__/**/*.${EXTS}`,
-      `packages/mobile/e2e/**/*.${EXTS}`,
       `packages/shared/src/test-helpers/**/*.${EXTS}`,
       `**/jest.*.${EXTS}`,
       `**/*.{spec,test}.${EXTS}`,
     ],
     languageOptions: {
       globals: globals.jest,
-    },
-  },
-  {
-    files: [`packages/mobile/e2e/**/*.${JS_EXTS}`],
-    languageOptions: {
-      globals: globals.jasmine,
     },
   },
   {
@@ -142,8 +136,8 @@ export default [
   },
   {
     files: [
-      `packages/web/!({.storybook,stories})/**/*.${EXTS}`,
-      `packages/web/*.${EXTS}`,
+      `packages/${BROWSER_PACKAGES}/**/*.${EXTS}`,
+      `packages/${BROWSER_PACKAGES}/*.${EXTS}`,
     ],
     languageOptions: {
       globals: {
@@ -159,9 +153,9 @@ export default [
   },
   {
     files: [
-      `packages/!(web)/**/*.${JS_EXTS}`,
-      `packages/web/{.storybook,stories}/**/*.${JS_EXTS}`,
+      `packages/!(${BROWSER_PACKAGES})/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
+      `.github/**/*.${JS_EXTS}`,
       `**/*.config.${JS_EXTS}`,
     ],
     languageOptions: {

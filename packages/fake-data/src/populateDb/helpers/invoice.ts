@@ -24,7 +24,6 @@ export const createInvoice = async ({
   const {
     Invoice,
     InvoiceDiscount,
-    InvoiceInsurer,
     InvoicePayment,
     InvoiceInsurerPayment,
     InvoicePatientPayment,
@@ -63,13 +62,6 @@ export const createInvoice = async ({
         );
       }),
     ),
-  );
-
-  await InvoiceInsurer.create(
-    fake(InvoiceInsurer, {
-      invoiceId: invoice.id,
-      insurerId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
-    }),
   );
 
   const invoicePayment = await InvoicePayment.create(

@@ -1,18 +1,18 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import { DateDisplay } from '@tamanu/ui-components';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   DeleteProgramRegistryFormModal,
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
-import { Colors } from '../../constants';
+import { Colors } from '../../constants/styles';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -36,6 +36,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+  const navigate = useNavigate();
   const columns = useMemo(() => {
     return [
       {
@@ -165,9 +166,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
           let actions = [
             {
-              label: (
-                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
-              ),
+              label: <TranslatedText stringId="programRegistry.action.update" fallback="Update" />,
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
@@ -222,10 +221,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     if (patient.id) {
       await dispatch(reloadPatient(patient.id));
     }
-    dispatch(
-      push(
-        `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
-      ),
+    navigate(
+      `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
     );
   };
 

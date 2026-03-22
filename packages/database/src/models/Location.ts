@@ -4,7 +4,7 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { Facility } from './Facility';
@@ -102,13 +102,6 @@ export class Location extends Model {
     return locationGroup ? `${locationGroup.name}, ${name}` : name;
   }
 
-  static parseFullLocationName(text: string) {
-    const match = text.match(/(?<group>[^,]*(?=,\s))?(,\s)?(?<location>.*)/);
-    const group = match?.groups?.group;
-    const location = match?.groups?.location;
-    return { group, location };
-  }
-
   async getAvailability() {
     const { Encounter } = this.sequelize.models;
     /**
@@ -140,7 +133,7 @@ export class Location extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

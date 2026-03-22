@@ -8,13 +8,12 @@ import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
-import { useHistory } from 'react-router-dom';
-import { endOfDay, startOfDay } from 'date-fns';
-import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
+import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
+import { TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
-import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
+import { Heading4 } from '../../../components';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator,
@@ -159,10 +158,8 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-const getFormattedBookingTime = ({ startTime, endTime }) =>
-  `${formatTime(startTime).replace(' ', '')} - ${formatTime(endTime).replace(' ', '')}`;
-
 const BookingsTimelineItem = ({ appointment }) => {
+  const { formatTime } = useDateTime();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -185,7 +182,7 @@ const BookingsTimelineItem = ({ appointment }) => {
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
         <TimeText data-testid="timetext-4k7e">
-          {getFormattedBookingTime({ startTime, endTime })}
+          {formatTime(startTime)} - {formatTime(endTime)}
         </TimeText>
         <Box width={0} flex={1} data-testid="box-i72x">
           <ConditionalTooltip
@@ -217,24 +214,29 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
+  const { getCurrentDate, getDayBoundaries } = useDateTime();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+
+  // Get today's date boundaries in facility timezone, converted to primary timezone for query
+  const todayFacility = getCurrentDate();
+  const { start, end } = getDayBoundaries(todayFacility);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
       {
         locationId: '',
         all: true,
-        after: toDateTimeString(startOfDay(new Date())),
-        before: toDateTimeString(endOfDay(new Date())),
+        after: start,
+        before: end,
         clinicianId: currentUser?.id,
         facilityId,
       },
       `${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const onViewAll = () => {
-    history.push(`/appointments/locations?clinicianId=${currentUser?.id}`);
+    navigate(`/appointments/locations?clinicianId=${currentUser?.id}`);
   };
 
   const onLocationBookingsClick = async () => {
@@ -242,7 +244,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
       value: omit(LOCATION_BOOKINGS_EMPTY_FILTER_STATE, ['patientNameOrId']),
     });
-    history.push(`/appointments/locations`);
+    navigate(`/appointments/locations`);
   };
 
   return (

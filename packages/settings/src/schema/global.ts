@@ -51,6 +51,7 @@ export const globalSettings = {
     audit: {
       description: 'Audit settings',
       highRisk: true,
+      exposedToWeb: true,
       properties: {
         accesses: {
           description: 'Audit accesses',
@@ -92,11 +93,13 @@ export const globalSettings = {
     },
     ageDisplayFormat: {
       description: 'Defines the unit with which to display patient ages, depending on their age',
+      exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
     appointments: {
       description: 'Appointment settings',
+      exposedToWeb: true,
       properties: {
         maxRepeatingAppointmentsPerGeneration: {
           description: 'The maximum number of appointments that can be generated at once',
@@ -105,8 +108,21 @@ export const globalSettings = {
         },
       },
     },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      exposedToWeb: true,
+      properties: {
+        assignmentMaxFutureMonths: {
+          description: 'The maximum number of months allowed when creating location assignments',
+          type: yup.number().min(1),
+          defaultValue: 24,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
+      exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         mandateSpecimenType: {
           description: 'Make specimen type a required field when creating a new lab request',
@@ -136,11 +152,6 @@ export const globalSettings = {
         },
         quickPatientGenerator: {
           description: 'Dev tool to show a button to create a random patient',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
-        enableInvoicing: {
-          description: 'Enable invoice tab/module on encounter view',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -175,11 +186,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
-        enableCovidClearanceCertificate: {
-          description: 'Enable COVID certificate printout',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         editPatientDisplayId: {
           description: 'Allow the editing of an existing patients display id',
           type: yup.boolean(),
@@ -195,6 +201,13 @@ export const globalSettings = {
           description: 'Enable patient planned move encounter actions',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        patientPortal: {
+          description:
+            'Enable patient portal. When turned off, the patient portal api is disconnected and the UI in tamanu web to register portal users and assign them forms is hidden',
+          type: yup.boolean(),
+          defaultValue: false,
+          highRisk: true,
         },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
@@ -323,6 +336,18 @@ export const globalSettings = {
             enabled: {
               description: 'Enable pharmacy orders',
               type: yup.boolean(),
+              defaultValue: true,
+            },
+            medicationAlreadyOrderedConfirmationTimeout: {
+              description:
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+            sendViaMSupply: {
+              description: 'Send pharmacy orders to mSupply (when an integration is configured)',
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -332,11 +357,71 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+        invoicing: {
+          description: 'Invoicing module settings',
+          properties: {
+            enabled: {
+              description: 'Enable invoicing',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingLabRequests: {
+              description:
+                'This setting enables automatically adding lab requests with the status Sample not collected & Reception pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingImagingRequests: {
+              description:
+                'This setting enables automatically adding imaging requests with the status pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            slidingFeeScale: {
+              description: 'This setting allows sliding fee scale to be applied to invoices.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        labRequest: {
+          description: 'Lab request settings',
+          properties: {
+            enableLabResultsPrintout: {
+              name: 'Lab results printout',
+              description:
+                'Enable lab results printout (print results button and interim report option)',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+        covidCertificates: {
+          description: 'COVID certificate settings',
+          properties: {
+            enableCovidClearanceCertificate: {
+              description: 'Enable COVID certificate printout',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
       },
     },
     customisations: {
       name: 'Customisations',
       description: 'Customisation of the application',
+      exposedToWeb: true,
       properties: {
         componentVersions: {
           description: '_',
@@ -371,6 +456,7 @@ export const globalSettings = {
     fields: {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
+      exposedToWeb: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',
@@ -699,6 +785,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        invoiceInsurancePlanId: {
+          name: 'Insurance plan',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthWeight: {
           name: 'Birth weight',
           description: '_',
@@ -781,6 +875,14 @@ export const globalSettings = {
         },
         birthType: {
           name: 'Birth type',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthOrder: {
+          name: 'Birth order',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
@@ -939,9 +1041,23 @@ export const globalSettings = {
       },
     },
     fileChooserMbSizeLimit: {
-      description: 'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      description:
+        'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      exposedToPatientPortal: true,
       type: yup.number().min(1),
       defaultValue: 10,
+    },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      exposedToWeb: true,
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     integrations: {
       name: 'Integrations',
@@ -966,6 +1082,7 @@ export const globalSettings = {
       },
     },
     invoice: {
+      exposedToWeb: true,
       properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
@@ -977,22 +1094,26 @@ export const globalSettings = {
     },
     imagingCancellationReasons: {
       description: 'Customise the options available for imaging request cancellation reason',
+      exposedToWeb: true,
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
+      exposedToWeb: true,
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
+      exposedToWeb: true,
       type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
+      exposedToWeb: true,
       properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
@@ -1067,6 +1188,7 @@ export const globalSettings = {
     },
     layouts: {
       description: 'Customise the layout of modules',
+      exposedToWeb: true,
       properties: {
         mobilePatientModules: {
           description: 'The homepage modules on mobile',
@@ -1164,6 +1286,13 @@ export const globalSettings = {
                 schedulingLocations: { properties: layoutModuleProperties },
               },
             },
+            medication: {
+              description: '_',
+              properties: {
+                medicationActive: { properties: layoutModuleProperties },
+                medicationDispensed: { properties: layoutModuleProperties },
+              },
+            },
             imaging: {
               description: '_',
               properties: {
@@ -1208,40 +1337,150 @@ export const globalSettings = {
         },
       },
     },
+    security: {
+      highRisk: true,
+      description: 'Security settings',
+      properties: {
+        reportNoUserError: {
+          description:
+            'Display "no such user" message when authenticating. This may weaken security by allowing attackers to determine valid usernames.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        loginAttempts: {
+          description: 'Login attempts settings',
+          properties: {
+            lockoutThreshold: {
+              description: 'Number of failed attempts before account is locked',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            observationWindow: {
+              description: 'Time interval in minutes that attempts must occur within',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            lockoutDuration: {
+              description: 'Duration of lockout in minutes',
+              type: yup.number().positive(),
+              defaultValue: 10,
+            },
+          },
+        },
+        mobile: {
+          description: 'Mobile security settings',
+          exposedToWeb: true,
+          properties: {
+            allowUnencryptedStorage: {
+              description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
+      exposedToWeb: true,
       properties: {
-        appointmentConfirmation: {
-          description: 'The email sent to confirm an appointment',
+        patientPortalLoginEmail: {
+          description: 'The email sent to the patient with their login code',
           properties: {
             subject: {
               type: yup.string().trim().min(1),
-              defaultValue: 'Appointment confirmation',
+              defaultValue: 'Your Tamanu Patient Portal Login Code',
             },
             body: {
               type: yup.string().trim().min(1),
               defaultValue:
-                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalRegistrationEmail: {
+          description: 'The email sent to the patient to register for the patient portal',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Tamanu Patient Portal Registration',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Please follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$.\n\n$registrationLink$\n\nDo not respond to this email',
+            },
+          },
+        },
+        patientPortalRegisteredFormEmail: {
+          description: 'The email sent to a registered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalUnregisteredFormEmail: {
+          description: 'The email sent to an unregistered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Before you can access this form, you must register for a Tamanu Patient Portal account.\n\nPlease follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$. Once you have set up your patient portal account, you will be able to log in and access the requested form.\n\n$registrationLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        appointmentConfirmation: {
+          description: 'The email sent to confirm an appointment',
+          properties: {
+            locationBooking: {
+              description: 'The email template sent to confirm a location booking',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Booking confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your booking has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
+            },
+            outpatientAppointment: {
+              description: 'The email template sent to confirm an outpatient appointment',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Appointment confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
             },
           },
         },
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
-        },
-        signerRenewalEmail: {
-          description: 'The email sent when the signer runs out',
-          properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Tamanu ICAO Certificate Signing Request',
-            },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-            },
-          },
         },
         vaccineCertificateEmail: {
           description: 'The email containing patient vaccine certificate',
@@ -1347,12 +1586,14 @@ export const globalSettings = {
     triageCategories: {
       name: 'Triage categories',
       description: 'Customise triage scale',
+      exposedToWeb: true,
       type: triageCategoriesSchema,
       defaultValue: triageCategoriesDefault,
     },
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
       description: 'Settings related to upcoming vaccinations',
+      exposedToWeb: true,
       properties: {
         ageLimit: {
           description: '_',
@@ -1368,6 +1609,7 @@ export const globalSettings = {
     },
     vitalEditReasons: {
       description: 'Customise the options available for vital reason for edit',
+      exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
@@ -1381,9 +1623,50 @@ export const globalSettings = {
         },
       },
     },
+    patientPortal: {
+      description: 'Patient portal settings',
+      properties: {
+        baseUrl: {
+          description: 'The base URL of the patient portal',
+          type: yup.string().trim().url().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     medications: {
       description: 'Medication settings',
+      exposedToWeb: true,
       properties: {
+        dispensing: {
+          description: 'Medication dispensing settings',
+          properties: {
+            prescriptionLabelSize: {
+              description: 'Prescription label size.',
+              properties: {
+                width: {
+                  description: 'Prescription label width.',
+                  type: yup.number().min(1),
+                  defaultValue: 80,
+                  unit: 'mm',
+                },
+                height: {
+                  description: 'Prescription label height.',
+                  type: yup.number().min(1),
+                  defaultValue: 40,
+                  unit: 'mm',
+                },
+              },
+            },
+            autoDeleteTimeframeHours: {
+              name: 'Autodelete medication request timeframe in hours',
+              description:
+                'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              type: yup.number().integer().positive(),
+              defaultValue: 72,
+              unit: 'hours',
+            },
+          },
+        },
         frequenciesEnabled: {
           description: 'Enable medication frequencies',
           properties: {

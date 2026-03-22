@@ -1,0 +1,785 @@
+{
+  "sheetName": "Ct Scan Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "ctScanImagingArea-CTAngiogramCarotid1stStudy",
+      "code": "CTAngiogramCarotid1stStudy",
+      "name": "Angiogram Carotid (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAbdomenandPelvisnonIVcontrast",
+      "code": "CTAbdomenandPelvisnonIVcontrast",
+      "name": "Abdomen and Pelvis non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAbdomenandPelvispostIVcontrastpre",
+      "code": "CTAbdomenandPelvispostIVcontrastpre",
+      "name": "Abdomen and Pelvis post-IV contrast +/- pre",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAbdomenUppernonIVcontrast",
+      "code": "CTAbdomenUppernonIVcontrast",
+      "name": "Abdomen Upper non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAbdomenUpperpostIVcontrast",
+      "code": "CTAbdomenUpperpostIVcontrast",
+      "name": "Abdomen Upper post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAbdomenUpperpreandpostIVcontrast",
+      "code": "CTAbdomenUpperpreandpostIVcontrast",
+      "name": "Abdomen Upper pre and post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramAbdominalAorta1stStudy",
+      "code": "CTAngiogramAbdominalAorta1stStudy",
+      "name": "Angiogram Abdominal Aorta (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramAbdominalAorta2ndStudy",
+      "code": "CTAngiogramAbdominalAorta2ndStudy",
+      "name": "Angiogram Abdominal Aorta (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramAorticRunoff1stStudy",
+      "code": "CTAngiogramAorticRunoff1stStudy",
+      "name": "Angiogram Aortic Run off (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramAorticRunoff2ndStudy",
+      "code": "CTAngiogramAorticRunoff2ndStudy",
+      "name": "Angiogram Aortic Run off (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramCardiacGated",
+      "code": "CTAngiogramCardiacGated",
+      "name": "Angiogram Cardiac Gated",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramCardiacGated2ndStudy",
+      "code": "CTAngiogramCardiacGated2ndStudy",
+      "name": "Angiogram Cardiac Gated (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramCarotid2ndstudy",
+      "code": "CTAngiogramCarotid2ndstudy",
+      "name": "Angiogram Carotid (2nd study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramCircleOfWillis1stStudy",
+      "code": "CTAngiogramCircleOfWillis1stStudy",
+      "name": "Angiogram Circle Of Willis (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramCircleOfWillis2ndStudy",
+      "code": "CTAngiogramCircleOfWillis2ndStudy",
+      "name": "Angiogram Circle Of Willis (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramMesenteric1stStudy",
+      "code": "CTAngiogramMesenteric1stStudy",
+      "name": "Angiogram Mesenteric (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramMesenteric2ndStudy",
+      "code": "CTAngiogramMesenteric2ndStudy",
+      "name": "Angiogram Mesenteric (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramPulmonaryArtery1stStudy",
+      "code": "CTAngiogramPulmonaryArtery1stStudy",
+      "name": "Angiogram Pulmonary Artery (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramPulmonaryArtery2ndStudy",
+      "code": "CTAngiogramPulmonaryArtery2ndStudy",
+      "name": "Angiogram Pulmonary Artery (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramPulmonaryVein1stStudy",
+      "code": "CTAngiogramPulmonaryVein1stStudy",
+      "name": "Angiogram Pulmonary Vein (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramPulmonaryVein2ndStudy",
+      "code": "CTAngiogramPulmonaryVein2ndStudy",
+      "name": "Angiogram Pulmonary Vein (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramRenal1stStudy",
+      "code": "CTAngiogramRenal1stStudy",
+      "name": "Angiogram Renal (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramRenal2ndStudy",
+      "code": "CTAngiogramRenal2ndStudy",
+      "name": "Angiogram Renal (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramSelectiveOther1stStudy",
+      "code": "CTAngiogramSelectiveOther1stStudy",
+      "name": "Angiogram Selective Other (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramSelectiveOther2ndStudy",
+      "code": "CTAngiogramSelectiveOther2ndStudy",
+      "name": "Angiogram Selective Other (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramSubclavian1stStudy",
+      "code": "CTAngiogramSubclavian1stStudy",
+      "name": "Angiogram Subclavian (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramSubclavian2ndStudy",
+      "code": "CTAngiogramSubclavian2ndStudy",
+      "name": "Angiogram Subclavian (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramThoracicAorta1stStudy",
+      "code": "CTAngiogramThoracicAorta1stStudy",
+      "name": "Angiogram Thoracic Aorta (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTAngiogramThoracicAorta2ndStudy",
+      "code": "CTAngiogramThoracicAorta2ndStudy",
+      "name": "Angiogram Thoracic Aorta (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTArthrogramofJoint",
+      "code": "CTArthrogramofJoint",
+      "name": "Arthrogram of Joint",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Adrenal",
+      "code": "CTBiopsy-Adrenal",
+      "name": "Biopsy - Adrenal ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-DeepOrganother",
+      "code": "CTBiopsy-DeepOrganother",
+      "name": "Biopsy - Deep Organ (other)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Liver",
+      "code": "CTBiopsy-Liver",
+      "name": "Biopsy- Liver",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Lung",
+      "code": "CTBiopsy-Lung",
+      "name": "Biopsy - Lung",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-LymphNode",
+      "code": "CTBiopsy-LymphNode",
+      "name": "Biopsy - Lymph Node",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Pancreas",
+      "code": "CTBiopsy-Pancreas",
+      "name": "Biopsy - Pancreas",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Renal",
+      "code": "CTBiopsy-Renal",
+      "name": "Biopsy - Renal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBiopsy-Vertebra",
+      "code": "CTBiopsy-Vertebra",
+      "name": "Biopsy - Vertebra",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainnonIVcontrast",
+      "code": "CTBrainnonIVcontrast",
+      "name": "Brain (non IV contrast)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainChest-abdomennon-IVcontrast",
+      "code": "CTBrainChest-abdomennon-IVcontrast",
+      "name": "Brain+Chest (+/- abdomen) non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainandChest-abdomenpost-contrast",
+      "code": "CTBrainandChest-abdomenpost-contrast",
+      "name": "Brain and Chest  (+/- abdomen) post-contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainandFacenonIVcontrast",
+      "code": "CTBrainandFacenonIVcontrast",
+      "name": "Brain and Face non IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainandFacepostIVcontrast",
+      "code": "CTBrainandFacepostIVcontrast",
+      "name": "Brain and Face post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainPerfusion1stStudy",
+      "code": "CTBrainPerfusion1stStudy",
+      "name": "Brain Perfusion (1st Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainPerfusion2ndStudy",
+      "code": "CTBrainPerfusion2ndStudy",
+      "name": "Brain Perfusion (2nd Study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainpost-IVcontrast",
+      "code": "CTBrainpost-IVcontrast",
+      "name": "Brain post - IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTBrainprepostIVcontrast",
+      "code": "CTBrainprepostIVcontrast",
+      "name": "Brain pre / post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestAbdomenPelvisnon-IVcontrast",
+      "code": "CTChestAbdomenPelvisnon-IVcontrast",
+      "name": "Chest / Abdomen / Pelvis non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestAbdomenPelvispost-IVcontrast",
+      "code": "CTChestAbdomenPelvispost-IVcontrast",
+      "name": "Chest / Abdomen / Pelvis post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestUpperAbdomennon-IVcontrast",
+      "code": "CTChestUpperAbdomennon-IVcontrast",
+      "name": "Chest / Upper Abdomen non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestUpperAbdomenpost-IVcontrast",
+      "code": "CTChestUpperAbdomenpost-IVcontrast",
+      "name": "Chest / Upper Abdomen post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestnon-IVcontrast",
+      "code": "CTChestnon-IVcontrast",
+      "name": "Chest non- IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestpost-IVcontrast",
+      "code": "CTChestpost-IVcontrast",
+      "name": "Chest post- IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTChestpreandpostIVContrast",
+      "code": "CTChestpreandpostIVContrast",
+      "name": "Chest pre and post IV Contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrainAbscesscollection-TubeInsertion",
+      "code": "CTDrainAbscesscollection-TubeInsertion",
+      "name": "Drain Abscess/collection +/- Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrainAbscesscollection-TubeChange",
+      "code": "CTDrainAbscesscollection-TubeChange",
+      "name": "Drain Abscess/collection - Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrain-Intercostal-TubeInsertion",
+      "code": "CTDrain-Intercostal-TubeInsertion",
+      "name": "Drain - Intercostal - Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrain-Intercostal-TubeInsertionPluerodesis",
+      "code": "CTDrain-Intercostal-TubeInsertionPluerodesis",
+      "name": "Drain - Intercostal - Tube Insertion+Pluerodesis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrain-Pancreas-TubeInsertion",
+      "code": "CTDrain-Pancreas-TubeInsertion",
+      "name": "Drain - Pancreas +/- Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTDrain-Pancreas-TubeChange",
+      "code": "CTDrain-Pancreas-TubeChange",
+      "name": "Drain - Pancreas - Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTExtremitynon-IVcontrastexclKneeonlyscans",
+      "code": "CTExtremitynon-IVcontrastexclKneeonlyscans",
+      "name": "Extremity non-IV contrast (excl. Knee only scans)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTExtremitypost-IVcontrast-PreexclKneeonlyscans",
+      "code": "CTExtremitypost-IVcontrast-PreexclKneeonlyscans",
+      "name": "Extremity post-IV contrast +/- Pre (excl. Knee only scans)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTExtremitypreandpostIVcontrast",
+      "code": "CTExtremitypreandpostIVcontrast",
+      "name": "Extremity pre and post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTFacialBonesnon-IVcontrast",
+      "code": "CTFacialBonesnon-IVcontrast",
+      "name": "Facial Bones non - IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTFacialBonespost-IVcontrast",
+      "code": "CTFacialBonespost-IVcontrast",
+      "name": "Facial Bones post - IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTIAMs-IVcontrast",
+      "code": "CTIAMs-IVcontrast",
+      "name": "IAMs+/ - IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTImagingguidanceforinterventionalprocedure",
+      "code": "CTImagingguidanceforinterventionalprocedure",
+      "name": "Imaging guidance for interventional procedure ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-CoeliacPlexusBlock",
+      "code": "CTInjection-CoeliacPlexusBlock",
+      "name": "Injection - Coeliac Plexus Block",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-Epidural",
+      "code": "CTInjection-Epidural",
+      "name": "Injection - Epidural",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-FacetJoint",
+      "code": "CTInjection-FacetJoint",
+      "name": "Injection - Facet Joint",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-NerveRoot",
+      "code": "CTInjection-NerveRoot",
+      "name": "Injection - Nerve Root",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-OccipitalNerve",
+      "code": "CTInjection-OccipitalNerve",
+      "name": "Injection - Occipital Nerve",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTInjection-SynovialJoint",
+      "code": "CTInjection-SynovialJoint",
+      "name": "Injection - Synovial Joint",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTIntravenousCholangiogramAddCTANalso",
+      "code": "CTIntravenousCholangiogramAddCTANalso",
+      "name": "Intravenous Cholangiogram (Add CTAN also)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTKUBnon-IVcontrast",
+      "code": "CTKUBnon-IVcontrast",
+      "name": "KUB non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTLegLengths",
+      "code": "CTLegLengths",
+      "name": "Leg Lengths",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTLumbarPuncture",
+      "code": "CTLumbarPuncture",
+      "name": "Lumbar Puncture",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNecklarynxnon-IVcontrast",
+      "code": "CTNecklarynxnon-IVcontrast",
+      "name": "Neck / larynx non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNeckLarynxpost-IVcontrast",
+      "code": "CTNeckLarynxpost-IVcontrast",
+      "name": "Neck / Larynx post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNeckLarynxpreandpostIVcontrast",
+      "code": "CTNeckLarynxpreandpostIVcontrast",
+      "name": "Neck / Larynx pre and post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNeckChestAbdo-PelvisNon-IVcontrast",
+      "code": "CTNeckChestAbdo-PelvisNon-IVcontrast",
+      "name": "Neck+Chest+Abdo +/- Pelvis Non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNeckChestAbdo-Pelvispost-IVcontrast",
+      "code": "CTNeckChestAbdo-Pelvispost-IVcontrast",
+      "name": "Neck+Chest+Abdo +/- Pelvis post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNephrostomyTubeChange",
+      "code": "CTNephrostomyTubeChange",
+      "name": "Nephrostomy Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTNephrostomyTubeInsertion",
+      "code": "CTNephrostomyTubeInsertion",
+      "name": "Nephrostomy Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTOrbits-Brain-IVContrast",
+      "code": "CTOrbits-Brain-IVContrast",
+      "name": "Orbits +/- Brain +/- IV Contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTOrbitsnon-IVcontrast",
+      "code": "CTOrbitsnon-IVcontrast",
+      "name": "Orbits non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPelvimetry",
+      "code": "CTPelvimetry",
+      "name": "Pelvimetry",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPelvisnon-IVcontrast",
+      "code": "CTPelvisnon-IVcontrast",
+      "name": "Pelvis non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPelvispost-IVcontrast",
+      "code": "CTPelvispost-IVcontrast",
+      "name": "Pelvis post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPelvispreandpostIVcontrast",
+      "code": "CTPelvispreandpostIVcontrast",
+      "name": "Pelvis pre and post IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPituitaryFossa-Brain-IVcontrast",
+      "code": "CTPituitaryFossa-Brain-IVcontrast",
+      "name": "Pituitary Fossa +/- Brain +/- IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPleuralEffusionAspiration-Diagnostic",
+      "code": "CTPleuralEffusionAspiration-Diagnostic",
+      "name": "Pleural Effusion Aspiration +/- Diagnostic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPleuralEffusion-Diagnosticonly",
+      "code": "CTPleuralEffusion-Diagnosticonly",
+      "name": "Pleural Effusion - Diagnostic only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTPTBsIAMsBrain-IVcontrast",
+      "code": "CTPTBsIAMsBrain-IVcontrast",
+      "name": "PTBs / IAMs+Brain+/ - IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiofrequencyAblation-Abdomen-Other",
+      "code": "CTRadiofrequencyAblation-Abdomen-Other",
+      "name": "Radiofrequency Ablation - Abdomen - Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiofrequencyAblation-LiverIncludesimaging",
+      "code": "CTRadiofrequencyAblation-LiverIncludesimaging",
+      "name": "Radiofrequency Ablation - Liver (Includes imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiotherapyPlanning-AbdomenPelvisnon-IVcontrast",
+      "code": "CTRadiotherapyPlanning-AbdomenPelvisnon-IVcontrast",
+      "name": "Radiotherapy Planning -  Abdomen / Pelvis non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiotherapyPlanning-Chest-UpperAbdomennon-IVContrast",
+      "code": "CTRadiotherapyPlanning-Chest-UpperAbdomennon-IVContrast",
+      "name": "Radiotherapy Planning -  Chest +/- Upper Abdomen non-IV Contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiotherapyPlanning-SoftTissuesnecknon-IVcontrast",
+      "code": "CTRadiotherapyPlanning-SoftTissuesnecknon-IVcontrast",
+      "name": "Radiotherapy Planning -  Soft Tissues neck non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTRadiotherapyPlanning-UpperAbdomennon-IVcontrast",
+      "code": "CTRadiotherapyPlanning-UpperAbdomennon-IVcontrast",
+      "name": "Radiotherapy Planning -  Upper Abdomen non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSinusesBrainnon-IVcontrast",
+      "code": "CTSinusesBrainnon-IVcontrast",
+      "name": "Sinuses+Brain non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSinusesBrainpost-IVcontrast",
+      "code": "CTSinusesBrainpost-IVcontrast",
+      "name": "Sinuses+Brain post -IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSinusesnon-IVcontrast",
+      "code": "CTSinusesnon-IVcontrast",
+      "name": "Sinuses non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSinusespost-IVcontrast",
+      "code": "CTSinusespost-IVcontrast",
+      "name": "Sinuses post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalLumbarnon-IVcontrast",
+      "code": "CTSpineCervicalLumbarnon-IVcontrast",
+      "name": "Spine Cervical Lumbar non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalLumbarpost-IVcontrast",
+      "code": "CTSpineCervicalLumbarpost-IVcontrast",
+      "name": "Spine Cervical Lumbar post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervical-Myelogram",
+      "code": "CTSpineCervical-Myelogram",
+      "name": "Spine Cervical - Myelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalnon-IVcontrast",
+      "code": "CTSpineCervicalnon-IVcontrast",
+      "name": "Spine Cervical non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalpost-IVcontrast",
+      "code": "CTSpineCervicalpost-IVcontrast",
+      "name": "Spine Cervical post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalThoracicLumbarnon-IVcontrast",
+      "code": "CTSpineCervicalThoracicLumbarnon-IVcontrast",
+      "name": "Spine Cervical Thoracic Lumbar non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalThoracicLumbarpost-IVcontrast",
+      "code": "CTSpineCervicalThoracicLumbarpost-IVcontrast",
+      "name": "Spine Cervical Thoracic Lumbar post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalThoracicnon-IVcontrast",
+      "code": "CTSpineCervicalThoracicnon-IVcontrast",
+      "name": "Spine Cervical Thoracic non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineCervicalThoracicpost-IVcontrast",
+      "code": "CTSpineCervicalThoracicpost-IVcontrast",
+      "name": "Spine Cervical Thoracic post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineLumbar-Myelogram",
+      "code": "CTSpineLumbar-Myelogram",
+      "name": "Spine Lumbar - Myelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineLumbarnon-IVcontrast",
+      "code": "CTSpineLumbarnon-IVcontrast",
+      "name": "Spine Lumbar non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineLumbarpost-IVcontrast",
+      "code": "CTSpineLumbarpost-IVcontrast",
+      "name": "Spine Lumbar post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpine-Myelogram-MultipleRegion",
+      "code": "CTSpine-Myelogram-MultipleRegion",
+      "name": "Spine - Myelogram - Multiple Region",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineThoracicLumbarnon-IVcontrast",
+      "code": "CTSpineThoracicLumbarnon-IVcontrast",
+      "name": "Spine Thoracic Lumbar non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineThoracicLumbarpost-IVcontrast",
+      "code": "CTSpineThoracicLumbarpost-IVcontrast",
+      "name": "Spine Thoracic Lumbar post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineThoracic-Myelogram",
+      "code": "CTSpineThoracic-Myelogram",
+      "name": "Spine Thoracic - Myelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineThoracicnon-IVcontrast",
+      "code": "CTSpineThoracicnon-IVcontrast",
+      "name": "Spine Thoracic non-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTSpineThoracicpost-IVcontrast",
+      "code": "CTSpineThoracicpost-IVcontrast",
+      "name": "Spine Thoracic post-IV contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTVertebroplasty",
+      "code": "CTVertebroplasty",
+      "name": "Vertebroplasty",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTVirtualColonoscopy-ColonDiseasespecialistreferral",
+      "code": "CTVirtualColonoscopy-ColonDiseasespecialistreferral",
+      "name": "Virtual Colonoscopy - Colon Disease (specialist referral)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTVirtualColonoscopy-FailedColonoscopyspecialistreferral",
+      "code": "CTVirtualColonoscopy-FailedColonoscopyspecialistreferral",
+      "name": "Virtual Colonoscopy - Failed Colonoscopy (specialist referral)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTVirtualColonoscopy-non-IVcontrastGPReferral",
+      "code": "CTVirtualColonoscopy-non-IVcontrastGPReferral",
+      "name": "Virtual Colonoscopy - non-IV contrast (GP Referral)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-CTVirtualColonoscopy-post-IVcontrastGPReferral",
+      "code": "CTVirtualColonoscopy-post-IVcontrastGPReferral",
+      "name": "Virtual Colonoscopy - post-IV contrast (GP Referral)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-IntravenousPyelogram",
+      "code": "IntravenousPyelogram",
+      "name": "Intravenous Pyelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ctScanImagingArea-PercutaneousTranshepaticCholangiogram",
+      "code": "PercutaneousTranshepaticCholangiogram",
+      "name": "Percutaneous Transhepatic Cholangiogram",
+      "visibilityStatus": "current"
+    }
+  ]
+}

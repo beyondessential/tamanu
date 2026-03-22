@@ -20,7 +20,7 @@ import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { Vitals } from './Vitals';
-import { formatDateForQuery } from '~/infra/db/helpers';
+import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Department } from './Department';
 import { Location } from './Location';
@@ -98,7 +98,7 @@ export class Encounter extends BaseModel implements IEncounter {
   labRequests: LabRequest[];
 
   @OneToMany(() => EncounterHistory, encounterHistory => encounterHistory.encounter)
-  encounterHistory: LabRequest[];
+  encounterHistories: EncounterHistory[];
 
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, {
     eager: true,

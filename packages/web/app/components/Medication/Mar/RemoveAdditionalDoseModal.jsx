@@ -2,18 +2,24 @@ import React from 'react';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Field, Form, TextField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+  TimeDisplay,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Field } from '../../Field';
+import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants';
-import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
-    max-width: 670px;
+    max-width: 670px; 
   }
 `;
 
@@ -101,7 +107,7 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
           <MidText>
             <TranslatedText stringId="medication.mar.timeGiven" fallback="Time given" />
           </MidText>
-          <DarkestText mt={'3px'}>{formatTimeSlot(new Date(dose.givenTime))}</DarkestText>
+          <DarkestText mt={'3px'}><TimeDisplay date={dose.givenTime} noTooltip /></DarkestText>
           <MidText mt={'15px'}>
             <TranslatedText stringId="medication.mar.recordedBy" fallback="Recorded by" />
           </MidText>

@@ -1,0 +1,25 @@
+{
+  "sheetName": "Sex",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "sex-Female",
+      "code": "Female",
+      "name": "Female"
+    },
+    {
+      "id": "sex-Male",
+      "code": "Male",
+      "name": "Male"
+    },
+    {
+      "id": "sex-Other",
+      "code": "Other",
+      "name": "Other"
+    }
+  ]
+}

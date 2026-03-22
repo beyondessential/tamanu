@@ -1,16 +1,20 @@
 import React from 'react';
+import { Colors } from '../constants/styles';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, TextField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { DateDisplay } from '../components';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  DateDisplay,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Field } from '../components/Field';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
-import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;

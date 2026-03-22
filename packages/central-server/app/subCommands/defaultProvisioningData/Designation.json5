@@ -1,0 +1,71 @@
+{
+  "sheetName": "Designation",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "designation-Nurse",
+      "code": "Nurse",
+      "name": "Nurse",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-SeniorNurse",
+      "code": "SeniorNurse",
+      "name": "Senior Nurse",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Midwife",
+      "code": "Midwife",
+      "name": "Midwife",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Intern",
+      "code": "Intern",
+      "name": "Intern",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Doctor",
+      "code": "Doctor",
+      "name": "Doctor",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Pharmacist",
+      "code": "Pharmacist",
+      "name": "Pharmacist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Nutritionist",
+      "code": "Nutritionist",
+      "name": "Nutritionist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Physio",
+      "code": "Physio",
+      "name": "Physiotherapist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-MedicalRecords",
+      "code": "MedicalRecords",
+      "name": "Medical Records",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "designation-Anaesthetist",
+      "code": "Anaesthetist",
+      "name": "Anaesthetist",
+      "visibilityStatus": "current"
+    }
+  ]
+}

@@ -129,3 +129,7 @@ type of the specimen for the request, if specified.
 {% docs lab_requests__collected_by_id %}
 Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) who collected the sample.
 {% enddocs %}
+
+{% docs lab_requests__results_interpretation %}
+Free-text interpretation and clinical commentary on the laboratory test results.
+{% enddocs %}

@@ -37,7 +37,7 @@ export const incomingSyncHook = async (
 
     for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
       const batchRecords = await findSyncSnapshotRecords(
-        sequelize,
+        { sequelize },
         sessionId,
         SYNC_SESSION_DIRECTION.INCOMING,
         fromId,
@@ -60,7 +60,7 @@ export const incomingSyncHook = async (
 
         if (inserts.length > 0) {
           // Mark new changes as requiring repull
-          const newChangesToInsert = inserts.map((change) => ({
+          const newChangesToInsert = inserts.map(change => ({
             ...change,
             requiresRepull: true,
           }));
@@ -71,13 +71,13 @@ export const incomingSyncHook = async (
 
         if (updates.length > 0) {
           // Mark new changes as requiring repull
-          const newChangesToUpdate = updates.map((change) => ({
+          const newChangesToUpdate = updates.map(change => ({
             ...change,
             requiresRepull: true,
           }));
 
           // Update existing changes in sync_snapshot table
-          await asyncPool(persistUpdateWorkerPoolSize, newChangesToUpdate, async (change) =>
+          await asyncPool(persistUpdateWorkerPoolSize, newChangesToUpdate, async change =>
             updateSnapshotRecords(sequelize, sessionId, change, {
               id: change.id,
             }),

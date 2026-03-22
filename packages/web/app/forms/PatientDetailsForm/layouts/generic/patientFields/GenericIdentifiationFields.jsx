@@ -24,7 +24,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
       label: (
         <TranslatedText
           stringId="general.localisedField.birthCertificate.label"
-          fallback="Birth certificate number"
+          fallback="Birth certificate"
           data-testid="translatedtext-3f67"
         />
       ),
@@ -58,7 +58,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
       label: (
         <TranslatedText
           stringId="general.localisedField.drivingLicense.label"
-          fallback="Driving license number"
+          fallback="Driving license"
           data-testid="translatedtext-pcri"
         />
       ),

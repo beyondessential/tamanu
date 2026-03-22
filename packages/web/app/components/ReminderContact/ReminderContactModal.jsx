@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
 import { Box } from '@material-ui/core';
 
+import { BaseModal } from '@tamanu/ui-components';
+import { WS_EVENTS } from '@tamanu/constants';
+
 import { AddReminderContact } from './AddReminderContact';
-import { BaseModal } from '../BaseModal';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
 import { useTranslation } from '../../contexts/Translation';
 import { useSocket } from '../../utils/useSocket';
 
-import { WS_EVENTS } from '@tamanu/constants';
 
 const ReminderModalContainer = styled(Box)`
   padding: 0px 8px;

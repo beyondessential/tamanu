@@ -6,7 +6,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
   FACT_CURRENT_SYNC_TICK,
@@ -15,7 +15,7 @@ import {
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   getModelsForPull,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
@@ -26,6 +26,7 @@ import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -106,6 +107,8 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistration,
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
+      PatientInvoiceInsurancePlan,
+      PortalSurveyAssignment,
       Permission,
       ReportDefinitionVersion,
       Setting,
@@ -118,6 +121,7 @@ describe('Sync Lookup data', () => {
       Location,
       Appointment,
       AppointmentSchedule,
+      AppointmentProcedureType,
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
@@ -126,18 +130,23 @@ describe('Sync Lookup data', () => {
       PatientOngoingPrescription,
       PharmacyOrder,
       PharmacyOrderPrescription,
+      MedicationDispense,
       Prescription,
       ImagingRequest,
       ImagingRequestArea,
       ImagingResult,
       Invoice,
       InvoiceDiscount,
-      InvoiceInsurer,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
       InvoiceItem,
       InvoiceItemDiscount,
       InvoicePayment,
+      InvoiceItemFinalisedInsurance,
       LabTestPanelRequest,
       Procedure,
+      ProcedureAssistantClinician,
+      ProcedureSurveyResponse,
       SurveyResponse,
       SurveyResponseAnswer,
       Triage,
@@ -246,11 +255,22 @@ describe('Sync Lookup data', () => {
     );
     await Permission.create(fake(Permission, { roleId: role.id }));
     const schedule = await AppointmentSchedule.create(fake(AppointmentSchedule));
-    await Appointment.create(
+    const appointment = await Appointment.create(
       fake(Appointment, {
         patientId: patient.id,
         locationGroupId: locationGroup.id,
         scheduleId: schedule.id,
+      }),
+    );
+    const procedureType = await ReferenceData.create(
+      fake(ReferenceData, {
+        type: 'procedureType',
+      }),
+    );
+    await AppointmentProcedureType.create(
+      fake(AppointmentProcedureType, {
+        appointmentId: appointment.id,
+        procedureTypeId: procedureType.id,
       }),
     );
     encounter1 = await Encounter.create(
@@ -332,13 +352,22 @@ describe('Sync Lookup data', () => {
       fake(PharmacyOrder, {
         encounterId: encounter1.id,
         orderingClinicianId: examiner.id,
+        facilityId: facility.id,
+        date: getCurrentDateTimeString(),
       }),
     );
 
-    await PharmacyOrderPrescription.create(
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
       fake(PharmacyOrderPrescription, {
         pharmacyOrderId: pharmacyOrder.id,
         prescriptionId: prescription.id,
+      }),
+    );
+
+    await MedicationDispense.create(
+      fake(MedicationDispense, {
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        dispensedByUserId: examiner.id,
       }),
     );
 
@@ -385,6 +414,14 @@ describe('Sync Lookup data', () => {
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
       }),
     );
+    await PortalSurveyAssignment.create(
+      fake(PortalSurveyAssignment, {
+        patientId: patient.id,
+        surveyId: survey.id,
+        assignedById: examiner.id,
+        facilityId: facility.id,
+      }),
+    );
     const surveyResponse = await SurveyResponse.create(
       fake(SurveyResponse, {
         surveyId: survey.id,
@@ -401,7 +438,7 @@ describe('Sync Lookup data', () => {
 
     const reportDefinition = await ReportDefinition.create(
       fake(ReportDefinition, {
-        dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+        dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
       }),
     );
     await ReportDefinitionVersion.create(
@@ -455,11 +492,23 @@ describe('Sync Lookup data', () => {
       labTestPanelId: labTestPanel1.id,
       labTestTypeId: labTestType.id,
     });
-    await Procedure.create(
+    const procedure = await Procedure.create(
       fake(Procedure, {
         encounterId: encounter1.id,
       }),
     );
+    await ProcedureAssistantClinician.create(
+      fake(ProcedureAssistantClinician, {
+        procedureId: procedure.id,
+        userId: examiner.id,
+      }),
+    );
+
+    await ProcedureSurveyResponse.create({
+      procedureId: procedure.id,
+      surveyResponseId: surveyResponse.id,
+    });
+
     // work around as Triage.create needs config.serverFacilityId which is not available in central
     await Triage.upsert({
       encounterId: encounter1.id,
@@ -584,10 +633,11 @@ describe('Sync Lookup data', () => {
         appliedByUserId: examiner.id,
       }),
     );
-    await InvoiceInsurer.create(
-      fake(InvoiceInsurer, {
+    const contract = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+    await InvoicesInvoiceInsurancePlan.create(
+      fake(InvoicesInvoiceInsurancePlan, {
         invoiceId: invoice.id,
-        insurerId: referenceData.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     const invoicePayment = await InvoicePayment.create(
@@ -622,6 +672,12 @@ describe('Sync Lookup data', () => {
     await InvoiceItemDiscount.create(
       fake(InvoiceItemDiscount, {
         invoiceItemId: invoiceItem.id,
+      }),
+    );
+    await InvoiceItemFinalisedInsurance.create(
+      fake(InvoiceItemFinalisedInsurance, {
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
 
@@ -662,6 +718,12 @@ describe('Sync Lookup data', () => {
       fake(Notification, {
         userId: examiner.id,
         patientId: patient.id,
+      }),
+    );
+    await PatientInvoiceInsurancePlan.create(
+      fake(PatientInvoiceInsurancePlan, {
+        patientId: patient.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
   };
@@ -761,8 +823,8 @@ describe('Sync Lookup data', () => {
       );
     }
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -821,8 +883,8 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -952,8 +1014,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1001,8 +1063,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1049,8 +1111,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1109,8 +1171,8 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -1247,8 +1309,8 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1333,8 +1395,8 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1470,8 +1532,8 @@ describe('Sync Lookup data', () => {
         config,
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );

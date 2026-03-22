@@ -3,14 +3,19 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
+  DRUG_STOCK_STATUSES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
+  DEFAULT_LANGUAGE_CODE,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { isEmpty, isNil } from 'lodash';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
@@ -103,18 +108,48 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function translatedStringLoader(item) {
+export async function translatedStringLoader(item, { models, header }) {
   const { stringId, ...languages } = stripNotes(item);
-  return Object.entries(languages)
-    .filter(([, text]) => `${text}`.trim())
-    .map(([language, text]) => ({
+  const rows = [];
+  const languagesInSheet = header.filter(h => h !== 'stringId');
+  const existingTranslations = await models.TranslatedString.findAll({
+    where: { stringId, language: languagesInSheet },
+  });
+  const existingTranslationsMap = new Map(existingTranslations.map(t => [t.language, t]));
+  for (const language of languagesInSheet) {
+    if (language === DEFAULT_LANGUAGE_CODE) {
+      continue; // Ignore any edits to the default language
+    }
+
+    const text = languages[language];
+    const emptyCell = isNil(text) || isEmpty(`${text}`.trim());
+    if (emptyCell) {
+      const existing = existingTranslationsMap.get(language);
+      if (existing) {
+        // An empty cell means delete the translation for this language
+        rows.push({
+          model: 'TranslatedString',
+          values: {
+            stringId,
+            language,
+            deletedAt: new Date(),
+          },
+        });
+      }
+      continue;
+    }
+
+    rows.push({
       model: 'TranslatedString',
       values: {
         stringId,
         language,
         text,
       },
-    }));
+    });
+  }
+
+  return rows;
 }
 
 export async function patientDataLoader(item, { models, foreignKeySchemata }) {
@@ -228,8 +263,14 @@ export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
 
   const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
+  const normalizedVerb = verb.trim();
+  const normalizedNoun = noun.trim();
 
-  await validateObjectId({ ...item, objectId: normalizedObjectId }, models, pushError);
+  await validateObjectId(
+    { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
+    models,
+    message => pushError(message, 'Permission'),
+  );
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
@@ -237,7 +278,8 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${verb}-${noun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id =
+        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -247,8 +289,8 @@ export async function permissionLoader(item, { models, pushError }) {
         values: {
           _yCell: yCell,
           id,
-          verb,
-          noun,
+          verb: normalizedVerb,
+          noun: normalizedNoun,
           objectId: normalizedObjectId,
           role,
           deletedAt,
@@ -272,13 +314,14 @@ export function labTestPanelLoader(item) {
   (testTypesInPanel || '')
     .split(',')
     .map(t => t.trim())
-    .forEach(testType => {
+    .forEach((testType, index) => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
           id: `${id};${testType}`,
           labTestPanelId: id,
           labTestTypeId: testType,
+          order: index,
         },
       });
     });
@@ -298,7 +341,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   }).then(tasks => tasks.map(({ id }) => id));
   const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
   if (nonExistentTaskIds.length > 0) {
-    pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
+    pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`, 'TaskSet');
   }
 
   if (!existingTaskIds.length) return [];
@@ -355,7 +398,6 @@ export async function userLoader(item, { models, pushError }) {
       rows.push({
         model: 'UserFacility',
         values: {
-          id: `${id};${facilityId}`,
           userId: id,
           facilityId: facilityId,
           deletedAt: new Date(),
@@ -368,9 +410,9 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserFacility',
       values: {
-        id: `${id};${facilityId}`,
         userId: id,
         facilityId: facilityId,
+        deletedAt: null,
       },
     });
   });
@@ -389,11 +431,11 @@ export async function userLoader(item, { models, pushError }) {
   for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
     if (!existingData) {
-      pushError(`Designation "${designation}" does not exist`);
+      pushError(`Designation "${designation}" does not exist`, 'User');
       continue;
     }
     if (existingData.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`);
+      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`, 'User');
       continue;
     }
     rows.push({
@@ -447,7 +489,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   );
   for (const designationId of designationIds) {
     if (!existingDesignationIds.includes(designationId)) {
-      pushError(`Designation "${designationId}" does not exist`);
+      pushError(`Designation "${designationId}" does not exist`, 'TaskTemplate');
       continue;
     }
     rows.push({
@@ -462,8 +504,21 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes, isSensitive = false } = item;
+export async function drugLoader(item, { models, pushError }) {
+  /* eslint-disable no-unused-vars */
+  const {
+    id: drugId,
+    route,
+    units,
+    notes,
+    isSensitive = false,
+    name,
+    visibilityStatus,
+    code,
+    systemRequired,
+    ...rest
+  } = item;
+  /* eslint-enable no-unused-vars */
   const rows = [];
 
   let existingDrug;
@@ -473,18 +528,69 @@ export async function drugLoader(item, { models }) {
     });
   }
 
+  const referenceDrugId = existingDrug?.id || uuidv4();
   const newDrug = {
-    id: existingDrug?.id || uuidv4(),
+    id: referenceDrugId,
     referenceDataId: drugId,
     route,
     units,
     notes,
-    isSensitive,
+    isSensitive: !!isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
     values: newDrug,
   });
+
+  const facilitiesData = Object.fromEntries(
+    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
+  );
+  const facilityIdsToImport = Object.keys(facilitiesData);
+  const facilitiesToImport = await models.Facility.findAll({
+    attributes: ['id'],
+    where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
+  });
+
+  if (!facilitiesToImport.length) {
+    return rows;
+  }
+
+  if (facilitiesToImport.length !== facilityIdsToImport.length) {
+    const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
+    const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
+    pushError(
+      `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
+    );
+    return rows;
+  }
+
+  for (const [key, value] of Object.entries(facilitiesData)) {
+    const facilityId = key;
+    const parsedQuantity = parseInt(value, 10);
+
+    let quantity = null;
+    let stockStatus;
+
+    if (Number.isNaN(parsedQuantity)) {
+      stockStatus =
+        value === DRUG_STOCK_STATUSES.UNAVAILABLE
+          ? DRUG_STOCK_STATUSES.UNAVAILABLE
+          : DRUG_STOCK_STATUSES.UNKNOWN;
+    } else {
+      quantity = parsedQuantity;
+      stockStatus = quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+    }
+
+    rows.push({
+      model: 'ReferenceDrugFacility',
+      values: {
+        referenceDrugId,
+        facilityId,
+        quantity,
+        stockStatus,
+      },
+    });
+  }
 
   return rows;
 }
@@ -510,11 +616,17 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
   });
   if (!drug) {
-    pushError(`Drug with ID "${drugReferenceDataId}" does not exist.`);
+    pushError(
+      `Drug with ID "${drugReferenceDataId}" does not exist.`,
+      'ReferenceMedicationTemplate',
+    );
   }
 
   if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
-    pushError(`Dose amount must be a number or the string "variable".`);
+    pushError(
+      `Dose amount must be a number or the string "variable".`,
+      'ReferenceMedicationTemplate',
+    );
   }
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
@@ -609,5 +721,146 @@ export async function medicationSetLoader(item, { models, pushError }) {
       },
     });
   }
+
+  return rows;
+}
+
+export async function procedureTypeLoader(item, { models, pushError }) {
+  const { id, formLink } = item;
+  const rows = [];
+
+  const surveyIdList = formLink ? formLink.split(',').map(s => s.trim()) : [];
+
+  // Validate that all surveys exist before creating relationships
+  if (surveyIdList.length > 0) {
+    const existingSurveys = await models.Survey.findAll({
+      where: { id: { [Op.in]: surveyIdList } },
+    });
+    const existingSurveyIds = existingSurveys.map(({ id }) => id);
+    const nonExistentSurveyIds = surveyIdList.filter(
+      surveyId => !existingSurveyIds.includes(surveyId),
+    );
+    if (nonExistentSurveyIds.length > 0) {
+      pushError(
+        `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
+        'ProcedureTypeSurvey',
+      );
+    }
+
+    // Check if any of the existing surveys have survey_type !== 'programs'
+    const nonProgramSurveys = existingSurveys.filter(survey => survey.surveyType !== 'programs');
+    if (nonProgramSurveys.length > 0) {
+      pushError(
+        `Survey${nonProgramSurveys.length > 1 ? 's' : ''} "${nonProgramSurveys.map(s => s.id).join(', ')}" for procedure type "${id}" must have survey_type of 'programs'.`,
+        'ProcedureTypeSurvey',
+      );
+    }
+  }
+
+  const existingProcedureType = await models.ReferenceData.findByPk(id, {
+    include: [{ model: models.Survey, as: 'surveys' }],
+  });
+
+  if (existingProcedureType) {
+    const idsToBeDeleted = existingProcedureType.surveys
+      .map(s => s.id)
+      .filter(surveyId => !surveyIdList.includes(surveyId));
+
+    if (idsToBeDeleted.length > 0) {
+      idsToBeDeleted.forEach(surveyId => {
+        rows.push({
+          model: 'ProcedureTypeSurvey',
+          values: {
+            procedureTypeId: id,
+            surveyId: surveyId,
+            deletedAt: new Date(),
+          },
+        });
+      });
+    }
+  }
+
+  surveyIdList.forEach(surveyId => {
+    rows.push({
+      model: 'ProcedureTypeSurvey',
+      values: {
+        procedureTypeId: id,
+        surveyId: surveyId,
+      },
+    });
+  });
+
+  return rows;
+}
+
+export async function invoiceProductLoader(item, { models, pushError }) {
+  const { category, sourceRecordId } = item;
+  const rows = [];
+
+  if (!category && sourceRecordId) {
+    pushError(`Must provide a category if providing a sourceRecordId.`, 'InvoiceProduct');
+    return [];
+  }
+
+  if (category && !sourceRecordId) {
+    pushError(`Must provide a sourceRecordId if providing a category.`, 'InvoiceProduct');
+    return [];
+  }
+
+  if (!category && !sourceRecordId) {
+    return [
+      {
+        model: 'InvoiceProduct',
+        values: {
+          id: uuidv4(),
+          ...item,
+        },
+      },
+    ];
+  }
+
+  const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
+  if (!validCategories.includes(category)) {
+    pushError(
+      `Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`,
+      'InvoiceProduct',
+    );
+    return [];
+  }
+
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
+  if (!modelName) {
+    pushError(`No model mapped to category: "${category}".`, 'InvoiceProduct');
+    return [];
+  }
+
+  const model = models[modelName];
+  if (!model) {
+    pushError(`Model not found: "${modelName}".`, 'InvoiceProduct');
+    return [];
+  }
+
+  const existingRecord = await model.findOne({
+    where: { id: sourceRecordId },
+  });
+  if (!existingRecord) {
+    pushError(
+      `Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`,
+      'InvoiceProduct',
+    );
+    return [];
+  }
+
+  const newInvoiceProduct = {
+    id: uuidv4(),
+    ...item,
+    category,
+    sourceRecordId,
+  };
+  rows.push({
+    model: 'InvoiceProduct',
+    values: newInvoiceProduct,
+  });
+
   return rows;
 }

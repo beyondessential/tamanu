@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '../errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
@@ -67,7 +67,7 @@ export const simpleGet = (modelName, options = {}) =>
     if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
-        params,
+        frontEndContext: params,
         model: models[modelName],
         facilityId: query.facilityId,
       });
@@ -91,7 +91,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
-        params,
+        frontEndContext: params,
         model: models[modelName],
       });
     }

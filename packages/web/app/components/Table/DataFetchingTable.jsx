@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
 import { Table } from './Table';
@@ -13,11 +13,11 @@ import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
-const initialiseFetchState = () => ({
+const initialiseFetchState = (lastUpdatedAt = '') => ({
   page: 0,
   count: 0,
   data: [],
-  lastUpdatedAt: getCurrentDateTimeString(),
+  lastUpdatedAt,
   sorting: DEFAULT_SORT,
   fetchOptions: {},
 });
@@ -33,15 +33,16 @@ export const DataFetchingTable = memo(
     disablePagination = false,
     autoRefresh,
     lazyLoading = false,
-    overrideLocalisationForStorybook = false,
     hasPermission = true,
     defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
+    'data-testid': dataTestId,
     ...props
   }) => {
+    const { getCurrentDateTime } = useDateTime();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
     const [sorting, setSorting] = useState(initialSort);
-    const [fetchState, setFetchState] = useState(initialiseFetchState());
+    const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMoreData, setIsLoadingMoreData] = useState(false);
@@ -55,8 +56,7 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     const { getSetting } = useSettings();
-    const autoRefreshConfig =
-      overrideLocalisationForStorybook || getSetting('features.tableAutoRefresh');
+    const autoRefreshConfig = getSetting('features.tableAutoRefresh');
     const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -109,13 +109,16 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
+    const getCurrentDateTimeRef = useRef(getCurrentDateTime);
+    getCurrentDateTimeRef.current = getCurrentDateTime;
+
     const updateFetchState = useCallback(
       (data, count) => {
         setFetchState({
           page,
           count,
           data,
-          lastUpdatedAt: getCurrentDateTimeString(),
+          lastUpdatedAt: getCurrentDateTimeRef.current(),
           sorting,
           fetchOptions,
         });
@@ -272,7 +275,8 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       setPage(0);
-      setFetchState(initialiseFetchState());
+      setFetchState(initialiseFetchState(getCurrentDateTimeRef.current()));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchOptionsString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
@@ -293,7 +297,7 @@ export const DataFetchingTable = memo(
               data-testid="translatedtext-r2tx"
             />
           }
-          data-testid="table-6fs4"
+          data-testid={dataTestId}
         />
       );
     }
@@ -308,14 +312,14 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setIsNotificationMuted(true);
             }}
-            data-testid="tablenotification-pij8"
+            data-testid={`${dataTestId}-notification`}
           />
         )}
         {enableAutoRefresh && (
           <TableRefreshButton
             lastUpdatedTime={lastUpdatedAt}
             refreshTable={manualRefresh}
-            data-testid="tablerefreshbutton-4u94"
+            data-testid={`${dataTestId}-refresh`}
           />
         )}
         <Table
@@ -342,7 +346,7 @@ export const DataFetchingTable = memo(
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
-          data-testid="table-4rt7"
+          data-testid={dataTestId}
         />
       </>
     );

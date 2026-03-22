@@ -1,0 +1,135 @@
+import { Op } from 'sequelize';
+import { v4 as uuidv4 } from 'uuid';
+
+function defaultValueExtractor(value) {
+  const parsedValue = Number(value);
+  const isValidValue = !Number.isNaN(parsedValue);
+  return { parsedValue, isValidValue };
+}
+
+/**
+ * Generic, stateful loader factory for product-by-code matrix imports.
+ *
+ * Expected sheet shape:
+ * - First column header (case-insensitive) is `invoiceProductId`.
+ * - Remaining headers are parent codes (e.g., price list codes, insurance contract codes).
+ * - Each row provides numeric values for product/code pairs.
+ */
+export function productMatrixByCodeLoaderFactory(config) {
+  const {
+    parentModel,
+    itemModel,
+    parentIdField,
+    valueField,
+    valueExtractor = defaultValueExtractor,
+    allowEmptyValues = false,
+    messages,
+  } = config;
+
+  const state = {
+    initialized: false,
+    invoiceProductKey: null,
+    codes: [],
+    parentIdCache: new Map(),
+  };
+
+  return async (rawItem, { pushError, models, header: sheetHeader }) => {
+    // Normalize keys (trim)
+    const item = Object.fromEntries(Object.entries(rawItem).map(([k, v]) => [k?.trim?.() ?? k, v]));
+
+    if (!state.initialized) {
+      // Use sheet header when available so we get all columns even if the first data row has empty cells
+      // Note: Excel may parse number-like headers as numbers, so we coerce to string.
+      // Map null/undefined to empty string to avoid literal "null"/"undefined" in headers.
+      const rawHeaders = Array.isArray(sheetHeader)
+        ? sheetHeader.map(h => (h == null ? '' : String(h).trim()))
+        : Object.keys(item);
+      const headers = rawHeaders.filter(Boolean);
+      const invoiceProductKey = headers.find(h => h.toLowerCase() === 'invoiceproductid');
+      if (!invoiceProductKey) {
+        pushError('Missing required column: invoiceProductId', itemModel);
+        return [];
+      }
+
+      const codes = headers.filter(h => h !== invoiceProductKey);
+      state.invoiceProductKey = invoiceProductKey;
+      state.codes = codes;
+
+      // Validate all parents exist and cache their IDs
+      const existingParents = await models[parentModel].findAll({
+        where: { code: { [Op.in]: codes } },
+      });
+
+      const seen = new Set();
+      for (const code of codes) {
+        if (seen.has(code)) {
+          pushError(messages.duplicateCode(code), itemModel);
+          continue;
+        }
+        seen.add(code);
+
+        const parent = existingParents.find(p => p.code === code);
+        if (!parent) {
+          pushError(messages.missingParentByCode(code), itemModel);
+          continue;
+        }
+        state.parentIdCache.set(code, parent.id);
+      }
+
+      // eslint-disable-next-line require-atomic-updates
+      state.initialized = true;
+    }
+
+    const invoiceProductId = item[state.invoiceProductKey];
+    if (!invoiceProductId) return [];
+
+    // Validate product exists
+    const productExists = await models.InvoiceProduct.findByPk(invoiceProductId);
+    if (!productExists) {
+      pushError(`Invoice product '${invoiceProductId}' does not exist`, itemModel);
+      return [];
+    }
+
+    // Fetch existing items for this product to reuse ids
+    const existingItems = await models[itemModel].findAll({ where: { invoiceProductId } });
+    const existingItemsMap = new Map(
+      existingItems.map(row => [`${row[parentIdField]}:${row.invoiceProductId}`, row.id]),
+    );
+
+    const rows = [];
+    for (const code of state.codes) {
+      const rawValue = item[code];
+
+      const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
+      if (!allowEmptyValues && isEmpty) continue;
+
+      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(rawValue, isEmpty);
+      if (!isValidValue) {
+        pushError(messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
+        return [];
+      }
+
+      const parentId = state.parentIdCache.get(code);
+      if (!parentId) {
+        pushError(messages.couldNotFindParentId(code), itemModel);
+        return [];
+      }
+
+      const key = `${parentId}:${invoiceProductId}`;
+      const id = existingItemsMap.get(key) || uuidv4();
+
+      rows.push({
+        model: itemModel,
+        values: {
+          id,
+          [parentIdField]: parentId,
+          invoiceProductId,
+          [valueField]: parsedValue,
+          ...otherColumns,
+        },
+      });
+    }
+
+    return rows;
+  };
+}

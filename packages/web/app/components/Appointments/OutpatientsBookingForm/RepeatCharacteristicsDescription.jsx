@@ -1,15 +1,21 @@
 import React from 'react';
-import { format } from 'date-fns';
 
 import {
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
+import {
+  TranslatedEnum,
+  TranslatedText,
+  useTranslation,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
-import { TranslatedEnum, TranslatedText } from '../../Translation';
-import { useTranslation } from '../../../contexts/Translation';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import { Box } from '@material-ui/core';
+
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
@@ -71,7 +77,8 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
   );
 
 const FrequencyText = ({ frequency, interval, startTimeDate }) => {
-  const weekday = format(startTimeDate, 'EEEE');
+  const { formatWeekdayLong } = useDateTime();
+  const weekday = formatWeekdayLong(startTimeDate);
   const ordinalText = useOrdinalText(startTimeDate, frequency);
   return frequency === REPEAT_FREQUENCY.WEEKLY ? (
     <WeeklyFrequencyText
@@ -92,14 +99,20 @@ const FrequencyText = ({ frequency, interval, startTimeDate }) => {
   );
 };
 
-export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) =>
+export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval, hideRepeatsOnLabel }) =>
   interval ? (
     <>
-      <TranslatedText
-        stringId="outpatientAppointment.repeating.repeatsOnText"
-        fallback="Repeats on:"
-        data-testid="translatedtext-ilje"
-      />{' '}
+      {!hideRepeatsOnLabel && (
+        <>
+          <Box component="span" fontWeight={500} color={Colors.darkText}>
+            <TranslatedText
+              stringId="outpatientAppointment.repeating.repeatsOnText"
+              fallback="Repeats on:"
+              data-testid="translatedtext-ilje"
+            />
+          </Box>{' '}
+        </>
+      )}
       <IntervalText frequency={frequency} interval={interval} data-testid="intervaltext-k7ig" />{' '}
       <FrequencyText
         frequency={frequency}

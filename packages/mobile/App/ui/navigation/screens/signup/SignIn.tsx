@@ -17,7 +17,6 @@ import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
-import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
@@ -116,16 +115,12 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledView>
           <SignInForm
-            onError={(error: Error): void => {
-              if (error instanceof OutdatedVersionError) {
-                showErrorModal({
-                  message: error.message,
-                  buttonPrompt: 'Update',
-                  buttonUrl: error.updateUrl,
-                });
-              } else {
-                showErrorModal({ message: error.message });
-              }
+            onOutdatedVersionError={(error: Error): void => {
+              showErrorModal({
+                message: error.message,
+                buttonPrompt: 'Update',
+                buttonUrl: error.updateUrl,
+              });
             }}
             onSuccess={(): void => {
               if (!facilityId) {

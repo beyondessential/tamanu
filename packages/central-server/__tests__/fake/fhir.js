@@ -5,13 +5,15 @@ import {
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 
-export const fakeResourcesOfFhirServiceRequest = async (models) => {
+export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
     Department,
     Encounter,
     Facility,
     ImagingAreaExternalCode,
+    ImagingTypeExternalCode,
     Location,
     LocationGroup,
     Patient,
@@ -28,7 +30,8 @@ export const fakeResourcesOfFhirServiceRequest = async (models) => {
     Facility.create(fake(Facility)),
   ]);
 
-  const [extCode1, extCode2, fhirPatient, locationGroup] = await Promise.all([
+  const [typeExtCode, extCode1, extCode2, fhirPatient, locationGroup] = await Promise.all([
+    ImagingTypeExternalCode.create(fake(ImagingTypeExternalCode, { imagingTypeCode: 'xRay' })),
     ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
     ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
     FhirPatient.materialiseFromUpstream(patient.id),
@@ -61,6 +64,7 @@ export const fakeResourcesOfFhirServiceRequest = async (models) => {
     facility,
     location,
     department,
+    typeExtCode,
     extCode1,
     extCode2,
     fhirPatient,
@@ -120,7 +124,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     });
     const testTypes = await fakeTestTypes(10, LabTestType, category.id);
     await Promise.all(
-      testTypes.map((testType) =>
+      testTypes.map(testType =>
         LabTestPanelLabTestTypes.create({
           labTestPanelId: labTestPanel.id,
           labTestTypeId: testType.id,
@@ -136,6 +140,14 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
 
     labRequestData = await randomLabRequest(models, requestValues);
     labRequest = await LabRequest.create(labRequestData);
+    await Promise.all(
+      testTypes.map(testType =>
+        LabTest.create({
+          labRequestId: labRequest.id,
+          labTestTypeId: testType.id,
+        }),
+      ),
+    );
 
     return {
       category,
@@ -154,7 +166,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
   labRequest = await LabRequest.create(labRequestData);
   const testTypes = await fakeTestTypes(10, LabTestType, category.id);
   await Promise.all(
-    testTypes.map((testType) =>
+    testTypes.map(testType =>
       LabTest.create({
         labRequestId: labRequest.id,
         labTestTypeId: testType.id,
@@ -175,6 +187,7 @@ export const fakeTestTypes = async function (numberOfTests, LabTestType, categor
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
+      externalCode: uuidv4(),
     });
     testTypes.push(currentLabTest);
   }

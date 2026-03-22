@@ -4,10 +4,11 @@ import path from 'path';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
+import { initReporting } from '@tamanu/database/services/reporting';
 import config from 'config';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
-import { initDatabase, initReporting } from '../database';
+import { initDatabase } from '../database';
 import { setupEnv } from '../env';
 
 const REPORT_HEAP_INTERVAL_MS = 1000;
@@ -41,7 +42,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
+  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting(store) : null;
   setupEnv();
   try {
     const { reportId, parameters, recipients, userId, format, sleepAfterReport } = options;

@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { generateId, generateIdFromPattern } from '@tamanu/utils';
 import { compose } from 'redux';
 import { Formik } from 'formik';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
@@ -7,7 +8,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
 import { SubmitSection } from './SubmitSection';
-import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import {
+  getConfiguredPatientAdditionalDataFields,
+} from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -91,6 +94,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
     selectedPatient?.id,
   );
+  const { getSetting } = useSettings();
 
   const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
     const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
@@ -126,10 +130,11 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     async (values, { resetForm }) => {
       // submit form to server for new patient
       const { dateOfBirth, ...otherValues } = values;
+      const pattern = getSetting<string>('patientDisplayIdPattern');  
       const newPatient = await Patient.createAndSaveOne<Patient>({
         ...otherValues,
         dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
-        displayId: generateId(),
+        displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
       });
 
       await createOrUpdateOtherPatientData(values, newPatient.id);
@@ -142,7 +147,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       resetForm();
       navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, setSelectedPatient, createOrUpdateOtherPatientData],
+    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, getSetting],
   );
 
   const onEditPatient = useCallback(
@@ -172,8 +177,6 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     },
     [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
-
-  const { getSetting } = useSettings();
 
   return loading ? (
     <LoadingScreen />

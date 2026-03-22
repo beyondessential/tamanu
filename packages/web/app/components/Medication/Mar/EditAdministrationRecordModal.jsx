@@ -5,11 +5,18 @@ import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Field, Form, TextField, NumberField, AutocompleteField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Field, NumberField, AutocompleteField } from '../../Field';
+import { FormModal } from '../..';
 import { useSuggester } from '../../../api';
-import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import {
@@ -106,6 +113,7 @@ export const EditAdministrationRecordModal = ({
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const [showWarningModal, setShowWarningModal] = useState('');
 
   const { mutateAsync: updateNotGivenInfoMar } = useNotGivenInfoMarMutation(marInfo?.id, {
@@ -141,7 +149,7 @@ export const EditAdministrationRecordModal = ({
         }
         await updateMarDose({
           doseAmount: Number(doseAmount),
-          givenTime: toDateTimeString(givenTime),
+          givenTime: toStoredDateTime(toDateTimeString(givenTime)),
           givenByUserId,
           recordedByUserId,
           reasonForChange,
@@ -224,7 +232,7 @@ export const EditAdministrationRecordModal = ({
               }
             : {
                 doseAmount: doseInfo?.doseAmount,
-                givenTime: doseInfo?.givenTime ? new Date(doseInfo.givenTime) : null,
+                givenTime: doseInfo?.givenTime ? new Date(toFacilityDateTime(doseInfo.givenTime)) : null,
                 givenByUserId: doseInfo?.givenByUserId,
                 recordedByUserId: doseInfo?.recordedByUserId,
               }
@@ -365,7 +373,7 @@ export const EditAdministrationRecordModal = ({
                 onConfirm={submitForm}
                 confirmDisabled={!dirty}
                 confirmText={
-                  <TranslatedText stringId="general.action.saveChanges" fallback="Save Changes" />
+                  <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />

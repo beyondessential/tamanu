@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
@@ -13,14 +13,28 @@ import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyRespon
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
-const getSubmittedBy = ({ submittedBy }) => submittedBy;
+const getSubmittedBy = ({ submittedBy, userId }) => {
+  // Forms submitted on the patient portal are submitted against the system user on behalf of the patient
+  if (userId === SYSTEM_USER_UUID) {
+    return 'Patient';
+  }
+  return submittedBy;
+};
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => (
   <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />
 );
 
-export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
+export const DataFetchingProgramsTable = ({
+  endpoint,
+  patient,
+  fetchOptions = {},
+  tableOptions = {},
+  className,
+  onDelete = null,
+  TableHeader,
+}) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
@@ -156,6 +170,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         data-testid="surveyresponsesprintmodal-ima2"
       />
       <DataFetchingTable
+        TableHeader={TableHeader}
         endpoint={endpoint}
         columns={columns}
         initialSort={{
@@ -172,12 +187,16 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         onRowClick={onSelectResponse}
         elevated={false}
         refreshCount={refreshCount}
+        fetchOptions={fetchOptions}
+        {...tableOptions}
+        className={className}
         data-testid="datafetchingtable-58ck"
       />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}
         endpoint={endpoint}
+        onDelete={onDelete}
         onClose={() => {
           setDeleteModalOpen(false);
           updateRefreshCount();

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
@@ -21,43 +21,63 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   const [labTestTypes, setLabTestTypes] = useState([]);
   const { models } = useBackend();
 
-  const labRequestCategorySuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.LabTestCategory,
-      },
-    },
-  });
-  const labRequestPrioritySuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.LabTestPriority,
-      },
-    },
-  });
-  const labSampleSiteSuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.LabSampleSite,
-      },
-    },
-  });
-  const specimenTypeSuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.SpecimenType,
-      },
-    },
-  });
+  const labRequestCategorySuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.LabTestCategory,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
+  const labRequestPrioritySuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.LabTestPriority,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
+  const labSampleSiteSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.LabSampleSite,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
+  const specimenTypeSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.SpecimenType,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
 
-  const practitionerSuggester = new Suggester({
-    model: models.User,
-    options: { column: 'displayName' },
-  });
+  const practitionerSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.User,
+        options: { column: 'displayName' },
+      }),
+    [models.User],
+  );
 
   const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
     const where: any = {
@@ -89,13 +109,14 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
       <Field
         component={ReadOnlyBanner}
-        label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />}
+        label={<TranslatedText stringId="lab.requestId.label.short" fallback="Test ID" />}
         name="displayId"
         disabled
       />
       <Field
         component={DateField}
         label={<TranslatedText stringId="general.requestDate.label" fallback="Request date" />}
+        labelFontSize="14"
         required
         mode="date"
         name="requestedDate"
@@ -103,6 +124,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.requestTime.label" fallback="Request time" />}
+        labelFontSize="14"
         mode="time"
         name="requestedTime"
       />
@@ -111,7 +133,17 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         label={
           <TranslatedText
             stringId="lab.requestingClinician.label"
-            fallback="Requesting clinician"
+            fallback="Requesting :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  casing="lower"
+                  data-testid="translatedtext-9ywm"
+                />
+              ),
+            }}
           />
         }
         name="requestedById"
@@ -128,6 +160,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.sampleDate.label" fallback="Sample date" />}
+        labelFontSize="14"
         required
         mode="date"
         name="sampleDate"
@@ -135,6 +168,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.sampleTime.label" fallback="Sample time" />}
+        labelFontSize="14"
         required
         mode="time"
         name="sampleTime"

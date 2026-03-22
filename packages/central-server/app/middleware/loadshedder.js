@@ -2,7 +2,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 
 import { log } from '@tamanu/shared/services/logging';
-import { RequestQueueExceededError, RequestQueueTimeoutError } from '@tamanu/shared/errors';
+import { RateLimitedError } from '@tamanu/errors';
 
 // helper class which defines a queue of requests and can shed load if the queue
 // grows too large
@@ -54,7 +54,8 @@ export class RequestQueue {
       // reject requests once the request queue is full
       if (this.queuedRequests.length >= this.maxQueuedRequests) {
         logEvent('rejected (queue exceeded)');
-        throw new RequestQueueExceededError(
+        throw new RateLimitedError(
+          Math.floor(this.queueTimeout / 1000),
           'RequestQueue.acquire(): max queued requests exceeded (system may be under heavy load)',
         );
       }
@@ -75,7 +76,8 @@ export class RequestQueue {
             this.queuedRequests = this.queuedRequests.filter(j => j === request);
             logEvent('rejected (timeout)');
             reject(
-              new RequestQueueTimeoutError(
+              new RateLimitedError(
+                Math.floor(this.queueTimeout / 1000),
                 'RequestQueue.acquire(): timed out (system may be under heavy load)',
               ),
             );

@@ -13,6 +13,8 @@ import {
   mergePatientDeathData,
   mergePatientFieldValues,
   mergePatientProgramRegistrations,
+  mergePortalUser,
+  mergePatientInvoiceInsurancePlans,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -262,6 +264,37 @@ export class PatientMergeMaintainer extends ScheduledTask {
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     return noteRecords;
+  }
+
+  async specificUpdate_PortalUser() {
+    const { PortalUser } = this.models;
+    const portalUserMerges = await this.findPendingMergePatients(PortalUser);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of portalUserMerges) {
+      const mergedPortalUser = await mergePortalUser(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPortalUser) {
+        records.push(mergedPortalUser);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientInvoiceInsurancePlan() {
+    const { PatientInvoiceInsurancePlan } = this.models;
+    const patientInvoiceInsurancePlanMerges = await this.findPendingMergePatients(PatientInvoiceInsurancePlan);
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientInvoiceInsurancePlanMerges) {
+      const mergedPatientInvoiceInsurancePlans = await mergePatientInvoiceInsurancePlans(this.models, keepPatientId, mergedPatientId);
+      if (mergedPatientInvoiceInsurancePlans?.length) {
+        records.push(...mergedPatientInvoiceInsurancePlans);
+      }
+    }
+    return records;
   }
 
   async run() {

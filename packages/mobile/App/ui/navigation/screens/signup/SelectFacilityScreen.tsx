@@ -112,10 +112,15 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
   const backend = useBackend();
 
   const onSubmitForm = useCallback(async values => {
+    // Fetch facility-specific settings before assigning facility
+    const { settings } = await backend.centralServer.setFacility(values.facilityId);
+    if (settings) {
+      await backend.settings.setSettings(settings);
+    }
     await assignFacility(values.facilityId, values.facilityName);
     // trigger sync when user finish selecting the facility for the device
     await backend.syncManager.triggerSync();
-  }, [assignFacility, backend.syncManager]);
+  }, [assignFacility, backend.centralServer, backend.settings, backend.syncManager]);
 
   useEffect(() => {
     // if we already have a facility id, immediately navigate onward to the home screen

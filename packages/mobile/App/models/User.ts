@@ -27,7 +27,7 @@ export class User extends BaseModel implements IUser {
   email: string;
 
   @Column({ nullable: true })
-  localPassword?: string;
+  password?: string;
 
   // eslint-react gets confused by displayName.
   // eslint-disable-next-line react/static-property-placement
@@ -110,6 +110,4 @@ export class User extends BaseModel implements IUser {
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
     return userLinkedFacilities.includes(id);
   }
-
-  static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }

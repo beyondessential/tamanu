@@ -1,18 +1,11 @@
-import {
-  eachDayOfInterval,
-  endOfDay,
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfWeek,
-} from 'date-fns';
-import React from 'react';
+import { eachDayOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
-import { TranslatedText } from '../../../components';
+import { FormModal, TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -20,8 +13,11 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 import { partitionAppointmentsByLocation } from './utils';
+import { useSendAppointmentEmail } from '../../../api/mutations';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
+import { notifyError, notifySuccess, useDateTime } from '@tamanu/ui-components';
 
-const getDisplayableDates = (date) => {
+const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
   return eachDayOfInterval({ start, end });
@@ -89,12 +85,17 @@ export const LocationBookingsCalendar = ({
   openCancelModal,
   ...props
 }) => {
+  const [emailModalState, setEmailModalState] = useState(null);
   const { monthOf, setMonthOf } = useLocationBookingsContext();
+  const { getDayBoundaries } = useDateTime();
 
   const displayedDates = getDisplayableDates(monthOf);
+  const firstDayBoundaries = getDayBoundaries(toDateString(displayedDates[0]));
+  const lastDayBoundaries = getDayBoundaries(toDateString(displayedDates.at(-1)));
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
+    viewType,
   } = useLocationBookingsContext();
   // When filtering only by location, don’t hide locations that contain no appointments
   const areNonLocationFiltersActive =
@@ -103,21 +104,42 @@ export const LocationBookingsCalendar = ({
 
   const { data: appointmentsData } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(displayedDates[0]),
-      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
+      after: firstDayBoundaries?.start,
+      before: lastDayBoundaries?.end,
       all: true,
       clinicianId,
       bookingTypeId,
       patientNameOrId,
+      view: viewType,
     },
-    { keepPreviousData: true },
+    { enabled: !!firstDayBoundaries && !!lastDayBoundaries, keepPreviousData: true },
   );
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const filteredLocations = areNonLocationFiltersActive
-    ? locations?.filter((location) => appointmentsByLocation[location.id])
+    ? locations?.filter(location => appointmentsByLocation[location.id])
     : locations;
+
+  const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
+    emailModalState?.appointmentId,
+    {
+      onSuccess: () =>
+        notifySuccess(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.success"
+            fallback="Email successfully sent"
+          />,
+        ),
+      onError: () =>
+        notifyError(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.error"
+            fallback="Error sending email"
+          />,
+        ),
+    },
+  );
 
   return (
     <>
@@ -136,11 +158,31 @@ export const LocationBookingsCalendar = ({
             locationsQuery={locationsQuery}
             openBookingForm={openBookingForm}
             openCancelModal={openCancelModal}
+            onEmailBooking={appointment =>
+              setEmailModalState({
+                appointmentId: appointment.id,
+                email: appointment.patient?.email,
+              })
+            }
             data-testid="locationbookingscalendarbody-4f9q"
           />
         </CarouselGrid.Root>
       </Carousel>
       {filteredLocations?.length === 0 && emptyStateMessage}
+      <FormModal
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        open={!!emailModalState}
+        onClose={() => setEmailModalState(null)}
+      >
+        <EmailAddressConfirmationForm
+          onSubmit={async ({ email }) => {
+            await sendAppointmentEmail(email);
+            setEmailModalState(null);
+          }}
+          onCancel={() => setEmailModalState(null)}
+          emailOverride={emailModalState?.email}
+        />
+      </FormModal>
     </>
   );
 };

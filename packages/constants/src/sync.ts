@@ -7,3 +7,21 @@ export const SYNC_DIRECTIONS = {
 };
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
+
+// 16-bit uint
+//
+// When adding message kinds here, also add them to the Wireshark dissector at:
+// /docs/wireshark-tamanu-stream.lua
+const NEVER_USE_ZERO = Symbol('zero');
+export const SYNC_STREAM_MESSAGE_KIND = {
+  // This should never be used, so we make it impossible to
+  [NEVER_USE_ZERO]: 0x0000,
+
+  // Control messages start with 0xf
+  END: 0xf001,
+
+  // Application messages start with 0x0
+  SESSION_WAITING: 0x0001,
+  PULL_WAITING: 0x0002,
+  PULL_CHANGE: 0x0003,
+};

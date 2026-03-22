@@ -72,14 +72,19 @@ export const REPORT_DATE_RANGE_LABELS = {
 
 export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(REPORT_DEFAULT_DATE_RANGES);
 
-export const REPORT_DB_SCHEMAS = {
+export const REPORT_DB_CONNECTIONS = {
   REPORTING: 'reporting',
   RAW: 'raw',
 };
 
-export const REPORT_DB_SCHEMA_VALUES = Object.values(REPORT_DB_SCHEMAS);
+export const REPORT_DB_CONNECTION_VALUES = Object.values(REPORT_DB_CONNECTIONS);
 
-export const REPORT_DB_SCHEMA_LABELS = {
-  [REPORT_DB_SCHEMAS.REPORTING]: 'Reporting',
-  [REPORT_DB_SCHEMAS.RAW]: 'Raw',
+export const REPORT_DB_CONNECTION_LABELS = {
+  [REPORT_DB_CONNECTIONS.REPORTING]: 'Reporting',
+  [REPORT_DB_CONNECTIONS.RAW]: 'Raw',
+};
+
+export const REPORT_DB_CONNECTION_SCHEMAS = {
+  [REPORT_DB_CONNECTIONS.REPORTING]: 'reporting',
+  [REPORT_DB_CONNECTIONS.RAW]: 'public',
 };

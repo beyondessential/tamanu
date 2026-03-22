@@ -3,15 +3,13 @@ import styled from 'styled-components';
 import { subject } from '@casl/ability';
 import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
-import { Modal } from './Modal';
-import { Button, OutlinedButton, TextButton } from './Button';
-import { TranslatedText } from './Translation/TranslatedText';
-import { ButtonRow } from './ButtonRow';
+import { Button, OutlinedButton, TextButton, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useTranslation } from '../contexts/Translation';
 import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';
 import { useAuth } from '../contexts/Auth';
+import { useExport } from '../contexts/ExportContext';
 
 const Image = styled.img`
   display: block;
@@ -90,6 +88,7 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
 };
 
 export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }) => {
+  const { isExporting } = useExport();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);
@@ -97,6 +96,9 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
+
+
+
   const openModalCallback = useCallback(async () => {
     setIsPhotoModalOpen(true);
     if (!navigator.onLine) {
@@ -122,6 +124,11 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
       setErrorMessage(genericErrorMessage);
     }
   }, [api, imageId, getTranslation]);
+
+  // Return nothing when exporting
+  if (isExporting) {
+    return null;
+  }
   const isChartView = !!chartTitle;
   const viewImageText = getTranslation('program.modal.view.title.viewImage', 'View image');
   const imageText = getTranslation('program.modal.view.title.image', 'Image');

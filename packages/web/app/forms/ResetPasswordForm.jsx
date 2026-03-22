@@ -2,11 +2,18 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
-import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
-import { Colors } from '../constants';
+import {
+  FormGrid,
+  TextField,
+  Form,
+  FormSubmitButton,
+  Button,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { BodyText, Field } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { LoginAlert } from './LoginForm';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -52,7 +59,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
             data-testid="translatedtext-6vjp"
           />
         </FormSubtext>
-        {!!errorMessage && <FormSubtext data-testid="formsubtext-bvu8">{errorMessage}</FormSubtext>}
+        {!!errorMessage && <LoginAlert data-testid="formsubtext-bvu8">{errorMessage}</LoginAlert>}
       </div>
       <Field
         autoComplete="email"
@@ -121,7 +128,7 @@ export const ResetPasswordForm = React.memo(
         validationSchema={yup.object().shape({
           email: yup
             .string()
-            .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
+            .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
             .required(getTranslation('validation.required.inline', '*Required')),
         })}
         showInlineErrorsOnly

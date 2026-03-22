@@ -60,11 +60,7 @@ export const styles = StyleSheet.create({
   watermarkImage: {
     objectFit: 'contain',
   },
-  vds: {
-    position: 'relative',
-    top: -30,
-    width: 140,
-  },
+
   certificateLogo: {
     position: 'absolute',
     top: 0,
@@ -136,7 +132,6 @@ png or jpg src image
 @see https://github.com/diegomura/react-pdf/issues/1250 */
 export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} cache={false} />;
 
-export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;
 
 export const CertificateLogo = ({ logoSrc }) => (
   <Image src={logoSrc} style={styles.certificateLogo} cache={false} />

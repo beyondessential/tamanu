@@ -1,0 +1,60 @@
+{
+  "sheetName": "Lab Test Priorities",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "LabTestPriority-Symptomatic",
+      "code": "Symptomatic",
+      "name": "Symptomatic"
+    },
+    {
+      "id": "LabTestPriority-PrimaryContact",
+      "code": "PrimaryContact",
+      "name": "Primary contact"
+    },
+    {
+      "id": "LabTestPriority-SecondaryContact",
+      "code": "SecondaryContact",
+      "name": "Secondary contact"
+    },
+    {
+      "id": "LabTestPriority-HighRiskGroup",
+      "code": "HighRiskGroup",
+      "name": "High risk group"
+    },
+    {
+      "id": "LabTestPriority-Traveller",
+      "code": "Traveller",
+      "name": "Traveller"
+    },
+    {
+      "id": "LabTestPriority-Other",
+      "code": "Other",
+      "name": "Other"
+    },
+    {
+      "id": "LabTestPriority-RDTNegativefurthertestingrequired",
+      "code": "RDTNegativefurthertestingrequired",
+      "name": "AgRDT Negative, further testing needed"
+    },
+    {
+      "id": "LabTestPriority-AgRDTPositivefurthertestingrequired",
+      "code": "AgRDTPositivefurthertestingrequired",
+      "name": "AgRDT Positive, further testing needed"
+    },
+    {
+      "id": "LabTestPriority-AgRDTNegativenofurthertestingrequired",
+      "code": "AgRDTNegativenofurthertestingrequired",
+      "name": "AgRDT Negative, no further testing needed"
+    },
+    {
+      "id": "LabTestPriority-AgRDTPositivenofurthertestingrequired",
+      "code": "AgRDTPositivenofurthertestingrequired",
+      "name": "AgRDT Positive, no further testing needed"
+    }
+  ]
+}

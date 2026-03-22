@@ -1,19 +1,17 @@
 import React from 'react';
 import { Document } from '@react-pdf/renderer';
 
-import { generateUVCI } from '../uvci';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';
 import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
-import { getDisplayDate } from './getDisplayDate';
-import { compareDateStrings } from '@tamanu/utils/dateTime';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
-const columns = [
+const getColumns = formatShort => [
   {
     key: 'vaccine',
     title: 'Vaccine',
@@ -45,8 +43,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+    accessor: ({ date }) => date ? formatShort(date) : 'Unknown',
   },
   {
     key: 'batch',
@@ -62,26 +59,22 @@ const CovidVaccineCertificateComponent = ({
   certificateId,
   signingSrc,
   watermarkSrc,
-  vdsSrc,
   logoSrc,
-  uvci,
   getLocalisation,
   getSetting,
   extraPatientFields,
   printedDate,
 }) => {
-  const { emailAddress: contactEmail, contactNumber, healthFacility } = getSetting(
-    'templates.vaccineCertificate',
-  );
-  const countryCode = getLocalisation('country.alpha-2');
+  const { formatShort } = useDateTime();
+  const {
+    emailAddress: contactEmail,
+    contactNumber,
+    healthFacility,
+  } = getSetting('templates.vaccineCertificate');
   const countryName = getLocalisation('country.name');
-  const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
-  const vaxes = vaccinations.filter(v => v.certifiable).sort(compareDateStrings('desc'));
-  const actualUvci = vaccinations.length
-    ? uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode })
-    : null;
+  const columns = getColumns(formatShort);
 
   return (
     <Document>
@@ -91,18 +84,14 @@ const CovidVaccineCertificateComponent = ({
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
-          vdsSrc={vdsSrc}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={actualUvci}
         />
         <Box mb={20}>
           <Table
             data={data}
             columns={columns}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
           />
         </Box>
@@ -112,7 +101,7 @@ const CovidVaccineCertificateComponent = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate(printedDate)}</P>
+              <P>Printing date: {formatShort(printedDate)}</P>
             </Col>
           </Row>
         </Box>
@@ -126,4 +115,6 @@ const CovidVaccineCertificateComponent = ({
   );
 };
 
-export const CovidVaccineCertificate = withLanguageContext(CovidVaccineCertificateComponent);
+export const CovidVaccineCertificate = withLanguageContext(
+  withDateTimeContext(CovidVaccineCertificateComponent),
+);

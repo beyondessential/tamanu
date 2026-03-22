@@ -1,10 +1,11 @@
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes, literal } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
-import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
+import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -19,7 +20,6 @@ import {
 } from '@tamanu/constants';
 import {
   simpleGet,
-  simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -28,12 +28,17 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-
+import {
+  deleteChartInstance,
+  fetchAnswersWithHistory,
+  fetchGraphData,
+  fetchChartInstances,
+} from '../../routeHandlers/charts';
+import { keyBy } from 'lodash';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
-
 import { getLabRequestList } from '../../routeHandlers/labs';
 import {
   deleteDocumentMetadata,
@@ -42,6 +47,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -49,13 +55,42 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const {
+      models,
+      body: { facilityId, ...data },
+      user,
+    } = req;
     req.checkPermission('create', 'Encounter');
-    const validatedBody = validate(createEncounterSchema, body);
+
+    const validatedBody = validate(createEncounterSchema, data);
+
+    if (!validatedBody.endDate) {
+      const existingOpenEncounterCount = await models.Encounter.count({
+        where: {
+          patientId: validatedBody.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+      });
+
+      if (existingOpenEncounterCount > 0) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new active encounter can be created.',
+        );
+      }
+    }
+
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    if (body.dietIds) {
-      const dietIds = JSON.parse(body.dietIds);
+    await models.Invoice.automaticallyCreateForEncounter(
+      encounterObject.id,
+      encounterObject.encounterType,
+      encounterObject.startDate,
+      req.settings[facilityId],
+    );
+
+    if (data.dietIds) {
+      const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
     res.send(encounterObject);
@@ -140,11 +175,18 @@ encounter.put(
         await referral.update({ encounterId: id });
       }
 
+      if (req.body.locationId != null) {
+        const location = await models.Location.findByPk(req.body.locationId);
+        if (!location) {
+          throw new InvalidOperationError('Invalid location specified');
+        }
+      }
+
+      await encounterObject.update({ ...req.body, systemNote }, user);
       if (req.body.dietIds) {
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-      await encounterObject.update({ ...req.body, systemNote }, user);
     });
     res.send(encounterObject);
   }),
@@ -205,16 +247,40 @@ encounter.post(
     const { id } = params;
     req.checkPermission('write', 'Encounter');
     req.checkPermission('read', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
 
-    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+    const {
+      orderingClinicianId,
+      comments,
+      isDischargePrescription,
+      pharmacyOrderPrescriptions,
+      facilityId,
+      date,
+    } = body;
+
+    const prescriptionRecords = await models.Prescription.findAll({
+      where: { id: pharmacyOrderPrescriptions.map(p => p.prescriptionId) },
+      attributes: ['id', 'medicationId', 'quantity'],
+    });
+
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+      prescriptionRecords.map(p => p.medicationId),
+    );
+
+    if (hasSensitive) {
+      req.checkPermission('read', 'SensitiveMedication');
+    }
 
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
         orderingClinicianId,
-        comments,
         encounterId: id,
+        comments,
+        isDischargePrescription,
+        date: date || getCurrentDateTimeString(),
+        facilityId,
       });
 
       await models.PharmacyOrderPrescription.bulkCreate(
@@ -256,7 +322,7 @@ encounterRelations.get(
     if (!discharge) throw new NotFoundError();
     await req.audit?.access?.({
       recordId: discharge.id,
-      params,
+      frontEndContext: params,
       model: Discharge,
     });
 
@@ -270,9 +336,9 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, query, db, settings } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate, facilityId } = query;
 
     req.checkPermission('list', 'Medication');
 
@@ -330,8 +396,13 @@ encounterRelations.get(
 
     // Add medicationAdministrationRecords with condition for same day
     if (marDate) {
-      const startOfMarDate = `${marDate} 00:00:00`;
-      const endOfMarDate = `${marDate} 23:59:59`;
+      req.checkPermission('list', 'MedicationAdministration');
+
+      const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+      const primaryTimeZone = getPrimaryTimeZone(config);
+      const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
+      const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
+      const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
@@ -378,15 +449,36 @@ encounterRelations.get(
       distinct: true,
     });
 
-    const objects = await Prescription.findAll({
+    const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map(x => x.forResponse());
+    let responseData = prescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [lastOrderedRows] = await db.query(
+        `
+        SELECT pop.prescription_id, max(po.date) AS last_ordered_at
+        FROM pharmacy_order_prescriptions pop
+        INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND pop.deleted_at IS NULL
+          AND po.deleted_at IS NULL
+        GROUP BY pop.prescription_id
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
-    res.send({ count, data });
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
+      }));
+    }
+
+    res.send({ count, data: responseData });
   }),
 );
 
@@ -475,12 +567,12 @@ encounterRelations.get(
     const { models, params } = req;
     const encounterId = params.id;
     const noteTypeCounts = await models.Note.count({
-      group: ['noteType'],
+      group: ['noteTypeId'],
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
     noteTypeCounts.forEach(n => {
-      noteTypeToCount[n.noteType] = n.count;
+      noteTypeToCount[n.noteTypeId] = n.count;
     });
     res.send({ data: noteTypeToCount });
   }),
@@ -493,7 +585,37 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Invoice, InvoicePriceList } = models;
+    req.checkPermission('read', 'Invoice');
+    const encounterId = params.id;
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    const invoiceRecord = await Invoice.findOne({
+      where: { encounterId },
+      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      order: [
+        [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
+        [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
+        [{ model: models.InvoicePayment, as: 'payments' }, 'date', 'ASC'],
+      ],
+    });
+    if (!invoiceRecord) {
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
+      return res.send(null);
+    }
+
+    await req.audit.access({
+      recordId: invoiceRecord.id,
+      frontEndContext: params,
+      model: Invoice,
+    });
+
+    const responseRecord = invoiceForResponse(invoiceRecord);
+    const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
+    res.send({ ...responseRecord, priceList });
+  }),
 );
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
@@ -574,6 +696,7 @@ encounterRelations.get(
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
+        AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses)
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId, surveyType, surveyIds: permittedSurveyIds },
@@ -589,211 +712,20 @@ encounterRelations.get(
 
 encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
-// Used in charts and vitals to query responses based on the date of a response answer
-async function getAnswersWithHistory(req) {
-  const { db, params, query } = req;
-  const { id: encounterId, surveyId = null } = params;
-  const { order = 'DESC', instanceId = null } = query;
-
-  const isVitals = surveyId === null;
-  const dateDataElement = isVitals
-    ? VITALS_DATA_ELEMENT_IDS.dateRecorded
-    : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
-
-  // The LIMIT and OFFSET occur in an unusual place in this query
-  // So we can't run it through the generic runPaginatedQuery function
-  const countResult = await db.query(
-    `
-      SELECT COUNT(1) AS count
-      FROM survey_response_answers
-      INNER JOIN survey_responses response
-      ON response.id = response_id
-      WHERE data_element_id = :dateDataElement
-      AND body IS NOT NULL
-      AND response.encounter_id = :encounterId
-      AND response.deleted_at IS NULL
-      AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
-      AND CASE WHEN :instanceId IS NOT NULL THEN response.metadata->>'chartInstanceResponseId' = :instanceId ELSE true END
-    `,
-    {
-      replacements: {
-        encounterId,
-        dateDataElement,
-        surveyId,
-        instanceId,
-      },
-      type: QueryTypes.SELECT,
-    },
-  );
-  const { count } = countResult[0];
-  if (count === 0) {
-    return { data: [], count: 0 };
-  }
-
-  const { page = 0, rowsPerPage = 10 } = query;
-  const vitalsHistorySelect = `
-    SELECT
-      vl.answer_id,
-      ARRAY_AGG((
-        JSONB_BUILD_OBJECT(
-          'newValue', vl.new_value,
-          'reasonForChange', vl.reason_for_change,
-          'date', vl.date,
-          'userDisplayName', u.display_name
-        )
-      )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
-      LEFT JOIN users u ON u.id = vl.recorded_by_id
-    WHERE sr.encounter_id = :encounterId
-      AND sr.deleted_at IS NULL
-    GROUP BY vl.answer_id
-  `;
-  const chartHistorySelect = `
-    SELECT
-      lc.record_id as answer_id,
-      ARRAY_AGG((
-        JSONB_BUILD_OBJECT(
-          'newValue', lc.record_data->>'body',
-          'reasonForChange', lc.reason,
-          'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
-          'userDisplayName', u.display_name
-        )
-      )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      LEFT JOIN logs.changes lc ON lc.record_id = sra.id
-      LEFT JOIN users u ON u.id = lc.updated_by_user_id
-    WHERE sr.encounter_id = :encounterId
-      AND sr.deleted_at IS NULL
-      AND lc.table_name = 'survey_response_answers'
-    GROUP BY lc.record_id
-  `;
-
-  const result = await db.query(
-    `
-      WITH
-      date AS (
-        SELECT response_id, body
-        FROM survey_response_answers
-        INNER JOIN survey_responses response
-        ON response.id = response_id
-        WHERE data_element_id = :dateDataElement
-        AND body IS NOT NULL
-        AND response.encounter_id = :encounterId
-        AND response.deleted_at IS NULL
-        AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
-        AND CASE WHEN :instanceId IS NOT NULL THEN response.metadata->>'chartInstanceResponseId' = :instanceId ELSE true END
-        ORDER BY body ${order} LIMIT :limit OFFSET :offset
-      ),
-      history AS (
-        ${isVitals ? vitalsHistorySelect : chartHistorySelect}
-      )
-
-      SELECT
-        JSONB_BUILD_OBJECT(
-          'dataElementId', answer.data_element_id,
-          'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
-        ) result
-      FROM
-        survey_response_answers answer
-      INNER JOIN
-        date
-      ON date.response_id = answer.response_id
-      LEFT JOIN
-        history
-      ON history.answer_id = answer.id
-      GROUP BY answer.data_element_id
-    `,
-    {
-      replacements: {
-        encounterId,
-        limit: rowsPerPage,
-        offset: page * rowsPerPage,
-        dateDataElement,
-        surveyId,
-        instanceId,
-      },
-      type: QueryTypes.SELECT,
-    },
-  );
-
-  const data = result.map(r => r.result);
-  return { count, data };
-}
-
-async function getGraphData(req, dateDataElementId) {
-  const { models, params, query } = req;
-  const { id: encounterId, dataElementId } = params;
-  const { startDate, endDate } = query;
-  const { SurveyResponse, SurveyResponseAnswer } = models;
-
-  const dateAnswers = await SurveyResponseAnswer.findAll({
-    include: [
-      {
-        model: SurveyResponse,
-        required: true,
-        as: 'surveyResponse',
-        where: { encounterId },
-      },
-    ],
-    where: {
-      dataElementId: dateDataElementId,
-      body: { [Op.gte]: startDate, [Op.lte]: endDate },
-    },
-  });
-
-  const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
-
-  const answers = await SurveyResponseAnswer.findAll({
-    where: {
-      responseId: responseIds,
-      dataElementId,
-      body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
-    },
-  });
-
-  const data = answers
-    .map(answer => {
-      const { responseId } = answer;
-      const recordedDateAnswer = dateAnswers.find(
-        dateAnswer => dateAnswer.responseId === responseId,
-      );
-      const recordedDate = recordedDateAnswer.body;
-      return { ...answer.dataValues, recordedDate };
-    })
-    .sort((a, b) => {
-      return a.recordedDate > b.recordedDate ? 1 : -1;
-    });
-  // Survey ID will be the same for all answers because the
-  // data element ID is unique to the survey
-  return { data, surveyId: dateAnswers[0]?.surveyResponse.surveyId };
-}
-
 encounterRelations.get(
   '/:id/vitals',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Vitals');
-    const { count, data } = await getAnswersWithHistory(req);
-
-    res.send({
-      count: parseInt(count, 10),
-      data,
-    });
+  fetchAnswersWithHistory({
+    permissionAction: 'list',
+    permissionNoun: 'Vitals',
   }),
 );
 
 encounterRelations.get(
   '/:id/graphData/vitals/:dataElementId',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Vitals');
-    const { data } = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
-
-    res.send({
-      count: data.length,
-      data,
-    });
+  fetchGraphData({
+    permissionAction: 'list',
+    permissionNoun: 'Vitals',
+    dateDataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
@@ -820,7 +752,7 @@ encounterRelations.get(
       group: [['survey.id']],
     });
     req.flagPermissionChecked();
-    const allowedSurvey = chartSurvey.find((response) =>
+    const allowedSurvey = chartSurvey.find(response =>
       req.ability.can('list', subject('Charting', { id: response.survey.id })),
     );
 
@@ -832,28 +764,18 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/graphData/charts/:dataElementId',
-  asyncHandler(async (req, res) => {
-    const { data, surveyId } = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
-    req.checkPermission('read', subject('Charting', { id: surveyId }));
-
-    res.send({
-      count: data.length,
-      data,
-    });
+  fetchGraphData({
+    permissionAction: 'read',
+    permissionNoun: 'Charting',
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
 encounterRelations.get(
   '/:id/charts/:surveyId',
-  asyncHandler(async (req, res) => {
-    const { surveyId } = req.params;
-    req.checkPermission('read', subject('Charting', { id: surveyId }));
-    const { count, data } = await getAnswersWithHistory(req);
-
-    res.send({
-      count: parseInt(count, 10),
-      data,
-    });
+  fetchAnswersWithHistory({
+    permissionAction: 'read',
+    permissionNoun: 'Charting',
   }),
 );
 
@@ -889,7 +811,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
@@ -928,80 +850,11 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/charts/:chartSurveyId/chartInstances',
-  asyncHandler(async (req, res) => {
-    const { db, params } = req;
-    const { id: encounterId, chartSurveyId } = params;
-    req.checkPermission('list', subject('Charting', { id: chartSurveyId }));
-
-    const results = await db.query(
-      `
-        WITH chart_instances AS (
-          SELECT
-            sr.id AS "chartInstanceId",
-            sr.survey_id AS "chartSurveyId",
-            MAX(CASE WHEN sra.data_element_id = :complexChartInstanceNameElementId THEN sra.body END) AS "chartInstanceName",
-            MAX(CASE WHEN sra.data_element_id = :complexChartDateElementId THEN sra.body END) AS "chartDate",
-            MAX(CASE WHEN sra.data_element_id = :complexChartTypeElementId THEN sra.body END) AS "chartType",
-            MAX(CASE WHEN sra.data_element_id = :complexChartSubtypeElementId THEN sra.body END) AS "chartSubtype"
-          FROM
-            survey_responses sr
-          LEFT JOIN
-            survey_response_answers sra
-          ON
-            sr.id = sra.response_id
-          WHERE
-            sr.survey_id = :chartSurveyId AND
-            sr.encounter_id = :encounterId AND
-            sr.deleted_at IS NULL
-          GROUP BY
-            sr.id
-        )
-
-        SELECT
-          *
-        FROM chart_instances
-        ORDER BY "chartDate" DESC;
-      `,
-      {
-        replacements: {
-          encounterId,
-          chartSurveyId,
-          complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
-          complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
-          complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
-          complexChartSubtypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
-        },
-        type: QueryTypes.SELECT,
-      },
-    );
-
-    res.send({
-      count: results.length,
-      data: results,
-    });
+  fetchChartInstances({
+    permissionAction: 'list',
   }),
 );
 
-encounterRelations.delete(
-  '/:id/chartInstances/:chartInstanceResponseId',
-  asyncHandler(async (req, res) => {
-    const { db, params, models } = req;
-    const { chartInstanceResponseId } = params;
-
-    const surveyResponse = await models.SurveyResponse.findByPk(chartInstanceResponseId);
-    req.checkPermission('delete', subject('Charting', { id: surveyResponse?.surveyId }));
-
-    // all answers will also be soft deleted automatically
-    await db.transaction(async () => {
-      await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
-
-      await models.SurveyResponse.destroy({
-        where: { 'metadata.chartInstanceResponseId': chartInstanceResponseId },
-      });
-    });
-
-    res.send({});
-  }),
-);
+encounterRelations.delete('/:id/chartInstances/:chartInstanceResponseId', deleteChartInstance());
 
 encounter.use(encounterRelations);

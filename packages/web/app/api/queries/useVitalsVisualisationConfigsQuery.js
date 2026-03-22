@@ -8,7 +8,7 @@ export const useVitalsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
-  const patientQuery = usePatientDataQuery(encounter.patientId);
+  const patientQuery = usePatientDataQuery(encounter?.patientId);
   const vitalsSurveyQuery = useVitalsSurveyQuery();
 
   const {

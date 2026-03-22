@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { parseISO } from 'date-fns';
 import { literal, Op } from 'sequelize';
 import {
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -9,23 +11,23 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
-    ?.filter((result) => !result.deletedAt)
-    .map((result) => result.get({ plain: true }));
+    ?.filter(result => !result.deletedAt)
+    .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
   const imagingProvider = await getImagingProvider(models, settings);
   if (imagingProvider) {
     const urls = await Promise.all(
-      imagingRequest.results.map(async (result) => {
+      imagingRequest.results.map(async result => {
         // catch all errors so we never fail to show the request if the external provider errors
         try {
           const url = await imagingProvider.getUrlForResult(result);
@@ -39,7 +41,7 @@ async function renderResults({ models, settings }, imagingRequest) {
     );
 
     for (const result of results) {
-      const externalResult = urls.find((url) => url?.resultId === result.id);
+      const externalResult = urls.find(url => url?.resultId === result.id);
       if (!externalResult) continue;
 
       const { url, err } = externalResult;
@@ -130,6 +132,11 @@ imagingRequest.get(
         },
         {
           association: 'notes',
+          include: [
+            {
+              association: 'noteTypeReference',
+            },
+          ],
         },
       ],
     });
@@ -137,7 +144,7 @@ imagingRequest.get(
 
     await req.audit.access({
       recordId: imagingRequestObject.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: ImagingRequest,
     });
 
@@ -200,7 +207,7 @@ imagingRequest.put(
         notes.note = otherNote.content;
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -215,7 +222,7 @@ imagingRequest.put(
         notes.areaNote = areaNote.content || '';
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -254,7 +261,7 @@ imagingRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingRequestArea },
       user,
       body: { areas, note, areaNote, ...imagingRequestData },
     } = req;
@@ -270,12 +277,17 @@ imagingRequest.post(
 
       // Creates the reference data associations for the areas to be imaged
       if (areas) {
-        await newImagingRequest.setAreas(JSON.parse(areas));
+        for (const area of JSON.parse(areas)) {
+          await ImagingRequestArea.create({
+            areaId: area,
+            imagingRequestId: newImagingRequest.id,
+          });
+        }
       }
 
       if (note) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -284,7 +296,7 @@ imagingRequest.post(
 
       if (areaNote) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -308,12 +320,30 @@ const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest')
 globalImagingRequests.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const { models, query, settings } = req;
+    const {
+      order = 'ASC',
+      orderBy,
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const nullPosition =
-      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+    const LITERAL_SORT_KEYS = ['completedAt'];
+
+    const getNullPosition = orderBy => {
+      if (orderBy === 'approved') {
+        return 'NULLS LAST';
+      }
+      return (
+        LITERAL_SORT_KEYS.includes(orderBy) &&
+        (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST')
+      );
+    };
+
+    const nullPosition = getNullPosition(orderBy);
 
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
@@ -324,6 +354,9 @@ globalImagingRequests.get(
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
     ]);
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+    const primaryTimeZone = getPrimaryTimeZone(config);
+
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
@@ -346,21 +379,19 @@ globalImagingRequests.get(
         key: 'requestedDateFrom',
         alias: 'requestedDate',
         operator: Op.gte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(startOfDay(new Date(value))),
-          },
-        }),
+        mapFn: (fieldName, operator, value) => {
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          return { [fieldName]: { [operator]: boundaries?.start ?? `${value} 00:00:00` } };
+        },
       },
       {
         key: 'requestedDateTo',
         alias: 'requestedDate',
         operator: Op.lte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(endOfDay(new Date(value))),
-          },
-        }),
+        mapFn: (fieldName, operator, value) => {
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          return { [fieldName]: { [operator]: boundaries?.end ?? `${value} 23:59:59` } };
+        },
       },
       { key: 'requestedById', operator: Op.eq },
     ]);
@@ -379,7 +410,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: filterParams.facilityId } },
+          : { facilityId: { [Op.eq]: facilityId } },
     };
 
     const location = {
@@ -394,6 +425,8 @@ globalImagingRequests.get(
       attributes: ['id', 'departmentId'],
       required: true,
     };
+
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const imagingResultFilters = {};
     const replacements = {};
@@ -447,6 +480,38 @@ globalImagingRequests.get(
           )`),
             'completedAt',
           ],
+          ...(isInvoicingEnabled
+            ? [
+                [
+                  // Check approval status: ImagingRequestArea items take precedence, then ImagingRequest items
+                  literal(`(
+                    SELECT COALESCE(
+                      -- ImagingRequestArea invoice items take precedence (NULL if none exist)
+                      (
+                        SELECT BOOL_AND(ii.approved)
+                        FROM imaging_request_areas ira
+                        INNER JOIN invoice_items ii ON ii.source_record_id = ira.id::text
+                          AND ii.source_record_type = 'ImagingRequestArea'
+                          AND ii.deleted_at IS NULL
+                        WHERE ira.imaging_request_id = "ImagingRequest".id
+                          AND ira.deleted_at IS NULL
+                        HAVING COUNT(*) > 0
+                      ),
+                      -- ImagingRequest invoice items (used if area items returned NULL)
+                      (
+                        SELECT BOOL_AND(ii.approved)
+                        FROM invoice_items ii
+                        WHERE ii.source_record_id = "ImagingRequest".id::text
+                          AND ii.source_record_type = 'ImagingRequest'
+                          AND ii.deleted_at IS NULL
+                        HAVING COUNT(*) > 0
+                      )
+                    )
+                  )`),
+                  'approved',
+                ],
+              ]
+            : []),
         ],
       },
       limit: rowsPerPage,
@@ -460,7 +525,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map((row) => row.get({ plain: true }));
+    const data = rows.map(row => row.get({ plain: true }));
     res.send({
       count,
       data,

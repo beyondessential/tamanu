@@ -3,14 +3,11 @@ import React from 'react';
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DateDisplay, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
-import { formatShortest } from '../DateDisplay';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
-import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`
   font-size: 14px;
@@ -50,9 +47,13 @@ export const MedicationSummary = ({ medication }) => {
           />
         </DarkestText>
         <DarkestText>
-          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(medication.frequency, getTranslation)},{' '}
-          <TranslatedEnum value={medication.route} enumValues={DRUG_ROUTE_LABELS} />
+          {[
+            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+            getTranslatedFrequency(medication.frequency, getTranslation),
+            getEnumTranslation(DRUG_ROUTE_LABELS, medication.route),
+          ]
+            .filter(Boolean)
+            .join(', ')}
         </DarkestText>
         {medication.notes && <MidText>{medication.notes}</MidText>}
       </Box>
@@ -92,7 +93,7 @@ export const MedicationSummary = ({ medication }) => {
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
-              {`${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`}
+              <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />
             </DarkestText>
           </Box>
         )}

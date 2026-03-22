@@ -1,13 +1,20 @@
-import { SYNC_DIRECTIONS, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  COUNTRY_CODE_STRING_ID,
+  LANGUAGE_NAME_STRING_ID,
+} from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
-type TranslationOptions = {
-  replacements: Record<string, string>;
-  casing: 'uppercase' | 'lowercase' | 'sentence';
+export type Casing = 'lower' | 'upper' | 'sentence';
+
+export type TranslationOptions = {
+  replacements?: Record<string, any>;
+  casing?: Casing;
 };
 
 export class TranslatedString extends Model {
@@ -85,7 +92,7 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 
@@ -93,19 +100,14 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
-      where: {
-        language: {
-          [Op.not]: DEFAULT_LANGUAGE_CODE,
-        },
-      },
     });
 
     const languageNames = await TranslatedString.findAll({
-      where: { stringId: 'languageName' },
+      where: { stringId: LANGUAGE_NAME_STRING_ID },
     });
 
     const countryCodes = await TranslatedString.findAll({
-      where: { stringId: 'countryCode' },
+      where: { stringId: COUNTRY_CODE_STRING_ID },
     });
 
     return { languagesInDb, languageNames, countryCodes };
@@ -116,7 +118,7 @@ export class TranslatedString extends Model {
       where: {
         language,
         // filter Boolean to avoid query all records
-        [Op.or]: prefixIds.filter(Boolean).map((prefixId) => ({
+        [Op.or]: prefixIds.filter(Boolean).map(prefixId => ({
           id: {
             [Op.startsWith]: prefixId,
           },
@@ -132,9 +134,19 @@ export class TranslatedString extends Model {
   static getTranslationFunction = async (language: string, prefixIds: string[] = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (stringId: string, fallback: string, translationOptions: TranslationOptions) => {
+    return (stringId: string, fallback: string, translationOptions: TranslationOptions = {}) => {
       const translationFunc = translationFactory(translations);
       const { value } = translationFunc(stringId, fallback, translationOptions);
+      return value;
+    };
+  };
+
+  static getEnumTranslationFunction = async (language: string, prefixIds: string[] = []) => {
+    const translationFunc = await TranslatedString.getTranslationFunction(language, prefixIds);
+    return (enumValues: Record<string, string>, currentValue: string) => {
+      const fallback = enumValues[currentValue];
+      const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+      const value = translationFunc(stringId, fallback || '');
       return value;
     };
   };

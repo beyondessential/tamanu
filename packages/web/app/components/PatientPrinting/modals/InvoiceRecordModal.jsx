@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-
-import { ForbiddenError } from '@tamanu/shared/errors';
+import React from 'react';
+import { ASSET_NAMES } from '@tamanu/constants';
+import { ForbiddenError } from '@tamanu/errors';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -9,7 +10,6 @@ import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -26,19 +26,15 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     { casing: 'lower' },
   );
 
-  const { getLocalisation } = useLocalisation();
-  const certificateQuery = useCertificate();
+  const certificateQuery = useCertificate({
+    footerAssetName: ASSET_NAMES.INVOICE_FOOTER,
+  });
   const { getSetting } = useSettings();
+  const { primaryTimeZone } = useDateTime();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
-  const { encounter, loadEncounter, isLoadingEncounter } = useEncounter();
-
-  useEffect(() => {
-    if (invoice.encounter.id) {
-      loadEncounter(invoice.encounter.id);
-    }
-  }, [invoice.encounter.id]);
+  const { encounter } = useEncounter();
 
   const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;
@@ -55,7 +51,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     title: (
       <TranslatedText
         stringId="invoice.modal.print.invoiceRecord.title"
-        fallback="Invoice Record"
+        fallback="Print Invoice"
         data-testid="translatedtext-hj8p"
       />
     ),
@@ -81,20 +77,16 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
 
   return (
     <Modal {...modalProps} onPrint={() => printPDF('invoice-record')} data-testid="modal-gylm">
-      <PDFLoader
-        isLoading={allQueries.isFetching || isLoadingEncounter}
-        id="invoice-record"
-        data-testid="pdfloader-yikw"
-      >
+      <PDFLoader isLoading={allQueries.isFetching} id="invoice-record" data-testid="pdfloader-yikw">
         <InvoiceRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
+          primaryTimeZone={primaryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>

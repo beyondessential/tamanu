@@ -19,7 +19,11 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, isEdit }) => {
+export const GenericPersonalFields = ({
+  patientRegistryType,
+  filterByMandatory,
+  isEdit,
+}) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
   const nationalitySuggester = useSuggester('nationality');
@@ -183,6 +187,18 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
           stringId="general.localisedField.fatherId.label"
           fallback="Father"
           data-testid="translatedtext-q3v5"
+        />
+      ),
+    },
+    invoiceInsurancePlanId: {
+      component: SuggesterSelectField,
+      endpoint: 'invoiceInsurancePlan',
+      isMulti: true,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.invoiceInsurancePlanId.label"
+          fallback="Insurance plan"
+          data-testid="translatedtext-73e2"
         />
       ),
     },

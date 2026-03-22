@@ -155,7 +155,7 @@ describe('Encounter labs', () => {
         status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       });
       await labRequest1.createNote({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
         content: 'Testing lab request note',
         authorId: app.user.id,
       });
@@ -183,7 +183,7 @@ describe('Encounter labs', () => {
       });
 
       const note = await labRequest1.createNote({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
         content: 'Testing lab request note',
         authorId: app.user.id,
       });

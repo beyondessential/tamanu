@@ -76,10 +76,6 @@ mockserver/functions/node_modules
 *.bat
 *.env
 
-# storybook
-storybook/storyLoader.js
-
-
 ### -------------------------------------
 ###
 ### Extra ignores

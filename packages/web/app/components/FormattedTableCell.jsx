@@ -1,9 +1,8 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { DateDisplay } from './DateDisplay';
+import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -38,10 +37,12 @@ const HeadCellWrapper = styled.div`
 `;
 
 function round(float, { rounding } = {}) {
-  if (isNaN(float) || !isNumber(rounding)) {
+  const floatNumber = parseFloat(float);
+  if (isNaN(floatNumber) || !isNumber(rounding)) {
     return float;
   }
-  return float.toFixed(rounding);
+
+  return floatNumber.toFixed(rounding);
 }
 
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
@@ -86,10 +87,14 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-5w9x">
+  <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+      <div>
+        <DateDisplay noTooltip date={value} format="shortest" />
+      </div>
+      <div>
+        <TimeDisplay noTooltip date={value} />
+      </div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -97,13 +102,17 @@ export const DateHeadCell = React.memo(({ value }) => (
 export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
-    <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-3knb">
-      <CellContainer
-        onClick={onClick}
-        data-testid="cellcontainer-slh4"
-      >
-        <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-        <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+    <TableTooltip
+      title={<DateDisplay date={value} timeFormat="default" />}
+      data-testid="tabletooltip-3knb"
+    >
+      <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
+        <div>
+          <DateDisplay noTooltip date={value} format="shortest" />
+        </div>
+        <div>
+          <TimeDisplay noTooltip date={value} />
+        </div>
       </CellContainer>
     </TableTooltip>
   );
@@ -135,6 +144,7 @@ export const LimitedLinesCell = ({
   isOneLine = false,
   disableTooltip = false,
   isEdited = false,
+  ...tooltipProps
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -179,6 +189,7 @@ export const LimitedLinesCell = ({
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         data-testid="tabletooltip-fs9r"
+        {...tooltipProps}
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
@@ -214,14 +225,13 @@ export const RangeValidatedCell = React.memo(
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-    const float = round(parseFloat(value), config);
+    const float = round(value, config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-      float,
-      config,
-      validationCriteria,
-    ]);
+    const { tooltip, severity } = useMemo(
+      () => getTooltip(float, config, validationCriteria),
+      [float, config, validationCriteria],
+    );
 
     const cell = (
       <CellContainer

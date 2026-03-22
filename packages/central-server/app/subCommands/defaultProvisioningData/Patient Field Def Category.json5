@@ -1,0 +1,17 @@
+{
+  "sheetName": "Patient Field Def Category",
+  "columns": [
+    "id",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "fieldCategory-food",
+      "name": "Food"
+    },
+    {
+      "id": "fieldCategory-clothing",
+      "name": "Clothing"
+    }
+  ]
+}

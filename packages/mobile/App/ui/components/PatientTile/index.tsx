@@ -66,5 +66,5 @@ const getSecondaryInfoString = (
   };
   return Object.values(secondaryInfo)
     .filter(e => e)
-    .join(' • ');
+    .join(' · '); // Interpunct U+00B7
 };

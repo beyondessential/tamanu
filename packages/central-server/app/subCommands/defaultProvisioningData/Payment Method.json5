@@ -1,0 +1,71 @@
+{
+  "sheetName": "Payment Method",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "paymentmethod-cash",
+      "code": "cash",
+      "name": "Cash",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-cheque",
+      "code": "cheque",
+      "name": "Check",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-creditcard",
+      "code": "creditcard",
+      "name": "Credit Card",
+      "visibilityStatus": "historical"
+    },
+    {
+      "id": "paymentmethod-allotmentcheque",
+      "code": "allotmentcheque",
+      "name": "Allotment Check",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-allotmentach",
+      "code": "allotmentach",
+      "name": "Allotment ACH",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-Visa",
+      "code": "Visa",
+      "name": "Visa",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-Mastercard",
+      "code": "Mastercard",
+      "name": "Mastercard",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-Discover",
+      "code": "Discover",
+      "name": "Discover",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-JCB",
+      "code": "JCB",
+      "name": "JCB",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "paymentmethod-MedicalSavingsAccount",
+      "code": "MSA",
+      "name": "Medical Savings Account",
+      "visibilityStatus": "current"
+    }
+  ]
+}

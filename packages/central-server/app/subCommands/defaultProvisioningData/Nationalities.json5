@@ -1,0 +1,95 @@
+{
+  "sheetName": "Nationalities",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "nationality-Fiji",
+      "code": "Fiji",
+      "name": "Fiji"
+    },
+    {
+      "id": "nationality-NewZealand",
+      "code": "NewZealand",
+      "name": "New Zealand"
+    },
+    {
+      "id": "nationality-AmericanSamoa",
+      "code": "AmericanSamoa",
+      "name": "American Samoa"
+    },
+    {
+      "id": "nationality-Australia",
+      "code": "Australia",
+      "name": "Australia"
+    },
+    {
+      "id": "nationality-Tuvalu",
+      "code": "Tuvalu",
+      "name": "Tuvalu"
+    },
+    {
+      "id": "nationality-NorthernMarianaIslands",
+      "code": "NorthernMarianaIslands",
+      "name": "Northern Mariana Islands"
+    },
+    {
+      "id": "nationality-FederatedStatesofMicronesia",
+      "code": "FederatedStatesofMicronesia",
+      "name": "Federated States of Micronesia"
+    },
+    {
+      "id": "nationality-FrenchPolynesia",
+      "code": "FrenchPolynesia",
+      "name": "French Polynesia"
+    },
+    {
+      "id": "nationality-Kiribati",
+      "code": "Kiribati",
+      "name": "Kiribati"
+    },
+    {
+      "id": "nationality-MarshallIslands",
+      "code": "MarshallIslands",
+      "name": "Marshall Islands"
+    },
+    {
+      "id": "nationality-Nauru",
+      "code": "Nauru",
+      "name": "Nauru"
+    },
+    {
+      "id": "nationality-NewCaledonia",
+      "code": "NewCaledonia",
+      "name": "New Caledonia"
+    },
+    {
+      "id": "nationality-Palau",
+      "code": "Palau",
+      "name": "Palau"
+    },
+    {
+      "id": "nationality-SolomonIslands",
+      "code": "SolomonIslands",
+      "name": "Solomon Islands"
+    },
+    {
+      "id": "nationality-Tonga",
+      "code": "Tonga",
+      "name": "Tonga"
+    },
+    {
+      "id": "nationality-WallisandFutuna",
+      "code": "WallisandFutuna",
+      "name": "Wallis and Futuna"
+    },
+    {
+      "id": "nationality-Other",
+      "code": "Other",
+      "name": "Other"
+    }
+  ]
+}

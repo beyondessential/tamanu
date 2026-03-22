@@ -1,0 +1,221 @@
+{
+  "sheetName": "Location Group",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus",
+    "isBookable",
+    "facilityId"
+  ],
+  "data": [
+    {
+      "id": "locationgroup-CarnationClinic",
+      "code": "CarnationClinic",
+      "name": "Carnation Clinic",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-CarnationHealthCentre"
+    },
+    {
+      "id": "locationgroup-CarnationImmunisationClinic",
+      "code": "CarnationImmunisationClinic",
+      "name": "Immunisation Clinic",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-CarnationHealthCentre"
+    },
+    {
+      "id": "locationgroup-Outpatient",
+      "code": "Outpatient",
+      "name": "Outpatient",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Ward1",
+      "code": "Ward1",
+      "name": "Ward 1",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Ward2",
+      "code": "Ward2",
+      "name": "Ward 2",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-EDBed",
+      "code": "EDBed",
+      "name": "Emergency Department",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-WaitingArea",
+      "code": "WaitingArea",
+      "name": "Waiting Area",
+      "visibilityStatus": "historical",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Theatre1",
+      "code": "Theatre1",
+      "name": "Operating Theatre",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Theatre2",
+      "code": "Theatre2",
+      "name": "Theatre 2",
+      "visibilityStatus": "historical",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Home",
+      "code": "Home",
+      "name": "Home Visit",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Outpatient-tamanu",
+      "code": "Outpatient",
+      "name": "Outpatient",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Ward1-tamanu",
+      "code": "Ward1",
+      "name": "Ward 1",
+      "visibilityStatus": "current",
+      "isBookable": "all",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Ward2-tamanu",
+      "code": "Ward2",
+      "name": "Ward 2",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-EDBed-tamanu",
+      "code": "EDBed",
+      "name": "Emergency Department",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-WaitingArea-tamanu",
+      "code": "WaitingArea",
+      "name": "Waiting Area",
+      "visibilityStatus": "historical",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Theatre1-tamanu",
+      "code": "Theatre1",
+      "name": "Operating Theatre",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Theatre2-tamanu",
+      "code": "Theatre2",
+      "name": "Theatre 2",
+      "visibilityStatus": "historical",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Home-tamanu",
+      "code": "Home",
+      "name": "Home Visit",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Radiology-tamanu",
+      "code": "Radiology",
+      "name": "Radiology",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-OverseasMedicalReferral",
+      "code": "OverseasMedicalReferral",
+      "name": "Overseas Medical Referral",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-TamanuImmunisationClinic",
+      "code": "TamanuImmunisationClinic",
+      "name": "Immunisation Clinic",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Radiology",
+      "code": "Radiology",
+      "name": "Radiology",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-LilyImmunisationClinic",
+      "code": "LilyImmunisationClinic",
+      "name": "Immunisation Clinic",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-2"
+    },
+    {
+      "id": "locationgroup-Ward3-tamanu",
+      "code": "Ward3",
+      "name": "Ward 3",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Ward4-tamanu",
+      "code": "Ward4",
+      "name": "Ward 4",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    },
+    {
+      "id": "locationgroup-Ward5-tamanu",
+      "code": "Ward5",
+      "name": "Ward 5",
+      "visibilityStatus": "current",
+      "isBookable": "no",
+      "facilityId": "facility-1"
+    }
+  ]
+}

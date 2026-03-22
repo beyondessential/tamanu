@@ -7,7 +7,7 @@ import {
   getInvoiceSummary,
   round,
   getSpecificInsurerPaymentRemainingBalance,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
@@ -91,25 +91,19 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       errors.push(new ValidationError(sheetName, index, 'Invoice is not finalised'));
       continue;
     }
-    if (!invoice.insurers.map(insurer => insurer.insurerId).includes(data.insurerId)) {
-      errors.push(new ValidationError(sheetName, index, 'Insurer not found for this invoice'));
-      continue;
-    }
 
     const {
       itemsSubtotal,
       insurerPaymentsTotal: allInsurerPaymentsTotal,
       insurerDiscountTotal: allInsurerDiscountTotal,
     } = getInvoiceSummary(invoice);
-    const {
-      insurerDiscountTotal,
-      insurerPaymentRemainingBalance,
-    } = getSpecificInsurerPaymentRemainingBalance(
-      invoice?.insurers ?? [],
-      invoice?.payments ?? [],
-      data.insurerId,
-      itemsSubtotal,
-    );
+    const { insurerDiscountTotal, insurerPaymentRemainingBalance } =
+      getSpecificInsurerPaymentRemainingBalance(
+        invoice?.insurers ?? [],
+        invoice?.payments ?? [],
+        data.insurerId,
+        itemsSubtotal,
+      );
 
     try {
       //check if the insurer payment already exists
@@ -150,8 +144,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
               data.amount === 0
                 ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
                 : data.amount === round(insurerDiscountTotal, 2)
-                ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-                : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+                  ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
+                  : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
           },
           { where: { id: insurerPayment.id } },
         );
@@ -197,8 +191,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
             data.amount === 0
               ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
               : data.amount === round(insurerDiscountTotal, 2)
-              ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-              : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+                ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
+                : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
         });
         //Update the overall insurer payment status to invoice
         await models.Invoice.update(

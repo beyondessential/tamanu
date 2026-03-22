@@ -26,7 +26,7 @@ const StyledFixedTable = styled(MaterialTable)`
   width: 100%;
 
   &:last-child {
-    border-bottom: ${(props) => (props.$pagination ? 'auto' : 'none')};
+    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -35,7 +35,7 @@ const StyledTableHead = styled(TableHead)`
 `;
 
 const StyledTableHeaderCell = styled(TableCell)`
-  width: ${(props) => (props.width ? props.width : 'auto')};
+  width: ${props => (props.width ? props.width : 'auto')};
   padding: 1.5%;
   text-align: center;
 `;
@@ -86,9 +86,14 @@ export const TableFormFields = React.memo(
 
     // When the data to be displayed is changed (e.g. by search), update the rows and set to page 1
     useEffect(() => {
-      setPageRows(data.slice(0, rowsPerPage));
-      setPage(0);
-    }, [data]);
+      if (pagination) {
+        setPageRows(data.slice(0, rowsPerPage));
+        setPage(0);
+      } else {
+        setPageRows(data);
+        setRowsPerPage(data.length);
+      }
+    }, [data, pagination, rowsPerPage]);
 
     // Display the relevant page's rows when the table page is changed
     const handlePageChange = (event, newPage) => {
@@ -97,7 +102,7 @@ export const TableFormFields = React.memo(
     };
 
     // Display the new amount of rows per page and set to page 1
-    const handleRowsPerPageChange = (event) => {
+    const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
       setPage(0);
@@ -145,7 +150,7 @@ export const TableFormFields = React.memo(
                   <NoDataTableCell colSpan={columns.length} data-testid="nodatatablecell-2yp7">
                     <TranslatedText
                       stringId="general.table.noData"
-                      fallback="No data found"
+                      fallback="No data"
                       data-testid="translatedtext-ddgw"
                     />
                   </NoDataTableCell>

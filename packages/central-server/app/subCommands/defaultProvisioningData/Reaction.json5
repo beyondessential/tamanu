@@ -1,0 +1,190 @@
+{
+  "sheetName": "Reaction",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "allergicreaction-abdominalpain",
+      "code": "abdominalpain",
+      "name": "Abdominal pain"
+    },
+    {
+      "id": "allergicreaction-allergiccontactdermatitis",
+      "code": "allergiccontactdermatitis",
+      "name": "Allergic contact dermatitis"
+    },
+    {
+      "id": "allergicreaction-anaphylaxis",
+      "code": "anaphylaxis",
+      "name": "Anaphylaxis"
+    },
+    {
+      "id": "allergicreaction-angioedema",
+      "code": "angioedema",
+      "name": "Angioedema"
+    },
+    {
+      "id": "allergicreaction-bronchospasmandwheezing",
+      "code": "bronchospasmandwheezing",
+      "name": "Bronchospasm or wheezing"
+    },
+    {
+      "id": "allergicreaction-confusion",
+      "code": "confusion",
+      "name": "Confusion"
+    },
+    {
+      "id": "allergicreaction-diarrhea",
+      "code": "diarrhea",
+      "name": "Diarrhea"
+    },
+    {
+      "id": "allergicreaction-dizziness",
+      "code": "dizziness",
+      "name": "Dizziness"
+    },
+    {
+      "id": "allergicreaction-druginducedhypersensitivity",
+      "code": "druginducedhypersensitivity",
+      "name": "Drug induced hypersensitivity"
+    },
+    {
+      "id": "allergicreaction-erythemamultiforme",
+      "code": "erythemamultiforme",
+      "name": "Erythema multiforme"
+    },
+    {
+      "id": "allergicreaction-exanthematousdrugeruptions",
+      "code": "exanthematousdrugeruptions",
+      "name": "Exanthematous drug eruptions"
+    },
+    {
+      "id": "allergicreaction-faintingandlightheadedness",
+      "code": "faintingandlightheadedness",
+      "name": "Fainting / lightheadedness"
+    },
+    {
+      "id": "allergicreaction-fixeddrugeruption",
+      "code": "fixeddrugeruption",
+      "name": "Fixed drug eruption"
+    },
+    {
+      "id": "allergicreaction-gastrointestinalupset",
+      "code": "gastrointestinalupset",
+      "name": "Gastrointestinal upset "
+    },
+    {
+      "id": "allergicreaction-headache",
+      "code": "headache",
+      "name": "Headache"
+    },
+    {
+      "id": "allergicreaction-hypotension",
+      "code": "hypotension",
+      "name": "Hypotension"
+    },
+    {
+      "id": "allergicreaction-itch",
+      "code": "itch",
+      "name": "Itch"
+    },
+    {
+      "id": "allergicreaction-maculopapularrash",
+      "code": "maculopapularrash",
+      "name": "Maculopapular rash"
+    },
+    {
+      "id": "allergicreaction-myalgia",
+      "code": "myalgia",
+      "name": "Myalgia"
+    },
+    {
+      "id": "allergicreaction-nausea",
+      "code": "nausea",
+      "name": "Nausea"
+    },
+    {
+      "id": "allergicreaction-nephritis",
+      "code": "nephritis",
+      "name": "Nephritis"
+    },
+    {
+      "id": "allergicreaction-other",
+      "code": "other",
+      "name": "Other "
+    },
+    {
+      "id": "allergicreaction-palipitations",
+      "code": "palipitations",
+      "name": "Palipitations"
+    },
+    {
+      "id": "allergicreaction-photosensitivity",
+      "code": "photosensitivity",
+      "name": "Photosensitivity"
+    },
+    {
+      "id": "allergicreaction-seizures",
+      "code": "seizures",
+      "name": "Seizures"
+    },
+    {
+      "id": "allergicreaction-serumsicknesslikereaction",
+      "code": "serumsicknesslikereaction",
+      "name": "Serum sickness like reaction"
+    },
+    {
+      "id": "allergicreaction-shortnessofbreath",
+      "code": "shortnessofbreath",
+      "name": "Shortness of breath"
+    },
+    {
+      "id": "allergicreaction-stevensjohnsonsyndrome",
+      "code": "stevensjohnsonsyndrome",
+      "name": "Stevens-Johnson syndrome"
+    },
+    {
+      "id": "allergicreaction-swelling",
+      "code": "swelling",
+      "name": "Swelling"
+    },
+    {
+      "id": "allergicreaction-swellingofthetongue",
+      "code": "swellingofthetongue",
+      "name": "Swelling of the tongue"
+    },
+    {
+      "id": "allergicreaction-toxicepidermalnecrolyis",
+      "code": "toxicepidermalnecrolyis",
+      "name": "Toxic epidermal necrolyis"
+    },
+    {
+      "id": "allergicreaction-unknown",
+      "code": "unknown",
+      "name": "Unknown"
+    },
+    {
+      "id": "allergicreaction-urticariaskinrashhives",
+      "code": "urticariaskinrashhives",
+      "name": "Urticaria / skin rash / hives"
+    },
+    {
+      "id": "allergicreaction-vomiting",
+      "code": "vomiting",
+      "name": "Vomiting"
+    },
+    {
+      "id": "allergicreaction-wateryitchingeyes",
+      "code": "wateryitchingeyes",
+      "name": "Watery / itching eyes"
+    },
+    {
+      "id": "allergicreaction-wheezing",
+      "code": "wheezing",
+      "name": "Wheezing"
+    }
+  ]
+}

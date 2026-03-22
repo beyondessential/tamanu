@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { theme } from '../../../theme';
-import { DateDisplay } from '../../../components/DateDisplay';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TranslatedReferenceData } from '../../../components/Translation';
 
@@ -107,7 +107,7 @@ export const PatientSummary = ({
           label={
             <TranslatedText
               stringId="general.localisedField.culturalName.label"
-              fallback="Cultural name"
+              fallback="Cultural/traditional name"
               data-testid="translatedtext-w1p2"
             />
           }

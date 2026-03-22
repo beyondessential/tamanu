@@ -1,0 +1,53 @@
+{
+  "sheetName": "Task Deletion Reason",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "taskdeletionreason-incorrectpatient",
+      "code": "incorrectpatient",
+      "name": "Incorrect patient",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-nolongerrequired",
+      "code": "nolongerrequired",
+      "name": "No longer required",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-patientdischarged",
+      "code": "patientdischarged",
+      "name": "Patient discharged",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-other",
+      "code": "other",
+      "name": "Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-deletedbysystem",
+      "code": "deletedbysystem",
+      "name": "Deleted by system",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-recordedinerror",
+      "code": "recordedinerror",
+      "name": "Record in error",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "taskdeletionreason-testreason",
+      "code": "testreason",
+      "name": "Test reason",
+      "visibilityStatus": "current"
+    }
+  ]
+}

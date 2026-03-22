@@ -9,7 +9,7 @@ import {
   SUPPORTED_CONTENT_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
@@ -67,6 +67,7 @@ export class FhirDiagnosticReport extends FhirResource {
           contentType: yup.string().required(),
         }),
       ),
+      result: yup.array().of(FhirReference.asYup()), // result is not used in the DiagnosticReport model but can be present in a bundle
     });
   }
 

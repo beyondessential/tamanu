@@ -10,6 +10,7 @@ import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
@@ -31,17 +32,26 @@ export const LocationInput = React.memo(
     required,
     className,
     value,
+    groupValue,
     onChange,
+    onGroupChange = () => {},
     size = 'medium',
     form = {},
     enableLocationStatus = true,
+    hideLocationGroupError = false,
     locationGroupSuggesterType = 'facilityLocationGroup',
     autofill = true,
     isMulti = false,
     'data-testid': dataTestId,
+    showAllLocations = false,
+    locationGroupBaseQueryParameters = {},
+    facilityId: facilityIdOverride,
+    wrapInNoteModalActionBlocker = false,
   }) => {
-    const { facilityId } = useAuth();
-    const [groupId, setGroupId] = useState('');
+    const { facilityId: currentFacilityId } = useAuth();
+    const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
+
+    const [groupId, setGroupId] = useState(groupValue);
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
@@ -53,16 +63,21 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
+      baseQueryParameters: { facilityId, filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
+      baseQueryParameters: {
+        facilityId: facilityId,
+        ...locationGroupBaseQueryParameters,
+      },
+    });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 
     useEffect(() => {
       if (!initialValues) return;
       // Form is reinitialised, reset the state handled group and location values
-      setGroupId('');
+      setGroupId(initialValues?.locationGroup ?? '');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
 
@@ -72,6 +87,12 @@ export const LocationInput = React.memo(
       }
     }, [value]);
 
+    useEffect(() => {
+      if (groupValue) {
+        setGroupId(groupValue);
+      }
+    }, [groupValue]);
+
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
       const isNotSameGroup =
@@ -79,25 +100,29 @@ export const LocationInput = React.memo(
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: '', name, groupValue: location.locationGroup.id } });
       }
 
       // Initialise the location group state
       // if the form is being opened in edit mode (i.e. there are existing values)
       if (value && !groupId && location?.locationGroup?.id) {
+        onGroupChange(location.locationGroup.id);
         setGroupId(location.locationGroup.id);
       }
-    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup, onGroupChange]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
-      setLocationId('');
-      onChange({ target: { value: '', name } });
+      onGroupChange(event.target.value);
+      if (locationId) {
+        setLocationId('');
+        onChange({ target: { value: '', name, groupValue: event.target.value } });
+      }
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
-      onChange({ target: { value: event.target.value, name } });
+      onChange({ target: { value: event.target.value, name, groupValue: groupId } });
     };
 
     // Disable the location and location group fields if:
@@ -105,14 +130,16 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      value && location?.facilityId ? facilityId === location.facilityId : true;
+      (value && location?.facilityId ? facilityId === location.facilityId : true) ||
+      showAllLocations;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     const LocationAutocompleteInput = isMulti ? MultiAutocompleteInput : AutocompleteInput;
+    const Wrapper = wrapInNoteModalActionBlocker ? NoteModalActionBlocker : React.Fragment;
 
     return (
-      <>
+      <Wrapper>
         {/* Show required asterisk but the field is not actually required */}
         <AutocompleteInput
           label={locationGroupLabel}
@@ -124,9 +151,9 @@ export const LocationInput = React.memo(
           disabled={locationGroupSelectIsDisabled || disabled}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
+          error={hideLocationGroupError ? false : error}
+          helperText={hideLocationGroupError ? undefined : helperText}
           size={size}
-          helperText={helperText}
-          error={error}
           data-testid={`${dataTestId}-group`}
         />
         <LocationAutocompleteInput
@@ -135,7 +162,7 @@ export const LocationInput = React.memo(
           name={name}
           suggester={suggester}
           helperText={helperText}
-          required={required}
+          required={!!groupId || required}
           error={error}
           value={locationId}
           onChange={handleChange}
@@ -145,7 +172,7 @@ export const LocationInput = React.memo(
           size={size}
           data-testid={`${dataTestId}-location`}
         />
-      </>
+      </Wrapper>
     );
   },
 );
@@ -156,6 +183,7 @@ LocationInput.propTypes = {
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  hideLocationGroupError: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,

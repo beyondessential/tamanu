@@ -11,7 +11,7 @@ const Container = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
+export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
 
   const { data: answer } = useLatestAnswerForPatientQuery(
@@ -29,14 +29,23 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
   }, [field.name, answer]);
 
+  const [sourceType, sourceConfig, sourceBody] = [
+    answer?.ProgramDataElement?.type,
+    answer?.ProgramDataElement?.surveyScreenComponent?.config,
+    answer?.body,
+  ];
+
   return (
     <Container data-testid="container-xmfz">
       <div>{label}</div>
       <div>
         <SurveyAnswerResult
           answer={surveyResponseAnswer}
-          type={answer?.ProgramDataElement?.type}
+          type={sourceType}
           data-testid="surveyanswerresult-m2ey"
+          originalBody={sourceBody}
+          componentConfig={sourceConfig}
+          dataElementId={dataElement?.id}
         />
       </div>
     </Container>

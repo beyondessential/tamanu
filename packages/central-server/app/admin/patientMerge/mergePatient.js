@@ -1,9 +1,9 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import { chunk, omit, omitBy } from 'lodash';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { refreshChildRecordsForSync } from '@tamanu/shared/utils/refreshChildRecordsForSync';
 
@@ -35,6 +35,7 @@ export const simpleUpdateModels = [
   'PatientContact',
   'IPSRequest',
   'Notification',
+  'PortalSurveyAssignment',
 ];
 
 // These ones need a little more attention.
@@ -53,6 +54,8 @@ export const specificUpdateModels = [
   'Note',
   'PatientFacility',
   'PatientFieldValue',
+  'PortalUser',
+  'PatientInvoiceInsurancePlan',
 ];
 
 // These columns should be omitted as we never want
@@ -96,7 +99,7 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = (field) => field.references?.model === 'patients';
+const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
@@ -236,6 +239,7 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
 
   const existingKeepRegistrations = await models.PatientProgramRegistration.findAll({
     where: { patientId: keepPatientId },
+    paranoid: false, // Include soft deleted registrations, as we don't want to create new registrations if they've already been deleted on the keep
   });
   const keepRegistrationMap = new Map(existingKeepRegistrations.map(r => [r.programRegistryId, r]));
 
@@ -253,13 +257,16 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
       });
 
       // Move conditions to the new patient program registration
-      await models.PatientProgramRegistrationCondition.update({
-        patientProgramRegistrationId: newRegistration.id,
-      }, {
-        where: {
-          patientProgramRegistrationId: unwantedRegistration.id,
+      await models.PatientProgramRegistrationCondition.update(
+        {
+          patientProgramRegistrationId: newRegistration.id,
         },
-      });
+        {
+          where: {
+            patientProgramRegistrationId: unwantedRegistration.id,
+          },
+        },
+      );
     }
 
     // Always destroy the unwanted registration
@@ -315,6 +322,93 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   return records;
 }
 
+export async function mergePortalUser(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPortalUser = await models.PortalUser.findOne({
+    where: { patientId: unwantedPatientId },
+  });
+  if (!existingUnwantedPortalUser) return null;
+
+  const existingKeepPortalUser = await models.PortalUser.findOne({
+    where: { patientId: keepPatientId },
+  });
+
+  // If the keep patient doesn't have a portal account, transfer the unwanted patient's account
+  if (!existingKeepPortalUser) {
+    return existingUnwantedPortalUser.update({
+      patientId: keepPatientId,
+    });
+  }
+
+  const shouldKeepUnwantedAccount =
+    // If keep account is inactive but unwanted account is registered
+    (existingKeepPortalUser.status !== PORTAL_USER_STATUSES.REGISTERED &&
+      existingUnwantedPortalUser.status === PORTAL_USER_STATUSES.REGISTERED) ||
+    // If both have same status, prefer the one with more recent updates
+    (existingKeepPortalUser.status === existingUnwantedPortalUser.status &&
+      new Date(existingUnwantedPortalUser.updatedAt) > new Date(existingKeepPortalUser.updatedAt));
+
+  if (shouldKeepUnwantedAccount) {
+    // Delete the keep patient's account and transfer the unwanted patient's account
+    await existingKeepPortalUser.destroy();
+    return existingUnwantedPortalUser.update({
+      patientId: keepPatientId,
+    });
+  } else {
+    // Keep the existing account and delete the unwanted one
+    await existingUnwantedPortalUser.destroy();
+    return existingKeepPortalUser;
+  }
+}
+
+export async function mergePatientInvoiceInsurancePlans(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+    where: { patientId: unwantedPatientId },
+    paranoid: false,
+  });
+  if (!existingUnwantedInvoiceInsurancePlans.length) {
+    return [];
+  }
+  const existingKeepInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+    where: { patientId: keepPatientId },
+    paranoid: false,
+  });
+
+  const affectedRecords = [];
+
+  // For each unwanted invoice insurance plan,
+  // update the patientId to the keep patient if it doesn't exist in the keep patient
+  for (const unwantedInvoiceInsurancePlan of existingUnwantedInvoiceInsurancePlans) {
+    if (
+      !existingKeepInvoiceInsurancePlans.some(
+        p => p.invoiceInsurancePlanId === unwantedInvoiceInsurancePlan.invoiceInsurancePlanId,
+      )
+    ) {
+      await unwantedInvoiceInsurancePlan.update({
+        patientId: keepPatientId,
+      });
+      affectedRecords.push(unwantedInvoiceInsurancePlan);
+    }
+  }
+
+  // For each keep invoice insurance plan,
+  // if it matches an unwanted invoice insurance plan AND it is soft deleted, restore it
+  for (const keepInvoiceInsurancePlan of existingKeepInvoiceInsurancePlans) {
+    const matchedUnwantedInvoiceInsurancePlan = existingUnwantedInvoiceInsurancePlans.find(
+      p =>
+        p.invoiceInsurancePlanId === keepInvoiceInsurancePlan.invoiceInsurancePlanId
+    );
+    // If
+    // 1. the unwanted invoice insurance plan exists and is not soft deleted, and
+    // 2. the keep invoice insurance plan is soft deleted,
+    // then restore the keep invoice insurance plan
+    const shouldRestore = matchedUnwantedInvoiceInsurancePlan && !matchedUnwantedInvoiceInsurancePlan.deletedAt && keepInvoiceInsurancePlan.deletedAt;
+    if (shouldRestore) {
+      await keepInvoiceInsurancePlan.restore();
+      affectedRecords.push(keepInvoiceInsurancePlan);
+    }
+  }
+}
+
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
   // This is a special case that helps with syncing the now-merged patient to any facilities
   // that track it
@@ -336,9 +430,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
     patientId: keepPatientId,
     facilityId,
   }));
@@ -380,6 +474,7 @@ async function updateDependentRecordsForResync(models, unwantedPatientId) {
   // Patient Death Data
   const patientDeathDataRecords = await models.PatientDeathData.findAll({
     where: { patientId: unwantedPatientId },
+
     attributes: ['id'],
   });
   await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
@@ -489,6 +584,12 @@ export async function mergePatient(
     );
     if (patientProgramRegistrationUpdates.length > 0) {
       updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
+    }
+
+    // Merge PortalUser records - ensure only one portal account per patient
+    const updatedPortalUser = await mergePortalUser(models, keepPatientId, unwantedPatientId);
+    if (updatedPortalUser) {
+      updates.PortalUser = 1;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

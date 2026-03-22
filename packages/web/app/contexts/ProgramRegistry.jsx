@@ -1,18 +1,13 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { useState } from 'react';
+import { useProgramRegistryContext, ProgramRegistryContext } from '@tamanu/ui-components';
 import { useApi } from '../api';
 
-export const ProgramRegistryContext = createContext({
-  programRegistryId: null,
-  setProgramRegistryId: () => {},
-  setProgramRegistryIdByProgramId: () => {},
-});
-
-export const useProgramRegistryContext = () => useContext(ProgramRegistryContext);
+export { useProgramRegistryContext };
 
 export const ProgramRegistryProvider = ({ children }) => {
   const [programRegistryId, setProgramRegistryId] = useState(null);
   const api = useApi();
-  const setProgramRegistryIdByProgramId = async (programId) => {
+  const setProgramRegistryIdByProgramId = async programId => {
     if (!programId) {
       setProgramRegistryId(null);
       return;

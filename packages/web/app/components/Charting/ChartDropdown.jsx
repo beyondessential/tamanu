@@ -9,15 +9,20 @@ const StyledTranslatedSelectField = styled(SelectField)`
   z-index: 3;
 `;
 
-export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {
+export const ChartDropdown = ({
+  selectedChartTypeId,
+  setSelectedChartTypeId,
+  chartTypes,
+  preferenceKey = 'selectedChartTypeId',
+}) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const handleChange = (newValues) => {
+  const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
 
     setSelectedChartTypeId(newSelectedChartType);
     userPreferencesMutation.mutate({
-      key: 'selectedChartTypeId',
+      key: preferenceKey,
       value: newSelectedChartType,
     });
   };

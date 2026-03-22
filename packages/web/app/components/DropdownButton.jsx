@@ -13,8 +13,9 @@ import {
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
-import { Colors } from '../constants';
-import { Button, FormSubmitButton } from './Button';
+import { Button, FormSubmitButton } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 
@@ -41,7 +42,7 @@ const mainButtonStyles = `
   }
 
   &.MuiButton-outlinedPrimary {
-    border-color: ${(props) => props.theme.palette.primary.main};
+    border-color: ${props => props.theme.palette.primary.main};
     border-right-color: transparent;
   }
 
@@ -81,11 +82,11 @@ const MenuButton = styled(MuiButton)`
   }
 
   &.MuiButton-outlinedPrimary {
-    border-color: ${(props) => props.theme.palette.primary.main};
+    border-color: ${props => props.theme.palette.primary.main};
     border-left: none;
 
     .MuiButton-label {
-      border-left: 1px solid ${(props) => props.theme.palette.primary.main};
+      border-left: 1px solid ${props => props.theme.palette.primary.main};
     }
   }
 
@@ -105,7 +106,7 @@ const MenuButton = styled(MuiButton)`
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
   z-index: 1500; // This needs to be higher than the modal z-index (1300) to be visible in modals
-  min-width: ${(props) => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
+  min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 
 const MenuList = styled(MuiMenuList)`
@@ -162,7 +163,7 @@ export const DropdownButton = React.memo(
           disableElevation
           disabled={disabled}
           style={{ borderColor: Colors.primary }}
-          onClick={(event) => handleClick(event, 0)}
+          onClick={event => handleClick(event, 0)}
           data-testid="mainbuttoncomponent-xdka"
         >
           {!hasPermission && <LockIcon data-testid="lockicon-5h0e" />}
@@ -185,7 +186,7 @@ export const DropdownButton = React.memo(
           data-testid="buttongroup-ym83"
         >
           <MainButtonComponent
-            onClick={(event) => handleClick(event, 0)}
+            onClick={event => handleClick(event, 0)}
             data-testid="mainbuttoncomponent-06gp"
           >
             {!hasPermission && <LockIcon data-testid="lockicon-mdm4" />}
@@ -202,13 +203,13 @@ export const DropdownButton = React.memo(
           data-testid="popper-zc8s"
         >
           <Paper elevation={0} variant="outlined" data-testid="paper-0i9j">
-            <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-b7hr">
+            <ClickAwayListener onClickAway={handleClose}>
               <MenuList data-testid="menulist-sze7">
                 {otherActions.map((action, index) => (
                   <MenuItem
                     key={action.label}
                     disabled={!action.onClick}
-                    onClick={(event) => handleClick(event, index + 1)}
+                    onClick={event => handleClick(event, index + 1)}
                     data-testid={`menuitem-0qdd-${index}`}
                   >
                     {action.label}

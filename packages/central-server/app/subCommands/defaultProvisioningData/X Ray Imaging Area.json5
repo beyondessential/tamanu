@@ -1,0 +1,1181 @@
+{
+  "sheetName": "X Ray Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "xRayImagingArea-HandRight",
+      "code": "HandRight",
+      "name": "Hand - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AbdomenErectandSupine",
+      "code": "AbdomenErectandSupine",
+      "name": "Abdomen Erect and Supine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AbdomenPlain",
+      "code": "AbdomenPlain",
+      "name": "Abdomen - Plain",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AbdomenRenalKUB",
+      "code": "AbdomenRenalKUB",
+      "name": "Abdomen - Renal (KUB)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleandLegLeft",
+      "code": "AnkleandLegLeft",
+      "name": "Ankle and Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleandLegRight",
+      "code": "AnkleandLegRight",
+      "name": "Ankle and Leg - Right ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleCalcaneumLeftHeelLeft",
+      "code": "AnkleCalcaneumLeftHeelLeft",
+      "name": "Ankle - Calcaneum Left / Heel - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleCalcaneumRightHeelRight",
+      "code": "AnkleCalcaneumRightHeelRight",
+      "name": "Ankle - Calcaneum Right / Heel - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleLeft",
+      "code": "AnkleLeft",
+      "name": "Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-AnkleRight",
+      "code": "AnkleRight",
+      "name": "Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmElbowandHumerusLeft",
+      "code": "ArmElbowandHumerusLeft",
+      "name": "Arm - Elbow and Humerus - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmElbowandHumerusRight",
+      "code": "ArmElbowandHumerusRight",
+      "name": "Arm - Elbow and Humerus - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmElbowLeft",
+      "code": "ArmElbowLeft",
+      "name": "Arm - Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmElbowRight",
+      "code": "ArmElbowRight",
+      "name": "Arm - Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmForearmandElbowLeft",
+      "code": "ArmForearmandElbowLeft",
+      "name": "Arm - Forearm and Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmForearmandElbowRight",
+      "code": "ArmForearmandElbowRight",
+      "name": "Arm - Forearm and Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmForearmLeft",
+      "code": "ArmForearmLeft",
+      "name": "Arm - Forearm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmForearmRight",
+      "code": "ArmForearmRight",
+      "name": "Arm - Forearm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmHumerusLeft",
+      "code": "ArmHumerusLeft",
+      "name": "Arm - Humerus - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ArmHumerusRight",
+      "code": "ArmHumerusRight",
+      "name": "Arm - Humerus - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-BoneAgeStudy",
+      "code": "BoneAgeStudy",
+      "name": "Bone Age Study",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Chest",
+      "code": "Chest",
+      "name": "Chest",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FacialBones",
+      "code": "FacialBones",
+      "name": "Facial Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootandAnkleLeft",
+      "code": "FootandAnkleLeft",
+      "name": "Foot and Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFacialBones",
+      "code": "MobileFacialBones",
+      "name": "Mobile - Facial Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootandAnkleRight",
+      "code": "FootandAnkleRight",
+      "name": "Foot and Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootLeft",
+      "code": "FootLeft",
+      "name": "Foot - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootRight",
+      "code": "FootRight",
+      "name": "Foot - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootToesLeft",
+      "code": "FootToesLeft",
+      "name": "Foot - Toes - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-FootToesRight",
+      "code": "FootToesRight",
+      "name": "Foot - Toes - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-HandWristandForearmLeft",
+      "code": "HandWristandForearmLeft",
+      "name": "Hand, Wrist and Forearm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-HandWristandForearmRight",
+      "code": "HandWristandForearmRight",
+      "name": "Hand, Wrist and Forearm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-HandFingerandorThumbLeft",
+      "code": "HandFingerandorThumbLeft",
+      "name": "Hand - Finger and/or Thumb - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-HandFingerAndOrThumbRight",
+      "code": "HandFingerAndOrThumbRight",
+      "name": "Hand - Finger And/Or Thumb - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-HandLeft",
+      "code": "HandLeft",
+      "name": "Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-IntravenousPyelogram",
+      "code": "IntravenousPyelogram",
+      "name": "Intravenous Pyelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Larynx",
+      "code": "Larynx",
+      "name": "Larynx",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegFemurLeft",
+      "code": "LegFemurLeft",
+      "name": "Leg - Femur - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegFemurRight",
+      "code": "LegFemurRight",
+      "name": "Leg - Femur - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegHipLeft",
+      "code": "LegHipLeft",
+      "name": "Leg - Hip - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegHipRight",
+      "code": "LegHipRight",
+      "name": "Leg - Hip - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeandFemurLeft",
+      "code": "LegKneeandFemurLeft",
+      "name": "Leg - Knee and Femur - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeandFemurRight",
+      "code": "LegKneeandFemurRight",
+      "name": "Leg - Knee and Femur - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeandLegLeft",
+      "code": "LegKneeandLegLeft",
+      "name": "Leg - Knee and Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeandLegRight",
+      "code": "LegKneeandLegRight",
+      "name": "Leg - Knee and Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeLeft",
+      "code": "LegKneeLeft",
+      "name": "Leg - Knee - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegKneeRight",
+      "code": "LegKneeRight",
+      "name": "Leg - Knee - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegLength",
+      "code": "LegLength",
+      "name": "Leg Length",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegLowerLeftTibiaFibula",
+      "code": "LegLowerLeftTibiaFibula",
+      "name": "Leg - Lower - Left (Tibia & Fibula)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-LegLowerRightTibiaFibula",
+      "code": "LegLowerRightTibiaFibula",
+      "name": "Leg - Lower - Right (Tibia & Fibula)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MandibleCR",
+      "code": "MandibleCR",
+      "name": "Mandible - (CR)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MastoidAirCells",
+      "code": "MastoidAirCells",
+      "name": "Mastoid Air Cells",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAbdomenErectandSupine",
+      "code": "MobileAbdomenErectandSupine",
+      "name": "Mobile - Abdomen Erect and Supine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAbdomenPlain",
+      "code": "MobileAbdomenPlain",
+      "name": "Mobile - Abdomen - Plain",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAbdomenRenal",
+      "code": "MobileAbdomenRenal",
+      "name": "Mobile - Abdomen - Renal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleandLegLeft",
+      "code": "MobileAnkleandLegLeft",
+      "name": "Mobile - Ankle and Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleandLegRight",
+      "code": "MobileAnkleandLegRight",
+      "name": "Mobile - Ankle and Leg - Right ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleCalcaneumLeftHeel",
+      "code": "MobileAnkleCalcaneumLeftHeel",
+      "name": "Mobile - Ankle - Calcaneum - Left (Heel)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleCalcaneumRightHeel",
+      "code": "MobileAnkleCalcaneumRightHeel",
+      "name": "Mobile - Ankle - Calcaneum - Right (Heel)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleLeft",
+      "code": "MobileAnkleLeft",
+      "name": "Mobile - Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileAnkleRight",
+      "code": "MobileAnkleRight",
+      "name": "Mobile - Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmElbowandHumerusLeft",
+      "code": "MobileArmElbowandHumerusLeft",
+      "name": "Mobile - Arm - Elbow and Humerus - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmElbowandHumerusRight",
+      "code": "MobileArmElbowandHumerusRight",
+      "name": "Mobile - Arm - Elbow and Humerus - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmElbowLeft",
+      "code": "MobileArmElbowLeft",
+      "name": "Mobile - Arm - Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmElbowRight",
+      "code": "MobileArmElbowRight",
+      "name": "Mobile - Arm - Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmForearmandElbowLeft",
+      "code": "MobileArmForearmandElbowLeft",
+      "name": "Mobile - Arm - Forearm and Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmForearmandElbowRight",
+      "code": "MobileArmForearmandElbowRight",
+      "name": "Mobile - Arm - Forearm and Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmForearmLeft",
+      "code": "MobileArmForearmLeft",
+      "name": "Mobile - Arm - Forearm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmForearmRight",
+      "code": "MobileArmForearmRight",
+      "name": "Mobile - Arm - Forearm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmHumerusLeft",
+      "code": "MobileArmHumerusLeft",
+      "name": "Mobile - Arm - Humerus - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileArmHumerusRight",
+      "code": "MobileArmHumerusRight",
+      "name": "Mobile - Arm - Humerus - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootandAnkleLeft",
+      "code": "MobileFootandAnkleLeft",
+      "name": "Mobile - Foot and Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootandAnkleRight",
+      "code": "MobileFootandAnkleRight",
+      "name": "Mobile - Foot and Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootLeft",
+      "code": "MobileFootLeft",
+      "name": "Mobile - Foot - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootRight",
+      "code": "MobileFootRight",
+      "name": "Mobile - Foot - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootToesLeft",
+      "code": "MobileFootToesLeft",
+      "name": "Mobile - Foot - Toes - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileFootToesRight",
+      "code": "MobileFootToesRight",
+      "name": "Mobile - Foot - Toes - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandWristandForearmLeft",
+      "code": "MobileHandWristandForearmLeft",
+      "name": "Mobile - Hand, Wrist and Forearm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandWristandForearmRight",
+      "code": "MobileHandWristandForearmRight",
+      "name": "Mobile - Hand, Wrist and Forearm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandBoneAge",
+      "code": "MobileHandBoneAge",
+      "name": "Mobile - Hand - Bone Age",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandFingerandorThumbLeft",
+      "code": "MobileHandFingerandorThumbLeft",
+      "name": "Mobile - Hand - Finger and/or Thumb - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandFingerandorThumbRight",
+      "code": "MobileHandFingerandorThumbRight",
+      "name": "Mobile - Hand - Finger and/or Thumb - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandLeft",
+      "code": "MobileHandLeft",
+      "name": "Mobile - Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileHandRight",
+      "code": "MobileHandRight",
+      "name": "Mobile - Hand - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileIntravenousPyelogram",
+      "code": "MobileIntravenousPyelogram",
+      "name": "Mobile - Intravenous Pyelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLarynx",
+      "code": "MobileLarynx",
+      "name": "Mobile - Larynx",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegFemurLeft",
+      "code": "MobileLegFemurLeft",
+      "name": "Mobile - Leg - Femur - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegFemurRight",
+      "code": "MobileLegFemurRight",
+      "name": "Mobile - Leg - Femur - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegHipLeft",
+      "code": "MobileLegHipLeft",
+      "name": "Mobile - Leg - Hip - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegHipRight",
+      "code": "MobileLegHipRight",
+      "name": "Mobile - Leg - Hip - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeandFemurLeft",
+      "code": "MobileLegKneeandFemurLeft",
+      "name": "Mobile - Leg - Knee and Femur - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeandFemurRight",
+      "code": "MobileLegKneeandFemurRight",
+      "name": "Mobile - Leg - Knee and Femur - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeandLegLeft",
+      "code": "MobileLegKneeandLegLeft",
+      "name": "Mobile - Leg - Knee and Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeandLegRight",
+      "code": "MobileLegKneeandLegRight",
+      "name": "Mobile - Leg - Knee and Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeLeft",
+      "code": "MobileLegKneeLeft",
+      "name": "Mobile - Leg - Knee - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegKneeRight",
+      "code": "MobileLegKneeRight",
+      "name": "Mobile - Leg - Knee - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegLength",
+      "code": "MobileLegLength",
+      "name": "Mobile - Leg Length",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegLowerLeftTibiaFibula",
+      "code": "MobileLegLowerLeftTibiaFibula",
+      "name": "Mobile - Leg - Lower - Left (Tibia & Fibula)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileLegLowerRightTibiaFibula",
+      "code": "MobileLegLowerRightTibiaFibula",
+      "name": "Mobile - Leg - Lower - Right (Tibia & Fibula)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileMandible",
+      "code": "MobileMandible",
+      "name": "Mobile - Mandible ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileMastoidAirCells",
+      "code": "MobileMastoidAirCells",
+      "name": "Mobile - Mastoid Air Cells",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileNasalBones",
+      "code": "MobileNasalBones",
+      "name": "Mobile - Nasal Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Mobileorbits",
+      "code": "Mobileorbits",
+      "name": "Mobile-orbits ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileOrbitsBoney",
+      "code": "MobileOrbitsBoney",
+      "name": "Mobile - Orbits - Boney",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobilePelvis",
+      "code": "MobilePelvis",
+      "name": "Mobile - Pelvis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobilePetrousTemporalBones",
+      "code": "MobilePetrousTemporalBones",
+      "name": "Mobile - Petrous Temporal Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileRibsBothsides",
+      "code": "MobileRibsBothsides",
+      "name": "Mobile - Ribs - Both sides",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileRibsLeft",
+      "code": "MobileRibsLeft",
+      "name": "Mobile - Ribs - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileRibsRight",
+      "code": "MobileRibsRight",
+      "name": "Mobile - Ribs - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSacroIliacJoints",
+      "code": "MobileSacroIliacJoints",
+      "name": "Mobile - Sacro-Iliac Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSalivaryGlandCalculus",
+      "code": "MobileSalivaryGlandCalculus",
+      "name": "Mobile - Salivary Gland - Calculus",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderAcromioclavicularJointsLeft",
+      "code": "MobileShoulderAcromioclavicularJointsLeft",
+      "name": "Mobile - Shoulder - Acromioclavicular Joints - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderAcromioclavicularJointsRight",
+      "code": "MobileShoulderAcromioclavicularJointsRight",
+      "name": "Mobile - Shoulder - Acromioclavicular Joints - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderClavicleLeft",
+      "code": "MobileShoulderClavicleLeft",
+      "name": "Mobile - Shoulder - Clavicle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderClavicleRight",
+      "code": "MobileShoulderClavicleRight",
+      "name": "Mobile - Shoulder - Clavicle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderLeft",
+      "code": "MobileShoulderLeft",
+      "name": "Mobile - Shoulder - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderRight",
+      "code": "MobileShoulderRight",
+      "name": "Mobile - Shoulder - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderScapulaLeft",
+      "code": "MobileShoulderScapulaLeft",
+      "name": "Mobile - Shoulder - Scapula - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileShoulderScapulaRight",
+      "code": "MobileShoulderScapulaRight",
+      "name": "Mobile - Shoulder - Scapula - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSinusesParanasal",
+      "code": "MobileSinusesParanasal",
+      "name": "Mobile - Sinuses - Paranasal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSkeletalSurvey",
+      "code": "MobileSkeletalSurvey",
+      "name": "Mobile - Skeletal Survey",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSkull",
+      "code": "MobileSkull",
+      "name": "Mobile - Skull",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineCervical",
+      "code": "MobileSpineCervical",
+      "name": "Mobile - Spine - Cervical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineCervicalandLumbar",
+      "code": "MobileSpineCervicalandLumbar",
+      "name": "Mobile - Spine - Cervical and Lumbar ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineCervicalandThoracic",
+      "code": "MobileSpineCervicalandThoracic",
+      "name": "Mobile - Spine - Cervical and Thoracic ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineFull",
+      "code": "MobileSpineFull",
+      "name": "Mobile - Spine - Full ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineFullLongFilm",
+      "code": "MobileSpineFullLongFilm",
+      "name": "Mobile - Spine  - Full - Long Film",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineLumbarandSacrum2Region",
+      "code": "MobileSpineLumbarandSacrum2Region",
+      "name": "Mobile - Spine - Lumbar and Sacrum - 2 Region",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineLumbarSacral",
+      "code": "MobileSpineLumbarSacral",
+      "name": "Mobile - Spine - Lumbar Sacral ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineSacrococcygeal",
+      "code": "MobileSpineSacrococcygeal",
+      "name": "Mobile - Spine - Sacrococcygeal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineThoracic",
+      "code": "MobileSpineThoracic",
+      "name": "Mobile - Spine - Thoracic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSpineThoracicandLumbar",
+      "code": "MobileSpineThoracicandLumbar",
+      "name": "Mobile - Spine - Thoracic and Lumbar",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSternoclavicularJoints",
+      "code": "MobileSternoclavicularJoints",
+      "name": "Mobile - Sternoclavicular Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSternumOnly",
+      "code": "MobileSternumOnly",
+      "name": "Mobile - Sternum Only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSternumRibsBothsides",
+      "code": "MobileSternumRibsBothsides",
+      "name": "Mobile - Sternum - Ribs - Both sides",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSternumRibsLeft",
+      "code": "MobileSternumRibsLeft",
+      "name": "Mobile - Sternum - Ribs - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileSternumRibsRight",
+      "code": "MobileSternumRibsRight",
+      "name": "Mobile - Sternum - Ribs - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileThoracicInletTrachea",
+      "code": "MobileThoracicInletTrachea",
+      "name": "Mobile - Thoracic Inlet - Trachea",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileWristLeft",
+      "code": "MobileWristLeft",
+      "name": "Mobile - Wrist - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileWristRight",
+      "code": "MobileWristRight",
+      "name": "Mobile - Wrist - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileWristScaphoidLeft",
+      "code": "MobileWristScaphoidLeft",
+      "name": "Mobile - Wrist - Scaphoid - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-MobileWristScaphoidRight",
+      "code": "MobileWristScaphoidRight",
+      "name": "Mobile - Wrist - Scaphoid - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-NasalBones",
+      "code": "NasalBones",
+      "name": "Nasal Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGCaries",
+      "code": "OPGCaries",
+      "name": "OPG - Caries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGDevelopmental",
+      "code": "OPGDevelopmental",
+      "name": "OPG - Developmental",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGLateralCephalometry",
+      "code": "OPGLateralCephalometry",
+      "name": "OPG - Lateral Cephalometry",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGSinuses",
+      "code": "OPGSinuses",
+      "name": "OPG - Sinuses",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGTemperomandibularJoints",
+      "code": "OPGTemperomandibularJoints",
+      "name": "OPG Temperomandibular Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OPGTrauma",
+      "code": "OPGTrauma",
+      "name": "OPG - Trauma",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OrbitsBoney",
+      "code": "OrbitsBoney",
+      "name": "Orbits - Boney",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-OrbitsSoftTissues",
+      "code": "OrbitsSoftTissues",
+      "name": "Orbits - Soft Tissues",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Pelvis",
+      "code": "Pelvis",
+      "name": "Pelvis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-PetrousTemporalBones",
+      "code": "PetrousTemporalBones",
+      "name": "Petrous Temporal Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-PostMortemExamination",
+      "code": "PostMortemExamination",
+      "name": "Post Mortem Examination",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-RibsBothsides",
+      "code": "RibsBothsides",
+      "name": "Ribs - Both sides",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-RibsLeft",
+      "code": "RibsLeft",
+      "name": "Ribs - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-RibsRight",
+      "code": "RibsRight",
+      "name": "Ribs - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SacroIliacJoints",
+      "code": "SacroIliacJoints",
+      "name": "Sacro-Iliac Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SalivaryGlandCalculus",
+      "code": "SalivaryGlandCalculus",
+      "name": "Salivary Gland - Calculus",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderAcromioclavicularJointsLeft",
+      "code": "ShoulderAcromioclavicularJointsLeft",
+      "name": "Shoulder - Acromioclavicular Joints - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderAcromioclavicularJointsRight",
+      "code": "ShoulderAcromioclavicularJointsRight",
+      "name": "Shoulder - Acromioclavicular Joints - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderClavicleLeft",
+      "code": "ShoulderClavicleLeft",
+      "name": "Shoulder - Clavicle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderClavicleRight",
+      "code": "ShoulderClavicleRight",
+      "name": "Shoulder - Clavicle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderLeft",
+      "code": "ShoulderLeft",
+      "name": "Shoulder - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderRight",
+      "code": "ShoulderRight",
+      "name": "Shoulder - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderScapulaLeft",
+      "code": "ShoulderScapulaLeft",
+      "name": "Shoulder - Scapula - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ShoulderScapulaRight",
+      "code": "ShoulderScapulaRight",
+      "name": "Shoulder - Scapula - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SinusesParanasal",
+      "code": "SinusesParanasal",
+      "name": "Sinuses - Paranasal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SkeletalSurvey",
+      "code": "SkeletalSurvey",
+      "name": "Skeletal Survey",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Skull",
+      "code": "Skull",
+      "name": "Skull",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineCervical",
+      "code": "SpineCervical",
+      "name": "Spine - Cervical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineCervicalandLumbosacral",
+      "code": "SpineCervicalandLumbosacral",
+      "name": "Spine - Cervical and Lumbosacral ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineCervicalandThoracic",
+      "code": "SpineCervicalandThoracic",
+      "name": "Spine - Cervical and Thoracic ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineFull",
+      "code": "SpineFull",
+      "name": "Spine - Full ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineFullLongFilm",
+      "code": "SpineFullLongFilm",
+      "name": "Spine  - Full - Long Film",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineLumbarandSacrum2Region",
+      "code": "SpineLumbarandSacrum2Region",
+      "name": "Spine - Lumbar and Sacrum 2 Region",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineLumbarSacral",
+      "code": "SpineLumbarSacral",
+      "name": "Spine - Lumbar Sacral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineSacrococcygeal",
+      "code": "SpineSacrococcygeal",
+      "name": "Spine - Sacrococcygeal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineThoracic",
+      "code": "SpineThoracic",
+      "name": "Spine - Thoracic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SpineThoracicandLumbosacral",
+      "code": "SpineThoracicandLumbosacral",
+      "name": "Spine - Thoracic and Lumbosacral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SternoclavicularJoints",
+      "code": "SternoclavicularJoints",
+      "name": "Sternoclavicular Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SternumOnly",
+      "code": "SternumOnly",
+      "name": "Sternum Only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SternumRibsBothsides",
+      "code": "SternumRibsBothsides",
+      "name": "Sternum - Ribs - Both sides",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SternumRibsLeft",
+      "code": "SternumRibsLeft",
+      "name": "Sternum - Ribs - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-SternumRibsRight",
+      "code": "SternumRibsRight",
+      "name": "Sternum - Ribs - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-TemporoMandibularJoints",
+      "code": "TemporoMandibularJoints",
+      "name": "Temporo-Mandibular Joints",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-ThoracicInletTrachea",
+      "code": "ThoracicInletTrachea",
+      "name": "Thoracic Inlet - Trachea",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-Tomographyofanyregion",
+      "code": "Tomographyofanyregion",
+      "name": "Tomography of any region",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-WristLeft",
+      "code": "WristLeft",
+      "name": "Wrist - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-WristRight",
+      "code": "WristRight",
+      "name": "Wrist - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-WristScaphoidLeft",
+      "code": "WristScaphoidLeft",
+      "name": "Wrist - Scaphoid - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-WristScaphoidRight",
+      "code": "WristScaphoidRight",
+      "name": "Wrist - Scaphoid - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-TemperomandibularJointsCR",
+      "code": "TemperomandibularJointsCR",
+      "name": "Temperomandibular Joints - (CR)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayImagingArea-TestingArea",
+      "code": "TestingArea",
+      "name": "Testing Area",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "Xray-Testing-Area",
+      "code": "XrayTestingArea",
+      "name": "X Ray Testing Area",
+      "visibilityStatus": "current"
+    }
+  ]
+}

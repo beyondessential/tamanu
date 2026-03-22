@@ -1,25 +1,30 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { push } from 'connected-react-router';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import {
+  Button,
+  DeleteButton,
+  Modal,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedSex,
+  DateDisplay,
+  DateTimeRangeDisplay,
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
-import { DateDisplay } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
-import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
-import { Modal } from '../Modal';
-import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -56,20 +61,21 @@ const PatientInfoValue = styled.td`
   text-transform: capitalize;
 `;
 
-const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map((status) => ({
+const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(status => ({
   value: status,
   label: status,
 }));
 
 const PatientInfo = ({ patient }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const handlePatientInfoContainerClick = useCallback(async () => {
     await dispatch(reloadPatient(id));
-    dispatch(push(`/patients/all/${id}`));
-  }, [dispatch, id]);
+    navigate(`/patients/all/${id}`);
+  }, [dispatch, id, navigate]);
 
   return (
     <PatientInfoContainer
@@ -147,15 +153,6 @@ const PatientInfo = ({ patient }) => {
   );
 };
 
-const AppointmentTime = ({ startTime, endTime }) => (
-  <span>
-    {format(new Date(startTime), 'ccc dd LLL')}
-    {' - '}
-    {format(new Date(startTime), 'h:mm aaa')}
-    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
-  </span>
-);
-
 const Row = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -199,7 +196,13 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         }{' '}
         <PatientNameDisplay patient={patient} data-testid="patientnamedisplay-bdl0" />
         {' - '}
-        <AppointmentTime {...appointment} data-testid="appointmenttime-e45m" />
+        <DateTimeRangeDisplay
+          start={appointment.startTime}
+          end={appointment.endTime}
+          weekdayFormat="short"
+          dateFormat="dayMonth"
+          data-testid="datetimerangedisplay-e45m"
+        />
       </Details>
       <Row data-testid="row-b2f3">
         <DeleteButton onClick={onConfirm} data-testid="deletebutton-iisx">
@@ -257,7 +260,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     patient.id,
   );
   const [statusOption, setStatusOption] = useState(
-    APPOINTMENT_STATUS_OPTIONS.find((option) => option.value === status),
+    APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status),
   );
   const [appointmentModal, setAppointmentModal] = useState(false);
   const [encounterModal, setEncounterModal] = useState(false);
@@ -268,7 +271,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   useEffect(() => {
-    setStatusOption(APPOINTMENT_STATUS_OPTIONS.find((option) => option.value === status));
+    setStatusOption(APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status));
   }, [status]);
 
   useEffect(() => {
@@ -278,7 +281,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   }, [currentEncounterError]);
 
   const updateAppointmentStatus = useCallback(
-    async (newValue) => {
+    async newValue => {
       await api.put(`appointments/${id}`, {
         status: newValue,
       });
@@ -292,7 +295,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
   const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
   const onSubmitEncounterModal = useCallback(
-    async (encounter) => {
+    async encounter => {
       setCreatedEncounter(encounter);
       onCloseEncounterModal();
     },
@@ -334,7 +337,13 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             />
           </Heading>
           <div>
-            <AppointmentTime {...appointment} data-testid="appointmenttime-qco2" />
+            <DateTimeRangeDisplay
+              start={appointment.startTime}
+              end={appointment.endTime}
+              weekdayFormat="short"
+              dateFormat="dayMonth"
+              data-testid="datetimerangedisplay-qco2"
+            />
           </div>
         </div>
         <Select
@@ -348,7 +357,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           options={APPOINTMENT_STATUS_OPTIONS}
           value={statusOption}
           name="status"
-          onChange={async (selectedOption) => {
+          onChange={async selectedOption => {
             if (selectedOption.value === APPOINTMENT_STATUSES.CANCELLED && !cancelConfirmed) {
               setCancelModal(true);
               return;
@@ -357,29 +366,29 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             await updateAppointmentStatus(selectedOption.value);
           }}
           styles={{
-            placeholder: (baseStyles) => ({
+            placeholder: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            valueContainer: (baseStyles) => ({
+            valueContainer: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            dropdownIndicator: (baseStyles) => ({
+            dropdownIndicator: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            singleValue: (baseStyles) => ({
+            singleValue: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            control: (baseStyles) => ({
+            control: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,
               borderColor: 'transparent',
             }),
-            menu: (baseStyles) => ({
+            menu: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,
@@ -445,7 +454,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <u>
               <TranslatedText
                 stringId="scheduling.action.admitOrCheckIn"
-                fallback="Admit or check-in"
+                fallback="Admit or check in"
                 data-testid="translatedtext-111l"
               />
             </u>

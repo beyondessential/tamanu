@@ -13,7 +13,6 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
 import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
-import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
@@ -29,7 +28,7 @@ import {
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_CONNECTION_LABELS,
   REPORT_STATUS_LABELS,
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
@@ -41,9 +40,13 @@ import {
   DRUG_ROUTE_LABELS,
   DRUG_UNIT_LABELS,
   DRUG_UNIT_SHORT_LABELS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
   REPEATS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
@@ -52,10 +55,7 @@ import {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
-import {
-  DEPRECATED_PRCC_LABELS,
-  PROGRAM_REGISTRATION_STATUS_LABELS,
-} from './programRegistry';
+import { DEPRECATED_PRCC_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -92,10 +92,12 @@ export const registeredEnums = {
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
   MARTIAL_STATUS_LABELS,
-  NOTE_TYPE_LABELS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
+  PREGNANCY_MOMENTS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
   DEPRECATED_PRCC_LABELS,
   REFERRAL_STATUS_LABELS,
@@ -104,7 +106,7 @@ export const registeredEnums = {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
   REPORT_DATA_SOURCE_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_CONNECTION_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
@@ -115,6 +117,8 @@ export const registeredEnums = {
   TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
 };
 
 /**
@@ -149,10 +153,12 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
   MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
-  NOTE_TYPE_LABELS: 'note.property.type',
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS: 'medication.property.durationUnitDisplay',
+  MEDICATION_DURATION_UNITS_LABELS: 'medication.property.durationUnit',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
+  PREGNANCY_MOMENTS: 'death.property.pregnancyMoment',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
   DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
@@ -161,7 +167,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatFrequencyUnit',
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS: 'scheduling.property.repeatFrequencyUnitPlural',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
-  REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
+  REPORT_DB_CONNECTION_LABELS: 'report.property.schema',
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
@@ -172,6 +178,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
+  DRUG_STOCK_STATUS_LABELS: 'medication.property.drugStockStatus',
+  PHARMACY_PRESCRIPTION_TYPE_LABELS: 'medication.property.pharmacyPrescriptionType',
 };
 
 export const enumRegistry = new Set(Object.values(registeredEnums));

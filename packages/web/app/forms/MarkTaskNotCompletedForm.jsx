@@ -2,23 +2,17 @@ import React from 'react';
 import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  Form,
-  FormGrid,
-  FormSubmitCancelRow,
-  TranslatedText,
-} from '../components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
+
+import { AutocompleteField, DateTimeField, Field, TranslatedText } from '../components';
 import { useSuggester } from '../api';
 import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
-import { FORM_TYPES } from '../constants';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
@@ -27,7 +21,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     const { notCompletedReasonId, ...others } = values;
     markTaskNotCompleted(
       {
@@ -76,9 +70,8 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                 />
               }
               required
-              saveDateAsString
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
+              max={getCurrentDateTime()}
               data-testid="field-sgto"
             />
             <Field
@@ -133,7 +126,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -142,7 +135,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
         notCompletedReasonId: yup.string(),
       })}
       initialValues={{
-        notCompletedTime: getCurrentDateTimeString(),
+        notCompletedTime: getCurrentDateTime(),
         notCompletedByUserId: currentUser?.id,
       }}
       data-testid="form-3cwo"
