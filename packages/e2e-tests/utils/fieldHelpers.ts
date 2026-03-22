@@ -59,7 +59,7 @@ export const selectOptionFromPopper = async (
   const selectedOptionText = (await selectedOption.innerText()).trim();
   await selectedOption.click({ force: true });
 
-  await expect(popper).not.toBeVisible({ timeout: 2000 }).catch(() => undefined);
+  await expect(popper).not.toBeVisible({ timeout: 1000 });
 
   return selectedOptionText;
 };
