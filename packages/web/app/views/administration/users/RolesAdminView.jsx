@@ -50,12 +50,6 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   tbody tr:hover {
     background-color: ${Colors.veryLightBlue};
   }
-
-  /* Fit to meatball menu button width; let browser distribute remaining columns */
-  th:last-of-type,
-  td:last-of-type {
-    inline-size: 0;
-  }
 `;
 
 const DeleteConfirmationModal = ({ onSuccess }) => {
@@ -202,7 +196,6 @@ export const RolesAdminView = () => {
         </AddButton>
       </Header>
       <StyledDataFetchingTable
-        allowExport={false}
         columns={columns}
         endpoint={ROLES_ENDPOINT}
         fetchOptions={{ id: idQuery, name: nameQuery }}
