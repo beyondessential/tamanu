@@ -2,7 +2,6 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import {
-  convertDateFormat,
   compareAlphabetically,
   compareByDate,
   dateTableMatchStrings,

@@ -1,9 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 
-import {
-  formatForMuiDateTimePicker,
-  normalizeToIsoDate,
-} from '@utils/testHelper';
+import { formatForMuiDateTimePicker, normalizeToIsoDate } from '@utils/testHelper';
 import { BasePatientModal } from './BasePatientModal';
 import {
   selectFieldOption,
