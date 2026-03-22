@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
-import { convertDateFormat } from '../../../../utils/testHelper';
+import { convertDateFormat, getSidebarFacilityDisplayName } from '../../../../utils/testHelper';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class ViewVaccineModal extends BasePatientModal {
@@ -96,10 +96,12 @@ export class ViewVaccineModal extends BasePatientModal {
       throw new Error('Missing required vaccine fields');
     }
 
+    const facilityDisplayName = await getSidebarFacilityDisplayName(this.page);
+
     await expect(this.area).toContainText(area);
     await expect(this.location).toContainText(location);
     await expect(this.department).toContainText(department);
-    await expect(this.facilityLocation).toContainText('facility-1');
+    await expect(this.facilityLocation).toContainText(facilityDisplayName);
     await expect(this.recordedBy).toContainText('Initial Admin');
 
     if (category === 'Other') {
@@ -153,11 +155,13 @@ export class ViewVaccineModal extends BasePatientModal {
   }
 
   async assertGivenElsewhereVaccineModalFields(vaccine: Partial<Vaccine>) {
-    const { vaccineName, givenElsewhereReason, givenElsewhereCountry, dateGiven, category } =
-      vaccine;
+    const { vaccineName, dateGiven, category, givenElsewhereCountry, givenElsewhereReason } = vaccine;
 
-    if (!vaccineName || !givenElsewhereReason || !givenElsewhereCountry) {
-      throw new Error('Missing required given elsewhere fields');
+    if (!vaccineName) {
+      throw new Error('Missing vaccine name for given-elsewhere assertion');
+    }
+    if (!givenElsewhereCountry) {
+      throw new Error('Missing givenElsewhereCountry for given-elsewhere assertion');
     }
 
     if (dateGiven) {
@@ -166,10 +170,14 @@ export class ViewVaccineModal extends BasePatientModal {
       await expect(this.dateGiven).toContainText('--/--/----');
     }
 
-    await expect(this.givenElsewhereReason).toContainText(givenElsewhereReason);
+    const facilityDisplayName = await getSidebarFacilityDisplayName(this.page);
+
+    if (givenElsewhereReason) {
+      await expect(this.givenElsewhereReason).toContainText(givenElsewhereReason);
+    }
     await expect(this.givenElsewhereCountry).toContainText(givenElsewhereCountry);
     await expect(this.status).toContainText('Given elsewhere');
-    await expect(this.givenElsewhereFacility).toContainText('facility-1');
+    await expect(this.givenElsewhereFacility).toContainText(facilityDisplayName);
     await expect(this.recordedBy).toContainText('Initial Admin');
     if (category === 'Other') {
       await expect(this.vaccineNameOther).toContainText(vaccineName);

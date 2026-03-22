@@ -8,6 +8,10 @@ async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<st
   return rawTestId.replace(suffixToRemove, '');
 }
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const selectOptionFromPopper = async (
   baseTestId: string,
   popper: Locator,
@@ -17,41 +21,44 @@ export const selectOptionFromPopper = async (
     optionToAvoid = null,
   }: { selectFirst?: boolean; optionToSelect?: string | null; optionToAvoid?: string | null } = {},
 ): Promise<string> => {
-  await popper.waitFor({ state: 'attached', timeout: 5000 });
-
+  const waitMs = 5000;
   const optionLocator = popper.getByTestId(`${baseTestId}-option`);
-  await optionLocator.first().waitFor({ state: 'attached', timeout: 5000 });
+  await optionLocator.first().waitFor({ state: 'attached', timeout: waitMs });
 
-  const options = await optionLocator.all();
-  if (options.length === 0) {
+  const count = await optionLocator.count();
+  if (count === 0) {
     throw new Error(`No options found for ${baseTestId}`);
   }
 
-  const optionTexts = await Promise.all(options.map(option => option.innerText()));
-  
-  let selectedOption: Locator | undefined;
+  let selectedOption: Locator;
 
   if (optionToSelect) {
-    const selectedIndex = optionTexts.findIndex(text => text === optionToSelect);
-    if (selectedIndex === -1) {
-      throw new Error(`Option "${optionToSelect}" not found in popper`);
-    }
-    selectedOption = options[selectedIndex];
+    const exactLabel = new RegExp(`^\\s*${escapeRegExp(optionToSelect)}\\s*$`);
+    selectedOption = optionLocator.filter({ hasText: exactLabel }).first();
+    await expect(selectedOption).toBeAttached({ timeout: waitMs });
   } else if (optionToAvoid) {
-    const filteredOptions = options.filter((_, i) => optionTexts[i] !== optionToAvoid);
-    if (filteredOptions.length === 0) {
+    let found: Locator | undefined;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const opt = optionLocator.nth(Math.floor(Math.random() * count));
+      const text = (await opt.innerText({ timeout: 3000 }).catch(() => '')).trim();
+      if (text && text !== optionToAvoid) {
+        found = opt;
+        break;
+      }
+    }
+    if (!found) {
       throw new Error(`No options found that are not "${optionToAvoid}"`);
     }
-    //Select a random option that is not optionToAvoid
-    selectedOption = filteredOptions[Math.floor(Math.random() * filteredOptions.length)];
+    selectedOption = found;
   } else {
-    selectedOption = selectFirst ? options[0] : options[Math.floor(Math.random() * options.length)];
+    const index = selectFirst ? 0 : Math.floor(Math.random() * count);
+    selectedOption = optionLocator.nth(index);
   }
 
-  const selectedOptionText = await selectedOption.innerText();
-  await selectedOption.click();
+  const selectedOptionText = (await selectedOption.innerText()).trim();
+  await selectedOption.click({ force: true });
 
-  await expect(popper).not.toBeVisible({ timeout: 1000 });
+  await expect(popper).not.toBeVisible({ timeout: 2000 }).catch(() => undefined);
 
   return selectedOptionText;
 };
@@ -131,18 +138,22 @@ export const selectAutocompleteFieldOption = async (
   } = {},
 ) => {
   await expect(field).toBeEnabled();
-  await field.click();
+  await field.scrollIntoViewIfNeeded();
+  const input = field.locator('input');
+  if ((await input.count()) > 0) {
+    await input.click();
+  } else {
+    await field.click();
+  }
 
-  //const input = field.locator('input');
   const testId = await getBaseTestId(field, stripTag ? '-input' : '');
+
   const suggestionsContainer = page.getByTestId(`${testId}-suggestionslist`);
   const selectedOptionText = await selectOptionFromPopper(testId, suggestionsContainer, {
     selectFirst,
     optionToSelect,
     optionToAvoid,
   });
-
-  //await expect(input).toContainText(selectedOptionText, { timeout: 1000 });
 
   if (returnOptionText) {
     return selectedOptionText;

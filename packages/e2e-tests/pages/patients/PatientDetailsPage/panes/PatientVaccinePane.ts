@@ -5,6 +5,8 @@ import {
   convertDateFormat,
   compareAlphabetically,
   compareByDate,
+  dateTableMatchStrings,
+  getSidebarFacilityDisplayName,
 } from '../../../../utils/testHelper';
 import { ViewVaccineModal } from '../modals/ViewVaccineModal';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
@@ -173,55 +175,84 @@ export class PatientVaccinePane extends BasePatientPane {
       );
     }
 
-    const dateValue = dateGiven ? convertDateFormat(dateGiven) : 'Unknown';
+    const dateCandidates = dateTableMatchStrings(dateGiven);
 
-    const correctDateFound = await this.searchSpecificTableRowForMatch(
-      recordedVaccinesTable,
-      dateValue,
-      'date',
-      count,
-      vaccineName,
-      scheduleOption,
-    );
-
-    if (!correctDateFound) {
-      throw new Error(`Date "${dateValue}" not found in the recorded vaccines table`);
+    let correctDateFound = false;
+    for (const dateValue of dateCandidates) {
+      if (
+        await this.searchSpecificTableRowForMatch(
+          recordedVaccinesTable,
+          dateValue,
+          'date',
+          count,
+          vaccineName,
+          scheduleOption,
+        )
+      ) {
+        correctDateFound = true;
+        break;
+      }
     }
 
-    const givenByValue = givenElsewhereReason ? 'Given elsewhere' : 'Unknown';
+    if (!correctDateFound) {
+      throw new Error(
+        `Date not found in the recorded vaccines table (tried: ${dateCandidates.join(', ')})`,
+      );
+    }
 
+    const expectedGivenBy = given
+      ? givenBy || (givenElsewhereReason ? 'Given elsewhere' : 'Unknown')
+      : 'Not given';
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      given ? givenBy || givenByValue : 'Not given',
+      expectedGivenBy,
       'givenBy',
       count,
       vaccineName,
       scheduleOption,
     );
     if (!correctGivenByFound) {
-      const expectedValue = given ? givenBy || givenByValue : 'Not given';
-      throw new Error(`Given by "${expectedValue}" not found in the recorded vaccines table`);
+      throw new Error(`Given by "${expectedGivenBy}" not found in the recorded vaccines table`);
     }
 
-    const displayLocationValue = givenElsewhereReason ? givenElsewhereCountry : 'facility-1';
-    if (!displayLocationValue) {
-      throw new Error(
-        'Display location value is not defined - likely the country was not selected',
+    if (givenElsewhereReason) {
+      if (!givenElsewhereCountry) {
+        throw new Error('givenElsewhereCountry is required when givenElsewhereReason is set');
+      }
+      const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+        recordedVaccinesTable,
+        givenElsewhereCountry,
+        'displayLocation',
+        count,
+        vaccineName,
+        scheduleOption,
       );
-    }
+      if (!correctDisplayLocationFound) {
+        throw new Error(
+          `Display location did not contain country "${givenElsewhereCountry}" in the recorded vaccines table`,
+        );
+      }
+    } else {
+      const displayLocationValue = await getSidebarFacilityDisplayName(this.page);
+      if (!displayLocationValue) {
+        throw new Error(
+          'Display location value is not defined - likely the country was not selected',
+        );
+      }
 
-    const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
-      recordedVaccinesTable,
-      displayLocationValue,
-      'displayLocation',
-      count,
-      vaccineName,
-      scheduleOption,
-    );
-    if (!correctDisplayLocationFound) {
-      throw new Error(
-        `Display location "${displayLocationValue}" not found in the recorded vaccines table`,
+      const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+        recordedVaccinesTable,
+        displayLocationValue,
+        'displayLocation',
+        count,
+        vaccineName,
+        scheduleOption,
       );
+      if (!correctDisplayLocationFound) {
+        throw new Error(
+          `Display location "${displayLocationValue}" not found in the recorded vaccines table`,
+        );
+      }
     }
   }
 

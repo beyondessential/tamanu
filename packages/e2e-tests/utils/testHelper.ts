@@ -1,25 +1,93 @@
 import { Locator, Page, expect } from '@playwright/test';
-import { subYears, addYears, format, parse } from 'date-fns';
+import { subYears, addYears, format, parse, isValid } from 'date-fns';
+
+import { SidebarPage } from '../pages/SidebarPage';
 
 export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
-// Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
+/** Facility column uses `location.facility.name`; match the name shown in the app chrome. */
+export async function getSidebarFacilityDisplayName(page: Page): Promise<string> {
+  const sidebar = new SidebarPage(page);
+  return sidebar.getFacilityName();
+}
+
+const DISPLAY_DATE_TIME_PATTERNS = [
+  'dd/MM/yyyy hh:mm a',
+  'dd/MM/yyyy h:mm a',
+  'dd/MM/yyyy',
+] as const;
+
+/**
+ * Parse date strings as they appear in Tamanu (ISO / ISO-prefix from inputs, MUI-style dd/MM display, etc.).
+ */
+export function parseTamanuDate(raw: string): Date | null {
+  const s = raw.trim();
+  if (!s) return null;
+
+  const isoDate = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoDate) {
+    const d = parse(isoDate[1], 'yyyy-MM-dd', new Date());
+    return isValid(d) ? d : null;
+  }
+
+  for (const pattern of DISPLAY_DATE_TIME_PATTERNS) {
+    const d = parse(s, pattern, new Date());
+    if (isValid(d)) return d;
+  }
+
+  return null;
+}
+
+// Utility method to convert stored / form dates to MM/dd/yyyy for assertions (US-style)
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
-  
-  let dateString: string;
-  
+
   if (dateInput instanceof Date) {
-    dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  } else {
-    dateString = dateInput;
+    return isValid(dateInput) ? format(dateInput, 'MM/dd/yyyy') : '';
   }
-  
-  if (!dateString) return '';
-  
-  const [year, month, day] = dateString.split('-');
-  return `${month}/${day}/${year}`;
+
+  const parsed = parseTamanuDate(String(dateInput));
+  if (parsed) {
+    return format(parsed, 'MM/dd/yyyy');
+  }
+
+  const s = String(dateInput).trim();
+  const [year, month, day] = s.split('-');
+  if (year && month && day) {
+    return `${month}/${day}/${year}`;
+  }
+  return '';
 };
+
+/**
+ * DateDisplay uses locale-specific ordering; the table cell match is substring-based, so try both orderings.
+ */
+export function dateTableMatchStrings(dateGiven: string | undefined): string[] {
+  if (!dateGiven) return ['Unknown'];
+  const parsed = parseTamanuDate(dateGiven.trim());
+  if (!parsed) {
+    return [convertDateFormat(dateGiven)];
+  }
+  return [format(parsed, 'MM/dd/yyyy'), format(parsed, 'dd/MM/yyyy')];
+}
+
+/** Normalize raw picker / ISO / display input to yyyy-MM-dd. */
+export function normalizeToIsoDate(raw: string): string {
+  const parsed = parseTamanuDate(raw);
+  if (parsed && isValid(parsed)) {
+    return format(parsed, 'yyyy-MM-dd');
+  }
+  return raw;
+}
+
+/** Format for MUI datetime pickers that expect `dd/MM/yyyy hh:mm a` (plain `yyyy-MM-dd` may not commit). */
+export function formatForMuiDateTimePicker(isoDate: string): string {
+  const parsed = parseTamanuDate(isoDate.trim());
+  if (!parsed || !isValid(parsed)) {
+    return isoDate;
+  }
+  return format(parsed, 'dd/MM/yyyy hh:mm a');
+}
 
 /**
  * Utility method to handle search box suggestions

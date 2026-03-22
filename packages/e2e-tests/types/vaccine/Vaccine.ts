@@ -19,6 +19,8 @@
  * @param disease - The disease the vaccine was given for, e.g. "Tuberculosis"
  * @param notGivenClinician - The name of the clinician who did not give the vaccine, e.g. "Dr. John Doe"
  * @param notGivenReason - The reason the vaccine was not given, e.g. "Patient refused"
+ * @param givenElsewhereReason - Circumstance label when recorded as given elsewhere
+ * @param givenElsewhereCountry - Country label chosen in the given-elsewhere country field
  */
 export interface Vaccine {
   vaccineName: string;
