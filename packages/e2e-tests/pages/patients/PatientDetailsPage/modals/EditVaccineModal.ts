@@ -245,10 +245,9 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      const displayed = await this.dateGiven.inputValue();
-      await expect(normalizeToIsoDate(displayed)).toBe(
-        normalizeToIsoDate(dateGiven),
-      );
+      await expect
+        .poll(async () => normalizeToIsoDate(await this.dateGiven.inputValue()))
+        .toBe(normalizeToIsoDate(dateGiven));
     }
 
     if (injectionSite) {
