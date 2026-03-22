@@ -8,10 +8,6 @@ async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<st
   return rawTestId.replace(suffixToRemove, '');
 }
 
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 export const selectOptionFromPopper = async (
   baseTestId: string,
   popper: Locator,
@@ -33,8 +29,9 @@ export const selectOptionFromPopper = async (
   let selectedOption: Locator;
 
   if (optionToSelect) {
-    const exactLabel = new RegExp(`^\\s*${escapeRegExp(optionToSelect)}\\s*$`);
-    selectedOption = optionLocator.filter({ hasText: exactLabel }).first();
+    selectedOption = optionLocator
+      .filter({ has: popper.page().getByText(optionToSelect, { exact: true }) })
+      .first();
     await expect(selectedOption).toBeAttached({ timeout: waitMs });
   } else if (optionToAvoid) {
     const options = await optionLocator.all();
