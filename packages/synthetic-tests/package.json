@@ -7,6 +7,9 @@
     "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0"
   },
+  "devDependencies": {
+    "artillery": "^2.0.22"
+  },
   "scripts": {
     "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",
     "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
