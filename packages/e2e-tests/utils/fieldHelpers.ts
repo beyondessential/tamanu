@@ -37,19 +37,23 @@ export const selectOptionFromPopper = async (
     selectedOption = optionLocator.filter({ hasText: exactLabel }).first();
     await expect(selectedOption).toBeAttached({ timeout: waitMs });
   } else if (optionToAvoid) {
-    let found: Locator | undefined;
-    for (let attempt = 0; attempt < 20; attempt++) {
-      const opt = optionLocator.nth(Math.floor(Math.random() * count));
-      const text = (await opt.innerText({ timeout: 3000 }).catch(() => '')).trim();
-      if (text && text !== optionToAvoid) {
-        found = opt;
-        break;
-      }
-    }
-    if (!found) {
+    const options = await optionLocator.all();
+    const optionTexts = await Promise.all(
+      options.map(async (opt) => {
+        try {
+          return (await opt.innerText({ timeout: 3000 })).trim();
+        } catch {
+          return '';
+        }
+      }),
+    );
+    const eligible = options.filter(
+      (_, i) => optionTexts[i] !== '' && optionTexts[i] !== optionToAvoid,
+    );
+    if (eligible.length === 0) {
       throw new Error(`No options found that are not "${optionToAvoid}"`);
     }
-    selectedOption = found;
+    selectedOption = eligible[Math.floor(Math.random() * eligible.length)];
   } else {
     const index = selectFirst ? 0 : Math.floor(Math.random() * count);
     selectedOption = optionLocator.nth(index);
