@@ -75,6 +75,9 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly consentGivenRequiredError: Locator;
   readonly vaccineNameRequiredError: Locator;
   readonly givenElsewhereCheckbox: Locator;
+  readonly givenElsewhereCircumstancesSection: Locator;
+  readonly givenElsewhereCircumstancesIndicator: Locator;
+  readonly givenElsewhereCountryField: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -122,6 +125,10 @@ export class RecordVaccineModal extends BasePatientModal {
     this.consentGivenRequiredError = this.page.getByTestId('formhelpertext-2d0o');
     this.vaccineNameRequiredError = this.page.getByTestId('field-npct-formhelptertext');
     this.givenElsewhereCheckbox = this.page.getByTestId('field-w50x-controlcheck');
+    this.givenElsewhereCircumstancesSection = this.modal.getByTestId('fullwidthcol-lan5');
+    this.givenElsewhereCircumstancesIndicator =
+      this.givenElsewhereCircumstancesSection.getByTestId('styledindicator-dx40');
+    this.givenElsewhereCountryField = this.modal.getByTestId('field-e5kc-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -348,14 +355,13 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async recordVaccineGivenElsewhere(vaccineGivenElsewhere: string) {
-    const circumstances = this.modal.getByTestId('fullwidthcol-lan5');
-    await circumstances.getByTestId('styledindicator-dx40').click();
+    await this.givenElsewhereCircumstancesIndicator.click();
     await this.page.getByText(vaccineGivenElsewhere, { exact: true }).click();
-    await circumstances.getByTestId('styledindicator-dx40').click({ force: true });
+    await this.givenElsewhereCircumstancesIndicator.click({ force: true });
 
     const givenElsewhereCountry = await selectAutocompleteFieldOption(
       this.page,
-      this.modal.getByTestId('field-e5kc-input'),
+      this.givenElsewhereCountryField,
       {
         selectFirst: true,
         returnOptionText: true,
