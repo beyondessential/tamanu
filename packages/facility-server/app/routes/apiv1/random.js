@@ -1,4 +1,4 @@
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
