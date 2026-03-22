@@ -67,11 +67,15 @@ const DeleteConfirmationModal = ({ onSuccess }) => {
   const isRoleNotFound = roleQueryError?.status === 404;
 
   const navigate = useNavigate();
+  const dismiss = useCallback(
+    () => navigate({ pathname: '..', search: window.location.search }),
+    [navigate],
+  );
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
       onSuccess?.();
-      navigate({ pathname: '..', search: window.location.search });
+      dismiss();
       toast.success(
         <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
       );
@@ -86,14 +90,12 @@ const DeleteConfirmationModal = ({ onSuccess }) => {
   });
 
   useLayoutEffect(() => {
-    if (roleId && isRoleNotFound) {
-      navigate({ pathname: '..', search: window.location.search });
-    }
-  }, [roleId, isRoleNotFound, navigate]);
+    if (roleId && isRoleNotFound) dismiss();
+  }, [roleId, isRoleNotFound, dismiss]);
 
   const handleCancel = useCallback(() => {
-    navigate({ pathname: '..', search: window.location.search });
-  }, [navigate]);
+    dismiss();
+  }, [dismiss]);
 
   const handleConfirm = useCallback(() => {
     if (roleId) deleteRole(roleId);
