@@ -9,6 +9,8 @@ import { AutocompleteField, Field } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
 import { ButtonGroup, Search, StyledForm } from '../components';
 
+const suggesterOptions = { formatter: ({ id }) => ({ label: id, value: id }) }; // Format ID as label and value
+
 export const DesignationsSearchForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const idQuery = searchParams.get('id');
@@ -16,9 +18,7 @@ export const DesignationsSearchForm = () => {
 
   const { getTranslation } = useTranslation();
 
-  const designationSuggester = useSuggester('designation', {
-    formatter: ({ id }) => ({ label: id, value: id }),
-  });
+  const designationSuggester = useSuggester('designation', suggesterOptions);
 
   const onSubmit = values => {
     const name = values.name?.trim();
