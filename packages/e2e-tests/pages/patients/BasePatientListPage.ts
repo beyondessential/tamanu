@@ -129,10 +129,9 @@ export abstract class BasePatientListPage extends BasePage {
     await this.patientTable.waitForTableToLoad();
   }
 
-  // Validate that at least one row is displayed after search
+  // Validate that at least one data row is displayed (not an empty/loading status row)
   async validateAtLeastOneSearchResult() {
-    const count = await this.tableRows.count();
-    await expect(count).toBeGreaterThanOrEqual(1);
+    await expect(this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`)).toBeVisible();
   }
 
   // Abstract method for field validation - each page has different fields
@@ -182,14 +181,14 @@ export abstract class BasePatientListPage extends BasePage {
 
   // Validate that a specific row appears
   async validateFirstRowContainsNHN(expectedText: string) {
-    const firstRowNHN = this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`);
+    const firstRowNHN = this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`);
     await expect(firstRowNHN).toHaveText(expectedText);
   }
 
-  // Validate that there is only one row displayed after search
+  // Validate that there is only one data row displayed after search
   async validateOneSearchResult() {
-    const rowCount = await this.tableRows.count();
-    await expect(rowCount).toBe(1);
+    await expect(this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`)).toBeVisible();
+    await expect(this.tableRows).toHaveCount(1);
   }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {

@@ -188,7 +188,9 @@ export async function SelectingFromSearchBox(
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
   } catch (error) {
-    throw new Error(`Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 /**
@@ -248,8 +250,7 @@ export function formatDateTimeForTable(dateTimeString: string): string {
  * @returns `(a, b) => number` suitable for `Array.prototype.sort`.
  */
 export function compareAlphabetically(order: 'asc' | 'desc') {
-  return (a: string, b: string) =>
-    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+  return (a: string, b: string) => (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
 }
 
 /**
@@ -281,7 +282,7 @@ export function compareByDate(order: 'asc' | 'desc') {
 export function offsetYear(
   dateToOffset: string,
   offset: 'increase' | 'decrease',
-  amountToOffset: number
+  amountToOffset: number,
 ): string {
   //Convert to date format so utility functions can be used
   const formattedDateToOffset = new Date(dateToOffset);
@@ -308,7 +309,7 @@ export const selectFirstFromDropdown = async (page: Page, input: Locator): Promi
   await input.click();
   const firstOption = page.locator('[role="listbox"] li').first();
   await firstOption.click();
-  return await firstOption.textContent() || '';
+  return (await firstOption.textContent()) || '';
 };
 
 /**
