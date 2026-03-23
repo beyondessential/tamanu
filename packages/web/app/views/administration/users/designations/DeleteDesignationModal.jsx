@@ -52,7 +52,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
     },
     onError: error => {
       toast.error(
-        error.message || (
+        error.detail || error.message || (
           <TranslatedText
             stringId="admin.designations.delete.error"
             fallback="Couldn’t delete designation"
