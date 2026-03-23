@@ -107,5 +107,3 @@ jobs:
     with:
       branch: ${{ needs.run.outputs.branch }}
       version: ${{ needs.run.outputs.version }}
-    secrets:
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}

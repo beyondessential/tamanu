@@ -9,10 +9,6 @@ on:
       version:
         type: string
         required: true
-    secrets:
-      TAMANU_OPS_SSH:
-        required: true
-
 permissions: {}
 
 env:
@@ -45,7 +41,6 @@ jobs:
 
       - uses: ./.github/actions/setup-cd
         with:
-          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
@@ -131,11 +126,6 @@ jobs:
           exit 1
 
       # -- Build tamanu packages and run migrations + populateDb --
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .node-version
-          cache: npm
 
       - run: npm ci
       - run: npm run build-shared
