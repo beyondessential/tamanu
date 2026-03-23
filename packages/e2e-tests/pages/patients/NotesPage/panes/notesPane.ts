@@ -59,11 +59,8 @@ export class NotesPane {
     }
 
     // `withPermissionCheck` forces `data-testid="component-enxe"` on permission buttons (same as Prepare discharge, etc.).
-    // The notes toolbar is a `row-v55c` containing the note-type filter and this button.
-    this.newNoteButton = page
-      .getByTestId('row-v55c')
-      .filter({ has: page.getByRole('button', { name: 'New note' }) })
-      .getByRole('button', { name: 'New note' });
+    // The notes toolbar is `row-v55c` (note-type filter + New note).
+    this.newNoteButton = page.getByTestId('row-v55c').getByRole('button', { name: 'New note' });
 
     // Special cases that need additional processing
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
