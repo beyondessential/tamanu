@@ -1,0 +1,205 @@
+name: Seed Snapshot
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      TAMANU_OPS_SSH:
+        required: true
+
+permissions:
+  contents: read
+  id-token: write # for Tailscale OIDC authentication
+
+env:
+  SEED_NAMESPACE: tamanu-seed
+  SEED_DB_SERVICE: seed-db-rw
+  SEED_DB_SECRET: seed-db-app
+  RETENTION_COUNT: "20"
+
+jobs:
+  create-snapshot:
+    runs-on: ubuntu-latest
+    name: Seed snapshot for ${{ inputs.version }}
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: ./.github/actions/setup-cd
+        with:
+          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      # -- Pulumi up the seed database stack --
+
+      - name: Get full stack name
+        id: stack
+        working-directory: ops/pulumi/stacks/tamanu/seed
+        run: |
+          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
+          echo "stackname=bes/$project/dev" >> $GITHUB_OUTPUT
+
+      - name: Deploy seed database
+        uses: pulumi/actions@v5
+        with:
+          work-dir: ops/pulumi/stacks/tamanu/seed
+          command: up
+          stack-name: ${{ steps.stack.outputs.stackname }}
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Wait for seed database readiness
+        run: |
+          echo "Waiting for seed-db-rw endpoints..."
+          for i in $(seq 1 60); do
+            ready=$(kubectl get endpoints "$SEED_DB_SERVICE" -n "$SEED_NAMESPACE" -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null || true)
+            if [ -n "$ready" ]; then
+              echo "Database is ready"
+              exit 0
+            fi
+            echo "Attempt $i/60 - not ready yet"
+            sleep 10
+          done
+          echo "Timed out waiting for database"
+          exit 1
+
+      # -- Build tamanu packages and run migrations + populateDb --
+
+      - run: npm ci
+      - run: npm run build-shared
+      - run: npm run build
+        working-directory: packages/central-server
+      - run: npm run build
+        working-directory: packages/scripts
+
+      - name: Configure database connection
+        run: |
+          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_SECRET" -o jsonpath='{.data.password}' | base64 -d)
+          echo "::add-mask::$pgpass"
+          supass=$(kubectl get -n "$SEED_NAMESPACE" secrets seed-db-superuser -o jsonpath='{.data.password}' | base64 -d)
+          echo "::add-mask::$supass"
+          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" >> $GITHUB_ENV
+          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< "$pgpass")" >> $GITHUB_ENV
+          echo "PGPASSWORD=$supass" >> $GITHUB_ENV
+
+      - name: Reset database for fresh seed
+        run: |
+          kubectl port-forward -n "$SEED_NAMESPACE" "service/$SEED_DB_SERVICE" 4444:5432 &
+          pf_pid=$!
+          trap "kill $pf_pid 2>/dev/null || true" EXIT
+          sleep 5
+
+          echo "Dropping and recreating app database..."
+          psql -h 127.0.0.1 -p 4444 -U postgres -d postgres \
+            -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'app' AND pid <> pg_backend_pid();" \
+            -c "DROP DATABASE IF EXISTS app;" \
+            -c "CREATE DATABASE app OWNER app;"
+
+          kill $pf_pid 2>/dev/null || true
+
+      - name: Run migrations and populate seed data
+        run: |
+          set -ex
+
+          kubectl port-forward -n "$SEED_NAMESPACE" "service/$SEED_DB_SERVICE" 4444:5432 &
+          pf_pid=$!
+          cleanup() {
+            exitcode=$?
+            kill $pf_pid 2>/dev/null || true
+            exit $exitcode
+          }
+          trap cleanup EXIT
+          sleep 5
+
+          echo "Running migrations..."
+          node packages/central-server/dist migrate
+
+          echo "Populating seed data..."
+          node packages/scripts/dist/fake.js \
+            --database app \
+            --rounds 50 \
+            --from-tally packages/fake-data/src/populateDb/parseTally/standard.json
+
+      # -- Create VolumeSnapshot --
+
+      - name: Delete existing snapshot for this version (idempotency)
+        run: |
+          existing=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
+            -l "tamanu.io/snapshot-type=seed-data" \
+            -o jsonpath='{range .items[?(@.metadata.annotations.tamanu\.io/release-version=="${{ inputs.version }}")]}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)
+
+          for snap in $existing; do
+            echo "Deleting existing snapshot: $snap"
+            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE" --wait=false
+          done
+
+      - name: Create volume snapshot
+        run: |
+          SHORT_SHA=$(echo "$GITHUB_SHA" | head -c 7)
+          SNAP_NAME="tamanu-seed-${SHORT_SHA}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          kubectl apply -f - <<EOF
+          apiVersion: snapshot.storage.k8s.io/v1
+          kind: VolumeSnapshot
+          metadata:
+            name: ${SNAP_NAME}
+            namespace: ${SEED_NAMESPACE}
+            labels:
+              tamanu.io/snapshot-type: seed-data
+            annotations:
+              tamanu.io/release-version: "${{ inputs.version }}"
+              tamanu.io/created-at: "${TIMESTAMP}"
+              tamanu.io/source-branch: "${{ inputs.branch }}"
+          spec:
+            volumeSnapshotClassName: ebs-retain
+            source:
+              persistentVolumeClaimName: seed-db-1
+          EOF
+
+          echo "Created snapshot: ${SNAP_NAME}"
+
+          echo "Waiting for snapshot to be ready..."
+          kubectl wait volumesnapshot "${SNAP_NAME}" \
+            -n "$SEED_NAMESPACE" \
+            --for=jsonpath='{.status.readyToUse}'=true \
+            --timeout=600s
+
+      - name: Prune old snapshots beyond retention
+        run: |
+          # Get all seed snapshots sorted by version annotation
+          snapshots=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
+            -l "tamanu.io/snapshot-type=seed-data" \
+            -o json)
+
+          # Sort by semver descending via jq, collect names beyond retention
+          to_delete=$(echo "$snapshots" | jq -r --argjson keep "$RETENTION_COUNT" '
+            [.items | sort_by(
+              .metadata.annotations["tamanu.io/release-version"]
+              | split(".")
+              | map(tonumber? // 0)
+            ) | reverse | .[]] | .[($keep):] | .[].metadata.name
+          ')
+
+          if [ -z "$to_delete" ]; then
+            echo "No snapshots to prune (within retention limit of $RETENTION_COUNT)"
+            exit 0
+          fi
+
+          for snap in $to_delete; do
+            echo "Pruning snapshot: $snap"
+            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE" --wait=false
+          done
