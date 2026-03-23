@@ -138,15 +138,10 @@ roleRouter.delete(
 class InvalidRoleDeletionError extends BaseValidationError {
   constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
     const isSingular = count === 1;
-    const subject = plur('user', count);
+    const subject = isSingular ? 'user' : 'users';
     const verb = isSingular ? 'is' : 'are';
-
-    const detail = `Cannot delete role with ID ‘${roleId}’ as ${count} ${subject} ${verb} assigned to it. Please update their user ${plur('profile', count)} first in order to delete the role.`;
+    const detail = `Cannot delete role with ID ‘${roleId}’ as ${count} ${subject} ${verb} assigned to it. Please update their user ${isSingular ? 'profile' : 'profiles'} first in order to delete the role.`;
 
     super(ERROR_TYPE.VALIDATION_CONSTRAINT, `${sentence(subject)} assigned to role`, detail);
   }
-}
-
-function plur(/** @type {'profile' | 'user'} */ word, /** @type {number} */ count) {
-  return count === 1 ? word : `${word}s`;
 }
