@@ -1,20 +1,16 @@
-import { Skeleton, Typography } from '@mui/material';
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
-import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, TranslatedText } from '../../../components';
-import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
 import { AddRoleModal } from './AddRoleModal';
+import { DeleteRoleModal } from './DeleteRoleModal';
 import { Article } from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
-import { useRoleDeleteMutation } from './useRoleDeleteMutation';
-import { useRoleQuery } from './useRoleQuery';
 
 const Header = styled.header`
   align-items: flex-end;
@@ -50,92 +46,6 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   tbody tr:hover {
     background-color: ${Colors.veryLightBlue};
   }
-`;
-
-const roleNameSkeleton = (
-  <Skeleton
-    animation="wave"
-    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-    width="12ch"
-  />
-);
-
-const DeleteConfirmationModal = ({ onSuccess }) => {
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
-  const roleId = deleteMatch?.params.id;
-  const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
-  const isRoleNotFound = roleQueryError?.status === 404;
-
-  const navigate = useNavigate();
-  const dismiss = useCallback(
-    () => navigate({ pathname: '..', search: window.location.search }),
-    [navigate],
-  );
-
-  const { mutate: deleteRole } = useRoleDeleteMutation({
-    onSuccess: () => {
-      onSuccess?.();
-      dismiss();
-      toast.success(
-        <TranslatedText
-          stringId="admin.roles.delete.success"
-          fallback="Deleted role ‘:roleName’"
-          replacements={{ roleName: role?.name }}
-        />,
-      );
-    },
-    onError: error => {
-      toast.error(
-        error.detail || error.message || (
-          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
-        ),
-      );
-    },
-  });
-
-  useLayoutEffect(() => {
-    if (roleId && isRoleNotFound) dismiss();
-  }, [roleId, isRoleNotFound, dismiss]);
-
-  const handleCancel = useCallback(() => {
-    dismiss();
-  }, [dismiss]);
-
-  const handleConfirm = useCallback(() => {
-    if (roleId) deleteRole(roleId);
-  }, [deleteRole, roleId]);
-
-  return (
-    <ConfirmModal
-      confirmButtonText={
-        <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-      }
-      title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
-      customContent={
-        <DeleteConfirmationModalContent>
-          <Typography variant="body2">
-            <TranslatedText
-              stringId="admin.roles.delete.confirmation"
-              fallback="Are you sure you would like to delete the selected role?"
-            />
-            &nbsp;&ndash;{' '}
-            <strong aria-busy={isRoleLoading}>
-              {isRoleLoading ? roleNameSkeleton : role?.name}
-            </strong>
-          </Typography>
-        </DeleteConfirmationModalContent>
-      }
-      open={Boolean(roleId) && !isRoleNotFound}
-      onCancel={handleCancel}
-      onConfirm={handleConfirm}
-    />
-  );
-};
-
-const DeleteConfirmationModalContent = styled.div`
-  min-block-size: 8rem;
-  display: grid;
-  place-items: center stretch;
 `;
 
 const ActionMenu = ({ data }) => {
@@ -227,7 +137,7 @@ export const RolesAdminView = () => {
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
-      <DeleteConfirmationModal onSuccess={refreshDataTable} />
+      <DeleteRoleModal onSuccess={refreshDataTable} />
     </Article>
   );
 };
