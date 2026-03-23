@@ -103,36 +103,38 @@ export const DeleteRoleModal = ({ onSuccess }) => {
   }, [deleteRole, roleId]);
 
   return (
-    <ConfirmModal
-      confirmButtonText={
-        <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-      }
-      title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
-      customContent={
-        <>
-          <ModalContent>
-            <Typography variant="body2">
-              <TranslatedText
-                stringId="admin.roles.delete.confirmation"
-                fallback="Are you sure you would like to delete the selected role?"
-              />
-              &nbsp;&ndash;{' '}
-              <strong aria-busy={isRoleLoading}>
-                {isRoleLoading ? roleNameSkeleton : role?.name}
-              </strong>
-            </Typography>
-          </ModalContent>
-          <RoleDeleteErrorModal
-            open={deleteRoleError !== null}
-            title={deleteRoleError?.title}
-            detail={deleteRoleError?.detail}
-            onClose={onClose}
-          />
-        </>
-      }
-      open={Boolean(roleId) && !isRoleNotFound}
-      onCancel={onClose}
-      onConfirm={handleConfirm}
-    />
+    <>
+      <ConfirmModal
+        confirmButtonText={
+          <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+        }
+        title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
+        customContent={
+          <>
+            <ModalContent>
+              <Typography variant="body2">
+                <TranslatedText
+                  stringId="admin.roles.delete.confirmation"
+                  fallback="Are you sure you would like to delete the selected role?"
+                />
+                &nbsp;&ndash;{' '}
+                <strong aria-busy={isRoleLoading}>
+                  {isRoleLoading ? roleNameSkeleton : role?.name}
+                </strong>
+              </Typography>
+            </ModalContent>
+          </>
+        }
+        open={Boolean(roleId) && !isRoleNotFound}
+        onCancel={onClose}
+        onConfirm={handleConfirm}
+      />
+      <RoleDeleteErrorModal
+        open={deleteRoleError !== null}
+        title={deleteRoleError?.title}
+        detail={deleteRoleError?.detail}
+        onClose={onClose}
+      />
+    </>
   );
 };
