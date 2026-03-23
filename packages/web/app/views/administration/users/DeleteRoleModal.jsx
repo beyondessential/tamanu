@@ -34,7 +34,7 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const isExpectedError = Boolean(roleId && assignedUserCount);
   if (!isExpectedError) {
     toast.error(
-      error.detail || error.message || (
+      error?.detail || error?.message || (
         <TranslatedText
           stringId="admin.roles.delete.error.generic"
           fallback="Couldn’t delete role"
