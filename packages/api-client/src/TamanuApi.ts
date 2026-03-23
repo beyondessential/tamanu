@@ -39,10 +39,16 @@ interface User {
   displayName: string;
 }
 
+interface AvailableFacility {
+  id: string;
+  name: string;
+}
+
 interface LoginData {
   token: string;
   refreshToken: string;
   permissions?: string[];
+  availableFacilities?: AvailableFacility[];
 }
 
 interface LoginResponse extends LoginData {
@@ -110,6 +116,7 @@ interface LoginResponseData {
   token: string;
   refreshToken: string;
   permissions?: string[];
+  availableFacilities?: AvailableFacility[];
   server?: {
     type: string;
     centralHost?: string;
@@ -668,7 +675,7 @@ export class TamanuApi {
       // message sent from the server is received in one go by the
       // client: the transport could fragment messages at arbitrary
       // boundaries, or could concatenate messages together.
-      let buffer = Buffer.alloc(0);
+      let buffer: Buffer = Buffer.alloc(0);
       reader: while (true) {
         const { done, value } = await reader.read();
 

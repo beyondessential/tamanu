@@ -1,15 +1,26 @@
-import * as jose from 'jose';
+import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetcher';
 
-function extractUserIdFromJwt(token: string): string {
-  try {
-    const decoded = jose.decodeJwt(token);
-    if (!decoded || !decoded.userId) {
-      throw new Error('JWT token does not contain userId');
-    }
-    return decoded.userId as string;
-  } catch (error) {
-    throw new Error(`Failed to decode JWT token: ${error.message}`);
+import { TamanuApi } from '@tamanu/api-client';
+import { version } from '../../package.json';
+
+const DEVICE_ID_POOL_SIZE = 5;
+const deviceIds = Array.from({ length: DEVICE_ID_POOL_SIZE }, (_, i) => `synthetic-tests-${i}`);
+
+function pickDeviceId(): string {
+  return deviceIds[Math.floor(Math.random() * deviceIds.length)];
+}
+
+async function resolveToken(
+  api: TamanuApi,
+  loginToken: string,
+  facilityId: string,
+): Promise<string> {
+  const setFacilityResponse = await api.post('setFacility', { facilityId });
+  if (setFacilityResponse?.token) {
+    api.setToken(setFacilityResponse.token);
+    return setFacilityResponse.token;
   }
+  return loginToken;
 }
 
 /**
@@ -18,38 +29,31 @@ function extractUserIdFromJwt(token: string): string {
 export async function authenticate(context: any, _events: any): Promise<void> {
   const { email = 'admin@tamanu.io', password = 'admin' } = context.vars;
 
-  try {
-    const response = await fetch(`${context.vars.target}/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+  const api = new TamanuApi({
+    endpoint: `${context.vars.target}/api`,
+    agentName: 'Tamanu Desktop',
+    agentVersion: version,
+    deviceId: pickDeviceId(),
+    logger: console,
+  });
 
-    if (!response.ok) {
-      throw new Error(`Login failed with status ${response.status}`);
-    }
+  const loginResponse: any = await api.login(email, password);
+  const { user, availableFacilities } = loginResponse;
 
-    const data = await response.json();
-
-    // Extract facility ID from the response
-    const facilityId = data.availableFacilities?.[0]?.id || 'facility-a';
-
-    // Extract user ID from JWT token
-    const userId = extractUserIdFromJwt(data.token);
-
-    context.vars = {
-      ...context.vars,
-      token: data.token,
-      facilityId: facilityId,
-      userId: userId,
-    };
-  } catch (error) {
-    console.error('Authenticate error:', error);
-    throw error;
+  const facilityId = availableFacilities?.[0]?.id;
+  if (!facilityId) {
+    throw new Error('No available facilities — cannot run synthetic tests without a facility');
   }
+
+  const token = await resolveToken(api, loginResponse.token, facilityId);
+
+  context.vars = {
+    ...context.vars,
+    api,
+    entityFetcher: new RandomEntityFetcher(api),
+    token,
+    userId: user.id,
+    facilityId,
+    availableFacilities,
+  };
 }
