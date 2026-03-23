@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { DEVICE_TYPES } from '@tamanu/constants';
+import { DEVICE_TYPES, JOB_TOPICS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
@@ -13,13 +13,14 @@ import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
+import { startFhirWorker } from './startFhirWorker';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
 import { SyncTask } from '../tasks/SyncTask';
 
-async function startAll({ skipMigrationCheck }) {
+async function startApiSyncAndTasks({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -43,6 +44,7 @@ async function startAll({ skipMigrationCheck }) {
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();
+  // eslint-disable-next-line require-atomic-updates
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
@@ -81,7 +83,34 @@ async function startAll({ skipMigrationCheck }) {
     cancelSyncTask();
     server.close();
     syncServer.close();
+    context.close();
   });
+
+  await context.waitForClose();
+}
+
+async function startAll({ skipMigrationCheck }) {
+  const fhirWorkers =
+    process.env.NODE_ENV !== 'production'
+      ? [
+          startFhirWorker({
+            name: 'refresh',
+            skipMigrationCheck,
+            topics: [
+              JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM,
+              JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE,
+              JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+            ].join(','),
+          }),
+          startFhirWorker({
+            name: 'resolver',
+            skipMigrationCheck,
+            topics: JOB_TOPICS.FHIR.RESOLVER,
+          }),
+        ]
+      : [];
+
+  return Promise.race([startApiSyncAndTasks({ skipMigrationCheck }), ...fhirWorkers]);
 }
 
 export const startAllCommand = new Command('startAll')

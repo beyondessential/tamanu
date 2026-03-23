@@ -1,5 +1,5 @@
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from '@tamanu/shared/services/fhirTypes';
-import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { getFhirDataDictionaries, getFhirExtensionSettings } from '@tamanu/shared/utils/fhir';
 import type { Patient } from '../../models';
 
 function getEthnicity(ethnicityId?: string) {
@@ -16,8 +16,9 @@ function getEthnicity(ethnicityId?: string) {
   }
 }
 
-export const nzEthnicity = withConfig((patient: Patient, config: Record<string, any>) => {
-  if (!config.integrations.fhir.extensions.Patient.newZealandEthnicity) return [];
+export function nzEthnicity(patient: Patient, extensionSettingsOverride?: Record<string, any>) {
+  const extensionSettings = extensionSettingsOverride ?? getFhirExtensionSettings();
+  if (!extensionSettings?.Patient?.newZealandEthnicity) return [];
   const { code, display } = getEthnicity(patient?.additionalData?.[0]?.ethnicityId);
 
   return [
@@ -26,7 +27,7 @@ export const nzEthnicity = withConfig((patient: Patient, config: Record<string, 
       valueCodeableConcept: new FhirCodeableConcept({
         coding: [
           new FhirCoding({
-            system: config.hl7.dataDictionaries.ethnicityId,
+            system: getFhirDataDictionaries().ethnicityId,
             code,
             display,
           }),
@@ -34,4 +35,4 @@ export const nzEthnicity = withConfig((patient: Patient, config: Record<string, 
       }),
     }),
   ];
-});
+}

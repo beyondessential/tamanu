@@ -5,7 +5,7 @@ import {
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fhir } from '../../dist/subCommands/fhir';
+import { fhirCommand } from '../../dist/subCommands/fhir';
 import { ApplicationContext } from '../../dist/ApplicationContext';
 import {
   fakeResourcesOfFhirServiceRequest,
@@ -20,7 +20,7 @@ describe('fhir sub commands', () => {
   let labRequest;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     const { FhirEncounter, FhirServiceRequest } = ctx.store.models;
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
@@ -39,14 +39,19 @@ describe('fhir sub commands', () => {
     await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
     await FhirServiceRequest.resolveUpstreams();
 
-    jest
-      .spyOn(ApplicationContext.prototype, 'close')
-      .mockImplementation(() => 'do not close database at the end of the fhir subcommand');
+    // Use the test context when the command creates an ApplicationContext, so we avoid
+    // a second initDatabase() and concurrent use of the same DB (which can hang in CI).
+    // Return a context-shaped object with the test store and a no-op close so the command
+    // never closes the test DB.
+    jest.spyOn(ApplicationContext.prototype, 'init').mockResolvedValue({
+      store: ctx.store,
+      close: () => Promise.resolve(),
+    });
   });
 
-  afterAll(() => {
-    ctx.close();
-    jest.clearAllMocks();
+  afterAll(async () => {
+    await ctx.close();
+    jest.restoreAllMocks();
   });
 
   it('should refresh a FHIR resource to get updated from upstream', async () => {
@@ -58,7 +63,7 @@ describe('fhir sub commands', () => {
     });
     await imagingRequest.update({ status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS });
 
-    await fhir({ refresh: 'ServiceRequest' });
+    await fhirCommand.parseAsync(['node', 'fhir', '--refresh', 'ServiceRequest']);
 
     await fhirServiceRequest.reload();
     // See mapping at packages/database/src/models/fhir/ServiceRequest/getValues.js
@@ -81,7 +86,7 @@ describe('fhir sub commands', () => {
     await imagingRequest.update({ status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS });
     await labRequest.update({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED });
 
-    await fhir({ refresh: 'ServiceRequest' });
+    await fhirCommand.parseAsync(['node', 'fhir', '--refresh', 'ServiceRequest']);
 
     await fhirImagingServiceRequest.reload();
     await fhirLabServiceRequest.reload();
@@ -103,7 +108,7 @@ describe('fhir sub commands', () => {
       }),
     );
 
-    await fhir({ refresh: 'Encounter' });
+    await fhirCommand.parseAsync(['node', 'fhir', '--refresh', 'Encounter']);
     const fhirEncounter = await FhirEncounter.findAndCountAll({
       where: {},
     });

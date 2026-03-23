@@ -81,14 +81,13 @@ export class FhirDiagnosticReport extends FhirResource {
       });
     }
     const { type, reference } = this.basedOn[0]!;
+    const { resourceType, id: serviceRequestFhirId } = FhirReference.parse(reference);
 
-    const ref = reference.split('/');
-    if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
+    if (type !== 'ServiceRequest' || resourceType !== 'ServiceRequest') {
       throw new Invalid(`DiagnosticReport requires must be results for ServiceRequest'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const serviceRequestFhirId = ref[1];
 
     const serviceRequest = await FhirServiceRequest.findOne({
       where: { id: serviceRequestFhirId },

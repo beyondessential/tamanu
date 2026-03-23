@@ -1,13 +1,20 @@
-import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
+import {
+  SendStatusToMetaServer,
+  FhirMissingResources,
+  startFhirWorkerTasks,
+} from '@tamanu/shared/tasks';
 
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 
+export { startFhirWorkerTasks };
+
 const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
   SendStatusToMetaServer,
   TimeSyncTask,
+  FhirMissingResources,
   mSupplyMedIntegrationProcessor,
 ];
 

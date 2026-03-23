@@ -15,7 +15,7 @@ describe(`Materialised - MediciReport`, () => {
   let resources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
 
     const { Department, Facility, Location, LocationGroup, Patient, User } = ctx.store.models;
 

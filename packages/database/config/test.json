@@ -15,5 +15,36 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   },
   "primaryTimeZone": "Australia/Melbourne",
-  "serverFacilityIds": ["facility-1"]
+  "serverFacilityIds": ["facility-1"],
+  "integrations": {
+    "fhir": {
+      "enabled": false,
+      "worker": {
+        "enabled": true,
+        "concurrency": 10,
+        "resourceMaterialisationEnabled": {
+          "Patient": true,
+          "Encounter": false,
+          "Immunization": false,
+          "MediciReport": false,
+          "Organization": false,
+          "Practitioner": false,
+          "ServiceRequest": false,
+          "Specimen": false,
+          "MedicationRequest": false
+        }
+      },
+      "parameters": {
+        "_count": {
+          "default": 100,
+          "max": 1000
+        }
+      },
+      "extensions": {
+        "Patient": {
+          "newZealandEthnicity": false
+        }
+      }
+    }
+  }
 }

@@ -44,6 +44,6 @@ export const initIntegrations = async ctx => {
   }
 };
 
-export function checkIntegrationsConfig() {
-  checkFhirConfig();
+export async function checkIntegrationsConfig(settings) {
+  await checkFhirConfig(settings);
 }

@@ -1,6 +1,5 @@
-import config from 'config';
-
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
+import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
@@ -17,9 +16,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
   let ctx;
   let app;
   let resources;
+  let dataDicts;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
+    dataDicts = getFhirDataDictionaries();
     app = await ctx.baseApp.asRole('practitioner');
 
     const {
@@ -176,11 +177,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -287,11 +288,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],
@@ -632,11 +633,11 @@ describe(`FHIR API - Transaction Bundle`, () => {
               code: {
                 coding: [
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    system: dataDicts.serviceRequestLabTestCodeSystem,
                     code: labTest.labTestType.code,
                   },
                   {
-                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    system: dataDicts.serviceRequestLabTestExternalCodeSystem,
                     code: labTest.labTestType.externalCode,
                   },
                 ],

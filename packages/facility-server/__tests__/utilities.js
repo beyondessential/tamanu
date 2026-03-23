@@ -17,9 +17,12 @@ import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { asNewRole, showError } from '@tamanu/shared/test-helpers';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { createApiApp } from '../dist/createApiApp';
 import { buildToken } from '../dist/middleware/auth';
+import { initDatabase } from '../dist/database';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
@@ -39,6 +42,109 @@ const formatError = response => `
 Error details:
 ${JSON.stringify(response.body.error, null, 2)}
 `;
+
+const setupFacilityDb = async (sequelize, models) => {
+  await sequelize.migrate('up');
+
+  await showError(deleteAllTestIds(models));
+
+  // populate with reference data
+  const tasks = allSeeds
+    .map(d => ({ code: d.name, ...d }))
+    .map(d => models.ReferenceData.create(d));
+  await Promise.all(tasks);
+
+  // Order here is important, as some models depend on others
+  await seedLabTests(models);
+  await seedFacilities(models);
+  await seedDepartments(models);
+  await seedLocations(models);
+  await seedLocationGroups(models);
+  await seedSettings(models);
+
+  const facilityIds = selectFacilityIds(config);
+
+  // Create the facility for the current config if it doesn't exist
+  const facilities = await Promise.all(
+    facilityIds.map(async facilityId => {
+      const [facility] = await models.Facility.findOrCreate({
+        where: {
+          id: facilityId,
+        },
+        defaults: {
+          code: facilityId,
+          name: facilityId,
+        },
+      });
+      return facility;
+    }),
+  );
+
+  // Create a system user for device registration
+  const systemUser = await models.User.create({
+    email: 'system@test.com',
+    displayName: 'System User',
+    password: 'test123',
+    role: 'practitioner',
+  });
+
+  const device = await models.Device.create({
+    registeredById: systemUser.id,
+  });
+
+  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
+  // ensure there's a corresponding local system fact for it too
+  await models.LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
+
+  return device.id;
+};
+
+class MockApplicationContext extends ApplicationContext {
+  async init({
+    appType,
+    databaseOverrides,
+    dbKey,
+    initFhirTriggers = false,
+    enableReportInstances = false,
+  } = {}) {
+    const facilityIds = selectFacilityIds(config);
+    const key = dbKey ?? appType ?? 'main';
+    this.store = await initDatabase(databaseOverrides ?? {}, key);
+    this.sequelize = this.store.sequelize;
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
+    this.models = this.store.models;
+
+    // Add deviceId to context for createApiApp
+    const deviceId = await setupFacilityDb(this.sequelize, this.models);
+    this.deviceId = deviceId;
+
+    this.settings = facilityIds.reduce((acc, facilityId) => {
+      acc[facilityId] = new ReadSettings(this.models, facilityId);
+      return acc;
+    }, {});
+    this.settings.global = new ReadSettings(this.models);
+
+    const fhirWorkerEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+
+    const facilityReaders = facilityIds.map(id => this.settings[id]);
+    await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    if (initFhirTriggers) {
+      await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
+    }
+
+    // create mock reporting schema + roles if test requires it
+    // init reporting instances for these roles
+    if (enableReportInstances) {
+      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+      this.reportSchemaStores = await initReporting(this.store);
+    }
+
+    return this;
+  }
+}
 
 export function extendExpect(expect) {
   expect.extend({
@@ -127,75 +233,23 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
-  const context = await new ApplicationContext().init({ databaseOverrides });
-  // create mock reporting schema + roles if test requires it
-  // init reporting instances for these roles
-  if (enableReportInstances) {
-    await createMockReportingSchemaAndRoles(context);
-    context.reportSchemaStores = await initReporting(context.store);
-  }
-
-  const { models, sequelize } = context;
-
+export async function createTestContext({
+  enableReportInstances,
+  databaseOverrides,
+  initFhirTriggers = false,
+} = {}) {
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  await sequelize.migrate('up');
+  const context = await new MockApplicationContext().init({
+    databaseOverrides,
+    initFhirTriggers,
+    enableReportInstances,
+  });
 
-  await showError(deleteAllTestIds(context));
-
-  // populate with reference data
-  const tasks = allSeeds
-    .map(d => ({ code: d.name, ...d }))
-    .map(d => models.ReferenceData.create(d));
-  await Promise.all(tasks);
-
-  // Order here is important, as some models depend on others
-  await seedLabTests(models);
-  await seedFacilities(models);
-  await seedDepartments(models);
-  await seedLocations(models);
-  await seedLocationGroups(models);
-  await seedSettings(models);
+  const { models } = context;
 
   const facilityIds = selectFacilityIds(config);
-
-  // Create the facility for the current config if it doesn't exist
-  const facilities = await Promise.all(
-    facilityIds.map(async facilityId => {
-      const [facility] = await models.Facility.findOrCreate({
-        where: {
-          id: facilityId,
-        },
-        defaults: {
-          code: facilityId,
-          name: facilityId,
-        },
-      });
-      return facility;
-    }),
-  );
-
-  // Create a system user for device registration
-  const systemUser = await models.User.create({
-    email: 'system@test.com',
-    displayName: 'System User',
-    password: 'test123',
-    role: 'practitioner',
-  });
-
-  const device = await models.Device.create({
-    registeredById: systemUser.id,
-  });
-
-  // Add deviceId to context for createApiApp
-  context.deviceId = device.id;
-
-  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
-  // ensure there's a corresponding local system fact for it too
-  await models.LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
-
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();
 
@@ -206,7 +260,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
     const agent = supertest.agent(expressApp);
     const token = await buildToken({
       user,
-      deviceId: device.id,
+      deviceId: context.deviceId,
       facilityId: facilityIds[0],
       expiresIn: '1d',
     });

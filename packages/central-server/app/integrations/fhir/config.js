@@ -1,26 +1,15 @@
 import config from 'config';
-import * as yup from 'yup';
 import { log } from '@tamanu/shared/services/logging';
 
-const SCHEMA = yup.object().shape({
-  enabled: yup.boolean().default(false),
-  parameters: yup.object().shape({
-    _count: yup.object().shape({
-      default: yup.number(),
-      max: yup.number(),
-    }),
-  }),
-});
-
-export function checkFhirConfig() {
-  const { fhir } = config.integrations;
-  if (fhir.enabled) {
-    const { default: defaultValue, max } = fhir.parameters._count;
-    if (defaultValue > max) {
+export async function checkFhirConfig(settings) {
+  const fhirEnabled = config?.integrations?.fhir?.enabled;
+  if (fhirEnabled) {
+    const countDefault = await settings.get('fhir.parameters._count.default');
+    const countMax = await settings.get('fhir.parameters._count.max');
+    if (countDefault && countMax && countDefault > countMax) {
       log.warn(
-        `FHIR _count config default value is bigger than the max (default=${defaultValue}, max=${max})`,
+        `FHIR _count config default value is bigger than the max (default=${countDefault}, max=${countMax})`,
       );
     }
-    SCHEMA.validateSync(fhir);
   }
 }

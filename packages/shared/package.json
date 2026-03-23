@@ -50,6 +50,22 @@
       "require": "./dist/cjs/test-helpers/*.js",
       "import": "./dist/esm/test-helpers/*.js"
     },
+    "./routes/fhir": {
+      "require": "./dist/cjs/routes/fhir/index.js",
+      "import": "./dist/esm/routes/fhir/index.js"
+    },
+    "./routes/fhir/*": {
+      "require": "./dist/cjs/routes/fhir/*.js",
+      "import": "./dist/esm/routes/fhir/*.js"
+    },
+    "./routes/fhir/utils": {
+      "require": "./dist/cjs/routes/fhir/utils/index.js",
+      "import": "./dist/esm/routes/fhir/utils/index.js"
+    },
+    "./routes/fhir/patientSummary/*": {
+      "require": "./dist/cjs/routes/fhir/patientSummary/*.js",
+      "import": "./dist/esm/routes/fhir/patientSummary/*.js"
+    },
     "./utils/fhir": {
       "require": "./dist/cjs/utils/fhir/index.js",
       "import": "./dist/esm/utils/fhir/index.js"
@@ -142,6 +158,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
+    "@tamanu/settings": "*",
     "@tamanu/utils": "*",
     "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.1.8",
@@ -163,6 +180,7 @@
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",
     "winston": "^3.14.2",
+    "yup": "^0.32.9",
     "zod": "^4.0.17"
   }
 }

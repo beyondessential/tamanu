@@ -14,6 +14,7 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
+import { ReadSettings } from '@tamanu/settings';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -104,7 +105,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     throw new Error(`Found ${userCount} users already in the database, aborting provision`);
   }
 
-  checkIntegrationsConfig();
+  await checkIntegrationsConfig(new ReadSettings(store.models));
 
   const {
     users = {},

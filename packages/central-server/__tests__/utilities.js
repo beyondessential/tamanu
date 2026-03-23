@@ -8,6 +8,8 @@ import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { setFhirRefreshTriggers } from '@tamanu/database';
+import { initFhirSettingsFromDb, resetFhirSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -17,10 +19,17 @@ import { initIntegrations } from '../dist/integrations';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init() {
+  async init({ initFhir = false, initFhirTriggers = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
+    if (initFhir) {
+      resetFhirSettings();
+      await initFhirSettingsFromDb(this.settings);
+    }
+    if (initFhirTriggers) {
+      await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled: true });
+    }
 
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
@@ -50,8 +59,8 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext() {
-  const ctx = await new MockApplicationContext().init();
+export async function createTestContext({ initFhir = false, initFhirTriggers = false } = {}) {
+  const ctx = await new MockApplicationContext().init({ initFhir, initFhirTriggers });
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
   const baseApp = supertest.agent(appServer);

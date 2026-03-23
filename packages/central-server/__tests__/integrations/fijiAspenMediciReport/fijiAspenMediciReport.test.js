@@ -14,7 +14,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../../utilities';
-import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+import { allFromUpstream } from '@tamanu/shared/tasks';
 
 jest.setTimeout(50000);
 
@@ -354,6 +354,18 @@ describe('fijiAspenMediciReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+
+    // The report SQL compares a timestamptz column against a bare timestamp
+    // (result of AT TIME ZONE), so PG implicitly casts back using the session
+    // timezone. Ensure every pool connection has it set correctly.
+    const { sequelize } = ctx.store;
+    const poolMax = sequelize.options.pool?.max || 5;
+    await Promise.all(
+      Array.from({ length: poolMax }, () =>
+        sequelize.query(`SET timezone TO '${PRIMARY_TIME_ZONE}'`),
+      ),
+    );
+
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, ctx);

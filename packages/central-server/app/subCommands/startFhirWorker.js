@@ -1,38 +1,18 @@
 import { Command } from 'commander';
 
-import { log } from '@tamanu/shared/services/logging';
+import { runStartFhirWorker } from '@tamanu/shared/tasks';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
-import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
-export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
-  log.info(`Starting Central FHIR worker version ${pkg.version}`);
-
-  const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;
-  const dbKey = name ? `${appType}(${name})` : appType;
-  const context = await new ApplicationContext().init({ appType, dbKey });
-  await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
-
-  if (!topics || topics === 'all') {
-    topics = null;
-  } else {
-    topics = topics.split(/,+\s*/).filter(Boolean);
-    log.info(`FHIR worker restricted to topics: ${topics.join(', ')}`);
-  }
-
-  const worker = await startFhirWorkerTasks({ store: context.store, topics });
-
-  for (const sig of ['SIGINT', 'SIGTERM']) {
-    process.once(sig, async () => {
-      log.info(`Received ${sig}, stopping fhir worker`);
-      await worker.stop();
-      context.close();
-    });
-  }
-
-  await context.waitForClose();
+const options = {
+  ApplicationContext,
+  appType: CENTRAL_SERVER_APP_TYPES.FHIR_WORKER,
+  serverName: 'Central',
+  version: pkg.version,
 };
+
+export const startFhirWorker = opts => runStartFhirWorker({ ...options, ...opts });
 
 export const startFhirWorkerCommand = new Command('startFhirWorker')
   .description('Start the Tamanu Central FHIR worker')

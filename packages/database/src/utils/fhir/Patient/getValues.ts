@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import {
   FhirAddress,
@@ -9,7 +7,7 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate, getFhirAssigners, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { activeFromVisibility } from '../utils';
 import { nzEthnicity } from '../extensions';
 import type { Model } from '../../../models/Model';
@@ -60,21 +58,21 @@ function identifiers(patient: Patient) {
         use: 'usual',
         value: patient.displayId,
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDisplayId,
+          display: getFhirAssigners().patientDisplayId,
         }),
-        system: config.hl7.dataDictionaries.patientDisplayId,
+        system: getFhirDataDictionaries().patientDisplayId,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientPassport,
+          display: getFhirAssigners().patientPassport,
         }),
         value: additionalData?.passportNumber,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDrivingLicense,
+          display: getFhirAssigners().patientDrivingLicense,
         }),
         value: additionalData?.drivingLicense,
       },

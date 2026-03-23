@@ -9,7 +9,7 @@ import {
   singleImmunizationHandler,
   singlePatientHandler,
 } from './routeHandlers';
-import { fhirRoutes as matRoutes } from './materialised';
+import { fhirRoutes as matRoutes } from '@tamanu/shared/routes/fhir';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
