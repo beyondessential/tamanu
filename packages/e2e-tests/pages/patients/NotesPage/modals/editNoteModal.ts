@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
+import { normalizeToIsoDateTimeMinute } from '@utils/testHelper';
 
 export class EditNoteModal extends BaseNoteModal {
   constructor(page: Page) {
@@ -10,7 +11,7 @@ export class EditNoteModal extends BaseNoteModal {
   async editNote(updatedContent: string): Promise<string> {
     await this.waitForModalToLoad();
     await this.noteContentTextarea.fill(updatedContent);
-    const secondDateTime = await this.dateTimeInput.inputValue();
+    const secondDateTime = normalizeToIsoDateTimeMinute(await this.dateTimeInput.inputValue());
     await this.confirmButton.click();
     await this.waitForModalToClose();
     return secondDateTime;

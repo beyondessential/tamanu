@@ -140,6 +140,30 @@ export function normalizeToIsoDate(raw: string): string {
 }
 
 /**
+ * Normalize a note modal / MUI datetime **input** value to **`yyyy-MM-dd'T'HH:mm`** (24h, no seconds).
+ *
+ * Accepts {@link parseTamanuDate} shapes (e.g. `dd/MM/yyyy hh:mm a`) or strings `Date` can parse.
+ */
+export function normalizeToIsoDateTimeMinute(raw: string): string {
+  const trimmed = raw.trim();
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(trimmed)) {
+    const fromIso = new Date(trimmed);
+    if (isValid(fromIso)) {
+      return format(fromIso, "yyyy-MM-dd'T'HH:mm");
+    }
+  }
+  let parsed = parseTamanuDate(trimmed);
+  if (!parsed || !isValid(parsed)) {
+    const fromNative = new Date(trimmed);
+    parsed = isValid(fromNative) ? fromNative : null;
+  }
+  if (!parsed || !isValid(parsed)) {
+    return raw;
+  }
+  return format(parsed, "yyyy-MM-dd'T'HH:mm");
+}
+
+/**
  * Format a date string for **typing into MUI date-time text fields** (keyboard / `.fill()`).
  *
  * Some MUI date-time pickers do not commit or behave correctly when filled with only `yyyy-MM-dd`; the app
@@ -152,7 +176,15 @@ export function normalizeToIsoDate(raw: string): string {
  */
 export function formatForMuiDateTimePicker(isoDate: string): string {
   const trimmed = isoDate.trim();
-  let parsed = parseTamanuDate(trimmed);
+  // `parseTamanuDate` only keeps the calendar day for `yyyy-MM-dd` prefixes, dropping time after `T`.
+  let parsed: Date | null = null;
+  if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+    const fromIso = new Date(trimmed);
+    parsed = isValid(fromIso) ? fromIso : null;
+  }
+  if (!parsed) {
+    parsed = parseTamanuDate(trimmed);
+  }
   if (!parsed || !isValid(parsed)) {
     const fromNative = new Date(trimmed);
     parsed = isValid(fromNative) ? fromNative : null;
