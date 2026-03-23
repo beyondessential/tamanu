@@ -21,6 +21,7 @@ env:
   SEED_NAMESPACE: tamanu-seed
   SEED_DB_SERVICE: seed-db-rw
   SEED_DB_CREDENTIAL_NAME: seed-db-app
+  SEED_DB_SUPERUSER_CREDENTIAL_NAME: seed-db-superuser
   RETENTION_COUNT: "20"
 
 jobs:
@@ -107,7 +108,7 @@ jobs:
           trap cleanup EXIT
           sleep 5
 
-          PGPASSWORD=$(kubectl get -n "$SEED_NAMESPACE" secrets seed-db-superuser -o jsonpath='{.data.password}' | base64 -d)
+          PGPASSWORD=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_SUPERUSER_CREDENTIAL_NAME" -o jsonpath='{.data.password}' | base64 -d)
           export PGPASSWORD
           echo "::add-mask::$PGPASSWORD"
 

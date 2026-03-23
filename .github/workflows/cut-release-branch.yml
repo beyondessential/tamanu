@@ -21,8 +21,8 @@ jobs:
     permissions:
       contents: write
     outputs:
-      branch: ${{ steps.branchname.outputs.result }}
-      version: ${{ steps.version.outputs.result }}
+      branch: ${{ steps.release.outputs.branch }}
+      version: ${{ steps.release.outputs.version }}
     steps:
     - uses: actions/checkout@v6
       with:
@@ -38,31 +38,22 @@ jobs:
       with:
         node-version-file: '.node-version'
 
-    - name: Compute new release branch name
+    - name: Compute release branch and version
       uses: actions/github-script@v7
-      id: branchname
+      id: release
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
-        result-encoding: string
         script: |
           const cwd = '${{ github.workspace }}';
           const { currentVersion } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          return currentVersion(await import('fs'), cwd).branch;
-
-    - name: Extract release version
-      uses: actions/github-script@v7
-      id: version
-      with:
-        result-encoding: string
-        script: |
-          const cwd = '${{ github.workspace }}';
-          const { currentVersion } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          return currentVersion(await import('fs'), cwd).version;
+          const { branch, version } = currentVersion(await import('fs'), cwd);
+          core.setOutput('branch', branch);
+          core.setOutput('version', version);
 
     - name: Check new release branch doesn't already exist
       uses: actions/github-script@v7
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
@@ -72,7 +63,7 @@ jobs:
 
     - name: Create new release branch
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       run: |
         set -ex
         git switch --create "$NEW_BRANCH_NAME"
@@ -94,7 +85,7 @@ jobs:
 
     - name: Trigger tamanu-source-dbt upgrade workflow
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       run: |
         curl -fsSL -X POST \
           -H "Accept: application/vnd.github+json" \
