@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
+import 'ace-builds/src-noconflict/ext-searchbox'; // enables Ctrl+F / Cmd+F search within the editor
 
 import { Colors } from '../../../../constants';
 
@@ -13,7 +14,7 @@ const THEMES = {
 };
 
 const StyledJSONEditor = styled(AceEditor)`
-  border: 1px solid ${(p) => (p.$hasError ? Colors.alert : Colors.outline)};
+  border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
   z-index: 0;
   .error-marker {
@@ -70,7 +71,7 @@ export const JSONEditor = React.memo(
       }
     }, [error, value]);
 
-    const onLoad = (editor) => {
+    const onLoad = editor => {
       // Disable the "undo" command (Ctrl+Z)
       editor.commands.addCommand({
         name: 'undo',

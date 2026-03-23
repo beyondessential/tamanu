@@ -7,6 +7,8 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { useApi } from '../../../../api';
 import { DynamicSelectField, SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
+import { SettingsSearchBar } from './SettingsSearchBar';
+import { SettingsSearchResults } from './SettingsSearchResults';
 
 const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
@@ -15,6 +17,13 @@ const ScopeSelectInput = styled(SelectInput)`
 const ScopeDynamicSelectInput = styled(DynamicSelectField)`
   width: 300px;
   margin-top: 0.5rem;
+`;
+
+const ScopeAndSearchRow = styled.div`
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
 const SCOPE_OPTIONS = [
@@ -33,7 +42,18 @@ const SCOPE_OPTIONS = [
 ];
 
 export const ScopeSelectorFields = React.memo(
-  ({ scope, onScopeChange, facilityId, onFacilityChange }) => {
+  ({
+    scope,
+    onScopeChange,
+    facilityId,
+    onFacilityChange,
+    isSearchActive,
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
+    searchResults,
+    onSelectSearchResult,
+  }) => {
     const api = useApi();
     const { data: facilitiesArray = [], error } = useQuery(
       ['facilitiesList'],
@@ -43,30 +63,44 @@ export const ScopeSelectorFields = React.memo(
       },
     );
 
-    const facilityOptions = facilitiesArray.map((facility) => ({
+    const facilityOptions = facilitiesArray.map(facility => ({
       label: facility.name,
       value: facility.id,
     }));
 
+    // The search bar is only shown when setSearchQuery is provided (i.e. on the Editor tab)
+    const showSearch = Boolean(setSearchQuery);
+
     return (
       <>
-        <ScopeSelectInput
-          name="scope"
-          label={
-            <TranslatedText
-              stringId="admin.settings.scope.label"
-              fallback="Scope"
-              data-testid="translatedtext-8bro"
+        <ScopeAndSearchRow>
+          <ScopeSelectInput
+            name="scope"
+            label={
+              <TranslatedText
+                stringId="admin.settings.scope.label"
+                fallback="Scope"
+                data-testid="translatedtext-8bro"
+              />
+            }
+            options={SCOPE_OPTIONS}
+            value={scope}
+            onChange={onScopeChange}
+            isClearable={false}
+            disabled={isSearchActive}
+            error={!!error}
+            data-testid="scopeselectinput-zxel"
+          />
+          {showSearch && (
+            <SettingsSearchBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onClear={clearSearch}
+              data-testid="settings-search-bar"
             />
-          }
-          options={SCOPE_OPTIONS}
-          value={scope}
-          onChange={onScopeChange}
-          isClearable={false}
-          error={!!error}
-          data-testid="scopeselectinput-zxel"
-        />
-        {scope === SETTINGS_SCOPES.FACILITY && (
+          )}
+        </ScopeAndSearchRow>
+        {scope === SETTINGS_SCOPES.FACILITY && !isSearchActive && (
           <ScopeDynamicSelectInput
             name="facilityId"
             options={facilityOptions}
@@ -83,6 +117,13 @@ export const ScopeSelectorFields = React.memo(
             isClearable={false}
             error={!!error}
             data-testid="scopedynamicselectinput-z7sz"
+          />
+        )}
+        {isSearchActive && (
+          <SettingsSearchResults
+            searchResults={searchResults}
+            onSelectResult={onSelectSearchResult}
+            data-testid="settings-search-results"
           />
         )}
       </>

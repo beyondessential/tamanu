@@ -1,14 +1,11 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
-import {
-  DynamicSelectField,
-  TranslatedText,
-} from '../../../components';
+import { DynamicSelectField, TranslatedText } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
@@ -49,7 +46,7 @@ const UNCATEGORISED_KEY = 'uncategorised';
 
 export const formatSettingName = (name, path) => name || capitalize(startCase(path));
 
-const recursiveJsonParse = (obj) => {
+const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
   return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -67,8 +64,9 @@ const recursiveJsonParse = (obj) => {
   }, {});
 };
 
-const prepareSchema = (scope) => {
-  const schema = getScopedSchema(scope);
+const prepareSchema = scope => {
+  const rawSchema = getScopedSchema(scope);
+  const schema = { ...rawSchema, properties: { ...rawSchema.properties } };
   const uncategorised = pickBy(schema.properties, isSetting);
   // If there are any top-level settings, move them to an uncategorised category
   if (Object.keys(uncategorised).length) {
@@ -107,7 +105,7 @@ const getSubCategoryOptions = (schema, category) => {
     : null;
 };
 
-const getCategoryOptions = (schema) =>
+const getCategoryOptions = schema =>
   Object.entries(schema.properties)
     .map(([key, value]) => ({
       value: key,
@@ -126,10 +124,13 @@ export const EditorView = memo(
     dirty,
     handleShowWarningModal,
     scope,
+    jumpToPath,
+    onJumpComplete,
   }) => {
     const { facilityId } = values;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
+    const [scrollToPath, setScrollToPath] = useState(null);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
@@ -149,7 +150,66 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
-    const handleChangeCategory = async (e) => {
+    // When jumpToPath changes (set by clicking a search result), navigate to the correct
+    // category/sub-category and then scroll to the specific setting row.
+    useEffect(() => {
+      if (!jumpToPath) return;
+
+      const jumpSchema = prepareSchema(scope);
+
+      // The path looks like "category.subCategory.settingKey" or "category.settingKey"
+      // We need to find which top-level category key and optional sub-category key to select,
+      // then derive the relative path that Category receives (with the prefix stripped).
+      const parts = jumpToPath.split('.');
+
+      // Top-level category is always parts[0], unless it is uncategorised (i.e. a direct leaf)
+      const topKey = parts[0];
+      const schemaTopLevel = jumpSchema.properties[topKey];
+
+      let resolvedCategory;
+      let resolvedSubCategory = null;
+      // The relative path passed to Category starts after the category (and subCategory) prefix.
+      // Category renders each setting with the path relative to its own root.
+      let relativePath;
+
+      if (!schemaTopLevel) {
+        // Path belongs to an uncategorised top-level setting
+        resolvedCategory = UNCATEGORISED_KEY;
+        relativePath = jumpToPath;
+      } else {
+        resolvedCategory = topKey;
+
+        // A sub-category selector is shown when there are multiple non-leaf nodes directly under
+        // the top category. Check whether parts[1] is one of those sub-category keys.
+        if (parts.length > 2) {
+          const subKey = parts[1];
+          const availableSubCategories = getSubCategoryOptions(jumpSchema, topKey);
+          if (availableSubCategories?.some(opt => opt.value === subKey)) {
+            resolvedSubCategory = subKey;
+            // Relative path for Category is everything after "topKey.subKey."
+            relativePath = parts.slice(2).join('.');
+          } else {
+            // No sub-category selector; relative path is everything after "topKey."
+            relativePath = parts.slice(1).join('.');
+          }
+        } else {
+          // Only one level deep inside the category
+          relativePath = parts.slice(1).join('.');
+        }
+      }
+
+      setCategory(resolvedCategory);
+      setSubCategory(resolvedSubCategory);
+      // Use the relative path so ScrollableSettingLine can match settingPath === scrollToPath
+      setScrollToPath(relativePath);
+    }, [jumpToPath, scope]);
+
+    const handleScrollComplete = useCallback(() => {
+      setScrollToPath(null);
+      onJumpComplete?.();
+    }, [onJumpComplete]);
+
+    const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
@@ -160,14 +220,12 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = (e) => {
+    const handleChangeSubcategory = e => {
       setSubCategory(e.target.value);
     };
 
-    const getSettingPath = (path) =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
-        subCategory ? `${subCategory}.` : ''
-      }${path}`;
+    const getSettingPath = path =>
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${subCategory ? `${subCategory}.` : ''}${path}`;
 
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(values.settings);
@@ -175,9 +233,9 @@ export const EditorView = memo(
       setFieldValue('settings', updatedSettings);
     };
 
-    const getSettingValue = (path) => get(values.settings, getSettingPath(path));
+    const getSettingValue = path => get(values.settings, getSettingPath(path));
 
-    const saveSettings = async (event) => {
+    const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
       delete parsedSettings.uncategorised;
@@ -260,6 +318,8 @@ export const EditorView = memo(
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
                 facilityId={facilityId}
+                scrollToPath={scrollToPath}
+                onScrollComplete={handleScrollComplete}
                 data-testid="category-cbjk"
               />
             </CategoriesWrapper>

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { omit } from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { ValidationError } from 'yup';
@@ -20,6 +21,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
+import { useSettingsSearch } from './useSettingsSearch';
 
 const SETTING_TABS = {
   EDITOR: 'editor',
@@ -54,14 +56,21 @@ const tabs = [
     ),
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
-    render: (props) => {
+    render: props => {
       // Don't show the editor if the scope is facility and no facility is selected
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
         <TabContainer data-testid="tabcontainer-6tbj">
           <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
-          {shouldShowEditor && <EditorView {...props} data-testid="editorview-g9wr" />}
+          {shouldShowEditor && (
+            <EditorView
+              {...props}
+              jumpToPath={props.jumpToPath}
+              onJumpComplete={props.onJumpComplete}
+              data-testid="editorview-g9wr"
+            />
+          )}
         </TabContainer>
       );
     },
@@ -76,12 +85,25 @@ const tabs = [
     ),
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
-    render: (props) => (
-      <TabContainer data-testid="tabcontainer-z96b">
-        <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mtsk" />
-        <JSONEditorView {...props} data-testid="jsoneditorview-7anx" />
-      </TabContainer>
-    ),
+    render: props => {
+      // Strip out search props — they only apply to the Editor tab
+      const jsonTabProps = omit(props, [
+        'isSearchActive',
+        'searchQuery',
+        'setSearchQuery',
+        'clearSearch',
+        'searchResults',
+        'onSelectSearchResult',
+        'jumpToPath',
+        'onJumpComplete',
+      ]);
+      return (
+        <TabContainer data-testid="tabcontainer-z96b">
+          <ScopeSelectorFields {...jsonTabProps} data-testid="scopeselectorfields-mtsk" />
+          <JSONEditorView {...jsonTabProps} data-testid="jsoneditorview-7anx" />
+        </TabContainer>
+      );
+    },
   },
 ];
 
@@ -94,7 +116,7 @@ export const SettingsView = () => {
     scope,
     facilityId,
     {
-      select: (data) => applyDefaults(data, scope),
+      select: data => applyDefaults(data, scope),
     },
   );
 
@@ -109,7 +131,7 @@ export const SettingsView = () => {
       return true;
     } catch (error) {
       if (error instanceof ValidationError) {
-        error?.inner?.forEach((e) => {
+        error?.inner?.forEach(e => {
           notifyError(e.message);
         });
       } else {
@@ -137,7 +159,7 @@ export const SettingsView = () => {
           enableReinitialize
           initialValues={{ scope, facilityId, settings: settingsSnapshot }}
           onSubmit={handleSubmit}
-          render={(props) => (
+          render={props => (
             <SettingsForm
               {...props}
               scope={scope}
@@ -172,20 +194,58 @@ const SettingsForm = ({
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+  const [jumpToPath, setJumpToPath] = useState(null);
+
+  const { searchQuery, setSearchQuery, isSearchActive, searchResults, clearSearch } =
+    useSettingsSearch();
 
   const canViewJSONEditor = ability.can('write', 'Setting');
+
+  const handleShowWarningModal = async () =>
+    new Promise(resolve => {
+      setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+      setShowWarningModal(true);
+    });
+
+  const handleSelectSearchResult = useCallback(
+    async result => {
+      // If the result is in a different scope, switch to it (warning if dirty)
+      if (result.scope !== scope) {
+        if (dirty) {
+          const dismissChanges = await handleShowWarningModal();
+          if (!dismissChanges) return;
+          await resetForm();
+        }
+        setScope(result.scope);
+        setFacilityId(null);
+      }
+
+      // Switch to editor tab if needed
+      if (currentTab !== SETTING_TABS.EDITOR) {
+        if (dirty) {
+          const dismissChanges = await handleShowWarningModal();
+          if (!dismissChanges) return;
+          await resetForm();
+        }
+        setCurrentTab(SETTING_TABS.EDITOR);
+      }
+
+      // Tell EditorView to navigate to this path and scroll to it
+      setJumpToPath(result.path);
+      clearSearch();
+    },
+    [scope, dirty, currentTab, resetForm, setScope, setFacilityId, clearSearch],
+  );
+
+  const handleJumpComplete = useCallback(() => {
+    setJumpToPath(null);
+  }, []);
   const filteredTabs = useMemo(
     () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
     [canViewJSONEditor],
   );
 
-  const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
-      setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-      setShowWarningModal(true);
-    });
-
-  const handleChangeTab = async (newTab) => {
+  const handleChangeTab = async newTab => {
     if (newTab !== currentTab && dirty) {
       const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
@@ -194,7 +254,7 @@ const SettingsForm = ({
     setCurrentTab(newTab);
   };
 
-  const handleChangeScope = async (e) => {
+  const handleChangeScope = async e => {
     const newScope = e.target.value;
     if (newScope !== scope && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -204,7 +264,7 @@ const SettingsForm = ({
     setFacilityId(null);
   };
 
-  const handleFacilityChange = async (e) => {
+  const handleFacilityChange = async e => {
     const newFacilityId = e.target.value;
     if (newFacilityId !== facilityId && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -232,6 +292,14 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
+        isSearchActive={isSearchActive}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        clearSearch={clearSearch}
+        searchResults={searchResults}
+        onSelectSearchResult={handleSelectSearchResult}
+        jumpToPath={jumpToPath}
+        onJumpComplete={handleJumpComplete}
         data-testid="styledtabdisplay-teef"
       />
       <WarningModal
