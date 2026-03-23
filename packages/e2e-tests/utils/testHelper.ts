@@ -145,17 +145,35 @@ export function normalizeToIsoDate(raw: string): string {
  * Some MUI date-time pickers do not commit or behave correctly when filled with only `yyyy-MM-dd`; the app
  * expects display-shaped text such as `dd/MM/yyyy hh:mm a`.
  *
- * **Behaviour** — Parses via {@link parseTamanuDate}; on failure returns the original string so callers can
- * still attempt a fill for edge cases.
+ * **Behaviour** — Parses via {@link parseTamanuDate}, then (if needed) `new Date(...)` for strings such as
+ * `yyyy-MM-dd'T'HH:mm` that carry a time component. On failure returns the original string.
  *
  * @param isoDate — Usually ISO or ISO-like test data; trimmed before parse.
  */
 export function formatForMuiDateTimePicker(isoDate: string): string {
-  const parsed = parseTamanuDate(isoDate.trim());
+  const trimmed = isoDate.trim();
+  let parsed = parseTamanuDate(trimmed);
+  if (!parsed || !isValid(parsed)) {
+    const fromNative = new Date(trimmed);
+    parsed = isValid(fromNative) ? fromNative : null;
+  }
   if (!parsed || !isValid(parsed)) {
     return isoDate;
   }
   return format(parsed, 'dd/MM/yyyy hh:mm a');
+}
+
+/**
+ * Format an ISO-like date for **MUI date-only** pickers (`DateField` / `DatePicker`, `dd/MM/yyyy` display).
+ *
+ * @param isoDate — Usually `yyyy-MM-dd` test data.
+ */
+export function formatForMuiDatePicker(isoDate: string): string {
+  const parsed = parseTamanuDate(isoDate.trim());
+  if (!parsed || !isValid(parsed)) {
+    return isoDate;
+  }
+  return format(parsed, 'dd/MM/yyyy');
 }
 
 /**
