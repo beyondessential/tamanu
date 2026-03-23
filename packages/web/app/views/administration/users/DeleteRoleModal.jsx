@@ -131,7 +131,14 @@ export const DeleteRoleModal = ({ onSuccess }) => {
         setDeleteRoleError(error);
         return;
       }
-      toast.error(error.detail || error.message);
+      toast.error(
+        error.detail || error.message || (
+          <TranslatedText
+            stringId="admin.roles.delete.error.generic"
+            fallback="Couldn’t delete role"
+          />
+        ),
+      );
     },
   });
 
