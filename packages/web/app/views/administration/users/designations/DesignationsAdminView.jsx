@@ -76,10 +76,7 @@ export const DesignationsAdminView = () => {
         columns={columns}
         defaultRowsPerPage={10}
         endpoint={DESIGNATIONS_ENDPOINT}
-        fetchOptions={{
-          id: idQuery,
-          display_name: nameQuery,
-        }}
+        fetchOptions={{ id: idQuery, name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={
           <TranslatedText

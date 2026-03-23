@@ -20,7 +20,7 @@ designationsRouter.get(
     req.checkPermission('list', 'ReferenceData');
 
     const idQuery = req.query.id?.trim();
-    const nameQuery = req.query.display_name?.trim();
+    const nameQuery = req.query.name?.trim();
 
     const additionalFilters = {
       type: REFERENCE_TYPES.DESIGNATION,
