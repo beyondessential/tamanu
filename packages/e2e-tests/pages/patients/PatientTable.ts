@@ -2,7 +2,7 @@ import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import {
   convertDateFormat,
-  formatForMuiDatePicker,
+  fillMuiDateField,
   SelectingFromSearchBox,
   STYLED_TABLE_CELL_PREFIX,
 } from '../../utils/testHelper';
@@ -289,7 +289,7 @@ export class PatientTable {
       await this.lastNameTxt.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBTxt.fill(formatForMuiDatePicker(searchCriteria.DOB));
+      await fillMuiDateField(this.DOBTxt, searchCriteria.DOB);
     }
     if (searchCriteria.culturalName) {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
@@ -312,10 +312,10 @@ export class PatientTable {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(formatForMuiDatePicker(searchCriteria.DOBFrom));
+      await fillMuiDateField(this.DOBFromTxt, searchCriteria.DOBFrom);
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(formatForMuiDatePicker(searchCriteria.DOBTo));
+      await fillMuiDateField(this.DOBToTxt, searchCriteria.DOBTo);
     }
 
     await this.searchBtn.click();

@@ -1,7 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../BasePage';
 import { selectAutocompleteFieldOption } from '../../../../utils/fieldHelpers';
-import { formatForMuiTimePicker } from '../../../../utils/testHelper';
+import { fillMuiTimeField, formatForMuiTimePicker } from '../../../../utils/testHelper';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
 
 /**
@@ -114,24 +114,22 @@ export class NewProcedureModal extends BasePage {
       returnOptionText: true
     });
 
-    // MUI TimePicker displays `hh:mm a` (see ui-components DateField DISPLAY_FORMATS.time); `.fill` needs that shape.
-    const timeIn = formatForMuiTimePicker('09:00');
-    const timeOut = formatForMuiTimePicker('10:00');
-    const timeStarted = formatForMuiTimePicker('09:00');
-    const timeEnded = formatForMuiTimePicker('10:00');
+    const timeInRaw = '09:00';
+    const timeOutRaw = '10:00';
+    const timeStartedRaw = '09:00';
+    const timeEndedRaw = '10:00';
+    const timeIn = formatForMuiTimePicker(timeInRaw);
+    const timeOut = formatForMuiTimePicker(timeOutRaw);
+    const timeStarted = formatForMuiTimePicker(timeStartedRaw);
+    const timeEnded = formatForMuiTimePicker(timeEndedRaw);
     const notes = 'This is a test note';
     const completedNotes = 'This is a test completed note';
 
-    // Blur so MUI TimePicker commits to Formik (onBlur parsing); needed e.g. after unsaved-changes “Continue editing”.
-    const fillTimePicker = async (fieldRoot: Locator, value: string) => {
-      const input = fieldRoot.locator('input');
-      await input.fill(value);
-      await input.blur();
-    };
-    await fillTimePicker(this.timeInInput, timeIn);
-    await fillTimePicker(this.timeOutInput, timeOut);
-    await fillTimePicker(this.timeStartedInput, timeStarted);
-    await fillTimePicker(this.timeEndedInput, timeEnded);
+    const timeInput = (fieldRoot: Locator) => fieldRoot.locator('input');
+    await fillMuiTimeField(timeInput(this.timeInInput), timeInRaw);
+    await fillMuiTimeField(timeInput(this.timeOutInput), timeOutRaw);
+    await fillMuiTimeField(timeInput(this.timeStartedInput), timeStartedRaw);
+    await fillMuiTimeField(timeInput(this.timeEndedInput), timeEndedRaw);
     await this.notesInput.fill(notes);
     await this.completedCheckbox.check();
     await this.completedNotesInput.fill(completedNotes);

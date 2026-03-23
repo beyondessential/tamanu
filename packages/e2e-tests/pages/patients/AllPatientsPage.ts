@@ -6,7 +6,7 @@ import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
 import {
   convertDateFormat,
-  formatForMuiDatePicker,
+  fillMuiDateField,
   STYLED_TABLE_CELL_PREFIX,
 } from '../../utils/testHelper';
 import { ERROR_RED_RGB } from '@utils/testColors';
@@ -204,7 +204,7 @@ export class AllPatientsPage extends BasePatientListPage {
       await this.lastNameInput.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBInput.fill(formatForMuiDatePicker(searchCriteria.DOB));
+      await fillMuiDateField(this.DOBInput, searchCriteria.DOB);
     }
     if (searchCriteria.culturalName) {
       await this.culturalNameInput.fill(searchCriteria.culturalName);
@@ -225,10 +225,10 @@ export class AllPatientsPage extends BasePatientListPage {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(formatForMuiDatePicker(searchCriteria.DOBFrom));
+      await fillMuiDateField(this.DOBFromTxt, searchCriteria.DOBFrom);
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(formatForMuiDatePicker(searchCriteria.DOBTo));
+      await fillMuiDateField(this.DOBToTxt, searchCriteria.DOBTo);
     }
 
     await this.searchBtn.click();

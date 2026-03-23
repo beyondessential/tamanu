@@ -1,9 +1,5 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import {
-  formatForMuiDatePicker,
-  formatForMuiDateTimePicker,
-  normalizeToIsoDate,
-} from '@utils/testHelper';
+import { fillMuiDateField, fillMuiDateTimeField, normalizeToIsoDate } from '@utils/testHelper';
 
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
@@ -224,10 +220,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.firstListItem.click();
 
-    await patientDetailsPage.savedFamilyHistoryDateRecorded.fill(
-      formatForMuiDatePicker('2025-05-25'),
-    );
-    await patientDetailsPage.savedFamilyHistoryDateRecorded.blur();
+    await fillMuiDateField(patientDetailsPage.savedFamilyHistoryDateRecorded, '2025-05-25');
     await patientDetailsPage.savedFamilyHistoryRelationship.fill('Mother');
     await patientDetailsPage.savedFamilyClinician.click();
     await patientDetailsPage.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
@@ -318,8 +311,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Test warning');
 
     await patientDetailsPage.savedOtherPatientIssueNote.fill('Edited warning');
-    await patientDetailsPage.savedOtherPatientIssueDate.fill(formatForMuiDatePicker('2025-09-17'));
-    await patientDetailsPage.savedOtherPatientIssueDate.blur();
+    await fillMuiDateField(patientDetailsPage.savedOtherPatientIssueDate, '2025-09-17');
     await patientDetailsPage.getOtherPatientIssuesEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
@@ -424,10 +416,7 @@ test.describe('Patient Side Bar', () => {
     await additionalNoteKebabMenu.click();
     await completedCarePlanModal.additionalNoteEditButton.click();
 
-    await completedCarePlanModal.additionalNoteSavedDate.fill(
-      formatForMuiDateTimePicker('2025-04-26T15:40'),
-    );
-    await completedCarePlanModal.additionalNoteSavedDate.blur();
+    await fillMuiDateTimeField(completedCarePlanModal.additionalNoteSavedDate, '2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
     await completedCarePlanModal.getSaveButton().click();
 

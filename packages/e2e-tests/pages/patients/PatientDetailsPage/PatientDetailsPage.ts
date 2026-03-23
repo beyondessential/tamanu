@@ -8,7 +8,7 @@ import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { format } from 'date-fns';
-import { formatForMuiDatePicker } from '@utils/testHelper';
+import { fillMuiDateField } from '@utils/testHelper';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
 import { CreateEncounterModal } from './modals/CreateEncounterModal';
@@ -414,8 +414,7 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewOngoingConditionAddButton.click();
     await this.ongoingConditionNameField.fill(conditionName);
     await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
-    await this.ongoingConditionDateRecordedField.fill(formatForMuiDatePicker(dateRecorded));
-    await this.ongoingConditionDateRecordedField.blur();
+    await fillMuiDateField(this.ongoingConditionDateRecordedField, dateRecorded);
     await this.ongoingConditionClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
     await this.ongoingConditionNotes.fill(notes);
@@ -458,8 +457,7 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewFamilyHistoryAddButton.click();
     await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
     await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
-    await this.familyHistoryDateRecordedField.fill(formatForMuiDatePicker(dateRecorded));
-    await this.familyHistoryDateRecordedField.blur();
+    await fillMuiDateField(this.familyHistoryDateRecordedField, dateRecorded);
     await this.familyHistoryRelationshipField.fill(relationship);
     await this.familyHistoryClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
