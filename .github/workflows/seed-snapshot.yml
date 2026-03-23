@@ -32,11 +32,14 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      INPUT_VERSION: ${{ inputs.version }}
+      INPUT_BRANCH: ${{ inputs.branch }}
     steps:
       - name: Validate version format
         run: |
-          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid version format '${{ inputs.version }}' — expected X.Y.Z"
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '$INPUT_VERSION' — expected X.Y.Z"
             exit 1
           fi
 
@@ -50,6 +53,11 @@ jobs:
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
 
       # -- Pulumi up the seed database stack --
 
@@ -143,7 +151,7 @@ jobs:
         run: |
           existing=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
             -l "tamanu.io/snapshot-type=seed-data" \
-            -o json | jq -r --arg ver "${{ inputs.version }}" \
+            -o json | jq -r --arg ver "$INPUT_VERSION" \
             '.items[] | select(.metadata.annotations["tamanu.io/release-version"] == $ver) | .metadata.name')
 
           for snap in $existing; do
@@ -168,9 +176,9 @@ jobs:
             labels:
               tamanu.io/snapshot-type: seed-data
             annotations:
-              tamanu.io/release-version: "${{ inputs.version }}"
+              tamanu.io/release-version: "${INPUT_VERSION}"
               tamanu.io/created-at: "${TIMESTAMP}"
-              tamanu.io/source-branch: "${{ inputs.branch }}"
+              tamanu.io/source-branch: "${INPUT_BRANCH}"
           spec:
             volumeSnapshotClassName: ebs-retain
             source:
