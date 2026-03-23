@@ -17,6 +17,9 @@ e2e_test_setup_setup_central() {
     cat <<- EOF > packages/central-server/config/local.json5
     {
         "port": "3000",
+        "auth": {
+            "tokenDuration": "24h"
+        },
         "db": {
             "host": "localhost",
             "name": "central",
@@ -130,6 +133,9 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
+	    "auth": {
+	        "tokenDuration": "24h"
+	    },
 	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
 	        "email": "facility-1@tamanu.io",
