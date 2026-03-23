@@ -58,8 +58,8 @@ export const AdministrationRoutes = React.memo(() => (
         </Route>
         <Route path="designations">
           <Route index element={<DesignationsAdminView />} />
-          {/* Modal route. Its state (opened/closed) is managed internally by DesignationsAdminView */}
           <Route path="new" element={<DesignationsAdminView />} />
+          <Route path="delete/:designationId" element={<DesignationsAdminView />} />
         </Route>
       </Route>
     </Route>

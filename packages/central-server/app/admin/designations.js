@@ -75,6 +75,29 @@ designationRouter.post(
   }),
 );
 
+designationRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'ReferenceData');
+
+    const {
+      store: {
+        models: { ReferenceData },
+      },
+      params: { id },
+    } = req;
+
+    const designation = await ReferenceData.findOne({
+      where: { id, type: REFERENCE_TYPES.DESIGNATION },
+    });
+    if (!designation) {
+      throw new NotFoundError(`No designation found with ID ‘${id}’`);
+    }
+
+    res.send(designation.forResponse());
+  }),
+);
+
 designationRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {

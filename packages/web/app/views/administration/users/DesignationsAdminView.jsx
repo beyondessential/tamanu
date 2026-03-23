@@ -1,14 +1,11 @@
-import { Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
-import { toast } from 'react-toastify';
-import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
-import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { DESIGNATIONS_ENDPOINT } from '../constants';
 import { AddDesignationModal } from './AddDesignationModal';
+import { DeleteDesignationModal } from './DeleteDesignationModal';
 import { DesignationsSearchForm } from './DesignationsSearchForm';
 import {
   AddButton,
@@ -17,9 +14,27 @@ import {
   plusIcon,
   StyledDataFetchingTable,
 } from './RolesAndDesignationsAdminView';
-import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 
-const STATIC_COLUMNS = /** @type {const} */ ([
+const ActionMenu = ({ data }) => {
+  const navigate = useNavigate();
+
+  return (
+    <ThreeDotMenu
+      items={[
+        {
+          label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+          onClick: () =>
+            navigate({
+              pathname: `delete/${encodeURIComponent(data.id)}`,
+              search: window.location.search,
+            }),
+        },
+      ]}
+    />
+  );
+};
+
+const columns = /** @type {const} */ ([
   {
     key: 'name',
     title: <TranslatedText stringId="admin.designations.name.column" fallback="Name" />,
@@ -30,89 +45,30 @@ const STATIC_COLUMNS = /** @type {const} */ ([
     title: <TranslatedText stringId="admin.designations.id.column" fallback="ID" />,
     sortable: true,
   },
+  {
+    CellComponent: ActionMenu,
+    dontCallRowInput: true,
+    isExportable: false,
+    key: 'actions',
+    numeric: true, // Not really, but applies align="right" to MUI TableCell
+    sortable: false,
+    title: '',
+  },
 ]);
 
-const DeleteConfirmationModal = props => (
-  <ConfirmModal
-    confirmButtonText={
-      <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
-    }
-    title={
-      <TranslatedText stringId="admin.designations.delete.title" fallback="Delete designation" />
-    }
-    {...props}
-  />
-);
-
-const DeleteConfirmationModalContent = styled(Typography).attrs({
-  variant: 'body2',
-})`
-  min-block-size: 8rem;
-  display: grid;
-  place-items: center stretch;
-`;
-
 export const DesignationsAdminView = () => {
+  // Search state
   const [searchParams] = useSearchParams();
   const idQuery = searchParams.get('id') ?? undefined;
   const nameQuery = searchParams.get('name') ?? undefined;
 
+  // DataFetchingTable state
+  const [refreshCount, setRefreshCount] = useState(0);
+  const refreshDataTable = useCallback(() => setRefreshCount(c => c + 1), []);
+
+  // ‘Add designation’ modal route
   const isAddRoute = Boolean(useMatch('/admin/users/rolesAndDesignations/designations/new'));
   const navigate = useNavigate();
-  const [designationToDelete, setDesignationToDelete] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
-
-  const { mutate: deleteDesignation } = useDesignationDeleteMutation({
-    onSuccess: () => {
-      setRefreshCount(c => c + 1);
-      setDesignationToDelete(null);
-      toast.success(
-        <TranslatedText
-          stringId="admin.designations.delete.success"
-          fallback="Designation deleted"
-        />,
-      );
-    },
-    onError: error => {
-      toast.error(
-        error.message || (
-          <TranslatedText
-            stringId="admin.designations.delete.error"
-            fallback="Couldn’t delete designation"
-          />
-        ),
-      );
-    },
-  });
-
-  const columns = useMemo(
-    () =>
-      /** @type {const} */ ([
-        ...STATIC_COLUMNS,
-        {
-          CellComponent: ({ data }) => (
-            <ThreeDotMenu
-              items={[
-                {
-                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                  onClick: () => setDesignationToDelete(data),
-                },
-              ]}
-            />
-          ),
-          dontCallRowInput: true,
-          key: 'actions',
-          numeric: true, // Not really, but applies align="right" to MUI TableCell
-          sortable: false,
-          title: '',
-        },
-      ]),
-    [],
-  );
-
-  const handleConfirmDelete = useCallback(() => {
-    if (designationToDelete) deleteDesignation(designationToDelete.id);
-  }, [deleteDesignation, designationToDelete]);
 
   return (
     <Article>
@@ -124,14 +80,10 @@ export const DesignationsAdminView = () => {
         </AddButton>
       </Header>
       <StyledDataFetchingTable
-        allowExport={true}
         columns={columns}
         defaultRowsPerPage={10}
         endpoint={DESIGNATIONS_ENDPOINT}
-        fetchOptions={{
-          id: idQuery,
-          display_name: nameQuery,
-        }}
+        fetchOptions={{ id: idQuery, display_name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={
           <TranslatedText
@@ -148,19 +100,7 @@ export const DesignationsAdminView = () => {
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
-      <DeleteConfirmationModal
-        open={Boolean(designationToDelete)}
-        onCancel={() => setDesignationToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        customContent={
-          <DeleteConfirmationModalContent>
-            <TranslatedText
-              stringId="admin.designations.delete.confirmation"
-              fallback="Are you sure you would like to delete this designation?"
-            />
-          </DeleteConfirmationModalContent>
-        }
-      />
+      <DeleteDesignationModal onSuccess={refreshDataTable} />
     </Article>
   );
 };
