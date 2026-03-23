@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
+import { formatForMuiDatePicker } from '@utils/testHelper';
 import { format } from 'date-fns';
 
 test.setTimeout(60000);
@@ -17,9 +18,12 @@ test.describe('Procedures', () => {
     const date = new Date();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     await modal.waitForModalToLoad();
-    await expect(modal.getLocatorInput(modal.procedureDateInput)).toHaveValue(format(date, 'yyyy-MM-dd'));
+    await expect(modal.getLocatorInput(modal.procedureDateInput)).toHaveValue(
+      formatForMuiDatePicker(format(date, 'yyyy-MM-dd')),
+    );
     await expect(modal.getLocatorInput(modal.leadClinicianInput)).toHaveValue(user.displayName!);
-    await expect(modal.getLocatorInput(modal.timeStartedInput)).toHaveValue(format(date, 'HH:mm'));
+    // Time started defaults from facility `getCurrentDateTime()`, not the test runner clock — assert display shape only.
+    await expect(modal.getLocatorInput(modal.timeStartedInput)).toHaveValue(/\d{1,2}:\d{2} (AM|PM)/);
   });
 
   test('[T-0197][AT-0090]Add a procedure with all fields filled and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
@@ -71,7 +75,9 @@ test.describe('Procedures', () => {
     const viewModal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     await viewModal.waitForModalToLoad();
     await expect(viewModal.getLocatorInput(viewModal.procedureInput)).toHaveValue(procedureData.procedure!);
-    await expect(viewModal.getLocatorInput(viewModal.procedureDateInput)).toHaveValue(format(new Date(), 'yyyy-MM-dd'));
+    await expect(viewModal.getLocatorInput(viewModal.procedureDateInput)).toHaveValue(
+      formatForMuiDatePicker(format(new Date(), 'yyyy-MM-dd')),
+    );
     await expect(viewModal.getLocatorInput(viewModal.procedureAreaInput)).toHaveValue(procedureData.area!);
     await expect(viewModal.getLocatorInput(viewModal.procedureLocationInput)).toHaveValue(procedureData.location!);
     await expect(viewModal.getLocatorInput(viewModal.departmentInput)).toHaveValue(procedureData.department!);
@@ -108,7 +114,9 @@ test.describe('Procedures', () => {
     await modal.getUnsavedChangesModal().waitForModalToLoad();
     await modal.getUnsavedChangesModal().continueEditingButton.click();
     await expect(modal.getLocatorInput(modal.procedureInput)).toHaveValue(procedureData.procedure!);
-    await expect(modal.getLocatorInput(modal.procedureDateInput)).toHaveValue(format(new Date(), 'yyyy-MM-dd'));
+    await expect(modal.getLocatorInput(modal.procedureDateInput)).toHaveValue(
+      formatForMuiDatePicker(format(new Date(), 'yyyy-MM-dd')),
+    );
     await expect(modal.getLocatorInput(modal.procedureAreaInput)).toHaveValue(procedureData.area!);
     await expect(modal.getLocatorInput(modal.procedureLocationInput)).toHaveValue(procedureData.location!);
     await expect(modal.getLocatorInput(modal.departmentInput)).toHaveValue(procedureData.department!);

@@ -209,6 +209,18 @@ export function formatForMuiDatePicker(isoDate: string): string {
 }
 
 /**
+ * Format a 24h wall time (`HH:mm`) for MUI TimePicker text fields (`DISPLAY_FORMATS.time` in ui-components: `hh:mm a`).
+ */
+export function formatForMuiTimePicker(hhmm24: string): string {
+  const trimmed = hhmm24.trim();
+  const parsed = parse(trimmed, 'HH:mm', new Date());
+  if (!isValid(parsed)) {
+    return trimmed;
+  }
+  return format(parsed, 'hh:mm a');
+}
+
+/**
  * Fill a search field and click a suggestion whose visible text equals `searchText`.
  *
  * **Flow** — `fill` → wait for search box visible → `getByText(searchText)` on the suggestion list → click.
