@@ -33,6 +33,13 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Validate version format
+        run: |
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '${{ inputs.version }}' — expected X.Y.Z"
+            exit 1
+          fi
+
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch }}
@@ -106,7 +113,9 @@ jobs:
             exit $exitcode
           }
           trap cleanup EXIT
-          sleep 5
+
+          timeout 30 bash -c 'until nc -z 127.0.0.1 4444; do sleep 1; done'
+          kill -0 $pf_pid 2>/dev/null || { echo "port-forward process died"; exit 1; }
 
           PGPASSWORD=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_SUPERUSER_CREDENTIAL_NAME" -o jsonpath='{.data.password}' | base64 -d)
           export PGPASSWORD
@@ -139,7 +148,9 @@ jobs:
 
           for snap in $existing; do
             echo "Deleting existing snapshot: $snap"
-            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE" --wait=false
+            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE"
+            echo "Waiting for $snap to be fully removed..."
+            kubectl wait volumesnapshot "$snap" -n "$SEED_NAMESPACE" --for=delete --timeout=120s 2>/dev/null || true
           done
 
       - name: Create volume snapshot
