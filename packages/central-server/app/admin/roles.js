@@ -4,12 +4,7 @@ import { escapeRegExp } from 'lodash';
 import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
-import {
-  BaseValidationError,
-  DatabaseDuplicateError,
-  ERROR_TYPE,
-  NotFoundError,
-} from '@tamanu/errors';
+import { DatabaseConstraintError, DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/role` endpoint for CRUD-ing a single role */
@@ -123,26 +118,20 @@ roleRouter.delete(
       const count = await User.count({
         where: { role: role.id }, // No FK constraint!
       });
-      if (count > 0) {
-        throw new InvalidRoleDeletionError(id, count);
-      }
+      if (count > 0) throw new InvalidRoleDeletionError(id, count);
 
       await role.destroy();
     });
     res.status(204).send();
   }),
 );
-
-class InvalidRoleDeletionError extends BaseValidationError {
+class InvalidRoleDeletionError extends DatabaseConstraintError {
   constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
-    const title = `Cannot delete role with ID ‘${roleId}’`;
-
     const isSingular = count === 1;
     const subject = isSingular ? 'user' : 'users';
     const verb = isSingular ? 'is' : 'are';
-    const detail = `${count} ${subject} ${verb} assigned to it`;
 
-    super(ERROR_TYPE.VALIDATION_CONSTRAINT, title, detail);
+    super(`Cannot delete role with ID ‘${roleId}’. ${count} ${subject} ${verb} assigned to it.`);
     this.withExtraData({ roleId, assignedUserCount: count });
   }
 }
