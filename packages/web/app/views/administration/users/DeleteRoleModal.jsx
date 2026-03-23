@@ -36,7 +36,6 @@ const RoleDeleteErrorModal = ({ open, title, detail, onClose }) => (
         <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
       )
     }
-    data-testid="modal-role-delete-error"
   >
     <ModalContent>
       <Typography variant="body2">
@@ -45,9 +44,9 @@ const RoleDeleteErrorModal = ({ open, title, detail, onClose }) => (
         )}
       </Typography>
     </ModalContent>
-    <ConfirmRowDivider data-testid="confirmrowdivider-role-delete-error" />
-    <ButtonRow data-testid="buttonrow-role-delete-error">
-      <Button onClick={onClose} data-testid="outlinedbutton-role-delete-error-close">
+    <ConfirmRowDivider />
+    <ButtonRow>
+      <Button onClick={onClose}>
         <TranslatedText stringId="general.action.close" fallback="Close" />
       </Button>
     </ButtonRow>
