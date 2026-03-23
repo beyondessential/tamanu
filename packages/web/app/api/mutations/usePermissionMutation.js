@@ -6,6 +6,7 @@ export const useTogglePermissionMutation = (rolesQueryParam, useMutationOptions)
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...useMutationOptions,
     mutationFn: async toggles => {
       const items = Array.isArray(toggles) ? toggles : [toggles];
       const toCreate = [];
@@ -27,7 +28,7 @@ export const useTogglePermissionMutation = (rolesQueryParam, useMutationOptions)
       }
       await Promise.all(promises);
     },
-    ...useMutationOptions,
+
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries(['adminPermissions', rolesQueryParam]);
       useMutationOptions?.onSuccess?.(data, variables, context);
