@@ -211,7 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -223,7 +223,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = allRecordsIncludeBuilder?.(req);
+      const include = includeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -563,7 +563,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             // Prioritize treatment plan at the top
             Sequelize.literal(`
               CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-            `),
+              `),
           ];
         }
       },
@@ -715,7 +715,6 @@ createSuggester(
   'InvoiceInsurancePlan',
   ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
   {
-    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },
 );
