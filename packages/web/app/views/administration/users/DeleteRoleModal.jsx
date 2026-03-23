@@ -152,20 +152,18 @@ export const DeleteRoleModal = ({ onSuccess }) => {
         }
         title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
         customContent={
-          <>
-            <ModalContent>
-              <Typography variant="body2">
-                <TranslatedText
-                  stringId="admin.roles.delete.confirmation"
-                  fallback="Are you sure you would like to delete the selected role?"
-                />
-                &nbsp;&ndash;{' '}
-                <strong aria-busy={isRoleLoading}>
-                  {isRoleLoading ? roleNameSkeleton : role?.name}
-                </strong>
-              </Typography>
-            </ModalContent>
-          </>
+          <ModalContent>
+            <Typography variant="body2">
+              <TranslatedText
+                stringId="admin.roles.delete.confirmation"
+                fallback="Are you sure you would like to delete the selected role?"
+              />
+              &nbsp;&ndash;{' '}
+              <strong aria-busy={isRoleLoading}>
+                {isRoleLoading ? roleNameSkeleton : role?.name}
+              </strong>
+            </Typography>
+          </ModalContent>
         }
         open={Boolean(roleId) && !isRoleNotFound}
         onCancel={onClose}
