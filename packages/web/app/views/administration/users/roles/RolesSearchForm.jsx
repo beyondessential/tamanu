@@ -1,34 +1,13 @@
 import React from 'react';
 import { useSearchParams } from 'react-router';
-import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
+import { FormSubmitButton, TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../../../../api';
 import { Button, TranslatedText } from '../../../../components';
 import { AutocompleteField, Field } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
-
-const Search = styled('search')`
-  display: contents;
-  gap: inherit;
-`;
-
-const StyledForm = styled(Form)`
-  display: grid;
-  gap: inherit;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
-`;
-
-const ButtonGroup = styled.div`
-  align-items: flex-end;
-  display: flex;
-  font-size: 0.875rem;
-  gap: inherit;
-  button {
-    font-size: inherit;
-  }
-`;
+import { ButtonGroup, Search, StyledForm } from '../components';
 
 export const RolesSearchForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();

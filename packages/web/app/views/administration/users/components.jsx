@@ -2,10 +2,32 @@ import { Skeleton } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 
+import { Form } from '@tamanu/ui-components';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, Field, TextField } from '../../../components';
 import { Colors } from '../../../constants';
 import { ContentContainer } from '../components/AdminViewContainer';
+
+export const Search = styled('search')`
+  display: contents;
+  gap: inherit;
+`;
+
+export const StyledForm = styled(Form)`
+  display: grid;
+  gap: inherit;
+  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
+`;
+
+export const ButtonGroup = styled.div`
+  align-items: flex-end;
+  display: flex;
+  font-size: 0.875rem;
+  gap: inherit;
+  button {
+    font-size: inherit;
+  }
+`;
 
 export const Header = styled.header`
   align-items: flex-end;
