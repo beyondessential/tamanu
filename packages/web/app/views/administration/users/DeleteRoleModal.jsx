@@ -32,64 +32,43 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
   const isExpectedError = Boolean(roleId && assignedUserCount);
 
+  // Should be unreachable because useRoleDeleteMutation’s onError checks this
+  if (!isExpectedError) return null;
+
   const isSingular = assignedUserCount === 1;
-  const title =
-    isExpectedError &&
-    (isSingular ? (
-      <TranslatedText
-        stringId="admin.roles.delete.error.title.singular"
-        fallback="user assigned to role"
-        casing="sentence"
-      />
-    ) : (
-      <TranslatedText
-        stringId="admin.roles.delete.error.title.plural"
-        fallback="users assigned to role"
-        casing="sentence"
-      />
-    ));
+  const title = isSingular ? (
+    <TranslatedText
+      stringId="admin.roles.delete.error.title.singular"
+      fallback="User assigned to role"
+      casing="sentence"
+    />
+  ) : (
+    <TranslatedText
+      stringId="admin.roles.delete.error.title.plural"
+      fallback="Users assigned to role"
+      casing="sentence"
+    />
+  );
 
   const detailReplacements = { roleId, count: assignedUserCount?.toLocaleString() };
-  const detail =
-    isExpectedError &&
-    (isSingular ? (
-      <TranslatedText
-        stringId="admin.roles.delete.error.detail.singular"
-        fallback="Cannot delete role with ID ‘:roleId’ as :count user is assigned to it. Please update their profile first to delete the role."
-        replacements={detailReplacements}
-      />
-    ) : (
-      <TranslatedText
-        stringId="admin.roles.delete.error.detail.plural"
-        fallback="Cannot delete role with ID ‘:roleId’ as :count users are assigned to it. Please update their profiles first to delete the role."
-        replacements={detailReplacements}
-      />
-    ));
+  const detail = isSingular ? (
+    <TranslatedText
+      stringId="admin.roles.delete.error.detail.singular"
+      fallback="Cannot delete role with ID ‘:roleId’ as :count user is assigned to it. Please update their profile first to delete the role."
+      replacements={detailReplacements}
+    />
+  ) : (
+    <TranslatedText
+      stringId="admin.roles.delete.error.detail.plural"
+      fallback="Cannot delete role with ID ‘:roleId’ as :count users are assigned to it. Please update their profiles first to delete the role."
+      replacements={detailReplacements}
+    />
+  );
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      width="sm"
-      title={
-        title ||
-        error?.title || (
-          <TranslatedText
-            stringId="admin.roles.delete.error.generic"
-            fallback="Couldn’t delete role"
-          />
-        )
-      }
-    >
+    <Modal open={open} onClose={onClose} width="sm" title={title}>
       <ModalContent>
-        <Typography variant="body2">
-          {detail || error?.detail || error?.message || (
-            <TranslatedText
-              stringId="admin.roles.delete.error.generic"
-              fallback="Couldn’t delete role"
-            />
-          )}
-        </Typography>
+        <Typography variant="body2">{detail}</Typography>
       </ModalContent>
       <ConfirmRowDivider />
       <ButtonRow>
