@@ -5,19 +5,12 @@ import { TranslatedText } from '../../../components';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { ROLES_ENDPOINT } from '../constants';
 import { AddRoleModal } from './AddRoleModal';
+import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from './components';
 import { DeleteRoleModal } from './DeleteRoleModal';
-import {
-  AddButton,
-  Article,
-  Header,
-  plusIcon,
-  StyledDataFetchingTable,
-} from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();
-
   return (
     <ThreeDotMenu
       items={[

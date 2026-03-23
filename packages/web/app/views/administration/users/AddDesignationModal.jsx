@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, ModalContent } from '@tamanu/ui-components';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
-import { RequiredTextField } from './RolesAndDesignationsAdminView';
+import { RequiredTextField } from './components';
 import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({

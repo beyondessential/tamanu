@@ -7,13 +7,7 @@ import { DESIGNATIONS_ENDPOINT } from '../constants';
 import { AddDesignationModal } from './AddDesignationModal';
 import { DeleteDesignationModal } from './DeleteDesignationModal';
 import { DesignationsSearchForm } from './DesignationsSearchForm';
-import {
-  AddButton,
-  Article,
-  Header,
-  plusIcon,
-  StyledDataFetchingTable,
-} from './RolesAndDesignationsAdminView';
+import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from './components';
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();

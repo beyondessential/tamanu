@@ -1,4 +1,4 @@
-import { Skeleton, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -9,6 +9,7 @@ import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
 import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
+import { shortInlineSkeleton } from './components';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 
@@ -17,14 +18,6 @@ const ModalContent = styled.div`
   display: grid;
   place-items: center stretch;
 `;
-
-const roleNameSkeleton = (
-  <Skeleton
-    animation="wave"
-    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-    width="12ch"
-  />
-);
 
 const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   if (!Error.isError(error)) return null;
@@ -162,7 +155,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
               />
               &nbsp;&ndash;{' '}
               <strong aria-busy={isRoleLoading}>
-                {isRoleLoading ? roleNameSkeleton : role?.name}
+                {isRoleLoading ? shortInlineSkeleton : role?.name}
               </strong>
             </Typography>
           </ModalContent>

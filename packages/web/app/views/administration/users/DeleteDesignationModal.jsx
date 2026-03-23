@@ -1,4 +1,4 @@
-import { Skeleton, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import React, { useCallback, useLayoutEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -6,6 +6,7 @@ import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { shortInlineSkeleton } from './components';
 import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 import { useDesignationQuery } from './useDesignationQuery';
 
@@ -14,14 +15,6 @@ const ModalContent = styled.div`
   display: grid;
   place-items: center stretch;
 `;
-
-const designationNameSkeleton = (
-  <Skeleton
-    animation="wave"
-    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-    width="12ch"
-  />
-);
 
 export const DeleteDesignationModal = ({ onSuccess }) => {
   const deleteMatch = useMatch(
@@ -80,7 +73,10 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
   return (
     <ConfirmModal
       confirmButtonText={
-        <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
+        <TranslatedText
+          stringId="general.action.delete-designation"
+          fallback="Delete designation"
+        />
       }
       title={
         <TranslatedText stringId="admin.designations.delete.title" fallback="Delete designation" />
@@ -94,7 +90,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
             />
             &nbsp;&ndash;{' '}
             <strong aria-busy={isDesignationLoading}>
-              {isDesignationLoading ? designationNameSkeleton : designation?.name}
+              {isDesignationLoading ? shortInlineSkeleton : designation?.name}
             </strong>
           </Typography>
         </ModalContent>
