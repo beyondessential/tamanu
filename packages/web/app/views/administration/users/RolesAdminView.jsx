@@ -187,18 +187,25 @@ export const RolesAdminView = () => {
 
   // DataFetchingTable state
   const [refreshCount, setRefreshCount] = useState(0);
-
-  // ‘Add role’ and ‘Delete role’ modal routes
-  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
-
-  const navigate = useNavigate();
   const refreshDataTable = useCallback(() => setRefreshCount(c => c + 1), []);
+
+  // ‘Add role’ modal route
+  const navigate = useNavigate();
+  const openAddRoleModal = useCallback(
+    () => navigate({ pathname: 'new', search: window.location.search }),
+    [navigate],
+  );
+  const closeAddRoleModal = useCallback(
+    () => navigate({ pathname: '..', search: window.location.search }),
+    [navigate],
+  );
+  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
 
   return (
     <Article>
       <Header>
         <RolesSearchForm />
-        <AddButton onClick={() => navigate({ pathname: 'new', search: window.location.search })}>
+        <AddButton onClick={openAddRoleModal}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </AddButton>
@@ -216,7 +223,7 @@ export const RolesAdminView = () => {
 
       <AddRoleModal
         open={isAddRoute}
-        onClose={() => navigate({ pathname: '..', search: window.location.search })}
+        onClose={closeAddRoleModal}
         onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
