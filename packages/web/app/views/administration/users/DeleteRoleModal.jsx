@@ -27,6 +27,8 @@ const roleNameSkeleton = (
 );
 
 const RoleDeleteErrorModal = ({ open, error, onClose }) => {
+  if (!Error.isError(error)) return null;
+
   const roleId = error?.extra?.get?.('role-id');
   const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'));
   const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
