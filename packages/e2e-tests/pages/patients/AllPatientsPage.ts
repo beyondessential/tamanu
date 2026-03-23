@@ -179,7 +179,7 @@ export class AllPatientsPage extends BasePatientListPage {
     await this.NewPatientLastName.fill(lastName);
 
     await this.NewPatientDOBtxt.click();
-    await this.NewPatientDOBtxt.fill(dob);
+    await fillMuiDateField(this.NewPatientDOBtxt, dob);
 
     if (gender === 'female') {
       await this.NewPatientFemaleChk.check();

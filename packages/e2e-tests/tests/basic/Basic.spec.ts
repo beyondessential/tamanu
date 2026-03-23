@@ -1,7 +1,13 @@
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
-import { assertRecentDateTime, convertDateFormat, getTableItems, formatDateTimeForTable } from '@utils/testHelper';
+import {
+  assertRecentDateTime,
+  convertDateFormat,
+  formatDateTimeForTable,
+  getTableItems,
+  normalizeToIsoDate,
+} from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
@@ -171,7 +177,9 @@ test.describe('Basic tests', () => {
 
      await expect(patientDetailsTabPage2.firstNameInput).toHaveValue(patientDetails.firstName as string);
      await expect(patientDetailsTabPage2.lastNameInput).toHaveValue(patientDetails.lastName as string);
-     await expect(patientDetailsTabPage2.dateOfBirthInput.locator('input')).toHaveValue('1990-01-01');
+     expect(
+       normalizeToIsoDate(await patientDetailsTabPage2.dateOfBirthInput.locator('input').inputValue()),
+     ).toBe('1990-01-01');
      if ((patientDetails.sex) === 'female') {
        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
      } else if ((patientDetails.sex ) === 'male') {
@@ -209,7 +217,7 @@ test.describe('Basic tests', () => {
       await newImagingRequestModal.waitForModalToLoad();
       const imagingRequestCode= await newImagingRequestModal.imagingRequestCodeInput.inputValue();
 
-      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'yyyy-MM-dd\'T\'HH:mm');
+      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput);
 
       const defaultRequestingClinician = await newImagingRequestModal.requestingClinicianInput.inputValue();
       expect(defaultRequestingClinician).toBe(currentUserDisplayName);
@@ -326,7 +334,9 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();  
-    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'yyyy-MM-dd'));
+    expect(normalizeToIsoDate(await diagnosisModal.dateInput.inputValue())).toBe(
+      format(new Date(), 'yyyy-MM-dd'),
+    );
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();

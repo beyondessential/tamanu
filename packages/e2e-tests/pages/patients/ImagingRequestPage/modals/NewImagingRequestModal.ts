@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export interface ImagingRequestFormValues {
   orderDateTime?: string;
@@ -76,7 +77,7 @@ export class NewImagingRequestModal {
     } = values;
 
     if (orderDateTime) {
-      await this.orderDateTimeInput.fill(orderDateTime);
+      await fillMuiDateTimeField(this.orderDateTimeInput, orderDateTime);
     }
 
     let selectedRequestingClinician: string | undefined;

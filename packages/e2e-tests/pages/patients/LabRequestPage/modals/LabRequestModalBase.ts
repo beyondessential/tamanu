@@ -2,7 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { format } from 'date-fns';
-import { getTableItems } from '../../../../utils/testHelper';
+import { fillMuiDateTimeField, getTableItems } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
 
@@ -248,7 +248,7 @@ export class LabRequestModalBase {
     const input = this.dateTimeCollectedInputs.locator('input').nth(index);
     await input.click();
     await input.waitFor({ state: 'visible' });
-    await input.fill(dateTime);
+    await fillMuiDateTimeField(input, dateTime);
   }
   
   /**

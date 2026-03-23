@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 import { RecordVitalsModal } from '../../VitalsPage/modals/RecordVitalsModal';
 
 export class EmergencyTriageModal {
@@ -159,7 +160,7 @@ export class EmergencyTriageModal {
     triageClinician?: string;
   }> {
     if (options.arrivalDateTime) {
-      await this.arrivalDateTimeInput.locator('input').fill(options.arrivalDateTime);
+      await fillMuiDateTimeField(this.arrivalDateTimeInput.locator('input'), options.arrivalDateTime);
     }
     
     const area = await selectAutocompleteFieldOption(this.page, this.areaField, {

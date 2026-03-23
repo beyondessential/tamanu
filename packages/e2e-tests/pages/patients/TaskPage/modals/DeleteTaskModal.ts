@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export class DeleteTaskModal {
   readonly page: Page;
@@ -48,7 +49,7 @@ export class DeleteTaskModal {
     }
 
     if (values.recordDateTime) {
-      await this.recordDateTimeInput.fill(values.recordDateTime);
+      await fillMuiDateTimeField(this.recordDateTimeInput, values.recordDateTime);
     }
 
     if (values.reasonForDeletion) {

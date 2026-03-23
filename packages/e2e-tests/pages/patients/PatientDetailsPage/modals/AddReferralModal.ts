@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateField } from '@utils/testHelper';
 
 export class AddReferralModal {
   readonly page: Page;
@@ -69,7 +70,7 @@ export class AddReferralModal {
     referralReason?: string;
     relevantScreeningHistory?: string;
   }> {
-    await this.referralDateInput.fill(values.referralDate);
+    await fillMuiDateField(this.referralDateInput, values.referralDate);
     
     const selectedReferralHealthFacility = values.referralHealthFacility
       ? await selectAutocompleteFieldOption(this.page, this.referralHealthFacility, {

@@ -65,6 +65,13 @@ export function formatForMuiTimePicker(hhmm24: string): string {
 }
 
 /**
+ * Shared app date fields use the same MUI-style text format (`dd/MM/yyyy` or `dd/MM/yyyy hh:mm a`).
+ * Fill with {@link fillMuiDateField}, {@link fillMuiDateTimeField}, or {@link fillMuiTimeField}
+ * using ISO-like test fixtures (`yyyy-MM-dd`, `yyyy-MM-dd'T'HH:mm`, `HH:mm` for time-only).
+ * Assert with {@link normalizeToIsoDate} / {@link normalizeToIsoDateTimeMinute} on `inputValue()` when needed.
+ */
+
+/**
  * Fill an MUI **date-only** field and blur so Formik receives the value.
  */
 export async function fillMuiDateField(field: Locator, date: string): Promise<void> {
@@ -232,21 +239,26 @@ export function offsetYear(
 /**
  * Assert the value of a datetime **input** is within `thresholdMinutes` of “now” (wall clock).
  *
- * **Use case** — Fields defaulting to current date/time on open (e.g. new encounter).
+ * **Use case** — Fields defaulting to current date/time on open (e.g. new imaging request).
  *
- * **Parsing** — Uses `date-fns` `parse` with your `dateFormat`; must match the input’s `value` shape exactly.
+ * **Parsing** — Accepts MUI display strings and ISO-like values (see {@link parseTamanuDate}).
  *
  * @param inputLocator — `input` or element exposing `.inputValue()`.
- * @param dateFormat — `date-fns` format string matching the input `value` (e.g. ISO-local datetime with a `T` separator).
  * @param thresholdMinutes — Max absolute difference in minutes (default 2).
  */
 export async function assertRecentDateTime(
   inputLocator: Locator,
-  dateFormat: string,
   thresholdMinutes: number = 2,
 ): Promise<void> {
-  const inputDateTimeValue = await inputLocator.inputValue();
-  const parsedInputDate = parse(inputDateTimeValue, dateFormat, new Date());
+  const raw = await inputLocator.inputValue();
+  let parsedInputDate = parseTamanuDate(raw);
+  if (!parsedInputDate) {
+    const native = new Date(raw.trim());
+    parsedInputDate = isValid(native) ? native : null;
+  }
+  if (!parsedInputDate) {
+    throw new Error(`Could not parse datetime input value: ${raw}`);
+  }
   const now = new Date();
   const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
   expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
