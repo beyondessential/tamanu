@@ -10,8 +10,6 @@ on:
         type: string
         required: true
     secrets:
-      PULUMI_ACCESS_TOKEN:
-        required: true
       TAMANU_OPS_SSH:
         required: true
 
@@ -19,9 +17,6 @@ permissions: {}
 
 env:
   SEED_NAMESPACE: tamanu-seed
-  SEED_DB_SERVICE: seed-db-rw
-  SEED_DB_CREDENTIAL_NAME: seed-db-app
-  SEED_DB_SUPERUSER_CREDENTIAL_NAME: seed-db-superuser
   RETENTION_COUNT: "20"
 
 jobs:
@@ -54,30 +49,55 @@ jobs:
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
-      # -- Pulumi up the seed database stack --
-
-      - name: Get full stack name
-        id: stack
-        working-directory: ops/pulumi/stacks/tamanu/seed
+      - name: Derive cluster names
+        id: names
         run: |
-          project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
-          echo "stackname=bes/$project/dev" >> $GITHUB_OUTPUT
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "cluster=seed-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Deploy seed database
-        uses: pulumi/actions@v5
-        with:
-          work-dir: ops/pulumi/stacks/tamanu/seed
-          command: up
-          stack-name: ${{ steps.stack.outputs.stackname }}
-          upsert: true
+      # -- Create ephemeral CNPG cluster --
+
+      - name: Create seed database cluster
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
+        run: |
+          kubectl apply -f - <<EOF
+          apiVersion: postgresql.cnpg.io/v1
+          kind: Cluster
+          metadata:
+            name: ${CLUSTER_NAME}
+            namespace: ${SEED_NAMESPACE}
+          spec:
+            imageCatalogRef:
+              apiGroup: postgresql.cnpg.io
+              kind: ClusterImageCatalog
+              name: postgresql
+              major: 17
+            instances: 1
+            primaryUpdateStrategy: unsupervised
+            storage:
+              size: 20Gi
+            resources:
+              requests:
+                memory: 750Mi
+                cpu: 10m
+            postgresql:
+              parameters:
+                shared_buffers: 200MB
+            affinity:
+              nodeSelector:
+                bes.node.purpose: workload
+          EOF
 
       - name: Wait for seed database readiness
+        env:
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
         run: |
-          echo "Waiting for seed-db-rw endpoints..."
+          echo "Waiting for ${CLUSTER_NAME}-rw endpoints..."
           for i in $(seq 1 60); do
-            ready=$(kubectl get endpoints "$SEED_DB_SERVICE" -n "$SEED_NAMESPACE" -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null || true)
+            ready=$(kubectl get endpoints "${CLUSTER_NAME}-rw" -n "$SEED_NAMESPACE" \
+              -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null || true)
             if [ -n "$ready" ]; then
               echo "Database is ready"
               exit 0
@@ -103,17 +123,22 @@ jobs:
         working-directory: packages/scripts
 
       - name: Configure database connection
+        env:
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
         run: |
-          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_CREDENTIAL_NAME" -o jsonpath='{.data.password}' | base64 -d)
+          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "${CLUSTER_NAME}-app" \
+            -o jsonpath='{.data.password}' | base64 -d)
           echo "::add-mask::$pgpass"
           echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" >> $GITHUB_ENV
           echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< "$pgpass")" >> $GITHUB_ENV
 
-      - name: Reset and seed database
+      - name: Run migrations and populate seed data
+        env:
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
         run: |
           set -ex
 
-          kubectl port-forward -n "$SEED_NAMESPACE" "service/$SEED_DB_SERVICE" 4444:5432 &
+          kubectl port-forward -n "$SEED_NAMESPACE" "service/${CLUSTER_NAME}-rw" 4444:5432 &
           pf_pid=$!
           cleanup() {
             exitcode=$?
@@ -124,17 +149,6 @@ jobs:
 
           timeout 30 bash -c 'until nc -z 127.0.0.1 4444; do sleep 1; done'
           kill -0 $pf_pid 2>/dev/null || { echo "port-forward process died"; exit 1; }
-
-          PGPASSWORD=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_SUPERUSER_CREDENTIAL_NAME" -o jsonpath='{.data.password}' | base64 -d)
-          export PGPASSWORD
-          echo "::add-mask::$PGPASSWORD"
-
-          echo "Dropping and recreating app database..."
-          psql -h 127.0.0.1 -p 4444 -U postgres -d postgres \
-            -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'app' AND pid <> pg_backend_pid();" \
-            -c "DROP DATABASE IF EXISTS app;" \
-            -c "CREATE DATABASE app OWNER app;"
-          unset PGPASSWORD
 
           echo "Running migrations..."
           node packages/central-server/dist migrate
@@ -162,8 +176,10 @@ jobs:
           done
 
       - name: Create volume snapshot
+        env:
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
+          SHORT_SHA: ${{ steps.names.outputs.short_sha }}
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
           SNAP_NAME="tamanu-seed-${SHORT_SHA}"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -182,7 +198,7 @@ jobs:
           spec:
             volumeSnapshotClassName: ebs-retain
             source:
-              persistentVolumeClaimName: seed-db-1
+              persistentVolumeClaimName: ${CLUSTER_NAME}-1
           EOF
 
           echo "Created snapshot: ${SNAP_NAME}"
@@ -192,6 +208,20 @@ jobs:
             -n "$SEED_NAMESPACE" \
             --for=jsonpath='{.status.readyToUse}'=true \
             --timeout=600s
+
+      # -- Cleanup ephemeral cluster --
+
+      - name: Delete ephemeral seed cluster
+        if: always()
+        env:
+          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
+        run: |
+          if kubectl get cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" 2>/dev/null; then
+            echo "Deleting CNPG cluster: $CLUSTER_NAME"
+            kubectl delete cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" --wait=true --timeout=120s
+            echo "Deleting orphaned PVC (if any)..."
+            kubectl delete pvc "${CLUSTER_NAME}-1" -n "$SEED_NAMESPACE" --ignore-not-found
+          fi
 
       - name: Prune old snapshots beyond retention
         run: |
