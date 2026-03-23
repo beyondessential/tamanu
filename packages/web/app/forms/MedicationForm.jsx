@@ -362,7 +362,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTimeCompact, formatShort } = useDateTime();
+  const { formatTime, formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -386,10 +386,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeCompact(
+    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
       getDateFromTimeString(firstSlot.endTime),
     )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTimeCompact, formatShort]);
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -550,7 +550,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
+                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
                           </FieldContent>
                         }
                         value={checked}

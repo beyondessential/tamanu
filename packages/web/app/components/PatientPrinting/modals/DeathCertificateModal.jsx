@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../../../api';
 import { Button, Modal, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -8,6 +10,16 @@ import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../a
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+
+const useParentQuery = (enabled, parentId) => {
+  const api = useApi();
+  return useQuery(
+    ['parentData', parentId],
+    async () => (parentId ? api.get(`patient/${encodeURIComponent(parentId)}`) : null),
+    { enabled },
+  );
+};
 
 const StyledButton = styled(Button)`
   &&.MuiButton-containedPrimary.Mui-disabled {
@@ -19,21 +31,38 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
+  const { currentUser } = useAuth();
   const { primaryTimeZone } = useDateTime();
 
   const {
     data: additionalData,
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
-
+  const { data: motherData, isLoading: isMotherDataLoading } = useParentQuery(
+    !!additionalData,
+    additionalData?.motherId,
+  );
+  const { data: fatherData, isLoading: isFatherDataLoading } = useParentQuery(
+    !!additionalData,
+    additionalData?.fatherId,
+  );
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
+  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
 
-  const villageQuery = useReferenceDataQuery(patient?.villageId);
-  const village = villageQuery.data;
+  const patientData = {
+    ...patient,
+    ...deathData,
+    additionalData,
+    motherData,
+    fatherData,
+    village,
+  };
 
-  const patientData = { ...patient, ...deathData, additionalData, village };
-
-  const isLoading = isAdditionalDataFetching || isCertificateFetching;
+  const isLoading = isAdditionalDataFetching
+    || isCertificateFetching
+    || isMotherDataLoading
+    || isFatherDataLoading
+    || isVillageLoading;
 
   return (
     <>
@@ -63,6 +92,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
+            printedBy={currentUser?.displayName}
             primaryTimeZone={primaryTimeZone}
             data-testid="deathcertificateprintout-l7w8"
           />

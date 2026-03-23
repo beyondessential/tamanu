@@ -75,7 +75,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       key: 'displayId',
       title: (
         <TranslatedText
-          stringId="imaging.requestId.label"
+          stringId="general.requestId.label"
           fallback="Request ID"
           data-testid="translatedtext-req-id"
         />

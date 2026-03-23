@@ -204,7 +204,7 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
-  const { formatTimeCompact, getFacilityNowDate, toFacilityDateTime } = useDateTime();
+  const { formatTime, getFacilityNowDate, toFacilityDateTime } = useDateTime();
   const facilityNow = getFacilityNowDate();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
@@ -409,7 +409,7 @@ export const MarStatus = ({
       return (
         <Box maxWidth={105}>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
-          <DateDisplay date={endDate} timeFormat="compact" noTooltip />
+          <DateDisplay date={endDate} timeFormat="default" noTooltip />
         </Box>
       );
     }
@@ -456,7 +456,7 @@ export const MarStatus = ({
                         stringId="medication.mar.givenAt.tooltip"
                         fallback="given at :time"
                         replacements={{
-                          time: formatTimeCompact(dose?.givenTime),
+                          time: formatTime(dose?.givenTime),
                         }}
                       />
                     </div>
@@ -473,7 +473,7 @@ export const MarStatus = ({
                   stringId="medication.mar.future.tooltip"
                   fallback="Cannot record future dose. Due at :dueAt."
                   replacements={{
-                    dueAt: formatTimeCompact(dueAt),
+                    dueAt: formatTime(dueAt),
                   }}
                 />
               </Box>
@@ -486,7 +486,7 @@ export const MarStatus = ({
                   stringId="medication.mar.missed.tooltip"
                   fallback="Missed. Due at :dueAt"
                   replacements={{
-                    dueAt: formatTimeCompact(dueAt),
+                    dueAt: formatTime(dueAt),
                   }}
                 />
               </Box>
@@ -498,7 +498,7 @@ export const MarStatus = ({
                 stringId="medication.mar.dueAt.tooltip"
                 fallback="Due at :dueAt"
                 replacements={{
-                  dueAt: formatTimeCompact(dueAt),
+                  dueAt: formatTime(dueAt),
                 }}
               />
             </Box>

@@ -4,6 +4,7 @@ import { Form, FormSubmitButton, TextButton, FormGrid } from '@tamanu/ui-compone
 import { Colors } from '../constants/styles';
 import Typography from '@material-ui/core/Typography';
 import { DynamicSelectField, Field, SearchField } from './Field';
+import { useSuggester } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const DOCUMENT_TYPE_OPTIONS = [
@@ -48,6 +49,10 @@ const SubmitButton = styled(FormSubmitButton)`
 `;
 
 export const DocumentsSearchBar = ({ setSearchParameters }) => {
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+
   const handleSubmit = async (values) => {
     setSearchParameters(values);
   };
@@ -95,7 +100,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
               data-testid="field-keq3"
             />
             <Field
-              name="departmentName"
+              name="departmentId"
               label={
                 <TranslatedText
                   stringId="general.department.label"
@@ -103,7 +108,8 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
                   data-testid="translatedtext-3z2r"
                 />
               }
-              component={SearchField}
+              component={DynamicSelectField}
+              suggester={departmentSuggester}
               size="small"
               data-testid="field-l56i"
             />

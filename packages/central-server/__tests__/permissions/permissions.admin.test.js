@@ -128,6 +128,31 @@ describe('Permissions Admin', () => {
       expect(surveyObjectRow).toBeDefined();
       expect(objectNames[`Survey#${survey.id}`]).toBe('Test Survey');
     });
+
+    it('should pre-populate Charting objectId rows from charting-type surveys', async () => {
+      const program = await models.Program.create({
+        id: 'test-program',
+        name: 'Test Program',
+      });
+      await models.Survey.create({
+        id: 'chart-survey-1',
+        name: 'Blood Pressure Chart',
+        programId: program.id,
+        surveyType: 'simpleChart',
+      });
+
+      const res = await adminApp
+        .get('/v1/admin/permissions')
+        .query({ roles: 'role-a' });
+      expect(res).toHaveSucceeded();
+
+      const { permissions, objectNames } = res.body;
+      const chartingRow = permissions.find(
+        p => p.noun === 'Charting' && p.objectId === 'chart-survey-1',
+      );
+      expect(chartingRow).toBeDefined();
+      expect(objectNames['Charting#chart-survey-1']).toBe('Blood Pressure Chart');
+    });
   });
 
   describe('POST /create-batch', () => {

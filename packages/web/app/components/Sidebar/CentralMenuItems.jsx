@@ -87,7 +87,31 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/users',
-    icon: <PersonIcon aria-hidden color="secondary" data-testid="peopleicon-users" />,
+    icon: <PersonIcon aria-hidden color="secondary" data-testid="personicon-users" />,
+    children: [
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.userProfiles"
+            fallback="User profiles"
+            data-testid="translatedtext-user-profiles"
+          />
+        ),
+        path: '/admin/users/profiles',
+        key: 'userProfiles',
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.rolesAndDesignations"
+            fallback="Roles & designations"
+            data-testid="translatedtext-roles-designations"
+          />
+        ),
+        path: '/admin/users/roles',
+        key: 'rolesAndDesignations',
+      },
+    ],
   },
   {
     key: 'patientMerge',

@@ -358,13 +358,13 @@ const getEndDate = task => {
 };
 
 const DurationTooltip = ({ endDate }) => {
-  const { formatShortest, formatTimeCompact } = useDateTime();
+  const { formatShortest, formatTime } = useDateTime();
   return (
     <TranslatedText
       stringId="encounter.tasks.table.duration.endDate"
       fallback={`Ends at :time on :date`}
       replacements={{
-        time: formatTimeCompact(endDate),
+        time: formatTime(endDate),
         date: formatShortest(endDate),
       }}
     />
