@@ -15,9 +15,7 @@ on:
       TAMANU_OPS_SSH:
         required: true
 
-permissions:
-  contents: read
-  id-token: write # for Tailscale OIDC authentication
+permissions: {}
 
 env:
   SEED_NAMESPACE: tamanu-seed
@@ -30,6 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
     timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -95,22 +96,7 @@ jobs:
           echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< "$pgpass")" >> $GITHUB_ENV
           echo "PGPASSWORD=$supass" >> $GITHUB_ENV
 
-      - name: Reset database for fresh seed
-        run: |
-          kubectl port-forward -n "$SEED_NAMESPACE" "service/$SEED_DB_SERVICE" 4444:5432 &
-          pf_pid=$!
-          trap "kill $pf_pid 2>/dev/null || true" EXIT
-          sleep 5
-
-          echo "Dropping and recreating app database..."
-          psql -h 127.0.0.1 -p 4444 -U postgres -d postgres \
-            -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'app' AND pid <> pg_backend_pid();" \
-            -c "DROP DATABASE IF EXISTS app;" \
-            -c "CREATE DATABASE app OWNER app;"
-
-          kill $pf_pid 2>/dev/null || true
-
-      - name: Run migrations and populate seed data
+      - name: Reset and seed database
         run: |
           set -ex
 
@@ -123,6 +109,12 @@ jobs:
           }
           trap cleanup EXIT
           sleep 5
+
+          echo "Dropping and recreating app database..."
+          psql -h 127.0.0.1 -p 4444 -U postgres -d postgres \
+            -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'app' AND pid <> pg_backend_pid();" \
+            -c "DROP DATABASE IF EXISTS app;" \
+            -c "CREATE DATABASE app OWNER app;"
 
           echo "Running migrations..."
           node packages/central-server/dist migrate
@@ -139,7 +131,8 @@ jobs:
         run: |
           existing=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
             -l "tamanu.io/snapshot-type=seed-data" \
-            -o jsonpath='{range .items[?(@.metadata.annotations.tamanu\.io/release-version=="${{ inputs.version }}")]}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)
+            -o json | jq -r --arg ver "${{ inputs.version }}" \
+            '.items[] | select(.metadata.annotations["tamanu.io/release-version"] == $ver) | .metadata.name')
 
           for snap in $existing; do
             echo "Deleting existing snapshot: $snap"
@@ -148,7 +141,7 @@ jobs:
 
       - name: Create volume snapshot
         run: |
-          SHORT_SHA=$(echo "$GITHUB_SHA" | head -c 7)
+          SHORT_SHA=$(git rev-parse --short HEAD)
           SNAP_NAME="tamanu-seed-${SHORT_SHA}"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
