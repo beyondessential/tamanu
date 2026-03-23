@@ -48,13 +48,19 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="users">
       <Route index element={<Navigate to="profiles" replace />} />
       <Route path="profiles" element={<UserProfilesAdminView />} />
-      <Route path="roles" element={<RolesAndDesignationsAdminView />}>
-        <Route index element={<RolesAdminView />} />
-        <Route path="new" element={<RolesAdminView />} />
-        <Route path="delete/:id" element={<RolesAdminView />} />
-      </Route>
-      <Route path="designations" element={<RolesAndDesignationsAdminView />}>
-        <Route index element={<DesignationsAdminView />} />
+
+      <Route path="rolesAndDesignations" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<Navigate to="roles" replace />} />
+        <Route path="roles">
+          <Route index element={<RolesAdminView />} />
+          <Route path="new" element={<RolesAdminView />} />
+          <Route path="delete/:id" element={<RolesAdminView />} />
+        </Route>
+        <Route path="designations">
+          <Route index element={<DesignationsAdminView />} />
+          <Route path="new" element={<DesignationsAdminView />} />
+          <Route path="delete/:designationId" element={<DesignationsAdminView />} />
+        </Route>
       </Route>
     </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />

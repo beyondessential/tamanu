@@ -1,24 +1,25 @@
+import { Box } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
+import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import {
   Button,
   DataFetchingTable,
   Heading1,
   TranslatedText,
   UserSearchBar,
-} from '../../../components';
-import { USERS_ENDPOINT } from '../constants';
-import { Colors } from '../../../constants';
-import { ThemedTooltip } from '../../../components/Tooltip';
-import { AdminViewContainer } from '../components/AdminViewContainer';
-import { LimitedLinesCell } from '../../../components/FormattedTableCell';
-import { UserProfileModal } from './UserProfileModal';
-import { useAuth } from '../../../contexts/Auth';
-import { Divider } from '@mui/material';
+} from '../../../../components';
+import { LimitedLinesCell } from '../../../../components/FormattedTableCell';
+import { ThemedTooltip } from '../../../../components/Tooltip';
+import { Colors } from '../../../../constants';
+import { useAuth } from '../../../../contexts/Auth';
+import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
-import { PlusIcon } from '../../../assets/icons/PlusIcon';
+import { UserProfileModal } from './UserProfileModal';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -116,8 +117,7 @@ const UserStatusIndicator = ({ visibilityStatus }) => {
   );
 };
 
-// Helper function to display empty fields as hyphen
-const displayFieldOrHyphen = value => value || '-';
+const displayFieldOrDash = value => value || <>&mdash;</>;
 
 const COLUMNS = [
   {
@@ -134,20 +134,20 @@ const COLUMNS = [
     key: 'displayId',
     title: <TranslatedText stringId="admin.users.displayId.column" fallback="ID" />,
     sortable: false,
-    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrHyphen(displayId)}</Box>,
+    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrDash(displayId)}</Box>,
   },
   {
     key: 'roleName',
     title: <TranslatedText stringId="admin.users.role.column" fallback="Role" />,
     sortable: true,
-    accessor: ({ roleName }) => displayFieldOrHyphen(roleName),
+    accessor: ({ roleName }) => displayFieldOrDash(roleName),
   },
   {
     key: 'designations',
     title: <TranslatedText stringId="admin.users.designation.column" fallback="Designation" />,
     sortable: true,
     accessor: ({ designations }) =>
-      displayFieldOrHyphen(
+      displayFieldOrDash(
         designations?.length > 0 ? designations.map(d => d.referenceData?.name).join(', ') : null,
       ),
     CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
@@ -156,13 +156,13 @@ const COLUMNS = [
     key: 'email',
     title: <TranslatedText stringId="admin.users.email.column" fallback="Email" />,
     sortable: true,
-    accessor: ({ email }) => displayFieldOrHyphen(email),
+    accessor: ({ email }) => displayFieldOrDash(email),
   },
   {
     key: 'phoneNumber',
     title: <TranslatedText stringId="admin.users.phoneNumber.column" fallback="Phone" />,
     sortable: true,
-    accessor: ({ phoneNumber }) => displayFieldOrHyphen(phoneNumber),
+    accessor: ({ phoneNumber }) => displayFieldOrDash(phoneNumber),
   },
 ];
 

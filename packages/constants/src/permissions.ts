@@ -101,7 +101,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   ProgramRegistryClinicalStatus: [List, Read],
   ProgramRegistryCondition: [List, Read],
   ProgramRegistryConditionCategory: [List, Read],
-  ReferenceData: [List, Read, Write, Create],
+  ReferenceData: [List, Read, Write, Create, Delete],
   ReferenceDataRelation: [List, Read, Write, Create],
   Referral: [List, Read, Write, Create, Delete],
   ReportDbSchema: [Write],
@@ -125,6 +125,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   TreatmentPlanNote: [Write],
   Triage: [List, Read, Write, Create],
   User: [List, Read, Write, Create],
+  UserDesignation: [List, Read, Write, Create],
   Vitals: [List, Read, Write, Create],
 };
 

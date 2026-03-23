@@ -1,56 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
-import styled from 'styled-components';
 
-import { PlusIcon } from '../../../assets/icons/PlusIcon';
-import { Button, DataFetchingTable, TranslatedText } from '../../../components';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { Colors } from '../../../constants';
-import { ROLES_ENDPOINT } from '../constants';
+import { TranslatedText } from '../../../../components';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { ROLES_ENDPOINT } from '../../constants';
+import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from '../components';
 import { AddRoleModal } from './AddRoleModal';
 import { DeleteRoleModal } from './DeleteRoleModal';
-import { Article } from './RolesAndDesignationsAdminView';
 import { RolesSearchForm } from './RolesSearchForm';
-
-const Header = styled.header`
-  align-items: flex-end;
-  background-color: ${Colors.white};
-  border-block-start: 1px solid ${Colors.outline};
-  border-inline: 1px solid ${Colors.outline};
-  border-start-end-radius: 0.3125rem;
-  border-start-start-radius: 0.3125rem;
-  display: grid;
-  gap: 0.625rem;
-  grid-template-columns: auto minmax(min-content, max-content);
-  padding-block: 0.625rem;
-  padding-inline: 1.25rem;
-`;
-
-const AddButton = styled(Button)`
-  align-self: flex-end;
-`;
-
-const plusIcon = (
-  <PlusIcon
-    aria-hidden
-    width={18}
-    height={18}
-    style={{ color: 'oklch(from currentColor l c h / 96%)', marginInlineEnd: '0.5em' }}
-  />
-);
-
-const StyledDataFetchingTable = styled(DataFetchingTable)`
-  border-start-end-radius: 0;
-  border-start-start-radius: 0;
-  box-shadow: unset;
-  tbody tr:hover {
-    background-color: ${Colors.veryLightBlue};
-  }
-`;
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();
-
   return (
     <ThreeDotMenu
       items={[
@@ -109,7 +69,7 @@ export const RolesAdminView = () => {
     () => navigate({ pathname: '..', search: window.location.search }),
     [navigate],
   );
-  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
+  const isAddRoute = Boolean(useMatch('/admin/users/rolesAndDesignations/roles/new'));
 
   return (
     <Article>

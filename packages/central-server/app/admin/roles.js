@@ -131,7 +131,9 @@ class InvalidRoleDeletionError extends DatabaseConstraintError {
     const subject = isSingular ? 'user' : 'users';
     const verb = isSingular ? 'is' : 'are';
 
-    super(`Cannot delete role with ID ‘${roleId}’. ${count} ${subject} ${verb} assigned to it.`);
+    super(
+      `Cannot delete role with ID ‘${roleId}’. ${count}\u{00A0}${subject} ${verb} assigned to it.`,
+    );
     this.withExtraData({ roleId, assignedUserCount: count });
   }
 }

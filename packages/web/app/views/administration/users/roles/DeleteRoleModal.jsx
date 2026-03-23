@@ -1,4 +1,4 @@
-import { Skeleton, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -6,9 +6,10 @@ import styled from 'styled-components';
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
-import { TranslatedText } from '../../../components';
-import { ConfirmModal } from '../../../components/ConfirmModal';
-import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
+import { TranslatedText } from '../../../../components';
+import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
+import { shortInlineSkeleton } from '../components';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 
@@ -18,19 +19,11 @@ const ModalContent = styled.div`
   place-items: center stretch;
 `;
 
-const roleNameSkeleton = (
-  <Skeleton
-    animation="wave"
-    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-    width="12ch"
-  />
-);
-
 const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   if (!Error.isError(error)) return null;
 
   const roleId = error?.extra?.get?.('role-id');
-  const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'));
+  const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'), 10);
   const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
 
   const isExpectedError = Boolean(roleId && assignedUserCount);
@@ -92,7 +85,7 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
 };
 
 export const DeleteRoleModal = ({ onSuccess }) => {
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const deleteMatch = useMatch('/admin/users/rolesAndDesignations/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
   const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;
@@ -162,7 +155,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
               />
               &nbsp;&ndash;{' '}
               <strong aria-busy={isRoleLoading}>
-                {isRoleLoading ? roleNameSkeleton : role?.name}
+                {isRoleLoading ? shortInlineSkeleton : role?.name}
               </strong>
             </Typography>
           </ModalContent>

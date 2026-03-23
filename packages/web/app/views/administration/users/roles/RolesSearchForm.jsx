@@ -4,10 +4,10 @@ import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
-import { useSuggester } from '../../../api';
-import { Button, TranslatedText } from '../../../components';
-import { AutocompleteField, Field } from '../../../components/Field';
-import { useTranslation } from '../../../contexts/Translation';
+import { useSuggester } from '../../../../api';
+import { Button, TranslatedText } from '../../../../components';
+import { AutocompleteField, Field } from '../../../../components/Field';
+import { useTranslation } from '../../../../contexts/Translation';
 
 const Search = styled('search')`
   display: contents;

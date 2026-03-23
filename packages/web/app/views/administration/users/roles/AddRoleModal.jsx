@@ -5,8 +5,8 @@ import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, ModalContent } from '@tamanu/ui-components';
-import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
-import { Field, TextField } from '../../../components/Field';
+import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../../components';
+import { RequiredTextField } from '../components';
 import { useRoleCreateMutation } from './useRoleCreateMutation';
 
 const CREATE_ROLE_VALIDATION = yup.object().shape({
@@ -35,12 +35,6 @@ const Fieldset = styled.fieldset`
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 0.8rem;
 `;
-
-const RequiredTextField = styled(Field).attrs({
-  autoComplete: 'off',
-  component: TextField,
-  required: true,
-})``;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
