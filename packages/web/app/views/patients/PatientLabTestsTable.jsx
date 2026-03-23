@@ -192,8 +192,14 @@ export const PatientLabTestsTable = React.memo(
           sortable: false,
           key: date,
           accessor: row => {
-            const normalRange = row.normalRanges[patient?.sex];
             const cellData = row.results[date];
+            const normalRange =
+              cellData?.referenceRangeMin != null || cellData?.referenceRangeMax != null
+                ? {
+                    min: cellData.referenceRangeMin,
+                    max: cellData.referenceRangeMax,
+                  }
+                : row.normalRanges[patient?.sex];
             if (cellData) {
               return (
                 <StyledButton
@@ -210,7 +216,9 @@ export const PatientLabTestsTable = React.memo(
                     <RangeValidatedCell
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
-                      validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                      validationCriteria={{
+                        normalRange: normalRange?.min != null ? normalRange : null,
+                      }}
                       data-testid={`rangevalidatedcell-ebuf-${index}`}
                     />
                   )}

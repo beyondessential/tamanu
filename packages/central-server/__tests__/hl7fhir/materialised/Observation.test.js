@@ -102,6 +102,64 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
     });
 
+    it('post an Observation with referenceRange updates labTest referenceRangeMin/Max', async () => {
+      const result = '100';
+      const referenceRangeMin = 5;
+      const referenceRangeMax = 10;
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [
+          {
+            low: { value: referenceRangeMin },
+            high: { value: referenceRangeMax },
+          },
+        ],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+      expect(labTest.referenceRangeMin).toBe(referenceRangeMin);
+      expect(labTest.referenceRangeMax).toBe(referenceRangeMax);
+    });
+
     it('post an Observation for a Labs ServiceRequest using the external code system', async () => {
       const result = '100';
 
