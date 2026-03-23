@@ -1,5 +1,5 @@
 import test from 'tape';
-import { parseDeployConfig, stackName } from '../src/ghaCdHelpers.mjs';
+import { configMap, parseDeployConfig, stackName } from '../src/ghaCdHelpers.mjs';
 
 function withoutOptions({ ...deploy }) {
   delete deploy.options;
@@ -96,4 +96,39 @@ test('normalise a complex branch name', (t) => {
     stackName('refs/heads/fix/refs/heads/§ING interpretèd 🌌'),
     'fix-refs-heads-ing-interpret-d',
   );
+});
+
+test('parse %seed presence option', (t) => {
+  t.plan(3);
+
+  const body = '- [x] **Deploy** <!-- #deploy %seed -->';
+  const parsed = parseDeployConfig({ body, ref: 'release/2.53', control: 'pr=5' });
+  t.equal(parsed[0].options.seed, true, 'seed should be true when present');
+
+  const bodyWithout = '- [x] **Deploy** <!-- #deploy -->';
+  const parsedWithout = parseDeployConfig({ body: bodyWithout, ref: 'main', control: 'pr=6' });
+  t.equal(parsedWithout[0].options.seed, false, 'seed should default to false');
+
+  const bodyCombo = '- [x] **Deploy** <!-- #deploy %seed fakedata=5 -->';
+  const parsedCombo = parseDeployConfig({ body: bodyCombo, ref: 'main', control: 'pr=7' });
+  t.equal(parsedCombo[0].options.seed, true, 'seed works alongside other options');
+});
+
+test('configMap derives appVersion from ref', (t) => {
+  t.plan(3);
+
+  const defaults = parseDeployConfig({
+    body: '- [x] **Deploy** <!-- #deploy -->',
+    ref: 'main',
+    control: 'pr=1',
+  })[0].options;
+
+  const releaseMap = configMap('test', 'sha-abc', defaults, 'release/2.53');
+  t.equal(releaseMap['tamanu-on-k8s:appVersion'].value, '2.53', 'release branch extracts version');
+
+  const mainMap = configMap('test', 'sha-abc', defaults, 'main');
+  t.equal(mainMap['tamanu-on-k8s:appVersion'].value, null, 'main branch yields null');
+
+  const featureMap = configMap('test', 'sha-abc', defaults, 'feat/something');
+  t.equal(featureMap['tamanu-on-k8s:appVersion'].value, null, 'feature branch yields null');
 });

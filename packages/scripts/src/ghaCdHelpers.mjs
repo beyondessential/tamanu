@@ -156,6 +156,15 @@ const OPTIONS = [
     defaultValue: 0,
     parse: input => intBounds(input, [0, 100]),
   },
+  {
+    /*
+     * Bootstrap the central database from a seed snapshot instead of starting empty.
+     * Skips fakedata when enabled, as the snapshot already contains bulk data.
+     */
+    key: 'seed',
+    defaultValue: false,
+    presence: true,
+  },
 ];
 
 function stripPercent(str) {
@@ -198,7 +207,7 @@ function parseOptions(str, context) {
   return options;
 }
 
-export function configMap(deployName, imageTag, options) {
+export function configMap(deployName, imageTag, options, ref = '') {
   const k8sCore = process.env.K8S_CORE || 'tamanu-internal-main';
   return Object.fromEntries(
     Object.entries({
@@ -233,6 +242,9 @@ export function configMap(deployName, imageTag, options) {
       facilityWebReplicas: options.facilitydbs,
 
       patientPortalReplicas: options.patientportals,
+
+      seedFromSnapshot: options.seed || null,
+      appVersion: ref.match(/^release\/(.+)/)?.[1] ?? null,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }

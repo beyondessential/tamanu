@@ -18,7 +18,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: ${{ inputs.deploy-name }}
-    if: fromJson(inputs.options).fakedata != 0
+    if: fromJson(inputs.options).fakedata != 0 && !fromJson(inputs.options).seed
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-cd
