@@ -1,11 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
-import { ForeignKeyConstraintError, Op, UniqueConstraintError } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { DatabaseConstraintError, DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/designation` endpoint for a single designation (ReferenceData) */
@@ -103,37 +103,68 @@ designationRouter.get(
   }),
 );
 
+const deleteDesignationQuerySchema = z.object({
+  dryRun: z
+    .string()
+    .optional()
+    .transform(value => value === '1'),
+});
+
 designationRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'ReferenceData');
 
+    const { dryRun } = await deleteDesignationQuerySchema.parseAsync(req.query);
+
     const {
       store: {
-        models: { ReferenceData, UserDesignation },
+        models: { ReferenceData, UserDesignation, Task },
+        sequelize,
       },
       params: { id: designationId },
     } = req;
 
-    const designation = await ReferenceData.findByPk(designationId);
-    if (!designation) {
-      throw new NotFoundError(`No designation found with ID ${designationId}`);
-    }
-
-    try {
-      await designation.destroy();
-    } catch (err) {
-      if (err instanceof ForeignKeyConstraintError) {
-        const count = await UserDesignation.count({
-          where: { designationId },
-        });
-        const objectVerb = count === 1 ? 'user is' : 'users are';
-        throw new InvalidOperationError(
-          `Cannot delete designation with ID ’${designationId}’. ${count} ${objectVerb} assigned to it.`,
-        );
+    await sequelize.transaction(async () => {
+      const designation = await ReferenceData.findByPk(designationId);
+      if (!designation) {
+        throw new NotFoundError(`No designation found with ID ‘${designationId}’`);
       }
-      throw err;
-    }
+
+      const where = { designationId };
+      const [taskCount, userCount] = await Promise.all([
+        Task.count({ where }),
+        UserDesignation.count({ where }),
+      ]);
+      if (taskCount > 0 || userCount > 0) {
+        throw new InvalidDesignationDeletionError(designationId, taskCount, userCount);
+      }
+
+      if (!dryRun) {
+        await designation.destroy();
+      }
+    });
+
     res.status(204).send();
   }),
 );
+
+class InvalidDesignationDeletionError extends DatabaseConstraintError {
+  constructor(
+    /** @type {string} */ designationId,
+    /** @type {number} */ taskCount,
+    /** @type {number} */ userCount,
+  ) {
+    const task = taskCount === 1 ? 'task' : 'tasks';
+    const user = userCount === 1 ? 'user' : 'users';
+
+    super(
+      `Cannot delete designation with ID ‘${designationId}’. ${taskCount} ${task} and ${userCount} ${user} assigned to it.`,
+    );
+    this.withExtraData({
+      designationId,
+      assignedTaskCount: taskCount,
+      assignedUserCount: userCount,
+    });
+  }
+}
