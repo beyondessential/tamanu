@@ -10,6 +10,10 @@ import { RequiredTextField } from '../components';
 import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
 const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
+  code: yup
+    .string()
+    .trim()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   id: yup
     .string()
     .trim()
@@ -69,6 +73,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
 
   const onSubmit = async values => {
     await createDesignation({
+      code: values.code.trim(),
       id: values.id.trim(),
       name: values.name.trim(),
     });
@@ -77,6 +82,11 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
   const renderForm = ({ submitForm }) => (
     <>
       <Fieldset disabled={isLoading}>
+        <RequiredTextField
+          inputProps={{ minLength: 1, maxLength: 255 }}
+          label={<TranslatedText stringId="admin.designations.code.label" fallback="Code" />}
+          name="code"
+        />
         <RequiredTextField
           inputProps={{ minLength: 1 }}
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}

@@ -36,6 +36,11 @@ designationsRouter.get(
 );
 
 const createDesignationSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(1, { message: '`code` must be at least 1 character' })
+    .max(255, { message: '`code` must be no longer than 255 characters' }),
   id: z
     .string()
     .trim()
@@ -54,12 +59,12 @@ designationRouter.post(
     req.checkPermission('create', 'ReferenceData');
 
     const { ReferenceData } = req.store.models;
-    const { id, name } = await createDesignationSchema.parseAsync(req.body);
+    const { code, id, name } = await createDesignationSchema.parseAsync(req.body);
 
     let designation;
     try {
       designation = await ReferenceData.create({
-        code: id,
+        code,
         id,
         name,
         type: REFERENCE_TYPES.DESIGNATION,

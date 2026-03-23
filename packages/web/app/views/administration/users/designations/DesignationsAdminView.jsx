@@ -29,6 +29,11 @@ const ActionMenu = ({ data }) => {
 
 const columns = /** @type {const} */ ([
   {
+    key: 'code',
+    title: <TranslatedText stringId="admin.designations.code.column" fallback="Code" />,
+    sortable: true,
+  },
+  {
     key: 'name',
     title: <TranslatedText stringId="admin.designations.name.column" fallback="Name" />,
     sortable: true,

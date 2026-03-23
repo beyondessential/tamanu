@@ -7,8 +7,9 @@ export const useDesignationCreateMutation = useMutationOptions => {
 
   return useMutation({
     mutationKey: ['designations', 'create'],
-    mutationFn: async ({ id, name }) =>
+    mutationFn: async ({ code, id, name }) =>
       await api.post(DESIGNATION_ENDPOINT, {
+        code: code.trim(),
         id: id.trim(),
         name: name.trim(),
       }),
