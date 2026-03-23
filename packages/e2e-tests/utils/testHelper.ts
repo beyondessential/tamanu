@@ -32,24 +32,17 @@ const DISPLAY_DATE_TIME_PATTERNS = [
 ] as const;
 
 /**
- * Parse a date string the way Tamanu / MUI surfaces typically expose it in the browser.
- *
- * **Recognized shapes (first match wins)**
- * 1. **ISO date prefix** — `yyyy-MM-dd` at the start of the string (time or suffix allowed after); calendar date only.
- * 2. **Display / picker strings** — `date-fns` parse with:
- *    - `dd/MM/yyyy hh:mm a` / `dd/MM/yyyy h:mm a` / `dd/MM/yyyy` (common MUI-style text).
- *
- * **Returns**
- * - A valid `Date` in local parsing semantics, or `null` if nothing matches or the result is invalid.
- *
- * **Typical use** — Building other helpers or custom assertions. Most tests should use the higher-level format
- * functions below so the intended surface (assertion vs picker vs ISO) stays explicit.
- *
- * @param raw — Untrimmed input is trimmed before parsing.
+ * Parse values from the app or tests: ISO (`yyyy-MM-dd` or `yyyy-MM-ddTHH:mm…`), then MUI-style `dd/MM/…` text.
+ * ISO datetimes use `new Date` so the time is preserved; bare `yyyy-MM-dd` uses calendar-day parsing (no TZ shift).
  */
 export function parseTamanuDate(raw: string): Date | null {
   const s = raw.trim();
   if (!s) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const fromIso = new Date(s);
+    if (isValid(fromIso)) return fromIso;
+  }
 
   const isoDate = s.match(/^(\d{4}-\d{2}-\d{2})/);
   if (isoDate) {
@@ -63,6 +56,14 @@ export function parseTamanuDate(raw: string): Date | null {
   }
 
   return null;
+}
+
+/** {@link parseTamanuDate}, then `new Date` if still needed (datetime inputs only). */
+function parseDateTimeString(raw: string): Date | null {
+  const parsed = parseTamanuDate(raw);
+  if (parsed) return parsed;
+  const native = new Date(raw.trim());
+  return isValid(native) ? native : null;
 }
 
 /**
@@ -120,91 +121,33 @@ export function dateTableMatchStrings(dateGiven: string | undefined): string[] {
   return [format(parsed, 'MM/dd/yyyy'), format(parsed, 'dd/MM/yyyy')];
 }
 
-/**
- * Normalize picker output, ISO fragments, or display text to **`yyyy-MM-dd`** for value comparisons.
- *
- * **Typical use** — Comparing two strings that should represent the same calendar day (e.g. input value vs test
- * data) when one side came from an MUI field (`dd/MM/…`) and the other from ISO.
- *
- * **Behaviour** — If {@link parseTamanuDate} yields a valid date, returns `yyyy-MM-dd`; otherwise returns
- * `raw` unchanged so callers still see the original string when parsing fails.
- *
- * @param raw — Typically `input.value` or a test fixture string.
- */
+/** Normalize any supported string to `yyyy-MM-dd` for comparisons; on failure returns `raw`. */
 export function normalizeToIsoDate(raw: string): string {
   const parsed = parseTamanuDate(raw);
-  if (parsed && isValid(parsed)) {
-    return format(parsed, 'yyyy-MM-dd');
-  }
-  return raw;
+  if (!parsed) return raw;
+  return format(parsed, 'yyyy-MM-dd');
 }
 
-/**
- * Normalize a note modal / MUI datetime **input** value to **`yyyy-MM-dd'T'HH:mm`** (24h, no seconds).
- *
- * Accepts {@link parseTamanuDate} shapes (e.g. `dd/MM/yyyy hh:mm a`) or strings `Date` can parse.
- */
+/** Normalize a datetime input value to `yyyy-MM-dd'T'HH:mm` (24h, no seconds). */
 export function normalizeToIsoDateTimeMinute(raw: string): string {
-  const trimmed = raw.trim();
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(trimmed)) {
-    const fromIso = new Date(trimmed);
-    if (isValid(fromIso)) {
-      return format(fromIso, "yyyy-MM-dd'T'HH:mm");
-    }
-  }
-  let parsed = parseTamanuDate(trimmed);
-  if (!parsed || !isValid(parsed)) {
-    const fromNative = new Date(trimmed);
-    parsed = isValid(fromNative) ? fromNative : null;
-  }
-  if (!parsed || !isValid(parsed)) {
-    return raw;
-  }
+  const parsed = parseDateTimeString(raw);
+  if (!parsed) return raw;
   return format(parsed, "yyyy-MM-dd'T'HH:mm");
 }
 
 /**
- * Format a date string for **typing into MUI date-time text fields** (keyboard / `.fill()`).
- *
- * Some MUI date-time pickers do not commit or behave correctly when filled with only `yyyy-MM-dd`; the app
- * expects display-shaped text such as `dd/MM/yyyy hh:mm a`.
- *
- * **Behaviour** — Parses via {@link parseTamanuDate}, then (if needed) `new Date(...)` for strings such as
- * `yyyy-MM-dd'T'HH:mm` that carry a time component. On failure returns the original string.
- *
- * @param isoDate — Usually ISO or ISO-like test data; trimmed before parse.
+ * Format test/ISO data for **MUI date-time text fields** (`dd/MM/yyyy hh:mm a`). On failure returns the input.
  */
 export function formatForMuiDateTimePicker(isoDate: string): string {
-  const trimmed = isoDate.trim();
-  // `parseTamanuDate` only keeps the calendar day for `yyyy-MM-dd` prefixes, dropping time after `T`.
-  let parsed: Date | null = null;
-  if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
-    const fromIso = new Date(trimmed);
-    parsed = isValid(fromIso) ? fromIso : null;
-  }
-  if (!parsed) {
-    parsed = parseTamanuDate(trimmed);
-  }
-  if (!parsed || !isValid(parsed)) {
-    const fromNative = new Date(trimmed);
-    parsed = isValid(fromNative) ? fromNative : null;
-  }
-  if (!parsed || !isValid(parsed)) {
-    return isoDate;
-  }
+  const parsed = parseDateTimeString(isoDate);
+  if (!parsed) return isoDate;
   return format(parsed, 'dd/MM/yyyy hh:mm a');
 }
 
-/**
- * Format an ISO-like date for **MUI date-only** pickers (`DateField` / `DatePicker`, `dd/MM/yyyy` display).
- *
- * @param isoDate — Usually `yyyy-MM-dd` test data.
- */
+/** Format `yyyy-MM-dd` test data for **MUI date-only** fields (`dd/MM/yyyy`). */
 export function formatForMuiDatePicker(isoDate: string): string {
   const parsed = parseTamanuDate(isoDate.trim());
-  if (!parsed || !isValid(parsed)) {
-    return isoDate;
-  }
+  if (!parsed) return isoDate;
   return format(parsed, 'dd/MM/yyyy');
 }
 
