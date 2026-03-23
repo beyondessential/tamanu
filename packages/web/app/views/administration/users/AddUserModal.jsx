@@ -6,6 +6,7 @@ import {
   TextField,
   AutocompleteField,
   MultiAutocompleteField,
+  NumberField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
 import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
@@ -87,6 +88,10 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
 
   const handleSubmit = async (values, { setFieldError }) => {
+    if (values.deviceRegistrationQuota?.trim() === '') {
+      delete values.deviceRegistrationQuota;
+    }
+
     const data = await validateUser(values);
     if (!data.isEmailUnique) {
       setFieldError(
@@ -138,6 +143,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     phoneNumber: '',
     newPassword: '',
     confirmPassword: '',
+    deviceRegistrationQuota: 0,
   };
 
   return (
@@ -248,6 +254,18 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
                     component={TextField}
                     type="password"
                     required
+                  />
+                  <Field
+                    name="deviceRegistrationQuota"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.deviceRegistrationQuota.label"
+                        fallback="Device registration quota"
+                      />
+                    }
+                    component={NumberField}
+                    min={0}
+                    style={{ gridColumn: 'span 2' }}
                   />
                   <Field
                     name="allowedFacilityIds"

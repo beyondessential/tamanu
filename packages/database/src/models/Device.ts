@@ -88,6 +88,34 @@ export class Device extends Model {
     });
   }
 
+  static async getQuotaCountsByUserIds(
+    userIds: string[],
+  ): Promise<Record<string, number>> {
+    if (!userIds.length) {
+      return {};
+    }
+
+    const rows = (await this.findAll({
+      attributes: [
+        'registeredById',
+        [Sequelize.fn('COUNT', Sequelize.col('*')), 'count'],
+      ],
+      where: {
+        registeredById: { [Op.in]: userIds },
+        [Op.or]: DEVICE_SCOPES_SUBJECT_TO_QUOTA.map(scope =>
+          Sequelize.literal(`scopes ? '${scope}'`),
+        ),
+      },
+      group: ['registeredById'],
+      raw: true,
+    })) as unknown as Array<{ registeredById: string; count: string }>;
+
+    return rows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.registeredById] = Number(row.count) || 0;
+      return acc;
+    }, {});
+  }
+
   async markSeen(): Promise<void> {
     await this.update({
       lastSeenAt: Sequelize.fn('now'),
