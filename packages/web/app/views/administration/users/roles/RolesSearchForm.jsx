@@ -55,6 +55,8 @@ export const RolesSearchForm = () => {
     <>
       <Field
         component={TextField}
+        // Max. role name length (see DDL); anything longer works but guaranteed to return nothing
+        inputProps={{ maxLength: 255 }}
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
         name="name"
         placeholder={getTranslation('general.placeholder.search...', 'Search…')}
