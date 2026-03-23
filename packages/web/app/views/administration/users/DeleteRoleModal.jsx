@@ -1,15 +1,18 @@
 import { Skeleton, Typography } from '@mui/material';
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
+import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
+
 import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 
-const DeleteRoleModalContent = styled.div`
+const ModalContent = styled.div`
   min-block-size: 8rem;
   display: grid;
   place-items: center stretch;
@@ -21,6 +24,34 @@ const roleNameSkeleton = (
     sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
     width="12ch"
   />
+);
+
+const RoleDeleteErrorModal = ({ open, title, detail, onClose }) => (
+  <Modal
+    open={open}
+    onClose={onClose}
+    width="sm"
+    title={
+      title || (
+        <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
+      )
+    }
+    data-testid="modal-role-delete-error"
+  >
+    <ModalContent>
+      <Typography variant="body2">
+        {detail || (
+          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
+        )}
+      </Typography>
+    </ModalContent>
+    <ConfirmRowDivider data-testid="confirmrowdivider-role-delete-error" />
+    <ButtonRow data-testid="buttonrow-role-delete-error">
+      <Button onClick={onClose} data-testid="outlinedbutton-role-delete-error-close">
+        <TranslatedText stringId="general.action.close" fallback="Close" />
+      </Button>
+    </ButtonRow>
+  </Modal>
 );
 
 export const DeleteRoleModal = ({ onSuccess }) => {
@@ -35,9 +66,11 @@ export const DeleteRoleModal = ({ onSuccess }) => {
     [navigate],
   );
 
+  const [deleteRoleError, setDeleteRoleError] = useState(null);
+
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
-      onSuccess?.();
+      setDeleteRoleError(null);
       dismiss();
       toast.success(
         <>
@@ -45,13 +78,10 @@ export const DeleteRoleModal = ({ onSuccess }) => {
           <q>role?.name</q>
         </>,
       );
+      onSuccess?.();
     },
     onError: error => {
-      toast.error(
-        error.detail || error.message || (
-          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
-        ),
-      );
+      setDeleteRoleError({ title: error?.title, detail: error?.detail });
     },
   });
 
@@ -59,7 +89,8 @@ export const DeleteRoleModal = ({ onSuccess }) => {
     if (roleId && isRoleNotFound) dismiss();
   }, [roleId, isRoleNotFound, dismiss]);
 
-  const handleCancel = useCallback(() => {
+  const onClose = useCallback(() => {
+    setDeleteRoleError(null);
     dismiss();
   }, [dismiss]);
 
@@ -74,21 +105,29 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       }
       title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
       customContent={
-        <DeleteRoleModalContent>
-          <Typography variant="body2">
-            <TranslatedText
-              stringId="admin.roles.delete.confirmation"
-              fallback="Are you sure you would like to delete the selected role?"
-            />
-            &nbsp;&ndash;{' '}
-            <strong aria-busy={isRoleLoading}>
-              {isRoleLoading ? roleNameSkeleton : role?.name}
-            </strong>
-          </Typography>
-        </DeleteRoleModalContent>
+        <>
+          <ModalContent>
+            <Typography variant="body2">
+              <TranslatedText
+                stringId="admin.roles.delete.confirmation"
+                fallback="Are you sure you would like to delete the selected role?"
+              />
+              &nbsp;&ndash;{' '}
+              <strong aria-busy={isRoleLoading}>
+                {isRoleLoading ? roleNameSkeleton : role?.name}
+              </strong>
+            </Typography>
+          </ModalContent>
+          <RoleDeleteErrorModal
+            open={deleteRoleError !== null}
+            title={deleteRoleError?.title}
+            detail={deleteRoleError?.detail}
+            onClose={onClose}
+          />
+        </>
       }
       open={Boolean(roleId) && !isRoleNotFound}
-      onCancel={handleCancel}
+      onCancel={onClose}
       onConfirm={handleConfirm}
     />
   );

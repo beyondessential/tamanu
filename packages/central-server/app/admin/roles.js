@@ -3,8 +3,15 @@ import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
 import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
+import { sentence } from 'case';
 
-import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import {
+  BaseValidationError,
+  DatabaseDuplicateError,
+  ERROR_TYPE,
+  InvalidOperationError,
+  NotFoundError,
+} from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/role` endpoint for CRUD-ing a single role */
@@ -119,10 +126,7 @@ roleRouter.delete(
         where: { role: role.id }, // No FK constraint!
       });
       if (count > 0) {
-        const objectVerb = count === 1 ? 'user is' : 'users are';
-        throw new InvalidOperationError(
-          `Cannot delete role with ID ‘${id}’. ${count} ${objectVerb} assigned to it.`,
-        );
+        throw new InvalidRoleDeletionError(id, count);
       }
 
       await role.destroy();
@@ -130,3 +134,19 @@ roleRouter.delete(
     res.status(204).send();
   }),
 );
+
+class InvalidRoleDeletionError extends BaseValidationError {
+  constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
+    const isSingular = count === 1;
+    const subject = plur('user', count);
+    const verb = isSingular ? 'is' : 'are';
+
+    const detail = `Cannot delete role with ID ‘${roleId}’ as ${count} ${subject} ${verb} assigned to it. Please update their user ${plur('profile', count)} first in order to delete the role.`;
+
+    super(ERROR_TYPE.VALIDATION_OPERATION, `${sentence(subject)} assigned to role`, detail);
+  }
+}
+
+function plur(/** @type {'profile' | 'user'} */ word, /** @type {number} */ count) {
+  return count === 1 ? word : `${word}s`;
+}
