@@ -63,7 +63,6 @@ jobs:
           for cluster in $stale; do
             echo "Deleting stale cluster: $cluster"
             kubectl delete cluster "$cluster" -n "$SEED_NAMESPACE" --wait=false
-            kubectl delete pvc "${cluster}-1" -n "$SEED_NAMESPACE" --ignore-not-found
           done
 
       - name: Derive cluster names
@@ -155,12 +154,16 @@ jobs:
           cleanup() {
             exitcode=$?
             kill $pf_pid 2>/dev/null || true
+            kill $monitor_pid 2>/dev/null || true
             exit $exitcode
           }
           trap cleanup EXIT
 
           timeout 30 bash -c 'until nc -z 127.0.0.1 4444; do sleep 1; done'
-          kill -0 $pf_pid 2>/dev/null || { echo "port-forward process died"; exit 1; }
+          kill -0 $pf_pid 2>/dev/null || { echo "port-forward process died during startup"; exit 1; }
+
+          (while kill -0 $pf_pid 2>/dev/null; do sleep 5; done; echo "::error::port-forward died unexpectedly"; kill $$ 2>/dev/null) &
+          monitor_pid=$!
 
           echo "Running migrations..."
           node packages/central-server/dist migrate
@@ -190,12 +193,11 @@ jobs:
       - name: Create volume snapshot
         env:
           CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
-          SHORT_SHA: ${{ steps.names.outputs.short_sha }}
         run: |
-          SNAP_NAME="tamanu-seed-${SHORT_SHA}"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          SNAP_NAME="tamanu-seed-$(date -u +%Y%m%d%H%M%S)-${INPUT_VERSION//./-}"
 
-          kubectl apply -f - <<EOF
+          kubectl create -f - <<EOF
           apiVersion: snapshot.storage.k8s.io/v1
           kind: VolumeSnapshot
           metadata:
