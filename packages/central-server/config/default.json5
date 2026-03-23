@@ -403,6 +403,8 @@
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
+      // Optional BCP 47 tag for Intl date formatting on server PDFs (e.g. "en-NZ"). If omitted, uses en-{country.alpha-2}.
+      "displayLocale": null,
 
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"

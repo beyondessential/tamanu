@@ -17,7 +17,7 @@ export const useDateTime = () => {
 };
 
 export const withDateTimeContext = Component => props => {
-  const { settings, getSetting: getSettingProp, primaryTimeZone } = props;
+  const { settings, getSetting: getSettingProp, primaryTimeZone, displayLocale } = props;
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const facilityTimeZone = getSetting('facilityTimeZone');
@@ -27,11 +27,14 @@ export const withDateTimeContext = Component => props => {
     () => ({
       primaryTimeZone,
       facilityTimeZone,
+      displayLocale,
       getCurrentDate: () => getCurrentDateStringInTimezone(effectiveTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      ...mapValues(dateTimeFormatters, fn => date => fn(date, primaryTimeZone, facilityTimeZone)),
+      ...mapValues(dateTimeFormatters, fn => date =>
+        fn(date, primaryTimeZone, facilityTimeZone, displayLocale),
+      ),
     }),
-    [primaryTimeZone, facilityTimeZone, effectiveTimeZone],
+    [primaryTimeZone, facilityTimeZone, effectiveTimeZone, displayLocale],
   );
 
   return (

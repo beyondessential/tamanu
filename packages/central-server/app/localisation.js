@@ -44,6 +44,8 @@ const rootLocalisationSchema = yup
         .required(),
     },
     timeZone: yup.string().nullable(),
+    // BCP 47 tag for Intl date formatting (e.g. server-side PDFs). When omitted, en-{country.alpha-2} is used.
+    displayLocale: yup.string().nullable().optional(),
     imagingTypes: imagingTypesSchema,
     // Deprecated: retained so existing configs with this field don't fail noUnknown() validation
     previewUvciFormat: yup.string().oneOf(['tamanu', 'eudcc', 'icao']).optional().strip(),

@@ -6,12 +6,14 @@ import config from 'config';
 import { get } from 'lodash';
 
 import { SETTING_KEYS } from '@tamanu/constants';
+import { getDisplayLocaleFromLocalisation } from '@tamanu/utils/dateTime';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models, language, settings } = req;
   const localisation = await getLocalisation();
+  const displayLocale = getDisplayLocaleFromLocalisation(localisation);
   const getLocalisationData = key => get(localisation, key);
   const settingsObj = await settings[facilityId].getAll();
   const getSettingData = key => get(settingsObj, key);
@@ -40,6 +42,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       language={language}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone(config)}
+      displayLocale={displayLocale}
     />,
     filePath,
   );

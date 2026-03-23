@@ -7,6 +7,7 @@ import ReactPDF from '@react-pdf/renderer';
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
+import { getDisplayLocaleFromLocalisation } from '@tamanu/utils/dateTime';
 import {
   CovidVaccineCertificate,
   getPatientSurveyResponseAnswer,
@@ -78,6 +79,7 @@ export const makeCovidVaccineCertificate = async ({
   printedDate,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const displayLocale = getDisplayLocaleFromLocalisation(localisation);
   const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
@@ -100,6 +102,7 @@ export const makeCovidVaccineCertificate = async ({
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone(config)}
+      displayLocale={displayLocale}
       language={language}
     />,
     fileName,
@@ -117,6 +120,7 @@ export const makeVaccineCertificate = async ({
   translations,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const displayLocale = getDisplayLocaleFromLocalisation(localisation);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -146,6 +150,7 @@ export const makeVaccineCertificate = async ({
       healthFacility={healthFacility}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone(config)}
+      displayLocale={displayLocale}
     />,
     fileName,
   );
@@ -159,7 +164,8 @@ export const makeCovidCertificate = async ({
   patient,
   printedBy,
 }) => {
-  const settingsObj = await settings.getAll();
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const displayLocale = getDisplayLocaleFromLocalisation(localisation);
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
@@ -213,6 +219,7 @@ export const makeCovidCertificate = async ({
       printedBy={printedBy}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone(config)}
+      displayLocale={displayLocale}
       certType={certType}
       language={language}
     />,
