@@ -9,6 +9,7 @@ import {
 
 import { createTestContext } from '../../utilities';
 import {
+  ALL_FHIR_PERMISSIONS,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
@@ -63,7 +64,7 @@ describe('Create DiagnosticReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(

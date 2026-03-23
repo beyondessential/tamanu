@@ -1,3 +1,50 @@
+import { Op } from 'sequelize';
+import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
+
+async function validatePermissions(models, rows, pushErrorFn) {
+  const permissionsByRole = {};
+  for (const { values, sheetRow } of rows) {
+    if (values.deletedAt) continue;
+    const { roleId } = values;
+    if (!roleId) continue;
+    if (!permissionsByRole[roleId]) permissionsByRole[roleId] = [];
+    permissionsByRole[roleId].push({ verb: values.verb, noun: values.noun, sheetRow });
+  }
+
+  for (const [roleId, imported] of Object.entries(permissionsByRole)) {
+    const importedIds = new Set(
+      rows.filter(r => r.values.roleId === roleId).map(r => r.values.id),
+    );
+    const existing = await models.Permission.findAll({
+      where: { roleId, id: { [Op.notIn]: [...importedIds] } },
+      attributes: ['verb', 'noun'],
+    });
+
+    const all = [
+      ...imported.map(p => ({ verb: p.verb, noun: p.noun })),
+      ...existing.map(p => ({ verb: p.verb, noun: p.noun })),
+    ];
+
+    const hasFhir = all.some(isFhirPermission);
+    const hasRegular = all.some(p => !isFhirPermission(p));
+
+    if (hasFhir && hasRegular) {
+      const fhir = all
+        .filter(isFhirPermission)
+        .map(p => `${p.verb}:${p.noun}`);
+      const regular = all
+        .filter(p => !isFhirPermission(p))
+        .map(p => `${p.verb}:${p.noun}`);
+      pushErrorFn(
+        'Permission',
+        imported[0].sheetRow,
+        `Role "${roleId}" mixes FHIR and regular permissions. ` +
+          `FHIR: ${fhir.join(', ')}. Regular: ${regular.join(', ')}`,
+      );
+    }
+  }
+}
+
 async function validateLabTestTypes(models, rows, pushErrorFn) {
   // Ensure data is correct at spreadsheet level
   const categories = {};
@@ -75,6 +122,7 @@ async function validateLabTestPanels(models, rows, pushErrorFn) {
 }
 
 const MODEL_VALIDATION = {
+  'Permission': validatePermissions,
   'LabTestType': validateLabTestTypes,
   'LabTestPanel': validateLabTestPanels,
 };

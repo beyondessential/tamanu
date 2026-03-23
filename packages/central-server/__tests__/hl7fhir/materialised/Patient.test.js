@@ -9,6 +9,7 @@ import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -17,7 +18,7 @@ describe(`Materialised FHIR - Patient`, () => {
   let app;
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());
 

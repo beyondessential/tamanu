@@ -2,7 +2,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
+import { ALL_FHIR_PERMISSIONS, fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
 import { sleepAsync } from '../../../../utils/dist/cjs/sleepAsync';
 
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
@@ -23,7 +23,7 @@ describe(`FHIR reference resolution`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
   });
 

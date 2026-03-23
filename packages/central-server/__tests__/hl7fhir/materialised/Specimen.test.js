@@ -5,7 +5,11 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import { fakeResourcesOfFhirServiceRequest, fakeResourcesOfFhirSpecimen } from '../../fake/fhir';
+import {
+  ALL_FHIR_PERMISSIONS,
+  fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirSpecimen,
+} from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -20,7 +24,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(

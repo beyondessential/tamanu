@@ -5,6 +5,8 @@ import { ADMINISTRATION_FREQUENCIES, DRUG_ROUTES, DRUG_UNITS } from '@tamanu/con
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
+
 const INTEGRATION_ROUTE = 'fhir/mat';
 
 describe(`Materialised FHIR - MedicationRequest`, () => {
@@ -14,7 +16,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
 
     const {
       Facility,

@@ -7,6 +7,7 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -17,7 +18,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
 
     const {
       Department,
