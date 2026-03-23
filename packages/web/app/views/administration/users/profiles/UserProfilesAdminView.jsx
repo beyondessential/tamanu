@@ -117,8 +117,7 @@ const UserStatusIndicator = ({ visibilityStatus }) => {
   );
 };
 
-// Helper function to display empty fields as hyphen
-const displayFieldOrHyphen = value => value || '-';
+const displayFieldOrDash = value => value || <>&mdash;</>;
 
 const COLUMNS = [
   {
@@ -135,20 +134,20 @@ const COLUMNS = [
     key: 'displayId',
     title: <TranslatedText stringId="admin.users.displayId.column" fallback="ID" />,
     sortable: false,
-    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrHyphen(displayId)}</Box>,
+    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrDash(displayId)}</Box>,
   },
   {
     key: 'roleName',
     title: <TranslatedText stringId="admin.users.role.column" fallback="Role" />,
     sortable: true,
-    accessor: ({ roleName }) => displayFieldOrHyphen(roleName),
+    accessor: ({ roleName }) => displayFieldOrDash(roleName),
   },
   {
     key: 'designations',
     title: <TranslatedText stringId="admin.users.designation.column" fallback="Designation" />,
     sortable: true,
     accessor: ({ designations }) =>
-      displayFieldOrHyphen(
+      displayFieldOrDash(
         designations?.length > 0 ? designations.map(d => d.referenceData?.name).join(', ') : null,
       ),
     CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
@@ -157,13 +156,13 @@ const COLUMNS = [
     key: 'email',
     title: <TranslatedText stringId="admin.users.email.column" fallback="Email" />,
     sortable: true,
-    accessor: ({ email }) => displayFieldOrHyphen(email),
+    accessor: ({ email }) => displayFieldOrDash(email),
   },
   {
     key: 'phoneNumber',
     title: <TranslatedText stringId="admin.users.phoneNumber.column" fallback="Phone" />,
     sortable: true,
-    accessor: ({ phoneNumber }) => displayFieldOrHyphen(phoneNumber),
+    accessor: ({ phoneNumber }) => displayFieldOrDash(phoneNumber),
   },
 ];
 
