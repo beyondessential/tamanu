@@ -143,7 +143,7 @@ class InvalidRoleDeletionError extends BaseValidationError {
 
     const detail = `Cannot delete role with ID ‘${roleId}’ as ${count} ${subject} ${verb} assigned to it. Please update their user ${plur('profile', count)} first in order to delete the role.`;
 
-    super(ERROR_TYPE.VALIDATION_OPERATION, `${sentence(subject)} assigned to role`, detail);
+    super(ERROR_TYPE.VALIDATION_CONSTRAINT, `${sentence(subject)} assigned to role`, detail);
   }
 }
 

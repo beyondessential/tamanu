@@ -4,8 +4,8 @@ import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
+import { ERROR_TYPE } from '@tamanu/errors';
 import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
-
 import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
@@ -81,7 +81,11 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       onSuccess?.();
     },
     onError: error => {
-      setDeleteRoleError({ title: error?.title, detail: error?.detail });
+      if (error.type === ERROR_TYPE.VALIDATION_CONSTRAINT) {
+        setDeleteRoleError(error);
+        return;
+      }
+      toast.error(error.message);
     },
   });
 
