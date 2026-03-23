@@ -28,7 +28,8 @@ const roleNameSkeleton = (
 
 const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const roleId = error?.extra?.get?.('role-id');
-  const assignedUserCount = error?.extra?.get?.('assigned-user-count');
+  const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'));
+  const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
   const isExpectedError = Boolean(roleId && assignedUserCount);
 
   const isSingular = assignedUserCount === 1;
