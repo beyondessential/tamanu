@@ -36,22 +36,22 @@ const DISPLAY_DATE_TIME_PATTERNS = [
  * ISO datetimes use `new Date` so the time is preserved; bare `yyyy-MM-dd` uses calendar-day parsing (no TZ shift).
  */
 export function parseTamanuDate(raw: string): Date | null {
-  const s = raw.trim();
-  if (!s) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
 
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const fromIso = new Date(s);
+  if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+    const fromIso = new Date(trimmed);
     if (isValid(fromIso)) return fromIso;
   }
 
-  const isoDate = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  const isoDate = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
   if (isoDate) {
     const d = parse(isoDate[1], 'yyyy-MM-dd', new Date());
     return isValid(d) ? d : null;
   }
 
   for (const pattern of DISPLAY_DATE_TIME_PATTERNS) {
-    const d = parse(s, pattern, new Date());
+    const d = parse(trimmed, pattern, new Date());
     if (isValid(d)) return d;
   }
 
