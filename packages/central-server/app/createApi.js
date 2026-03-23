@@ -19,7 +19,6 @@ import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
-import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
@@ -50,7 +49,6 @@ function api(ctx) {
   );
   apiRoutes.use(authModule);
   apiRoutes.use(attachAuditUserToDbSession);
-  apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
   apiRoutes.use(buildRoutes(ctx));
   return apiRoutes;

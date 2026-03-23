@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -69,7 +70,11 @@ describe('Translation', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
-      expect(result.body).toEqual({ ok: 'ok' });
+      expect(result.body).toEqual({
+        createdCount: 0,
+        updatedCount: 0,
+        deletedCount: 0,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'login.email', language: DEFAULT_LANGUAGE_CODE },
         order: [['stringId', 'ASC']],
@@ -84,19 +89,25 @@ describe('Translation', () => {
         'login.register': { en: 'Register' },
       });
       expect(result).toHaveSucceeded();
-      expect(result.status).toEqual(201);
-      expect(result.body.data).toEqual(
+      expect(result.status).toEqual(200);
+      expect(result.body).toMatchObject({
+        createdCount: 2,
+        updatedCount: 0,
+        deletedCount: 0,
+      });
+      const created = await models.TranslatedString.findAll({
+        where: {
+          [Op.or]: [
+            { stringId: 'login.email', language: LANGUAGE_CODES.KHMER },
+            { stringId: 'login.register', language: LANGUAGE_CODES.ENGLISH },
+          ],
+        },
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(created.map(r => r.get({ plain: true }))).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({
-            stringId: 'login.email',
-            text: 'អ៊ីមែល',
-            language: LANGUAGE_CODES.KHMER,
-          }),
-          expect.objectContaining({
-            stringId: 'login.register',
-            text: 'Register',
-            language: LANGUAGE_CODES.ENGLISH,
-          }),
+          { stringId: 'login.email', text: 'អ៊ីមែល', language: LANGUAGE_CODES.KHMER },
+          { stringId: 'login.register', text: 'Register', language: LANGUAGE_CODES.ENGLISH },
         ]),
       );
     });
@@ -118,7 +129,11 @@ describe('Translation', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
-      expect(result.body).toEqual({ ok: 'ok' });
+      expect(result.body).toMatchObject({
+        createdCount: 0,
+        updatedCount: 1,
+        deletedCount: 0,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: ['general.action.submit', 'general.action.back'] },
         order: [['stringId', 'ASC']],
@@ -148,7 +163,11 @@ describe('Translation', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
-      expect(result.body).toEqual({ ok: 'ok' });
+      expect(result.body).toMatchObject({
+        createdCount: 0,
+        updatedCount: 1,
+        deletedCount: 0,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'general.action.save' },
         order: [['stringId', 'ASC']],
@@ -178,7 +197,11 @@ describe('Translation', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
-      expect(result.body).toEqual({ ok: 'ok' });
+      expect(result.body).toMatchObject({
+        createdCount: 0,
+        updatedCount: 2,
+        deletedCount: 0,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'general.action.print' },
         order: [['stringId', 'ASC']],
@@ -214,7 +237,11 @@ describe('Translation', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
-      expect(result.body).toEqual({ ok: 'ok' });
+      expect(result.body).toMatchObject({
+        createdCount: 0,
+        updatedCount: 0,
+        deletedCount: 1,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'login.email' },
         order: [['stringId', 'ASC']],
@@ -228,16 +255,12 @@ describe('Translation', () => {
         'login.noMore': { en: 'No more' },
       });
       expect(result).toHaveSucceeded();
-      expect(result.status).toEqual(201);
-      expect(result.body.data).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            stringId: 'login.noMore',
-            text: 'No more',
-            language: LANGUAGE_CODES.ENGLISH,
-          }),
-        ]),
-      );
+      expect(result.status).toEqual(200);
+      expect(result.body).toMatchObject({
+        createdCount: 0,
+        updatedCount: 1,
+        deletedCount: 0,
+      });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'login.noMore' },
         order: [['stringId', 'ASC']],
