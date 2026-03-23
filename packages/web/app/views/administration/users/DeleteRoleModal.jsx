@@ -131,7 +131,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
         setDeleteRoleError(error);
         return;
       }
-      toast.error(error.message);
+      toast.error(error.detail || error.message);
     },
   });
 
