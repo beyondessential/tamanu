@@ -112,7 +112,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       toast.success(
         <>
           <TranslatedText stringId="admin.roles.delete.success" fallback="Deleted role" />{' '}
-          <q>role?.name</q>
+          <q>{role?.name}</q>
         </>,
       );
       onSuccess?.();
