@@ -86,13 +86,13 @@ export const AutocompleteModalScreen = ({
         <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
       )}
       <Autocomplete
-        placeholder={getTranslation('general.placeholder.search...', 'Search...')}
+        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
         placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
         flatListProps={{
-          keyExtractor: (item) => item.value,
+          keyExtractor: item => item.value,
           renderItem: ({ item, index }): ReactElement => {
             const useDarkBackground = index % 2 === 0;
             return (

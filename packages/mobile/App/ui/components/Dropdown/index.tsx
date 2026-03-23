@@ -128,7 +128,7 @@ export const Dropdown = React.memo(
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
     const searchInputPlaceholderText = filterable
-      ? searchPlaceholderText || getTranslation('general.placeholder.search...', 'Search...')
+      ? searchPlaceholderText || getTranslation('general.placeholder.search...', 'Search…')
       : label?.props?.fallback || label;
 
     return (

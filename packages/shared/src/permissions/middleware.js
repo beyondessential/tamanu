@@ -1,4 +1,10 @@
-import { AuthPermissionError, ForbiddenError, UnimplementedError } from '@tamanu/errors';
+import {
+  AuthPermissionError,
+  ForbiddenError,
+  InvalidOperationError,
+  UnimplementedError,
+} from '@tamanu/errors';
+import { PERMISSION_SCHEMA } from '@tamanu/constants';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -11,9 +17,28 @@ export function getSubjectName(subject) {
     return subject;
   }
 
+  if (typeof subject === 'object' && Object.hasOwn(subject, '__caslSubjectType__')) {
+    return subject.__caslSubjectType__;
+  }
+
   const Type = typeof subject === 'object' ? subject.constructor : subject;
 
   return Type.modelName || Type.name;
+}
+
+function assertValidPermissionSchema(subject, action) {
+  const noun = getSubjectName(subject);
+  if (noun) {
+    const allowedVerbs = PERMISSION_SCHEMA[noun];
+    if (!allowedVerbs) {
+      throw new InvalidOperationError(
+        `Permissions for noun "${noun}" are not defined in the schema.`,
+      );
+    }
+    if (!allowedVerbs.includes(action)) {
+      throw new InvalidOperationError(`Verb "${action}" is not valid for noun "${noun}"`);
+    }
+  }
 }
 
 export async function constructPermission(req, res, next) {
@@ -26,7 +51,7 @@ export async function constructPermission(req, res, next) {
   }
 }
 
-const checkIfHasPermission = (req, action, subject, field = '') => {
+const checkIfHasPermission = (req, action, subject) => {
   if (req.flagPermissionChecked) {
     req.flagPermissionChecked();
   }
@@ -37,12 +62,19 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
     return;
   }
 
+  // Validate noun/verb against PERMISSION_SCHEMA in dev/test so devs are forced
+  // to register new combinations. Skipped in production to avoid blocking real
+  // actions as there is a risk that the schema is incomplete.
+  if (process.env.NODE_ENV !== 'production') {
+    assertValidPermissionSchema(subject, action);
+  }
+
   const { ability } = req;
   if (!ability) {
     throw new AuthPermissionError(`${action} ${subject}`);
   }
 
-  return ability.can(action, subject, field);
+  return ability.can(action, subject);
 };
 
 // this middleware goes at the top of the middleware stack
@@ -61,7 +93,18 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map((action) => checkIfHasPermission(req, action, subject));
+    const permissionChecks = actions.map(action => {
+      try {
+        return checkIfHasPermission(req, action, subject);
+      } catch (error) {
+        // If the verb is invalid for this noun, treat it as "no permission"
+        // rather than throwing, so we can check the remaining verbs
+        if (error instanceof InvalidOperationError) {
+          return false;
+        }
+        throw error;
+      }
+    });
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
@@ -69,7 +112,7 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkListOrReadPermission = (subject) => {
+  req.checkListOrReadPermission = subject => {
     req.checkForOneOfPermissions(['list', 'read'], subject);
   };
 
