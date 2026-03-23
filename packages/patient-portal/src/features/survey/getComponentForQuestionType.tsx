@@ -26,10 +26,6 @@ const UnsupportedField = ({ label, type }: { label: string; type?: string }) => 
   );
 };
 
-const DateFieldAsString = (Component: React.ComponentType<any>) => (props: any) => (
-  <Component {...props} saveDateAsString />
-);
-
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.CONDITION]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
@@ -38,9 +34,9 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateFieldAsString(DateField),
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateFieldAsString(DateTimeField),
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateFieldAsString(DateField),
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,

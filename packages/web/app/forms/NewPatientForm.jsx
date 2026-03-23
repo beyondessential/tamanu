@@ -234,7 +234,6 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getSetting,
           getTranslation,
-          getSetting,
         )}
         data-testid="form-60mo"
       />

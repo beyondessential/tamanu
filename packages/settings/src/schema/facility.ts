@@ -80,10 +80,70 @@ export const facilitySettings = {
         },
       },
     },
+    integrations: {
+      description: 'Integrations with external services',
+      properties: {
+        mSupplyMed: {
+          description: 'mSupplyMed settings',
+          properties: {
+            host: {
+              description: 'The host of the open mSupply instance',
+              type: yup
+                .string()
+                .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
+              defaultValue: '',
+            },
+            storeId: {
+              description: 'The ID of the store in the open mSupply instance',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            customerCode: {
+              description: 'The code of the Tamanu customer in the open mSupply instance',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            backoff: {
+              name: 'Backoff',
+              description: 'Backoff settings',
+              properties: {
+                maxAttempts: {
+                  name: 'Max attempts',
+                  description: 'The maximum number of connection attempts',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 15,
+                },
+                multiplierMs: {
+                  name: 'Multiplier',
+                  description: 'The multiplier for the delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 300,
+                  unit: 'ms',
+                },
+                maxWaitMs: {
+                  name: 'Max wait',
+                  description: 'The delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 10000,
+                  unit: 'ms',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    facilityTimeZone: {
+      exposedToWeb: true,
+      description: 'Time zone in IANA format',
+      type: yup.string().nullable(),
+      defaultValue: null,
+      suggesterEndpoint: 'timeZone',
+    },
     patientDisplayIdPattern: {
+      exposedToWeb: true,
       highRisk: true,
-      description:
-        `The pattern to use for generating patient display IDs.
+      description: `The pattern to use for generating patient display IDs.
         'A' will be replaced with a random letter and '0' will be replaced with a random number.
         Wrapping characters in [] will allow static characters to be used. For example,
         '[B]AAAA000000' will generate an 11 character ID with a static B followed by 4 letter and 6 numbers.`,
@@ -110,6 +170,7 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
+      exposedToWeb: true,
       highRisk: true,
       properties: {
         syncAllLabRequests: {

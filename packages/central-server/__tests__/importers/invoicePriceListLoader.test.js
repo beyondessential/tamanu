@@ -244,6 +244,64 @@ describe('Invoice price list item import', () => {
     expect(didntSendReason).toEqual('validationFailed');
   });
 
+  it('should detect updated decimal values on re-import', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const initialRows = [{ invoiceProductId: 'prod-1', PL_A: 100 }];
+    const initialBuffer = buildWorkbookBuffer(headers, initialRows);
+
+    const { errors: createErrors, stats: createStats } = await doImport(ctx, {
+      buffer: initialBuffer,
+    });
+    expect(createErrors).toBeEmpty();
+    expect(createStats).toMatchObject({
+      InvoicePriceListItem: { created: 1 },
+    });
+
+    // Re-import with a changed price
+    const updatedRows = [{ invoiceProductId: 'prod-1', PL_A: 200 }];
+    const updatedBuffer = buildWorkbookBuffer(headers, updatedRows);
+
+    const { errors: updateErrors, stats: updateStats } = await doImport(ctx, {
+      buffer: updatedBuffer,
+    });
+    expect(updateErrors).toBeEmpty();
+    expect(updateStats).toMatchObject({
+      InvoicePriceListItem: { updated: 1 },
+    });
+
+    const items = await InvoicePriceListItem.findAll({
+      where: { invoiceProductId: 'prod-1' },
+    });
+    expect(items).toHaveLength(1);
+    expect(Number(items[0].price)).toBe(200);
+  });
+
+  it('should skip unchanged decimal values on re-import', async () => {
+    const { InvoiceProduct, InvoicePriceList } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const rows = [{ invoiceProductId: 'prod-1', PL_A: 100 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors: createErrors } = await doImport(ctx, { buffer });
+    expect(createErrors).toBeEmpty();
+
+    // Re-import with the same price
+    const { errors: reimportErrors, stats: reimportStats } = await doImport(ctx, { buffer });
+    expect(reimportErrors).toBeEmpty();
+    expect(reimportStats).toMatchObject({
+      InvoicePriceListItem: { skipped: 1, updated: 0 },
+    });
+  });
+
   it('should error if invoiceProductId column is missing', async () => {
     const { InvoicePriceList } = models;
 

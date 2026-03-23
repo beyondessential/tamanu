@@ -61,7 +61,6 @@ export const DateTimeRangePicker = ({
           clearStartEndTimes();
         }}
         required={required}
-        saveDateAsString
         {...props}
         data-testid="field-ui1x"
       />

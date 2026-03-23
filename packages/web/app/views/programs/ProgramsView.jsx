@@ -2,8 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAnswersFromData, SelectInput, FormGrid } from '@tamanu/ui-components';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  getAnswersFromData,
+  SelectInput,
+  FormGrid,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
@@ -27,6 +31,7 @@ import { TranslatedReferenceData } from '../../components';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const { facilityId } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
@@ -57,9 +62,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setSurvey(response);
-      setStartTime(getCurrentDateTimeString());
+      setStartTime(getCurrentDateTime());
     },
-    [api],
+    [api, getCurrentDateTime],
   );
 
   const unsetSurvey = useCallback(() => {
@@ -103,7 +108,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
-      endTime: getCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, survey),
       facilityId,
     });

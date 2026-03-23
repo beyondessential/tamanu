@@ -70,7 +70,6 @@ export const LabRequestFormScreen1 = ({
         }
         required
         component={DateTimeField}
-        saveDateAsString
         data-testid="field-y6ku"
       />
       <Field

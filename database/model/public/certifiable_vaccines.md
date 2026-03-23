@@ -1,15 +1,7 @@
 {% docs table__certifiable_vaccines %}
-Table of scheduled vaccines which can be certified via EUDCC or ICAO VDC.
+Table of scheduled vaccines which are eligible for inclusion in COVID-19 vaccine certificates.
 
-Introduced during the COVID-19 pandemic, these are standards which can be
-used to produce a QR code containing vaccine information and a digital signature
-which certifies that the vaccines were administered by a competent authority.
-
-This table both contains additional information about scheduled vaccines which is
-required for those to be certified, and signals that the vaccines listed may be
-included in certification QR codes.
-
-See also the [`signers`](#!/source/source.tamanu.tamanu.signers) table.
+This table signals which vaccines may be included in the COVID-19 vaccine certificate printout.
 {% enddocs %}
 
 {% docs certifiable_vaccines__vaccine_id %}

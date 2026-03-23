@@ -11,16 +11,12 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { generateUVCI } from '@tamanu/shared/utils/uvci';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import {
   makeCovidCertificate,
   makeCovidVaccineCertificate,
   makeVaccineCertificate,
 } from '../../utils/makePatientCertificate';
-import { getLocalisation } from '../../localisation';
-import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
-import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
 
 import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerator';
 
@@ -51,24 +47,18 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const { models, sequelize } = store;
     const {
       CertificateNotification,
-      CertifiableVaccine,
       PatientCommunication,
       Patient,
       TranslatedString,
     } = models;
-    const vdsEnabled = config.integrations.vdsNc.enabled;
-    const euDccEnabled = config.integrations.euDcc.enabled;
 
-    const [certifiableVaccineIds, queuedNotifications] = await Promise.all([
-      CertifiableVaccine.allVaccineIds(euDccEnabled),
-      CertificateNotification.findAll({
-        where: {
-          status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
-        },
-        order: [['createdAt', 'ASC']], // process in order received
-        limit: this.config.limit,
-      }),
-    ]);
+    const queuedNotifications = await CertificateNotification.findAll({
+      where: {
+        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+      },
+      order: [['createdAt', 'ASC']],
+      limit: this.config.limit,
+    });
 
     let processed = 0;
     for (const notification of queuedNotifications) {
@@ -76,7 +66,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const patientId = notification.get('patientId');
         const patient = await Patient.findByPk(patientId);
 
-        const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
         const printedDate = notification.get('printedDate');
@@ -85,68 +74,22 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         const translations = await TranslatedString.getTranslations(language, ['pdf']);
 
-        const { country } = await getLocalisation();
-        const countryCode = country['alpha-2'];
-
         const sublog = log.child({
           id: notification.id,
           patient: patientId,
           type,
-          requireSigning,
         });
 
         sublog.info('Processing certificate notification');
 
         let template;
-        let qrData = null;
         let pdf = null;
 
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
             template = 'covidVaccineCertificateEmail';
-            const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
-              patient.id,
-              certifiableVaccineIds,
-            );
 
-            let uvci;
-            if (requireSigning && latestCertifiableVax) {
-              if (euDccEnabled) {
-                sublog.debug('Generating EU DCC data for proof of vaccination', {
-                  vax: latestCertifiableVax.id,
-                });
-
-                uvci = await generateUVCI(latestCertifiableVax.id, {
-                  format: 'eudcc',
-                  countryCode,
-                });
-
-                const povData = await createEuDccVaccinationData(latestCertifiableVax.id, {
-                  models,
-                });
-
-                qrData = await HCERTPack(povData, { models });
-              } else if (vdsEnabled) {
-                sublog.debug('Generating VDS data for proof of vaccination', {
-                  vax: latestCertifiableVax.id,
-                });
-
-                uvci = await generateUVCI(latestCertifiableVax.id, { format: 'icao', countryCode });
-
-                const povData = await createVdsNcVaccinationData(patient.id, { models });
-                const vdsDoc = new VdsNcDocument(type, povData, uvci);
-                vdsDoc.models = models;
-                await vdsDoc.sign();
-
-                qrData = await vdsDoc.intoVDS();
-              } else if (requireSigning) {
-                sublog.warn('Signing is required but certificate contains no certifiable vaccines');
-              } else {
-                sublog.error('Signing is required but neither EU DCC nor VDS is enabled');
-              }
-            }
-
-            sublog.info('Generating vax certificate PDF', { uvci });
+            sublog.info('Generating vax certificate PDF');
             pdf = await makeCovidVaccineCertificate({
               models,
               settings,
@@ -154,25 +97,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               patient,
               printedBy,
               printedDate,
-              qrData,
-              uvci,
             });
             break;
           }
 
           case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON: {
-            // let uvci;
-
             template = 'covidTestCertificateEmail';
-            if (requireSigning && vdsEnabled) {
-              // sublog.debug('Generating VDS data for proof of testing');
-              // uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
-              // const povData = await createVdsNcTestData(patient.id, { models });
-              // const vdsDoc = new VdsNcDocument(type, povData, uvci);
-              // vdsDoc.models = models;
-              // await vdsDoc.sign();
-              // qrData = await vdsDoc.intoVDS();
-            }
 
             sublog.info('Generating test certificate PDF');
             pdf = await makeCovidCertificate({
@@ -182,7 +112,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               language,
               patient,
               printedBy,
-              vdsData: qrData,
             });
             break;
           }
@@ -198,7 +127,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               language,
               patient,
               printedBy,
-              vdsData: qrData,
             });
             break;
 
@@ -226,7 +154,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         // eslint-disable-next-line no-loop-func
         const [comm] = await sequelize.transaction(() =>
-          // queue the email to be sent and mark this notification as processed
           Promise.all([
             PatientCommunication.create({
               type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,

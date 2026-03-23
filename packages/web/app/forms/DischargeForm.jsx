@@ -11,7 +11,8 @@ import {
   MAX_REPEATS,
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
-import { isFuture, parseISO, set } from 'date-fns';
+import { isFuture, parseISO } from 'date-fns';
+import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
   TextField,
   StyledTextField,
@@ -21,8 +22,8 @@ import {
   FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
+  useDateTime,
 } from '@tamanu/ui-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -172,24 +173,19 @@ const getDischargeInitialValues = ({
   currentUser,
   dischargeNotes,
   medicationInitialValues,
+  getCurrentDateTime,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
-  const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
-        // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        return toDateTimeString(
-          set(encounterStartDate, {
-            hours: today.getHours(),
-            minutes: today.getMinutes(),
-            seconds: today.getSeconds(),
-          }),
-        );
+        const primaryNow = getCurrentDateTime();
+        const time = trimToTime(primaryNow);
+        return time ? `${trimToDate(encounter.startDate)} ${time}` : primaryNow;
       } else {
-        return getCurrentDateTimeString();
+        return getCurrentDateTime();
       }
     }
     return encounter?.dischargeDraft?.endDate;
@@ -203,8 +199,7 @@ const getDischargeInitialValues = ({
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
-    // Used in creation of associated notes
-    submittedTime: getCurrentDateTimeString(),
+    submittedTime: getCurrentDateTime(),
   };
 };
 
@@ -699,6 +694,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -802,6 +798,7 @@ export const DischargeForm = ({
           currentUser,
           dischargeNotes,
           medicationInitialValues,
+          getCurrentDateTime,
         })}
         FormScreen={props => (
           <DischargeFormScreen
@@ -840,13 +837,7 @@ export const DischargeForm = ({
             yup.object(
               Object.keys(obj || {}).reduce((acc, key) => {
                 acc[key] = yup.object().shape({
-                  repeats: yup
-                    .number()
-                    .integer()
-                    .min(0)
-                    .max(MAX_REPEATS)
-                    .nullable()
-                    .optional(),
+                  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
                 });
                 return acc;
               }, {}),
@@ -901,9 +892,8 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
+            min={encounter.startDate}
             required
-            saveDateAsString
             data-testid="field-20tt"
           />
           <Field

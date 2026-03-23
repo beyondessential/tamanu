@@ -1,5 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
-import { AggregateError, Op } from 'sequelize';
+import { AggregateError, DataTypes, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -83,9 +83,18 @@ function checkForChanges(existing, normalizedValues, model) {
       const existingValue = existing._previousDataValues[key];
       const normalizedValue = normalizedValues[key];
 
-      if (typeof existingValue === 'number') {
-        return isNaN(normalizedValue) ? false : Number(normalizedValue) !== existingValue;
+      const attrType = existing.constructor.rawAttributes[key]?.type;
+      if (attrType instanceof DataTypes.NUMBER) {
+        if (existingValue == null || normalizedValue == null) {
+          return (existingValue == null) !== (normalizedValue == null);
+        }
+        const existingNum = Number(existingValue);
+        const normalizedNum = Number(normalizedValue);
+        if (Number.isNaN(normalizedNum)) return false;
+        if (Number.isNaN(existingNum)) return true;
+        return existingNum !== normalizedNum;
       }
+
       return existing.changed(key);
     });
 }
@@ -315,12 +324,21 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
+      const { createRecords, deleteClause } = generateTranslationsForData(
+        model,
+        sheetName,
+        normalizedValues,
+      );
       try {
-        await models.TranslatedString.bulkCreate(recordTranslationData, {
-          validate: true,
-          updateOnDuplicate: ['text'],
-        });
+        if (createRecords.length > 0) {
+          await models.TranslatedString.bulkCreate(createRecords, {
+            validate: true,
+            updateOnDuplicate: ['text', 'deletedAt'],
+          });
+        }
+        if (deleteClause) {
+          await models.TranslatedString.destroy({ where: deleteClause });
+        }
       } catch (err) {
         if (!(err instanceof AggregateError)) {
           throw err; // Not a sequelize bulk create error, so let it bubble up

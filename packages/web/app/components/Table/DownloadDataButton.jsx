@@ -1,13 +1,14 @@
 import React, { isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import {
   ApiContext,
+  DateTimeProviderContext,
   TranslationContext,
   useTranslation,
   GreyOutlinedButton,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { notifySuccess, renderToText } from '../../utils';
@@ -16,6 +17,8 @@ import { TranslatedText } from '../Translation';
 import { ExportProvider } from '../../contexts/ExportContext';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
+  const dateTimeContext = useDateTime();
+  const { getCurrentDate } = dateTimeContext;
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
@@ -27,7 +30,9 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
         <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
           <ApiContext.Provider value={api} data-testid="provider-72ic">
             <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
-              {element}
+              <DateTimeProviderContext.Provider value={dateTimeContext}>
+                {element}
+              </DateTimeProviderContext.Provider>
             </TranslationContext.Provider>
           </ApiContext.Provider>
         </QueryClientProvider>
@@ -105,7 +110,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
   const onDownloadData = async () => {
     await saveFile({
-      defaultFileName: `${exportName}-${getCurrentDateString()}`,
+      defaultFileName: `${exportName}-${getCurrentDate()}`,
       getData: prepareData,
       extension: 'xlsx',
     });

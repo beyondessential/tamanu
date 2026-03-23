@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import MuiDivider from '@material-ui/core/Divider';
+import { useFormikContext } from 'formik';
+import { addDays, parseISO } from 'date-fns';
+import { toDateString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
   CheckField,
@@ -20,6 +23,50 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
+/**
+ * Keeps time field dates in sync with the procedure date field.
+ * When an end time (endTime/timeOut) is earlier than its reference start time
+ * (startTime/timeIn), the date portion is rolled forward to the next day.
+ * Non-rollover time fields are synced to the procedure date.
+ */
+const extractTime = value => (value?.includes('T') ? value.split('T')[1] : value || '');
+
+const syncTimeDate = (time, targetDate, setFieldValue, fieldName) => {
+  if (!time) return;
+  const timePart = extractTime(time);
+  if (!timePart) return;
+  const expected = `${targetDate}T${timePart}`;
+  if (time !== expected) {
+    setFieldValue(fieldName, expected);
+  }
+};
+
+const isRollover = (time, refTime) =>
+  time && refTime && extractTime(time).slice(0, 5) < extractTime(refTime).slice(0, 5);
+
+const ProcedureDateSync = () => {
+  const { values, setFieldValue } = useFormikContext();
+  const { date: dateVal, startTime, endTime, timeIn, timeOut } = values;
+  const date = dateVal?.slice(0, 10);
+
+  useEffect(() => {
+    if (!date) return;
+    const nextDay = toDateString(addDays(parseISO(date), 1));
+
+    syncTimeDate(startTime, date, setFieldValue, 'startTime');
+    syncTimeDate(
+      endTime,
+      isRollover(endTime, startTime) ? nextDay : date,
+      setFieldValue,
+      'endTime',
+    );
+    syncTimeDate(timeIn, date, setFieldValue, 'timeIn');
+    syncTimeDate(timeOut, isRollover(timeOut, timeIn) ? nextDay : date, setFieldValue, 'timeOut');
+  }, [date, startTime, endTime, timeIn, timeOut, setFieldValue]);
+
+  return null;
+};
+
 export const ProcedureFormFields = React.memo(({ values }) => {
   const physicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -32,12 +79,15 @@ export const ProcedureFormFields = React.memo(({ values }) => {
 
   return (
     <>
+      <ProcedureDateSync />
       <FormGrid data-testid="formgrid-6sdo">
         <div style={{ gridColumn: 'span 2' }}>
           <NoteModalActionBlocker>
             <Field
               name="procedureTypeId"
-              label={<TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />}
+              label={
+                <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />
+              }
               required
               component={AutocompleteField}
               suggester={procedureSuggester}
@@ -49,7 +99,6 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           <Field
             name="date"
             label={<TranslatedText stringId="procedure.date.label" fallback="Procedure date" />}
-            saveDateAsString
             required
             component={DateField}
             data-testid="field-3a5v"
@@ -104,7 +153,9 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           />
           <Field
             name="anaesthetistId"
-            label={<TranslatedText stringId="procedure.anaesthetist.label" fallback="Anaesthetist" />}
+            label={
+              <TranslatedText stringId="procedure.anaesthetist.label" fallback="Anaesthetist" />
+            }
             component={AutocompleteField}
             suggester={anaesthetistSuggester}
             data-testid="field-96eg"
@@ -136,28 +187,24 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             name="timeIn"
             label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-khml1"
           />
           <Field
             name="timeOut"
             label={<TranslatedText stringId="procedure.timeOut.label" fallback="Time out" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-hgzz1"
           />
           <Field
             name="startTime"
             label={<TranslatedText stringId="procedure.startTime.label" fallback="Time started" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-khml"
           />
           <Field
             name="endTime"
             label={<TranslatedText stringId="procedure.endTime.label" fallback="Time ended" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-hgzz"
           />
         </NoteModalActionBlocker>

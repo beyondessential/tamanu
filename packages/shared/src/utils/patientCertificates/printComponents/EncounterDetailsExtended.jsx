@@ -2,12 +2,13 @@ import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 export const EncounterDetailsExtended = ({ encounter, discharge }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
 
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',

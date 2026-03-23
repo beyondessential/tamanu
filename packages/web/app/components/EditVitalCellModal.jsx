@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import { FormModal } from './FormModal';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 import { TranslatedReferenceData } from './Translation';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
-export const EditVitalCellModal = ({ 
-  open, 
-  dataPoint, 
-  onClose, 
+export const EditVitalCellModal = ({
+  open,
+  dataPoint,
+  onClose,
   isVital = false,
   // Program registry context props (optional)
   programRegistryPatientId,
@@ -22,11 +22,10 @@ export const EditVitalCellModal = ({
       fallback={dataPoint?.component.dataElement.name}
     />
   );
-  const date = formatShortest(dataPoint?.recordedDate);
-  const time = formatTime(dataPoint?.recordedDate);
   const title = (
     <span>
-      {vitalLabel} | {date} | {time}
+      {vitalLabel} | <DateDisplay date={dataPoint?.recordedDate} format="shortest" /> |{' '}
+      <TimeDisplay date={dataPoint?.recordedDate} />
     </span>
   );
 
