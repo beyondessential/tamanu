@@ -2,20 +2,36 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from '@tamanu/errors';
 import {
+  CHARTING_SURVEY_TYPES,
   HIDDEN_PERMISSION_NOUNS,
   NOUNS_WITH_OBJECT_ID,
   OBJECT_ID_PERMISSION_SCHEMA,
   PERMISSION_SCHEMA,
+  PermissionNoun,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 async function getObjectIdsAndNamesByNoun(models) {
   const promises = NOUNS_WITH_OBJECT_ID.map(async noun => {
+    if (noun === PermissionNoun.Charting) {
+      const records = await models.Survey.findAll({
+        attributes: ['id', 'name'],
+        where: {
+          surveyType: CHARTING_SURVEY_TYPES,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        raw: true,
+      });
+      return [noun, records.map(r => ({ id: r.id, name: r.name }))];
+    }
+
+    if (noun === PermissionNoun.StaticReport) {
+      return [noun, REPORT_DEFINITIONS.map(r => ({ id: r.id, name: r.name }))];
+    }
+
     if (models[noun]) {
       const where = {};
-
-      // only include current visibility status records
       if (models[noun].rawAttributes.visibilityStatus) {
         where.visibilityStatus = VISIBILITY_STATUSES.CURRENT;
       }
@@ -100,9 +116,6 @@ permissionsRouter.get(
 
     // Pre-populate rows for all objectIds of nouns that support them
     const objectIdEntries = await getObjectIdsAndNamesByNoun(req.store.models);
-
-    // Add static reports (not backed by a model)
-    objectIdEntries.StaticReport = REPORT_DEFINITIONS.map(r => ({ id: r.id, name: r.name }));
 
     const objectNameLookup = {};
     for (const [noun, entries] of Object.entries(objectIdEntries)) {

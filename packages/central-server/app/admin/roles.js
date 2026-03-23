@@ -4,7 +4,7 @@ import { escapeRegExp } from 'lodash';
 import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
 
-import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { DatabaseConstraintError, DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/role` endpoint for CRUD-ing a single role */
@@ -53,6 +53,27 @@ const createRoleSchema = z.object({
     .max(255, { message: '`name` must be no longer than 255 characters' }),
 });
 
+roleRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Role');
+
+    const {
+      store: {
+        models: { Role },
+      },
+      params: { id },
+    } = req;
+
+    const role = await Role.findByPk(id);
+    if (!role) {
+      throw new NotFoundError(`No role found with ID ‘${id}’`);
+    }
+
+    res.send(role);
+  }),
+);
+
 roleRouter.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -91,21 +112,28 @@ roleRouter.delete(
     await sequelize.transaction(async () => {
       const role = await Role.findByPk(id);
       if (!role) {
-        throw new NotFoundError(`No role found with ID ${id}`);
+        throw new NotFoundError(`No role found with ID ‘${id}’`);
       }
 
       const count = await User.count({
         where: { role: role.id }, // No FK constraint!
       });
-      if (count > 0) {
-        const objectVerb = count === 1 ? 'user is' : 'users are';
-        throw new InvalidOperationError(
-          `Cannot delete role with ID ‘${id}’. ${count}\u{00A0}${objectVerb} assigned to it.`,
-        );
-      }
+      if (count > 0) throw new InvalidRoleDeletionError(id, count);
 
       await role.destroy();
     });
     res.status(204).send();
   }),
 );
+class InvalidRoleDeletionError extends DatabaseConstraintError {
+  constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
+    const isSingular = count === 1;
+    const subject = isSingular ? 'user' : 'users';
+    const verb = isSingular ? 'is' : 'are';
+
+    super(
+      `Cannot delete role with ID ‘${roleId}’. ${count}\u{00A0}${subject} ${verb} assigned to it.`,
+    );
+    this.withExtraData({ roleId, assignedUserCount: count });
+  }
+}

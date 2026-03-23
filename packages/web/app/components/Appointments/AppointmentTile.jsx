@@ -125,7 +125,7 @@ export const AppointmentTile = ({
 
   const tileText = (
     <>
-      {!hideTime && <StyledTimeDisplay date={startTimeStr} format="compact" noTooltip />} 
+      {!hideTime && <StyledTimeDisplay date={startTimeStr} noTooltip />} 
       {getPatientNameAsString(patient)}
     </>
   );

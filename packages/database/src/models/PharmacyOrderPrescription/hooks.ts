@@ -3,6 +3,13 @@ import { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 
 const updateInvoiceQuantityForPrescription = async (instance: PharmacyOrderPrescription) => {
   const { models } = instance.sequelize;
+
+  // Use eagerly loaded association if available (bulk hooks), otherwise fetch
+  const pharmacyOrder =
+    (instance as any).pharmacyOrder ??
+    (await models.PharmacyOrder.findByPk(instance.pharmacyOrderId));
+  if (!pharmacyOrder?.isDischargePrescription) return;
+
   const prescription = await models.Prescription.findByPk(instance.prescriptionId, {
     include: [
       {

@@ -86,8 +86,10 @@ const SearchContainer = styled(Box)`
 
 const StyledTextButton = styled(TextButton)`
   margin-block: 0.25rem;
-  text-decoration: underline;
   align-self: end;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const StyledMenuItem = styled(MenuItem)`
