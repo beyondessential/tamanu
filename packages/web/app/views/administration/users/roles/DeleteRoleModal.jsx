@@ -58,13 +58,17 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const detail = isSingular ? (
     <TranslatedText
       stringId="admin.roles.delete.error.detail.singular"
-      fallback="Cannot delete role with ID ‘:roleId’ as :count user is assigned to it. Please update their profile first to delete the role."
+      fallback={
+        'Cannot delete role with ID ‘:roleId’ as :count\u{00A0}user is assigned to it. Please update their profile first to delete the role.'
+      }
       replacements={detailReplacements}
     />
   ) : (
     <TranslatedText
       stringId="admin.roles.delete.error.detail.plural"
-      fallback="Cannot delete role with ID ‘:roleId’ as :count users are assigned to it. Please update their profiles first to delete the role."
+      fallback={
+        'Cannot delete role with ID ‘:roleId’ as :count\u{00A0}users are assigned to it. Please update their profiles first to delete the role.'
+      }
       replacements={detailReplacements}
     />
   );
