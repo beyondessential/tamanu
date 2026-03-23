@@ -195,22 +195,27 @@ export const PatientLabTestsTable = React.memo(
             const normalRange = row.normalRanges[patient?.sex];
             const cellData = row.results[date];
             if (cellData) {
+              const isEdited = cellData.isEdited === true;
               return (
                 <StyledButton
                   onClick={() => openModal(cellData.id)}
                   data-testid={`styledbutton-d5us-${index}`}
                 >
                   {row.testOptions ? (
-                    <TranslatedOption
-                      value={cellData.result}
-                      referenceDataId={row.testTypeId}
-                      referenceDataCategory="labTestType"
-                    />
+                    <>
+                      <TranslatedOption
+                        value={cellData.result}
+                        referenceDataId={row.testTypeId}
+                        referenceDataCategory="labTestType"
+                      />
+                      {isEdited && '*'}
+                    </>
                   ) : (
                     <RangeValidatedCell
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
                       validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                      isEdited={isEdited}
                       data-testid={`rangevalidatedcell-ebuf-${index}`}
                     />
                   )}

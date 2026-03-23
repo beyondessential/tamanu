@@ -419,7 +419,16 @@ patientRelations.get(
     JSONB_OBJECT_AGG(
       lab_requests.sample_time, JSONB_BUILD_OBJECT(
         'result', lab_tests.result,
-        'id', lab_tests.id
+        'id', lab_tests.id,
+        'isEdited', (
+          SELECT COUNT(DISTINCT (record_data->>'result')) >= 2
+          FROM logs.changes
+          WHERE table_schema = 'public'
+            AND table_name = 'lab_tests'
+            AND record_id = lab_tests.id::text
+            AND record_data->>'result' IS NOT NULL
+            AND TRIM(record_data->>'result') != ''
+        )
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}
