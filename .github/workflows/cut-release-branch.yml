@@ -12,6 +12,8 @@ on:
           - major
         default: minor
 
+permissions: {}
+
 jobs:
   run:
     name: Cut Release
