@@ -58,14 +58,6 @@ export function parseTamanuDate(raw: string): Date | null {
   return null;
 }
 
-/** {@link parseTamanuDate}, then `new Date` if still needed (datetime inputs only). */
-function parseDateTimeString(raw: string): Date | null {
-  const parsed = parseTamanuDate(raw);
-  if (parsed) return parsed;
-  const native = new Date(raw.trim());
-  return isValid(native) ? native : null;
-}
-
 /**
  * Normalize a test or DOM date value to **US-style short date** `MM/dd/yyyy` for text assertions.
  *
@@ -130,7 +122,11 @@ export function normalizeToIsoDate(raw: string): string {
 
 /** Normalize a datetime input value to `yyyy-MM-dd'T'HH:mm` (24h, no seconds). */
 export function normalizeToIsoDateTimeMinute(raw: string): string {
-  const parsed = parseDateTimeString(raw);
+  let parsed = parseTamanuDate(raw);
+  if (!parsed) {
+    const native = new Date(raw.trim());
+    parsed = isValid(native) ? native : null;
+  }
   if (!parsed) return raw;
   return format(parsed, "yyyy-MM-dd'T'HH:mm");
 }
@@ -139,7 +135,11 @@ export function normalizeToIsoDateTimeMinute(raw: string): string {
  * Format test/ISO data for **MUI date-time text fields** (`dd/MM/yyyy hh:mm a`). On failure returns the input.
  */
 export function formatForMuiDateTimePicker(isoDate: string): string {
-  const parsed = parseDateTimeString(isoDate);
+  let parsed = parseTamanuDate(isoDate);
+  if (!parsed) {
+    const native = new Date(isoDate.trim());
+    parsed = isValid(native) ? native : null;
+  }
   if (!parsed) return isoDate;
   return format(parsed, 'dd/MM/yyyy hh:mm a');
 }

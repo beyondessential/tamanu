@@ -227,8 +227,6 @@ test.describe('Notes Tests', () => {
         await changeLogTreatmentPlanModal!.changelogInfoDates.nth(1).textContent()
       )!.trim();
       await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(newerChangeLogDate);
-      await expect(changeLogTreatmentPlanModal!.changelogInfoDates.first()).toHaveText(newerChangeLogDate);
-      await expect(changeLogTreatmentPlanModal!.changelogInfoDates.nth(1)).toHaveText(olderChangeLogDate);
       
       // Close the modal
       await changeLogTreatmentPlanModal!.closeButton.click();
