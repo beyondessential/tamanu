@@ -293,6 +293,13 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "programRegistryPltfuFlagger": {
+      "enabled": true,
+      // every day at 3 AM
+      "schedule": "0 3 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
   },
   "integrations": {
     "fijiVrs": {

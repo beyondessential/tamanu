@@ -93,7 +93,9 @@ export function readTwoModelTypeSheet(sheet, sheetName) {
       }
       const nextCell = sheet[`B${i + 1}`];
       if (!nextCell) continue;
-      primaryRecord[cell.v.trim()] = nextCell.v.trim();
+      const cellKey = cell.v.trim();
+      const rawValue = nextCell.v;
+      primaryRecord[cellKey] = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
     }
 
     // we've exhausted the search
