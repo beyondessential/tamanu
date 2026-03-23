@@ -1,15 +1,14 @@
+import { sentence } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
 import { Op, UniqueConstraintError } from 'sequelize';
 import { z } from 'zod';
-import { sentence } from 'case';
 
 import {
   BaseValidationError,
   DatabaseDuplicateError,
   ERROR_TYPE,
-  InvalidOperationError,
   NotFoundError,
 } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
