@@ -96,10 +96,19 @@ roleRouter.post(
   }),
 );
 
+const deleteRoleQuerySchema = z.object({
+  dryRun: z
+    .string()
+    .optional()
+    .transform(value => value === '1'),
+});
+
 roleRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Role');
+
+    const { dryRun } = await deleteRoleQuerySchema.parseAsync(req.query);
 
     const {
       store: {
@@ -111,27 +120,27 @@ roleRouter.delete(
 
     await sequelize.transaction(async () => {
       const role = await Role.findByPk(id);
-      if (!role) {
-        throw new NotFoundError(`No role found with ID ‘${id}’`);
-      }
+      if (!role) throw new NotFoundError(`No role found with ID ‘${id}’`);
 
       const count = await User.count({
         where: { role: role.id }, // No FK constraint!
       });
       if (count > 0) throw new InvalidRoleDeletionError(id, count);
 
-      await role.destroy();
+      if (!dryRun) await role.destroy();
     });
     res.status(204).send();
   }),
 );
-class InvalidRoleDeletionError extends DatabaseConstraintError {
-  constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
-    const isSingular = count === 1;
-    const subject = isSingular ? 'user' : 'users';
-    const verb = isSingular ? 'is' : 'are';
 
-    super(`Cannot delete role with ID ‘${roleId}’. ${count} ${subject} ${verb} assigned to it.`);
-    this.withExtraData({ roleId, assignedUserCount: count });
+class InvalidRoleDeletionError extends DatabaseConstraintError {
+  constructor(/** @type {string} */ roleId, /** @type {number} */ assignedUserCount) {
+    const isSingular = assignedUserCount === 1;
+    const subject = isSingular ? 'user' : 'users';
+
+    super(
+      `Cannot delete role with ID ‘${roleId}’. ${assignedUserCount} ${subject} assigned to it.`,
+    );
+    this.withExtraData({ assignedUserCount });
   }
 }
