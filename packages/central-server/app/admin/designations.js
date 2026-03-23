@@ -11,7 +11,7 @@ import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 /** `/admin/designation` endpoint for a single designation (ReferenceData) */
 export const designationRouter = express.Router();
 
-/** `/admin/designations` endpoint for listing and creating designation types (ReferenceData) */
+/** `/admin/designations` endpoint for listing and creating multiple designations (ReferenceData) */
 export const designationsRouter = express.Router();
 
 designationsRouter.get(
