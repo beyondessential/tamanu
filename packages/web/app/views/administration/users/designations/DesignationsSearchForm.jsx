@@ -15,7 +15,6 @@ export const DesignationsSearchForm = () => {
   const nameQuery = searchParams.get('name');
 
   const { getTranslation } = useTranslation();
-  const placeholder = getTranslation('general.placeholder.search...', 'Search…');
 
   const designationSuggester = useSuggester('designation', {
     formatter: ({ id }) => ({ label: id, value: id }),
@@ -58,13 +57,13 @@ export const DesignationsSearchForm = () => {
         component={TextField}
         label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
         name="name"
-        placeholder={placeholder}
+        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
       />
       <Field
         component={AutocompleteField}
         label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
         name="id"
-        placeholder={placeholder}
+        placeholder={getTranslation('general.placeholder.select', 'Select')}
         suggester={designationSuggester}
       />
       <ButtonGroup>
