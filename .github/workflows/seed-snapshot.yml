@@ -70,7 +70,6 @@ jobs:
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
           echo "cluster=seed-${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       # -- Create ephemeral CNPG cluster --
 
