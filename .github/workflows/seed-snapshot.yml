@@ -20,7 +20,7 @@ permissions: {}
 env:
   SEED_NAMESPACE: tamanu-seed
   SEED_DB_SERVICE: seed-db-rw
-  SEED_DB_SECRET: seed-db-app
+  SEED_DB_CREDENTIAL_NAME: seed-db-app
   RETENTION_COUNT: "20"
 
 jobs:
@@ -88,13 +88,10 @@ jobs:
 
       - name: Configure database connection
         run: |
-          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_SECRET" -o jsonpath='{.data.password}' | base64 -d)
+          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "$SEED_DB_CREDENTIAL_NAME" -o jsonpath='{.data.password}' | base64 -d)
           echo "::add-mask::$pgpass"
-          supass=$(kubectl get -n "$SEED_NAMESPACE" secrets seed-db-superuser -o jsonpath='{.data.password}' | base64 -d)
-          echo "::add-mask::$supass"
           echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" >> $GITHUB_ENV
           echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< "$pgpass")" >> $GITHUB_ENV
-          echo "PGPASSWORD=$supass" >> $GITHUB_ENV
 
       - name: Reset and seed database
         run: |
@@ -110,11 +107,16 @@ jobs:
           trap cleanup EXIT
           sleep 5
 
+          PGPASSWORD=$(kubectl get -n "$SEED_NAMESPACE" secrets seed-db-superuser -o jsonpath='{.data.password}' | base64 -d)
+          export PGPASSWORD
+          echo "::add-mask::$PGPASSWORD"
+
           echo "Dropping and recreating app database..."
           psql -h 127.0.0.1 -p 4444 -U postgres -d postgres \
             -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'app' AND pid <> pg_backend_pid();" \
             -c "DROP DATABASE IF EXISTS app;" \
             -c "CREATE DATABASE app OWNER app;"
+          unset PGPASSWORD
 
           echo "Running migrations..."
           node packages/central-server/dist migrate
