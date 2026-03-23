@@ -6,10 +6,10 @@ import styled from 'styled-components';
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
-import { TranslatedText } from '../../../components';
-import { ConfirmModal } from '../../../components/ConfirmModal';
-import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
-import { shortInlineSkeleton } from './components';
+import { TranslatedText } from '../../../../components';
+import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
+import { shortInlineSkeleton } from '../components';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 
@@ -85,7 +85,7 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
 };
 
 export const DeleteRoleModal = ({ onSuccess }) => {
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const deleteMatch = useMatch('/admin/users/rolesAndDesignations/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
   const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;

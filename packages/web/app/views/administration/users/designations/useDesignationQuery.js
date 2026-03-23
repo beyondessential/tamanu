@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useApi } from '../../../api';
-import { DESIGNATION_ENDPOINT } from '../constants';
+import { useApi } from '../../../../api';
+import { DESIGNATION_ENDPOINT } from '../../constants';
 
 export const useDesignationQuery = (designationId, useQueryOptions) => {
   const api = useApi();

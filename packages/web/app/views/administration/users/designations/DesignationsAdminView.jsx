@@ -1,17 +1,16 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
 
-import { TranslatedText } from '../../../components';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { DESIGNATIONS_ENDPOINT } from '../constants';
+import { TranslatedText } from '../../../../components';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { DESIGNATIONS_ENDPOINT } from '../../constants';
+import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from '../components';
 import { AddDesignationModal } from './AddDesignationModal';
 import { DeleteDesignationModal } from './DeleteDesignationModal';
 import { DesignationsSearchForm } from './DesignationsSearchForm';
-import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from './components';
 
 const ActionMenu = ({ data }) => {
   const navigate = useNavigate();
-
   return (
     <ThreeDotMenu
       items={[
@@ -77,7 +76,10 @@ export const DesignationsAdminView = () => {
         columns={columns}
         defaultRowsPerPage={10}
         endpoint={DESIGNATIONS_ENDPOINT}
-        fetchOptions={{ id: idQuery, display_name: nameQuery }}
+        fetchOptions={{
+          id: idQuery,
+          display_name: nameQuery,
+        }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={
           <TranslatedText

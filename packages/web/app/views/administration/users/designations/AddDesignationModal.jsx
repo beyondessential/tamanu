@@ -5,16 +5,16 @@ import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, ModalContent } from '@tamanu/ui-components';
-import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../components';
-import { RequiredTextField } from './components';
-import { useRoleCreateMutation } from './useRoleCreateMutation';
+import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../../components';
+import { RequiredTextField } from '../components';
+import { useDesignationCreateMutation } from './useDesignationCreateMutation';
 
-const CREATE_ROLE_VALIDATION = yup.object().shape({
-  name: yup
+const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
+  id: yup
     .string()
     .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-  id: yup
+  name: yup
     .string()
     .trim()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
@@ -46,39 +46,51 @@ const Footer = styled.footer`
   padding-block: 20px;
 `;
 
-export const AddRoleModal = ({ open, onClose, onSuccess }) => {
-  const { isLoading, mutateAsync: createRole } = useRoleCreateMutation({
+export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
+  const { isLoading, mutateAsync: createDesignation } = useDesignationCreateMutation({
     onSuccess: () => {
       onClose?.();
       onSuccess?.();
-      toast.success(<TranslatedText stringId="admin.roles.add.success" fallback="Role created" />);
+      toast.success(
+        <TranslatedText stringId="admin.designations.add.success" fallback="Designation created" />,
+      );
     },
     onError: error => {
       toast.error(
         error.message || (
-          <TranslatedText stringId="admin.roles.add.error" fallback="Couldn’t create role" />
+          <TranslatedText
+            stringId="admin.designations.add.error"
+            fallback="Couldn’t create designation"
+          />
         ),
       );
     },
   });
 
+  const onSubmit = async values => {
+    await createDesignation({
+      id: values.id.trim(),
+      name: values.name.trim(),
+    });
+  };
+
   const renderForm = ({ submitForm }) => (
     <>
       <Fieldset disabled={isLoading}>
         <RequiredTextField
-          inputProps={{ minLength: 1, maxLength: 255 }}
-          label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
+          inputProps={{ minLength: 1 }}
+          label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
           name="name"
         />
         <RequiredTextField
           inputProps={{ minLength: 1, maxLength: 255 }}
-          label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
+          label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
           name="id"
         />
       </Fieldset>
       <Footer>
         <Button isSubmitting={isLoading} onClick={submitForm}>
-          <TranslatedText stringId="general.action.add-role" fallback="Add role" />
+          <TranslatedText stringId="general.action.add-designation" fallback="Add designation" />
         </Button>
         <OutlinedButton onClick={onClose} disabled={isLoading}>
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
@@ -89,17 +101,15 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
 
   return (
     <StyledFormModal
-      title={<TranslatedText stringId="admin.roles.add.title" fallback="Add role" />}
+      title={<TranslatedText stringId="admin.designations.add.title" fallback="Add designation" />}
       open={open}
       onClose={onClose}
     >
       <Form
         formType={FORM_TYPES.CREATE_FORM}
-        // Passing `createRole` works; but Form.jsx can’t detect that UseMutateAsyncFunction
-        // is async. This suppresses the non-async-onSubmit dev warning.
-        onSubmit={async values => await createRole(values)}
+        onSubmit={onSubmit}
         render={renderForm}
-        validationSchema={CREATE_ROLE_VALIDATION}
+        validationSchema={CREATE_DESIGNATION_VALIDATION}
       />
     </StyledFormModal>
   );

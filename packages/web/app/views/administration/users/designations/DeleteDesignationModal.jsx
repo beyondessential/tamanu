@@ -4,9 +4,9 @@ import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../../components';
-import { ConfirmModal } from '../../../components/ConfirmModal';
-import { shortInlineSkeleton } from './components';
+import { TranslatedText } from '../../../../components';
+import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { shortInlineSkeleton } from '../components';
 import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 import { useDesignationQuery } from './useDesignationQuery';
 

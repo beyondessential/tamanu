@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { useMatch, useNavigate, useSearchParams } from 'react-router';
 
-import { TranslatedText } from '../../../components';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { ROLES_ENDPOINT } from '../constants';
+import { TranslatedText } from '../../../../components';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { ROLES_ENDPOINT } from '../../constants';
+import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from '../components';
 import { AddRoleModal } from './AddRoleModal';
-import { AddButton, Article, Header, plusIcon, StyledDataFetchingTable } from './components';
 import { DeleteRoleModal } from './DeleteRoleModal';
 import { RolesSearchForm } from './RolesSearchForm';
 

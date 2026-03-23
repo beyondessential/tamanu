@@ -1,5 +1,5 @@
-export { DesignationsAdminView } from './DesignationsAdminView';
-export { RolesAdminView } from './RolesAdminView';
+export { DesignationsAdminView } from './designations/DesignationsAdminView';
+export { RolesAdminView } from './roles/RolesAdminView';
 export { RolesAndDesignationsAdminView } from './RolesAndDesignationsAdminView';
 export { UserProfilesAdminView } from './UserProfilesAdminView';
 export { UserProfileModal } from './UserProfileModal';
