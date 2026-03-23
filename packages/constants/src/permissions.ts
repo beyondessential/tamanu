@@ -94,7 +94,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   PatientProgramRegistrationCondition: [List, Read, Write, Create, Delete],
   PatientSecondaryId: [List, Read, Write, Create],
   PatientVaccine: [List, Read, Write, Create],
-  Permission: [List, Read, Write, Create, Delete],
+  Permission: [Read, Write, Create, Delete],
   Procedure: [List, Read, Write, Create],
   Program: [List, Read, Write, Create],
   ProgramRegistry: [List, Read],
