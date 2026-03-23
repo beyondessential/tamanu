@@ -16,13 +16,15 @@ export const AuthProvider = ({ children }) => {
   const { resetNoteContext } = useEncounterNotesQuery();
   const navigate = useNavigate();
 
-  const { currentUser, ability, facilityId, currentRole, primaryTimeZone } = useSelector(state => ({
-    currentUser: state.auth.user,
-    ability: state.auth.ability,
-    facilityId: state.auth.facilityId,
-    currentRole: state.auth.role,
-    primaryTimeZone: state.auth.primaryTimeZone,
-  }));
+  const { currentUser, ability, facilityId, currentRole, impersonatingRole, primaryTimeZone } =
+    useSelector(state => ({
+      currentUser: state.auth.user,
+      ability: state.auth.ability,
+      facilityId: state.auth.facilityId,
+      currentRole: state.auth.role,
+      impersonatingRole: state.auth.impersonatingRole,
+      primaryTimeZone: state.auth.primaryTimeZone,
+    }));
 
   const cleanupSession = useCallback(() => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }) => {
       onLogout,
       onTimeout,
       refreshToken,
+      impersonatingRole,
     }),
     [
       currentUser,
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }) => {
       onLogout,
       onTimeout,
       refreshToken,
+      impersonatingRole,
     ],
   );
 
