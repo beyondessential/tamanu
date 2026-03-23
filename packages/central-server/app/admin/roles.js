@@ -1,4 +1,3 @@
-import { sentence } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { escapeRegExp } from 'lodash';
@@ -136,11 +135,14 @@ roleRouter.delete(
 
 class InvalidRoleDeletionError extends BaseValidationError {
   constructor(/** @type {string} */ roleId, /** @type {number} */ count) {
+    const title = `Cannot delete role with ID ‘${roleId}’`;
+
     const isSingular = count === 1;
     const subject = isSingular ? 'user' : 'users';
     const verb = isSingular ? 'is' : 'are';
-    const detail = `Cannot delete role with ID ‘${roleId}’ as ${count} ${subject} ${verb} assigned to it. Please update their user ${isSingular ? 'profile' : 'profiles'} first in order to delete the role.`;
+    const detail = `${count} ${subject} ${verb} assigned to it`;
 
-    super(ERROR_TYPE.VALIDATION_CONSTRAINT, `${sentence(subject)} assigned to role`, detail);
+    super(ERROR_TYPE.VALIDATION_CONSTRAINT, title, detail);
+    this.withExtraData({ roleId, assignedUserCount: count });
   }
 }

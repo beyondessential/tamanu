@@ -26,32 +26,84 @@ const roleNameSkeleton = (
   />
 );
 
-const RoleDeleteErrorModal = ({ open, title, detail, onClose }) => (
-  <Modal
-    open={open}
-    onClose={onClose}
-    width="sm"
-    title={
-      title || (
-        <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
-      )
-    }
-  >
-    <ModalContent>
-      <Typography variant="body2">
-        {detail || (
-          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
-        )}
-      </Typography>
-    </ModalContent>
-    <ConfirmRowDivider />
-    <ButtonRow>
-      <Button onClick={onClose}>
-        <TranslatedText stringId="general.action.close" fallback="Close" />
-      </Button>
-    </ButtonRow>
-  </Modal>
-);
+const RoleDeleteErrorModal = ({ open, error, onClose }) => {
+  const roleId = error?.extra?.get?.('role-id');
+  const assignedUserCount = error?.extra?.get?.('assigned-user-count');
+  const isExpectedError = Boolean(roleId && assignedUserCount);
+
+  const isSingular = assignedUserCount === 1;
+  const userNoun = isSingular ? (
+    <TranslatedText stringId="general.noun.user.singular" fallback="user" />
+  ) : (
+    <TranslatedText stringId="general.noun.user.plural" fallback="users" />
+  );
+  const profileNoun = isSingular ? (
+    <TranslatedText stringId="general.noun.profile.singular" fallback="profile" />
+  ) : (
+    <TranslatedText stringId="general.noun.profile.plural" fallback="profiles" />
+  );
+  const verb = isSingular ? (
+    <TranslatedText stringId="general.verb.toBe.present.thirdPerson.singular" fallback="is" />
+  ) : (
+    <TranslatedText stringId="general.verb.toBe.present.thirdPerson.plural" fallback="are" />
+  );
+
+  const title = isExpectedError && (
+    <TranslatedText
+      stringId="admin.roles.delete.error.title"
+      fallback=":userNoun assigned to role"
+      replacements={{ userNoun }}
+      casing="sentence"
+    />
+  );
+  const detail = isExpectedError && (
+    <TranslatedText
+      stringId="admin.roles.delete.error.detail"
+      fallback="Cannot delete role with ID ‘:roleId’ as :count :userNoun :verb assigned to it. Please update their :profileNoun first in order to delete the role."
+      replacements={{
+        roleId,
+        count: assignedUserCount.toLocaleString(),
+        userNoun,
+        verb,
+        profileNoun,
+      }}
+    />
+  );
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      width="sm"
+      title={
+        title ||
+        error?.title || (
+          <TranslatedText
+            stringId="admin.roles.delete.error.generic"
+            fallback="Couldn’t delete role"
+          />
+        )
+      }
+    >
+      <ModalContent>
+        <Typography variant="body2">
+          {detail || error?.detail || error?.message || (
+            <TranslatedText
+              stringId="admin.roles.delete.error.generic"
+              fallback="Couldn’t delete role"
+            />
+          )}
+        </Typography>
+      </ModalContent>
+      <ConfirmRowDivider />
+      <ButtonRow>
+        <Button onClick={onClose}>
+          <TranslatedText stringId="general.action.close" fallback="Close" />
+        </Button>
+      </ButtonRow>
+    </Modal>
+  );
+};
 
 export const DeleteRoleModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
@@ -130,8 +182,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       />
       <RoleDeleteErrorModal
         open={deleteRoleError !== null}
-        title={deleteRoleError?.title}
-        detail={deleteRoleError?.detail}
+        error={deleteRoleError}
         onClose={onClose}
       />
     </>
