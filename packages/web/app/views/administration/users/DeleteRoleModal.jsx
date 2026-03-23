@@ -32,43 +32,38 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const isExpectedError = Boolean(roleId && assignedUserCount);
 
   const isSingular = assignedUserCount === 1;
-  const userNoun = isSingular ? (
-    <TranslatedText stringId="general.noun.user.singular" fallback="user" />
-  ) : (
-    <TranslatedText stringId="general.noun.user.plural" fallback="users" />
-  );
-  const profileNoun = isSingular ? (
-    <TranslatedText stringId="general.noun.profile.singular" fallback="profile" />
-  ) : (
-    <TranslatedText stringId="general.noun.profile.plural" fallback="profiles" />
-  );
-  const verb = isSingular ? (
-    <TranslatedText stringId="general.verb.toBe.present.thirdPerson.singular" fallback="is" />
-  ) : (
-    <TranslatedText stringId="general.verb.toBe.present.thirdPerson.plural" fallback="are" />
-  );
+  const title =
+    isExpectedError &&
+    (isSingular ? (
+      <TranslatedText
+        stringId="admin.roles.delete.error.title.singular"
+        fallback="user assigned to role"
+        casing="sentence"
+      />
+    ) : (
+      <TranslatedText
+        stringId="admin.roles.delete.error.title.plural"
+        fallback="users assigned to role"
+        casing="sentence"
+      />
+    ));
 
-  const title = isExpectedError && (
-    <TranslatedText
-      stringId="admin.roles.delete.error.title"
-      fallback=":userNoun assigned to role"
-      replacements={{ userNoun }}
-      casing="sentence"
-    />
-  );
-  const detail = isExpectedError && (
-    <TranslatedText
-      stringId="admin.roles.delete.error.detail"
-      fallback="Cannot delete role with ID ‘:roleId’ as :count :userNoun :verb assigned to it. Please update their :profileNoun first in order to delete the role."
-      replacements={{
-        roleId,
-        count: assignedUserCount.toLocaleString(),
-        userNoun,
-        verb,
-        profileNoun,
-      }}
-    />
-  );
+  const detailReplacements = { roleId, count: assignedUserCount?.toLocaleString() };
+  const detail =
+    isExpectedError &&
+    (isSingular ? (
+      <TranslatedText
+        stringId="admin.roles.delete.error.detail.singular"
+        fallback="Cannot delete role with ID ‘:roleId’ as :count user is assigned to it. Please update their profile first to delete the role."
+        replacements={detailReplacements}
+      />
+    ) : (
+      <TranslatedText
+        stringId="admin.roles.delete.error.detail.plural"
+        fallback="Cannot delete role with ID ‘:roleId’ as :count users are assigned to it. Please update their profiles first to delete the role."
+        replacements={detailReplacements}
+      />
+    ));
 
   return (
     <Modal
