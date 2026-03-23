@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
-import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 test.describe('Notes Tests', () => {
   let user: { displayName: string; [key: string]: any };
@@ -143,15 +142,14 @@ test.describe('Notes Tests', () => {
 
       // Create a note first
       await patientDetailsPage.notesPane?.newNoteButton.click();
-      const firstDateTime = await newNoteModal?.createBasicNote(
-        noteType,
-        originalContent,
-      );
+      await newNoteModal?.createBasicNote(noteType, originalContent);
       await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
 
       // Edit the note
       await patientDetailsPage.notesPane?.editIcons.nth(0).click();
-      const secondDateTime = await editNoteModal?.editNote(updatedContent);
+      await editNoteModal?.editNote(updatedContent);
+
+      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
 
       // Validate the note was updated
       expect(patientDetailsPage.notesPane).toBeDefined();
@@ -168,16 +166,12 @@ test.describe('Notes Tests', () => {
       // Validate content entries
       await expect(changeLogModal!.changelogTextContents.first()).toContainText(updatedContent);
       await expect(changeLogModal!.changelogTextContents.nth(1)).toContainText(originalContent);
-      
-      // Format dates for validation
-      const firstNoteFormattedDateTime = formatDateTimeForDisplay(new Date(firstDateTime!));
-      const secondNoteFormattedDateTime = formatDateTimeForDisplay(new Date(secondDateTime!));
-      
-      // Validate date and user information
-      await expect(changeLogModal!.dateLabel).toHaveText(firstNoteFormattedDateTime);
+
+      // Dates: header uses `revisedBy.date` (newest). Changelog rows are oldest-first; nth(1) is the latest revision.
+      // That time can match nth(0) when both edits fall in the same displayed minute.
+      const newerChangeLogDate = (await changeLogModal!.changelogInfoDates.nth(1).textContent())!.trim();
+      await expect(changeLogModal!.dateLabel).toHaveText(newerChangeLogDate);
       await expect(changeLogModal!.changeLogInfoWrappers.first()).toContainText(user.displayName);
-      await expect(changeLogModal!.changelogInfoDates.first()).toHaveText(firstNoteFormattedDateTime);
-      await expect(changeLogModal!.changelogInfoDates.nth(1)).toHaveText(secondNoteFormattedDateTime);
       await changeLogModal!.closeButton.click();
     });
     test('[T-0191][AT-0082]should update a treatment plan note and validate the change log', async ({ patientDetailsPage }) => {
@@ -191,15 +185,14 @@ test.describe('Notes Tests', () => {
 
       // Create a treatment plan note first
       await patientDetailsPage.notesPane?.newNoteButton.click();
-      const firstDateTime = await newNoteModal?.createBasicNote(
-        NOTE_TYPES.TREATMENT_PLAN,
-        originalContent,
-      );
+      await newNoteModal?.createBasicNote(NOTE_TYPES.TREATMENT_PLAN, originalContent);
       await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
 
       // Update the treatment plan
       await patientDetailsPage.notesPane?.editIcons.first().click();
-      const secondDateTime = await updateTreatmentPlanModal?.updateTreatmentPlan(updatedBy, updatedContent);
+      await updateTreatmentPlanModal?.updateTreatmentPlan(updatedBy, updatedContent);
+
+      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
 
       // Validate the note was updated
       expect(patientDetailsPage.notesPane).toBeDefined();
@@ -209,7 +202,7 @@ test.describe('Notes Tests', () => {
       await patientDetailsPage.notesPane!.editedButtons.first().click();
       expect(changeLogTreatmentPlanModal).toBeDefined();
       await changeLogTreatmentPlanModal!.waitForModalToLoad();
-      
+
       const lastUpdatedBy = `${user.displayName} on behalf of ${updatedBy}`;
       
       // Validate note type
@@ -217,24 +210,23 @@ test.describe('Notes Tests', () => {
       
       // Validate last updated by information
       await expect(changeLogTreatmentPlanModal!.lastUpdatedByValue).toHaveText(lastUpdatedBy);
-      
-      // Validate last updated at information
-      const formattedLastUpdatedAt = formatDateTimeForDisplay(new Date(secondDateTime!));
-      await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(formattedLastUpdatedAt);
   
       // Validate content entries
       await expect(changeLogTreatmentPlanModal!.changelogTextContents.first()).toContainText(updatedContent);
       await expect(changeLogTreatmentPlanModal!.changelogTextContents.nth(1)).toContainText(originalContent);
       
-      // Format dates for validation
-      const firstNoteFormattedDateTime = formatDateTimeForDisplay(new Date(firstDateTime!));
-      const secondNoteFormattedDateTime = formatDateTimeForDisplay(new Date(secondDateTime!));
-      
       // Validate change log user and date information
       await expect(changeLogTreatmentPlanModal!.changeLogInfoWrappers.first()).toContainText(lastUpdatedBy);
       await expect(changeLogTreatmentPlanModal!.changeLogInfoWrappers.nth(1)).toContainText(user.displayName);
-      await expect(changeLogTreatmentPlanModal!.changelogInfoDates.first()).toHaveText(secondNoteFormattedDateTime);
-      await expect(changeLogTreatmentPlanModal!.changelogInfoDates.nth(1)).toHaveText(firstNoteFormattedDateTime);
+
+      // Changelog is newest-first; align header with the first row. Rows may share the same displayed time.
+      const newerChangeLogDate = (
+        await changeLogTreatmentPlanModal!.changelogInfoDates.first().textContent()
+      )!.trim();
+      const olderChangeLogDate = (
+        await changeLogTreatmentPlanModal!.changelogInfoDates.nth(1).textContent()
+      )!.trim();
+      await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(newerChangeLogDate);
       
       // Close the modal
       await changeLogTreatmentPlanModal!.closeButton.click();

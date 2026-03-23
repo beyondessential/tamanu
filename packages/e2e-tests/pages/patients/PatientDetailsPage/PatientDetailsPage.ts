@@ -8,6 +8,7 @@ import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { format } from 'date-fns';
+import { formatForMuiDatePicker } from '@utils/testHelper';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
 import { CreateEncounterModal } from './modals/CreateEncounterModal';
@@ -134,9 +135,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.ongoingConditionNameField = this.page
       .getByTestId('field-j30y-input')
       .getByRole('textbox', { name: 'Search...' });
-    this.ongoingConditionDateRecordedField = this.page
-      .getByTestId('field-2775-input')
-      .getByRole('textbox');
+    this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775').locator('input');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
     this.savedOnGoingConditionName = this.page
@@ -145,8 +144,8 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox');
     this.savedOnGoingConditionDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-2775-input')
-      .getByRole('textbox');
+      .getByTestId('field-2775')
+      .locator('input');
     this.savedOnGoingConditionClinician = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-9miu-input')
@@ -174,8 +173,8 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox');
     this.savedAllergyDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-gmf8-input')
-      .getByRole('textbox');
+      .getByTestId('field-gmf8')
+      .locator('input');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page
       .getByTestId('formsubmitcancelrow-nx2z-confirmButton')
@@ -188,9 +187,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.familyHistoryDiagnosisField = this.page
       .getByTestId('field-3b4u-input')
       .getByRole('textbox', { name: 'Search...' });
-    this.familyHistoryDateRecordedField = this.page
-      .getByTestId('field-wrp3-input')
-      .getByRole('textbox');
+    this.familyHistoryDateRecordedField = this.page.getByTestId('field-wrp3').locator('input');
     this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
     this.familyHistoryNotes = this.page.getByTestId('field-mgiu-input');
@@ -200,8 +197,8 @@ export class PatientDetailsPage extends BasePatientPage {
 
     this.savedFamilyHistoryDateRecorded = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-wrp3-input')
-      .getByRole('textbox');
+      .getByTestId('field-wrp3')
+      .locator('input');
     this.savedFamilyHistoryRelationship = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-t0k5-input');
@@ -222,8 +219,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('field-urg2-input')
-      .getByRole('textbox');
+      .getByTestId('field-urg2')
+      .locator('input');
     this.savedOtherPatientIssueNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-nj3s-input');
@@ -417,7 +414,8 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewOngoingConditionAddButton.click();
     await this.ongoingConditionNameField.fill(conditionName);
     await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
-    await this.ongoingConditionDateRecordedField.fill(dateRecorded);
+    await this.ongoingConditionDateRecordedField.fill(formatForMuiDatePicker(dateRecorded));
+    await this.ongoingConditionDateRecordedField.blur();
     await this.ongoingConditionClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
     await this.ongoingConditionNotes.fill(notes);
@@ -460,7 +458,8 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewFamilyHistoryAddButton.click();
     await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
     await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
-    await this.familyHistoryDateRecordedField.fill(dateRecorded);
+    await this.familyHistoryDateRecordedField.fill(formatForMuiDatePicker(dateRecorded));
+    await this.familyHistoryDateRecordedField.blur();
     await this.familyHistoryRelationshipField.fill(relationship);
     await this.familyHistoryClinicianField.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();

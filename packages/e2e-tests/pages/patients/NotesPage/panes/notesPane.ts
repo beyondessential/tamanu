@@ -43,7 +43,6 @@ export class NotesPane {
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
       noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
-      newNoteButton: 'component-enxe',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
       editIcons: 'styledediticon-nmdz',
@@ -58,7 +57,11 @@ export class NotesPane {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
-    
+
+    // `withPermissionCheck` forces `data-testid="component-enxe"` on permission buttons (same as Prepare discharge, etc.).
+    // The notes toolbar is `row-v55c` (note-type filter + New note).
+    this.newNoteButton = page.getByTestId('row-v55c').getByRole('button', { name: 'New note' });
+
     // Special cases that need additional processing
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
     this.noteHeaderTexts = page.getByTestId('styledtablebody-a0jz').getByTestId('noteheadertext-e3kq');

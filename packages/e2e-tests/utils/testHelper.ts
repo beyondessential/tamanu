@@ -32,24 +32,17 @@ const DISPLAY_DATE_TIME_PATTERNS = [
 ] as const;
 
 /**
- * Parse a date string the way Tamanu / MUI surfaces typically expose it in the browser.
- *
- * **Recognized shapes (first match wins)**
- * 1. **ISO date prefix** — `yyyy-MM-dd` at the start of the string (time or suffix allowed after); calendar date only.
- * 2. **Display / picker strings** — `date-fns` parse with:
- *    - `dd/MM/yyyy hh:mm a` / `dd/MM/yyyy h:mm a` / `dd/MM/yyyy` (common MUI-style text).
- *
- * **Returns**
- * - A valid `Date` in local parsing semantics, or `null` if nothing matches or the result is invalid.
- *
- * **Typical use** — Building other helpers or custom assertions. Most tests should use the higher-level format
- * functions below so the intended surface (assertion vs picker vs ISO) stays explicit.
- *
- * @param raw — Untrimmed input is trimmed before parsing.
+ * Parse values from the app or tests: ISO (`yyyy-MM-dd` or `yyyy-MM-ddTHH:mm…`), then MUI-style `dd/MM/…` text.
+ * ISO datetimes use `new Date` so the time is preserved; bare `yyyy-MM-dd` uses calendar-day parsing (no TZ shift).
  */
 export function parseTamanuDate(raw: string): Date | null {
   const s = raw.trim();
   if (!s) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const fromIso = new Date(s);
+    if (isValid(fromIso)) return fromIso;
+  }
 
   const isoDate = s.match(/^(\d{4}-\d{2}-\d{2})/);
   if (isoDate) {
@@ -120,42 +113,54 @@ export function dateTableMatchStrings(dateGiven: string | undefined): string[] {
   return [format(parsed, 'MM/dd/yyyy'), format(parsed, 'dd/MM/yyyy')];
 }
 
-/**
- * Normalize picker output, ISO fragments, or display text to **`yyyy-MM-dd`** for value comparisons.
- *
- * **Typical use** — Comparing two strings that should represent the same calendar day (e.g. input value vs test
- * data) when one side came from an MUI field (`dd/MM/…`) and the other from ISO.
- *
- * **Behaviour** — If {@link parseTamanuDate} yields a valid date, returns `yyyy-MM-dd`; otherwise returns
- * `raw` unchanged so callers still see the original string when parsing fails.
- *
- * @param raw — Typically `input.value` or a test fixture string.
- */
+/** Normalize any supported string to `yyyy-MM-dd` for comparisons; on failure returns `raw`. */
 export function normalizeToIsoDate(raw: string): string {
   const parsed = parseTamanuDate(raw);
-  if (parsed && isValid(parsed)) {
-    return format(parsed, 'yyyy-MM-dd');
+  if (!parsed) return raw;
+  return format(parsed, 'yyyy-MM-dd');
+}
+
+/** Normalize a datetime input value to `yyyy-MM-dd'T'HH:mm` (24h, no seconds). */
+export function normalizeToIsoDateTimeMinute(raw: string): string {
+  let parsed = parseTamanuDate(raw);
+  if (!parsed) {
+    const native = new Date(raw.trim());
+    parsed = isValid(native) ? native : null;
   }
-  return raw;
+  if (!parsed) return raw;
+  return format(parsed, "yyyy-MM-dd'T'HH:mm");
 }
 
 /**
- * Format a date string for **typing into MUI date-time text fields** (keyboard / `.fill()`).
- *
- * Some MUI date-time pickers do not commit or behave correctly when filled with only `yyyy-MM-dd`; the app
- * expects display-shaped text such as `dd/MM/yyyy hh:mm a`.
- *
- * **Behaviour** — Parses via {@link parseTamanuDate}; on failure returns the original string so callers can
- * still attempt a fill for edge cases.
- *
- * @param isoDate — Usually ISO or ISO-like test data; trimmed before parse.
+ * Format test/ISO data for **MUI date-time text fields** (`dd/MM/yyyy hh:mm a`). On failure returns the input.
  */
 export function formatForMuiDateTimePicker(isoDate: string): string {
-  const parsed = parseTamanuDate(isoDate.trim());
-  if (!parsed || !isValid(parsed)) {
-    return isoDate;
+  let parsed = parseTamanuDate(isoDate);
+  if (!parsed) {
+    const native = new Date(isoDate.trim());
+    parsed = isValid(native) ? native : null;
   }
+  if (!parsed) return isoDate;
   return format(parsed, 'dd/MM/yyyy hh:mm a');
+}
+
+/** Format `yyyy-MM-dd` test data for **MUI date-only** fields (`dd/MM/yyyy`). */
+export function formatForMuiDatePicker(isoDate: string): string {
+  const parsed = parseTamanuDate(isoDate.trim());
+  if (!parsed) return isoDate;
+  return format(parsed, 'dd/MM/yyyy');
+}
+
+/**
+ * Format a 24h wall time (`HH:mm`) for MUI TimePicker text fields (`DISPLAY_FORMATS.time` in ui-components: `hh:mm a`).
+ */
+export function formatForMuiTimePicker(hhmm24: string): string {
+  const trimmed = hhmm24.trim();
+  const parsed = parse(trimmed, 'HH:mm', new Date());
+  if (!isValid(parsed)) {
+    return trimmed;
+  }
+  return format(parsed, 'hh:mm a');
 }
 
 /**
