@@ -30,10 +30,19 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   const roleId = error?.extra?.get?.('role-id');
   const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'));
   const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
-  const isExpectedError = Boolean(roleId && assignedUserCount);
 
-  // Should be unreachable because useRoleDeleteMutation’s onError checks this
-  if (!isExpectedError) return null;
+  const isExpectedError = Boolean(roleId && assignedUserCount);
+  if (!isExpectedError) {
+    toast.error(
+      error.detail || error.message || (
+        <TranslatedText
+          stringId="admin.roles.delete.error.generic"
+          fallback="Couldn’t delete role"
+        />
+      ),
+    );
+    return null;
+  }
 
   const isSingular = assignedUserCount === 1;
   const title = isSingular ? (
