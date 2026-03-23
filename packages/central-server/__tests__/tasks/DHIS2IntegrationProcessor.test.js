@@ -157,9 +157,10 @@ describe('DHIS2 integration processor', () => {
     it("should log.error if we can't establish a connection to DHIS2", async () => {
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
+      expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
         reportId: report.id,
-        error: expect.any(Error),
+        dataValueSet: expect.any(String),
+        error: expect.any(String),
       });
     });
 
@@ -197,8 +198,11 @@ describe('DHIS2 integration processor', () => {
       expect(pushLogs).toHaveLength(1);
 
       expect(logSpy.warn).toHaveBeenCalledWith(
-        WARNING_LOGS.FAILED_TO_SEND_REPORT,
-        pick(pushLogs[0], LOG_FIELDS),
+        WARNING_LOGS.DATA_VALUE_SET_REJECTED,
+        expect.objectContaining({
+          ...pick(pushLogs[0], LOG_FIELDS),
+          httpStatusCode: mockWarningResponse.httpStatusCode,
+        }),
       );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
       expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
@@ -218,7 +222,7 @@ describe('DHIS2 integration processor', () => {
         ...importCount,
       });
       expect(logSpy.info).toHaveBeenLastCalledWith(
-        INFO_LOGS.SUCCESSFULLY_SENT_REPORT,
+        INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET,
         pick(pushLogs[0], LOG_FIELDS),
       );
     });
@@ -253,7 +257,7 @@ describe('DHIS2 integration processor', () => {
       });
     });
 
-    it('should create a success log when report is successfully sent to DHIS2', async () => {
+    it('should create a success log when dataValueSet is successfully sent to DHIS2', async () => {
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       await dhis2IntegrationProcessor.run();
 

@@ -72,6 +72,9 @@ sources:
                   arguments:
                     to: source('tamanu', 'users')
                     field: id
+          - name: advanced_config
+            data_type: jsonb
+            description: "{{ doc('report_definition_versions__advanced_config') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in report_definition_versions."
