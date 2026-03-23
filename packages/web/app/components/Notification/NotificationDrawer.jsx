@@ -38,14 +38,32 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       'Imaging results for :patientName (:displayId) are <strong>now available</strong>',
       { replacements: { displayId, patientName } },
     );
-  } else if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
+  }
+
+  if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
     const labRequestStatus = metadata.status;
+    const previousStatus = metadata.previousStatus;
+
+    // Amended results notification overrides all other notifications
+    if (previousStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+      return getTranslation(
+        'notification.content.labRequest.resultsAmended',
+        'Lab results for :patientName (:displayId) have been <strong>amended</strong>',
+        { replacements: { displayId, patientName } },
+      );
+    }
+
     switch (labRequestStatus) {
       case LAB_REQUEST_STATUSES.PUBLISHED:
-      case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
         return getTranslation(
           'notification.content.labRequest.published',
           'Lab results for :patientName (:displayId) are <strong>now available</strong>',
+          { replacements: { displayId, patientName } },
+        );
+      case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
+        return getTranslation(
+          'notification.content.labRequest.interimResults',
+          'Interim lab results for :patientName (:displayId) are <strong>now available</strong>',
           { replacements: { displayId, patientName } },
         );
       case LAB_REQUEST_STATUSES.INVALIDATED:
@@ -55,7 +73,9 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
-  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+  }
+
+  if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',

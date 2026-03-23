@@ -33,26 +33,20 @@ export const pushNotificationAfterUpdateHook = async (
   labRequest: LabRequest,
   options: InstanceUpdateOptions,
 ) => {
-  const shouldPushNotification = [
-    LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-    LAB_REQUEST_STATUSES.PUBLISHED,
-    LAB_REQUEST_STATUSES.INVALIDATED,
-  ].includes(labRequest.status);
+  const previousStatus = labRequest.previous('status');
+  const currentStatus = labRequest.status;
+  const isStatusChanging = currentStatus !== previousStatus;
 
-  if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
-    await labRequest.sequelize.models.Notification.pushNotification(
-      NOTIFICATION_TYPES.LAB_REQUEST,
-      labRequest.dataValues,
-      { transaction: options.transaction },
-    );
-  }
+  if (!isStatusChanging) return;
 
+  // Cancelled/invalid requests: remove any existing lab-result notifications
+  // so users don't see alerts for requests that no longer apply. Return early to not create new notifications.
   const shouldDeleteNotification = [
     LAB_REQUEST_STATUSES.DELETED,
     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-  ].includes(labRequest.status);
+  ].includes(currentStatus);
 
-  if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
+  if (shouldDeleteNotification) {
     await labRequest.sequelize.models.Notification.destroy({
       where: {
         metadata: {
@@ -61,6 +55,28 @@ export const pushNotificationAfterUpdateHook = async (
       },
       transaction: options.transaction,
     });
+    return;
+  }
+
+  // For all other status changes: create a notification when the request
+  // reaches a "notify-worthy" status (interim, published, invalidated) or when
+  // it was previously published (so we can notify about updates or withdrawal).
+  const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
+  const NOTIFICATION_STATUSES = [
+    LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+    LAB_REQUEST_STATUSES.PUBLISHED,
+    LAB_REQUEST_STATUSES.INVALIDATED,
+  ];
+
+  const shouldPushNotification =
+    NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
+
+  if (shouldPushNotification) {
+    await labRequest.sequelize.models.Notification.pushNotification(
+      NOTIFICATION_TYPES.LAB_REQUEST,
+      { ...labRequest.dataValues, previousStatus },
+      { transaction: options.transaction },
+    );
   }
 };
 
