@@ -1,6 +1,6 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { DEVICE_SCOPES } from '@tamanu/constants';
+import { DEVICE_REGISTRATION_PERMISSION, DEVICE_SCOPES } from '@tamanu/constants';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
@@ -70,12 +70,8 @@ describe('Device auth', () => {
     expect(response).toHaveSucceeded();
   });
 
-  it('should error if there is not enough quota for a new sync scoped device', async () => {
-    await user.update({ deviceRegistrationQuota: 2 });
-    await store.models.Device.create({
-      registeredById: user.id,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-    });
+  it('should error if user has single permission and already has a device', async () => {
+    await user.update({ deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.SINGLE });
     await store.models.Device.create({
       registeredById: user.id,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
@@ -91,12 +87,8 @@ describe('Device auth', () => {
     expect(response).not.toHaveSucceeded();
   });
 
-  it('should not error if there is not enough quota for a new sync scoped device but we are not scoping', async () => {
-    await user.update({ deviceRegistrationQuota: 2 });
-    await store.models.Device.create({
-      registeredById: user.id,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-    });
+  it('should not error if user has single permission and already has a device but we are not scoping', async () => {
+    await user.update({ deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.SINGLE });
     await store.models.Device.create({
       registeredById: user.id,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
@@ -111,8 +103,31 @@ describe('Device auth', () => {
     expect(response).toHaveSucceeded();
   });
 
-  it('should succeed if there is enough quota for a new sync scoped device', async () => {
-    await user.update({ deviceRegistrationQuota: 1 });
+  it('should succeed if user has single permission and no devices yet', async () => {
+    await user.update({ deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.SINGLE });
+
+    const response = await baseApp.post('/api/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveProperty('token');
+  });
+
+  it('should succeed if user has unlimited permission even with existing devices', async () => {
+    await user.update({ deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.UNLIMITED });
+    // Create multiple existing devices
+    await store.models.Device.create({
+      registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+    await store.models.Device.create({
+      registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
 
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,

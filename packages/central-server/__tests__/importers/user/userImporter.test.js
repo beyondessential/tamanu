@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { DEVICE_REGISTRATION_PERMISSION, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { importerTransaction } from '../../../dist/admin/importer/importerEndpoint';
@@ -99,51 +99,47 @@ describe('User import', () => {
     });
   });
 
-  describe('Device Registration Quota Import', () => {
+  describe('Device Registration Permission', () => {
     beforeEach(async () => {
       await models.User.destroy({ where: { id: TEST_USER_ID }, force: true });
     });
 
-    it('succeeds creating a new user with valid device registration quota', async () => {
-      const { errors, stats } = await doImport({
-        file: 'user-device-registration-quota-create',
-        dryRun: false,
-      });
-
-      expect(errors).toBeEmpty();
-      expect(stats).toEqual({
-        User: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
-      });
-
-      const user = await models.User.findByPk(TEST_USER_ID);
-      expect(user.deviceRegistrationQuota).toEqual(1);
-    });
-
-    it('succeeds updating an existing user with valid device registration quota', async () => {
-      await models.User.create({
+    it('creates a user with default none permission', async () => {
+      const user = await models.User.create({
         ...fake(models.User),
         id: TEST_USER_ID,
         email: 'test@bes.au',
         displayName: 'Test Test',
-        deviceRegistrationQuota: 0,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const user = await models.User.findByPk(TEST_USER_ID);
-      expect(user.deviceRegistrationQuota).toEqual(0);
+      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.NONE);
+    });
 
-      const { errors, stats } = await doImport({
-        file: 'user-device-registration-quota-update',
-        dryRun: false,
+    it('can set user permission to single', async () => {
+      const user = await models.User.create({
+        ...fake(models.User),
+        id: TEST_USER_ID,
+        email: 'test@bes.au',
+        displayName: 'Test Test',
+        deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.SINGLE,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      expect(errors).toBeEmpty();
-      expect(stats).toEqual({
-        User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.SINGLE);
+    });
+
+    it('can set user permission to unlimited', async () => {
+      const user = await models.User.create({
+        ...fake(models.User),
+        id: TEST_USER_ID,
+        email: 'test@bes.au',
+        displayName: 'Test Test',
+        deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.UNLIMITED,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      await user.reload();
-      expect(user.deviceRegistrationQuota).toEqual(2);
+      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.UNLIMITED);
     });
   });
 });
