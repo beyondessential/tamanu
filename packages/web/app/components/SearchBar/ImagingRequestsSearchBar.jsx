@@ -79,7 +79,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
                     data-testid="translatedtext-m18i"
                   />
                 }
-                saveDateAsString
                 component={AutocompleteField}
                 suggester={requesterSuggester}
                 data-testid="localisedfield-11ir"
@@ -125,7 +124,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
                     data-testid="translatedtext-9d9x"
                   />
                 }
-                saveDateAsString
                 component={DateField}
                 data-testid="localisedfield-uyji"
               />
@@ -242,7 +240,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             data-testid="translatedtext-cjc4"
           />
         }
-        saveDateAsString
         component={DateField}
         data-testid="localisedfield-8ov6"
       />
@@ -255,7 +252,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             data-testid="translatedtext-g07s"
           />
         }
-        saveDateAsString
         component={DateField}
         data-testid="localisedfield-ehah"
       />

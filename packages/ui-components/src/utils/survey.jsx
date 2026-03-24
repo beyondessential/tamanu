@@ -2,23 +2,21 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { camelCase, isNull, isUndefined } from 'lodash';
+import { isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
-  SEX_LABELS,
 } from '@tamanu/constants';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import {
   ageInMonths,
   ageInWeeks,
   ageInYears,
-  getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { getPatientNameAsString, TranslatedText, DateDisplay } from '../components';
+import { TranslatedText } from '../components';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
@@ -102,7 +100,7 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
   return false;
 }
 
-function getInitialValue(dataElement) {
+function getInitialValue(dataElement, getCurrentDateTime) {
   switch (dataElement.type) {
     case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
@@ -110,7 +108,7 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE:
-      return getCurrentDateTimeString();
+      return getCurrentDateTime();
     default:
       return undefined;
   }
@@ -186,15 +184,16 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
     }
   }
 }
-export function getFormInitialValues(
+export function getFormInitialValues({
   components,
   patient,
   additionalData,
   currentUser = {},
   patientProgramRegistration,
-) {
+  getCurrentDateTime,
+}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
-    const initialValue = getInitialValue(dataElement);
+    const initialValue = getInitialValue(dataElement, getCurrentDateTime);
     const propName = dataElement.id;
     if (isNullOrUndefined(initialValue)) {
       return acc;
@@ -302,15 +301,13 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
         case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-          valueSchema = yup
-            .date()
-            .transform((value, originalValue) => {
-              // Convert empty strings to null/undefined to prevent validation errors
-              if (typeof originalValue === 'string' && originalValue.trim() === '') {
-                return null;
-              }
-              return value;
-            });
+          valueSchema = yup.date().transform((value, originalValue) => {
+            // Convert empty strings to null/undefined to prevent validation errors
+            if (typeof originalValue === 'string' && originalValue.trim() === '') {
+              return null;
+            }
+            return value;
+          });
           break;
         default:
           valueSchema = yup.mixed();
@@ -386,61 +383,5 @@ export const checkMandatory = (mandatory, values) => {
       />,
     );
     return false;
-  }
-};
-
-export const getPatientDataDisplayValue = async ({
-  api,
-  getEnumTranslation,
-  getReferenceDataTranslation,
-  value,
-  config,
-}) => {
-  // eslint-disable-next-line no-unused-vars
-  const [modelName, _, options] = PATIENT_DATA_FIELD_LOCATIONS[config.column] || [];
-  if (!modelName) {
-    // If the field is a custom field, we need to display the raw value
-    return value;
-  } else if (options) {
-    // If the field is a standard field with options, we need to translate the value
-    const translation = getEnumTranslation(options, value);
-    return translation || value;
-  } else {
-    // If the field is a standard field without options, we need to query the display value
-    try {
-      const { data, model } = await api.get(
-        `surveyResponse/patient-data-field-association-data/${config.column}`,
-        {
-          value,
-        },
-      );
-      if (!model) return value;
-
-      switch (model) {
-        case 'ReferenceData':
-          return getReferenceDataTranslation({
-            value: data.id,
-            category: data.type,
-            fallback: data.name,
-          });
-        case 'User':
-          return data?.displayName;
-        case 'Patient':
-          return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
-            SEX_LABELS,
-            data.sex,
-          )} - ${DateDisplay.stringFormat(data.dateOfBirth)}`;
-        default: {
-          const category = camelCase(model);
-          return getReferenceDataTranslation({
-            value: data.id,
-            category,
-            fallback: data.name || value,
-          });
-        }
-      }
-    } catch (error) {
-      return value;
-    }
   }
 };

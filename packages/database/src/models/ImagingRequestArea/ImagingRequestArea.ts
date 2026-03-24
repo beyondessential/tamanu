@@ -41,6 +41,12 @@ export class ImagingRequestArea extends Model {
       foreignKey: 'areaId',
       as: 'area',
     });
+    this.hasOne(models.InvoiceItem, {
+      foreignKey: 'sourceRecordId',
+      as: 'invoiceItem',
+      constraints: false,
+      scope: { source_record_type: this.name },
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

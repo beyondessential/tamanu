@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
-import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
 import { Table } from '../../components/Table';
 import { Colors, denseTableStyle } from '../../constants';

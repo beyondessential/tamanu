@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
-import {
-  format,
-  isAfter,
-  parseISO,
-  add,
-  set as dateFnsSet,
-  getYear,
-  getDate,
-  getMonth,
-} from 'date-fns';
+import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -21,7 +12,12 @@ import {
   FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  toDateString,
+  toDateTimeString,
+  toWeekdayCode,
+  trimToDate,
+} from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -30,7 +26,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, CheckField, DynamicSelectField, Field, SwitchField } from '../../Field';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
@@ -164,6 +160,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -192,9 +189,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         ),
         (value, { parent }) => {
           if (!value) return true;
-          const startTime = parseISO(parent.startTime);
-          const endTime = parseISO(value);
-          return isAfter(endTime, startTime);
+          return isAfter(parseISO(value), parseISO(parent.startTime));
         },
       ),
     patientId: yup.string().required(requiredMessage),
@@ -245,11 +240,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             .of(yup.string().oneOf(DAYS_OF_WEEK))
             // Note: currently supports a single day of the week
             .length(1),
-          nthWeekday: yup
-            .number()
-            .nullable()
-            .min(-1)
-            .max(4),
+          nthWeekday: yup.number().nullable().min(-1).max(4),
         },
         ['untilDate', 'occurrenceCount'],
       ),
@@ -302,7 +293,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [toWeekdayCode(startTimeDate)]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {
@@ -314,17 +305,18 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       const startTimeDate = parseISO(event.target.value);
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
-      // Update the end time to match the new start time date
-      setFieldValue(
-        'endTime',
-        toDateTimeString(
-          dateFnsSet(parseISO(values.endTime), {
-            year: getYear(startTimeDate),
-            date: getDate(startTimeDate),
-            month: getMonth(startTimeDate),
-          }),
-        ),
+      const facilityStartStr = toFacilityDateTime(event.target.value);
+      const facilityEndStr = toFacilityDateTime(values.endTime);
+      if (!facilityStartStr || !facilityEndStr) return;
+      const [year, month, day] = trimToDate(facilityStartStr).split('-').map(Number);
+      const updatedFacilityEnd = toDateTimeString(
+        dateFnsSet(parseISO(facilityEndStr), {
+          year,
+          date: day,
+          month: month - 1,
+        }),
       );
+      setFieldValue('endTime', toStoredDateTime(updatedFacilityEnd));
     };
 
     return (
@@ -418,7 +410,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           <Field
             name="endTime"
             disabled={!values.startTime}
-            date={values.startTime && parseISO(values.startTime)}
+            date={
+              values.startTime ? trimToDate(toFacilityDateTime(values.startTime)) : undefined
+            }
             label={
               <TranslatedText
                 stringId="general.endTime.label"
@@ -427,7 +421,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
               />
             }
             component={TimeWithFixedDateField}
-            saveDateAsString
             data-testid="field-6mrp"
           />
           <Field

@@ -134,7 +134,6 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
-      saveDateAsString
       size={size}
       data-testid="field-nwwl"
     />
@@ -264,7 +263,7 @@ export const NoteInfoSection = ({
         numberOfColumns={numberOfColumns}
         fontSize={14}
         label={dateLabel}
-        value={<DateDisplay date={date} showTime data-testid="datedisplay-cfwj" />}
+        value={<DateDisplay date={date} timeFormat="default" data-testid="datedisplay-cfwj" />}
         borderHeight={50}
         data-testid="infocarditem-0my5"
       />

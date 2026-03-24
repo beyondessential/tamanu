@@ -2,8 +2,8 @@ import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Heading4 } from '../../components';
+import { useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -15,11 +15,10 @@ const Container = styled.div`
   background: ${Colors.white};
   border-radius: 5px;
   display: grid;
-  grid-template-columns: ${(props) =>
-    props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)'};
+  grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
 
-  > div:nth-last-child(-n + ${(props) => (props.hasPanels ? '6' : '5')}) {
+  > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
     border-bottom: none;
   }
 `;
@@ -58,6 +57,10 @@ const StyledField = styled(Field)`
   }
 `;
 
+const DateTimeFieldWithWidth = styled(Field)`
+  width: 220px;
+`;
+
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
 
 export const SampleDetailsField = ({
@@ -67,6 +70,7 @@ export const SampleDetailsField = ({
   labSampleSiteSuggester,
   onSampleChange,
 }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
@@ -118,7 +122,7 @@ export const SampleDetailsField = ({
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {
-    return initialSamples.some((sample) => sample.panelId);
+    return initialSamples.some(sample => sample.panelId);
   }, [initialSamples]);
 
   const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
@@ -136,7 +140,7 @@ export const SampleDetailsField = ({
       // It's going to store in this state { category-1: { sampleTime: '2023-06-12 00:00'} }
       // Next time when it's called with the specimenType, it will be something like it: { identifier: 'category-1', 'specimenType', 'specimen-type-id'}
       // we need to store that { category-1: { sampleTime: '2023-06-12 00:00', specimenType: 'specimen-type-id'} }
-      setSamples((previousState) => {
+      setSamples(previousState => {
         const previousSample = previousState[identifier] || {};
         return {
           ...previousState,
@@ -148,8 +152,8 @@ export const SampleDetailsField = ({
   );
 
   const removeSample = useCallback(
-    (identifier) => {
-      setSamples((previousState) => {
+    identifier => {
+      setSamples(previousState => {
         const value = { ...previousState };
         delete value[identifier];
         return value;
@@ -159,7 +163,7 @@ export const SampleDetailsField = ({
   );
 
   const renderSampleDetails = useCallback(
-    (sample) => {
+    sample => {
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
@@ -183,11 +187,10 @@ export const SampleDetailsField = ({
             </Typography>
           </Cell>
           <Cell data-testid="cell-o2z5">
-            <StyledField
+            <DateTimeFieldWithWidth
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
-              saveDateAsString
+              max={getCurrentDateTime()}
               onChange={({ target: { value } }) => {
                 if (value) {
                   setValue(identifier, 'sampleTime', value);
@@ -248,6 +251,7 @@ export const SampleDetailsField = ({
       removeSample,
       setValue,
       hasPanels,
+      getCurrentDateTime,
     ],
   );
 
@@ -258,7 +262,7 @@ export const SampleDetailsField = ({
           {columnName}
         </HeaderCell>
       ))}
-      {initialSamples.map((request) => {
+      {initialSamples.map(request => {
         return renderSampleDetails(request);
       })}
     </Container>

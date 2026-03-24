@@ -7,9 +7,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getAnswersFromData, ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { getAnswersFromData, ButtonWithPermissionCheck, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { TabPane } from '../components';
@@ -97,6 +96,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
   const { loadEncounter } = useEncounter();
   const {
     isLoading: isLoadingChartData,
@@ -218,7 +218,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
-    const submittedTime = getCurrentDateTimeString();
+    const submittedTime = getCurrentDateTime();
     const responseData = {
       surveyId: survey.id,
       startTime: submittedTime,

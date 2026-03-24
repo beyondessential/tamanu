@@ -1,5 +1,5 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary } from '@tamanu/utils/invoice';
 import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';

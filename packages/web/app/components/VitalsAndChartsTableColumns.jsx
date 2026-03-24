@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getNormalRangeByAge } from '@tamanu/ui-components';
+import { getNormalRangeByAge, useDateTime } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
   USER_PREFERENCES_KEYS,
 } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
   DateBodyCell,
@@ -16,7 +15,6 @@ import {
   RangeTooltipCell,
   RangeValidatedCell,
 } from './FormattedTableCell';
-import { DateDisplay } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
@@ -27,12 +25,6 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
-
-const getExportOverrideTitle = date => {
-  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
-  return `${shortestDate} ${timeWithSeconds}`;
-};
 
 const parseMultiselectValue = value => {
   if (!value) return;
@@ -203,13 +195,14 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
   };
 };
 
-export const getChartsTableColumns = (
+export const useChartsTableColumns = (
   selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
   isEditEnabled = false,
 ) => {
+  const { formatShortest, formatTimeWithSeconds } = useDateTime();
   return [
     {
       key: 'measure',
@@ -249,14 +242,14 @@ export const getChartsTableColumns = (
           selectedChartSurveyName,
         ),
         exportOverrides: {
-          title: getExportOverrideTitle(date),
+          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
         },
       })),
   ];
 };
 
-export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
-  return getChartsTableColumns(
+export const useVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+  return useChartsTableColumns(
     <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,

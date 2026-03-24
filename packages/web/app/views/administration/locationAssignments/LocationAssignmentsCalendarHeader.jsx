@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router';
-import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, parseISO } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
+import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
@@ -49,7 +50,8 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
-  const isToday = isSameDay(date, startOfToday());
+  const { formatShort, formatWeekdayShort, getCurrentDate } = useDateTime();
+  const isToday = isSameDay(date, parseISO(getCurrentDate()));
   return (
     <HeaderCell
       $dim={dim}
