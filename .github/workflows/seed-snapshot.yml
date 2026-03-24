@@ -116,7 +116,6 @@ jobs:
                 checkpoint_timeout: 15min
                 synchronous_commit: "off"
                 archive_mode: "off" # prevent unnecessary WAL archiving for ephemeral cluster
-                wal_level: minimal
             affinity:
               nodeSelector:
                 bes.node.purpose: workload
