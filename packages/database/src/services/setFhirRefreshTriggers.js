@@ -50,7 +50,14 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
       if (!fhirWorkerEnabled || (schema === 'public' && !allUpstreams.includes(table))) {
         log.info(`Removing fhir_refresh trigger from ${schema}.${table}`);
         await sequelize.query(`
-          DROP TRIGGER IF EXISTS "fhir_refresh_${table}" ON "${schema}"."${table}";
+          DO $block$ BEGIN
+            EXECUTE format(
+              'DROP TRIGGER IF EXISTS %I ON %I.%I',
+              ${sequelize.escape(`fhir_refresh_${table}`)},
+              ${sequelize.escape(schema)},
+              ${sequelize.escape(table)}
+            );
+          END $block$;
         `);
       }
     }
