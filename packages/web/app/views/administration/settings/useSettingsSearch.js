@@ -55,7 +55,7 @@ const buildSearchIndex = () => {
  *
  * Scoring rules (higher = better match):
  *   - Every query word must appear somewhere in the combined text (AND logic).
- *   - Name matches score higher than description-only matches.
+ *   - Name matches score higher than key/description-only matches.
  *   - Prefix / start-of-word matches score higher than mid-word matches.
  */
 const scoreEntry = (entry, queryWords) => {
@@ -63,20 +63,22 @@ const scoreEntry = (entry, queryWords) => {
 
   const nameLower = entry.name.toLowerCase();
   const descLower = entry.description.toLowerCase();
+  const pathLower = entry.path.toLowerCase();
 
   let totalScore = 0;
 
   for (const word of queryWords) {
     const inName = nameLower.includes(word);
     const inDesc = descLower.includes(word);
+    const inPath = pathLower.includes(word);
 
-    if (!inName && !inDesc) return 0; // word is missing – no match
+    if (!inName && !inDesc && !inPath) return 0; // word is missing – no match
 
     // Base score for the word being present
     let wordScore = 1;
 
     if (inName) {
-      wordScore += 2; // name is more important than description
+      wordScore += 2; // name is more important than description or key
       // Bonus for matching at a word boundary in the name
       if (nameLower.startsWith(word) || nameLower.includes(` ${word}`)) {
         wordScore += 2;
