@@ -30,7 +30,6 @@ export function resetFhirSettings() {
  */
 export async function initFhirSettingsFromDb(globalSettings, facilitySettings = []) {
   if (loaded) return;
-  loaded = true;
 
   const fhir = await globalSettings.get('fhir');
 
@@ -54,6 +53,8 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
     assigners: fhir.assigners,
     dataDictionaries: fhir.dataDictionaries,
   };
+  // eslint-disable-next-line require-atomic-updates
+  loaded = true;
 }
 
 export function getFhirWorkerSettings() {
