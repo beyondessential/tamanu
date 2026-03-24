@@ -110,7 +110,7 @@ async function startAll({ skipMigrationCheck }) {
         ]
       : [];
 
-  return Promise.all([startApiSyncAndTasks({ skipMigrationCheck }), ...fhirWorkers]);
+  return Promise.race([startApiSyncAndTasks({ skipMigrationCheck }), ...fhirWorkers]);
 }
 
 export const startAllCommand = new Command('startAll')
