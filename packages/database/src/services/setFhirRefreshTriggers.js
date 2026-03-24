@@ -31,14 +31,18 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
       // Use a PL/pgSQL block to handle the race where multiple concurrent
       // ApplicationContext.init() calls (api, fhir-worker, tasks) all see the
       // trigger as missing and try to create it simultaneously.
+      // EXECUTE format(%I) safely quotes identifiers to prevent injection.
       await sequelize.query(`
-          DO $$ BEGIN
-            CREATE TRIGGER fhir_refresh_${table}
-            AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}" FOR EACH ROW
-            EXECUTE FUNCTION fhir.refresh_trigger();
+          DO $block$ BEGIN
+            EXECUTE format(
+              'CREATE TRIGGER %I AFTER INSERT OR UPDATE OR DELETE ON %I.%I FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger()',
+              ${sequelize.escape(`fhir_refresh_${table}`)},
+              ${sequelize.escape(schema)},
+              ${sequelize.escape(table)}
+            );
           EXCEPTION WHEN duplicate_object THEN
             NULL;
-          END $$;
+          END $block$;
       `);
     }
 
@@ -46,8 +50,15 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
       if (!fhirWorkerEnabled || (schema === 'public' && !allUpstreams.includes(table))) {
         log.info(`Removing fhir_refresh trigger from ${schema}.${table}`);
         await sequelize.query(`
-          DROP TRIGGER IF EXISTS fhir_refresh_${table} ON "${schema}"."${table}";
-      `);
+          DO $block$ BEGIN
+            EXECUTE format(
+              'DROP TRIGGER IF EXISTS %I ON %I.%I',
+              ${sequelize.escape(`fhir_refresh_${table}`)},
+              ${sequelize.escape(schema)},
+              ${sequelize.escape(table)}
+            );
+          END $block$;
+        `);
       }
     }
   });
