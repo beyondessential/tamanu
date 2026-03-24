@@ -105,11 +105,17 @@ jobs:
               size: 20Gi
             resources:
               requests:
-                memory: 750Mi
-                cpu: 10m
+                memory: 1Gi
+                cpu: 250m
+              limits:
+                memory: 1Gi
+                cpu: 1
             postgresql:
               parameters:
-                shared_buffers: 200MB
+                shared_buffers: 256MB
+                max_wal_size: 2GB
+                checkpoint_timeout: 15min
+                synchronous_commit: "off"
             affinity:
               nodeSelector:
                 bes.node.purpose: workload
