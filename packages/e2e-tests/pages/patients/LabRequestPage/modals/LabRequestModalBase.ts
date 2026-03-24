@@ -125,9 +125,9 @@ export class LabRequestModalBase {
     }
     
     // Special cases that need additional processing
-    this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
+    this.requestingClinicianInput = page.getByTestId('field-z6gb-input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
-    this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
+    this.departmentInput = page.getByTestId('field-wobc-input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
@@ -135,9 +135,9 @@ export class LabRequestModalBase {
     this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');
     this.listItems = page.getByTestId('selectortable-dwrp').getByTestId('labeltext-6stl');
     this.selectedCategoryList = page.getByTestId('testitemwrapper-o7ha').getByTestId('categorytext-jno3');
-    this.collectedByInputs = page.getByTestId('styledfield-wifm-input').locator('input');
-    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input').locator('input');
-    this.siteInputs = page.getByTestId('styledfield-mog8-input').locator('input');
+    this.collectedByInputs = page.getByTestId('styledfield-wifm-input');
+    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input');
+    this.siteInputs = page.getByTestId('styledfield-mog8-input');
     this.requestingClinicianLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Requesting clinician' });
     this.requestingClinicianValue = this.requestingClinicianLabel.locator('..').getByTestId('cardvalue-lcni');
     this.requestDateTimeLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Request date & time' });
@@ -246,7 +246,7 @@ export class LabRequestModalBase {
    * @param index - The index of the input to set
    */
   async setDateTimeCollected(dateTime: string, index: number = 0) {
-    const input = this.dateTimeCollectedInputs.locator('input').nth(index);
+    const input = this.dateTimeCollectedInputs.nth(index);
     await input.click();
     await input.waitFor({ state: 'visible' });
     await fillMuiDateTimeField(input, dateTime);

@@ -113,7 +113,7 @@ export class LabRequestDetailsPage {
     this.backButton = page.getByTestId('backbutton-1n40');
     this.testCategoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').first().getByTestId('main-vs6r');
     this.statusValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(1).getByTestId('tiletag-zdg8');
-    this.sampleCollectedValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(2).getByTestId('tooltip-b4e8');
+    this.sampleCollectedValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(2).getByTestId('datedisplay-h6el');
     this.laboratoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(3).getByTestId('main-vs6r');
     this.priorityValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(4).getByTestId('main-vs6r');
 

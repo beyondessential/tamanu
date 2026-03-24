@@ -180,7 +180,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       await this.culturalNameInput.fill(patientDetails.culturalName);
     }
     if (patientDetails.dateOfBirth) {
-      await fillMuiDateField(this.dateOfBirthInput.locator('input'), patientDetails.dateOfBirth);
+      await fillMuiDateField(this.dateOfBirthInput, patientDetails.dateOfBirth);
     }
     if (patientDetails.sex) {
       if (patientDetails.sex === 'female') {
