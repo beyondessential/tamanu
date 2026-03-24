@@ -92,7 +92,6 @@
       "enabled": false, // the HTTP routes
       "worker": {
         "enabled": false, // the materialisation worker
-        }
       },
     },
     "mSupplyMed": {
