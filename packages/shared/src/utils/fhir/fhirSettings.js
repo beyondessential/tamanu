@@ -9,7 +9,6 @@ const DEFAULTS = {
   nullLastNameValue: fhirDefaults.nullLastNameValue,
   assigners: fhirDefaults.assigners,
   dataDictionaries: fhirDefaults.dataDictionaries,
-  countParameters: fhirDefaults.parameters?._count ?? {},
 };
 
 let settings = structuredClone(DEFAULTS);
@@ -23,7 +22,7 @@ export function resetFhirSettings() {
 
 /**
  * Load FHIR settings from the database at server startup.
- * Cached for the process lifetime (requiresRestart: true). Subsequent calls are no-ops.
+ * Cached for the process lifetime (these settings have requiresRestart: true in the schema).
  * Uses a promise-based guard so concurrent callers share a single in-flight load.
  *
  * @param {ReadSettings} globalSettings - global-scoped settings reader
@@ -57,7 +56,6 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
         nullLastNameValue: fhir.nullLastNameValue,
         assigners: fhir.assigners,
         dataDictionaries: fhir.dataDictionaries,
-        countParameters: fhir.parameters?._count ?? {},
       };
     } catch (error) {
       initPromise = null; // allow retry on failure
@@ -90,8 +88,4 @@ export function getFhirAssigners() {
 
 export function getFhirDataDictionaries() {
   return settings.dataDictionaries;
-}
-
-export function getFhirCountParameters() {
-  return settings.countParameters;
 }
