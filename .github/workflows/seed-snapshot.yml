@@ -56,6 +56,7 @@ jobs:
             .items[]
             | select(.metadata.name | startswith("seed-"))
             | select((.metadata.creationTimestamp | fromdateiso8601) < $cutoff)
+            | select(.status.phase != "Ready")
             | .metadata.name
           ')
 
@@ -67,7 +68,13 @@ jobs:
       - name: Derive cluster name
         id: names
         run: |
-          echo "cluster=seed-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "cluster=seed-$(git rev-parse --short HEAD)-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+
+      - name: Ensure required tools are installed
+        run: |
+          for cmd in jq nc kubectl; do
+            command -v $cmd >/dev/null || { echo "$cmd missing"; exit 1; }
+          done
 
       # -- Create ephemeral CNPG cluster --
 
@@ -206,6 +213,7 @@ jobs:
               tamanu.io/release-version: "${INPUT_VERSION}"
               tamanu.io/created-at: "${TIMESTAMP}"
               tamanu.io/source-branch: "${INPUT_BRANCH}"
+              tamanu.io/git-sha: "$(git rev-parse HEAD)"
           spec:
             volumeSnapshotClassName: ebs-retain
             source:
@@ -215,10 +223,14 @@ jobs:
           echo "Created snapshot: ${SNAP_NAME}"
 
           echo "Waiting for snapshot to be ready..."
-          kubectl wait volumesnapshot "${SNAP_NAME}" \
+          if ! kubectl wait volumesnapshot "${SNAP_NAME}" \
             -n "$SEED_NAMESPACE" \
             --for=jsonpath='{.status.readyToUse}'=true \
-            --timeout=600s
+            --timeout=600s; then
+            echo "Snapshot failed or timed out, describing resource:"
+            kubectl describe volumesnapshot "${SNAP_NAME}" -n "$SEED_NAMESPACE"
+            exit 1
+          fi
 
       # -- Cleanup --
 
@@ -230,23 +242,29 @@ jobs:
           if kubectl get cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" 2>/dev/null; then
             echo "Deleting CNPG cluster: $CLUSTER_NAME"
             kubectl delete cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" --wait=true --timeout=120s
-            kubectl delete pvc "${CLUSTER_NAME}-1" -n "$SEED_NAMESPACE" --ignore-not-found
           fi
 
       - name: Prune old snapshots beyond retention
         run: |
-          # Get all seed snapshots sorted by version annotation
           snapshots=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
             -l "tamanu.io/snapshot-type=seed-data" \
             -o json)
 
-          # Sort by semver descending via jq, collect names beyond retention
           to_delete=$(echo "$snapshots" | jq -r --argjson keep "$RETENTION_COUNT" '
-            [.items | sort_by(
-              .metadata.annotations["tamanu.io/release-version"]
-              | split(".")
-              | map(tonumber? // 0)
-            ) | reverse | .[]] | .[($keep):] | .[].metadata.name
+            [.items
+              | map(select(.metadata.annotations["tamanu.io/release-version"] != null))
+              | sort_by(
+                  (.metadata.annotations["tamanu.io/release-version"]
+                  | split(".")
+                  | map(tonumber? // 0)
+                  | . + [0,0,0]
+                  | .[:3])
+                )
+              | reverse
+              | .[]
+            ]
+            | .[($keep):]
+            | .[].metadata.name
           ')
 
           if [ -z "$to_delete" ]; then
