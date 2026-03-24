@@ -380,6 +380,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Survey: () => ({
     isSensitive: false,
+    visibilityCriteria: null,
     notifyEmailAddresses: [],
   }),
   SurveyScreenComponent: () => ({
