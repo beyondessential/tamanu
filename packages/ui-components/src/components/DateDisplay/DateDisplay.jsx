@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { isSameDay } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import {
-  parseDate,
-  isISO9075DateString,
-} from '@tamanu/utils/dateTime';
+import { parseDate, isISO9075DateString } from '@tamanu/utils/dateTime';
 
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
@@ -48,10 +45,14 @@ const DateTooltip = ({
 
   const dateTooltip = timeOnlyTooltip ? (
     <TimeDisplay date={rawDate} noTooltip />
-  ) : isDateOnly ? (
-    <DateDisplay date={rawDate} format="long" weekdayFormat="long" noTooltip />
   ) : (
-    <DateDisplay date={rawDate} timeFormat="default" noTooltip />
+    <DateDisplay
+      date={rawDate}
+      format="long"
+      weekdayFormat="long"
+      timeFormat={isDateOnly ? null : 'default'}
+      noTooltip
+    />
   );
 
   const tooltipTitle = debug ? (
@@ -187,7 +188,7 @@ export const TimeDisplay = React.memo(
  *
  * // format="explicitShort" → "15 Mar 24"
  * <DateDisplay date="2024-03-15 09:30:00" format="explicitShort" />
- * 
+ *
  * // format="dayMonth" → "15 Mar"
  * <DateDisplay date="2024-03-15 09:30:00" format="dayMonth" />
  *
@@ -282,8 +283,7 @@ export const MultilineDatetimeDisplay = React.memo(
  */
 export const TimeRangeDisplay = ({ range: { start, end } }) => (
   <>
-    <TimeDisplay date={start} noTooltip /> &ndash;{' '}
-    <TimeDisplay date={end} noTooltip />
+    <TimeDisplay date={start} noTooltip /> &ndash; <TimeDisplay date={end} noTooltip />
   </>
 );
 
@@ -324,12 +324,7 @@ export const DateTimeRangeDisplay = React.memo(
           <>
             &nbsp;&ndash;{' '}
             {spansMultipleDays ? (
-              <DateDisplay
-                date={end}
-                format={dateFormat}
-                timeFormat={timeFormat}
-                noTooltip
-              />
+              <DateDisplay date={end} format={dateFormat} timeFormat={timeFormat} noTooltip />
             ) : (
               <TimeDisplay date={end} format={timeFormat} noTooltip />
             )}
