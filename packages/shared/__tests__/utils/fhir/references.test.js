@@ -20,7 +20,8 @@ describe('FhirReference.parse', () => {
   });
 
   it('rejects ids with invalid characters', () => {
-    expect(() => FhirReference.parse('Patient/../../../../etc')).toThrow('Invalid FHIR resource id');
+    expect(() => FhirReference.parse('Patient/id with spaces')).toThrow('Invalid FHIR resource id');
+    expect(() => FhirReference.parse('Patient/id<script>')).toThrow('Invalid FHIR resource id');
   });
 
   it('rejects empty id segments', () => {
