@@ -58,8 +58,11 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
         dataDictionaries: fhir.dataDictionaries,
       };
     } catch (error) {
-      initPromise = null; // allow retry on failure
       log.error('Failed to load FHIR settings from DB:', error.message);
+      // Delay before allowing retry so concurrent callers that are awaiting
+      // this promise don't all immediately race to restart a new load.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      initPromise = null;
       throw error;
     }
   })();
