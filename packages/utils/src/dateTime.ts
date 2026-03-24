@@ -349,6 +349,29 @@ export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
 export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
+/**
+ * Parse a stored datetime string (ISO 9075 in primary timezone, or ISO 8601 with Z) to epoch milliseconds.
+ * Use when computing durations so the result is not affected by the user's browser timezone.
+ */
+export const storedDateTimeToEpochMilliseconds = (
+  storedValue: string | null | undefined,
+  primaryTimeZone: string,
+): number | null => {
+  if (storedValue == null || (typeof storedValue === 'string' && storedValue.trim() === '')) {
+    return null;
+  }
+  try {
+    const normalized = storedValue.replace(' ', 'T');
+    if (/[Zz]$/.test(normalized)) {
+      return Temporal.Instant.from(normalized).epochMilliseconds;
+    }
+    const plain = Temporal.PlainDateTime.from(normalized);
+    return plain.toZonedDateTime(primaryTimeZone).epochMilliseconds;
+  } catch {
+    return null;
+  }
+};
+
 /** Get current facility date object in facility timezone */
 export const getFacilityNowDate = (
   primaryTimeZone: string,

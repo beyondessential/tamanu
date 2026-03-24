@@ -7,6 +7,7 @@ import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
+import { Colors } from '../../constants/styles';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -49,23 +50,25 @@ const blockedTooltip = (
   />
 );
 
-export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
-  const [open, setOpen] = useState(false);
+export const SurveySelector = React.memo(
+  ({ value, onChange, onSubmit, surveys, buttonText, disabled = false, errorText = null }) => {
+    const [open, setOpen] = useState(false);
 
-  const options = (surveys || []).map(survey => ({
-    value: survey.value,
-    label: survey.label,
-    isDisabled: survey.passesFormVisibility === false,
-    tooltip: survey.passesFormVisibility === false ? blockedTooltip : undefined,
-  }));
+    const options = (surveys || []).map(survey => ({
+      value: survey.value,
+      label: survey.label,
+      isDisabled: survey.passesFormVisibility === false,
+      tooltip: survey.passesFormVisibility === false ? blockedTooltip : undefined,
+    }));
 
-  const handleChange = e => {
-    onChange(e.target.value);
-  };
+    const handleChange = event => {
+      const surveyId = event.target.value;
+      onChange(surveyId);
+    };
 
-  const handleSubmit = () => {
-    onSubmit(value);
-  };
+    const handleSubmit = () => {
+      onSubmit(value);
+    };
 
   return (
     <>
@@ -74,13 +77,22 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         options={options}
         value={value ?? ''}
         onChange={handleChange}
-        data-testid="surveyselector-survey-select"
+        disabled={disabled}
+        data-testid="selectinput-4g3c"
       />
+      {disabled && errorText && (
+        <div style={{ marginTop: 4, color: Colors.alert }}>
+          <TranslatedText
+            stringId="program.modal.selectSurvey.selectSurvey.error.noReadProgram"
+            fallback={errorText}
+          />
+        </div>
+      )}
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
+      <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value || disabled} />
         <Button
           onClick={handleSubmit}
-          disabled={!value}
+          disabled={!value || disabled}
           variant="contained"
           color="primary"
           data-testid="button-qsbg"

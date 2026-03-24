@@ -341,7 +341,7 @@ export const MarTable = ({ selectedDate }) => {
               <LoadingContainer>
                 <TranslatedText
                   stringId="general.table.loading"
-                  fallback="Loading..."
+                  fallback="Loading…"
                   data-testid="translatedtext-yvlt"
                 />
               </LoadingContainer>
@@ -381,7 +381,7 @@ export const MarTable = ({ selectedDate }) => {
               <LoadingContainer>
                 <TranslatedText
                   stringId="general.table.loading"
-                  fallback="Loading..."
+                  fallback="Loading…"
                   data-testid="translatedtext-yvlt"
                 />
               </LoadingContainer>

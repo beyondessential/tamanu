@@ -1,6 +1,6 @@
 import React from 'react';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { set as dateFnsSet, parseISO } from 'date-fns';
+import { set as dateFnsSet, parse, isValid } from 'date-fns';
 import { useDateTime } from '@tamanu/ui-components';
 import { TimeInput } from '../../Field';
 
@@ -9,7 +9,7 @@ import { TimeInput } from '../../Field';
  * The resulting date-time will match the provided `date` (YYYY-MM-DD string) with the time set by the user.
  */
 export const TimeWithFixedDateField = ({ field, date, ...props }) => {
-  const { toFacilityDateTime, toStoredDateTime } = useDateTime();
+  const { toFacilityDateTime, toStoredDateTime, getFacilityNowDate } = useDateTime();
 
   const displayValue = toFacilityDateTime(field.value);
 
@@ -19,14 +19,16 @@ export const TimeWithFixedDateField = ({ field, date, ...props }) => {
       return;
     }
     const [year, month, day] = date.split('-').map(Number);
-    const facilityDateTime = toDateTimeString(  
-      dateFnsSet(parseISO(event.target.value), {
+    const timeDate = parse(event.target.value, 'HH:mm:ss', getFacilityNowDate() ?? new Date());
+    if (!isValid(timeDate)) return;
+    const facilityDateTime = toDateTimeString(
+      dateFnsSet(timeDate, {
         year,
         date: day,
         month: month - 1,
       }),
     );
-    const outputValue = toStoredDateTime(facilityDateTime)
+    const outputValue = toStoredDateTime(facilityDateTime);
     field.onChange({ target: { value: outputValue, name: field.name } });
   };
 

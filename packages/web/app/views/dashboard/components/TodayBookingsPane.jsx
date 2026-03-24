@@ -159,7 +159,7 @@ const Link = styled.div`
 `;
 
 const BookingsTimelineItem = ({ appointment }) => {
-  const { formatTimeCompact } = useDateTime();
+  const { formatTime } = useDateTime();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -182,7 +182,7 @@ const BookingsTimelineItem = ({ appointment }) => {
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
         <TimeText data-testid="timetext-4k7e">
-          {formatTimeCompact(startTime)} - {formatTimeCompact(endTime)}
+          {formatTime(startTime)} - {formatTime(endTime)}
         </TimeText>
         <Box width={0} flex={1} data-testid="box-i72x">
           <ConditionalTooltip

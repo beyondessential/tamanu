@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from '@tamanu/errors';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import {
   permissionCheckingRouter,
@@ -39,7 +40,9 @@ program.get(
     // Don't include programs that don't have any permitted survey to submit
     const canSubmit = survey => ability.can('submit', survey);
     const hasAnySurveys = programRecord => programRecord.surveys.some(canSubmit);
-    const filteredRecords = records.filter(hasAnySurveys);
+    const filteredRecords = records
+      .filter(record => ability.can('list', record))
+      .filter(hasAnySurveys);
     const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
@@ -55,6 +58,13 @@ programRelations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
     const { models, params, query, ability } = req;
+
+    const programRecord = await models.Program.findByPk(params.id);
+    if (!programRecord) {
+      throw new NotFoundError('Program not found');
+    }
+    req.checkPermission('read', programRecord);
+
     // Frontend may pass `patientId` as `params[patientId]` depending on how the query string is built.
     const patientId = query.patientId ?? query.params?.patientId;
 

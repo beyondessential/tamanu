@@ -80,6 +80,8 @@ import { removeLocalPasswordAddPassword1760456312000 } from './1760456312000-rem
 import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSystemUserPresent';
 import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
 import { addLabRequestResultsInterpretation1763435712934 } from './1763435712934-addLabRequestResultsInterpretation';
+import { addSupportsSecondaryResultsToLabTestType1768527821000 } from './1768527821000-addSupportsSecondaryResultsToLabTestType';
+import { addSecondaryResultToLabTest1768527821000 } from './1768527821000-addSecondaryResultToLabTest';
 import { updateEncountersTableSetPatientIdNotNull1771277667000 } from './1771277667000-updateEncountersTableSetPatientIdNotNull';
 import { addSurveyFormVisibilityCriteria1773618699809 } from './1773618699809-addSurveyFormVisibilityCriteria';
 
@@ -165,6 +167,8 @@ export const migrationList = [
   ensureSystemUserPresent1758183012000,
   addNoteTypeIdColumn1761474536816,
   addLabRequestResultsInterpretation1763435712934,
+  addSupportsSecondaryResultsToLabTestType1768527821000,
+  addSecondaryResultToLabTest1768527821000,
   updateEncountersTableSetPatientIdNotNull1771277667000,
   addSurveyFormVisibilityCriteria1773618699809,
 ];
