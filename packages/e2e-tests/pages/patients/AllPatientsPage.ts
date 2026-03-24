@@ -93,7 +93,7 @@ export class AllPatientsPage extends BasePatientListPage {
       nhnResultCell: 'styledtablecell-2gyy-0-displayId',
       secondNHNResultCell: 'styledtablecell-2gyy-1-displayId',
       NHNInput: 'localisedfield-dzml-input',
-      DOBInput: 'field-qk60',
+      DOBInput: 'field-qk60-input',
       culturalNameInput: 'localisedfield-epbq-input',
       villageSearchBox: 'villagelocalisedfield-mcri-input',
       newPatientVillageSearchBox: 'localisedfield-rpma-input',
@@ -130,7 +130,8 @@ export class AllPatientsPage extends BasePatientListPage {
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = page.getByTestId('field-qk60').getByRole('textbox');
+    // Override: target input directly rather than wrapper + role for robustness
+    this.DOBInput = page.getByTestId('field-qk60-input');
     this.newPatientVillageSearchBox = page
       .getByTestId('localisedfield-rpma-input')
       .locator('input');

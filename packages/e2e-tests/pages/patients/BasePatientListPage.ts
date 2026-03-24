@@ -129,7 +129,13 @@ export abstract class BasePatientListPage extends BasePage {
     await this.patientTable.waitForTableToLoad();
   }
 
-  // Validate that at least one data row is displayed (not an empty/loading status row)
+  /**
+   * Validate that at least one patient data row is displayed.
+   *
+   * Checks for the presence of the first patient's displayId cell rather than just row count,
+   * because row count alone can't distinguish between data rows and status rows (loading indicators,
+   * empty state messages, etc.). This ensures we have an actual patient record with rendered data.
+   */
   async validateAtLeastOneSearchResult() {
     await expect(this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`)).toBeVisible();
   }

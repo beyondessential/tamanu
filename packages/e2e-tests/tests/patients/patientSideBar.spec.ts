@@ -17,9 +17,11 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Sleep apnea');
-    expect(
-      normalizeToIsoDate(await patientDetailsPage.savedOnGoingConditionDate.inputValue()),
-    ).toBe(currentBrowserDate);
+    await expect
+      .poll(async () =>
+        normalizeToIsoDate(await patientDetailsPage.savedOnGoingConditionDate.inputValue()),
+      )
+      .toBe(currentBrowserDate);
   });
 
   test('[T-0040][AT-0097]Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
@@ -35,9 +37,11 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Jaw dislocation');
-    expect(
-      normalizeToIsoDate(await patientDetailsPage.savedOnGoingConditionDate.inputValue()),
-    ).toBe('2024-06-20');
+    await expect
+      .poll(async () =>
+        normalizeToIsoDate(await patientDetailsPage.savedOnGoingConditionDate.inputValue()),
+      )
+      .toBe('2024-06-20');
     await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is a note');
   });
@@ -332,9 +336,11 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
-    expect(
-      normalizeToIsoDate(await patientDetailsPage.savedOtherPatientIssueDate.inputValue()),
-    ).toBe('2025-09-17');
+    await expect
+      .poll(async () =>
+        normalizeToIsoDate(await patientDetailsPage.savedOtherPatientIssueDate.inputValue()),
+      )
+      .toBe('2025-09-17');
     await expect(patientDetailsPage.page.getByText('Test warning')).toBeHidden();
   });
 
