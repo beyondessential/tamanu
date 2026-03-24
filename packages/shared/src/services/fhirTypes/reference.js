@@ -71,6 +71,9 @@ export class FhirReference extends FhirBaseType {
    */
   static parse(reference) {
     const parts = reference.split('/');
+    if (parts.some(p => p === '..' || p === '.')) {
+      throw new Error(`Invalid FHIR reference: ${reference}`);
+    }
     const id = parts[parts.length - 1];
     if (!this.FHIR_ID_REGEX.test(id)) {
       throw new Error(`Invalid FHIR resource id: ${id}`);

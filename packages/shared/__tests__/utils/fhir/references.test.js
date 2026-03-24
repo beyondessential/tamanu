@@ -27,4 +27,9 @@ describe('FhirReference.parse', () => {
   it('rejects empty id segments', () => {
     expect(() => FhirReference.parse('Patient/')).toThrow('Invalid FHIR resource id');
   });
+
+  it('rejects path traversal references', () => {
+    expect(() => FhirReference.parse('Patient/../../../../etc')).toThrow('Invalid FHIR reference');
+    expect(() => FhirReference.parse('../etc')).toThrow('Invalid FHIR reference');
+  });
 });
