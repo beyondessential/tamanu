@@ -63,5 +63,5 @@ export const getRoleDeletabilityById = asyncHandler(async (req, res) => {
     await assertRoleIsDeletable({ Role, User, roleId: id });
   });
 
-  res.send({ canDelete: true });
+  res.status(204).send();
 });
