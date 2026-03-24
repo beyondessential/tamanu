@@ -1,6 +1,5 @@
 import config from 'config';
 import { globalDefaults } from '@tamanu/settings';
-import { log } from '../../services/logging';
 
 const fhirDefaults = globalDefaults.fhir;
 const DEFAULTS = {
@@ -12,17 +11,17 @@ const DEFAULTS = {
 };
 
 let settings = structuredClone(DEFAULTS);
-let initialised = false;
+let loaded = false;
 
 /** Reset cached settings so the next call to initFhirSettingsFromDb reloads from DB. */
 export function resetFhirSettings() {
   settings = structuredClone(DEFAULTS);
-  initialised = false;
+  loaded = false;
 }
 
 /**
  * Load FHIR settings from the database at server startup.
- * Cached for the process lifetime (requiresRestart: true). Subsequent calls are no-ops.
+ * Cached for the process lifetime (these settings have requiresRestart: true in the schema).
  *
  * @param {ReadSettings} globalSettings - global-scoped settings reader
  * @param {ReadSettings[]} [facilitySettings] - facility-scoped settings readers.
@@ -30,36 +29,32 @@ export function resetFhirSettings() {
  *   worker pool materialises everything needed.
  */
 export async function initFhirSettingsFromDb(globalSettings, facilitySettings = []) {
-  if (initialised) return;
+  if (loaded) return;
 
-  try {
-    const fhir = await globalSettings.get('fhir');
+  const fhir = await globalSettings.get('fhir');
 
-    const globalMatEnabled = fhir.worker.resourceMaterialisationEnabled;
+  const globalMatEnabled = fhir.worker.resourceMaterialisationEnabled;
 
-    const perFacilityResults = await Promise.all(
-      facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
-    );
-    let mergedMatEnabled = { ...globalMatEnabled };
-    for (const perFacility of perFacilityResults) {
-      if (!perFacility) continue;
-      for (const [key, val] of Object.entries(perFacility)) {
-        if (val) mergedMatEnabled[key] = true;
-      }
+  const perFacilityResults = await Promise.all(
+    facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
+  );
+  let mergedMatEnabled = { ...globalMatEnabled };
+  for (const perFacility of perFacilityResults) {
+    if (!perFacility) continue;
+    for (const [key, val] of Object.entries(perFacility)) {
+      if (val) mergedMatEnabled[key] = true;
     }
-
-    settings = { // eslint-disable-line require-atomic-updates
-      resourceMaterialisationEnabled: mergedMatEnabled,
-      extensions: fhir.extensions,
-      nullLastNameValue: fhir.nullLastNameValue,
-      assigners: fhir.assigners,
-      dataDictionaries: fhir.dataDictionaries,
-    };
-    initialised = true; // eslint-disable-line require-atomic-updates
-  } catch (error) {
-    log.error('Failed to load FHIR settings from DB:', error.message);
-    throw error;
   }
+
+  settings = {
+    resourceMaterialisationEnabled: mergedMatEnabled,
+    extensions: fhir.extensions,
+    nullLastNameValue: fhir.nullLastNameValue,
+    assigners: fhir.assigners,
+    dataDictionaries: fhir.dataDictionaries,
+  };
+  // eslint-disable-next-line require-atomic-updates
+  loaded = true;
 }
 
 export function getFhirWorkerSettings() {

@@ -14,8 +14,8 @@ async function getCountSettings(settings) {
     ? await settings.get('fhir.parameters._count')
     : {};
   return {
-    default: settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE,
-    max: Math.max(settingsMax || 0, settingsDefault || FHIR_MAX_RESOURCES_PER_PAGE),
+    default: settingsDefault ?? FHIR_MAX_RESOURCES_PER_PAGE,
+    max: Math.max(settingsMax ?? 0, settingsDefault ?? FHIR_MAX_RESOURCES_PER_PAGE),
   };
 }
 

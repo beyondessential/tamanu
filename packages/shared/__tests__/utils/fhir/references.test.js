@@ -18,4 +18,18 @@ describe('FhirReference.parse', () => {
     expect(resourceType).toBe('ServiceRequest');
     expect(id).toBe('sr-456');
   });
+
+  it('rejects ids with invalid characters', () => {
+    expect(() => FhirReference.parse('Patient/id with spaces')).toThrow('Invalid FHIR resource id');
+    expect(() => FhirReference.parse('Patient/id<script>')).toThrow('Invalid FHIR resource id');
+  });
+
+  it('rejects empty id segments', () => {
+    expect(() => FhirReference.parse('Patient/')).toThrow('Invalid FHIR resource id');
+  });
+
+  it('rejects path traversal references', () => {
+    expect(() => FhirReference.parse('Patient/../../../../etc')).toThrow('Invalid FHIR reference');
+    expect(() => FhirReference.parse('../etc')).toThrow('Invalid FHIR reference');
+  });
 });

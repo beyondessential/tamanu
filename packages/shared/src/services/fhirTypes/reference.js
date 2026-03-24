@@ -62,6 +62,8 @@ export class FhirReference extends FhirBaseType {
     });
   }
 
+  static FHIR_ID_REGEX = /^[A-Za-z0-9\-.]{1,64}$/;
+
   /**
    * Parse a FHIR reference string into its resourceType and id components.
    * Handles bare ids ("abc-123"), Type/id ("Patient/abc-123"),
@@ -69,9 +71,16 @@ export class FhirReference extends FhirBaseType {
    */
   static parse(reference) {
     const parts = reference.split('/');
+    if (parts.some(p => p === '..' || p === '.')) {
+      throw new Error(`Invalid FHIR reference: ${reference}`);
+    }
+    const id = parts[parts.length - 1];
+    if (!this.FHIR_ID_REGEX.test(id)) {
+      throw new Error(`Invalid FHIR resource id: ${id}`);
+    }
     return {
       resourceType: parts.length >= 2 ? parts[parts.length - 2] : null,
-      id: parts[parts.length - 1],
+      id,
     };
   }
 
