@@ -92,8 +92,8 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
               AND NOT EXISTS (
                 SELECT 1 FROM encounters e
                 WHERE e.patient_id = ppr.patient_id
-                  AND e.start_date >= :cutoffDate
                   AND e.deleted_at IS NULL
+                  AND (e.end_date IS NULL OR e.end_date >= :cutoffDate)
               )
             LIMIT :batchSize
           )

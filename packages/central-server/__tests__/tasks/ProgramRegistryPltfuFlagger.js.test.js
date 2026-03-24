@@ -142,7 +142,7 @@ describe('ProgramRegistryPltfuFlagger', () => {
     expect(registration.clinicalStatusId).toBe(pltfuStatus.id);
   });
 
-  it('should not flag patients with recent encounters', async () => {
+  it('should not flag patients with a recently closed encounter', async () => {
     const registry = await createProgramWithRegistry({
       lossToFollowUpEnabled: true,
       lossToFollowUpThresholdDays: 30,
@@ -150,7 +150,9 @@ describe('ProgramRegistryPltfuFlagger', () => {
     await createPltfuClinicalStatus(registry);
     await createRegistration(registry.id);
 
-    await createEncounter(patient);
+    await createEncounter(patient, {
+      endDate: toDateTimeString(new Date()),
+    });
 
     await runFlagger();
 
@@ -160,7 +162,27 @@ describe('ProgramRegistryPltfuFlagger', () => {
     expect(registration.clinicalStatusId).toBeNull();
   });
 
-  it('should flag patients whose encounters are older than the threshold', async () => {
+  it('should not flag patients with an open encounter', async () => {
+    const registry = await createProgramWithRegistry({
+      lossToFollowUpEnabled: true,
+      lossToFollowUpThresholdDays: 30,
+    });
+    await createPltfuClinicalStatus(registry);
+    await createRegistration(registry.id);
+
+    // Open encounter (end_date is null) — patient is still being seen
+    const oldDate = toDateTimeString(sub(new Date(), { days: 60 }));
+    await createEncounter(patient, { startDate: oldDate, endDate: null });
+
+    await runFlagger();
+
+    const registration = await models.PatientProgramRegistration.findOne({
+      where: { patientId: patient.id, programRegistryId: registry.id },
+    });
+    expect(registration.clinicalStatusId).toBeNull();
+  });
+
+  it('should flag patients whose last encounter end_date is older than the threshold', async () => {
     const thresholdDays = 30;
     const registry = await createProgramWithRegistry({
       lossToFollowUpEnabled: true,
@@ -169,8 +191,9 @@ describe('ProgramRegistryPltfuFlagger', () => {
     const pltfuStatus = await createPltfuClinicalStatus(registry);
     await createRegistration(registry.id);
 
-    const oldDate = toDateTimeString(sub(new Date(), { days: thresholdDays + 5 }));
-    await createEncounter(patient, { startDate: oldDate });
+    const oldStartDate = toDateTimeString(sub(new Date(), { days: thresholdDays + 10 }));
+    const oldEndDate = toDateTimeString(sub(new Date(), { days: thresholdDays + 5 }));
+    await createEncounter(patient, { startDate: oldStartDate, endDate: oldEndDate });
 
     await runFlagger();
 
@@ -237,9 +260,10 @@ describe('ProgramRegistryPltfuFlagger', () => {
     await createRegistration(shortThreshold.id, patient2);
     await createRegistration(longThreshold.id, patient2);
 
-    // Encounter 15 days ago — outside 10-day threshold but within 60-day
+    // Encounter ended 15 days ago — outside 10-day threshold but within 60-day
+    const thirtyDaysAgo = toDateTimeString(sub(new Date(), { days: 30 }));
     const fifteenDaysAgo = toDateTimeString(sub(new Date(), { days: 15 }));
-    await createEncounter(patient2, { startDate: fifteenDaysAgo });
+    await createEncounter(patient2, { startDate: thirtyDaysAgo, endDate: fifteenDaysAgo });
 
     await runFlagger();
 
