@@ -60,20 +60,20 @@ export const ConfirmModal = ({
       {noteBlockConfirmButton ? (
         <NoteModalActionBlocker>
           <ConfirmButton
+            {...confirmButtonProps}
             variant="contained"
             onClick={onConfirm}
             data-testid="confirmbutton-y3tb"
-            {...confirmButtonProps}
           >
             {confirmButtonText}
           </ConfirmButton>
         </NoteModalActionBlocker>
       ) : (
         <ConfirmButton
+          {...confirmButtonProps}
           variant="contained"
           onClick={onConfirm}
           data-testid="confirmbutton-y3tb"
-          {...confirmButtonProps}
         >
           {confirmButtonText}
         </ConfirmButton>
