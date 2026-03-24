@@ -192,10 +192,11 @@ test.describe('Notes Tests', () => {
       await expect(changeLogModal!.changelogTextContents.first()).toContainText(updatedContent);
       await expect(changeLogModal!.changelogTextContents.nth(1)).toContainText(originalContent);
 
-      // Changelog is newest-first; align header with the first row. Rows may share the same displayed time.
-      const newerChangeLogDate = (
-        (await changeLogModal!.changelogInfoDates.first().textContent()) ?? ''
-      ).trim();
+      // Dates: header uses `revisedBy.date` (newest). Changelog rows are oldest-first; nth(1) is the latest revision.
+      // That time can match nth(0) when both edits fall in the same displayed minute.
+      const newerChangeLogDate = (await changeLogModal!.changelogInfoDates
+        .nth(1)
+        .textContent())!.trim();
       await expect(changeLogModal!.dateLabel).toHaveText(newerChangeLogDate);
       await expect(changeLogModal!.changeLogInfoWrappers.first()).toContainText(user.displayName);
       await changeLogModal!.closeButton.click();
@@ -261,9 +262,9 @@ test.describe('Notes Tests', () => {
       );
 
       // Changelog is newest-first; align header with the first row. Rows may share the same displayed time.
-      const newerChangeLogDate = (
-        (await changeLogTreatmentPlanModal!.changelogInfoDates.first().textContent()) ?? ''
-      ).trim();
+      const newerChangeLogDate = (await changeLogTreatmentPlanModal!.changelogInfoDates
+        .first()
+        .textContent())!.trim();
       await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(newerChangeLogDate);
 
       // Close the modal
