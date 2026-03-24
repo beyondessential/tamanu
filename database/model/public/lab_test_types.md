@@ -61,3 +61,9 @@ External code for the test (such as for LIMS).
 {% docs lab_test_types__is_sensitive %}
 Used to indicate if the lab test type is sensitive and should be hidden accordingly.
 {% enddocs %}
+
+{% docs lab_test_types__supports_secondary_results %}
+Indicates whether this test type supports recording a secondary result value in addition to the primary result.
+
+When enabled, users can enter both a primary result and an optional secondary result for tests of this type. This is useful for tests that require multiple measurements, interpretations, or additional context beyond the main result value.
+{% enddocs %}

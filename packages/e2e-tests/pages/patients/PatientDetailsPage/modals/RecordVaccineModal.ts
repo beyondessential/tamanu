@@ -1,5 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 
+import { formatForMuiDateTimePicker, normalizeToIsoDate } from '@utils/testHelper';
 import { BasePatientModal } from './BasePatientModal';
 import {
   selectFieldOption,
@@ -30,8 +31,8 @@ interface OptionalVaccineFields {
 }
 
 interface GivenElsewhereFields {
-  givenElsewhereCountry?: string;
   givenElsewhereReason?: string;
+  givenElsewhereCountry?: string;
 }
 
 const givenBy = 'Test Doctor';
@@ -73,14 +74,16 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryRequiredError: Locator;
   readonly consentGivenRequiredError: Locator;
   readonly vaccineNameRequiredError: Locator;
-  readonly vaccineGivenElsewhereDropdown: Locator;
   readonly givenElsewhereCheckbox: Locator;
-  readonly countryField: Locator;
-  readonly modalScrollManager: Locator;
+  readonly givenElsewhereCircumstancesSection: Locator;
+  readonly givenElsewhereCircumstancesIndicator: Locator;
+  readonly givenElsewhereCountryField: Locator;
   constructor(page: Page) {
     super(page);
 
-    this.modal = this.page.getByTestId('modal-record-vaccine');
+    this.modal = this.page
+      .getByRole('dialog')
+      .filter({ has: this.page.getByRole('heading', { name: 'Record vaccine' }) });
     this.modalHeading = this.page.getByRole('heading', { name: 'Record vaccine' });
     this.categoryRadioGroup = this.page.getByTestId('field-rd4e');
     this.vaccineSelectField = this.page.getByTestId('field-npct-select');
@@ -101,8 +104,10 @@ export class RecordVaccineModal extends BasePatientModal {
     this.vaccineBatchField = this.page.getByTestId('field-865y-input');
     this.injectionSiteField = this.page.getByTestId('field-jz48-select');
     this.consentGivenByField = this.page.getByTestId('field-inc8-input');
-    this.dateField = this.page.getByTestId('field-8sou-input').getByRole('textbox');
-    this.notGivenReasonField = this.page.getByTestId('selectinput-phtg-select');
+    this.dateField = this.page.getByTestId('field-8sou').getByRole('textbox');
+    this.notGivenReasonField = this.page
+      .getByTestId('selectinput-phtg-select')
+      .filter({ visible: true });
     this.notGivenClinicianField = this.page.getByTestId('field-xycc-input');
     this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');
     this.otherVaccineDisease = this.page.getByTestId('field-gcfk-input');
@@ -119,10 +124,11 @@ export class RecordVaccineModal extends BasePatientModal {
     this.categoryRequiredError = this.page.getByTestId('formhelpertext-sz5u');
     this.consentGivenRequiredError = this.page.getByTestId('formhelpertext-2d0o');
     this.vaccineNameRequiredError = this.page.getByTestId('field-npct-formhelptertext');
-    this.vaccineGivenElsewhereDropdown = this.page.getByTestId('styledindicator-dx40');
     this.givenElsewhereCheckbox = this.page.getByTestId('field-w50x-controlcheck');
-    this.countryField = this.page.getByTestId('field-e5kc-input');
-    this.modalScrollManager = this.page.locator('.css-bp8cua-ScrollManager');
+    this.givenElsewhereCircumstancesSection = this.modal.getByTestId('fullwidthcol-lan5');
+    this.givenElsewhereCircumstancesIndicator =
+      this.givenElsewhereCircumstancesSection.getByTestId('styledindicator-dx40');
+    this.givenElsewhereCountryField = this.modal.getByTestId('field-e5kc-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -244,12 +250,6 @@ export class RecordVaccineModal extends BasePatientModal {
       givenElsewhere = await this.recordVaccineGivenElsewhere(vaccineGivenElsewhere);
     }
 
-    if (specificDate) {
-      await this.dateField.fill(specificDate);
-    }
-
-    const dateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
-
     if (category !== 'Other') {
       if (recordScheduledVaccine) {
         if (!specificVaccine || !specificScheduleOption) {
@@ -274,10 +274,7 @@ export class RecordVaccineModal extends BasePatientModal {
     let locationGroup: { area: string; location: string; department: string } | undefined;
     if (prefilledLocations) {
       locationGroup = prefilledLocations;
-    } else if (vaccineGivenElsewhere) {
-      //If the vaccine is given elsewhere there is no locationGroup
-      locationGroup = undefined;
-    } else {
+    } else if (!vaccineGivenElsewhere) {
       locationGroup = await this.selectLocationGroup();
     }
 
@@ -290,6 +287,15 @@ export class RecordVaccineModal extends BasePatientModal {
         ? await this.recordOptionalVaccineFieldsGiven(category)
         : await this.recordOptionalVaccineFieldsNotGiven(category);
     }
+
+    // Apply custom date last: selecting vaccine/schedule/category can reset form values to defaults.
+    if (specificDate) {
+      await this.dateField.fill(formatForMuiDateTimePicker(specificDate));
+      await this.dateField.blur();
+    }
+
+    const rawDateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
+    const dateGiven = normalizeToIsoDate(rawDateGiven);
 
     await this.confirmButton.click();
 
@@ -349,13 +355,26 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async recordVaccineGivenElsewhere(vaccineGivenElsewhere: string) {
-    await this.vaccineGivenElsewhereDropdown.click();
-    await this.page.getByText(vaccineGivenElsewhere).click();
-    await this.modalScrollManager.click(); //Close the dropdown
-    const country = await selectAutocompleteFieldOption(this.page, this.countryField, {
-      returnOptionText: true,
-    });
-    return { givenElsewhereCountry: country, givenElsewhereReason: vaccineGivenElsewhere };
+    await this.givenElsewhereCircumstancesIndicator.click();
+    await this.page.getByText(vaccineGivenElsewhere, { exact: true }).click();
+    await this.givenElsewhereCircumstancesIndicator.click({ force: true });
+
+    const givenElsewhereCountry = await selectAutocompleteFieldOption(
+      this.page,
+      this.givenElsewhereCountryField,
+      {
+        selectFirst: true,
+        returnOptionText: true,
+      },
+    );
+    if (!givenElsewhereCountry?.trim()) {
+      throw new Error('Failed to read selected country label after given-elsewhere autocomplete');
+    }
+
+    return {
+      givenElsewhereReason: vaccineGivenElsewhere,
+      givenElsewhereCountry: givenElsewhereCountry.trim(),
+    };
   }
 
   async assertVaccineNotInDropdown(
