@@ -36,6 +36,9 @@ export class FhirQueueManager {
       return;
     }
 
+    this._concurrency = (await this.settings.get('fhir.worker.concurrency')) ?? 0;
+    this.log.debug('FhirQueueManager: cached concurrency', { concurrency: this._concurrency });
+
     const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirQueueManager: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
