@@ -10,6 +10,9 @@ const DISPLAY_DATE_TIME_PATTERNS = [
 /**
  * Parse values from the app or tests: ISO (`yyyy-MM-dd` or `yyyy-MM-ddTHH:mm…`), then MUI-style `dd/MM/…` text.
  * ISO datetimes use `new Date` so the time is preserved; bare `yyyy-MM-dd` uses calendar-day parsing (no TZ shift).
+ * If the string starts with `yyyy-MM-dd` but has trailing characters (e.g. space + time without `T`), uses
+ * `new Date(trimmed)` so the time is not dropped. Does **not** fall back to a bare `new Date` for arbitrary
+ * strings — that would be locale-dependent (e.g. `01/02/2025`) and hide parse failures in tests.
  */
 export function parseTamanuDate(raw: string): Date | null {
   const trimmed = raw.trim();
@@ -20,10 +23,16 @@ export function parseTamanuDate(raw: string): Date | null {
     if (isValid(fromIso)) return fromIso;
   }
 
-  const isoDate = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  const isoDate = trimmed.match(/^(\d{4}-\d{2}-\d{2})([\s\S]*)$/);
   if (isoDate) {
-    const d = parse(isoDate[1], 'yyyy-MM-dd', new Date());
-    return isValid(d) ? d : null;
+    const datePart = isoDate[1];
+    const rest = isoDate[2].trim();
+    if (!rest) {
+      const d = parse(datePart, 'yyyy-MM-dd', new Date());
+      return isValid(d) ? d : null;
+    }
+    const fromNative = new Date(trimmed);
+    if (isValid(fromNative)) return fromNative;
   }
 
   for (const pattern of DISPLAY_DATE_TIME_PATTERNS) {
@@ -36,11 +45,7 @@ export function parseTamanuDate(raw: string): Date | null {
 
 /** Format test/ISO data for **MUI date-time text fields** (`dd/MM/yyyy hh:mm a`). On failure returns the input. */
 export function formatForMuiDateTimePicker(isoDate: string): string {
-  let parsed = parseTamanuDate(isoDate);
-  if (!parsed) {
-    const native = new Date(isoDate.trim());
-    parsed = isValid(native) ? native : null;
-  }
+  const parsed = parseTamanuDate(isoDate);
   if (!parsed) return isoDate;
   return format(parsed, 'dd/MM/yyyy hh:mm a');
 }
@@ -150,21 +155,29 @@ export function dateTableMatchStrings(dateGiven: string | undefined): string[] {
   return [format(parsed, 'MM/dd/yyyy'), format(parsed, 'dd/MM/yyyy')];
 }
 
-/** Normalize any supported string to `yyyy-MM-dd` for comparisons; on failure returns `raw`. */
+/**
+ * Normalize any supported string to `yyyy-MM-dd` for comparisons.
+ *
+ * @throws Error when the value cannot be parsed — avoids assertions passing with unnormalized strings.
+ */
 export function normalizeToIsoDate(raw: string): string {
   const parsed = parseTamanuDate(raw);
-  if (!parsed) return raw;
+  if (!parsed) {
+    throw new Error(`Could not parse date for normalization: ${raw}`);
+  }
   return format(parsed, 'yyyy-MM-dd');
 }
 
-/** Normalize a datetime input value to `yyyy-MM-dd'T'HH:mm` (24h, no seconds). */
+/**
+ * Normalize a datetime input value to `yyyy-MM-dd'T'HH:mm` (24h, no seconds).
+ *
+ * @throws Error when the value cannot be parsed — avoids assertions passing with unnormalized strings.
+ */
 export function normalizeToIsoDateTimeMinute(raw: string): string {
-  let parsed = parseTamanuDate(raw);
+  const parsed = parseTamanuDate(raw);
   if (!parsed) {
-    const native = new Date(raw.trim());
-    parsed = isValid(native) ? native : null;
+    throw new Error(`Could not parse date-time for normalization: ${raw}`);
   }
-  if (!parsed) return raw;
   return format(parsed, "yyyy-MM-dd'T'HH:mm");
 }
 
@@ -251,11 +264,7 @@ export async function assertRecentDateTime(
   thresholdMinutes: number = 2,
 ): Promise<void> {
   const raw = await inputLocator.inputValue();
-  let parsedInputDate = parseTamanuDate(raw);
-  if (!parsedInputDate) {
-    const native = new Date(raw.trim());
-    parsedInputDate = isValid(native) ? native : null;
-  }
+  const parsedInputDate = parseTamanuDate(raw);
   if (!parsedInputDate) {
     throw new Error(`Could not parse datetime input value: ${raw}`);
   }
