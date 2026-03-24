@@ -1,5 +1,5 @@
 import { Skeleton, Typography } from '@mui/material';
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
 import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
+import { useCanDeleteRoleQuery } from './useCanDeleteRoleQuery';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 
@@ -29,11 +30,10 @@ const roleNameSkeleton = (
 const RoleDeleteErrorModal = ({ open, error, onClose }) => {
   if (!Error.isError(error)) return null;
 
-  const roleId = error?.extra?.get?.('role-id');
-  const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'));
+  const _assignedUserCount = Number.parseInt(error?.extra?.get?.('assigned-user-count'), 10);
   const assignedUserCount = Number.isSafeInteger(_assignedUserCount) ? _assignedUserCount : null;
 
-  const isExpectedError = Boolean(roleId && assignedUserCount);
+  const isExpectedError = assignedUserCount != null && assignedUserCount > 0;
   if (!isExpectedError) {
     toast.error(
       error?.detail || error?.message || (
@@ -61,25 +61,19 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
     />
   );
 
-  const detailReplacements = { roleId, count: assignedUserCount?.toLocaleString() };
-  const detail = isSingular ? (
+  const body = (
     <TranslatedText
-      stringId="admin.roles.delete.error.detail.singular"
-      fallback="Cannot delete role with ID ‘:roleId’ as :count user is assigned to it. Please update their profile first to delete the role."
-      replacements={detailReplacements}
-    />
-  ) : (
-    <TranslatedText
-      stringId="admin.roles.delete.error.detail.plural"
-      fallback="Cannot delete role with ID ‘:roleId’ as :count users are assigned to it. Please update their profiles first to delete the role."
-      replacements={detailReplacements}
+      stringId={'admin.roles.delete.error.assignedUsers'}
+      fallback={
+        'You cannot delete this role as there is currently one or more users assigned to it. Please update the user profile first in order to delete the role.'
+      }
     />
   );
 
   return (
-    <Modal open={open} onClose={onClose} width="sm" title={title}>
+    <Modal open={open} onClose={onClose} title={title}>
       <ModalContent>
-        <Typography variant="body2">{detail}</Typography>
+        <Typography variant="body2">{body}</Typography>
       </ModalContent>
       <ConfirmRowDivider />
       <ButtonRow>
@@ -94,7 +88,12 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
 export const DeleteRoleModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
-  const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
+  const {
+    data: role,
+    error: roleQueryError,
+    isLoading: isRoleLoading,
+    isFetched: isRoleFetched,
+  } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;
 
   const navigate = useNavigate();
@@ -103,11 +102,45 @@ export const DeleteRoleModal = ({ onSuccess }) => {
     [navigate],
   );
 
-  const [deleteRoleError, setDeleteRoleError] = useState(null);
+  const {
+    error: dryRunError,
+    isError: isDryRunError,
+    isFetched: isDryRunFetched,
+    isLoading: isDryRunLoading,
+    isSuccess: isDryRunSuccess,
+  } = useCanDeleteRoleQuery(roleId);
+
+  const isDryRunConstraintError =
+    isDryRunError && dryRunError?.type === ERROR_TYPE.VALIDATION_CONSTRAINT;
+
+  const showDeleteErrorModal = Boolean(roleId) && isDryRunConstraintError;
+
+  const showConfirmModal =
+    Boolean(roleId) &&
+    !isRoleNotFound &&
+    !showDeleteErrorModal &&
+    (isRoleLoading || isDryRunLoading || isDryRunSuccess);
+
+  const confirmDisabled = isRoleLoading || isDryRunLoading;
+
+  useEffect(() => {
+    if (!roleId || !isDryRunFetched || !isDryRunError || isDryRunConstraintError) return;
+    // Not found is surfaced by `useRoleQuery`; dismiss runs in `useLayoutEffect` when that settles.
+    if (dryRunError?.status === 404 || dryRunError?.type === ERROR_TYPE.NOT_FOUND) return;
+
+    toast.error(
+      dryRunError?.detail || dryRunError?.message || (
+        <TranslatedText
+          stringId="admin.roles.delete.error.generic"
+          fallback="Couldn’t delete role"
+        />
+      ),
+    );
+    dismiss();
+  }, [dismiss, dryRunError, isDryRunConstraintError, isDryRunError, isDryRunFetched, roleId]);
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
-      setDeleteRoleError(null);
       dismiss();
       toast.success(
         <>
@@ -118,10 +151,6 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       onSuccess?.();
     },
     onError: error => {
-      if (error.type === ERROR_TYPE.VALIDATION_CONSTRAINT) {
-        setDeleteRoleError(error);
-        return;
-      }
       toast.error(
         error.detail || error.message || (
           <TranslatedText
@@ -134,11 +163,10 @@ export const DeleteRoleModal = ({ onSuccess }) => {
   });
 
   useLayoutEffect(() => {
-    if (roleId && isRoleNotFound) dismiss();
-  }, [roleId, isRoleNotFound, dismiss]);
+    if (roleId && isRoleFetched && isRoleNotFound) dismiss();
+  }, [roleId, isRoleFetched, isRoleNotFound, dismiss]);
 
   const onClose = useCallback(() => {
-    setDeleteRoleError(null);
     dismiss();
   }, [dismiss]);
 
@@ -149,9 +177,11 @@ export const DeleteRoleModal = ({ onSuccess }) => {
   return (
     <>
       <ConfirmModal
+        aria-busy={confirmDisabled}
         confirmButtonText={
           <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
         }
+        confirmButtonProps={{ disabled: confirmDisabled }}
         title={<TranslatedText stringId="admin.roles.delete.title" fallback="Delete role" />}
         customContent={
           <ModalContent>
@@ -167,15 +197,11 @@ export const DeleteRoleModal = ({ onSuccess }) => {
             </Typography>
           </ModalContent>
         }
-        open={Boolean(roleId) && !isRoleNotFound}
+        open={showConfirmModal}
         onCancel={onClose}
         onConfirm={handleConfirm}
       />
-      <RoleDeleteErrorModal
-        open={deleteRoleError !== null}
-        error={deleteRoleError}
-        onClose={onClose}
-      />
+      <RoleDeleteErrorModal open={showDeleteErrorModal} error={dryRunError} onClose={onClose} />
     </>
   );
 };
