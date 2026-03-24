@@ -116,7 +116,20 @@
           "newZealandEthnicity": false
         }
       }
-    }
+    },
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    },
+    "ips": {
+      "attester": "Ministry of Health",
+      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+      "email": {
+        "subject": "Your International Patient Summary",
+        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
+      },
+    },
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",
@@ -204,13 +217,6 @@
       "batchSleepAsyncDurationInMilliseconds": 50
     },
   },
-  "integrations": {
-    "mSupplyMed": {
-      "enabled": false,
-      "username": "",
-      "password": ""
-    }
-  },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
   "reportConfig": {
@@ -243,28 +249,4 @@
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
   "canonicalHostName": "http://localhost:4000",
-  "hl7": {
-    "dataDictionaries": {
-      "ips": {
-        "medicationEncoding": "http://nzmt.org.nz",
-        "allergyIntoleranceEncoding": "http://snomed.info/sct",
-        "conditionEncoding": "http://snomed.info/sct",
-        "immunizationEncoding": "http://nzmt.org.nz",
-        "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
-      },
-    },
-  },
-  "integrations": {
-    "fhir": {
-      "enabled": false,
-    },
-    "ips": {
-      "attester": "Ministry of Health",
-      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
-      "email": {
-        "subject": "Your International Patient Summary",
-        "bodyText": "Please scan the QR code attached to view your International Patient Summary",
-      },
-    },
-  },
 }
