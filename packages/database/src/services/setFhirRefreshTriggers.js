@@ -28,18 +28,14 @@ export const setFhirRefreshTriggers = async (sequelize, { fhirWorkerEnabled }) =
       }
 
       log.info(`Adding fhir_refresh trigger to ${schema}.${table}`);
-      // Use a PL/pgSQL block to handle the race where multiple concurrent
-      // ApplicationContext.init() calls (api, fhir-worker, tasks) all see the
-      // trigger as missing and try to create it simultaneously.
-      // EXECUTE format(%I) safely quotes identifiers to prevent injection.
+      // PL/pgSQL block handles the race where multiple concurrent
+      // ApplicationContext.init() calls all see the trigger as missing
+      // and try to create it simultaneously.
       await sequelize.query(`
           DO $block$ BEGIN
-            EXECUTE format(
-              'CREATE TRIGGER %I AFTER INSERT OR UPDATE OR DELETE ON %I.%I FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger()',
-              ${sequelize.escape(`fhir_refresh_${table}`)},
-              ${sequelize.escape(schema)},
-              ${sequelize.escape(table)}
-            );
+            CREATE TRIGGER "fhir_refresh_${table}"
+              AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
+              FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
           EXCEPTION WHEN duplicate_object THEN
             NULL;
           END $block$;
