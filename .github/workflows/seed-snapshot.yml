@@ -65,11 +65,10 @@ jobs:
             kubectl delete cluster "$cluster" -n "$SEED_NAMESPACE" --wait=false
           done
 
-      - name: Derive cluster names
+      - name: Derive cluster name
         id: names
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          echo "cluster=seed-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "cluster=seed-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       # -- Create ephemeral CNPG cluster --
 
