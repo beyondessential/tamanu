@@ -63,10 +63,8 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
 
   const body = (
     <TranslatedText
-      stringId={'admin.roles.delete.error.assignedUsers'}
-      fallback={
-        'You cannot delete this role as there is currently one or more users assigned to it. Please update the user profile first in order to delete the role.'
-      }
+      stringId="admin.roles.delete.error.assignedUsers"
+      fallback="You cannot delete this role as there is currently one or more users assigned to it. Please update the user profile first in order to delete the role."
     />
   );
 
