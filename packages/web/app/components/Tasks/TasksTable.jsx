@@ -6,7 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
+import { addMilliseconds, subMilliseconds } from 'date-fns';
 
 import {
   BodyText,
@@ -25,6 +25,8 @@ import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
 import { useDateTime } from '@tamanu/ui-components';
+
+const OVERDUE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -387,16 +389,23 @@ const FrequencyCell = ({ task, isEncounterDischarged }) => {
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
 
-const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+const getIsTaskOverdue = (task, storedDateTimeToEpochMilliseconds) => {
+  const dueTimeMs = storedDateTimeToEpochMilliseconds(task?.dueTime);
+  if (dueTimeMs == null) return false;
+  return Date.now() - dueTimeMs >= OVERDUE_THRESHOLD_MS;
+};
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
 
   const { ability } = useAuth();
+  const { storedDateTimeToEpochMilliseconds } = useDateTime();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
-  const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
+  const isTaskOverdue = row
+    ? getIsTaskOverdue(row, storedDateTimeToEpochMilliseconds)
+    : rows.some(task => getIsTaskOverdue(task, storedDateTimeToEpochMilliseconds));
 
   return (
     <StyledActionsRow data-testid="styledactionsrow-663u">
