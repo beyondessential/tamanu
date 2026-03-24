@@ -118,7 +118,7 @@ roleRouter.delete(
       params: { id },
     } = req;
 
-    await sequelize.transaction(async () => {
+    await sequelize.transaction({ readOnly: dryRun }, async () => {
       const role = await Role.findByPk(id);
       if (!role) throw new NotFoundError(`No role found with ID ‘${id}’`);
 
