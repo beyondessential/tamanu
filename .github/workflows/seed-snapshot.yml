@@ -109,13 +109,15 @@ jobs:
                 cpu: 250m
               limits:
                 memory: 1Gi
-                cpu: 1
+                cpu: 250m
             postgresql:
               parameters:
-                shared_buffers: 256MB
+                shared_buffers: 128MB # reduced - write-heavy workload gets little benefit
                 max_wal_size: 2GB
                 checkpoint_timeout: 15min
                 synchronous_commit: "off"
+                archive_mode: "off" # prevent unnecessary WAL archiving for ephemeral cluster
+                wal_level: minimal
             affinity:
               nodeSelector:
                 bes.node.purpose: workload
