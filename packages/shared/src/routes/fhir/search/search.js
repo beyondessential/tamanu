@@ -11,11 +11,9 @@ import { SearchBundleResponse } from './SearchBundleResponse';
 import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
-import { resolveSettings } from '../utils';
-
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const parameters = await normaliseParameters(FhirResource, resolveSettings(req));
+    const parameters = normaliseParameters(FhirResource);
     const query = await parseRequest(req, parameters);
 
     let includes = null;

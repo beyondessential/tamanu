@@ -9,6 +9,7 @@ const DEFAULTS = {
   nullLastNameValue: fhirDefaults.nullLastNameValue,
   assigners: fhirDefaults.assigners,
   dataDictionaries: fhirDefaults.dataDictionaries,
+  countParameters: fhirDefaults.parameters?._count ?? {},
 };
 
 let settings = structuredClone(DEFAULTS);
@@ -56,6 +57,7 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
         nullLastNameValue: fhir.nullLastNameValue,
         assigners: fhir.assigners,
         dataDictionaries: fhir.dataDictionaries,
+        countParameters: fhir.parameters?._count ?? {},
       };
     } catch (error) {
       initPromise = null; // allow retry on failure
@@ -88,4 +90,8 @@ export function getFhirAssigners() {
 
 export function getFhirDataDictionaries() {
   return settings.dataDictionaries;
+}
+
+export function getFhirCountParameters() {
+  return settings.countParameters;
 }
