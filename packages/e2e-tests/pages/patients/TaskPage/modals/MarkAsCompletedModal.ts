@@ -15,7 +15,7 @@ export class MarkAsCompletedModal {
 
     const testIds = {
       completedByInput: 'field-4r4u-input',
-      completedDateTimeField: 'field-el3t-input',
+      completedDateTimeField: 'field-el3t',
       notesInput: 'field-kvze-input',
       confirmButton: 'formsubmitcancelrow-v41o-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',

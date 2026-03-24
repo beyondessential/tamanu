@@ -2,7 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { format } from 'date-fns';
-import { fillMuiDateTimeField, getTableItems } from '../../../../utils/testHelper';
+import { fillMuiDateTimeField, getTableItems, normalizeToIsoDateTimeMinute } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
 
@@ -77,7 +77,7 @@ export class LabRequestModalBase {
       heading: 'heading3-keat',
       description: 'styledbodytext-8egc',
       requestingClinicianInput: 'field-z6gb-input',
-      requestDateTimeInput: 'field-y6ku-input',
+      requestDateTimeField: 'field-y6ku',
       departmentInput: 'field-wobc-input',
       prioritySelect: 'selectinput-phtg-select',
       panelRadioButton: 'radio-il3t-panel',
@@ -126,7 +126,7 @@ export class LabRequestModalBase {
     
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
@@ -154,7 +154,8 @@ export class LabRequestModalBase {
 
   async validateRequestedDateTimeIsToday() {
     const todayString = this.getCurrentDateTime();
-    await expect(this.requestDateTimeInput).toHaveValue(todayString);
+    const actual = normalizeToIsoDateTimeMinute(await this.requestDateTimeInput.inputValue());
+    expect(actual).toBe(todayString);
     return todayString;
   }
 

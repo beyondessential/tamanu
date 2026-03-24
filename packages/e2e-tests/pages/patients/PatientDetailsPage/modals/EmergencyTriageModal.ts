@@ -72,9 +72,7 @@ export class EmergencyTriageModal {
       // Form fields
       form: 'styledform-5o5i',
       arrivalDateTimeField: 'field-mhav',
-      arrivalDateTimeInput: 'field-mhav-input',
       triageDateTimeField: 'field-9hxy',
-      triageDateTimeInput: 'field-9hxy-input',
       areaField: 'field-ipih-group-input',
       locationField: 'field-ipih-location-input',
       arrivalModeSelect: 'selectinput-phtg-select',
@@ -101,7 +99,9 @@ export class EmergencyTriageModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
-    this.arrivalModeSelect=page.getByRole('dialog').getByTestId('selectinput-phtg-select');
+    this.arrivalDateTimeInput = this.arrivalDateTimeField.locator('input');
+    this.triageDateTimeInput = this.triageDateTimeField.locator('input');
+    this.arrivalModeSelect = page.getByRole('dialog').getByTestId('selectinput-phtg-select');
   }
 
   async waitForModalToLoad() {
@@ -160,7 +160,7 @@ export class EmergencyTriageModal {
     triageClinician?: string;
   }> {
     if (options.arrivalDateTime) {
-      await fillMuiDateTimeField(this.arrivalDateTimeInput.locator('input'), options.arrivalDateTime);
+      await fillMuiDateTimeField(this.arrivalDateTimeInput, options.arrivalDateTime);
     }
     
     const area = await selectAutocompleteFieldOption(this.page, this.areaField, {
