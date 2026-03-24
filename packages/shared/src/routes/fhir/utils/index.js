@@ -10,7 +10,7 @@ export function resolveSettings(req) {
   if (facilityId && settings[facilityId]) return settings[facilityId];
 
   log.warn('FHIR resolveSettings: settings object present but could not be resolved', {
-    hasFacilityId: !!facilityId,
+    hasFacilityId: Boolean(facilityId),
     settingsKeys: Object.keys(settings),
   });
   return undefined;
