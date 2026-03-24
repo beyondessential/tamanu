@@ -9,6 +9,10 @@ on:
       version:
         type: string
         required: true
+      postgres_major:
+        type: string
+        required: false
+        default: '17'
 permissions:
   contents: read
   id-token: write
@@ -21,11 +25,12 @@ env:
 jobs:
   create-snapshot:
     runs-on: ubuntu-latest
-    name: Seed snapshot for ${{ inputs.version }}
+    name: Seed snapshot for ${{ inputs.version }} (PG ${{ inputs.postgres_major }})
     timeout-minutes: 180
     env:
       INPUT_VERSION: ${{ inputs.version }}
       INPUT_BRANCH: ${{ inputs.branch }}
+      POSTGRES_MAJOR: ${{ inputs.postgres_major }}
     steps:
       - name: Validate version format
         run: |
@@ -93,7 +98,7 @@ jobs:
               apiGroup: postgresql.cnpg.io
               kind: ClusterImageCatalog
               name: postgresql
-              major: 17
+              major: ${POSTGRES_MAJOR}
             instances: 1
             primaryUpdateStrategy: unsupervised
             storage:
