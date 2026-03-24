@@ -9,7 +9,9 @@ on:
       version:
         type: string
         required: true
-permissions: {}
+permissions:
+  contents: read
+  id-token: write
 
 env:
   SEED_NAMESPACE: tamanu-seed
@@ -21,9 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
     timeout-minutes: 180
-    permissions:
-      contents: read
-      id-token: write
     env:
       INPUT_VERSION: ${{ inputs.version }}
       INPUT_BRANCH: ${{ inputs.branch }}
