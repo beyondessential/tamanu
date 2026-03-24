@@ -282,7 +282,7 @@ export const Survey = Base.shape({
     .string()
     .default(VISIBILITY_STATUSES.CURRENT)
     .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
-  visibilityCriteria: yup.string().optional(),
+  visibilityCriteria: jsonString(),
 });
 
 export const ProgramRegistry = Base.shape({
