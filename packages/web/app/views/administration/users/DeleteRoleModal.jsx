@@ -61,17 +61,15 @@ const RoleDeleteErrorModal = ({ open, error, onClose }) => {
     />
   );
 
-  const body = (
-    <TranslatedText
-      stringId="admin.roles.delete.error.assignedUsers"
-      fallback="You cannot delete this role as there is currently one or more users assigned to it. Please update the user profile first in order to delete the role."
-    />
-  );
-
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <ModalContent>
-        <Typography variant="body2">{body}</Typography>
+        <Typography variant="body2">
+          <TranslatedText
+            stringId="admin.roles.delete.error.usersAssigned"
+            fallback="You cannot delete this role as there are currently one or more users assigned to it. Please update the user profiles first in order to delete the role."
+          />
+        </Typography>
       </ModalContent>
       <ConfirmRowDivider />
       <ButtonRow>
