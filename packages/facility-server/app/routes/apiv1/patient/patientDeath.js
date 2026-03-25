@@ -87,6 +87,19 @@ patientDeath.get(
       });
     }
 
+    const extra = deathData?.extraData ?? {};
+    const [fsmStateOfDeath, fsmAtollOfDeath, fsmVillageOfDeath] = await Promise.all(
+      [extra.fsmStateOfDeathId, extra.fsmAtollOfDeathId, extra.fsmVillageOfDeathId].map(
+        id => (id ? ReferenceData.findByPk(id) : null),
+      ),
+    );
+    const extraData = {
+      ...extra,
+      ...(fsmStateOfDeath && { fsmStateOfDeath }),
+      ...(fsmAtollOfDeath && { fsmAtollOfDeath }),
+      ...(fsmVillageOfDeath && { fsmVillageOfDeath }),
+    };
+
     res.send({
       patientId: patient.id,
       patientDeathDataId: deathData?.id,
@@ -137,16 +150,6 @@ patientDeath.get(
             : null,
       },
 
-      /*
-      TBD on upcoming card - check if these are needed for the new certificate:
-        autopsyRequested
-        autopsyFindingsUsed
-        mannerOfDeathDescription
-        pregnancyMoment
-        multiplePregnancy
-        motherConditionDescription
-      */
-
       recentSurgery:
         deathData?.recentSurgery === 'yes'
           ? {
@@ -174,6 +177,13 @@ patientDeath.get(
             withinDayOfBirth: deathData?.withinDayOfBirth,
           }
         : false,
+
+      autopsyRequested: deathData?.autopsyRequested,
+      mannerOfDeathDescription: deathData?.mannerOfDeathDescription,
+      externalCauseLocation: deathData?.externalCauseLocation,
+      externalCauseDate: deathData?.externalCauseDate,
+      externalCauseNotes: deathData?.externalCauseNotes,
+      extraData,
     });
   }),
 );
@@ -247,6 +257,7 @@ patientDeath.post(
         withinDayOfBirth: body.deathWithin24HoursOfBirth
           ? body.deathWithin24HoursOfBirth === 'yes'
           : null,
+        extraData: body.extraData ?? null,
         deletedAt: null,
       });
 
