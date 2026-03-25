@@ -11,7 +11,9 @@ export const useCanDeleteRoleQuery = (roleId, useQueryOptions) => {
     ...useQueryOptions,
     queryKey: ['role', 'isDeletable', roleId],
     queryFn: async () =>
-      await api.get(`${ROLE_ENDPOINT}/${encodeURIComponent(roleId)}/isDeletable`),
+      await api.get(`${ROLE_ENDPOINT}/${encodeURIComponent(roleId)}/isDeletable`, null, {
+        showUnknownErrorToast: false,
+      }),
     enabled: Boolean(roleId),
     retry: (failureCount, error) => {
       if (error?.status === 404) return false;
