@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
+export const useTogglePermissionMutation = (rolesQueryParam, useMutationOptions) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...useMutationOptions,
     mutationFn: async toggles => {
       const items = Array.isArray(toggles) ? toggles : [toggles];
       const toCreate = [];
@@ -27,9 +28,10 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
       }
       await Promise.all(promises);
     },
-    onSuccess: () => {
+
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries(['adminPermissions', rolesQueryParam]);
+      useMutationOptions?.onSuccess?.(data, variables, context);
     },
-    ...options,
   });
 };
