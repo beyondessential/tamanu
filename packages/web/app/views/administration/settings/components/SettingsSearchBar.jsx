@@ -13,7 +13,7 @@ const Wrapper = styled('search')`
   align-items: flex-end;
   margin-inline-start: 1rem;
   flex: 1;
-  max-width: 22rem;
+  max-inline-size: 22rem;
 `;
 
 const StyledTextInput = styled(TextInput)`
