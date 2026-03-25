@@ -78,7 +78,7 @@ const getErrorModalTitle = error => {
 };
 
 export const DeleteRoleModal = ({ onSuccess }) => {
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const deleteMatch = useMatch('/admin/users/rolesAndDesignations/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
   const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;
