@@ -209,24 +209,21 @@ const SettingsForm = ({
 
   const handleSelectSearchResult = useCallback(
     async result => {
-      // If the result is in a different scope, switch to it (warning if dirty)
+      // Check for dirty state once if any navigation is needed
+      if (dirty && (result.scope !== scope || currentTab !== SETTING_TABS.EDITOR)) {
+        const dismissChanges = await handleShowWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
+      }
+
+      // If the result is in a different scope, switch to it
       if (result.scope !== scope) {
-        if (dirty) {
-          const dismissChanges = await handleShowWarningModal();
-          if (!dismissChanges) return;
-          await resetForm();
-        }
         setScope(result.scope);
         setFacilityId(null);
       }
 
       // Switch to editor tab if needed
       if (currentTab !== SETTING_TABS.EDITOR) {
-        if (dirty) {
-          const dismissChanges = await handleShowWarningModal();
-          if (!dismissChanges) return;
-          await resetForm();
-        }
         setCurrentTab(SETTING_TABS.EDITOR);
       }
 
@@ -234,7 +231,7 @@ const SettingsForm = ({
       setJumpToPath(result.path);
       clearSearch();
     },
-    [scope, dirty, currentTab, resetForm, setScope, setFacilityId, clearSearch],
+    [scope, dirty, currentTab, resetForm, setScope, setFacilityId, clearSearch, handleShowWarningModal],
   );
 
   const handleJumpComplete = useCallback(() => {
