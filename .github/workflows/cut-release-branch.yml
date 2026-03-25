@@ -104,6 +104,7 @@ jobs:
       contents: read
       id-token: write
     uses: ./.github/workflows/seed-snapshot.yml
+    secrets: inherit
     with:
       branch: ${{ needs.run.outputs.branch }}
       version: ${{ needs.run.outputs.version }}

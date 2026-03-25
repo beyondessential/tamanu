@@ -19,18 +19,18 @@ permissions:
 
 env:
   SEED_NAMESPACE: tamanu-seed
-  RETENTION_COUNT: "20"
-  STALE_CLUSTER_AGE_HOURS: "4"
 
 jobs:
   create-snapshot:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }} (PG ${{ inputs.postgres_major }})
-    timeout-minutes: 180
+    timeout-minutes: 15
     env:
       INPUT_VERSION: ${{ inputs.version }}
       INPUT_BRANCH: ${{ inputs.branch }}
       POSTGRES_MAJOR: ${{ inputs.postgres_major }}
+      JOB_NAME: seed-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+      SECRET_NAME: seed-snapshot-token-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Validate version format
         run: |
@@ -43,251 +43,39 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
+      - uses: actions/checkout@v6
+        with:
+          repository: beyondessential/ops
+          path: ops
+          ref: main
+          token: ${{ secrets.TAMANU_RELEASE_PAT }}
+
       - uses: ./.github/actions/setup-cd
         with:
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
-      - name: Clean up stale seed clusters
-        run: |
-          cutoff=$(date -u -d "$STALE_CLUSTER_AGE_HOURS hours ago" +%s 2>/dev/null \
-            || date -u -v-${STALE_CLUSTER_AGE_HOURS}H +%s)
+      - name: Ensure envsubst is available
+        run: command -v envsubst
 
-          clusters=$(kubectl get clusters.postgresql.cnpg.io -n "$SEED_NAMESPACE" \
-            -o json 2>/dev/null || echo '{"items":[]}')
-
-          stale=$(echo "$clusters" | jq -r --argjson cutoff "$cutoff" '
-            .items[]
-            | select(.metadata.name | startswith("seed-"))
-            | select((.metadata.creationTimestamp | fromdateiso8601) < $cutoff)
-            | .metadata.name
-          ')
-
-          for cluster in $stale; do
-            echo "Deleting stale cluster: $cluster"
-            kubectl delete cluster "$cluster" -n "$SEED_NAMESPACE" --wait=false
-          done
-
-      - name: Derive cluster name
-        id: names
-        run: |
-          echo "cluster=seed-$(git rev-parse --short HEAD)-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> $GITHUB_OUTPUT
-
-      - name: Ensure required tools are installed
-        run: |
-          for cmd in jq nc kubectl; do
-            command -v $cmd >/dev/null || { echo "$cmd missing"; exit 1; }
-          done
-
-      # -- Create ephemeral CNPG cluster --
-
-      - name: Create seed database cluster
+      - name: Create job GitHub token secret
         env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
+          TOKEN: ${{ secrets.TAMANU_RELEASE_PAT }}
         run: |
-          kubectl apply -f - <<EOF
-          apiVersion: postgresql.cnpg.io/v1
-          kind: Cluster
-          metadata:
-            name: ${CLUSTER_NAME}
-            namespace: ${SEED_NAMESPACE}
-          spec:
-            imageCatalogRef:
-              apiGroup: postgresql.cnpg.io
-              kind: ClusterImageCatalog
-              name: postgresql
-              major: ${POSTGRES_MAJOR}
-            instances: 1
-            primaryUpdateStrategy: unsupervised
-            storage:
-              size: 20Gi
-            resources:
-              requests:
-                memory: 1Gi
-                cpu: 250m
-              limits:
-                memory: 1Gi
-                cpu: 250m
-            postgresql:
-              parameters:
-                shared_buffers: 128MB # reduced - write-heavy workload gets little benefit
-                max_wal_size: 2GB
-                checkpoint_timeout: 15min
-                synchronous_commit: "off"
-                archive_mode: "off" # prevent unnecessary WAL archiving for ephemeral cluster
-            affinity:
-              nodeSelector:
-                bes.node.purpose: workload
-          EOF
+          kubectl create secret generic "${SECRET_NAME}" \
+            --namespace "${SEED_NAMESPACE}" \
+            --from-literal=GITHUB_TOKEN="$TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Wait for seed database readiness
+      - name: Apply seed snapshot Job
         env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          echo "Waiting for ${CLUSTER_NAME}-rw endpoints..."
-          for i in $(seq 1 60); do
-            ready=$(kubectl get endpoints "${CLUSTER_NAME}-rw" -n "$SEED_NAMESPACE" \
-              -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null || true)
-            if [ -n "$ready" ]; then
-              echo "Database is ready"
-              exit 0
-            fi
-            echo "Attempt $i/60 - not ready yet"
-            sleep 10
-          done
-          echo "Timed out waiting for database"
-          exit 1
+          set -euo pipefail
+          envsubst '${JOB_NAME} ${INPUT_VERSION} ${INPUT_BRANCH} ${POSTGRES_MAJOR} ${GITHUB_RUN_ID} ${GITHUB_RUN_ATTEMPT} ${SECRET_NAME}' \
+            < ops/pulumi/stacks/tamanu/k8s-infra/seed/seed-snapshot-job.yaml \
+            | kubectl apply -f -
+          echo "Submitted Job ${JOB_NAME} in ${SEED_NAMESPACE} (runs in-cluster; check kubectl or logs there)."
 
-      # -- Build tamanu packages and run migrations + populateDb --
-
-      - run: npm ci
-      - run: npm run build-shared
-      - run: npm run build
-        working-directory: packages/central-server
-      - run: npm run build
-        working-directory: packages/scripts
-
-      - name: Configure database connection
-        env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
-        run: |
-          pgpass=$(kubectl get -n "$SEED_NAMESPACE" secrets "${CLUSTER_NAME}-app" \
-            -o jsonpath='{.data.password}' | base64 -d)
-          echo "::add-mask::$pgpass"
-          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" >> $GITHUB_ENV
-          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< "$pgpass")" >> $GITHUB_ENV
-
-      - name: Run migrations and populate seed data
-        env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
-        run: |
-          set -ex
-
-          kubectl port-forward -n "$SEED_NAMESPACE" "service/${CLUSTER_NAME}-rw" 4444:5432 &
-          pf_pid=$!
-          cleanup() {
-            exitcode=$?
-            kill $pf_pid 2>/dev/null || true
-            exit $exitcode
-          }
-          trap cleanup EXIT
-
-          timeout 30 bash -c 'until nc -z 127.0.0.1 4444; do sleep 1; done'
-          kill -0 $pf_pid 2>/dev/null || { echo "port-forward process died during startup"; exit 1; }
-
-          require_pf() {
-            kill -0 $pf_pid 2>/dev/null || { echo "::error::port-forward died unexpectedly"; exit 1; }
-          }
-
-          require_pf
-          echo "Running migrations..."
-          node packages/central-server/dist migrate
-
-          require_pf
-          echo "Populating seed data..."
-          node packages/scripts/dist/fake.js \
-            --database app \
-            --rounds 50 \
-            --from-tally packages/fake-data/src/populateDb/parseTally/standard.json
-
-      # -- Create VolumeSnapshot --
-
-      - name: Delete existing snapshot for this version (idempotency)
-        run: |
-          existing=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
-            -l "tamanu.io/snapshot-type=seed-data" \
-            -o json | jq -r --arg ver "$INPUT_VERSION" \
-            '.items[] | select(.metadata.annotations["tamanu.io/release-version"] == $ver) | .metadata.name')
-
-          for snap in $existing; do
-            echo "Deleting existing snapshot: $snap"
-            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE"
-            echo "Waiting for $snap to be fully removed..."
-            if ! kubectl wait volumesnapshot "$snap" -n "$SEED_NAMESPACE" --for=delete --timeout=120s; then
-              echo "::warning::kubectl wait for delete of VolumeSnapshot $snap failed or timed out (resource may still be terminating)"
-            fi
-          done
-
-      - name: Create volume snapshot
-        env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
-        run: |
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          SNAP_NAME="tamanu-seed-$(date -u +%Y%m%d%H%M%S)-${INPUT_VERSION//./-}"
-
-          kubectl create -f - <<EOF
-          apiVersion: snapshot.storage.k8s.io/v1
-          kind: VolumeSnapshot
-          metadata:
-            name: ${SNAP_NAME}
-            namespace: ${SEED_NAMESPACE}
-            labels:
-              tamanu.io/snapshot-type: seed-data
-            annotations:
-              tamanu.io/release-version: "${INPUT_VERSION}"
-              tamanu.io/created-at: "${TIMESTAMP}"
-              tamanu.io/source-branch: "${INPUT_BRANCH}"
-              tamanu.io/git-sha: "$(git rev-parse HEAD)"
-          spec:
-            volumeSnapshotClassName: ebs-retain
-            source:
-              persistentVolumeClaimName: ${CLUSTER_NAME}-1
-          EOF
-
-          echo "Created snapshot: ${SNAP_NAME}"
-
-          echo "Waiting for snapshot to be ready..."
-          if ! kubectl wait volumesnapshot "${SNAP_NAME}" \
-            -n "$SEED_NAMESPACE" \
-            --for=jsonpath='{.status.readyToUse}'=true \
-            --timeout=600s; then
-            echo "Snapshot failed or timed out, describing resource:"
-            kubectl describe volumesnapshot "${SNAP_NAME}" -n "$SEED_NAMESPACE"
-            exit 1
-          fi
-
-      # -- Cleanup --
-
-      - name: Delete ephemeral seed cluster
-        if: always()
-        env:
-          CLUSTER_NAME: ${{ steps.names.outputs.cluster }}
-        run: |
-          if kubectl get cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" 2>/dev/null; then
-            echo "Deleting CNPG cluster: $CLUSTER_NAME"
-            kubectl delete cluster "$CLUSTER_NAME" -n "$SEED_NAMESPACE" --wait=true --timeout=120s
-          fi
-
-      - name: Prune old snapshots beyond retention
-        run: |
-          snapshots=$(kubectl get volumesnapshots -n "$SEED_NAMESPACE" \
-            -l "tamanu.io/snapshot-type=seed-data" \
-            -o json)
-
-          to_delete=$(echo "$snapshots" | jq -r --argjson keep "$RETENTION_COUNT" '
-            [.items
-              | map(select(.metadata.annotations["tamanu.io/release-version"] != null))
-              | sort_by(
-                  (.metadata.annotations["tamanu.io/release-version"]
-                  | split(".")
-                  | map(tonumber? // 0)
-                  | . + [0,0,0]
-                  | .[:3])
-                )
-              | reverse
-              | .[]
-            ]
-            | .[($keep):]
-            | .[].metadata.name
-          ')
-
-          if [ -z "$to_delete" ]; then
-            echo "No snapshots to prune (within retention limit of $RETENTION_COUNT)"
-            exit 0
-          fi
-
-          for snap in $to_delete; do
-            echo "Pruning snapshot: $snap"
-            kubectl delete volumesnapshot "$snap" -n "$SEED_NAMESPACE" --wait=false
-          done
