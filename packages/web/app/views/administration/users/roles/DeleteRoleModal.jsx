@@ -1,21 +1,34 @@
-import { Typography } from '@mui/material';
+import { Skeleton, Typography } from '@mui/material';
 import React, { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { ERROR_TYPE } from '@tamanu/errors';
-import { Button, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
+import {
+  Button as UiButton,
+  Button,
+  ButtonRow,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import {
   deleteModalBodySkeleton,
   deleteModalHeadingSkeleton,
-  deleteModalInlineNameSkeleton,
-  deleteRoleModalPrimaryButtonSkeleton,
+  shortInlineSkeleton,
 } from '../components';
 import { useCanDeleteRoleQuery } from '../useCanDeleteRoleQuery';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
+
+const primaryBUttonSkeleton = (
+  <Skeleton animation="wave" variant="rounded">
+    <UiButton disabled>
+      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+    </UiButton>
+  </Skeleton>
+);
 
 const ModalContent = styled.div`
   min-block-size: 8rem;
@@ -154,9 +167,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
         fallback="Are you sure you would like to delete the selected role?"
       />
       &nbsp;&ndash;{' '}
-      <strong aria-busy={isRoleLoading}>
-        {isRoleLoading ? deleteModalInlineNameSkeleton : role?.name}
-      </strong>
+      <strong aria-busy={isRoleLoading}>{isRoleLoading ? shortInlineSkeleton : role?.name}</strong>
     </Typography>
   );
 
@@ -187,7 +198,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       <ModalContent>{isLoadingDeletability ? deleteModalBodySkeleton : body}</ModalContent>
       <ConfirmRowDivider />
       <StyledButtonRow>
-        {isLoadingDeletability ? deleteRoleModalPrimaryButtonSkeleton : primaryButton}
+        {isLoadingDeletability ? primaryBUttonSkeleton : primaryButton}
         {secondaryButton}
       </StyledButtonRow>
     </Modal>

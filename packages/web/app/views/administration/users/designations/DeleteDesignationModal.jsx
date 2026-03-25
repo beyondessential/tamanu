@@ -1,22 +1,29 @@
-import { Typography } from '@mui/material';
+import { Skeleton, Typography } from '@mui/material';
 import React, { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { ERROR_TYPE } from '@tamanu/errors';
-import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
+import { Button as UiButton, Button, ButtonRow, Modal } from '@tamanu/ui-components';
 import { TranslatedText } from '../../../../components';
 import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
 import {
-  deleteDesignationModalPrimaryButtonSkeleton,
   deleteModalBodySkeleton,
   deleteModalHeadingSkeleton,
-  deleteModalInlineNameSkeleton,
+  shortInlineSkeleton,
 } from '../components';
 import { useCanDeleteDesignationQuery } from '../useCanDeleteDesignationQuery';
 import { useDesignationDeleteMutation } from './useDesignationDeleteMutation';
 import { useDesignationQuery } from './useDesignationQuery';
+
+const primaryButtonSkeleton = (
+  <Skeleton animation="wave" variant="rounded">
+    <UiButton disabled>
+      <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
+    </UiButton>
+  </Skeleton>
+);
 
 const ModalContent = styled.div`
   min-block-size: 8rem;
@@ -210,10 +217,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
   const title = isDeleteRestricted ? (
     getErrorModalTitle(dryRunError)
   ) : (
-    <TranslatedText
-      stringId="admin.designations.delete.title"
-      fallback="Delete designation"
-    />
+    <TranslatedText stringId="admin.designations.delete.title" fallback="Delete designation" />
   );
 
   const body = isDeleteRestricted ? (
@@ -226,7 +230,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
       />
       &nbsp;&ndash;{' '}
       <strong aria-busy={isDesignationLoading}>
-        {isDesignationLoading ? deleteModalInlineNameSkeleton : designation?.name}
+        {isDesignationLoading ? shortInlineSkeleton : designation?.name}
       </strong>
     </Typography>
   );
@@ -237,10 +241,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
     </Button>
   ) : (
     <Button onClick={handleConfirm}>
-      <TranslatedText
-        stringId="general.action.delete-designation"
-        fallback="Delete designation"
-      />
+      <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
     </Button>
   );
 
@@ -260,7 +261,7 @@ export const DeleteDesignationModal = ({ onSuccess }) => {
       <ModalContent>{isLoadingDeletability ? deleteModalBodySkeleton : body}</ModalContent>
       <ConfirmRowDivider />
       <StyledButtonRow>
-        {isLoadingDeletability ? deleteDesignationModalPrimaryButtonSkeleton : primaryButton}
+        {isLoadingDeletability ? primaryButtonSkeleton : primaryButton}
         {secondaryButton}
       </StyledButtonRow>
     </Modal>
