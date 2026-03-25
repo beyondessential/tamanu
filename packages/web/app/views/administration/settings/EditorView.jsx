@@ -155,7 +155,7 @@ export const EditorView = memo(
     useEffect(() => {
       if (!jumpToPath) return;
 
-      const jumpSchema = prepareSchema(scope);
+      const jumpSchema = scopedSchema;
 
       // The path looks like "category.subCategory.settingKey" or "category.settingKey"
       // We need to find which top-level category key and optional sub-category key to select,
@@ -202,11 +202,15 @@ export const EditorView = memo(
       setSubCategory(resolvedSubCategory);
       // Use the relative path so ScrollableSettingLine can match settingPath === scrollToPath
       setScrollToPath(relativePath);
-    }, [jumpToPath, scope]);
+    }, [jumpToPath, scope, scopedSchema]);
 
     const handleScrollComplete = useCallback(() => {
+      // Clear scrollToPath immediately to prevent re-triggering
       setScrollToPath(null);
-      onJumpComplete?.();
+      // Defer onJumpComplete so jumpToPath isn't cleared before the smooth-scroll animation finishes
+      setTimeout(() => {
+        onJumpComplete?.();
+      }, 500);
     }, [onJumpComplete]);
 
     const handleChangeCategory = async e => {
