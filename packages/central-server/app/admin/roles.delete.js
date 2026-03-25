@@ -1,14 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import { z } from 'zod';
 
 import { DatabaseConstraintError, NotFoundError } from '@tamanu/errors';
-
-const deleteRoleQuerySchema = z.object({
-  dryRun: z
-    .string()
-    .optional()
-    .transform(value => value === '1'),
-});
 
 class InvalidRoleDeletionError extends DatabaseConstraintError {
   constructor(/** @type {string} */ roleId, /** @type {number} */ assignedUserCount) {
@@ -38,8 +30,6 @@ export const assertRoleIsDeletable = async ({ Role, User, roleId }) => {
 export const deleteRoleById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'Role');
 
-  const { dryRun } = await deleteRoleQuerySchema.parseAsync(req.query);
-
   const {
     store: {
       models: { Role, User },
@@ -48,9 +38,9 @@ export const deleteRoleById = asyncHandler(async (req, res) => {
     params: { id },
   } = req;
 
-  await sequelize.transaction({ readOnly: dryRun }, async () => {
+  await sequelize.transaction(async () => {
     const role = await assertRoleIsDeletable({ Role, User, roleId: id });
-    if (!dryRun) await role.destroy();
+    await role.destroy();
   });
 
   res.status(204).send();
