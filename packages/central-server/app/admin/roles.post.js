@@ -23,15 +23,13 @@ export const createRole = asyncHandler(async (req, res) => {
   const { Role } = req.store.models;
   const { id, name } = await createRoleSchema.parseAsync(req.body);
 
-  let role;
   try {
-    role = await Role.create({ id, name });
+    const role = await Role.create({ id, name });
+    res.status(201).send(role);
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
       throw new DatabaseDuplicateError(`A role already exists with ID ‘${id}’`);
     }
     throw err;
   }
-
-  res.status(201).send(role);
 });
