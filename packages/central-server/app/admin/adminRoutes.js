@@ -10,6 +10,7 @@ import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
 
 import { assetRoutes } from './asset';
+import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
 import { mergePatientHandler } from './patientMerge';
 import { templateRoutes } from './template';
@@ -21,7 +22,6 @@ import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { permissionsRouter } from './permissions';
 import { roleRouter, rolesRouter } from './roles';
-import { designationRouter, designationsRouter } from './designations';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
