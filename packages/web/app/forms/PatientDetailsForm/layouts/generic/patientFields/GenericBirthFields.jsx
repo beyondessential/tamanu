@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useFormikContext } from 'formik';
 
 import {
   ATTENDANT_OF_BIRTH_LABELS,
@@ -17,8 +18,36 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
+const extractTime = value => (value.includes('T') ? value.split('T')[1] : value);
+
 export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
   const facilitySuggester = useSuggester('facility');
+  const { values, setFieldValue } = useFormikContext();
+  const { dateOfBirth, timeOfBirth } = values;
+  const date = dateOfBirth?.slice(0, 10);
+
+  /**
+   * Keeps timeOfBirth in sync with dateOfBirth so the stored value is a full
+   * datetime string (required by dateTimeType on the model). Without this,
+   * TimeField emits a time-only string ("HH:mm:ss") which the server rejects.
+   * Also strips the date prefix back to a bare time when dateOfBirth is cleared.
+   */
+  useEffect(() => {
+    if (!date) {
+      if (timeOfBirth?.includes('T')) {
+        setFieldValue('timeOfBirth', extractTime(timeOfBirth));
+      }
+      return;
+    }
+    if (!timeOfBirth) return;
+    const timePart = extractTime(timeOfBirth);
+    if (!timePart) return;
+    const expected = `${date}T${timePart}`;
+    if (timeOfBirth !== expected) {
+      setFieldValue('timeOfBirth', expected);
+    }
+  }, [date, timeOfBirth, setFieldValue]);
+
   const BIRTH_FIELDS = {
     timeOfBirth: {
       component: TimeField,
