@@ -9,8 +9,8 @@ async function functionExists(sequelize: Sequelize, name: string): Promise<boole
       bind: { name },
     },
   );
-  const row = rows?.[0] as { count: number } | undefined;
-  return (row?.count ?? 0) > 0;
+  const row = rows?.[0] as { count: string } | undefined;
+  return Number(row?.count ?? 0) > 0;
 }
 
 async function migrationApplied(sequelize: Sequelize, migrationName: string): Promise<boolean> {
@@ -21,8 +21,8 @@ async function migrationApplied(sequelize: Sequelize, migrationName: string): Pr
       bind: { name: migrationName },
     },
   );
-  const row = rows?.[0] as { count: number } | undefined;
-  return (row?.count ?? 0) > 0;
+  const row = rows?.[0] as { count: string } | undefined;
+  return Number(row?.count ?? 0) > 0;
 }
 
 /** Pre-requisite: the given PostgreSQL function exists in the database. */
