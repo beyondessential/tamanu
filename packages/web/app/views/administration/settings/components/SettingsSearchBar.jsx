@@ -8,7 +8,7 @@ import { ClearIcon } from '../../../../components/Icons/ClearIcon';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 
-const Wrapper = styled.div`
+const Wrapper = styled('search')`
   display: flex;
   align-items: flex-end;
   margin-inline-start: 1rem;
