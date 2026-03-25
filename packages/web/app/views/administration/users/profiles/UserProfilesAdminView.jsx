@@ -117,7 +117,7 @@ const UserStatusIndicator = ({ visibilityStatus }) => {
   );
 };
 
-const displayFieldOrDash = value => value || <>&mdash;</>;
+const displayFieldOrDash = value => value || '—'; // em dash
 
 const COLUMNS = [
   {
