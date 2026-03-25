@@ -122,8 +122,8 @@ export const DeleteRoleModal = ({ onSuccess }) => {
   }, [dismiss, dryRunError, isDeleteRestricted, isDryRunError, isDryRunFetched, roleId]);
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
+    onSettled: () => dismiss(),
     onSuccess: () => {
-      dismiss();
       toast.success(
         <>
           <TranslatedText stringId="admin.roles.delete.success" fallback="Deleted role" />{' '}
