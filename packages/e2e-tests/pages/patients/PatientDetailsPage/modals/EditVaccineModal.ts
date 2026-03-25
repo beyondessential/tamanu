@@ -2,6 +2,11 @@ import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 import { editFieldOption } from '@utils/fieldHelpers';
+import {
+  formatForMuiDateTimePicker,
+  getSidebarFacilityDisplayName,
+  normalizeToIsoDate,
+} from '@utils/testHelper';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class EditVaccineModal extends BasePatientModal {
@@ -68,7 +73,7 @@ export class EditVaccineModal extends BasePatientModal {
     this.submitEditsButton = this.page.getByTestId('formsubmitcancelrow-vv8q-confirmButton');
     this.brand = this.page.getByTestId('field-f1vm-input');
     this.disease = this.page.getByTestId('field-gcfk-input');
-    this.reason = this.page.getByTestId('selectinput-phtg-select');
+    this.reason = this.page.getByTestId('selectinput-phtg-select').filter({ visible: true });
     this.notGivenClinician = this.page.getByTestId('field-xycc-input');
     this.closeModalButton = this.page.getByTestId('iconbutton-eull');
     this.areaFieldClearButton = this.page.getByTestId('field-zrlv-group-input-clearbutton');
@@ -121,7 +126,8 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await this.dateGiven.fill(dateGiven);
+      await this.dateGiven.fill(formatForMuiDateTimePicker(dateGiven));
+      await this.dateGiven.blur();
       editedFields.dateGiven = dateGiven;
     }
 
@@ -213,7 +219,8 @@ export class EditVaccineModal extends BasePatientModal {
     await expect(this.givenStatus).toContainText(givenStatus);
     await expect(this.recordedBy).toContainText('Initial Admin');
     if (givenStatus !== 'Not given') {
-      await expect(this.facility).toContainText('facility-1');
+      const facilityDisplayName = await getSidebarFacilityDisplayName(this.page);
+      await expect(this.facility).toContainText(facilityDisplayName);
     }
   }
 
@@ -238,7 +245,10 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await expect(this.dateGiven).toHaveValue(dateGiven);
+      const displayed = await this.dateGiven.inputValue();
+      await expect(normalizeToIsoDate(displayed)).toBe(
+        normalizeToIsoDate(dateGiven),
+      );
     }
 
     if (injectionSite) {
