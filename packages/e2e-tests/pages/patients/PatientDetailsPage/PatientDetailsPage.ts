@@ -273,7 +273,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
     this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
     this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.admitOrCheckinButton=this.page.getByTestId('buttonwithpermissioncheck-o4ea');
+    this.admitOrCheckinButton=this.page.getByTestId('buttonrow-qss7').getByTestId('component-enxe');
     this.patientDetailsTab=this.page.getByTestId('tab-details');
     this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
     this.threeDotMenuButton=this.page.getByTestId('stylediconbutton-szh8');
@@ -370,6 +370,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().click();
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
     await this.imagingTab.click();
   }
 
@@ -399,6 +400,7 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 });
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {

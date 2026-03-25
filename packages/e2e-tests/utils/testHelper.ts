@@ -79,7 +79,7 @@ export function formatDateTimeForDisplay(date: Date): string {
  * @returns Formatted string matching table display format (e.g., "6:11am12/01/25")
  */
 export function formatDateTimeForTable(dateTimeString: string): string {
-  const dateFromForm = new Date(dateTimeString);
+  const dateFromForm = parse(dateTimeString, "dd/MM/yyyy hh:mm a", new Date());
   const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
   const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
   return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"

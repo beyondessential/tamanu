@@ -14,13 +14,14 @@ export class ChartsPane {
     this.page = page;
 
     const testIds = {
-      recordChartButton: 'styledbuttonwithpermissioncheck-ruv4',
       chartTypeSelect: 'styledtranslatedselectfield-vwze-select',
     } as const;
 
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+
+    this.recordChartButton = page.getByTestId('row-v55c').getByTestId('component-enxe');
   }
 
   async waitForPageToLoad(): Promise<void> {

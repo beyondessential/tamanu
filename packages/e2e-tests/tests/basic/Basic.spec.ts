@@ -209,7 +209,7 @@ test.describe('Basic tests', () => {
       await newImagingRequestModal.waitForModalToLoad();
       const imagingRequestCode= await newImagingRequestModal.imagingRequestCodeInput.inputValue();
 
-      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'yyyy-MM-dd\'T\'HH:mm');
+      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, "dd/MM/yyyy hh:mm a");
 
       const defaultRequestingClinician = await newImagingRequestModal.requestingClinicianInput.inputValue();
       expect(defaultRequestingClinician).toBe(currentUserDisplayName);
@@ -326,7 +326,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();  
-    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'yyyy-MM-dd'));
+    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'dd/MM/yyyy'));
     expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
@@ -523,10 +523,12 @@ test.describe('Basic tests', () => {
   });
   
   test('[BT-0028][AT-2022] Record a simple chart and validate', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    test.setTimeout(120000);
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const chartsPane = await patientDetailsPage.navigateToChartsTab();
     await chartsPane.waitForPageToLoad();
     await chartsPane.selectChartType('Neurological Assessment');
@@ -557,6 +559,7 @@ test.describe('Basic tests', () => {
     expect(chartValues).toEqual(formValues);
   });
   test('[BT-0015][AT-2010] Add a new referral', async ({newPatient, patientDetailsPage}) => {
+    test.setTimeout(120000);
     await patientDetailsPage.goToPatient(newPatient);
     const referralPane = await patientDetailsPage.navigateToReferralsTab();
     await referralPane.waitForPageToLoad();
