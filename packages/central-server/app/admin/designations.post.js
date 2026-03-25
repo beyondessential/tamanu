@@ -29,20 +29,18 @@ export const createDesignation = asyncHandler(async (req, res) => {
   const { ReferenceData } = req.store.models;
   const { code, id, name } = await createDesignationSchema.parseAsync(req.body);
 
-  let designation;
   try {
-    designation = await ReferenceData.create({
+    const designation = await ReferenceData.create({
       code,
       id,
       name,
       type: REFERENCE_TYPES.DESIGNATION,
     });
+    res.status(201).send(designation);
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
       throw new DatabaseDuplicateError(`A reference datum already exists with ID ‘${id}’.`);
     }
     throw err;
   }
-
-  res.status(201).send(designation);
 });
