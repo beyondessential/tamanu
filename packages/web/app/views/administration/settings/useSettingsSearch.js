@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useRef } from 'react';
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 import { formatSettingName } from './EditorView';
@@ -106,6 +106,11 @@ export const useSettingsSearch = () => {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const debounceTimer = useRef(null);
 
+  // Cancel any pending debounce timer on unmount
+  useEffect(() => () => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+  }, []);
+
   // Build the index once and keep it stable for the lifetime of the hook.
   const searchIndex = useMemo(() => buildSearchIndex(), []);
 
@@ -151,7 +156,8 @@ export const useSettingsSearch = () => {
     return scored;
   }, [debouncedQuery, searchIndex]);
 
-  const isSearchActive = searchQuery.trim().length > 0;
+  // Derive from debouncedQuery to keep in sync with searchResults (both use the debounced value)
+  const isSearchActive = debouncedQuery.trim().length > 0;
 
   return {
     searchQuery,
