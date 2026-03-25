@@ -52,7 +52,7 @@ const ResultRow = styled.div`
   }
 
   &:not(:last-child) {
-    border-bottom: 1px solid ${Colors.outline}80;
+    border-bottom: 1px solid oklch(from ${Colors.outline} l c h / 50%);
   }
 `;
 
