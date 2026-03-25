@@ -123,7 +123,7 @@ export const SettingsSearchResults = ({ searchResults, onSelectResult }) => {
         <EmptyMessage data-testid="settings-search-no-results">
           <TranslatedText
             stringId="admin.settings.search.noResults"
-            fallback="No settings found matching your search."
+            fallback="No settings found matching your search"
             data-testid="translatedtext-settings-search-no-results"
           />
         </EmptyMessage>
