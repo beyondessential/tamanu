@@ -23,7 +23,7 @@ const removeUpdatedAtSyncTickTrigger: MigrationHook = {
       log.info(`Removing updated_at_sync_tick trigger from ${schema}.${table}`);
 
       await sequelize.query(
-        `DROP TRIGGER set_${table}_updated_at_sync_tick ON "${schema}"."${table}"`,
+        `DROP TRIGGER set_${table.toLowerCase()}_updated_at_sync_tick ON "${schema}"."${table}"`,
       );
     }
   },
