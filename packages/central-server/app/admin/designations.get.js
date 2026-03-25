@@ -6,6 +6,8 @@ import { REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
+import { assertDesignationIsDeletable } from './designations.delete';
+
 export const getDesignations = asyncHandler(async (req, res) => {
   req.checkPermission('list', 'ReferenceData');
 
@@ -42,4 +44,27 @@ export const getDesignationById = asyncHandler(async (req, res) => {
   }
 
   res.send(designation.forResponse());
+});
+
+export const getDesignationDeletabilityById = asyncHandler(async (req, res) => {
+  req.checkPermission('delete', 'ReferenceData');
+
+  const {
+    store: {
+      models: { ReferenceData, TaskDesignation, UserDesignation },
+      sequelize,
+    },
+    params: { id },
+  } = req;
+
+  await sequelize.transaction({ readOnly: true }, async () => {
+    await assertDesignationIsDeletable({
+      ReferenceData,
+      TaskDesignation,
+      UserDesignation,
+      designationId: id,
+    });
+  });
+
+  res.status(204).send();
 });

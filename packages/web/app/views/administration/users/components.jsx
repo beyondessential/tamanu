@@ -2,9 +2,9 @@ import { Skeleton } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 
-import { Form } from '@tamanu/ui-components';
+import { Button as UiButton, Form } from '@tamanu/ui-components';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
-import { Button, DataFetchingTable, Field, TextField } from '../../../components';
+import { Button, DataFetchingTable, Field, TextField, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { ContentContainer } from '../components/AdminViewContainer';
 
@@ -76,10 +76,35 @@ export const plusIcon = (
   />
 );
 
-export const shortInlineSkeleton = (
+export const deleteModalHeadingSkeleton = <Skeleton animation="wave" width="16ch" />;
+
+export const deleteModalBodySkeleton = (
+  <div>
+    <Skeleton animation="wave" width="100%" />
+    <Skeleton animation="wave" width="55%" />
+  </div>
+);
+
+export const deleteModalInlineNameSkeleton = (
   <Skeleton
     animation="wave"
     sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
     width="12ch"
   />
+);
+
+export const deleteRoleModalPrimaryButtonSkeleton = (
+  <Skeleton animation="wave" variant="rounded">
+    <UiButton disabled>
+      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+    </UiButton>
+  </Skeleton>
+);
+
+export const deleteDesignationModalPrimaryButtonSkeleton = (
+  <Skeleton animation="wave" variant="rounded">
+    <UiButton disabled>
+      <TranslatedText stringId="general.action.delete-designation" fallback="Delete designation" />
+    </UiButton>
+  </Skeleton>
 );

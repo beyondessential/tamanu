@@ -59,7 +59,7 @@ export const AdministrationRoutes = React.memo(() => (
         <Route path="designations">
           <Route index element={<DesignationsAdminView />} />
           <Route path="new" element={<DesignationsAdminView />} />
-          <Route path="delete/:designationId" element={<DesignationsAdminView />} />
+          <Route path="delete/:id" element={<DesignationsAdminView />} />
         </Route>
       </Route>
     </Route>

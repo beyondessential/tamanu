@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import { z } from 'zod';
 
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { DatabaseConstraintError, NotFoundError } from '@tamanu/errors';
 
 class InvalidDesignationDeletionError extends DatabaseConstraintError {
@@ -23,17 +23,34 @@ class InvalidDesignationDeletionError extends DatabaseConstraintError {
   }
 }
 
-const deleteDesignationQuerySchema = z.object({
-  dryRun: z
-    .string()
-    .optional()
-    .transform(value => value === '1'),
-});
+/** @privateRemarks Remember to run this within a transaction. */
+export const assertDesignationIsDeletable = async ({
+  ReferenceData,
+  TaskDesignation,
+  UserDesignation,
+  designationId,
+}) => {
+  const designation = await ReferenceData.findOne({
+    where: { id: designationId, type: REFERENCE_TYPES.DESIGNATION },
+  });
+  if (!designation) {
+    throw new NotFoundError(`No designation found with ID ‘${designationId}’`);
+  }
+
+  const where = { designationId };
+  const [taskCount, userCount] = await Promise.all([
+    TaskDesignation.count({ where }),
+    UserDesignation.count({ where }),
+  ]);
+  if (taskCount > 0 || userCount > 0) {
+    throw new InvalidDesignationDeletionError(designationId, taskCount, userCount);
+  }
+
+  return designation;
+};
 
 export const deleteDesignationById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'ReferenceData');
-
-  const { dryRun } = await deleteDesignationQuerySchema.parseAsync(req.query);
 
   const {
     store: {
@@ -44,23 +61,13 @@ export const deleteDesignationById = asyncHandler(async (req, res) => {
   } = req;
 
   await sequelize.transaction(async () => {
-    const designation = await ReferenceData.findByPk(designationId);
-    if (!designation) {
-      throw new NotFoundError(`No designation found with ID ‘${designationId}’`);
-    }
-
-    const where = { designationId };
-    const [taskCount, userCount] = await Promise.all([
-      TaskDesignation.count({ where }),
-      UserDesignation.count({ where }),
-    ]);
-    if (taskCount > 0 || userCount > 0) {
-      throw new InvalidDesignationDeletionError(designationId, taskCount, userCount);
-    }
-
-    if (!dryRun) {
-      await designation.destroy();
-    }
+    const designation = await assertDesignationIsDeletable({
+      ReferenceData,
+      TaskDesignation,
+      UserDesignation,
+      designationId,
+    });
+    await designation.destroy();
   });
 
   res.status(204).send();
