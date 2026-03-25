@@ -22,7 +22,7 @@ import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
 import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
 
-const primaryBUttonSkeleton = (
+const primaryButtonSkeleton = (
   <Skeleton animation="wave" variant="rounded">
     <UiButton disabled>
       <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
@@ -198,7 +198,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       <ModalContent>{isLoadingDeletability ? deleteModalBodySkeleton : body}</ModalContent>
       <ConfirmRowDivider />
       <StyledButtonRow>
-        {isLoadingDeletability ? primaryBUttonSkeleton : primaryButton}
+        {isLoadingDeletability ? primaryButtonSkeleton : primaryButton}
         {secondaryButton}
       </StyledButtonRow>
     </Modal>
