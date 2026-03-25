@@ -13,7 +13,7 @@ class InvalidDesignationDeletionError extends DatabaseConstraintError {
     const user = userCount === 1 ? 'user' : 'users';
 
     super(
-      `Cannot delete designation with ID ‘${designationId}’. ${taskCount} ${task} and ${userCount} ${user} assigned to it.`,
+      `Cannot delete designation with ID ‘${designationId}’. ${taskCount}\u{00A0}${task} and ${userCount}\u{00A0}${user} assigned to it.`,
     );
     this.withExtraData({
       designationId,
@@ -37,7 +37,7 @@ export const deleteDesignationById = asyncHandler(async (req, res) => {
 
   const {
     store: {
-      models: { ReferenceData, UserDesignation, Task },
+      models: { ReferenceData, TaskDesignation, UserDesignation },
       sequelize,
     },
     params: { id: designationId },
@@ -51,7 +51,7 @@ export const deleteDesignationById = asyncHandler(async (req, res) => {
 
     const where = { designationId };
     const [taskCount, userCount] = await Promise.all([
-      Task.count({ where }),
+      TaskDesignation.count({ where }),
       UserDesignation.count({ where }),
     ]);
     if (taskCount > 0 || userCount > 0) {
