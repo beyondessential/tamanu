@@ -57,6 +57,7 @@ describe('migrateUpTo', () => {
 
     // Stop 1: before addAuditTrigger — no record_change triggers yet
     const beforeRecordChangeMigration = pending.find(mig => mig.testFileName(BEFORE_RECORD_CHANGE));
+    expect(beforeRecordChangeMigration).toBeDefined();
     await migrateUpTo({
       log,
       sequelize: database.sequelize,
@@ -75,6 +76,7 @@ describe('migrateUpTo', () => {
     // Stop 2: after addAuditTrigger — old (non-constraint) triggers installed
     pending = await migrations.pending();
     const afterRecordChangeMigration = pending.find(mig => mig.testFileName(AFTER_RECORD_CHANGE));
+    expect(afterRecordChangeMigration).toBeDefined();
     await migrateUpTo({
       log,
       sequelize: database.sequelize,
