@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 
 import { NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
-import { assertRoleIsDeletable } from './roles.delete';
+import { getDeletableRoleOrThrow } from './roles.delete';
 
 export const getRoles = asyncHandler(async (req, res) => {
   req.checkPermission('list', 'Role');
@@ -52,15 +52,12 @@ export const getRoleDeletabilityById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'Role');
 
   const {
-    store: {
-      models: { Role, User },
-      sequelize,
-    },
+    store: { models, sequelize },
     params: { id },
   } = req;
 
   await sequelize.transaction({ readOnly: true }, async () => {
-    await assertRoleIsDeletable({ Role, User, roleId: id });
+    await getDeletableRoleOrThrow(models, id);
   });
 
   res.status(204).send();
