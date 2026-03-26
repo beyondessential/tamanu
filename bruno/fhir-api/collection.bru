@@ -26,19 +26,18 @@ docs {
   ## 3. Use the requests
   
   
-  - GET: `{{baseUrl}}/api/integration/fhir/mat/<ResourceType>...`
-  - POST: `{{baseUrl}}/api/integration/fhir/mat/<ResourceType>` (for supported resources)
+  - GET: `{{baseUrl}}/api/integration/fhir/mat/{ResourceType}...` (substitute the FHIR resource name)
+  - POST: `{{baseUrl}}/api/integration/fhir/mat/{ResourceType}` (for supported resources)
   
   For any request that has a `:id` path param, fill the `id` parameter before sending (e.g. the `Read Patient` request).
   
   ## 4. Common placeholders
   
-  The example JSON bodies (Observation/DiagnosticReport/ImagingStudy/Bundle) include placeholders like:
+  Set these in `bruno/fhir-api/environments/local.bru` for POST bodies that reference other resources:
   
-  - `Patient/<patient-id>`
-  - `Observation/<observation-id>`
-  
-  Replace those placeholders with real IDs/values if you want POSTs to be more meaningful in your environment.
+  - `patientId` (FHIR id only; bodies use `Patient/{{patientId}}`)
+  - `observationId` (`Observation/{{observationId}}` in Create DiagnosticReport)
+  - `serviceRequestId` (`ServiceRequest/{{serviceRequestId}}` in Transaction Bundle example)
   
   
 }
