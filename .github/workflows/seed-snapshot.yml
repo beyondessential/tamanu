@@ -13,6 +13,9 @@ on:
         type: string
         required: false
         default: '17'
+      image:
+        type: string
+        required: true
 permissions:
   contents: read
   id-token: write
@@ -29,8 +32,8 @@ jobs:
       INPUT_VERSION: ${{ inputs.version }}
       INPUT_BRANCH: ${{ inputs.branch }}
       POSTGRES_MAJOR: ${{ inputs.postgres_major }}
+      IMAGE: ${{ inputs.image }}
       JOB_NAME: seed-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
-      SECRET_NAME: seed-snapshot-token-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Validate version format
         run: |
@@ -40,8 +43,6 @@ jobs:
           fi
 
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.branch }}
 
       - uses: actions/checkout@v6
         with:
@@ -59,23 +60,13 @@ jobs:
       - name: Ensure envsubst is available
         run: command -v envsubst
 
-      - name: Create job GitHub token secret
-        env:
-          TOKEN: ${{ secrets.TAMANU_RELEASE_PAT }}
-        run: |
-          kubectl create secret generic "${SECRET_NAME}" \
-            --namespace "${SEED_NAMESPACE}" \
-            --from-literal=GITHUB_TOKEN="$TOKEN" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Apply seed snapshot Job
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          envsubst '${JOB_NAME} ${INPUT_VERSION} ${INPUT_BRANCH} ${POSTGRES_MAJOR} ${GITHUB_RUN_ID} ${GITHUB_RUN_ATTEMPT} ${SECRET_NAME}' \
+          envsubst '${JOB_NAME} ${INPUT_VERSION} ${INPUT_BRANCH} ${POSTGRES_MAJOR} ${GITHUB_RUN_ID} ${GITHUB_RUN_ATTEMPT} ${IMAGE}' \
             < ops/pulumi/stacks/tamanu/k8s-infra/seed/seed-snapshot-job.yaml \
             | kubectl apply -f -
           echo "Submitted Job ${JOB_NAME} in ${SEED_NAMESPACE} (runs in-cluster; check kubectl or logs there)."
-

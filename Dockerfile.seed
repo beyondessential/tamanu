@@ -1,0 +1,14 @@
+FROM node:20-alpine
+RUN apk add --no-cache bash curl jq && \
+    ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')" && \
+    curl -fsSL -o /usr/local/bin/kubectl \
+      "https://dl.k8s.io/release/v1.31.6/bin/linux/${ARCH}/kubectl" && \
+    chmod +x /usr/local/bin/kubectl
+WORKDIR /app
+ARG GIT_SHA=unknown
+ENV NODE_ENV=production \
+    NODE_CONFIG_DIR=/app/packages/central-server/config \
+    TAMANU_GIT_SHA=${GIT_SHA}
+COPY package.json ./
+COPY packages/ packages/
+COPY node_modules/ node_modules/

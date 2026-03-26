@@ -96,9 +96,54 @@ jobs:
 
         echo "✅ Triggered tamanu-source-dbt upgrade workflow for $NEW_BRANCH_NAME"
 
-  seed-snapshot:
+  build-seed-image:
     needs: [run]
-    if: always() && needs.run.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.run.outputs.branch }}
+          token: ${{ secrets.TAMANU_RELEASE_PAT }}
+
+      - name: Get git SHA
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Build packages
+        run: |
+          npm ci
+          npm run build-shared
+          npm run build -w packages/central-server
+          npm run build -w packages/scripts
+          npm prune --production
+          rm -rf packages/web packages/patient-portal
+
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push seed image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.seed
+          push: true
+          platforms: linux/amd64
+          tags: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
+          build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
+
+  seed-snapshot:
+    needs: [run, build-seed-image]
+    if: always() && needs.run.result == 'success' && needs.build-seed-image.result == 'success'
     continue-on-error: true
     permissions:
       contents: read
@@ -108,3 +153,4 @@ jobs:
     with:
       branch: ${{ needs.run.outputs.branch }}
       version: ${{ needs.run.outputs.version }}
+      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
