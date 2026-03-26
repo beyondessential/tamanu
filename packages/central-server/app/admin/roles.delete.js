@@ -14,12 +14,15 @@ class InvalidRoleDeletionError extends DatabaseConstraintError {
   }
 }
 
-/** @privateRemarks Remember to run this within a transaction. */
-export const assertRoleIsDeletable = async ({ Role, User, roleId }) => {
-  const role = await Role.findByPk(roleId);
+export const getDeletableRoleOrThrow = async (models, roleId) => {
+  if (!models.Role.sequelize?.isInsideTransaction?.()) {
+    throw new Error('DEV ERROR: getDeletableRoleOrThrow should be run in a transaction');
+  }
+
+  const role = await models.Role.findByPk(roleId);
   if (!role) throw new NotFoundError(`No role found with ID ‘${roleId}’`);
 
-  const assignedUserCount = await User.count({
+  const assignedUserCount = await models.User.count({
     where: { role: role.id }, // No FK constraint!
   });
   if (assignedUserCount > 0) throw new InvalidRoleDeletionError(roleId, assignedUserCount);
@@ -31,15 +34,12 @@ export const deleteRoleById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'Role');
 
   const {
-    store: {
-      models: { Role, User },
-      sequelize,
-    },
+    store: { models, sequelize },
     params: { id },
   } = req;
 
   await sequelize.transaction(async () => {
-    const role = await assertRoleIsDeletable({ Role, User, roleId: id });
+    const role = await getDeletableRoleOrThrow(models, id);
     await role.destroy();
   });
 
