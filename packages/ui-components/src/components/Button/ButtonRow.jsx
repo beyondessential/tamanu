@@ -19,8 +19,7 @@ const Row = styled.div`
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
-  > button:not(:first-child),
-  > div:not(:first-child) {
+  > :where(button, div, .MuiSkeleton-root):not(:first-child) {
     margin-left: 20px;
   }
 `;
@@ -31,9 +30,7 @@ const ConfirmButton = styled(Button)`
 
 export const ButtonRow = React.memo(({ children, ButtonWrapper = React.Fragment, ...props }) => (
   <Row {...props} data-testid="row-atzb">
-    <ButtonWrapper>
-      {children}
-    </ButtonWrapper>
+    <ButtonWrapper>{children}</ButtonWrapper>
   </Row>
 ));
 

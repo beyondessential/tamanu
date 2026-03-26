@@ -1,4 +1,6 @@
 export const LOCATION_SEARCH_ENDPOINT = 'location/search';
+export const DESIGNATION_ENDPOINT = 'admin/designation';
+export const DESIGNATIONS_ENDPOINT = 'admin/designations';
 export const ROLE_ENDPOINT = 'admin/role';
 export const ROLES_ENDPOINT = 'admin/roles';
 export const USERS_ENDPOINT = 'admin/users';

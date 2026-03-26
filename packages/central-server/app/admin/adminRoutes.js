@@ -10,6 +10,7 @@ import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
 
 import { assetRoutes } from './asset';
+import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
 import { mergePatientHandler } from './patientMerge';
 import { templateRoutes } from './template';
@@ -78,6 +79,8 @@ adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
+adminRoutes.use('/designations', designationsRouter);
+adminRoutes.use('/designation', designationRouter);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel

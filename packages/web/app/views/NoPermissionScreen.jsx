@@ -12,18 +12,22 @@ const Container = styled.div`
   height: calc(100% - 40px);
   margin: 20px;
   display: flex;
-  justify-content: center;
-  position: relative;
+  flex-direction: column;
+  align-items: center;
   background-color: ${Colors.white};
-  background-image: ${props => props.$showBackgroundImage ? `url(${backgroundImage})` : 'none'};
-  background-repeat: no-repeat;
-  background-position: center bottom 23px;
+  overflow: hidden;
 `;
 
 const Message = styled.div`
   width: 50%;
   text-align: center;
-  margin-top: 33vh;
+  margin-top: 15vh;
+`;
+
+const BackgroundImage = styled.img`
+  margin-top: auto;
+  width: 70%;
+  padding-bottom: 23px;
 `;
 
 const Heading = styled.h1`
@@ -38,9 +42,9 @@ const Description = styled.h4`
   color: ${Colors.darkText};
 `;
 
-export const NoPermissionScreen = ({ showBackgroundImage = true }) => {
+export const NoPermissionScreen = ({ showBackgroundImage = true, className }) => {
   return (
-    <Container data-testid="container-d7rd" $showBackgroundImage={showBackgroundImage}>
+    <Container data-testid="container-d7rd" className={className}>
       <Message data-testid="message-mq8u">
         <Heading data-testid="heading-oz8d">
           <TranslatedText
@@ -63,6 +67,7 @@ export const NoPermissionScreen = ({ showBackgroundImage = true }) => {
           />
         </Description>
       </Message>
+      {showBackgroundImage && <BackgroundImage src={backgroundImage} />}
     </Container>
   );
 };

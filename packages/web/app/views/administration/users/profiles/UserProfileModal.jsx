@@ -1,27 +1,34 @@
-import React, { useMemo, useState } from 'react';
 import { subject } from '@casl/ability';
+import { Box, Divider } from '@mui/material';
+import { FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import React, { useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+
+import { BaseModal, ConfirmCancelRow, Form, FormGrid } from '@tamanu/ui-components';
+import { isBcryptHash } from '@tamanu/utils/password';
+import { useSuggester } from '../../../../api';
+import { useUpdateUserMutation, useValidateUserMutation } from '../../../../api/mutations';
 import {
-  Field,
-  TextField,
+  BodyText,
+  Button,
+  FormModal,
+  OutlinedButton,
+  TranslatedText,
+} from '../../../../components';
+import {
   AutocompleteField,
+  Field,
   MultiAutocompleteField,
   SelectField,
-} from '../../../components/Field';
-import { useSuggester } from '../../../api';
-import { TranslatedText, FormModal, Button, OutlinedButton, BodyText } from '../../../components';
-import { BaseModal, ConfirmCancelRow, Form, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../../../constants';
-import { Box, Divider } from '@mui/material';
-import { foreignKey } from '../../../utils/validation';
-import { useUpdateUserMutation, useValidateUserMutation } from '../../../api/mutations';
-import { toast } from 'react-toastify';
-import { useTranslation } from '../../../contexts/Translation';
+  TextField,
+} from '../../../../components/Field';
+import { Colors } from '../../../../constants';
+import { useAuth } from '../../../../contexts/Auth';
+import { useTranslation } from '../../../../contexts/Translation';
+import { foreignKey } from '../../../../utils/validation';
 import { UserLeaveSection } from './UserLeaveSection';
-import { useAuth } from '../../../contexts/Auth';
-import { isBcryptHash } from '@tamanu/utils/password';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -97,7 +104,7 @@ const validationSchema = yup.object().shape({
         stringId="validation.password.isHashed"
         fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
       />,
-      function(value) {
+      function (value) {
         if (!value) return true;
         return !isBcryptHash(value);
       },
@@ -108,7 +115,7 @@ const validationSchema = yup.object().shape({
     .test(
       'passwords-match',
       <TranslatedText stringId="validation.passwords.mismatch" fallback="Passwords don't match" />,
-      function(value) {
+      function (value) {
         const { newPassword } = this.parent;
         // Only validate if both passwords are provided
         if (!newPassword && !value) return true;
@@ -178,9 +185,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     };
 
     if (emailChanged || displayNameChanged || roleChanged) {
-      const { isEmailUnique, isDisplayNameUnique, hasWriteUserPermission } = await validateUser(
-        values,
-      );
+      const { isEmailUnique, isDisplayNameUnique, hasWriteUserPermission } =
+        await validateUser(values);
 
       if (emailChanged && !isEmailUnique) {
         setFieldError(
