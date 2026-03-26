@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 import { formatSettingName } from './EditorView';
@@ -107,8 +108,11 @@ const scoreEntry = (entry, queryWords) => {
  *   clearSearch       – function to empty the query
  */
 export const useSettingsSearch = () => {
-  const [searchQuery, setSearchQueryState] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
+
+  const [searchQuery, setSearchQueryState] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const debounceTimer = useRef(null);
 
   // Cancel any pending debounce timer on unmount
@@ -122,16 +126,20 @@ export const useSettingsSearch = () => {
   // Build the index once and keep it stable for the lifetime of the hook.
   const searchIndex = useMemo(() => buildSearchIndex(), []);
 
-  const setSearchQuery = useCallback(value => {
-    setSearchQueryState(value);
+  const setSearchQuery = useCallback(
+    value => {
+      setSearchQueryState(value);
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-    debounceTimer.current = setTimeout(() => {
-      setDebouncedQuery(value);
-    }, 50);
-  }, []);
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+      debounceTimer.current = setTimeout(() => {
+        setDebouncedQuery(value);
+        setSearchParams(value.trim() ? { q: value.trim() } : {}, { replace: true });
+      }, 50);
+    },
+    [setSearchParams],
+  );
 
   const clearSearch = useCallback(() => {
     if (debounceTimer.current) {
@@ -139,7 +147,8 @@ export const useSettingsSearch = () => {
     }
     setSearchQueryState('');
     setDebouncedQuery('');
-  }, []);
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   const searchResults = useMemo(() => {
     const trimmed = debouncedQuery.trim();
