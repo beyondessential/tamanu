@@ -16,7 +16,7 @@ class InvalidRoleDeletionError extends DatabaseConstraintError {
 
 export const getDeletableRoleOrThrow = async (models, roleId) => {
   if (!models.Role.sequelize?.isInsideTransaction?.()) {
-    throw new Error('DEV ERROR: getDeletableRoleOrThrow should be run in a transaction');
+    throw new Error('DEV ERROR: getDeletableRoleOrThrow must be run in a transaction');
   }
 
   const role = await models.Role.findByPk(roleId);

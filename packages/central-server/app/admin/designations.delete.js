@@ -24,13 +24,12 @@ class InvalidDesignationDeletionError extends DatabaseConstraintError {
 }
 
 /** @privateRemarks Remember to run this within a transaction. */
-export const getDeletableDesignationOrThrow = async ({
-  ReferenceData,
-  TaskDesignation,
-  UserDesignation,
-  designationId,
-}) => {
-  const designation = await ReferenceData.findOne({
+export const getDeletableDesignationOrThrow = async (models, designationId) => {
+  if (!models.ReferenceData.sequelize?.isInsideTransaction?.()) {
+    throw new Error('DEV ERROR: getDeletableDesignationOrThrow must be run in a transaction');
+  }
+
+  const designation = await models.ReferenceData.findOne({
     where: { id: designationId, type: REFERENCE_TYPES.DESIGNATION },
   });
   if (!designation) {
@@ -39,7 +38,7 @@ export const getDeletableDesignationOrThrow = async ({
 
   const where = { designationId };
 
-  const userDesignationCount = await UserDesignation.count({ where });
+  const userDesignationCount = await models.UserDesignation.count({ where });
   if (userDesignationCount > 0) {
     throw new InvalidDesignationDeletionError(
       designationId,
@@ -48,7 +47,7 @@ export const getDeletableDesignationOrThrow = async ({
     );
   }
 
-  const taskDesignationCount = await TaskDesignation.count({ where });
+  const taskDesignationCount = await models.TaskDesignation.count({ where });
   if (taskDesignationCount > 0) {
     throw new InvalidDesignationDeletionError(
       designationId,
@@ -64,20 +63,12 @@ export const deleteDesignationById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'ReferenceData');
 
   const {
-    store: {
-      models: { ReferenceData, TaskDesignation, UserDesignation },
-      sequelize,
-    },
+    store: { models, sequelize },
     params: { id: designationId },
   } = req;
 
   await sequelize.transaction(async () => {
-    const designation = await getDeletableDesignationOrThrow({
-      ReferenceData,
-      TaskDesignation,
-      UserDesignation,
-      designationId,
-    });
+    const designation = await getDeletableDesignationOrThrow(models, designationId);
     await designation.destroy();
   });
 

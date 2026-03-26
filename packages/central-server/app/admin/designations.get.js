@@ -50,20 +50,12 @@ export const getDesignationDeletabilityById = asyncHandler(async (req, res) => {
   req.checkPermission('delete', 'ReferenceData');
 
   const {
-    store: {
-      models: { ReferenceData, TaskDesignation, UserDesignation },
-      sequelize,
-    },
+    store: { models, sequelize },
     params: { id },
   } = req;
 
   await sequelize.transaction({ readOnly: true }, async () => {
-    await getDeletableDesignationOrThrow({
-      ReferenceData,
-      TaskDesignation,
-      UserDesignation,
-      designationId: id,
-    });
+    await getDeletableDesignationOrThrow(models, id);
   });
 
   res.status(204).send();
