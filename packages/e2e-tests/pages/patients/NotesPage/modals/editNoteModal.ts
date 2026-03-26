@@ -1,4 +1,5 @@
 import { Page } from '@playwright/test';
+import { format, parse } from 'date-fns';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 
 export class EditNoteModal extends BaseNoteModal {
@@ -10,7 +11,9 @@ export class EditNoteModal extends BaseNoteModal {
   async editNote(updatedContent: string): Promise<string> {
     await this.waitForModalToLoad();
     await this.noteContentTextarea.fill(updatedContent);
-    const secondDateTime = await this.dateTimeInput.inputValue();
+    const rawDateTime = await this.dateTimeInput.inputValue();
+    const parsedDate = parse(rawDateTime, 'dd/MM/yyyy hh:mm aa', new Date());
+    const secondDateTime = format(parsedDate, "yyyy-MM-dd'T'HH:mm");
     await this.confirmButton.click();
     await this.waitForModalToClose();
     return secondDateTime;

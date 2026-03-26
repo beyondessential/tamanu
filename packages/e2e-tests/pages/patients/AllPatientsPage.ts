@@ -129,8 +129,8 @@ export class AllPatientsPage extends BasePatientListPage {
     this.DOBInput = page.getByTestId('field-qk60').locator('input[type="text"]');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5').locator('input[type="date"]');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input[type="text"]');
+    this.DOBToTxt = page.getByTestId('field-aax5').locator('input[type="text"]');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');

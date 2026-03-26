@@ -178,7 +178,7 @@ export class LabRequestModalBase {
   }
 
   getCurrentDateTime(): string {
-    return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+    return format(new Date(), 'dd/MM/yyyy hh:mm aa');
   }
 
   /**
@@ -249,6 +249,7 @@ export class LabRequestModalBase {
     await input.click();
     await input.waitFor({ state: 'visible' });
     await input.fill(dateTime);
+    await input.press('Tab');
   }
   
   /**
