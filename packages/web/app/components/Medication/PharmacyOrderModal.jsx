@@ -33,6 +33,7 @@ const MODAL_TYPES = {
 };
 
 const StyledModal = styled(BaseModal)`
+  text-wrap: balance;
   .MuiPaper-root {
     max-width: ${({ $modalType }) => {
       switch ($modalType) {
@@ -72,9 +73,9 @@ const CommentsWrapper = styled.div`
 `;
 
 const DialogPrimaryText = styled.p`
-  font-weight: bold;
   font-size: 16px;
-  margin-bottom: 12px;
+  font-weight: bold;
+  margin-block: 0 12px;
   text-align: center;
 `;
 
@@ -87,6 +88,7 @@ const DialogSecondaryText = styled.p`
   text-align: center;
   color: ${Colors.textSecondary};
   line-height: 1.4;
+  margin-block: 0;
 `;
 
 const AlreadyOrderedSecondaryText = styled(DialogSecondaryText)`
