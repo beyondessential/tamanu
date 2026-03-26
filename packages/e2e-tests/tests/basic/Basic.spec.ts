@@ -136,7 +136,7 @@ test.describe('Basic tests', () => {
         middleName: 'Michael',
         lastName: 'Smith',
         culturalName: 'Johnny Smith',
-        dateOfBirth: '1990-01-01',
+        dateOfBirth: '01/01/1990',
         email: 'john.smith@example.com',
         nationalHealthNumber: nhn,
         birthCertificate: 'BRTH12345',
@@ -171,7 +171,7 @@ test.describe('Basic tests', () => {
 
      await expect(patientDetailsTabPage2.firstNameInput).toHaveValue(patientDetails.firstName as string);
      await expect(patientDetailsTabPage2.lastNameInput).toHaveValue(patientDetails.lastName as string);
-     await expect(patientDetailsTabPage2.dateOfBirthInput.locator('input')).toHaveValue('1990-01-01');
+     await expect(patientDetailsTabPage2.dateOfBirthInput.locator('input')).toHaveValue('01/01/1990');
      if ((patientDetails.sex) === 'female') {
        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
      } else if ((patientDetails.sex ) === 'male') {

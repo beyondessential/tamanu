@@ -538,6 +538,13 @@ export class PatientDetailsPage extends BasePatientPage {
     return format(new Date(), 'yyyy-MM-dd');
   }
 
+  /**
+   * Gets current browser date in the DD/MM/YYYY format (MUI DatePicker display format)
+   */
+  getCurrentBrowserDateDisplayFormat() {
+    return format(new Date(), 'dd/MM/yyyy');
+  }
+
   // Helper methods for handling multiple buttons with the same test ID
   getSubmitEditsButton() {
     // Generic method - should be used with specific context

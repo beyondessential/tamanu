@@ -43,7 +43,6 @@ export class ProcedurePane extends BasePatientPane {
     const testIds = {
       tabPane: 'tabpane-q1xp',
       styledForm: 'styledform-5o5i',
-      newProcedureButton: 'buttonwithpermissioncheck-h58o',
       tableContainer: 'styledtablecontainer-3ttp',
       table: 'styledtable-1dlu',
       tableHead: 'styledtablehead-ays3',
@@ -70,6 +69,8 @@ export class ProcedurePane extends BasePatientPane {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = this.page.getByTestId(id);
     }
+
+    this.newProcedureButton = this.page.getByTestId('row-v55c').getByTestId('component-enxe');
   }
 
   /**

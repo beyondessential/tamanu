@@ -43,7 +43,6 @@ export class NotesPane {
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
       noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
-      newNoteButton: 'buttonwithpermissioncheck-qbou',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
       editIcons: 'styledediticon-nmdz',
@@ -60,6 +59,7 @@ export class NotesPane {
     }
     
     // Special cases that need additional processing
+    this.newNoteButton = page.getByTestId('row-v55c').getByTestId('component-enxe');
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
     this.noteHeaderTexts = page.getByTestId('styledtablebody-a0jz').getByTestId('noteheadertext-e3kq');
     this.noteContents = page.getByTestId('styledtablebody-a0jz').getByTestId('notecontentcontainer-cgxg');

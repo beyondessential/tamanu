@@ -126,7 +126,7 @@ export class AllPatientsPage extends BasePatientListPage {
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = page.getByTestId('field-qk60').locator('input[type="date"]');
+    this.DOBInput = page.getByTestId('field-qk60').locator('input[type="text"]');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input[type="date"]');
