@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { useApi } from '../../../api';
-import { ROLE_ENDPOINT } from '../constants';
+import { useApi } from '../../../../api';
+import { ROLE_ENDPOINT } from '../../constants';
 
 export const useRoleQuery = (roleId, useQueryOptions) => {
   const api = useApi();

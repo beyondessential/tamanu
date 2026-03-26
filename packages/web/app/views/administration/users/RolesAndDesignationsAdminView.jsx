@@ -4,24 +4,13 @@ import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { Colors } from '../../../constants';
-import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
+import { AdminViewContainer } from '../components/AdminViewContainer';
 
 const StyledTabDisplay = styled(TabDisplay)`
   display: grid;
   grid-template-rows: auto 1fr;
   .MuiTab-root:first-of-type {
     margin-inline-start: 30px;
-  }
-`;
-
-export const Article = styled.article`
-  border-block-start: 1px solid ${Colors.outline};
-  overflow: auto;
-  padding-block: 26px;
-  padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
   }
 `;
 
@@ -32,11 +21,15 @@ const TAB = /** @type {const} */ ({
 
 export const RolesAndDesignationsAdminView = () => {
   const navigate = useNavigate();
-  const isDesignationsRoute = Boolean(useMatch('/admin/users/designations'));
+  const isDesignationsRoute = Boolean(
+    useMatch({ path: '/admin/users/rolesAndDesignations/designations', end: false }),
+  );
   const currentTab = isDesignationsRoute ? TAB.DESIGNATIONS : TAB.ROLES;
 
   const onTabSelect = tabKey => {
-    navigate(tabKey === TAB.DESIGNATIONS ? '/admin/users/designations' : '/admin/users/roles');
+    navigate(
+      `/admin/users/rolesAndDesignations/${tabKey === TAB.DESIGNATIONS ? 'designations' : 'roles'}`,
+    );
   };
 
   /** @see ./routes/AdministrationRoutes.jsx re <Outlet /> */

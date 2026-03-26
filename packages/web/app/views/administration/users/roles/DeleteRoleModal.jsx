@@ -5,12 +5,30 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { ERROR_TYPE } from '@tamanu/errors';
-import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
-import { TranslatedText } from '../../../components';
-import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
-import { useCanDeleteRoleQuery } from './useCanDeleteRoleQuery';
+import {
+  Button as UiButton,
+  Button,
+  ButtonRow,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import {
+  deleteModalBodySkeleton,
+  deleteModalHeadingSkeleton,
+  shortInlineSkeleton,
+} from '../components';
+import { useCanDeleteRoleQuery } from '../useCanDeleteRoleQuery';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 import { useRoleQuery } from './useRoleQuery';
+import { ConfirmRowDivider } from '../../../../components/ConfirmRowDivider';
+
+const primaryButtonSkeleton = (
+  <Skeleton animation="wave" variant="rounded">
+    <UiButton disabled>
+      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+    </UiButton>
+  </Skeleton>
+);
 
 const ModalContent = styled.div`
   min-block-size: 8rem;
@@ -28,29 +46,6 @@ const StyledButtonRow = styled(ButtonRow)`
   gap: 20px;
   justify-content: flex-start;
 `;
-
-const headingSkeleton = <Skeleton animation="wave" width="16ch" />;
-const bodySkeleton = (
-  <div>
-    <Skeleton animation="wave" width="100%" />
-    <Skeleton animation="wave" width="55%" />
-  </div>
-);
-const buttonSkeleton = (
-  <Skeleton animation="wave" variant="rounded">
-    <Button disabled>
-      <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-    </Button>
-  </Skeleton>
-);
-
-const roleNameSkeleton = (
-  <Skeleton
-    animation="wave"
-    sx={{ display: 'inline-block', verticalAlign: 'text-bottom' }}
-    width="12ch"
-  />
-);
 
 const getAssignedUserCount = error => {
   const count = Number.parseInt(error?.extra?.get?.('assigned-user-count'), 10);
@@ -83,7 +78,7 @@ const getErrorModalTitle = error => {
 };
 
 export const DeleteRoleModal = ({ onSuccess }) => {
-  const deleteMatch = useMatch('/admin/users/roles/delete/:id');
+  const deleteMatch = useMatch('/admin/users/rolesAndDesignations/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
   const { data: role, error: roleQueryError, isLoading: isRoleLoading } = useRoleQuery(roleId);
   const isRoleNotFound = roleQueryError?.status === 404;
@@ -172,7 +167,7 @@ export const DeleteRoleModal = ({ onSuccess }) => {
         fallback="Are you sure you would like to delete the selected role?"
       />
       &nbsp;&ndash;{' '}
-      <strong aria-busy={isRoleLoading}>{isRoleLoading ? roleNameSkeleton : role?.name}</strong>
+      <strong aria-busy={isRoleLoading}>{isRoleLoading ? shortInlineSkeleton : role?.name}</strong>
     </Typography>
   );
 
@@ -198,12 +193,12 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       aria-busy={isLoadingDeletability}
       open={showModal}
       onClose={dismiss}
-      title={isLoadingDeletability ? headingSkeleton : title}
+      title={isLoadingDeletability ? deleteModalHeadingSkeleton : title}
     >
-      <ModalContent>{isLoadingDeletability ? bodySkeleton : body}</ModalContent>
+      <ModalContent>{isLoadingDeletability ? deleteModalBodySkeleton : body}</ModalContent>
       <ConfirmRowDivider />
       <StyledButtonRow>
-        {isLoadingDeletability ? buttonSkeleton : primaryButton}
+        {isLoadingDeletability ? primaryButtonSkeleton : primaryButton}
         {secondaryButton}
       </StyledButtonRow>
     </Modal>

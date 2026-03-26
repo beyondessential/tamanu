@@ -1,24 +1,25 @@
+import { Box } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
+import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import {
   Button,
   DataFetchingTable,
   Heading1,
   TranslatedText,
   UserSearchBar,
-} from '../../../components';
-import { USERS_ENDPOINT } from '../constants';
-import { Colors } from '../../../constants';
-import { ThemedTooltip } from '../../../components/Tooltip';
-import { AdminViewContainer } from '../components/AdminViewContainer';
-import { LimitedLinesCell } from '../../../components/FormattedTableCell';
-import { UserProfileModal } from './UserProfileModal';
-import { useAuth } from '../../../contexts/Auth';
-import { Divider } from '@mui/material';
+} from '../../../../components';
+import { LimitedLinesCell } from '../../../../components/FormattedTableCell';
+import { ThemedTooltip } from '../../../../components/Tooltip';
+import { Colors } from '../../../../constants';
+import { useAuth } from '../../../../contexts/Auth';
+import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
-import { PlusIcon } from '../../../assets/icons/PlusIcon';
+import { UserProfileModal } from './UserProfileModal';
 
 const StatusDiv = styled.div`
   display: flex;

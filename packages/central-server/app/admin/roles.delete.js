@@ -5,10 +5,10 @@ import { DatabaseConstraintError, NotFoundError } from '@tamanu/errors';
 class InvalidRoleDeletionError extends DatabaseConstraintError {
   constructor(/** @type {string} */ roleId, /** @type {number} */ assignedUserCount) {
     const isSingular = assignedUserCount === 1;
-    const subject = isSingular ? 'user' : 'users';
+    const unit = isSingular ? 'user' : 'users';
 
     super(
-      `Cannot delete role with ID ‘${roleId}’. ${assignedUserCount} ${subject} assigned to it.`,
+      `Cannot delete role with ID ‘${roleId}’. ${assignedUserCount}\u{00A0}${unit} assigned to it.`,
     );
     this.withExtraData({ assignedUserCount });
   }
@@ -16,7 +16,7 @@ class InvalidRoleDeletionError extends DatabaseConstraintError {
 
 export const getDeletableRoleOrThrow = async (models, roleId) => {
   if (!models.Role.sequelize?.isInsideTransaction?.()) {
-    throw new Error('DEV ERROR: getDeletableRoleOrThrow should be run in a transaction');
+    throw new Error('DEV ERROR: getDeletableRoleOrThrow must be run in a transaction');
   }
 
   const role = await models.Role.findByPk(roleId);

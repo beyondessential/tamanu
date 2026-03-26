@@ -1,34 +1,15 @@
 import React from 'react';
 import { useSearchParams } from 'react-router';
-import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
-import { useSuggester } from '../../../api';
-import { Button, TranslatedText } from '../../../components';
-import { AutocompleteField, Field } from '../../../components/Field';
-import { useTranslation } from '../../../contexts/Translation';
+import { FormSubmitButton, TextField } from '@tamanu/ui-components';
+import { useSuggester } from '../../../../api';
+import { Button, TranslatedText } from '../../../../components';
+import { AutocompleteField, Field } from '../../../../components/Field';
+import { useTranslation } from '../../../../contexts/Translation';
+import { ButtonGroup, Search, StyledForm } from '../components';
 
-const Search = styled('search')`
-  display: contents;
-  gap: inherit;
-`;
-
-const StyledForm = styled(Form)`
-  display: grid;
-  gap: inherit;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
-`;
-
-const ButtonGroup = styled.div`
-  align-items: flex-end;
-  display: flex;
-  font-size: 0.875rem;
-  gap: inherit;
-  button {
-    font-size: inherit;
-  }
-`;
+const suggesterOptions = { formatter: ({ id }) => ({ label: id, value: id }) };
 
 export const RolesSearchForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,9 +18,7 @@ export const RolesSearchForm = () => {
 
   const { getTranslation } = useTranslation();
 
-  const roleSuggester = useSuggester('role', {
-    formatter: ({ id }) => ({ label: id, value: id }),
-  });
+  const roleSuggester = useSuggester('role', suggesterOptions);
 
   const onSubmit = values => {
     const name = values.name?.trim();
@@ -76,6 +55,8 @@ export const RolesSearchForm = () => {
     <>
       <Field
         component={TextField}
+        // Max. role name length (see DDL); anything longer works but guaranteed to return nothing
+        inputProps={{ maxLength: 255 }}
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
         name="name"
         placeholder={getTranslation('general.placeholder.search...', 'Search…')}
