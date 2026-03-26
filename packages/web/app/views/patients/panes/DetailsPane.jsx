@@ -32,13 +32,13 @@ const ForbiddenMessage = () => (
 );
 
 export const PatientDetailsPane = React.memo(
-  ({ patient, additionalData, birthData, patientFields, insurancePlans}) => {
+  ({ patient, additionalData, birthData, patientFields, insurancePlans }) => {
     const api = useApi();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
     const { ability, facilityId } = useAuth();
 
-    const handleSubmit = async (data) => {
+    const handleSubmit = async data => {
       try {
         await api.put(`patient/${patient.id}`, { ...data, facilityId });
       } catch (e) {
@@ -53,7 +53,7 @@ export const PatientDetailsPane = React.memo(
 
     // Display form if user can read, write or create patient additional data.
     // It's assumed that if a user got this far, they can read a patient.
-    const canViewForm = ['read', 'write', 'create'].some((verb) => ability.can(verb, 'Patient'));
+    const canViewForm = ['read', 'write', 'create'].some(verb => ability.can(verb, 'Patient'));
 
     if (canViewForm === false) {
       return <ForbiddenMessage data-testid="forbiddenmessage-sklx" />;
