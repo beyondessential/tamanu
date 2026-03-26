@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -108,13 +108,6 @@ const groupByScope = results => {
  *   onSelectResult  – called with the result object when the user clicks a row
  */
 export const SettingsSearchResults = ({ searchResults, onSelectResult }) => {
-  const handleClick = useCallback(
-    result => {
-      onSelectResult(result);
-    },
-    [onSelectResult],
-  );
-
   if (searchResults.length === 0) {
     return (
       <ResultsContainer data-testid="settings-search-results-empty">
@@ -143,7 +136,7 @@ export const SettingsSearchResults = ({ searchResults, onSelectResult }) => {
           {results.map(result => (
             <ResultRow
               key={`${result.scope}:${result.path}`}
-              onClick={() => handleClick(result)}
+              onClick={() => onSelectResult(result)}
               data-testid={`settings-search-result-${result.scope}-${result.path}`}
             >
               <SettingName data-testid="settings-search-result-name">{result.name}</SettingName>
