@@ -38,6 +38,7 @@ docs {
   - `patientId` (FHIR id only; bodies use `Patient/{{patientId}}`)
   - `observationId` (`Observation/{{observationId}}` in Create DiagnosticReport)
   - `serviceRequestId` (`ServiceRequest/{{serviceRequestId}}` in Transaction Bundle example)
+  - `labTestCode` and `labTestExternalCode` (codes for a lab test line on the same lab request as `serviceRequestId`; required for Transaction Bundle Observation)
   
   
 }
