@@ -7,6 +7,7 @@ ARTILLERY=/app/node_modules/.bin/artillery
 SCENARIOS=/app/packages/synthetic-tests/src/merged-scenarios.yml
 POLL_INTERVAL="${POLL_INTERVAL:-10}"
 CYCLE_DELAY="${CYCLE_DELAY:-60}"
+MAX_WAIT="${MAX_WAIT:-300}"
 
 IFS=',' read -ra TARGET_LIST <<< "$TARGETS"
 
@@ -14,9 +15,15 @@ trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]
 
 wait_for_target() {
   local target="$1"
+  local elapsed=0
   echo "Waiting for ${target}/api to be ready..."
   until curl -sf "${target}/api" > /dev/null 2>&1; do
+    if (( elapsed >= MAX_WAIT )); then
+      echo "ERROR: ${target} not ready after ${MAX_WAIT}s" >&2
+      exit 1
+    fi
     sleep "$POLL_INTERVAL"
+    (( elapsed += POLL_INTERVAL ))
   done
   echo "${target} is ready"
 }
