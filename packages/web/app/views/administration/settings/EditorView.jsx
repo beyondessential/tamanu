@@ -163,7 +163,7 @@ export const EditorView = memo(
       const parts = jumpToPath.split('.');
 
       // Top-level category is always parts[0], unless it is uncategorised (i.e. a direct leaf)
-      const topKey = parts[0];
+      const [topKey, subKey] = parts;
       const schemaTopLevel = jumpSchema.properties[topKey];
 
       let resolvedCategory;
@@ -182,7 +182,6 @@ export const EditorView = memo(
         // A sub-category selector is shown when there are multiple non-leaf nodes directly under
         // the top category. Check whether parts[1] is one of those sub-category keys.
         if (parts.length > 2) {
-          const subKey = parts[1];
           const availableSubCategories = getSubCategoryOptions(jumpSchema, topKey);
           if (availableSubCategories?.some(opt => opt.value === subKey)) {
             resolvedSubCategory = subKey;
