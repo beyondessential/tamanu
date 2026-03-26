@@ -25,7 +25,7 @@ const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFE
 
 const HIDDEN_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 // Fields that are always read-only (create and edit)
-const READ_ONLY_COLUMNS = ['id', 'code', 'type'];
+const READ_ONLY_COLUMNS = ['id', 'type'];
 
 // Explicit overrides for FK columns where the association alias doesn't match the suggester endpoint
 const FK_ENDPOINT_OVERRIDES = {
