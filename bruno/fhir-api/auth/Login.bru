@@ -24,6 +24,6 @@ body:json {
 
 script:post-response {
   if (res.body.token) {
-    bru.setEnvVar("token", res.body.token);
+    bru.setVar("token", res.body.token);
   }
 }
