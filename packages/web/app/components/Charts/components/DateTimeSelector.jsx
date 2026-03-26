@@ -4,7 +4,7 @@ import { debounce } from 'lodash';
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
-  useDateTimeIfAvailable,
+  useDateTime,
   SelectInput as SelectInputComponent,
   DateInput as DateInputComponent,
 } from '@tamanu/ui-components';
@@ -52,8 +52,8 @@ export const DateTimeSelector = props => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
 
-  const dateTime = useDateTimeIfAvailable();
-  const getNow = useCallback(() => dateTime?.getFacilityNowDate() ?? new Date(), [dateTime]);
+  const { getCurrentDateTime } = useDateTime();
+  const getNow = useCallback(() => parseISO(getCurrentDateTime().replace(' ', 'T')), [getCurrentDateTime]);
 
   const [value, setValue] = useState(OPTIONS[0].value);
 
