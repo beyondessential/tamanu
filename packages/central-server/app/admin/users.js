@@ -1,11 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import {
   DEVICE_REGISTRATION_PERMISSION,
+  DEVICE_SCOPES_SUBJECT_TO_QUOTA,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SYSTEM_USER_UUID,
@@ -196,6 +197,10 @@ const CREATE_VALIDATION = yup
     designations: yup.array().of(yup.string()).nullable().optional(),
     password: yup.string().required(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
+    deviceRegistrationPermission: yup
+      .string()
+      .optional()
+      .oneOf(Object.values(DEVICE_REGISTRATION_PERMISSION)),
   })
   .test('password-is-not-hashed', 'Password must not be hashed', function (value) {
     return !isBcryptHash(value.password);
@@ -711,7 +716,12 @@ usersRouter.get(
     req.checkPermission('read', user);
 
     const devices = await Device.findAll({
-      where: { registeredById: id },
+      where: {
+        registeredById: id,
+        [Op.or]: DEVICE_SCOPES_SUBJECT_TO_QUOTA.map(scope =>
+          Sequelize.literal(`scopes ? '${scope}'`),
+        ),
+      },
       order: [['lastSeenAt', 'DESC']],
     });
 

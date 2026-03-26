@@ -80,7 +80,7 @@ const DeleteButton = styled(IconButton)`
 export const UserDevicesSection = ({ user, canUpdateUser }) => {
   const queryClient = useQueryClient();
   const { data: devicesData, isLoading } = useUserDevicesQuery(user?.id);
-  const { mutate: deleteDevice, isPending: isDeleting } = useDeleteUserDeviceMutation(user?.id);
+  const { mutate: deleteDevice, isLoading: isDeleting } = useDeleteUserDeviceMutation(user?.id);
   const [deviceToDelete, setDeviceToDelete] = useState(null);
 
   const devices = devicesData?.data || [];
