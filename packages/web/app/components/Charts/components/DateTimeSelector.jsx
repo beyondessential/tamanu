@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useDateTimeIfAvailable, SelectInput as SelectInputComponent, DateInput as DateInputComponent } from '@tamanu/ui-components';
+import {
+  useDateTimeIfAvailable,
+  SelectInput as SelectInputComponent,
+  DateInput as DateInputComponent,
+} from '@tamanu/ui-components';
 
 import { Y_AXIS_WIDTH } from '../constants';
 
@@ -44,15 +48,12 @@ const OPTIONS = [
   },
 ];
 
-export const DateTimeSelector = (props) => {
+export const DateTimeSelector = props => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
 
   const dateTime = useDateTimeIfAvailable();
-  const getNow = useCallback(
-    () => dateTime?.getFacilityNowDate() ?? new Date(),
-    [dateTime],
-  );
+  const getNow = useCallback(() => dateTime?.getFacilityNowDate() ?? new Date(), [dateTime]);
 
   const [value, setValue] = useState(OPTIONS[0].value);
 
@@ -67,7 +68,7 @@ export const DateTimeSelector = (props) => {
 
   useEffect(() => {
     const { getDefaultStartDate, getDefaultEndDate } = OPTIONS.find(
-      (option) => option.value === value,
+      option => option.value === value,
     );
     const newStartDate = getDefaultStartDate ? getDefaultStartDate(getNow) : getNow();
     const newEndDate = getDefaultEndDate ? getDefaultEndDate(getNow) : getNow();
@@ -81,7 +82,7 @@ export const DateTimeSelector = (props) => {
         options={OPTIONS}
         value={value}
         isClearable={false}
-        onChange={(v) => {
+        onChange={v => {
           setValue(v.target.value);
         }}
         size="small"
@@ -93,7 +94,7 @@ export const DateTimeSelector = (props) => {
           // set format so we can safely use parseISO
           format={DATE_FORMAT}
           value={startDateString}
-          onChange={debounce((newValue) => {
+          onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
             if (dateString) {
               const selectedDayDate = parseISO(dateString);
