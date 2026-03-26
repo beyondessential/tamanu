@@ -6,6 +6,7 @@ set -euo pipefail
 ARTILLERY=/app/node_modules/.bin/artillery
 SCENARIOS=/app/packages/synthetic-tests/src/merged-scenarios.yml
 POLL_INTERVAL="${POLL_INTERVAL:-10}"
+CYCLE_DELAY="${CYCLE_DELAY:-60}"
 
 IFS=',' read -ra TARGET_LIST <<< "$TARGETS"
 
@@ -33,5 +34,6 @@ while true; do
     echo "=== Running artillery against ${target} ==="
     "$ARTILLERY" run "$SCENARIOS" --target="$target" || echo "Artillery run against ${target} exited with code $?"
   done
-  echo "=== Cycle complete, restarting ==="
+  echo "=== Cycle complete, sleeping ${CYCLE_DELAY}s ==="
+  sleep "$CYCLE_DELAY"
 done
