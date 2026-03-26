@@ -1,0 +1,15 @@
+meta {
+  name: Search Patients (Legacy)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/Patient
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

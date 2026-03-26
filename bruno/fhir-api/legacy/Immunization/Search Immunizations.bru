@@ -1,0 +1,15 @@
+meta {
+  name: Search Immunizations (Legacy)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/Immunization
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,42 @@
+meta {
+  name: Create ImagingStudy
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/integration/fhir/mat/ImagingStudy
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/fhir+json
+}
+
+body:json {
+  {
+    "resourceType": "ImagingStudy",
+    "status": "available",
+    "subject": {
+      "reference": "Patient/<patient-id>"
+    },
+    "started": "2024-01-01T12:00:00Z",
+    "numberOfSeries": 1,
+    "numberOfInstances": 1,
+    "series": [
+      {
+        "uid": "1.2.3.4.5.6.7.8.9",
+        "modality": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "CR"
+        },
+        "numberOfInstances": 1
+      }
+    ]
+  }
+}

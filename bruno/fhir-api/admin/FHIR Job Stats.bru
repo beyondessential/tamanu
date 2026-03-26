@@ -1,0 +1,15 @@
+meta {
+  name: FHIR Job Stats
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/admin/fhir/jobStats
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

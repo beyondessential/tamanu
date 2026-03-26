@@ -1,0 +1,19 @@
+meta {
+  name: Read DiagnosticReport (Legacy)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/DiagnosticReport/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,45 @@
+meta {
+  name: Create Observation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/integration/fhir/mat/Observation
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/fhir+json
+}
+
+body:json {
+  {
+    "resourceType": "Observation",
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "8867-4",
+          "display": "Heart rate"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/<patient-id>"
+    },
+    "effectiveDateTime": "2024-01-01T12:00:00Z",
+    "valueQuantity": {
+      "value": 72,
+      "unit": "beats/minute",
+      "system": "http://unitsofmeasure.org",
+      "code": "/min"
+    }
+  }
+}
