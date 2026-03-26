@@ -4,7 +4,6 @@ import { Box, Tabs } from '@material-ui/core';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import { Colors } from '../constants';
-import grabCursor from '../assets/images/grab_cursor.svg?url';
 
 const TabBar = styled.div`
   display: flex;
@@ -20,7 +19,10 @@ const TabContainer = styled(Tabs)`
     background-color: ${Colors.primary};
   }
   * {
-    cursor: url("${grabCursor}"), auto !important;
+    cursor: grab;
+  }
+  *:active {
+    cursor: grabbing;
   }
 `;
 
@@ -68,7 +70,7 @@ const StyledTab = styled(Box)`
 `;
 
 const Icon = styled.i`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
   margin-right: 5px;
 `;
 
@@ -85,9 +87,9 @@ export const TabDisplayDraggable = ({
     ...t,
     order: index,
   }));
-  const currentTabData = tabs.find((t) => t.key === currentTab);
+  const currentTabData = tabs.find(t => t.key === currentTab);
 
-  const onDragEnd = (result) => {
+  const onDragEnd = result => {
     handleDragEnd(result);
   };
 
@@ -99,7 +101,7 @@ export const TabDisplayDraggable = ({
           direction="horizontal"
           data-testid="droppable-3q8i"
         >
-          {(provided) => (
+          {provided => (
             <TabContainer
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : 'fixed'}
