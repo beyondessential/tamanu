@@ -1,0 +1,44 @@
+docs {
+  # Tamanu FHIR Bruno Collection
+  
+  This folder contains Bruno requests for manually exercising Tamanu's FHIR API
+  
+  ## 1. Update local URL + credentials
+  
+  Edit the environment variables in:
+  
+  `bruno/fhir-api/environments/local.bru`
+  
+  Update:
+  
+  - `baseUrl` (e.g. `http://localhost:3000`)
+  - `email`
+  - `password`
+  
+  ## 2. Login first
+  
+  Run:
+  
+  `auth > Login`
+  
+  This will `POST {{baseUrl}}/api/login` and store the returned JWT token for the rest of the collection.
+  
+  ## 3. Use the requests
+  
+  
+  - GET: `{{baseUrl}}/api/integration/fhir/mat/<ResourceType>...`
+  - POST: `{{baseUrl}}/api/integration/fhir/mat/<ResourceType>` (for supported resources)
+  
+  For any request that has a `:id` path param, fill the `id` parameter before sending (e.g. the `Read Patient` request).
+  
+  ## 4. Common placeholders
+  
+  The example JSON bodies (Observation/DiagnosticReport/ImagingStudy/Bundle) include placeholders like:
+  
+  - `Patient/<patient-id>`
+  - `Observation/<observation-id>`
+  
+  Replace those placeholders with real IDs/values if you want POSTs to be more meaningful in your environment.
+  
+  
+}
