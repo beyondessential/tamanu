@@ -8,6 +8,7 @@ import {
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
   getFacilityNowDate,
+  storedDateTimeToEpochMilliseconds,
   type DateInput,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
@@ -36,6 +37,8 @@ export interface DateTimeContextValue extends WrappedFormatters {
   toStoredDateTime: (inputValue: string | null | undefined) => string | null;
   /** Convert stored primaryTimeZone value to facilityTimeZone for display */
   toFacilityDateTime: (value: string | Date | null | undefined) => string | null;
+  /** Parse stored datetime (primary timezone) to epoch ms; use for duration calculations */
+  storedDateTimeToEpochMilliseconds: (storedValue: string | null | undefined) => number | null;
 }
 
 interface DateTimeProviderProps {
@@ -44,7 +47,8 @@ interface DateTimeProviderProps {
   facilityTimeZone?: string | null;
 }
 
-const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
+/** Exported so consumers can inject a datetime value (e.g. when rendering in an isolated root for export). */
+export const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
 
 export const useDateTime = (): DateTimeContextValue => {
   const context = useContext(DateTimeProviderContext);
@@ -85,6 +89,8 @@ const DateTimeProviderInner = ({
       getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
       toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
       toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),
+      storedDateTimeToEpochMilliseconds: storedValue =>
+        storedDateTimeToEpochMilliseconds(storedValue, primaryTimeZone),
     }),
     [primaryTimeZone, facilityTimeZone, bindTimeZones],
   );
