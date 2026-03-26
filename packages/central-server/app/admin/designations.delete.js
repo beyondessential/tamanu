@@ -24,7 +24,7 @@ class InvalidDesignationDeletionError extends DatabaseConstraintError {
 }
 
 /** @privateRemarks Remember to run this within a transaction. */
-export const assertDesignationIsDeletable = async ({
+export const getDeletableDesignationOrThrow = async ({
   ReferenceData,
   TaskDesignation,
   UserDesignation,
@@ -72,7 +72,7 @@ export const deleteDesignationById = asyncHandler(async (req, res) => {
   } = req;
 
   await sequelize.transaction(async () => {
-    const designation = await assertDesignationIsDeletable({
+    const designation = await getDeletableDesignationOrThrow({
       ReferenceData,
       TaskDesignation,
       UserDesignation,

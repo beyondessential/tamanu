@@ -6,7 +6,7 @@ import { REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
-import { assertDesignationIsDeletable } from './designations.delete';
+import { getDeletableDesignationOrThrow } from './designations.delete';
 
 export const getDesignations = asyncHandler(async (req, res) => {
   req.checkPermission('list', 'ReferenceData');
@@ -58,7 +58,7 @@ export const getDesignationDeletabilityById = asyncHandler(async (req, res) => {
   } = req;
 
   await sequelize.transaction({ readOnly: true }, async () => {
-    await assertDesignationIsDeletable({
+    await getDeletableDesignationOrThrow({
       ReferenceData,
       TaskDesignation,
       UserDesignation,
