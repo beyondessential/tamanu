@@ -25,31 +25,23 @@ body:json {
     "entry": [
       {
         "resource": {
-          "resourceType": "Observation",
+          "resourceType": "DiagnosticReport",
+          "basedOn": [
+            {
+              "type": "ServiceRequest",
+              "reference": "ServiceRequest/<service-request-id>"
+            }
+          ],
           "status": "final",
           "code": {
             "coding": [
-              {
-                "system": "http://loinc.org",
-                "code": "8867-4",
-                "display": "Heart rate"
-              }
+              { "system": "http://loinc.org", "code": "42191-7", "display": "Hepatitis Panel" }
             ]
-          },
-          "subject": {
-            "reference": "Patient/<patient-id>"
-          },
-          "effectiveDateTime": "2024-01-01T12:00:00Z",
-          "valueQuantity": {
-            "value": 72,
-            "unit": "beats/minute",
-            "system": "http://unitsofmeasure.org",
-            "code": "/min"
           }
         },
         "request": {
           "method": "POST",
-          "url": "Observation"
+          "url": "/api/integration/fhir/mat/DiagnosticReport"
         }
       }
     ]
