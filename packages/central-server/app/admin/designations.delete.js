@@ -23,7 +23,6 @@ class InvalidDesignationDeletionError extends DatabaseConstraintError {
   }
 }
 
-/** @privateRemarks Remember to run this within a transaction. */
 export const getDeletableDesignationOrThrow = async (models, designationId) => {
   if (!models.ReferenceData.sequelize?.isInsideTransaction?.()) {
     throw new Error('DEV ERROR: getDeletableDesignationOrThrow must be run in a transaction');
