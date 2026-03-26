@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
   SelectField,
@@ -13,6 +12,7 @@ import {
   FormSubmitButton,
   BaseModal,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { Field, NumberField } from '..';
@@ -20,7 +20,7 @@ import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';
 import { preventInvalidNumber } from '../../utils';
-import { add, isBefore } from 'date-fns';
+import { add } from 'date-fns';
 import { useEncounter } from '../../contexts/Encounter';
 
 const StyledBaseModal = styled(BaseModal)`
@@ -53,31 +53,43 @@ const ExtendBeyondEndDateError = styled(Box)`
   margin: -12px 2px 0;
 `;
 
-const validationSchema = yup.object().shape({
-  pauseDuration: yup
-    .number()
-    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
-    .positive(<TranslatedText stringId="validation.positive" fallback="*Must be positive" />),
-  pauseTimeUnit: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ),
-  extendBeyondEndDate: yup.mixed().test('extendBeyondEndDate', (_, context) => {
-    const { medication, pauseDuration, pauseTimeUnit } = context.parent;
-    const endDate = medication.endDate;
+const getValidationSchema = storedDateTimeToEpochMilliseconds =>
+  yup.object().shape({
+    pauseDuration: yup
+      .number()
+      .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
+      .positive(<TranslatedText stringId="validation.positive" fallback="*Must be positive" />),
+    pauseTimeUnit: foreignKey(
+      <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+    ),
+    extendBeyondEndDate: yup.mixed().test('extendBeyondEndDate', (_, context) => {
+      const { medication, pauseDuration, pauseTimeUnit } = context.parent;
+      const endDate = medication.endDate;
 
-    if (!pauseDuration || !pauseTimeUnit || !endDate) return true;
-    return isBefore(add(new Date(), { [pauseTimeUnit]: pauseDuration }), new Date(endDate));
-  }),
-});
+      if (!pauseDuration || !pauseTimeUnit || !endDate) return true;
+
+      const proposedPauseEndMs = add(new Date(), { [pauseTimeUnit]: pauseDuration }).getTime();
+      const medicationEndMs = storedDateTimeToEpochMilliseconds(endDate);
+      // Fail-open: if endDate can't be parsed, allow the pause to avoid blocking medication management
+      if (medicationEndMs == null) return true;
+      return proposedPauseEndMs < medicationEndMs;
+    }),
+  });
 
 export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
+  const { getCurrentDateTime, storedDateTimeToEpochMilliseconds } = useDateTime();
   const { encounter } = useEncounter();
   const api = useApi();
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(storedDateTimeToEpochMilliseconds),
+    [storedDateTimeToEpochMilliseconds],
+  );
 
   const onSubmit = async data => {
     await api.post(`medication/${medication.id}/pause`, {
       ...data,
-      pauseStartDate: getCurrentDateTimeString(),
+      pauseStartDate: getCurrentDateTime(),
     });
     onPause();
     onClose();

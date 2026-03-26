@@ -102,6 +102,11 @@ sources:
           - name: available_facilities
             data_type: jsonb
             description: "{{ doc('lab_test_types__available_facilities') }}"
+          - name: supports_secondary_results
+            data_type: boolean
+            description: "{{ doc('lab_test_types__supports_secondary_results') }}"
+            data_tests:
+              - not_null
           - name: is_sensitive
             data_type: boolean
             description: "{{ doc('lab_test_types__is_sensitive') }}"

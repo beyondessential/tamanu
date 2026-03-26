@@ -115,6 +115,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       const { FhirMedicationRequest, PharmacyOrder, PharmacyOrderPrescription, Prescription } =
         ctx.store.models;
 
+      const prescriptionStartDate = new Date('2026-01-01T00:00:00.000Z').toISOString();
+      const prescriptionNote = 'Take with food';
       const prescription = await Prescription.create(
         fake(Prescription, {
           medicationId: resources.drug1.id,
@@ -125,8 +127,13 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           route: DRUG_ROUTES.oral,
           prescriberId: resources.practitioner.id,
           isVariableDose: false,
+          startDate: prescriptionStartDate,
+          durationValue: 165,
+          durationUnit: 'days',
+          notes: prescriptionNote,
         }),
       );
+      await prescription.reload();
       const pharmacyOrder = await PharmacyOrder.create(
         fake(PharmacyOrder, {
           encounterId: resources.encounter.id,
@@ -250,14 +257,24 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         dispenseRequest: {
           quantity: pharmacyOrderPrescription.quantity,
           numberOfRepeatsAllowed: pharmacyOrderPrescription.repeats,
+          validityPeriod: {
+            start: formatFhirDate(prescription.startDate),
+            end: formatFhirDate(prescription.endDate),
+          },
         },
         authoredOn: pharmacyOrder.createdAt.toISOString(),
         note: [
           {
             text: pharmacyOrder.comments,
           },
+          {
+            text: prescriptionNote,
+          },
         ],
       });
+      expect(response.body.note).toHaveLength(2);
+      expect(response.body.note[0].text).toBe(pharmacyOrder.comments);
+      expect(response.body.note[1].text).toBe(prescriptionNote);
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });

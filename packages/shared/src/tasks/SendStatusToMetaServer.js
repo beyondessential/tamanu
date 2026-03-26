@@ -10,6 +10,7 @@ import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
 import { getMetaServerHosts } from '../utils';
+import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
@@ -98,7 +99,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
-        timezone: config.countryTimeZone,
+        timezone: getPrimaryTimeZone(config),
         pgVersion: pgVersionResult[0].version,
       }),
     });

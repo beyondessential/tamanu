@@ -6,8 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { addMilliseconds, subMilliseconds } from 'date-fns';
 
 import {
   BodyText,
@@ -15,6 +14,8 @@ import {
   TranslatedText,
   useSelectableColumn,
   DataFetchingTable,
+  DateDisplay,
+  TimeDisplay,
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
@@ -23,6 +24,9 @@ import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
+import { useDateTime } from '@tamanu/ui-components';
+
+const OVERDUE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -233,8 +237,12 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     />
     <div>{completedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(completedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-5r41">{formatTime(completedTime)}</LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={completedTime} format="shortest" />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-5r41">
+        <TimeDisplay date={completedTime} />
+      </LowercaseText>
     </div>
     <div>{completedNote}</div>
   </StatusTooltip>
@@ -249,8 +257,12 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     />
     <div>{notCompletedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-w9wo">{formatTime(notCompletedTime)}</LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={notCompletedTime} format="shortest" />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-w9wo">
+        <TimeDisplay date={notCompletedTime} />
+      </LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
@@ -286,10 +298,10 @@ const getDueTime = ({ dueTime }) => {
   return (
     <div>
       <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
-        {formatTime(dueTime)}
+        <TimeDisplay date={dueTime} />
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
-        {formatShortest(dueTime)}
+        <DateDisplay date={dueTime} format="shortest" />
       </SmallBodyText>
     </div>
   );
@@ -318,59 +330,57 @@ const AssignedToCell = ({ designations }) => {
   );
 };
 
-const getFrequency = (task, isEncounterDischarged) => {
+const getEndDate = task => {
   const { frequencyValue, frequencyUnit, durationValue, durationUnit, parentTask } = task;
-  const isRepeatingTask = frequencyValue && frequencyUnit;
+  const firstTask = parentTask || task;
+  try {
+    const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+    let endDate = new Date(firstTask.dueTime);
 
-  const getDurationTooltip = () => {
-    // If no duration is set, task is ongoing
-    if (!durationValue || !durationUnit) {
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
-    }
-
-    // Calculate end date based on due time, frequency and duration
-    try {
-      const firstTask = parentTask || task;
-      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
-      let endDate = new Date(firstTask.dueTime);
-
-      switch (durationUnit) {
-        case TASK_DURATION_UNIT.OCCURRENCES:
-          endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
-          break;
-        default: {
-          const duration = ms(`${durationValue} ${durationUnit}`);
-          endDate = addMilliseconds(endDate, duration);
-          let maxDate = new Date(firstTask.dueTime);
-          while (maxDate <= endDate) {
-            maxDate = addMilliseconds(maxDate, frequency);
-          }
-          endDate = subMilliseconds(maxDate, frequency);
-          break;
+    switch (durationUnit) {
+      case TASK_DURATION_UNIT.OCCURRENCES:
+        endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
+        break;
+      default: {
+        const duration = ms(`${durationValue} ${durationUnit}`);
+        endDate = addMilliseconds(endDate, duration);
+        let maxDate = new Date(firstTask.dueTime);
+        while (maxDate <= endDate) {
+          maxDate = addMilliseconds(maxDate, frequency);
         }
+        endDate = subMilliseconds(maxDate, frequency);
+        break;
       }
-
-      return (
-        <TranslatedText
-          stringId="encounter.tasks.table.duration.endDate"
-          fallback={`Ends at :time on :date`}
-          replacements={{
-            time: formatTime(endDate)
-              .toLowerCase()
-              .replaceAll(' ', ''),
-            date: formatShortest(endDate),
-          }}
-        />
-      );
-    } catch (error) {
-      console.error('Error calculating task end date:', error);
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
     }
-  };
+    return endDate;
+  } catch (error) {
+    console.error('Error calculating task end date:', error);
+    return null;
+  }
+};
 
+const DurationTooltip = ({ endDate }) => {
+  const { formatShortest, formatTime } = useDateTime();
+  return (
+    <TranslatedText
+      stringId="encounter.tasks.table.duration.endDate"
+      fallback={`Ends at :time on :date`}
+      replacements={{
+        time: formatTime(endDate),
+        date: formatShortest(endDate),
+      }}
+    />
+  );
+};
+
+const FrequencyCell = ({ task, isEncounterDischarged }) => {
+  const { frequencyValue, frequencyUnit } = task;
+  const isRepeatingTask = frequencyValue && frequencyUnit;
   if (isRepeatingTask) {
     return (
-      <TableTooltip title={isEncounterDischarged ? '' : getDurationTooltip()}>
+      <TableTooltip
+        title={isEncounterDischarged ? '' : <DurationTooltip endDate={getEndDate(task) || '-'} />}
+      >
         <span>{`${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`}</span>
       </TableTooltip>
     );
@@ -378,16 +388,24 @@ const getFrequency = (task, isEncounterDischarged) => {
 
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
-const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+
+const getIsTaskOverdue = (task, storedDateTimeToEpochMilliseconds) => {
+  const dueTimeMs = storedDateTimeToEpochMilliseconds(task?.dueTime);
+  if (dueTimeMs == null) return false;
+  return Date.now() - dueTimeMs >= OVERDUE_THRESHOLD_MS;
+};
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
 
   const { ability } = useAuth();
+  const { storedDateTimeToEpochMilliseconds } = useDateTime();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
-  const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
+  const isTaskOverdue = row
+    ? getIsTaskOverdue(row, storedDateTimeToEpochMilliseconds)
+    : rows.some(task => getIsTaskOverdue(task, storedDateTimeToEpochMilliseconds));
 
   return (
     <StyledActionsRow data-testid="styledactionsrow-663u">
@@ -512,7 +530,8 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+          <DateDisplay date={requestTime} format="shortest" />{' '}
+          <TimeDisplay date={requestTime} />
         </Box>
       </TooltipContainer>
     }
@@ -639,7 +658,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         />
       ),
       maxWidth: 90,
-      accessor: task => getFrequency(task, !!encounter?.endDate),
+      accessor: task => <FrequencyCell task={task} isEncounterDischarged={!!encounter?.endDate} />,
       sortable: false,
     },
     {

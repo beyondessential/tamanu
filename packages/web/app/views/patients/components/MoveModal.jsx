@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
@@ -11,6 +10,7 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
+  useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
 import {
@@ -224,7 +224,12 @@ const EncounterChangeText = ({ newEncounterType }) => {
   );
 };
 
-const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospital }) => {
+const getFormProps = ({
+  encounter,
+  enablePatientMoveActions,
+  isAdmittingToHospital,
+  getCurrentDateTime,
+}) => {
   const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
@@ -264,7 +269,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
       .of(yup.string())
       .nullable();
 
-    initialValues.startDate = getCurrentDateTimeString();
+    initialValues.startDate = getCurrentDateTime();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -322,7 +327,6 @@ const HospitalAdmissionFields = () => {
         <Field
           name="estimatedEndDate"
           component={DateField}
-          saveDateAsString
           label={
             <TranslatedText
               stringId="encounter.estimatedDischargeDate.label"
@@ -364,6 +368,7 @@ const HospitalAdmissionFields = () => {
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
+  const { getCurrentDateTime } = useDateTime();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -389,7 +394,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
     await writeAndViewEncounter(encounter.id, {
-      submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCurrentDateTime(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
@@ -400,6 +405,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     encounter,
     enablePatientMoveActions,
     isAdmittingToHospital,
+    getCurrentDateTime,
   });
 
   return (

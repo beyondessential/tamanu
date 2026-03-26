@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
-import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ArrowRight } from '../../../components/Icons';
@@ -14,6 +13,7 @@ import {
   QuantityCell,
   OrderedByCell,
   ApprovedCell,
+  NetCostCell,
 } from './InvoiceItemCells';
 import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
@@ -111,7 +111,6 @@ export const InvoiceItemRow = ({
   index,
   item,
   formArrayMethods,
-  invoiceIsEditable,
   encounterId,
   priceListId,
   isEditing,
@@ -119,19 +118,10 @@ export const InvoiceItemRow = ({
   onUpdateApproval,
   isFinalised,
   isCancelled,
+  cellWidths,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
-  const isItemEditable = (!isSaved && invoiceIsEditable) || isEditing;
-
-  const invoiceProductsSuggester = useSuggester('invoiceProduct', {
-    formatter: ({ name, id }) => ({
-      label: name,
-      value: id,
-    }),
-    baseQueryParameters: { priceListId },
-  });
-  const practitionerSuggester = useSuggester('practitioner');
 
   const handleChangeOrderedBy = e => {
     formArrayMethods.replace(index, {
@@ -177,37 +167,34 @@ export const InvoiceItemRow = ({
 
   const hidePriceInput =
     (priceListPrice !== null && priceListPrice !== undefined) ||
-    !invoiceIsEditable ||
     fetchedPrice ||
     isFetchingPrice ||
     (!isEditing && isSaved);
 
   return (
     <StyledItemRow>
-      {!isItemEditable && item.insurancePlanItems?.length > 0 && (
+      {!isEditing && item.insurancePlanItems?.length > 0 && (
         <Button onClick={onClick} $isExpanded={isExpanded}>
           <ArrowRight htmlColor={Colors.softText} />
         </Button>
       )}
-      <DateCell index={index} item={item} isItemEditable={isItemEditable} />
+      <DateCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
       <DetailsCell
         index={index}
         item={item}
-        isItemEditable={isItemEditable}
-        invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
-        invoiceIsEditable={invoiceIsEditable}
+        priceListId={priceListId}
         isEditing={isEditing}
         isSaved={isSaved}
       />
-      <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
-      <ApprovedCell item={item} />
+      <QuantityCell index={index} item={item} isEditing={isEditing} cellWidths={cellWidths} />
+      <ApprovedCell item={item} cellWidths={cellWidths} />
       <OrderedByCell
         index={index}
         item={item}
-        isItemEditable={isItemEditable}
-        practitionerSuggester={practitionerSuggester}
+        isEditing={isEditing}
         handleChangeOrderedBy={handleChangeOrderedBy}
+        cellWidths={cellWidths}
       />
       <PriceCell
         index={index}
@@ -217,8 +204,9 @@ export const InvoiceItemRow = ({
         priceListItemPrice={fetchedPrice}
         isEditing={isEditing}
         isSaved={isSaved}
+        cellWidths={cellWidths}
       />
-
+      <NetCostCell item={item} cellWidths={cellWidths} />
       {!isCancelled && !isEditing && (
         <InvoiceItemActionsMenu
           index={index}

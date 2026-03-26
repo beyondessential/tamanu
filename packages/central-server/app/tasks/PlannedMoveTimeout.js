@@ -6,9 +6,9 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
-  getCurrentCountryTimeZoneDateTimeString,
-  toCountryDateTimeString,
-} from '@tamanu/shared/utils/countryDateTime';
+  getCurrentPrimaryTimeZoneDateTimeString,
+  toPrimaryDateTimeString,
+} from '@tamanu/shared/utils/primaryDateTime';
 import { InvalidConfigError } from '.';
 
 export class PlannedMoveTimeout extends ScheduledTask {
@@ -38,7 +38,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
     const query = {
       where: {
         plannedLocationStartTime: {
-          [Op.lt]: toCountryDateTimeString(subHours(new Date(), this.config.timeoutHours)),
+          [Op.lt]: toPrimaryDateTimeString(subHours(new Date(), this.config.timeoutHours)),
         },
       },
       include: [
@@ -79,7 +79,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
       for (const encounter of encounters) {
         await encounter.addSystemNote(
           `Automatically cancelled planned move to ${encounter.plannedLocation.name} after ${this.config.timeoutHours} hours`,
-          getCurrentCountryTimeZoneDateTimeString(),
+          getCurrentPrimaryTimeZoneDateTimeString(),
         );
         await encounter.update({
           plannedLocationId: null,

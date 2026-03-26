@@ -20,6 +20,7 @@ export * from './PatientContact';
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
+export * from './PatientInvoiceInsurancePlan';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';
@@ -156,3 +157,4 @@ export * from './UserLeave';
 export * from './LocationAssignmentTemplate';
 export * from './LocationAssignment';
 export * from './DHIS2PushLog';
+export * from './MSupplyPushLog';

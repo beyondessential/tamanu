@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { Table } from '../Table';
 import { Colors } from '../../constants';
@@ -249,26 +250,14 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
   </TableTitleContainer>
 );
 
-const getFormattedTime = time => {
-  return formatTime(time).replace(' ', '');
-};
-
 const getDate = ({ startTime, endTime }) => {
-  const startDate = toDateString(startTime);
-  const endDate = toDateString(endTime);
-  let dateTimeString;
-  const isOvernight = startDate !== endDate;
+  const startDate = trimToDate(startTime);
+  const endDate = trimToDate(endTime);
+  const isOvernight = startDate && endDate && startDate !== endDate;
 
-  if (!isOvernight) {
-    dateTimeString = `${formatShortest(startTime)} ${getFormattedTime(
-      startTime,
-    )} - ${getFormattedTime(endTime)}`;
-  } else {
-    dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
-  }
   return (
     <DateText data-testid="datetext-jp36">
-      <div>{dateTimeString}</div>
+      <DateTimeRangeDisplay start={startTime} end={endTime} dateFormat="shortest" />
       {isOvernight && <OvernightIcon data-testid="overnighticon-qh8z" />}
     </DateText>
   );
@@ -300,19 +289,18 @@ export const LocationBookingsTable = ({ patient }) => {
   const hasPastBookings = useHasPastLocationBookingsQuery(patient?.id);
 
   // Query for future bookings
-  const {
-    data: upcomingBookings = [],
-    isLoading: isLoadingUpcomingBookings,
-  } = useUpcomingLocationBookingsQuery(
-    patient?.id,
-    { orderBy, order },
-    { keepPreviousData: true, refetchOnMount: true },
-  );
+  const { data: upcomingBookings = [], isLoading: isLoadingUpcomingBookings } =
+    useUpcomingLocationBookingsQuery(
+      patient?.id,
+      { orderBy, order },
+      { keepPreviousData: true, refetchOnMount: true },
+    );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const navigate = useNavigate();
+  const { toFacilityDateTime } = useDateTime();
 
   const actions = [
     {
@@ -329,7 +317,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/locations?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

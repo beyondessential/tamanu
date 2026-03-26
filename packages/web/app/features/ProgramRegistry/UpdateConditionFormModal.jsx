@@ -21,6 +21,7 @@ import { ConditionHistoryTable } from './ConditionHistoryTable';
 import Divider from '@material-ui/core/Divider';
 import { useSettings } from '../../contexts/Settings';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledFormTable = styled(FormTable)`
   margin-top: 1rem;
@@ -137,7 +138,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                 />
               ),
               width: 140,
-              accessor: ({ date }) => <DateDisplay date={date} />,
+              accessor: ({ date }) => <DateDisplay date={trimToDate(date)} />,
             },
             {
               title: (

@@ -2,27 +2,28 @@ import React from 'react';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  TranslatedText,
-} from '../components';
+import { AutocompleteField, DateTimeField, Field, TranslatedText } from '../components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     markTaskCompleted(
       {
         ...values,
@@ -69,9 +70,8 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
                 />
               }
               required
-              saveDateAsString
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
+              max={getCurrentDateTime()}
               data-testid="field-el3t"
             />
             <Field
@@ -125,7 +125,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             />,
           )
           .max(
-            getCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -134,7 +134,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         completedNote: yup.string(),
       })}
       initialValues={{
-        completedTime: getCurrentDateTimeString(),
+        completedTime: getCurrentDateTime(),
         completedByUserId: currentUser?.id,
       }}
       data-testid="form-fiov"

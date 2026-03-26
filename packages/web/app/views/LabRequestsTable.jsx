@@ -17,11 +17,15 @@ import {
 } from '../utils/lab';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
+import { ApprovedColumnTitle } from '../components/ApprovedColumnTitle';
+import { getApprovalStatus } from '../utils/invoice';
+import { useSettings } from '../contexts/Settings';
 
 export const LabRequestsTable = React.memo(
   ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
-
+    const { getSetting } = useSettings();
+    const isInvoicingEnabled = getSetting('features.invoicing.enabled');
     const { facilityId } = useAuth();
 
     const columns = useMemo(() => {
@@ -78,6 +82,16 @@ export const LabRequestsTable = React.memo(
               title: <TranslatedText stringId="lab.priority.label" fallback="Priority" />,
               accessor: getPriority,
             },
+        ...(isInvoicingEnabled
+          ? [
+              {
+                key: 'approved',
+                title: <ApprovedColumnTitle />,
+                accessor: ({ approved }) => getApprovalStatus(approved),
+                sortable: true,
+              },
+            ]
+          : []),
         {
           key: 'status',
           title: <TranslatedText stringId="general.status.label" fallback="Status" />,
@@ -86,7 +100,7 @@ export const LabRequestsTable = React.memo(
           sortable: !isPublishedTable,
         },
       ];
-    }, [isPublishedTable]);
+    }, [isPublishedTable, isInvoicingEnabled]);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -101,7 +115,10 @@ export const LabRequestsTable = React.memo(
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
     };
 
-    const { status, ...searchFilters } = searchParameters;
+    const fetchOptions = useMemo(() => {
+      const { status, ...otherSearchFilters } = searchParameters;
+      return { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
+    }, [searchParameters, facilityId, statuses]);
 
     return (
       <SearchTableWithPermissionCheck
@@ -118,11 +135,7 @@ export const LabRequestsTable = React.memo(
           />
         }
         onRowClick={selectLab}
-        fetchOptions={{
-          ...searchFilters,
-          statuses: status ? [status] : statuses,
-          facilityId,
-        }}
+        fetchOptions={fetchOptions}
         initialSort={{
           order: 'desc',
           orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',

@@ -64,4 +64,9 @@ Used to indicate if the lab test type is sensitive and should be hidden accordin
 
 {% docs lab_test_types__available_facilities %}
 JSON array of facility IDs where this lab test type is available. If null, the test type is available at all facilities.
+
+{% docs lab_test_types__supports_secondary_results %}
+Indicates whether this test type supports recording a secondary result value in addition to the primary result.
+
+When enabled, users can enter both a primary result and an optional secondary result for tests of this type. This is useful for tests that require multiple measurements, interpretations, or additional context beyond the main result value.
 {% enddocs %}

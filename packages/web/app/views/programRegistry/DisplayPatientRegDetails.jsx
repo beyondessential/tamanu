@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { OutlinedButton } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { programsIcon } from '../../constants/images';
@@ -145,7 +146,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             </div>
           </TextColumns>
           <TextColumns style={{ fontWeight: 500 }}>
-            <DateDisplay date={patientProgramRegistration.registrationDate} />
+            <DateDisplay date={trimToDate(patientProgramRegistration.registrationDate)} />
             <div>
               {patientProgramRegistration.registrationClinician
                 ? patientProgramRegistration.registrationClinician.displayName

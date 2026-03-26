@@ -1,6 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { addDays, format } from 'date-fns';
-import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
 
 export const GraphDataProviderFactory = ({
   visualisationConfigQueryFn,
@@ -12,10 +10,7 @@ export const GraphDataProviderFactory = ({
   const [chartKeys, setChartKeys] = useState([]);
   const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
-  const [dateRange, setDateRange] = useState([
-    format(addDays(new Date(), -1), DATE_TIME_FORMAT),
-    format(new Date(), DATE_TIME_FORMAT),
-  ]);
+  const [dateRange, setDateRange] = useState(['', '']);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
   const { data } = visualisationConfigQueryFn(...visualisationConfigQueryArgs);
   const { visualisationConfigs, allGraphedChartKeys } = data;

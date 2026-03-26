@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { kebabCase } from 'lodash';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
@@ -13,7 +14,6 @@ import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -38,14 +38,32 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       'Imaging results for :patientName (:displayId) are <strong>now available</strong>',
       { replacements: { displayId, patientName } },
     );
-  } else if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
+  }
+
+  if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
     const labRequestStatus = metadata.status;
+    const previousStatus = metadata.previousStatus;
+
+    // Amended results notification overrides all other notifications
+    if (previousStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+      return getTranslation(
+        'notification.content.labRequest.resultsAmended',
+        'Lab results for :patientName (:displayId) have been <strong>amended</strong>',
+        { replacements: { displayId, patientName } },
+      );
+    }
+
     switch (labRequestStatus) {
       case LAB_REQUEST_STATUSES.PUBLISHED:
-      case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
         return getTranslation(
           'notification.content.labRequest.published',
           'Lab results for :patientName (:displayId) are <strong>now available</strong>',
+          { replacements: { displayId, patientName } },
+        );
+      case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
+        return getTranslation(
+          'notification.content.labRequest.interimResults',
+          'Interim lab results for :patientName (:displayId) are <strong>now available</strong>',
           { replacements: { displayId, patientName } },
         );
       case LAB_REQUEST_STATUSES.INVALIDATED:
@@ -55,7 +73,9 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
-  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+  }
+
+  if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
@@ -203,7 +223,8 @@ const Card = ({ notification }) => {
           data-testid="bodytext-xa84"
         />
         <CardDatetime data-testid="carddatetime-vyqg">
-          {`${formatTime(createdTime).replace(' ', '')} ${formatShortest(createdTime)}`}
+          <TimeDisplay date={createdTime} noTooltip />{' '}
+          <DateDisplay date={createdTime} format="shortest" />
         </CardDatetime>
       </Box>
     </CardContainer>

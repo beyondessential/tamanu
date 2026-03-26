@@ -44,7 +44,7 @@ const NoteChangeLogInfo = ({ note }) => (
           />{' '}
         </span>
       ) : null}
-      <DateDisplay date={note.date} showTime data-testid="datedisplay-o9yj" />
+      <DateDisplay date={note.date} timeFormat="default" data-testid="datedisplay-o9yj" />
     </>
   </StyledNoteChangeLogInfoWrapper>
 );

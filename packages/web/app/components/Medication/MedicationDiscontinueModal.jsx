@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   TextField,
   Form,
@@ -12,6 +11,7 @@ import {
   FormSubmitButton,
   BaseModal,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
@@ -43,6 +43,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { encounter, loadEncounter } = useEncounter();
@@ -50,7 +51,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const onSubmit = async data => {
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
       ...data,
-      discontinuingDate: getCurrentDateTimeString(),
+      discontinuingDate: getCurrentDateTime(),
     });
     onDiscontinue(updatedMedication);
     if (loadEncounter && encounter) {

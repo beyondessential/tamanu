@@ -82,7 +82,6 @@ const MedicationDispensesSearchBarMainFields = () => {
             data-testid="translatedtext-date"
           />
         }
-        saveDateAsString
         component={DateField}
         data-testid="field-date"
       />

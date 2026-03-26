@@ -133,7 +133,7 @@ const getColumns = (type) => [
     sortable: false,
     accessor: ({ sampleTime }) =>
       sampleTime ? (
-        <DateDisplay showTime date={sampleTime} data-testid="datedisplay-6me3" />
+        <DateDisplay timeFormat="default" date={sampleTime} data-testid="datedisplay-6me3" />
       ) : (
         <TranslatedText
           stringId="lab.requestSummary.table.column.sampleDate.notCollected"
@@ -210,7 +210,7 @@ export const LabRequestSummaryPane = React.memo(
                   data-testid="translatedtext-1wh9"
                 />
               }
-              value={<DateDisplay date={requestedDate} showTime data-testid="datedisplay-uuu4" />}
+              value={<DateDisplay date={requestedDate} timeFormat="default" data-testid="datedisplay-uuu4" />}
               data-testid="infocarditem-1bt0"
             />
             <InfoCardItem
