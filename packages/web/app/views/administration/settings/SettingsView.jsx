@@ -62,14 +62,13 @@ const tabs = [
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
         <TabContainer data-testid="tabcontainer-6tbj">
-          <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
+          <ScopeSelectorFields
+            {...props}
+            {...props.searchProps}
+            data-testid="scopeselectorfields-mdma"
+          />
           {shouldShowEditor && (
-            <EditorView
-              {...props}
-              jumpToPath={props.jumpToPath}
-              onJumpComplete={props.onJumpComplete}
-              data-testid="editorview-g9wr"
-            />
+            <EditorView {...props} {...props.searchProps} data-testid="editorview-g9wr" />
           )}
         </TabContainer>
       );
@@ -87,16 +86,7 @@ const tabs = [
     icon: 'fa fa-code',
     render: props => {
       // Strip out search props — they only apply to the Editor tab
-      const jsonTabProps = omit(props, [
-        'isSearchActive',
-        'searchQuery',
-        'setSearchQuery',
-        'clearSearch',
-        'searchResults',
-        'onSelectSearchResult',
-        'jumpToPath',
-        'onJumpComplete',
-      ]);
+      const jsonTabProps = omit(props, ['searchProps']);
       return (
         <TabContainer data-testid="tabcontainer-z96b">
           <ScopeSelectorFields {...jsonTabProps} data-testid="scopeselectorfields-mtsk" />
@@ -231,12 +221,45 @@ const SettingsForm = ({
       setJumpToPath(result.path);
       clearSearch();
     },
-    [scope, dirty, currentTab, resetForm, setScope, setFacilityId, clearSearch, handleShowWarningModal],
+    [
+      scope,
+      dirty,
+      currentTab,
+      resetForm,
+      setScope,
+      setFacilityId,
+      clearSearch,
+      handleShowWarningModal,
+    ],
   );
 
   const handleJumpComplete = useCallback(() => {
     setJumpToPath(null);
   }, []);
+
+  const searchProps = useMemo(
+    () => ({
+      isSearchActive,
+      searchQuery,
+      setSearchQuery,
+      clearSearch,
+      searchResults,
+      onSelectSearchResult: handleSelectSearchResult,
+      jumpToPath,
+      onJumpComplete: handleJumpComplete,
+    }),
+    [
+      isSearchActive,
+      searchQuery,
+      setSearchQuery,
+      clearSearch,
+      searchResults,
+      handleSelectSearchResult,
+      jumpToPath,
+      handleJumpComplete,
+    ],
+  );
+
   const filteredTabs = useMemo(
     () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
     [canViewJSONEditor],
@@ -289,14 +312,7 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
-        isSearchActive={isSearchActive}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        clearSearch={clearSearch}
-        searchResults={searchResults}
-        onSelectSearchResult={handleSelectSearchResult}
-        jumpToPath={jumpToPath}
-        onJumpComplete={handleJumpComplete}
+        searchProps={searchProps}
         data-testid="styledtabdisplay-teef"
       />
       <WarningModal
