@@ -54,7 +54,7 @@ export const DateTimeSelector = props => {
 
   const { getCurrentDateTime } = useDateTime();
   const getNow = useCallback(
-    () => new Date(getCurrentDateTime().replace(' ', 'T')),
+    () => parseISO(getCurrentDateTime()),
     [getCurrentDateTime],
   );
 
