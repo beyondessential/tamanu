@@ -42,55 +42,39 @@ const StyledButtonRow = styled(ButtonRow)`
   justify-content: flex-start;
 `;
 
-const getAssignedTaskCount = error => {
-  const count = Number.parseInt(error?.extra?.get?.('assigned-task-count'), 10);
-  return Number.isSafeInteger(count) ? count : null;
-};
-
-const getAssignedUserCount = error => {
-  const count = Number.parseInt(error?.extra?.get?.('assigned-user-count'), 10);
+const getDesignationConstraintCount = error => {
+  const count = Number.parseInt(error?.extra?.get?.('count'), 10);
   return Number.isSafeInteger(count) ? count : null;
 };
 
 const getErrorModalTitle = error => {
-  const assignedUserCount = getAssignedUserCount(error);
-  const assignedTaskCount = getAssignedTaskCount(error);
-  const hasUsers = Boolean(assignedUserCount);
-  const hasTasks = Boolean(assignedTaskCount);
+  const table = error?.extra?.get?.('table');
+  const count = getDesignationConstraintCount(error);
 
-  if (hasUsers && !hasTasks) {
-    return assignedUserCount === 1 ? (
+  if (table === 'user_designations' && count) {
+    return count === 1 ? (
       <TranslatedText
-        stringId="admin.designations.delete.error.title.singular"
+        stringId="admin.designations.delete.error.title.user.singular"
         fallback="User assigned to designation"
       />
     ) : (
       <TranslatedText
-        stringId="admin.designations.delete.error.title.plural"
+        stringId="admin.designations.delete.error.title.user.plural"
         fallback="Users assigned to designation"
       />
     );
   }
 
-  if (hasTasks && !hasUsers) {
-    return assignedTaskCount === 1 ? (
+  if (table === 'task_designations' && count) {
+    return count === 1 ? (
       <TranslatedText
-        stringId="admin.designations.delete.error.title.taskSingular"
+        stringId="admin.designations.delete.error.title.task.singular"
         fallback="Task assigned to designation"
       />
     ) : (
       <TranslatedText
-        stringId="admin.designations.delete.error.title.taskPlural"
+        stringId="admin.designations.delete.error.title.task.plural"
         fallback="Tasks assigned to designation"
-      />
-    );
-  }
-
-  if (hasUsers && hasTasks) {
-    return (
-      <TranslatedText
-        stringId="admin.designations.delete.error.title.blocked"
-        fallback="Cannot delete designation"
       />
     );
   }
@@ -98,18 +82,16 @@ const getErrorModalTitle = error => {
   return (
     <TranslatedText
       stringId="admin.designations.delete.error.generic.presentTense"
-      fallback="Cannot delete designation"
+      fallback="Cannot delete designation. Please try again."
     />
   );
 };
 
 const getErrorModalBody = error => {
-  const assignedUserCount = getAssignedUserCount(error);
-  const assignedTaskCount = getAssignedTaskCount(error);
-  const hasUsers = Boolean(assignedUserCount);
-  const hasTasks = Boolean(assignedTaskCount);
+  const table = error?.extra?.get?.('table');
+  const count = getDesignationConstraintCount(error);
 
-  if (hasUsers && !hasTasks) {
+  if (table === 'user_designations' && count) {
     return (
       <Typography variant="body2">
         <TranslatedText
@@ -120,12 +102,12 @@ const getErrorModalBody = error => {
     );
   }
 
-  if (hasTasks && !hasUsers) {
+  if (table === 'task_designations' && count) {
     return (
       <Typography variant="body2">
         <TranslatedText
           stringId="admin.designations.delete.error.tasksAssigned"
-          fallback="You cannot delete this designation as there are currently one or more tasks assigned to it. Please reassign or remove those tasks first."
+          fallback="You cannot delete this designation as there are currently one or more tasks assigned to it. Please update the task assignments in order to delete the designation."
         />
       </Typography>
     );
@@ -134,8 +116,8 @@ const getErrorModalBody = error => {
   return (
     <Typography variant="body2">
       <TranslatedText
-        stringId="admin.designations.delete.error.tasksAndUsersAssigned"
-        fallback="You cannot delete this designation while tasks or users are still assigned to it. Please remove those assignments first."
+        stringId="admin.designations.delete.error.generic.presentTense"
+        fallback="Cannot delete designation. Please try again."
       />
     </Typography>
   );
