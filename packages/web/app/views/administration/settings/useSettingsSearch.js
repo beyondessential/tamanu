@@ -12,42 +12,33 @@ const ALL_SCOPES = [SETTINGS_SCOPES.GLOBAL, SETTINGS_SCOPES.CENTRAL, SETTINGS_SC
 const collectSettings = (schema, scope, path = '', categoryPath = []) => {
   if (!schema?.properties) return [];
 
-  const results = [];
-
-  for (const [key, value] of Object.entries(schema.properties)) {
+  return Object.entries(schema.properties).flatMap(([key, value]) => {
     const newPath = path ? `${path}.${key}` : key;
     const displayName = formatSettingName(value.name, key);
 
     if (isSetting(value)) {
       // Leaf setting
-      results.push({
+      return {
         scope,
         path: newPath,
         name: displayName,
         description: value.description ?? '',
         // categoryPath is [topCategory, subCategory?] within the scope schema
-        categoryPath: [...categoryPath],
-      });
-    } else {
-      // Nested category – recurse
-      results.push(...collectSettings(value, scope, newPath, [...categoryPath, key]));
+        categoryPath,
+      };
     }
-  }
 
-  return results;
+    // Nested category – recurse
+    return collectSettings(value, scope, newPath, [...categoryPath, key]);
+  });
 };
 
 /** Build the full flat list of all settings across all scopes, once. */
-const buildSearchIndex = () => {
-  const entries = [];
-  for (const scope of ALL_SCOPES) {
+const buildSearchIndex = () =>
+  ALL_SCOPES.flatMap(scope => {
     const schema = getScopedSchema(scope);
-    if (schema) {
-      entries.push(...collectSettings(schema, scope));
-    }
-  }
-  return entries;
-};
+    return schema ? collectSettings(schema, scope) : [];
+  });
 
 /**
  * Score a single entry against the array of lower-cased query words.
@@ -107,9 +98,12 @@ export const useSettingsSearch = () => {
   const debounceTimer = useRef(null);
 
   // Cancel any pending debounce timer on unmount
-  useEffect(() => () => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    },
+    [],
+  );
 
   // Build the index once and keep it stable for the lifetime of the hook.
   const searchIndex = useMemo(() => buildSearchIndex(), []);
