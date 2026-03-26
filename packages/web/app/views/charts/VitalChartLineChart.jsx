@@ -19,15 +19,16 @@ export const VitalChartLineChart = props => {
     location.pathname,
   );
 
+  const useProgramRegistry = !isVital && isProgramRegistryRoute;
   const encounterGraphQuery = useGraphDataQuery(encounter?.id, chartKey, dateRange, isVital);
   const programRegistryGraphQuery = useProgramRegistryGraphDataQuery(
     patient?.id,
     chartKey,
-    dateRange,
+    useProgramRegistry ? dateRange : ['', ''],
   );
 
   const { data: chartData, isLoading } =
-    !isVital && isProgramRegistryRoute ? programRegistryGraphQuery : encounterGraphQuery;
+    useProgramRegistry ? programRegistryGraphQuery : encounterGraphQuery;
   const chartProps = getVitalChartProps({
     visualisationConfig,
     dateRange,

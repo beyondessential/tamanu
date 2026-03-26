@@ -25,7 +25,7 @@ export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateR
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     {
-      enabled: Boolean(patientId),
+      enabled: Boolean(patientId) && Boolean(startDate) && Boolean(endDate),
     },
   );
 
