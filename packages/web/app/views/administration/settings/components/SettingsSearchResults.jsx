@@ -91,12 +91,10 @@ const SCOPE_LABELS = {
  * Groups an array of result entries by scope, preserving the within-scope order
  * (which is already sorted by score descending, then name ascending).
  */
-const groupByScope = (results) => {
+const groupByScope = results => {
   const groups = {};
   for (const result of results) {
-    if (!groups[result.scope]) {
-      groups[result.scope] = [];
-    }
+    groups[result.scope] ??= [];
     groups[result.scope].push(result);
   }
   return groups;
@@ -111,7 +109,7 @@ const groupByScope = (results) => {
  */
 export const SettingsSearchResults = ({ searchResults, onSelectResult }) => {
   const handleClick = useCallback(
-    (result) => {
+    result => {
       onSelectResult(result);
     },
     [onSelectResult],
@@ -142,15 +140,13 @@ export const SettingsSearchResults = ({ searchResults, onSelectResult }) => {
               {SCOPE_LABELS[scope] ?? scope}
             </GroupLabel>
           </GroupHeader>
-          {results.map((result) => (
+          {results.map(result => (
             <ResultRow
               key={`${result.scope}:${result.path}`}
               onClick={() => handleClick(result)}
               data-testid={`settings-search-result-${result.scope}-${result.path}`}
             >
-              <SettingName data-testid="settings-search-result-name">
-                {result.name}
-              </SettingName>
+              <SettingName data-testid="settings-search-result-name">{result.name}</SettingName>
               {result.description ? (
                 <SettingDescription
                   title={result.description}
