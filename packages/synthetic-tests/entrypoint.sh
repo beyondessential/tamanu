@@ -9,6 +9,8 @@ POLL_INTERVAL="${POLL_INTERVAL:-10}"
 
 IFS=',' read -ra TARGET_LIST <<< "$TARGETS"
 
+trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]]}"}"; echo "$s"; }
+
 wait_for_target() {
   local target="$1"
   echo "Waiting for ${target}/api to be ready..."
@@ -18,16 +20,16 @@ wait_for_target() {
   echo "${target} is ready"
 }
 
+for i in "${!TARGET_LIST[@]}"; do
+  TARGET_LIST[$i]="$(trim "${TARGET_LIST[$i]}")"
+done
+
 for target in "${TARGET_LIST[@]}"; do
-  target="${target## }"
-  target="${target%% }"
   wait_for_target "$target"
 done
 
 while true; do
   for target in "${TARGET_LIST[@]}"; do
-    target="${target## }"
-    target="${target%% }"
     echo "=== Running artillery against ${target} ==="
     "$ARTILLERY" run "$SCENARIOS" --target="$target" || echo "Artillery run against ${target} exited with code $?"
   done
