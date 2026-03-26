@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 
 import { DateInput as DateInputComponent } from '../../Field';
 import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
@@ -26,30 +27,36 @@ const DateInput = styled(DateInputComponent)`
 const CUSTOM_DATE = 'Custom Date';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
-const options = [
-    {
-      value: 'Last 24 hours',
-      label: 'Last 24 hours',
-      getDefaultStartDate: () => addDays(new Date(), -1),
-    },
-    {
-      value: 'Last 48 hours',
-      label: 'Last 48 hours',
-      getDefaultStartDate: () => addDays(new Date(), -2),
-    },
-    {
-      value: CUSTOM_DATE,
-      label: 'Custom Date',
-      getDefaultStartDate: () => startOfDay(new Date()),
-      getDefaultEndDate: () => addDays(startOfDay(new Date()), 1),
-    },
-  ];
+const OPTIONS = [
+  {
+    value: 'Last 24 hours',
+    label: 'Last 24 hours',
+    getDefaultStartDate: getNow => addDays(getNow(), -1),
+  },
+  {
+    value: 'Last 48 hours',
+    label: 'Last 48 hours',
+    getDefaultStartDate: getNow => addDays(getNow(), -2),
+  },
+  {
+    value: CUSTOM_DATE,
+    label: 'Custom Date',
+    getDefaultStartDate: getNow => startOfDay(getNow()),
+    getDefaultEndDate: getNow => addDays(startOfDay(getNow()), 1),
+  },
+];
 
 export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
-  
-  const [value, setValue] = useState(options[0].value);
+
+  const dateTime = useDateTimeIfAvailable();
+  const getNow = useCallback(
+    () => dateTime?.getFacilityNowDate() ?? new Date(),
+    [dateTime],
+  );
+
+  const [value, setValue] = useState(OPTIONS[0].value);
 
   const formatAndSetDateRange = useCallback(
     (newStartDate, newEndDate) => {
@@ -61,19 +68,19 @@ export const DateTimeSelector = (props) => {
   );
 
   useEffect(() => {
-    const { getDefaultStartDate, getDefaultEndDate } = options.find(
+    const { getDefaultStartDate, getDefaultEndDate } = OPTIONS.find(
       (option) => option.value === value,
     );
-    const newStartDate = getDefaultStartDate ? getDefaultStartDate() : new Date();
-    const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
+    const newStartDate = getDefaultStartDate ? getDefaultStartDate(getNow) : getNow();
+    const newEndDate = getDefaultEndDate ? getDefaultEndDate(getNow) : getNow();
 
     formatAndSetDateRange(newStartDate, newEndDate);
-  }, [value, formatAndSetDateRange]);
+  }, [value, formatAndSetDateRange, getNow]);
 
   return (
     <Wrapper data-testid="wrapper-onhu">
       <SelectInput
-        options={options}
+        options={OPTIONS}
         value={value}
         isClearable={false}
         onChange={(v) => {

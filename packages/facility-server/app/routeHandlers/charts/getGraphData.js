@@ -1,6 +1,9 @@
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { Op } from 'sequelize';
 import { subject } from '@casl/ability';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { toStoredDateTime } from '@tamanu/utils/dateTime';
 
 export const fetchGraphData = (options = {}) =>
   asyncHandler(async (req, res) => {
@@ -37,9 +40,14 @@ export const fetchGraphData = (options = {}) =>
   });
 
 async function getGraphData(req, options = {}) {
-  const { models, query } = req;
+  const { models, query, settings, facilityId } = req;
   const { encounterId, patientId, dateDataElementId, dataElementId } = options;
   const { startDate, endDate } = query;
+
+  const primaryTimeZone = getPrimaryTimeZone(config);
+  const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+  const storedStartDate = toStoredDateTime(startDate, primaryTimeZone, facilityTimeZone) ?? startDate;
+  const storedEndDate = toStoredDateTime(endDate, primaryTimeZone, facilityTimeZone) ?? endDate;
   const { SurveyResponse, SurveyResponseAnswer, Encounter } = models;
 
   const dateAnswersQuery = {
@@ -70,8 +78,8 @@ async function getGraphData(req, options = {}) {
     where: {
       dataElementId: dateDataElementId,
       body: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate,
+        [Op.gte]: storedStartDate,
+        [Op.lte]: storedEndDate,
       },
     },
   };
