@@ -212,7 +212,7 @@ test.describe('Lab Request Tests', () => {
       const noteToAdd = 'This is a test note';
       await labRequestModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
-      const currentDateTime = labRequestModal.getCurrentDateTime();
+      const currentDateTime = await labRequestModal.getCurrentDateTime();
       for (let i = 0; i < distinctCategories.length; i++) {
         await labRequestModal.individualModal.setDateTimeCollected(currentDateTime, i);
         await labRequestModal.individualModal.selectFirstCollectedBy(i);
@@ -384,7 +384,7 @@ test.describe('Lab Request Tests', () => {
       const noteToAdd = 'This is a test note';
       await labRequestModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
-      const currentDateTime = labRequestModal.getCurrentDateTime();
+      const currentDateTime = await labRequestModal.getCurrentDateTime();
       await labRequestModal.setDateTimeCollected(currentDateTime);
       await labRequestModal.selectFirstCollectedBy(0);
       await labRequestModal.selectFirstSpecimenType(0);
