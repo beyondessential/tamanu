@@ -34,15 +34,16 @@ const columns = /** @type {const} */ ([
     sortable: true,
   },
   {
-    key: 'code',
-    title: <TranslatedText stringId="admin.designations.code.column" fallback="Code" />,
-    sortable: true,
-  },
-  {
     key: 'id',
     title: <TranslatedText stringId="admin.designations.id.column" fallback="ID" />,
     sortable: true,
   },
+  {
+    key: 'code',
+    title: <TranslatedText stringId="admin.designations.code.column" fallback="Code" />,
+    sortable: true,
+  },
+
   {
     CellComponent: ActionMenu,
     dontCallRowInput: true,

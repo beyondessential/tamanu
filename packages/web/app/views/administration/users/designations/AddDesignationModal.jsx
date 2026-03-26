@@ -83,11 +83,6 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
     <>
       <Fieldset disabled={isLoading}>
         <RequiredTextField
-          inputProps={{ minLength: 1, maxLength: 255 }}
-          label={<TranslatedText stringId="admin.designations.code.label" fallback="Code" />}
-          name="code"
-        />
-        <RequiredTextField
           inputProps={{ minLength: 1 }}
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
           name="name"
@@ -96,6 +91,11 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
           inputProps={{ minLength: 1, maxLength: 255 }}
           label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
           name="id"
+        />
+        <RequiredTextField
+          inputProps={{ minLength: 1, maxLength: 255 }}
+          label={<TranslatedText stringId="admin.designations.code.label" fallback="Code" />}
+          name="code"
         />
       </Fieldset>
       <Footer>
