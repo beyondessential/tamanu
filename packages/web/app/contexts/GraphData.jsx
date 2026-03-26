@@ -1,7 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { addDays, parseISO } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useDateTime } from '@tamanu/ui-components';
 
 export const GraphDataProviderFactory = ({
   visualisationConfigQueryFn,
