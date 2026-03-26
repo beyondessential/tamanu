@@ -7,6 +7,7 @@ import { TextInput } from '../../../../components/Field/TextField';
 import { ClearIcon } from '../../../../components/Icons/ClearIcon';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../../contexts/Translation';
 
 const Wrapper = styled('search')`
   display: flex;
@@ -41,36 +42,39 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SettingsSearchBar = ({ searchQuery, onSearchChange, onClear }) => (
-  <Wrapper data-testid="settings-search-bar">
-    <StyledTextInput
-      label={
-        <TranslatedText
-          stringId="admin.settings.search.label"
-          fallback="Search settings"
-          data-testid="translatedtext-settings-search-label"
-        />
-      }
-      InputProps={{
-        startAdornment: (
-          <SearchIcon position="start" data-testid="settings-search-icon">
-            <Search />
-          </SearchIcon>
-        ),
-        endAdornment: searchQuery ? (
-          <StyledIconButton
-            onClick={onClear}
-            data-testid="settings-search-clear"
-            aria-label="Clear search"
-          >
-            <StyledClearIcon />
-          </StyledIconButton>
-        ) : null,
-      }}
-      value={searchQuery}
-      onChange={e => onSearchChange(e.target.value)}
-      placeholder=""
-      data-testid="settings-search-input"
-    />
-  </Wrapper>
-);
+export const SettingsSearchBar = ({ searchQuery, onSearchChange, onClear }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <Wrapper data-testid="settings-search-bar">
+      <StyledTextInput
+        label={
+          <TranslatedText
+            stringId="admin.settings.search.label"
+            fallback="Search settings"
+            data-testid="translatedtext-settings-search-label"
+          />
+        }
+        InputProps={{
+          startAdornment: (
+            <SearchIcon position="start" data-testid="settings-search-icon">
+              <Search />
+            </SearchIcon>
+          ),
+          endAdornment: searchQuery ? (
+            <StyledIconButton
+              onClick={onClear}
+              data-testid="settings-search-clear"
+              aria-label={getTranslation('admin.settings.search.clear', 'Clear search')}
+            >
+              <StyledClearIcon />
+            </StyledIconButton>
+          ) : null,
+        }}
+        value={searchQuery}
+        onChange={e => onSearchChange(e.target.value)}
+        placeholder=""
+        data-testid="settings-search-input"
+      />
+    </Wrapper>
+  );
+};
