@@ -1,4 +1,7 @@
 import React, { useState, useMemo } from 'react';
+import { addDays, parseISO } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 export const GraphDataProviderFactory = ({
   visualisationConfigQueryFn,
@@ -10,7 +13,7 @@ export const GraphDataProviderFactory = ({
   const [chartKeys, setChartKeys] = useState([]);
   const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [dateRange, setDateRange] = useState(['', '']);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
   const { data } = visualisationConfigQueryFn(...visualisationConfigQueryArgs);
   const { visualisationConfigs, allGraphedChartKeys } = data;
