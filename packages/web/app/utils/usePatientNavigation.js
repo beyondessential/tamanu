@@ -19,14 +19,14 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToPatient = (patientId, search) => {
+  const navigateToPatient = (patientId, search, options = {}) => {
     const params = getParams(PATIENT_PATHS.CATEGORY);
     const { category = PATIENT_CATEGORIES.ALL } = params;
     const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
       category,
       patientId,
     });
-    navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
+    navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`, options);
   };
 
   const navigateToEncounter = (encounterId, search, replaceInHistory = false) => {
@@ -102,6 +102,11 @@ export const usePatientNavigation = () => {
     });
     navigate(programRegistryRoute);
   };
+
+  const setNavigateBackTab = tab => {
+    window.history.replaceState(null, '', `${location.pathname}?tab=${tab}`);
+  };
+
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -112,5 +117,6 @@ export const usePatientNavigation = () => {
     navigateToMar,
     navigateToProgramRegistry,
     navigateToProgramRegistrySurvey,
+    setNavigateBackTab,
   };
 };

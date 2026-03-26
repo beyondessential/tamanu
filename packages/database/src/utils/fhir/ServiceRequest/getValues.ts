@@ -81,7 +81,7 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: imagingCode(upstream),
+    code: await imagingCode(upstream, models),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -165,16 +165,23 @@ function resolveSpecimen(upstream: LabRequest, models: Models) {
   return FhirReference.to(models.FhirSpecimen, upstream.id);
 }
 
-function imagingCode(upstream: ImagingRequest) {
+async function imagingCode(upstream: ImagingRequest, models: Models) {
+  const { ImagingTypeExternalCode } = models;
   const { imagingTypes } = config.localisation.data;
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
-  const { imagingType } = upstream;
-  const { label } = imagingTypes[imagingType] || {};
-  if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
+  const { imagingType: baseImagingCode } = upstream;
+  const typeExtCode = await ImagingTypeExternalCode.findOne({
+    where: { imagingTypeCode: baseImagingCode },
+  });
+  const code = typeExtCode?.code ?? baseImagingCode;
+  const { label: baseLabel } = imagingTypes[baseImagingCode] || {};
+  const label = typeExtCode?.description ?? baseLabel;
+  if (!label)
+    throw new Exception(`No label matching imaging type ${baseImagingCode} in localisation.`);
 
   return generateCodings(
-    imagingType,
+    code,
     undefined,
     label,
     config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,

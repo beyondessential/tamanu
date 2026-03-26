@@ -15,14 +15,14 @@ const Actions = styled(Box)`
 `;
 
 const RedHeading = styled(Typography)`
-  font-size: 18px;
+  font-size: 16px;
   line-height: 21px;
   font-weight: 500;
   color: ${(props) => props.theme.palette.error.main};
 `;
 
 const Text = styled(Typography)`
-  font-size: 15px;
+  font-size: 14px;
   line-height: 21px;
   font-weight: 400;
   color: ${(props) => props.theme.palette.text.secondary};

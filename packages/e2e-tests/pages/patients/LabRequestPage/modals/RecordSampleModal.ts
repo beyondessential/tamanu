@@ -39,11 +39,13 @@ export class RecordSampleModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
-    
+
     // Special cases that need additional processing
     this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input').locator('input');
     this.collectedByInput = page.getByTestId('styledfield-v88m-input').locator('input');
     this.specimenTypeInput = page.getByTestId('styledfield-0950-input').locator('input');
+    // Scope siteInputDropdownIcon to the record sample form to avoid matching elements in other forms
+    this.siteInputDropdownIcon = page.getByTestId('formgrid-3btd').getByTestId('selectinput-phtg-expandmoreicon-h115');
   }
 
   async waitForModalToLoad() {

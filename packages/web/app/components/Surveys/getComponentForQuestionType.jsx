@@ -10,7 +10,7 @@ import {
   PhotoField as BasePhotoField,
   PatientDataDisplayField,
 } from '@tamanu/ui-components';
-import { WebcamCaptureModal } from '../WebcamCaptureModal';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
   DateField,
   DateTimeField,
@@ -29,9 +29,9 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
@@ -43,14 +43,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
-    <BasePhotoField {...props} WebcamCaptureModalComponent={WebcamCaptureModal} />
+    <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />
   ),
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => (
-    <DateTimeField {...props} saveDateAsString />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),

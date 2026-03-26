@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 
 import { DateField } from '../../DateField/DateField';
@@ -22,6 +22,7 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
     options={INJECTION_SITE_OPTIONS}
     onChange={onChange}
     label={label}
+    labelFontSize="14"
     selectPlaceholderText={selectPlaceholderText}
   />
 );
@@ -46,7 +47,15 @@ export const DateGivenField = ({
   min,
   max,
 }: LabelledFieldProps & DateGivenFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required={required} min={min} max={max} />
+  <Field
+    component={DateField}
+    name="date"
+    label={label}
+    labelFontSize="14"
+    required={required}
+    min={min}
+    max={max}
+  />
 );
 
 export const BatchField = (): JSX.Element => (
@@ -95,14 +104,18 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
-  const departmentSuggester = new Suggester({
-    model: models.Department,
-    options: {
-      where: {
-        facility: facilityId,
-      },
-    },
-  });
+  const departmentSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.Department,
+        options: {
+          where: {
+            facility: facilityId,
+          },
+        },
+      }),
+    [models.Department, facilityId],
+  );
 
   return (
     <Field

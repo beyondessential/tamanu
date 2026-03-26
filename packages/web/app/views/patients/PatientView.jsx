@@ -29,7 +29,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 
 const StyledDisplayTabs = styled(TabDisplay)`
@@ -157,7 +157,8 @@ const TABS = [
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} data-testid="invoicespane-ihh3" />,
-    condition: ability => ability.can('list', 'Invoice'),
+    condition: (ability, getSetting) =>
+      getSetting('features.invoicing.enabled') && ability.can('list', 'Invoice'),
   },
 ];
 
@@ -173,7 +174,8 @@ const usePatientTabs = () => {
   const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
+      patientTabSettings?.[tab.key]?.hidden !== true &&
+      (!tab.condition || tab.condition(ability, getSetting)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
@@ -198,6 +200,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+  const {
+    data: insurancePlans = [],
+    isLoading: isLoadingInsurancePlans,
+  } = usePatientInsurancePlansQuery({ patientId: patient?.id });
 
   useEffect(() => {
     if (patientId && (!patient?.id || patient?.id !== patientId)) {
@@ -234,7 +240,7 @@ export const PatientView = () => {
 
   const visibleTabs = usePatientTabs();
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
+  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans) {
     return <LoadingIndicator data-testid="patient-view-loading" />;
   }
 
@@ -248,6 +254,7 @@ export const PatientView = () => {
         patient={patient}
         additionalData={additionalData}
         birthData={birthData}
+        insurancePlans={insurancePlans}
         disabled={disabled}
         data-testid="styleddisplaytabs-6gds"
       />

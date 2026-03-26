@@ -12,6 +12,7 @@ import {
   TranslatedReferenceData,
 } from '../../components';
 import { TextField, Form, Button, TextButton } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
@@ -313,7 +314,7 @@ export const RelatedConditionsForm = ({
               if (initialValue) {
                 return (
                   <DateDisplay
-                    date={date}
+                    date={trimToDate(date)}
                     style={{
                       textDecoration:
                         isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
@@ -324,7 +325,6 @@ export const RelatedConditionsForm = ({
               return (
                 <Field
                   name={`conditions[${groupName}][${index}].date`}
-                  saveDateAsString
                   required
                   component={DateField}
                   aria-labelledby="date-added-label"

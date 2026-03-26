@@ -6,6 +6,7 @@ export function fromImagingRequests(models: Models, table: string, id: string) {
     ImagingRequest,
     ImagingRequestArea,
     ImagingAreaExternalCode,
+    ImagingTypeExternalCode,
     Encounter,
     Facility,
     Location,
@@ -119,6 +120,17 @@ export function fromImagingRequests(models: Models, table: string, id: string) {
                 ],
               },
             ],
+          },
+        ],
+      };
+    case ImagingTypeExternalCode.tableName:
+      return {
+        include: [
+          {
+            model: ImagingTypeExternalCode,
+            as: 'imagingTypeExternalCode',
+            required: true,
+            where: { id },
           },
         ],
       };

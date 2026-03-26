@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { REPORT_DB_SCHEMAS, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -20,9 +20,9 @@ export class ReportDefinition extends Model {
         dbSchema: {
           type: DataTypes.STRING,
           allowNull: false,
-          defaultValue: REPORT_DB_SCHEMAS.REPORTING,
+          defaultValue: REPORT_DB_CONNECTIONS.REPORTING,
           validate: {
-            isIn: [Object.values(REPORT_DB_SCHEMAS)],
+            isIn: [Object.values(REPORT_DB_CONNECTIONS)],
           },
         },
       },

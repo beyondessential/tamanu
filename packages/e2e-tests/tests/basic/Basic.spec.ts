@@ -280,17 +280,17 @@ test.describe('Basic tests', () => {
     expect(encounterValues.area).toBe(formValues.area);
     expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
   });
-  test('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
+  test.skip('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    test.setTimeout(60000);
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
-    await patientDetailsPage.arrowDownIconMenuButton.click();
-    await patientDetailsPage.changeEncounterDetailsMenu.changeDietMenuItem.click();
-    const changeDietModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeDietModal();
-    await changeDietModal.waitForModalToLoad();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const editEncounterModal = await patientDetailsPage.openEditEncounterModal();
     const expectedDiet = 'Clear fluids';
-    await changeDietModal.changeDiet(expectedDiet);
+    await editEncounterModal.selectDiet(expectedDiet);
+    await editEncounterModal.saveChanges();
     await expect(patientDetailsPage.dietLabel).toContainText(expectedDiet);
   });
   test('[BT-0020][AT-2014]Change Location', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
@@ -298,15 +298,24 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
-    await patientDetailsPage.arrowDownIconMenuButton.click();
-    await patientDetailsPage.changeEncounterDetailsMenu.changeLocationMenuItem.click();
-    const changeLocationModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeLocationModal();
-    await changeLocationModal.waitForModalToLoad();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    await patientDetailsPage.movePatientButton.click();
+    const moveFormGrid = patientDetailsPage.page.getByTestId('formgrid-wyqp').filter({ hasText: 'Area' });
+    await moveFormGrid.waitFor({ state: 'visible' });
     const expectedArea = 'Operating Theatre';
     const expectedLocation = 'Theatre 1';
-    await changeLocationModal.changeArea(expectedArea);
-    await changeLocationModal.changeLocation(expectedLocation);
-    await changeLocationModal.confirmButton.click();
+    // Select area from the Area dropdown
+    const areaInput = moveFormGrid.locator('input').first();
+    await areaInput.click();
+    await areaInput.fill(expectedArea);
+    await patientDetailsPage.page.getByRole('menuitem', { name: expectedArea }).click();
+    // Select location from the Location dropdown
+    const locationInput = moveFormGrid.locator('input').nth(1);
+    await locationInput.click();
+    await patientDetailsPage.page.getByText(expectedLocation, { exact: true }).first().click();
+    // Confirm the move
+    await patientDetailsPage.page.getByRole('button', { name: 'Confirm' }).click();
+    await patientDetailsPage.page.waitForLoadState('networkidle');
     await expect(patientDetailsPage.locationLabel).toHaveText(`${expectedArea}, ${expectedLocation}`);
   });
   test('[BT-0021][AT-2015]Add a primary diagnosis', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {

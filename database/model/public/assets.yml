@@ -51,6 +51,9 @@ sources:
             description: "{{ doc('assets__data') }}"
             data_tests:
               - not_null
+          - name: facility_id
+            data_type: character varying(255)
+            description: "{{ doc('assets__facility_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in assets."

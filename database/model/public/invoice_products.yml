@@ -27,9 +27,9 @@ sources:
             description: "{{ doc('invoice_products__name') }}"
             data_tests:
               - not_null
-          - name: discountable
+          - name: insurable
             data_type: boolean
-            description: "{{ doc('invoice_products__discountable') }}"
+            description: "{{ doc('invoice_products__insurable') }}"
             data_tests:
               - not_null
           - name: created_at

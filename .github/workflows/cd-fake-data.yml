@@ -9,13 +9,10 @@ on:
       options:
         type: string
         required: true
-    secrets:
-      TAILSCALE_OAUTH:
-        required: true
 
 permissions:
   contents: read
-  pull-requests: write
+  id-token: write # for Tailscale OIDC authentication
 
 jobs:
   deploy:
@@ -23,11 +20,12 @@ jobs:
     name: ${{ inputs.deploy-name }}
     if: fromJson(inputs.options).fakedata != 0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-cd
         with:
-          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
-          k8s-core: ${{ fromJson(inputs.options).k8score }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - run: npm ci
       - run: npm run build-shared

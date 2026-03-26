@@ -127,6 +127,12 @@ const SectionTitle = styled.div`
   padding-left: 14px;
 `;
 
+const StyledAutocompleteInput = styled(StyledTextField)`
+  .MuiInputBase-root {
+    background: ${props => (props.disabled ? TAMANU_COLORS.background : TAMANU_COLORS.white)};
+  }
+`;
+
 export class AutocompleteInput extends Component {
   static contextType = TranslationContext;
 
@@ -134,6 +140,8 @@ export class AutocompleteInput extends Component {
     super();
     this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
+    this.inputElementNode = null;
+    this.observer = null;
 
     this.state = {
       suggestions: [],
@@ -154,6 +162,13 @@ export class AutocompleteInput extends Component {
     if (value === '') {
       await this.attemptAutoFill();
     }
+  }
+
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    this.debouncedFetchOptions.cancel();
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
@@ -295,6 +310,50 @@ export class AutocompleteInput extends Component {
     }
   };
 
+  // This is used to get the input element node so we can observe if it is
+  // out of view and also pass it to the parent component if it is provided
+  handleInputRef = node => {
+    const { inputRef } = this.props;
+
+    // Disconnect observer from previous node if ref is changing
+    if (this.observer && this.inputElementNode && this.inputElementNode !== node) {
+      this.observer.unobserve(this.inputElementNode);
+    }
+
+    // Store the input element node
+    this.inputElementNode = node;
+
+    // Ensure we have a node to observe and browser supports IntersectionObserver
+    const supportsIntersectionObserver = 'IntersectionObserver' in window;
+    if (node && supportsIntersectionObserver) {
+      // Ensure observer exists
+      if (!this.observer) {
+        this.observer = new IntersectionObserver(
+          ([entry]) => {
+            const hasSuggestions = this.state.suggestions.length > 0;
+            if (!entry.isIntersecting && hasSuggestions) {
+              this.clearOptions();
+              if (this.inputElementNode) {
+                this.inputElementNode.blur();
+              }
+            }
+          },
+          { threshold: 0 },
+        );
+      }
+
+      // Start observing the new node
+      this.observer.observe(node);
+    }
+
+    // Ensure we respect the inputRef prop if it is provided by the parent component
+    if (typeof inputRef === 'function') {
+      inputRef(node);
+    } else if (inputRef) {
+      inputRef.current = node;
+    }
+  };
+
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
     const { 'data-testid': dataTestId } = this.props;
@@ -381,7 +440,7 @@ export class AutocompleteInput extends Component {
         size={size}
         data-testid={`${dataTestId}-outerlabelfieldwrapper`}
       >
-        <StyledTextField
+        <StyledAutocompleteInput
           variant="outlined"
           size={size}
           InputProps={{
@@ -414,9 +473,9 @@ export class AutocompleteInput extends Component {
                   }}
                 >
                   {suggestions.length > 0 ? (
-                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon`} />
+                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon` } htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
                   ) : (
-                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} />
+                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
                   )}
                 </Icon>
               </>
@@ -463,7 +522,6 @@ export class AutocompleteInput extends Component {
       error,
       helperText,
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
-      inputRef,
       multiSection,
       'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
@@ -498,7 +556,7 @@ export class AutocompleteInput extends Component {
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
             'data-testid': `${dataTestId}-input`,
-            inputRef,
+            inputRef: this.handleInputRef,
           }}
         />
       </>

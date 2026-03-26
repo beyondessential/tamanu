@@ -16,11 +16,13 @@ export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
 };
 
 export const INVOICE_MODAL_TYPES = {
-  EDIT_INVOICE: 'editInvoice',
-  CREATE_INVOICE: 'createInvoice',
   CANCEL_INVOICE: 'cancelInvoice',
   FINALISE_INVOICE: 'finaliseInvoice',
   DELETE_INVOICE: 'deleteInvoice',
+  INSURANCE: 'insurance',
+  PRINT: 'print',
+  EDIT_ITEMS: 'editItems',
+  ADD_ITEMS: 'addItems',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {
@@ -28,4 +30,3 @@ export const INVOICE_DISCOUNT_TYPES = {
   ASSESSMENT: 'assessment',
 };
 
-export const CHEQUE_PAYMENT_METHOD_ID = 'paymentMethod-cheque';

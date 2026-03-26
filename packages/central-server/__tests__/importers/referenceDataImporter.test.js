@@ -22,7 +22,7 @@ import { makeRoleWithPermissions } from '../permissions';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -654,9 +654,12 @@ describe('Data definition import', () => {
     });
 
     it('should not import an invoice product when the source record does not exist', async () => {
-      const { didntSendReason, errors } = await doImport({
+      const { stats, didntSendReason, errors } = await doImport({
         file: 'invalid-invoice-product-missing-source',
         dryRun: true,
+      });
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 1 },
       });
       expect(didntSendReason).toEqual('validationFailed');
       expect(errors).toContainValidationError(

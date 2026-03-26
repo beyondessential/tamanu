@@ -139,7 +139,7 @@ export class Patient extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['markedForSyncFacilities', 'fieldValues', 'portalUser'];
+    return ['markedForSyncFacilities', 'fieldValues', 'portalUser', 'village'];
   }
 
   async getAdministeredVaccines(

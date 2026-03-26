@@ -7,7 +7,7 @@ import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { capitalize } from 'lodash';
 import {
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
   REPORT_VERSION_EXPORT_FORMATS,
 } from '@tamanu/constants';
@@ -38,7 +38,7 @@ reportsRouter.get(
         LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
     ${
       isReportingSchemaEnabled && !canEditSchema
-        ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
+        ? `WHERE rd.db_schema = '${REPORT_DB_CONNECTIONS.REPORTING}'`
         : ''
     }
     GROUP BY rd.id
@@ -107,8 +107,8 @@ reportsRouter.post(
     const { store, body, user, reportSchemaStores } = req;
     const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
     const defaultReportingSchema = isReportingSchemaEnabled
-      ? REPORT_DB_SCHEMAS.REPORTING
-      : REPORT_DB_SCHEMAS.RAW;
+      ? REPORT_DB_CONNECTIONS.REPORTING
+      : REPORT_DB_CONNECTIONS.RAW;
 
     const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
 
@@ -211,7 +211,7 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
+    if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
       throw new InvalidOperationError(
         'You do not have permission to import reports using the raw schema',
       );
@@ -240,7 +240,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema: reportSchemas.enabled ? versionData.dbSchema : REPORT_DB_SCHEMAS.RAW,
+              dbSchema: reportSchemas.enabled ? versionData.dbSchema : REPORT_DB_CONNECTIONS.RAW,
             },
             include: [
               {
@@ -324,7 +324,7 @@ reportsRouter.get(
     req.flagPermissionChecked();
 
     if (!config.db.reportSchemas.enabled) return res.send([]);
-    const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
+    const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_CONNECTIONS).map(value => ({
       label: capitalize(value),
       value,
     }));

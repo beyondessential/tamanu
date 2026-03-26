@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import * as yup from 'yup';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { DateField } from '~/ui/components/DateField/DateField';
@@ -33,18 +33,26 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const { programRegistry, editedObject, selectedPatient } = route.params;
   const { getTranslation } = useTranslation();
   const { models } = useBackend();
-  const practitionerSuggester = new Suggester({
-    model: models.User,
-    options: { column: 'displayName' },
-  });
-  const facilitySuggester = new Suggester({
-    model: models.Facility,
-    options: {
-      where: {
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    },
-  });
+  const practitionerSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.User,
+        options: { column: 'displayName' },
+      }),
+    [models.User],
+  );
+  const facilitySuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.Facility,
+        options: {
+          where: {
+            visibilityStatus: VisibilityStatus.Current,
+          },
+        },
+      }),
+    [models.Facility],
+  );
 
   const [clinicalStatusOptions] = useBackendEffect(
     async ({ models }) => {

@@ -20,6 +20,12 @@ export class SettingsService extends LocalDataService {
     this.emitter.emit('settingsChanged');
   }
 
+  async setSettings(settings: object): Promise<void> {
+    this.data = settings;
+    await this._writeDataToConfig();
+    this.onDataLoaded();
+  }
+
   getSetting<T>(path: string): T {
     const mergedLocalisations = { ...this.data, ...TEST_SETTINGS_OVERRIDES };
     return get(mergedLocalisations, path);

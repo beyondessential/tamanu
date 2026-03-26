@@ -5,13 +5,7 @@ const generators: Record<string, () => string> = {
   '0': () => Math.floor(Math.random() * 10).toFixed(0),
 };
 
-const createIdGenerator = (format: string) => {
-  const generatorPattern = Array.from(format).map(char => generators[char] || (() => ''));
-
-  return () => generatorPattern.map(generator => generator()).join('');
-};
 const DISPLAY_ID_FORMAT = 'AAAA000000';
-export const generateId = createIdGenerator(DISPLAY_ID_FORMAT);
 
 // Checks if the passed displayId was generated using generateId function above
 // with the specific 10 digit format DISPLAY_ID_FORMAT. It will need to be reevaluated
@@ -19,6 +13,74 @@ export const generateId = createIdGenerator(DISPLAY_ID_FORMAT);
 export const isGeneratedDisplayId = (displayId: string) => {
   if (DISPLAY_ID_FORMAT !== 'AAAA000000') return false;
   return /^[A-Z]{4}\d{6}$/.test(displayId);
+};
+
+// Max pattern length to avoid ReDoS with PATTERN_TOKEN_REGEX on long input
+const MAX_PATTERN_LENGTH = 255;
+
+/*
+ * This regex is used to match each token in the pattern.
+ * It will match groups of characters wrapped in [] or single A or 0.
+ */
+const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
+
+const tokenAsRegex = (token: string) => {
+  if (token.startsWith('[') && token.endsWith(']')) {
+    // Escape special characters in the token to use in a regex
+    return token.slice(1, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  if (token === 'A') {
+    return '[A-Z]';
+  }
+  if (token === '0') {
+    return '[0-9]';
+  }
+  throw new Error(`Invalid token: ${token}`);
+};
+
+
+/**
+ * Generates an ID from a pattern.
+ * A will be replaced with a random letter and 0 will be replaced with a random number.
+ * Wrapping characters in [] will allow static characters to be used.
+ * @param pattern - The pattern to use for generating the ID.
+ * @returns The generated ID.
+ * @example
+ * generateIdFromPattern('AAAA000000') // 'GHIJ675432'
+ * generateIdFromPattern('[B]000000') // 'B675432'
+ * generateIdFromPattern('[B]AA[A]000') // 'BGHA675'
+ */
+export const generateIdFromPattern = (pattern: string) => {
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    throw new Error(`Pattern length exceeds maximum of ${MAX_PATTERN_LENGTH}`);
+  }
+  return pattern.replace(PATTERN_TOKEN_REGEX, token => {
+    if (token.startsWith('[') && token.endsWith(']')) {
+      return token.slice(1, -1);
+    }
+    return generators[token]?.() ?? '';
+  });
+};
+
+export const generateId = () => generateIdFromPattern(DISPLAY_ID_FORMAT);
+
+/**
+ * Validates if a display ID matches a given pattern.
+ * @param displayId - The display ID to validate.
+ * @param pattern - The pattern to use for validating the display ID.
+ * @returns True if the display ID matches the pattern, false otherwise.
+ * @example
+ * isGeneratedIdFromPattern('GHIJ675432', 'AAAA000000') // true
+ * isGeneratedIdFromPattern('BCDEFA123', '[BC]AA[A]000') // true
+ * isGeneratedIdFromPattern('B350031', '[B]AA[A]000') // false
+ */
+export const isGeneratedIdFromPattern = (displayId: string, pattern: string) => {
+  if (pattern.length > MAX_PATTERN_LENGTH) return false;
+  const patternTokens = pattern.match(PATTERN_TOKEN_REGEX);
+  if (!patternTokens) return false;
+  const expression = patternTokens.reduce((acc, token) => acc + tokenAsRegex(token), '');
+  const patternRegex = new RegExp(`^${expression}$`);
+  return patternRegex.test(displayId);
 };
 
 /**

@@ -30,11 +30,13 @@ export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
     hideFromMenu: true,
+    color: TAMANU_COLORS.orange,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
     triageFlowOnly: true,
     hideFromMenu: true,
+    color: TAMANU_COLORS.orange,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,

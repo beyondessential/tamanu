@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import { useApi } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Field } from '../../components/Field';
 import {
   FileChooserField,
@@ -17,6 +17,7 @@ import {
 import { ContentPane } from '../../components/ContentPane';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { AutocompleteField } from '../../components';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -37,9 +38,10 @@ export const AssetUploaderView = memo(() => {
   const [result, setResult] = useState(null);
 
   const api = useApi();
+  const facilitySuggester = useSuggester('facility');
 
   const onSubmitUpload = useCallback(
-    async ({ file, name }) => {
+    async ({ file, name, facilityId }) => {
       setResult(null);
 
       try {
@@ -48,6 +50,7 @@ export const AssetUploaderView = memo(() => {
         const response = await api.put(`admin/asset/${name}`, {
           filename,
           data,
+          facilityId,
         });
 
         setResult(response);
@@ -123,6 +126,19 @@ export const AssetUploaderView = memo(() => {
                 name="file"
                 required
                 data-testid="field-g8gn"
+              />
+              <Field
+                name="facilityId"
+                label={
+                  <TranslatedText
+                    stringId="general.facility.label"
+                    fallback="Facility"
+                    data-testid="translatedtext-yaxi"
+                  />
+                }
+                component={AutocompleteField}
+                suggester={facilitySuggester}
+                data-testid="field-fnmm"
               />
               <ButtonRow data-testid="buttonrow-07rz">
                 <LargeSubmitButton

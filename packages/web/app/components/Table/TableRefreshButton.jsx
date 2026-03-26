@@ -65,7 +65,7 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
     <LastUpdatedBadge data-testid="lastupdatedbadge-gj4z">
       <span>
         <span>Last updated: </span>
-        <DateDisplay date={lastUpdatedTime} showTime data-testid="datedisplay-0aiw" />
+        <DateDisplay date={lastUpdatedTime} timeFormat="default" data-testid="datedisplay-0aiw" />
       </span>
       <ThemedTooltip title="Refresh" data-testid="themedtooltip-8v14">
         <RefreshButton data-testid="refreshbutton-77qa">

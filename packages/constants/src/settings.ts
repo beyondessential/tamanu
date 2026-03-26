@@ -5,7 +5,7 @@ export const SETTING_KEYS = {
   FEATURES_REMINDER_CONTACT_ENABLED: 'features.reminderContactModule.enabled',
   FEATURE_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
-  INSURER_DEFAUlT_CONTRIBUTION: 'insurer.defaultContribution',
+  INSURER_DEFAULT_CONTRIBUTION: 'insurer.defaultContribution',
   CUSTOMISATIONS_COMPONENTS: 'customisations.componentVersions',
   SYNC_ALL_LAB_REQUESTS: 'sync.syncAllLabRequests',
   SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
-import { addDays, format, parseISO, startOfDay } from 'date-fns';
+import { addDays, parseISO, startOfDay } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { DateInput as DateInputComponent } from '../../Field';
 import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
@@ -23,37 +24,37 @@ const DateInput = styled(DateInputComponent)`
 `;
 
 const CUSTOM_DATE = 'Custom Date';
-export const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
 const options = [
-  {
-    value: 'Last 24 hours',
-    label: 'Last 24 hours',
-    getDefaultStartDate: () => addDays(new Date(), -1),
-  },
-  {
-    value: 'Last 48 hours',
-    label: 'Last 48 hours',
-    getDefaultStartDate: () => addDays(new Date(), -2),
-  },
-  {
-    value: CUSTOM_DATE,
-    label: 'Custom Date',
-    getDefaultStartDate: () => startOfDay(new Date()),
-    getDefaultEndDate: () => startOfDay(addDays(new Date(), 1)),
-  },
-];
+    {
+      value: 'Last 24 hours',
+      label: 'Last 24 hours',
+      getDefaultStartDate: () => addDays(new Date(), -1),
+    },
+    {
+      value: 'Last 48 hours',
+      label: 'Last 48 hours',
+      getDefaultStartDate: () => addDays(new Date(), -2),
+    },
+    {
+      value: CUSTOM_DATE,
+      label: 'Custom Date',
+      getDefaultStartDate: () => startOfDay(new Date()),
+      getDefaultEndDate: () => addDays(startOfDay(new Date()), 1),
+    },
+  ];
 
 export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
+  
   const [value, setValue] = useState(options[0].value);
 
   const formatAndSetDateRange = useCallback(
     (newStartDate, newEndDate) => {
-      const newStartDateString = format(newStartDate, DATE_TIME_FORMAT);
-      const newEndDateString = format(newEndDate, DATE_TIME_FORMAT);
+      const newStartDateString = toDateTimeString(newStartDate);
+      const newEndDateString = toDateTimeString(newEndDate);
       setDateRange([newStartDateString, newEndDateString]);
     },
     [setDateRange],
@@ -84,7 +85,6 @@ export const DateTimeSelector = (props) => {
       {value === CUSTOM_DATE && (
         <DateInput
           size="small"
-          saveDateAsString
           // set format so we can safely use parseISO
           format={DATE_FORMAT}
           value={startDateString}

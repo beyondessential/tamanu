@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useFormikContext } from 'formik';
 import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalField';
 import { Field } from './Forms/FormField';
@@ -17,22 +17,26 @@ export const HierarchyFieldItem = ({
   const { models } = useBackend();
   const { setFieldValue, dirty } = useFormikContext();
 
-  const suggesterInstance = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: referenceType,
-      },
-      relations: ['parents'],
-    },
-    filter: (item: IReferenceData) => {
-      if (isFirstLevel || !parentId) {
-        return true;
-      }
-      const parent = item.parents[0];
-      return parent?.referenceDataParentId === parentId && parent?.type === relationType;
-    },
-  });
+  const suggesterInstance = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: referenceType,
+          },
+          relations: ['parents'],
+        },
+        filter: (item: IReferenceData) => {
+          if (isFirstLevel || !parentId) {
+            return true;
+          }
+          const parent = item.parents[0];
+          return parent?.referenceDataParentId === parentId && parent?.type === relationType;
+        },
+      }),
+    [models.ReferenceData, referenceType, isFirstLevel, parentId, relationType],
+  );
 
   // Clear the value of the field when the parent field changes
   useEffect(() => {

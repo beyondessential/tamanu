@@ -242,6 +242,13 @@ export const FHIR_IMAGING_STUDY_STATUS = {
   UNKNOWN: 'unknown',
 };
 
+export const FHIR_OBSERVATION_STATUS = {
+  REGISTERED: 'registered',
+  PRELIMINARY: 'preliminary',
+  FINAL: 'final',
+  AMENDED: 'amended',
+};
+
 export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   IMP: 'inpatient encounter',
   AMB: 'ambulatory encounter',

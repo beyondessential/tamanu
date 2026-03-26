@@ -30,6 +30,7 @@ export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';
 export * from './SurveyQuestionAutocompleteField';
+export * from './QRCodeSearchField';
 
 // form helpers
 export * from './FormGroup';

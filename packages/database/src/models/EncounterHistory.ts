@@ -11,7 +11,7 @@ import type { Encounter } from './Encounter';
 export class EncounterHistory extends Model {
   declare id: string;
   declare encounterType: string;
-  declare changeType?: string;
+  declare changeType?: string[];
   declare date: string;
   declare encounterId?: string;
   declare examinerId?: string;
@@ -28,7 +28,7 @@ export class EncounterHistory extends Model {
           allowNull: false,
         },
         changeType: {
-          type: DataTypes.STRING,
+          type: DataTypes.ARRAY(DataTypes.STRING),
         },
         date: dateTimeType('date', {
           allowNull: false,
@@ -76,7 +76,7 @@ export class EncounterHistory extends Model {
       actorId,
       changeType,
       submittedTime,
-    }: { actorId: string; changeType?: string; submittedTime?: string },
+    }: { actorId: string; changeType?: string[]; submittedTime?: string },
     options = {},
   ) {
     return EncounterHistory.create(

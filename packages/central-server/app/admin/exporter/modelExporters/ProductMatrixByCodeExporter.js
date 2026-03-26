@@ -15,7 +15,14 @@ export class ProductMatrixByCodeExporter extends ModelExporter {
   }
 
   async getData() {
-    const { parentModel, itemModel, parentIdField, valueField } = this._config;
+    const {
+      parentModel,
+      itemModel,
+      parentIdField,
+      valueField,
+      valueExtractor,
+      itemModelAttributes = [],
+    } = this._config;
 
     // Fetch all parents (to determine columns/codes)
     const parents = await this.models[parentModel].findAll({
@@ -45,7 +52,7 @@ export class ProductMatrixByCodeExporter extends ModelExporter {
 
     // Fetch all item rows for the matrix
     const items = await this.models[itemModel].findAll({
-      attributes: [parentIdField, 'invoiceProductId', valueField],
+      attributes: [parentIdField, 'invoiceProductId', valueField, ...itemModelAttributes],
     });
 
     // Prepare base rows by product
@@ -57,7 +64,7 @@ export class ProductMatrixByCodeExporter extends ModelExporter {
     // Populate matrix values
     for (const item of items) {
       const parentId = item[parentIdField];
-      const value = item[valueField];
+      const value = valueExtractor ? valueExtractor(item) : item[valueField];
       const productId = item.invoiceProductId;
       const code = codeByParentId.get(parentId);
       if (!code) continue; // safety: skip items for missing/hidden parents

@@ -13,6 +13,7 @@ const {
   SERVER,
   AVAILABLE_FACILITIES,
   FACILITY_ID,
+  PRIMARY_TIME_ZONE,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -33,6 +34,7 @@ function restoreFromLocalStorage() {
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
+  const primaryTimeZone = localStorage.getItem(PRIMARY_TIME_ZONE);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -43,6 +45,7 @@ function restoreFromLocalStorage() {
     server,
     availableFacilities,
     facilityId,
+    primaryTimeZone,
     permissions,
     role,
     settings,
@@ -54,6 +57,7 @@ function saveToLocalStorage({
   server,
   availableFacilities,
   facilityId,
+  primaryTimeZone,
   permissions,
   role,
   settings,
@@ -73,6 +77,9 @@ function saveToLocalStorage({
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   }
+  if (primaryTimeZone) {
+    localStorage.setItem(PRIMARY_TIME_ZONE, primaryTimeZone);
+  }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
   }
@@ -87,6 +94,7 @@ function clearLocalStorage() {
   localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(FACILITY_ID);
+  localStorage.removeItem(PRIMARY_TIME_ZONE);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -131,18 +139,17 @@ export class TamanuApi extends ApiClient {
     });
   }
 
-  setToken(token, refreshToken) {
+  setToken(token) {
     if (token) {
       localStorage.setItem(TOKEN, token);
     } else {
       localStorage.removeItem(TOKEN);
     }
-    return super.setToken(token, refreshToken);
+    return super.setToken(token);
   }
 
   // Overwrite base method to integrate with the facility-server refresh endpoint which just
-  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
-  // set up in facility-server
+  // checks for an apiToken and returns a new one.
   async refreshToken(config = {}) {
     const response = await this.post(
       'refresh',
@@ -151,8 +158,8 @@ export class TamanuApi extends ApiClient {
       },
       config,
     );
-    const { token, refreshToken: newRefreshToken } = response;
-    this.setToken(token, newRefreshToken);
+    const { token } = response;
+    this.setToken(token);
   }
 
   async restoreSession() {
@@ -162,6 +169,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
+      primaryTimeZone,
       permissions,
       role,
       settings,
@@ -181,6 +189,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
+      primaryTimeZone,
       ability,
       role,
       settings,
@@ -189,11 +198,20 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role, settings } = output;
+    const {
+      localisation,
+      server,
+      availableFacilities,
+      primaryTimeZone,
+      permissions,
+      role,
+      settings,
+    } = output;
     saveToLocalStorage({
       localisation,
       server,
       availableFacilities,
+      primaryTimeZone,
       permissions,
       role,
       settings,
@@ -202,7 +220,12 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { settings } = await this.post('setFacility', { facilityId });
+    // The setFacility endpoint returns an updated token with facilityId embedded in the JWT claims.
+    // This new token is stored and used for subsequent authenticated requests to facility-scoped endpoints.
+    const { settings, token } = await this.post('setFacility', { facilityId });
+
+    this.setToken(token);
+
     saveToLocalStorage({
       facilityId,
       settings,

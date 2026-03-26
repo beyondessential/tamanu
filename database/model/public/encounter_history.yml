@@ -109,13 +109,9 @@ sources:
                     to: source('tamanu', 'users')
                     field: id
           - name: change_type
-            data_type: character varying(255)
+            data_type: array
             description: "{{ doc('encounter_history__change_type') }}"
             data_tests:
-              - accepted_values:
-                  arguments:
-                    values:
-                      - encounter_type
-                      - location
-                      - department
-                      - examiner
+              - not_null:
+                  config:
+                    where: change_type IS NOT NULL

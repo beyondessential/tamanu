@@ -109,7 +109,7 @@ export const ConditionHistoryTable = ({ historyData = [], programRegistryId = ''
             )}
             <SmallText>
               <span>{entry.clinician.displayName}</span>
-              <DateDisplay date={entry.date} showTime />
+              <DateDisplay date={entry.date} timeFormat="default" />
             </SmallText>
           </HistoryItem>
         ))}

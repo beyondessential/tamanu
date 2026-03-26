@@ -18,7 +18,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ createdAt }) => (
-      <DateDisplay date={createdAt} showTime data-testid="datedisplay-0e5f" />
+      <DateDisplay date={createdAt} timeFormat="default" data-testid="datedisplay-0e5f" />
     ),
   },
   {

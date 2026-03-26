@@ -20,14 +20,6 @@ One of:
 - `icao.vacc`
 {% enddocs %}
 
-{% docs certificate_notifications__require_signing %}
-If the certificates requires cryptographic signing.
-
-See [`certifiable_vaccines`](#!/source/source.tamanu.tamanu.certifiable_vaccines).
-
-Only applicable to `icao.test` and `icao.vacc` types.
-{% enddocs %}
-
 {% docs certificate_notifications__patient_id %}
 Reference to a [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}

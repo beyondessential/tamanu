@@ -22,6 +22,7 @@ export const DeathFormScreen = ({
   values,
   setValues,
   submitForm,
+  setParentState,
   onStepForward,
   onStepBack,
   isLast,
@@ -92,7 +93,10 @@ export const DeathFormScreen = ({
           <Button
             color="primary"
             variant="contained"
-            onClick={onStepForward}
+            onClick={() => {
+              onStepForward();
+              setParentState(values.timeOfDeath);
+            }}
             data-testid="button-ok5z"
           >
             {isLast ? 'Submit' : 'Continue'}

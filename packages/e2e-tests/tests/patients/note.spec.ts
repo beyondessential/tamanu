@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
-import { format } from 'date-fns';
+import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 test.describe('Notes Tests', () => {
   let user: { displayName: string; [key: string]: any };
@@ -170,8 +170,8 @@ test.describe('Notes Tests', () => {
       await expect(changeLogModal!.changelogTextContents.nth(1)).toContainText(originalContent);
       
       // Format dates for validation
-      const firstNoteFormattedDateTime = format(new Date(firstDateTime!), 'MM/dd/yyyy h:mm a');
-      const secondNoteFormattedDateTime = format(new Date(secondDateTime!), 'MM/dd/yyyy h:mm a');
+      const firstNoteFormattedDateTime = formatDateTimeForDisplay(new Date(firstDateTime!));
+      const secondNoteFormattedDateTime = formatDateTimeForDisplay(new Date(secondDateTime!));
       
       // Validate date and user information
       await expect(changeLogModal!.dateLabel).toHaveText(firstNoteFormattedDateTime);
@@ -219,7 +219,7 @@ test.describe('Notes Tests', () => {
       await expect(changeLogTreatmentPlanModal!.lastUpdatedByValue).toHaveText(lastUpdatedBy);
       
       // Validate last updated at information
-      const formattedLastUpdatedAt = format(new Date(secondDateTime!), 'MM/dd/yyyy h:mm a');
+      const formattedLastUpdatedAt = formatDateTimeForDisplay(new Date(secondDateTime!));
       await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(formattedLastUpdatedAt);
   
       // Validate content entries
@@ -227,8 +227,8 @@ test.describe('Notes Tests', () => {
       await expect(changeLogTreatmentPlanModal!.changelogTextContents.nth(1)).toContainText(originalContent);
       
       // Format dates for validation
-      const firstNoteFormattedDateTime = format(new Date(firstDateTime!), 'MM/dd/yyyy h:mm a');
-      const secondNoteFormattedDateTime = format(new Date(secondDateTime!), 'MM/dd/yyyy h:mm a');
+      const firstNoteFormattedDateTime = formatDateTimeForDisplay(new Date(firstDateTime!));
+      const secondNoteFormattedDateTime = formatDateTimeForDisplay(new Date(secondDateTime!));
       
       // Validate change log user and date information
       await expect(changeLogTreatmentPlanModal!.changeLogInfoWrappers.first()).toContainText(lastUpdatedBy);

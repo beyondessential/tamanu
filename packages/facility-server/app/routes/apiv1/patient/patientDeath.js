@@ -87,6 +87,19 @@ patientDeath.get(
       });
     }
 
+    const extra = deathData?.extraData ?? {};
+    const [fsmStateOfDeath, fsmAtollOfDeath, fsmVillageOfDeath] = await Promise.all(
+      [extra.fsmStateOfDeathId, extra.fsmAtollOfDeathId, extra.fsmVillageOfDeathId].map(
+        id => (id ? ReferenceData.findByPk(id) : null),
+      ),
+    );
+    const extraData = {
+      ...extra,
+      ...(fsmStateOfDeath && { fsmStateOfDeath }),
+      ...(fsmAtollOfDeath && { fsmAtollOfDeath }),
+      ...(fsmVillageOfDeath && { fsmVillageOfDeath }),
+    };
+
     res.send({
       patientId: patient.id,
       patientDeathDataId: deathData?.id,
@@ -157,7 +170,6 @@ patientDeath.get(
             birthWeight: deathData?.birthWeight,
             carrier: {
               age: deathData?.carrierAge,
-              existingConditionId: deathData?.carrierExistingConditionId,
               weeksPregnant: deathData?.carrierPregnancyWeeks,
             },
             hoursSurvivedSinceBirth: deathData?.hoursSurvivedSinceBirth,
@@ -165,6 +177,13 @@ patientDeath.get(
             withinDayOfBirth: deathData?.withinDayOfBirth,
           }
         : false,
+
+      autopsyRequested: deathData?.autopsyRequested,
+      mannerOfDeathDescription: deathData?.mannerOfDeathDescription,
+      externalCauseLocation: deathData?.externalCauseLocation,
+      externalCauseDate: deathData?.externalCauseDate,
+      externalCauseNotes: deathData?.externalCauseNotes,
+      extraData,
     });
   }),
 );
@@ -210,7 +229,6 @@ patientDeath.post(
         antecedentCause3TimeAfterOnset: body.antecedentCause3Interval,
         birthWeight: body.birthWeight,
         carrierAge: body.ageOfMother,
-        carrierExistingConditionId: body.motherExistingCondition,
         carrierPregnancyWeeks: body.numberOfCompletedPregnancyWeeks,
         clinicianId: doc.id,
         externalCauseDate: body.mannerOfDeathDate,
@@ -230,9 +248,16 @@ patientDeath.post(
         recentSurgery: body.surgeryInLast4Weeks,
         stillborn: body.stillborn,
         wasPregnant: body.pregnant,
+        autopsyRequested: body.autopsyRequested,
+        autopsyFindingsUsed: body.autopsyFindingsUsed,
+        mannerOfDeathDescription: body.mannerOfDeathDescription,
+        pregnancyMoment: body.pregnancyMoment,
+        multiplePregnancy: body.multiplePregnancy,
+        motherConditionDescription: body.motherConditionDescription,
         withinDayOfBirth: body.deathWithin24HoursOfBirth
           ? body.deathWithin24HoursOfBirth === 'yes'
           : null,
+        extraData: body.extraData ?? null,
         deletedAt: null,
       });
 

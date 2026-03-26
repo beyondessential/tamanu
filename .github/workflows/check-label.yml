@@ -8,6 +8,8 @@ on:
       - labeled
       - unlabeled
 
+permissions: {}
+
 jobs:
   merge-paused:
     name: Merge paused

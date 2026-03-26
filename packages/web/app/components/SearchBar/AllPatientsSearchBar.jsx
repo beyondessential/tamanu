@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import Box from '@material-ui/core/Box';
+import { useDateTime } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
@@ -9,6 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
+  QRCodeSearchField,
   TranslatedSelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
@@ -34,6 +35,7 @@ const VillageLocalisedField = styled(LocalisedField)`
 `;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
+  const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
@@ -74,8 +76,8 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
                 />
               }
               component={TranslatedSelectField}
-              transformOptions={(options) =>
-                hideOtherSex ? options.filter((o) => o.value !== SEX_VALUES.OTHER) : options
+              transformOptions={options =>
+                hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
               }
               enumValues={SEX_LABELS}
               size="small"
@@ -112,7 +114,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       data-testid="customisablesearchbarwithpermissioncheck-al75"
     >
       <LocalisedField
-        component={SearchField}
+        component={QRCodeSearchField}
         name="displayId"
         label={
           <TranslatedText
@@ -150,7 +152,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       <Field
         name="dateOfBirthExact"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
             stringId="general.dateOfBirth.label.short"
@@ -158,7 +159,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             data-testid="translatedtext-99pk"
           />
         }
-        max={getCurrentDateString()}
+        max={getCurrentDate()}
         data-testid="field-qk60"
       />
     </CustomisableSearchBarWithPermissionCheck>

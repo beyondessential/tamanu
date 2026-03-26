@@ -1,4 +1,5 @@
 export * from './FhirDiagnosticReport';
+export * from './FhirObservation';
 export * from './FhirEncounter';
 export * from './FhirImagingStudy';
 export * from './FhirImmunization';

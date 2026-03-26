@@ -8,6 +8,7 @@ export class InvoicePriceListItem extends Model {
   declare invoicePriceListId: string;
   declare invoiceProductId: string;
   declare price: number | null;
+  declare isHidden: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -24,6 +25,11 @@ export class InvoicePriceListItem extends Model {
         price: {
           type: DataTypes.DECIMAL,
           allowNull: true,
+        },
+        isHidden: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
         },
       },
       {
