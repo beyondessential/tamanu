@@ -17,7 +17,21 @@ const collectSettings = (schema, scope, path = '', categoryPath = []) => {
     const displayName = formatSettingName(value.name, key);
 
     if (isSetting(value)) {
-      // Leaf setting
+      // Leaf setting.
+      // NOTE: name and description come directly from the settings schema as authored
+      // English strings — they are not run through the translation system. The search
+      // index therefore only covers the untranslated text. If settings schema strings
+      // are ever translated, this index will need to incorporate those translations.
+      //
+      // Because all schema strings are developer-written ASCII English, a few related
+      // simplifications are also safe for now:
+      //   - toLowerCase() rather than toLocaleLowerCase(): the locale-specific
+      //     differences (e.g. Turkish dotless-i) do not arise in ASCII text.
+      //   - No Unicode normalisation (NFC/NFD/NFKC): JS string literals are already
+      //     NFC and the text never transits external sources that might vary.
+      //   - Space-based word splitting (split(/\s+/)) rather than Intl.Segmenter:
+      //     CJK and other scripts that omit word-spaces are not present in the data.
+      // All three assumptions would need revisiting if the strings become translatable.
       return {
         scope,
         path: newPath,
