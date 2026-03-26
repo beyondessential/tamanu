@@ -71,7 +71,7 @@ const scoreEntry = (entry, queryWords) => {
     if (inName) {
       wordScore += 2; // name is more important than description or key
       // Bonus for matching at a word boundary in the name
-      if (nameLower.startsWith(word) || nameLower.includes(` ${word}`)) {
+      if (new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(nameLower)) {
         wordScore += 2;
       }
     }
