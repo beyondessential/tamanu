@@ -1,7 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
-import { format } from 'date-fns';
 import { fillMuiDateTimeField, getTableItems, normalizeToIsoDateTimeMinute } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
@@ -127,7 +126,7 @@ export class LabRequestModalBase {
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
-    this.departmentInput = page.getByTestId('field-wobc-input');
+    this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
@@ -153,7 +152,7 @@ export class LabRequestModalBase {
   }
 
   async validateRequestedDateTimeIsToday() {
-    const todayString = this.getCurrentDateTime();
+    const todayString = await this.getCurrentDateTime();
     const actual = normalizeToIsoDateTimeMinute(await this.requestDateTimeInput.inputValue());
     expect(actual).toBe(todayString);
     return todayString;
@@ -178,8 +177,12 @@ export class LabRequestModalBase {
     return currentUser;
   }
 
-  getCurrentDateTime(): string {
-    return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  async getCurrentDateTime(): Promise<string> {
+    return this.page.evaluate(() => {
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    });
   }
 
   /**

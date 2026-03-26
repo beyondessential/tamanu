@@ -192,49 +192,52 @@ export abstract class BasePatientListPage extends BasePage {
   }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {
-    const rowCount = await this.tableRows.count();
-    const Values: string[] = [];
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const Values: string[] = [];
 
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) Values.push(cellText);
-    }
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) Values.push(cellText);
+      }
 
-    const sortedValues = [...Values].sort((a, b) => {
-      return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-    });
+      const sortedValues = [...Values].sort((a, b) => {
+        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
+      });
 
-    expect(Values).toEqual(sortedValues);
+      expect(Values).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
 
   async validateDateSortOrder(isAscending: boolean) {
-    const rowCount = await this.tableRows.count();
-    const dateValues: string[] = [];
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const dateValues: string[] = [];
 
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) dateValues.push(cellText);
-    }
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) dateValues.push(cellText);
+      }
 
-    const sortedValues = [...dateValues].sort((a, b) => {
-      // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const [monthA, dayA, yearA] = a.split('/');
-      const [monthB, dayB, yearB] = b.split('/');
-      const dateA = new Date(
-        `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
-      ).getTime();
-      const dateB = new Date(
-        `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`,
-      ).getTime();
-      return isAscending ? dateA - dateB : dateB - dateA;
-    });
-    expect(dateValues).toEqual(sortedValues);
+      const sortedValues = [...dateValues].sort((a, b) => {
+        const [monthA, dayA, yearA] = a.split('/');
+        const [monthB, dayB, yearB] = b.split('/');
+        const dateA = new Date(
+          `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
+        ).getTime();
+        const dateB = new Date(
+          `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`,
+        ).getTime();
+        return isAscending ? dateA - dateB : dateB - dateA;
+      });
+      expect(dateValues).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
 
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {

@@ -192,17 +192,19 @@ export function formatDateTimeForDisplay(date: Date): string {
 }
 
 /**
- * Convert an ISO-like datetime string (e.g. `2025-12-01T06:11`) into the **concatenated** table display form
- * used in some grids: **time** (`h:mm` + lowercase `am`/`pm`, no space) immediately followed by **date** `MM/dd/yy`
+ * Convert a datetime string into the **concatenated** table display form used in some grids:
+ * **time** (`h:mm` + lowercase `am`/`pm`, no space) immediately followed by **date** `MM/dd/yy`
  * (e.g. `6:11am12/01/25`).
  *
- * **Parsing** — Uses `new Date(dateTimeString)`; invalid strings produce `Invalid Date` output from `date-fns`
- * (callers should pass values known to parse in the test environment).
+ * Accepts ISO-like (`2025-12-01T06:11`) and MUI display (`dd/MM/yyyy hh:mm a`) formats.
  *
  * @param dateTimeString — Typically from a form field or API fixture.
  */
 export function formatDateTimeForTable(dateTimeString: string): string {
-  const dateFromForm = new Date(dateTimeString);
+  const dateFromForm = parseTamanuDate(dateTimeString);
+  if (!dateFromForm) {
+    throw new Error(`Could not parse date for table formatting: ${dateTimeString}`);
+  }
   const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
   const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
   return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
@@ -264,11 +266,36 @@ export async function assertRecentDateTime(
   thresholdMinutes: number = 2,
 ): Promise<void> {
   const raw = await inputLocator.inputValue();
-  const parsedInputDate = parseTamanuDate(raw);
-  if (!parsedInputDate) {
-    throw new Error(`Could not parse datetime input value: ${raw}`);
+  if (!raw?.trim()) {
+    throw new Error('Datetime input value is empty');
   }
-  const now = new Date();
-  const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
+  // Parse and compare inside the browser so the timezone matches the app
+  const timeDifferenceMinutes = await inputLocator.page().evaluate((rawValue: string) => {
+    const dateTimeMatch = rawValue.match(
+      /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s+(AM|PM)$/i,
+    );
+    const dateOnlyMatch = rawValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+    let parsed: Date;
+    if (dateTimeMatch) {
+      const [, dd, mm, yyyy, hh, min, ampm] = dateTimeMatch;
+      let hours = parseInt(hh, 10);
+      if (ampm.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+      if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+      parsed = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd), hours, parseInt(min));
+    } else if (dateOnlyMatch) {
+      const [, dd, mm, yyyy] = dateOnlyMatch;
+      parsed = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+    } else {
+      parsed = new Date(rawValue);
+    }
+
+    if (isNaN(parsed.getTime())) {
+      throw new Error(`Could not parse datetime input value: ${rawValue}`);
+    }
+
+    return Math.abs((Date.now() - parsed.getTime()) / (1000 * 60));
+  }, raw);
+
   expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
 }

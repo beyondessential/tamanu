@@ -294,7 +294,7 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     const rawDateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
-    const dateGiven = normalizeToIsoDate(rawDateGiven);
+    const dateGiven = rawDateGiven ? normalizeToIsoDate(rawDateGiven) : '';
 
     await this.confirmButton.click();
 

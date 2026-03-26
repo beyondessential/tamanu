@@ -13,14 +13,10 @@ export class ChartsPane {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
-      recordChartButton: 'component-enxe',
-      chartTypeSelect: 'styledtranslatedselectfield-vwze-select',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    this.chartTypeSelect = page.getByTestId('styledtranslatedselectfield-vwze-select');
+    this.recordChartButton = page
+      .getByTestId('tablebuttonrow-lwlu')
+      .getByRole('button', { name: 'Record' });
   }
 
   async waitForPageToLoad(): Promise<void> {
