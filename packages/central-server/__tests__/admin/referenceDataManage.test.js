@@ -179,11 +179,9 @@ describe('Reference Data Manage', () => {
   });
 
   describe('GET /', () => {
-    let records;
-
     beforeAll(async () => {
       // Create test records with known data
-      records = await Promise.all([
+      await Promise.all([
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
           type: TEST_TYPE,
