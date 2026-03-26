@@ -53,10 +53,7 @@ export const DateTimeSelector = props => {
   const [startDateString] = dateRange;
 
   const { getCurrentDateTime } = useDateTime();
-  const getNow = useCallback(
-    () => parseISO(getCurrentDateTime()),
-    [getCurrentDateTime],
-  );
+  const getNow = useCallback(() => parseISO(getCurrentDateTime()), [getCurrentDateTime]);
 
   const [value, setValue] = useState(OPTIONS[0].value);
 
