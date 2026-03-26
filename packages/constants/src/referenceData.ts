@@ -7,5 +7,15 @@ export const REFERENCE_DATA_RELATION_TYPES = {
 
 export const DEFAULT_HIERARCHY_TYPE = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY;
 
-// Only string-like column types support ILIKE search
-export const SEARCHABLE_COLUMN_TYPES = ['STRING', 'TEXT', 'CHAR', 'VARCHAR'];
+export const SEARCHABLE_COLUMN_TYPES = [
+  'STRING',
+  'TEXT',
+  'CHAR',
+  'VARCHAR',
+  'INTEGER',
+  'FLOAT',
+  'DOUBLE',
+  'DECIMAL',
+  'REAL',
+  'BOOLEAN',
+];

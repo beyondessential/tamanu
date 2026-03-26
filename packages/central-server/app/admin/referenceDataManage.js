@@ -98,23 +98,32 @@ referenceDataManageRouter.get(
 
     // Build search filters from query params
     const searchWhere = {};
-    const columnKeys = columns.map((c) => c.key);
-    const stringColumnKeys = new Set(
-      columns.filter((c) => SEARCHABLE_COLUMN_TYPES.includes(c.type)).map((c) => c.key),
+    const searchableKeys = new Set(
+      columns
+        .filter((c) => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint)
+        .map((c) => c.key),
     );
-
-    if (!columnKeys.includes(orderBy)) {
-      throw new InvalidOperationError(`Invalid orderBy value: ${orderBy}`);
-    }
 
     const normalizedOrder = order.toUpperCase();
     if (!['ASC', 'DESC'].includes(normalizedOrder)) {
       throw new InvalidOperationError(`Invalid order value: ${order}`);
     }
 
+    const EXACT_MATCH_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL', 'BOOLEAN'];
+    const exactMatchKeys = new Set(
+      columns
+        .filter(
+          (c) =>
+            c.suggesterEndpoint ||
+            c.key === 'visibilityStatus' ||
+            EXACT_MATCH_TYPES.includes(c.type),
+        )
+        .map((c) => c.key),
+    );
+
     for (const [key, value] of Object.entries(filters)) {
-      if (stringColumnKeys.has(key) && value) {
-        searchWhere[key] = { [Op.iLike]: `%${value}%` };
+      if (searchableKeys.has(key) && value) {
+        searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
       }
     }
 
