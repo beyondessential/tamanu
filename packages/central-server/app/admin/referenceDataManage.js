@@ -1,12 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
   getColumnsForModel,
-  getUniqueFields,
   assertValidType,
   getWritableData,
 } from './referenceDataManageUtils';
@@ -26,23 +25,19 @@ referenceDataManageRouter.post(
     const columns = getColumnsForModel(model);
     const data = getWritableData(columns, rawData, false);
 
-    // Check single-column unique fields for conflicts
-    const uniqueFields = getUniqueFields(model);
-    for (const field of uniqueFields) {
-      if (data[field] == null) continue;
-      const conflict = await model.findOne({
-        where: { [field]: data[field], ...typeFilter },
-        paranoid: false,
-      });
-      if (conflict) {
-        throw new InvalidOperationError(
-          `A record with ${field} "${data[field]}" already exists`,
+    try {
+      const record = await model.create({ ...typeFilter, ...data });
+      res.send(record.forResponse());
+    } catch (err) {
+      if (err instanceof UniqueConstraintError) {
+        const field = err.errors?.[0]?.path ?? 'field';
+        const value = err.errors?.[0]?.value ?? '';
+        throw new DatabaseDuplicateError(
+          `A record with ${field} "${value}" already exists`,
         );
       }
+      throw err;
     }
-
-    const record = await model.create({ ...typeFilter, ...data });
-    res.send(record.forResponse());
   }),
 );
 

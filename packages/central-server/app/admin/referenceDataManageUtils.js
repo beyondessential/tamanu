@@ -25,7 +25,7 @@ const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFE
 
 const HIDDEN_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 // Fields that are always read-only (create and edit)
-const READ_ONLY_COLUMNS = ['id', 'type'];
+const READ_ONLY_COLUMNS = ['id', 'code', 'type'];
 
 // Explicit overrides for FK columns where the association alias doesn't match the suggester endpoint
 const FK_ENDPOINT_OVERRIDES = {
@@ -38,7 +38,9 @@ const getForeignKeySuggesters = (model) => {
   const associations = model.associations ?? {};
   const fkToEndpoint = {};
   for (const assoc of Object.values(associations)) {
-    if (assoc.associationType !== 'BelongsTo') continue;
+    if (assoc.associationType !== 'BelongsTo') {
+      continue;
+    }
     const endpoint = FK_ENDPOINT_OVERRIDES[assoc.foreignKey] ?? assoc.as;
     if (SUGGESTER_ENDPOINTS.includes(endpoint) && GENERAL_IMPORTABLE_DATA_TYPES.includes(endpoint)) {
       fkToEndpoint[assoc.foreignKey] = endpoint;
@@ -66,23 +68,6 @@ export const getColumnsForModel = (model) => {
       }
       return col;
     });
-};
-
-export const getUniqueFields = (model) => {
-  const uniqueFields = [];
-  const rawAttributes = model.rawAttributes ?? {};
-  for (const [key, attr] of Object.entries(rawAttributes)) {
-    if (attr.unique) {
-      uniqueFields.push(key);
-    }
-  }
-  const indexes = model.options?.indexes ?? [];
-  for (const index of indexes) {
-    if (index.unique && index.fields?.length === 1) {
-      uniqueFields.push(index.fields[0]);
-    }
-  }
-  return [...new Set(uniqueFields)];
 };
 
 export const assertValidType = (type) => {
