@@ -53,9 +53,6 @@ lints.md
 /dockercfg
 /docker-volumes/
 
-# Bruno environments (may contain credentials)
-bruno/**/environments/local.bru
-
 # IDEs
 .idea
 
