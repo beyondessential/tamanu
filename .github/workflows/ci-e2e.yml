@@ -55,13 +55,12 @@ jobs:
 
   e2e:
     needs: node_modules_cache
-    name: E2E Tests (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+    name: E2E Tests ${{ matrix.shard }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+        shard: [1/4, 2/4, 3/4, 4/4]
     env:
       FACILITY_FRONTEND_URL: http://localhost:5173
       ADMIN_FRONTEND_URL: http://localhost:5174
@@ -100,13 +99,13 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        run: npx playwright test --shard=${{ matrix.shard }}
         working-directory: packages/e2e-tests
       - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: blob-report-${{ matrix.shardIndex }}
+          name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
 
