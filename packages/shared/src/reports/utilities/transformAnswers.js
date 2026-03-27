@@ -112,6 +112,7 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
       fieldName,
       answer,
     });
+    if (!targetModel) return data;
     return getDisplayNameForModel(targetModel, data);
   }
 };
