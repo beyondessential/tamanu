@@ -446,12 +446,8 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
               const shouldShowTooltip =
                 encounterType === ENCOUNTER_TYPES.ADMISSION && hospitalAdmissionDate;
 
-              const dateDisplay = (
-                <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
-              );
-
               if (!shouldShowTooltip) {
-                return dateDisplay;
+                return <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />;
               }
 
               return (
@@ -488,7 +484,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
                   }
                   data-testid="themedtooltip-encounter-dates"
                 >
-                  {dateDisplay}
+                  <DateDisplay date={startDate} noTooltip data-testid="datedisplay-5hsh" />
                 </ThemedTooltip>
               );
             })()}
