@@ -32,7 +32,7 @@ export class AddDiagnosisModal {
     for (const [key, testId] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(testId);
     }
-    this.dateInput= page.getByTestId('field-fszu-input').locator('input');
+    this.dateInput= page.getByTestId('field-fszu').locator('input');
     this.clinicianInput= page.getByTestId('field-af83-input').locator('input');
   }
 

@@ -115,7 +115,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       middleNameInput: 'localisedfield-l6hc-input',
       lastNameInput: 'localisedfield-41un-input',
       culturalNameInput: 'localisedfield-ew4s-input',
-      dateOfBirthInput: 'localisedfield-oafl-input',
+      dateOfBirthInput: 'localisedfield-oafl',
       emailInput: 'localisedfield-j8v5-input',
       nationalHealthNumberInput: 'localisedfield-a0ac-input',
       birthCertificateInput: 'localisedfield-0jtf-birthCertificate-input',

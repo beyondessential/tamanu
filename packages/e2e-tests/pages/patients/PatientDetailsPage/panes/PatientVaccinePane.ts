@@ -38,7 +38,7 @@ export class PatientVaccinePane extends BasePatientPane {
   constructor(page: Page) {
     super(page);
 
-    this.recordVaccineButton = this.page.getByTestId('component-enxe');
+    this.recordVaccineButton = this.page.getByTestId('row-v55c').getByTestId('component-enxe');
     this.recordedVaccinesTable = this.page
       .getByRole('table')
       .filter({ hasText: 'VaccineScheduleDateGiven' });

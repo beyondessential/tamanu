@@ -33,7 +33,7 @@ export class HospitalAdmissionModal {
       form: 'styledform-5o5i',
       formGrid: 'formgrid-ima9',
       encounterTypeInput: 'field-t9el-input',
-      checkInDateInput: 'field-vol8-input',
+      checkInDateInput: 'field-vol8',
       departmentInput: 'field-gfz3-input',
       clinicianInput: 'field-o6eb-input',
       areaInput: 'field-25q3-group-input',

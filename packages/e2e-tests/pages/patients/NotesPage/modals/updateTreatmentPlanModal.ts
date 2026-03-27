@@ -35,8 +35,11 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
     await fieldHelpers.selectAutocompleteFieldOption(this.page, this.updatedByInput, {
       optionToSelect: updatedBy,
     });
-    const updatedDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
-    await this.dateTimeInput.fill(updatedDateTime);
+    const futureDate = new Date();
+    futureDate.setMinutes(futureDate.getMinutes() + 1);
+    const updatedDateTime = format(futureDate, 'yyyy-MM-dd\'T\'HH:mm');
+    await this.dateTimeInput.fill(format(futureDate, 'dd/MM/yyyy hh:mm aa'));
+    await this.dateTimeInput.press('Tab');
     await this.noteContentTextarea.fill(updatedContent);
     await this.confirmButton.click();
     await this.waitForModalToClose();

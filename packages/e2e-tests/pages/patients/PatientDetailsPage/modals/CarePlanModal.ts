@@ -29,7 +29,7 @@ export class CarePlanModal extends BasePatientModal {
     this.carePlanDropdown = this.page
       .getByTestId('field-uc7w-input')
       .getByRole('textbox', { name: 'Search...' });
-    this.carePlanDate = this.page.getByTestId('field-764k-input').getByRole('textbox');
+    this.carePlanDate = this.page.getByTestId('field-764k').getByRole('textbox');
     this.carePlanClinicianDropdown = this.page
       .getByTestId('field-kb54-input')
       .getByRole('textbox', { name: 'Search...' });
@@ -62,7 +62,7 @@ export class CarePlanModal extends BasePatientModal {
     this.additionalNoteEditButton = this.page.getByTestId('item-8ybn-0');
     this.additionalNoteSavedDate = this.page
       .getByTestId('editablenoteformcontainer-mx3i')
-      .getByTestId('field-qouz-input')
+      .getByTestId('field-qouz')
       .getByRole('textbox');
     this.additionalNoteDeleteButton = this.page.getByTestId('item-8ybn-1');
   }

@@ -3,6 +3,11 @@ import { recordPatientDeathViaApi } from '../../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { testData } from '../../utils/testData';
 
+const toDOBInputFormat = (isoDate: string) => {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}/${month}/${year}`;
+};
+
 test.describe('All patient table tests', () => {
   test.beforeEach(async ({ allPatientsPage }) => {
     await allPatientsPage.goto();
@@ -29,7 +34,7 @@ test.describe('All patient table tests', () => {
 
     test('[T-0027][AT-0004]Search by DOB', async ({ newPatient, allPatientsPage }) => {
       console.log('newPatient.dateOfBirth', newPatient.dateOfBirth);
-      await allPatientsPage.searchTable({ DOB: newPatient.dateOfBirth, advancedSearch: false });
+      await allPatientsPage.searchTable({ DOB: toDOBInputFormat(newPatient.dateOfBirth!), advancedSearch: false });
       await allPatientsPage.validateAtLeastOneSearchResult();
       await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
     });
@@ -56,7 +61,7 @@ test.describe('All patient table tests', () => {
     });
     test('[T-0027][AT-0008]Search by DOB from including NHN', async ({ newPatient, allPatientsPage }) => {
       await allPatientsPage.searchTable({
-        DOBFrom: newPatient.dateOfBirth,
+        DOBFrom: toDOBInputFormat(newPatient.dateOfBirth!),
         NHN: newPatient.displayId,
         advancedSearch: true,
       });
@@ -67,7 +72,7 @@ test.describe('All patient table tests', () => {
 
     test('[T-0027][AT-0009]Search by DOB to including NHN', async ({ newPatient, allPatientsPage }) => {
       await allPatientsPage.searchTable({
-        DOBTo: newPatient.dateOfBirth,
+        DOBTo: toDOBInputFormat(newPatient.dateOfBirth!),
         NHN: newPatient.displayId,
         advancedSearch: true,
       });
@@ -81,12 +86,12 @@ test.describe('All patient table tests', () => {
         NHN: newPatient.displayId,
         firstName: newPatient.firstName,
         lastName: newPatient.lastName,
-        DOB: newPatient.dateOfBirth,
+        DOB: toDOBInputFormat(newPatient.dateOfBirth!),
         culturalName: newPatient.culturalName,
         village: testData.village,
         sex: newPatient.sex,
-        DOBFrom: newPatient.dateOfBirth,
-        DOBTo: newPatient.dateOfBirth,
+        DOBFrom: toDOBInputFormat(newPatient.dateOfBirth!),
+        DOBTo: toDOBInputFormat(newPatient.dateOfBirth!),
         advancedSearch: true,
       });
       await allPatientsPage.validateOneSearchResult();
@@ -115,12 +120,12 @@ test.describe('All patient table tests', () => {
         NHN: newPatient.displayId,
         firstName: newPatient.firstName,
         lastName: newPatient.lastName,
-        DOB: newPatient.dateOfBirth,
+        DOB: toDOBInputFormat(newPatient.dateOfBirth!),
         culturalName: newPatient.culturalName,
         village: testData.village,
         sex: newPatient.sex,
-        DOBFrom: newPatient.dateOfBirth,
-        DOBTo: newPatient.dateOfBirth,
+        DOBFrom: toDOBInputFormat(newPatient.dateOfBirth!),
+        DOBTo: toDOBInputFormat(newPatient.dateOfBirth!),
         advancedSearch: true,
       });
       await allPatientsPage.clearSearch();

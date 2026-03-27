@@ -16,7 +16,7 @@ export class DeleteTaskModal {
 
     const testIds = {
       recordedByInput: 'field-2l6f-input',
-      recordDateTimeField: 'field-bnve-input',
+      recordDateTimeField: 'field-bnve',
       reasonForDeletionInput: 'field-4x58-input',
       confirmButton: 'formsubmitcancelrow-0v1x-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',

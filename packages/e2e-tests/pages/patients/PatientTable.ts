@@ -101,10 +101,10 @@ export class PatientTable {
       .locator('svg');
     this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
-    this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.DOBTxt = page.getByTestId('field-qk60').locator('input[type="date"]');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').locator('input[type="date"]');
+    this.DOBToTxt = page.getByTestId('field-aax5').locator('input[type="date"]');
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
     this.patientPageRecordCount25 = page
       .getByTestId('styledmenuitem-fkrw-undefined')

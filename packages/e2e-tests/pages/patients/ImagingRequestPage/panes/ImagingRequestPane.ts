@@ -35,7 +35,7 @@ export class ImagingRequestPane {
     this.page = page;
 
     this.printButton = page.getByTestId('button-21bg');
-    this.createImagingRequestButton = page.getByTestId('component-enxe').filter({ hasText: 'New imaging request' });
+    this.createImagingRequestButton = page.getByTestId('row-v55c').getByTestId('component-enxe');
 
     this.table = page.getByTestId('styledtable-1dlu');
     this.tableBody = page.getByTestId('styledtablebody-a0jz');

@@ -27,7 +27,7 @@ export class RecentlyViewedPatientsList {
     }
     
     // Special cases that need additional processing
-    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('tooltip-b4e8');
+    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('datedisplay-tw5s-0');
   }
 
   static formatDateForRecentlyViewed(dateOfBirth: string): string {

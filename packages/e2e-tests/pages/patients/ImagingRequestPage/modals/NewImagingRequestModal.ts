@@ -36,7 +36,7 @@ export class NewImagingRequestModal {
 
     const testIds = {
       imagingRequestCodeInput: 'field-6jew-input',
-      orderDateTimeField: 'field-xsta-input',
+      orderDateTimeField: 'field-xsta',
       supervisingClinicianInput: 'textinput-3wnq-input',
       requestingClinicianField: 'field-g6kl-input',
       requestingClinicianClearButton: 'field-g6kl-input-clearbutton',
