@@ -26,9 +26,19 @@ export class VitalsPage {
    * @returns A record of the vital values
    */
   async getLatestVitalValues(): Promise<Record<typeof VITALS_FIELD_KEYS[number], string>> {
-    // Wait for at least one data cell (second column) to be visible before reading values
     const firstRowRegex = new RegExp(`^${STYLED_TABLE_CELL_PREFIX}0-`);
-    await this.page.getByTestId(firstRowRegex).nth(1).waitFor({ state: 'visible', timeout: 30000 });
+    const dataCellLocator = this.page.getByTestId(firstRowRegex).nth(1);
+
+    // The vitals query can resolve before the server finishes processing
+    // triage-submitted vitals, leaving the table with no date columns.
+    // If data cells don't appear promptly, reload to force a fresh query.
+    try {
+      await dataCellLocator.waitFor({ state: 'visible', timeout: 10_000 });
+    } catch {
+      await this.page.reload();
+      await this.table.waitFor({ state: 'visible' });
+      await dataCellLocator.waitFor({ state: 'visible', timeout: 30_000 });
+    }
 
     const vitalValues: any = {};
     for (let i = 0; i < VITALS_FIELD_KEYS.length; i++) {    

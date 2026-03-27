@@ -124,7 +124,7 @@ export class LabRequestModalBase {
     }
     
     // Special cases that need additional processing
-    this.requestingClinicianInput = page.getByTestId('field-z6gb-input');
+    this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations

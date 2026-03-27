@@ -15,7 +15,7 @@ export class ChartsPane {
 
     this.chartTypeSelect = page.getByTestId('styledtranslatedselectfield-vwze-select');
     this.recordChartButton = page
-      .getByTestId('tablebuttonrow-lwlu')
+      .getByTestId('tablebuttonrowwrapper-srjx')
       .getByRole('button', { name: 'Record' });
   }
 
