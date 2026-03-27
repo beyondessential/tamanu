@@ -77,17 +77,16 @@ const FooterLabel = styled.span`
   color: ${Colors.midText};
 `;
 
-const FooterTime = styled(FooterLabel)`
+const Time = styled.time`
   color: ${Colors.darkestText};
+  font-weight: 500;
 `;
 
 const CardFooter = ({ averageWaitTime, color }) => {
   const hours = Math.floor(averageWaitTime / HOUR);
-  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
-  const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
-  const averageHrs = pluralise(hours, 'hr');
-  const averageMins = pluralise(minutes, 'min');
+  const minutes = Math.round((averageWaitTime - hours * HOUR) / MINUTE);
 
+  const formatter = new Intl.DurationFormat(undefined, { style: 'short' });
   return (
     <>
       <Row data-testid="row-vqca">
@@ -100,9 +99,10 @@ const CardFooter = ({ averageWaitTime, color }) => {
           />
           :{' '}
         </FooterLabel>
-        <FooterTime data-testid="footertime-pe6h">{averageHrs}</FooterTime>
       </Row>
-      <FooterTime data-testid="footertime-wnxx">{averageMins}</FooterTime>
+      <Time datetime={`${hours}h ${minutes}m`} data-testid="footertime-pe6h">
+        {formatter.format({ hours, minutes }) || '—' /* em dash */}
+      </Time>
     </>
   );
 };

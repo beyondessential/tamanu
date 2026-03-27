@@ -17,8 +17,9 @@ const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
   if (startMs == null) return '—';
   const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
-  const minutes = Math.floor((time - hours * HOUR) / MINUTE);
-  return `${hours}hrs ${minutes}mins`;
+  const minutes = Math.round((time - hours * HOUR) / MINUTE);
+  const formatter = new Intl.DurationFormat(undefined, { style: 'short' });
+  return <time dateTime={`${hours}h ${minutes}m`}>{formatter.format({ hours, minutes })}</time>;
 };
 
 const PlainCell = styled.div`
@@ -75,14 +76,14 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.TRIAGE:
         return (
           <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-xrcr">
-            <div>{getDuration(assumedArrivalTime, storedDateTimeToEpochMilliseconds)}</div>
+            {getDuration(assumedArrivalTime, storedDateTimeToEpochMilliseconds)}
             <div>
               <TranslatedText
                 stringId="patientList.triage.table.waitTime.cell.triageTime"
-                fallback="Triage at :triageDate"
-                replacements={{ triageDate: formatTime(triageTime) }}
+                fallback="Triage at"
                 data-testid="translatedtext-wovf"
-              />
+              />{' '}
+              <time dateTime={triageTime}>{formatTime(triageTime)}</time>
             </div>
           </TriageCell>
         );
@@ -92,10 +93,10 @@ export const TriageWaitTimeCell = React.memo(
           <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-fk2v">
             <TranslatedText
               stringId="patientList.triage.table.waitTime.cell.closedTime"
-              fallback="Seen at :triageDate"
-              replacements={{ triageDate: formatTime(closedTime) }}
+              fallback="Seen at"
               data-testid="translatedtext-hfkc"
-            />
+            />{' '}
+            <time dateTime={closedTime}>{formatTime(closedTime)}</time>
           </TriageCell>
         );
       default:
