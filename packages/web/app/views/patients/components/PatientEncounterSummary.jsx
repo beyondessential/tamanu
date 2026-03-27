@@ -16,11 +16,13 @@ import {
   TranslatedReferenceData,
   TranslatedText,
 } from '../../../components/Translation';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
 import { useAuth } from '../../../contexts/Auth';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
+import { getHospitalAdmissionDate } from '../../../utils/getHospitalAdmissionDate';
+import { ThemedTooltip } from '../../../components/Tooltip';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -439,7 +441,57 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
             {getEncounterStartDateLabel(encounterType)}:
           </ContentLabel>
           <ContentText data-testid="contenttext-nw17">
-            <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
+            {(() => {
+              const hospitalAdmissionDate = getHospitalAdmissionDate(encounter);
+              const shouldShowTooltip =
+                encounterType === ENCOUNTER_TYPES.ADMISSION && hospitalAdmissionDate;
+
+              const dateDisplay = (
+                <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
+              );
+
+              if (!shouldShowTooltip) {
+                return dateDisplay;
+              }
+
+              return (
+                <ThemedTooltip
+                  title={
+                    <Box>
+                      <Box fontWeight="500">
+                        <TranslatedText
+                          stringId="encounter.triageDate.label"
+                          fallback="Triage date"
+                        />
+                        {': '}
+                        <DateDisplay
+                          date={startDate}
+                          format="short"
+                          timeFormat="default"
+                          noTooltip
+                        />
+                      </Box>
+                      <Box fontWeight="500">
+                        <TranslatedText
+                          stringId="encounter.hospitalAdmissionDate.label"
+                          fallback="Hospital admission date"
+                        />
+                        {': '}
+                        <DateDisplay
+                          date={hospitalAdmissionDate}
+                          format="short"
+                          timeFormat="default"
+                          noTooltip
+                        />
+                      </Box>
+                    </Box>
+                  }
+                  data-testid="themedtooltip-encounter-dates"
+                >
+                  {dateDisplay}
+                </ThemedTooltip>
+              );
+            })()}
           </ContentText>
         </ContentItem>
         {isEmergencyPatient(encounterType) ? (

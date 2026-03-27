@@ -196,6 +196,7 @@ export class Encounter extends Model {
         association: 'triages',
         include: ['chiefComplaint', 'secondaryComplaint'],
       },
+      'encounterHistory',
     ];
   }
 
