@@ -65,8 +65,7 @@ programRelations.get(
     }
     req.checkPermission('read', programRecord);
 
-    // Frontend may pass `patientId` as `params[patientId]` depending on how the query string is built.
-    const patientId = query.patientId ?? query.params?.patientId;
+    const { patientId } = query;
 
     const records = await models.Survey.findAll({
       where: {
