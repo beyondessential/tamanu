@@ -16,6 +16,7 @@ import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { TAMANU_COLORS } from '../../constants';
+import { useTranslation } from '../../contexts';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 import { TranslatedText } from '../Translation';
@@ -219,17 +220,20 @@ const StyledNavButton = styled(TextButton)`
   }
 `;
 
-export const BackButton = ({ to, text = true, ...props }) => (
-  <StyledNavButton to={to} {...props}>
-    <ChevronLeft />
-    {text && (
-      <>
-        {' '}
-        <TranslatedText stringId="general.action.back" fallback="Back" />
-      </>
-    )}
-  </StyledNavButton>
-);
+export const BackButton = ({ ['aria-label']: ariaLabel, text = true, ...props }) => {
+  const { getTranslation } = useTranslation();
+  const label = ariaLabel ?? (text ? undefined : getTranslation('general.action.back', 'Back'));
+
+  return text ? (
+    <StyledNavButton aria-label={label} startIcon={<ChevronLeft />} {...props}>
+      <TranslatedText stringId="general.action.back" fallback="Back" />
+    </StyledNavButton>
+  ) : (
+    <IconButton aria-label={label} size="small" {...props}>
+      <ChevronLeft />
+    </IconButton>
+  );
+};
 
 export const FormSubmitButton = ({
   children,
