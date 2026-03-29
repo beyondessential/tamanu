@@ -4,6 +4,7 @@ import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 
 import { MSupplyClient } from '../utils/MSupplyClient';
 
@@ -98,18 +99,23 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     const codes = [...stockByCode.keys()];
     if (codes.length === 0) return { updated: 0, skipped: 0 };
 
-    const matchingDrugs = await this.models.ReferenceData.findAll({
-      where: { code: codes, type: REFERENCE_TYPES.DRUG },
-      include: [
-        {
-          model: this.models.ReferenceDrug,
-          as: 'referenceDrug',
-          required: true,
-          attributes: ['id'],
-        },
-      ],
-      attributes: ['id', 'code'],
-    });
+    const matchingDrugs = await runFunctionInBatches(
+      codes,
+      batch =>
+        this.models.ReferenceData.findAll({
+          where: { code: batch, type: REFERENCE_TYPES.DRUG },
+          include: [
+            {
+              model: this.models.ReferenceDrug,
+              as: 'referenceDrug',
+              required: true,
+              attributes: ['id'],
+            },
+          ],
+          attributes: ['id', 'code'],
+        }),
+      500,
+    );
 
     const skipped = codes.length - matchingDrugs.length;
 
