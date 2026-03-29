@@ -1,7 +1,8 @@
-import { Op } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 /**
  * Returns a map of question code -> most recent answer body for a patient.
+ * Uses DISTINCT ON to fetch only the latest answer per question code at the DB level.
  * Excludes deleted responses and answers (paranoid).
  * @param {Object} models - Sequelize models
  * @param {string} patientId
@@ -11,50 +12,27 @@ import { Op } from 'sequelize';
 export async function getLastSurveyAnswerValuesByQuestionCodes(models, patientId, questionCodes) {
   if (!questionCodes?.length) return {};
 
-  const { SurveyResponseAnswer, SurveyResponse, Encounter, ProgramDataElement } = models;
+  const { sequelize } = models.SurveyResponseAnswer;
 
-  const answers = await SurveyResponseAnswer.findAll({
-    attributes: ['body', 'dataElementId'],
-    include: [
-      {
-        model: SurveyResponse,
-        as: 'surveyResponse',
-        required: true,
-        attributes: ['endTime'],
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
-            required: true,
-            attributes: [],
-            where: { patientId },
-          },
-        ],
-      },
-      {
-        model: ProgramDataElement,
-        required: true,
-        attributes: ['code'],
-        where: { code: { [Op.in]: questionCodes } },
-      },
-    ],
-  });
-
-  // Sort by response endTime descending so first occurrence per code is the most recent
-  const sorted = answers
-    .filter(answer => answer.surveyResponse?.endTime && answer.ProgramDataElement?.code)
-    .sort((answerA, answerB) => {
-      const endTimeA = new Date(answerA.surveyResponse.endTime).getTime();
-      const endTimeB = new Date(answerB.surveyResponse.endTime).getTime();
-      return endTimeB - endTimeA;
-    });
+  const rows = await sequelize.query(
+    `SELECT DISTINCT ON (pde.code) pde.code, sra.body
+     FROM survey_response_answers sra
+     JOIN survey_responses sr ON sra.response_id = sr.id AND sr.deleted_at IS NULL
+     JOIN encounters e ON sr.encounter_id = e.id AND e.deleted_at IS NULL
+     JOIN program_data_elements pde ON sra.data_element_id = pde.id
+     WHERE e.patient_id = :patientId
+       AND pde.code IN (:questionCodes)
+       AND sra.deleted_at IS NULL
+     ORDER BY pde.code, sr.end_time DESC NULLS LAST`,
+    {
+      replacements: { patientId, questionCodes },
+      type: QueryTypes.SELECT,
+    },
+  );
 
   const valuesByCode = {};
-  for (const row of sorted) {
-    const code = row.ProgramDataElement?.code;
-    if (code && valuesByCode[code] === undefined) {
-      valuesByCode[code] = row.body ?? '';
-    }
+  for (const row of rows) {
+    valuesByCode[row.code] = row.body ?? '';
   }
   return valuesByCode;
 }
