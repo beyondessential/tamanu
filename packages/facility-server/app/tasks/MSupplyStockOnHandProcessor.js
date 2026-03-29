@@ -7,11 +7,14 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { MSupplyClient } from '../utils/MSupplyClient';
 
-function getStockLinesQuery(storeId) {
+const STOCK_LINES_PAGE_SIZE = 500;
+
+function getStockLinesQuery(storeId, first, offset) {
   return `
     query Stock {
-      stockLines(storeId: "${storeId}") {
+      stockLines(storeId: "${storeId}", first: ${first}, offset: ${offset}) {
         ... on StockLineConnector {
+          totalCount
           nodes {
             id
             item {
@@ -48,18 +51,32 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   async fetchStockLines(host, storeId, authToken, backoff) {
-    const { data, errors } = await this.client.graphqlQuery({
-      host,
-      query: getStockLinesQuery(storeId),
-      authToken,
-      backoff,
-    });
+    const allNodes = [];
+    let offset = 0;
+    let totalCount;
 
-    if (errors?.length) {
-      throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
-    }
+    do {
+      const { data, errors } = await this.client.graphqlQuery({
+        host,
+        query: getStockLinesQuery(storeId, STOCK_LINES_PAGE_SIZE, offset),
+        authToken,
+        backoff,
+      });
 
-    return data?.stockLines?.nodes ?? [];
+      if (errors?.length) {
+        throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
+      }
+
+      const connector = data?.stockLines;
+      const nodes = connector?.nodes ?? [];
+      totalCount = connector?.totalCount ?? 0;
+      allNodes.push(...nodes);
+
+      if (nodes.length === 0) break;
+      offset += nodes.length;
+    } while (offset < totalCount);
+
+    return allNodes;
   }
 
   aggregateStockByCode(stockLines) {
