@@ -6,8 +6,8 @@ import { REGISTRATION_STATUSES, SURVEY_TYPES, FORM_TYPES } from '@tamanu/constan
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
 import { Heading5 } from '../../components/Typography';
-import { Field } from 'formik';
-import { Form, Button, FormGrid, BaseSelectField } from '@tamanu/ui-components';
+import { Form, Button, FormGrid } from '@tamanu/ui-components';
+import { Field, SelectField } from '../../components/Field';
 import { Colors } from '../../constants/styles';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -132,7 +132,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                   <div>
                     <Field
                       name="surveyId"
-                      component={BaseSelectField}
+                      component={SelectField}
                       options={surveyOptions}
                       data-testid="program-registry-survey-select"
                     />
