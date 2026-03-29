@@ -26,7 +26,7 @@ export async function getProgramSurveysWithFormVisibility(models, surveys, patie
 
   const questionCodes = [
     ...new Set(
-      surveys.flatMap(s => getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria || '')),
+      surveys.flatMap(s => getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? '')),
     ),
   ].filter(Boolean);
 
@@ -48,9 +48,9 @@ export async function getProgramSurveysWithFormVisibility(models, surveys, patie
     return acc;
   }, {});
 
+  const surveyById = new Map(surveys.map(s => [s.id, s]));
   for (const item of data) {
-    const survey = surveys.find(s => s.id === item.id);
-    const criteria = survey?.visibilityCriteria;
+    const criteria = surveyById.get(item.id)?.visibilityCriteria;
     if (criteria?.trim()) {
       item.passesFormVisibility = checkFormVisibilityCriteria(
         criteria,
