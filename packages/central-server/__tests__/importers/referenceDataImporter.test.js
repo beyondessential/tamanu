@@ -874,17 +874,18 @@ describe('Permissions import', () => {
 
   describe('mixed FHIR/regular permissions', () => {
     function buildPermissionWorkbook(roles, permissions) {
-      const roleHeaders = ['id'];
+      const roleHeaders = ['id', 'name'];
       const roleSheet = {};
       roleHeaders.forEach((h, c) => {
         roleSheet[utils.encode_cell({ r: 0, c })] = { t: 's', v: h };
       });
       roles.forEach((role, r) => {
         roleSheet[utils.encode_cell({ r: r + 1, c: 0 })] = { t: 's', v: role };
+        roleSheet[utils.encode_cell({ r: r + 1, c: 1 })] = { t: 's', v: role };
       });
       roleSheet['!ref'] = utils.encode_range({
         s: { r: 0, c: 0 },
-        e: { r: roles.length, c: 0 },
+        e: { r: roles.length, c: 1 },
       });
 
       const permHeaders = ['verb', 'noun', ...roles];
