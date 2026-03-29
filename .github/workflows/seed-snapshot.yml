@@ -1,0 +1,72 @@
+name: Seed Snapshot
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+      postgres_major:
+        type: string
+        required: false
+        default: '17'
+      image:
+        type: string
+        required: true
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  SEED_NAMESPACE: tamanu-seed
+
+jobs:
+  create-snapshot:
+    runs-on: ubuntu-latest
+    name: Seed snapshot for ${{ inputs.version }} (PG ${{ inputs.postgres_major }})
+    timeout-minutes: 15
+    env:
+      INPUT_VERSION: ${{ inputs.version }}
+      INPUT_BRANCH: ${{ inputs.branch }}
+      POSTGRES_MAJOR: ${{ inputs.postgres_major }}
+      IMAGE: ${{ inputs.image }}
+      JOB_NAME: seed-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Validate version format
+        run: |
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '$INPUT_VERSION' — expected X.Y.Z"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+
+      - uses: actions/checkout@v6
+        with:
+          repository: beyondessential/ops
+          path: ops
+          ref: main
+          token: ${{ secrets.TAMANU_RELEASE_PAT }}
+
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Ensure envsubst is available
+        run: command -v envsubst
+
+      - name: Apply seed snapshot Job
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          envsubst '${JOB_NAME} ${INPUT_VERSION} ${INPUT_BRANCH} ${POSTGRES_MAJOR} ${GITHUB_RUN_ID} ${GITHUB_RUN_ATTEMPT} ${IMAGE}' \
+            < ops/pulumi/stacks/tamanu/k8s-infra/seed/seed-snapshot-job.yaml \
+            | kubectl apply -f -
+          echo "Submitted Job ${JOB_NAME} in ${SEED_NAMESPACE} (runs in-cluster; check kubectl or logs there)."

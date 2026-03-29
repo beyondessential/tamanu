@@ -1,0 +1,32 @@
+FROM node:20-alpine AS build
+RUN apk add --no-cache bash g++ gcc git jq make python3 py3-setuptools && \
+    npm install -g node-gyp
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY patches/ patches/
+COPY common.* ./
+COPY scripts/ scripts/
+COPY packages/ packages/
+RUN npm install --no-interactive --package-lock && \
+    npm run build-shared && \
+    npm run build -w packages/central-server && \
+    npm run build -w packages/scripts && \
+    npm prune --production && \
+    npm cache clean --force && \
+    rm -rf packages/web packages/patient-portal packages/mobile \
+           packages/*/__tests__ packages/*/coverage packages/.npm
+
+FROM node:20-alpine
+RUN apk add --no-cache bash curl jq && \
+    ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')" && \
+    curl -fsSL -o /usr/local/bin/kubectl \
+      "https://dl.k8s.io/release/v1.31.6/bin/linux/${ARCH}/kubectl" && \
+    chmod +x /usr/local/bin/kubectl
+WORKDIR /app
+ARG GIT_SHA=unknown
+ENV NODE_ENV=production \
+    NODE_CONFIG_DIR=/app/packages/central-server/config \
+    TAMANU_GIT_SHA=${GIT_SHA}
+COPY --from=build /app/package.json ./
+COPY --from=build /app/packages/ packages/
+COPY --from=build /app/node_modules/ node_modules/
