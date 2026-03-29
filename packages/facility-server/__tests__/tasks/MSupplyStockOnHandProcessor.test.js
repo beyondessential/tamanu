@@ -283,7 +283,12 @@ describe('MSupplyStockOnHandProcessor', () => {
       });
     });
 
-    it('creates stock entries for matching medications', async () => {
+    it('updates existing stock entries for matching medications', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+      ]);
+
       mockAuthResponse();
       mockStockLinesResponse([
         makeStockLine({ universalCode: drugCode1, availableNumberOfPacks: 10, totalNumberOfPacks: 10, packSize: 5 }),
@@ -332,6 +337,10 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips medications without a matching reference data code', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+      ]);
+
       mockAuthResponse();
       mockStockLinesResponse([
         makeStockLine({ universalCode: 'NON-EXISTENT-CODE', availableNumberOfPacks: 99, totalNumberOfPacks: 99, packSize: 1 }),
@@ -350,6 +359,10 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips stock lines without a universal code', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+      ]);
+
       mockAuthResponse();
       mockStockLinesResponse([
         makeStockLine({ universalCode: null, availableNumberOfPacks: 50, totalNumberOfPacks: 50, packSize: 1 }),
@@ -367,6 +380,10 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('aggregates multiple stock lines for the same drug', async () => {
+      await models.ReferenceDrugFacility.bulkCreate([
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+      ]);
+
       mockAuthResponse();
       mockStockLinesResponse([
         makeStockLine({ universalCode: drugCode1, availableNumberOfPacks: 4, totalNumberOfPacks: 4, packSize: 10 }),
