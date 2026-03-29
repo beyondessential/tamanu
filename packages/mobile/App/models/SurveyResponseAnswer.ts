@@ -50,17 +50,31 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
 
   /**
    * Returns map of question code -> most recent answer body for a patient.
-   * Used for form-level visibility criteria evaluation.
+   * Fetches all matching codes in a single query, picking the latest per code.
    */
   static async getLastAnswerValuesByQuestionCodes(
     patientId: string,
     questionCodes: string[],
   ): Promise<Record<string, string>> {
+    if (!questionCodes.length) return {};
+
+    const placeholders = questionCodes.map(() => '?').join(', ');
+    const rows: { code: string; body: string }[] = await this.getRepository().query(
+      `SELECT de.code, sra.body
+       FROM survey_response_answers sra
+       JOIN survey_responses sr ON sra.response_id = sr.id
+       JOIN encounters e ON sr.encounter_id = e.id
+       JOIN program_data_elements de ON sra.data_element_id = de.id
+       WHERE e.patient_id = ?
+         AND de.code IN (${placeholders})
+       ORDER BY sr.start_time DESC`,
+      [patientId, ...questionCodes],
+    );
+
     const valuesByCode: Record<string, string> = {};
-    for (const code of questionCodes) {
-      const answer = await this.getLatestAnswerForPatient(patientId, code);
-      if (answer?.body !== undefined) {
-        valuesByCode[code] = answer.body ?? '';
+    for (const row of rows) {
+      if (valuesByCode[row.code] === undefined) {
+        valuesByCode[row.code] = row.body ?? '';
       }
     }
     return valuesByCode;
