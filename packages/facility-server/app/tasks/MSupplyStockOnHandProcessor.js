@@ -1,30 +1,11 @@
 import config from 'config';
-import { fetch } from 'undici';
 
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-const GRAPHQL_ENDPOINT = '/graphql';
-
-const AUTH_QUERY = `
-  query Auth($password: String!, $username: String!) {
-    authToken(password: $password, username: $username) {
-      ... on AuthToken {
-        __typename
-        token
-      }
-      ... on AuthTokenError {
-        __typename
-        error {
-          description
-        }
-      }
-    }
-  }
-`;
+import { MSupplyClient } from '../utils/MSupplyClient';
 
 function getStockLinesQuery(storeId) {
   return `
@@ -62,55 +43,18 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     this.models = context.models;
+    this.client = new MSupplyClient(context);
     this.serverFacilityIds = selectFacilityIds(config);
   }
 
-  async getSettings(facilityId) {
-    const integrationSettings = await this.context.settings[facilityId]?.get(
-      'integrations.mSupplyMed',
-    );
-    return integrationSettings ?? {};
-  }
-
-  async getAuthToken(facilityId) {
-    const { host, backoff } = await this.getSettings(facilityId);
-    const { username, password } = config.integrations.mSupplyMed;
-
-    const response = await fetchWithRetryBackoff(
-      `${host}${GRAPHQL_ENDPOINT}`,
-      {
-        fetch,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: AUTH_QUERY, variables: { username, password } }),
-      },
-      { ...backoff, log },
-    );
-
-    const { data } = await response.json();
-    const token = data?.authToken?.token;
-    if (!token) {
-      throw new Error('mSupply authentication failed: no token returned');
-    }
-    return token;
-  }
-
   async fetchStockLines(host, storeId, authToken, backoff) {
-    const response = await fetchWithRetryBackoff(
-      `${host}${GRAPHQL_ENDPOINT}`,
-      {
-        fetch,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ query: getStockLinesQuery(storeId) }),
-      },
-      { ...backoff, log },
-    );
+    const { data, errors } = await this.client.graphqlQuery({
+      host,
+      query: getStockLinesQuery(storeId),
+      authToken,
+      backoff,
+    });
 
-    const { data, errors } = await response.json();
     if (errors?.length) {
       throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
     }
@@ -190,13 +134,13 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     }
     const [facilityId] = this.serverFacilityIds;
 
-    const { host, storeId, backoff } = await this.getSettings(facilityId);
+    const { host, storeId, backoff } = await this.client.getSettings(facilityId);
     if (!host || !username || !password || !storeId) {
       log.warn('MSupplyStockOnHandProcessor: integration not fully configured, skipping');
       return;
     }
 
-    const authToken = await this.getAuthToken(facilityId);
+    const authToken = await this.client.authenticate(facilityId);
     const stockLines = await this.fetchStockLines(host, storeId, authToken, backoff);
 
     log.info('MSupplyStockOnHandProcessor: received stock lines from mSupply', {
