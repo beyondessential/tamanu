@@ -47,7 +47,7 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
   return (
     <>
       <p>
-        You will be asked to enter the patient&apos;s date of birth in order to log into the IPS
+        You will be asked to enter the patient&rsquo;s date of birth in order to log into the IPS
         portal. Please ensure this is correct otherwise amend in the{' '}
         <StyledPatientDetailsLink
           onClick={() => {
@@ -56,7 +56,7 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
           }}
           data-testid="styledpatientdetailslink-n7g6"
         >
-          patient&apos;s details
+          patient&rsquo;s details
         </StyledPatientDetailsLink>{' '}
         section.
       </p>
