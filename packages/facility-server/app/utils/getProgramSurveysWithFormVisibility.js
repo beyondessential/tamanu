@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import {
   checkFormVisibilityCriteria,
   getQuestionCodesFromFormVisibilityCriteria,
-} from '@tamanu/shared/utils/criteria';
+} from '@tamanu/utils/criteria';
 import { getLastSurveyAnswerValuesByQuestionCodes } from './getLastSurveyAnswerValuesByQuestionCodes';
 
 /**

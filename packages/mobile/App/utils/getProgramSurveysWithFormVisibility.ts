@@ -1,29 +1,9 @@
 import { In } from 'typeorm';
-import { checkJSONCriteria } from '~/ui/helpers/fields';
+import {
+  getQuestionCodesFromFormVisibilityCriteria,
+  checkFormVisibilityCriteria,
+} from '@tamanu/utils/criteria';
 import { Survey } from '~/models/Survey';
-
-function getQuestionCodesFromFormVisibilityCriteria(visibilityCriteria: string): string[] {
-  if (!visibilityCriteria || !visibilityCriteria.trim()) return [];
-  try {
-    const criteria = JSON.parse(visibilityCriteria);
-    if (!criteria || typeof criteria !== 'object') return [];
-    return Object.keys(criteria).filter(key => key !== '_conjunction' && key !== 'hidden');
-  } catch {
-    return [];
-  }
-}
-
-function checkFormVisibilityCriteria(
-  criteria: string,
-  valuesByCode: Record<string, any>,
-  dataElementTypesByCode: Record<string, string> = {},
-): boolean {
-  if (!criteria || !criteria.trim()) return true;
-  const allComponents = Object.entries(dataElementTypesByCode).map(([code, type]) => ({
-    dataElement: { code, type },
-  }));
-  return checkJSONCriteria(criteria, allComponents as any, valuesByCode);
-}
 
 /**
  * Filters program surveys to those that pass form visibility criteria for the patient.
@@ -38,7 +18,7 @@ export async function getProgramSurveysWithFormVisibility(
   const questionCodes = [
     ...new Set(
       surveys.flatMap(s =>
-        getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria || ''),
+        getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? ''),
       ),
     ),
   ].filter(Boolean);

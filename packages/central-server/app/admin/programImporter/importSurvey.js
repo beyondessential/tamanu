@@ -1,7 +1,7 @@
 import { utils } from 'xlsx';
 import { Op } from 'sequelize';
 import { CHARTING_SURVEY_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { getQuestionCodesFromFormVisibilityCriteria } from '@tamanu/shared/utils/criteria';
+import { getQuestionCodesFromFormVisibilityCriteria } from '@tamanu/utils/criteria';
 
 import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importer/importRows';
