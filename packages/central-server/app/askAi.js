@@ -1,0 +1,122 @@
+import express from 'express';
+import asyncHandler from 'express-async-handler';
+import config from 'config';
+import { NotFoundError } from '@tamanu/errors';
+import { chat } from '@tamanu/shared/services/AskAiService';
+
+export const askAiRoutes = express.Router();
+
+askAiRoutes.use(
+  asyncHandler(async (req, res, next) => {
+    if (!config.get('askAi').enabled) {
+      req.flagPermissionChecked();
+      res.status(503).json({ error: 'Ask AI is not enabled on this server' });
+      return;
+    }
+    next();
+  }),
+);
+
+// POST /ask-ai/conversations
+askAiRoutes.post(
+  '/conversations',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { models } = req;
+    const { title } = req.body;
+
+    const conversation = await models.AskAiConversation.create({
+      userId: req.user.id,
+      title: title ?? 'New conversation',
+    });
+
+    res.send(conversation);
+  }),
+);
+
+// GET /ask-ai/conversations
+askAiRoutes.get(
+  '/conversations',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { models } = req;
+
+    const conversations = await models.AskAiConversation.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.send({ data: conversations, count: conversations.length });
+  }),
+);
+
+// GET /ask-ai/conversations/:id
+askAiRoutes.get(
+  '/conversations/:id',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { models } = req;
+
+    const conversation = await models.AskAiConversation.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+
+    if (!conversation) throw new NotFoundError();
+
+    const messages = await models.AskAiMessage.findAll({
+      where: { conversationId: conversation.id },
+      order: [['createdAt', 'ASC']],
+    });
+
+    res.send({ ...conversation.toJSON(), messages });
+  }),
+);
+
+// POST /ask-ai/conversations/:id/messages
+askAiRoutes.post(
+  '/conversations/:id/messages',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { models } = req;
+    const askAiConfig = config.get('askAi');
+
+    const conversation = await models.AskAiConversation.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+
+    if (!conversation) throw new NotFoundError();
+
+    const { content } = req.body;
+
+    const response = await chat({
+      conversationId: conversation.id,
+      userMessage: content,
+      ragDatabaseUrl: askAiConfig.ragDatabaseUrl,
+      models,
+      voyageApiKey: askAiConfig.voyageApiKey,
+      anthropicApiKey: askAiConfig.anthropicApiKey,
+      ragNamespace: askAiConfig.ragNamespace,
+    });
+
+    res.send(response);
+  }),
+);
+
+// DELETE /ask-ai/conversations/:id
+askAiRoutes.delete(
+  '/conversations/:id',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { models } = req;
+
+    const conversation = await models.AskAiConversation.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+
+    if (!conversation) throw new NotFoundError();
+
+    await conversation.destroy();
+
+    res.send({});
+  }),
+);

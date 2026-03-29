@@ -518,5 +518,12 @@
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
     "registerTokenDurationMinutes": 43800 // 1 month
-  }
+  },
+  askAi: {
+    enabled: false, // Set to true in local.json5 once API keys are configured
+    anthropicApiKey: '', // Anthropic API key for LLM calls
+    voyageApiKey: '', // Voyage AI API key for query embedding
+    ragNamespace: 'tamanu', // Namespace used when indexing with github-repo-rag
+    ragDatabaseUrl: '', // PostgreSQL connection URL for the RAG database, e.g. postgresql://user:pass@localhost:5432/tamanu-rag
+  },
 }

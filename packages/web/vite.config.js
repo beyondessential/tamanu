@@ -61,15 +61,15 @@ export default async () => {
       host: 'localhost',
       proxy: {
         '/api': {
-          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
+          target: process.env.TAMANU_VITE_TARGET ?? 'http://localhost:4000',
           // specify other servers to use as backend by setting the environment variable, e.g.
-          // TAMANU_VITE_TARGET=http://localhost:3000
-          // TAMANU_VITE_TARGET=http://localhost:4000
-          // TAMANU_VITE_TARGET=https://central.main.cd.tamanu.app
+          // TAMANU_VITE_TARGET=http://localhost:4000 (facility)
+          // TAMANU_VITE_TARGET=http://localhost:3000 (central)
+          // TAMANU_VITE_TARGET=https://facility-1.main.cd.tamanu.app
           changeOrigin: true,
         },
         '/api/socket.io': {
-          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
+          target: process.env.TAMANU_VITE_TARGET ?? 'http://localhost:4000',
           ws: true,
         },
       },

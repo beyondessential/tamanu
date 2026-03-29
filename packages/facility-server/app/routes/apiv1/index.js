@@ -15,6 +15,7 @@ import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
+import { askAi } from './askAi';
 import { appointments } from './appointments';
 import { asset } from './asset';
 import { attachment } from './attachment';
@@ -131,6 +132,7 @@ apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
 apiv1.use('/telegram', telegramRoutes);
+apiv1.use('/ask-ai', askAi);
 
 // patient data endpoints
 patientDataRoutes.use('/allergy', allergy);
