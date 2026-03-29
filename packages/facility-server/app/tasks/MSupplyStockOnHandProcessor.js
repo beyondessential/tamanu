@@ -163,9 +163,14 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     });
 
     if (records.length > 0) {
-      await this.models.ReferenceDrugFacility.bulkCreate(records, {
-        updateOnDuplicate: ['quantity', 'stockStatus'],
-      });
+      await Promise.all(
+        records.map(({ referenceDrugId, facilityId, quantity, stockStatus }) =>
+          this.models.ReferenceDrugFacility.update(
+            { quantity, stockStatus },
+            { where: { referenceDrugId, facilityId } },
+          ),
+        ),
+      );
     }
 
     return { updated: records.length, skipped };
