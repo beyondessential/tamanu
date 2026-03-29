@@ -52,9 +52,9 @@
     "data": {
       "timeZone": "UTC",
       "country": {
-        "name": "Utopia",
-        "alpha-2": "UT",
-        "alpha-3": "UTO"
+        "name": "New Zealand",
+        "alpha-2": "NZ",
+        "alpha-3": "NZL"
       },
       "imagingTypes": {
         "orthopantomography": { "label": "Orthopantomography" },
