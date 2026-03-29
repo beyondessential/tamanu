@@ -10,28 +10,14 @@ import { resolver } from './resolver';
 /**
  * Run the FHIR worker process. Shared between central-server and facility-server.
  * @param {object} options
- * @param {{ init: (opts: { appType: string, dbKey?: string }) => Promise<{ store: object, close: () => Promise<void>, waitForClose: () => Promise<void> }> }} options.ApplicationContext - Context class with .init({ appType, dbKey })
- * @param {string} options.appType - e.g. 'fhir-worker'
+ * @param {{ store: object, close: () => Promise<void>, waitForClose: () => Promise<void> }} options.context - Inited application context
+ * @param {{ get: (key: string) => Promise<unknown> }} options.settings - ReadSettings for fhir.worker.* (e.g. central context.settings, facility context.settings.global)
  * @param {string} options.serverName - For logging, e.g. 'Central' or 'Facility'
  * @param {string} options.version - Server version string
- * @param {string} [options.name] - Optional worker name for dbKey
- * @param {boolean} [options.skipMigrationCheck]
  * @param {string | string[] | null} [options.topics] - Comma string or array; null = all
  */
-export async function runStartFhirWorker({
-  ApplicationContext,
-  appType,
-  serverName,
-  version,
-  name,
-  skipMigrationCheck,
-  topics,
-}) {
+export async function runStartFhirWorker({ context, settings, serverName, version, topics }) {
   log.info(`Starting ${serverName} FHIR worker version ${version}`);
-
-  const dbKey = name ? `${appType}(${name})` : appType;
-  const context = await new ApplicationContext().init({ appType, dbKey });
-  await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   if (!topics || topics === 'all') {
     topics = null;
@@ -42,7 +28,7 @@ export async function runStartFhirWorker({
 
   const worker = await startFhirWorkerTasks({
     store: context.store,
-    settings: context.settings,
+    settings,
     topics,
   });
 
