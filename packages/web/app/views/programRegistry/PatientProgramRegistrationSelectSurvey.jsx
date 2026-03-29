@@ -53,7 +53,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     () =>
       api
         .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`, {
-          params: patientId ? { patientId } : {},
+          ...(patientId ? { patientId } : {}),
         })
         .then(response => {
           return response.data

@@ -102,7 +102,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
       try {
         const { data } = await api.get(`program/${programId}/surveys`, {
-          params: patient?.id ? { patientId: patient.id } : {},
+          ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
         setSurveys(
