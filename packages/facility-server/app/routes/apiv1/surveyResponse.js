@@ -18,7 +18,13 @@ surveyResponse.get(
     req.checkPermission('read', 'SurveyResponse');
 
     const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
-    const survey = await surveyResponseRecord.getSurvey();
+    if (!surveyResponseRecord) {
+      throw new NotFoundError('Survey response not found');
+    }
+    const survey = await surveyResponseRecord.getSurvey({ paranoid: false });
+    if (!survey) {
+      throw new NotFoundError('Associated survey not found');
+    }
 
     req.checkPermission('read', survey);
 
