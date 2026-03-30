@@ -3,9 +3,25 @@ import * as yup from 'yup';
 
 import { TextField, Form, FormGrid } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Field } from '../components/Field';
+import { DEVICE_REGISTRATION_PERMISSION } from '@tamanu/constants';
+import { Field, SelectField } from '../components/Field';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+
+const deviceRegistrationPermissionOptions = [
+  {
+    value: DEVICE_REGISTRATION_PERMISSION.NONE,
+    label: <TranslatedText stringId="admin.users.devicePermission.none" fallback="None" />,
+  },
+  {
+    value: DEVICE_REGISTRATION_PERMISSION.SINGLE,
+    label: <TranslatedText stringId="admin.users.devicePermission.single" fallback="Single device" />,
+  },
+  {
+    value: DEVICE_REGISTRATION_PERMISSION.UNLIMITED,
+    label: <TranslatedText stringId="admin.users.devicePermission.unlimited" fallback="Unlimited" />,
+  },
+];
 
 export const NewUserForm = memo(({ onSubmit, onCancel }) => {
   const renderForm = ({ submitForm }) => (
@@ -86,6 +102,20 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
         }
         component={TextField}
         data-testid="field-xzdn"
+      />
+      <Field
+        name="deviceRegistrationPermission"
+        label={
+          <TranslatedText
+            stringId="admin.users.deviceRegistrationPermission.label"
+            fallback="Device registration"
+            data-testid="translatedtext-drp1"
+          />
+        }
+        component={SelectField}
+        options={deviceRegistrationPermissionOptions}
+        isClearable={false}
+        data-testid="field-drp1"
       />
       <ModalFormActionRow
         confirmText={
@@ -175,6 +205,15 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
               stringId="user.phoneNumber.label"
               fallback="Phone number"
               data-testid="translatedtext-nyyf"
+            />,
+          ),
+        deviceRegistrationPermission: yup
+          .string()
+          .translatedLabel(
+            <TranslatedText
+              stringId="admin.users.deviceRegistrationPermission.label"
+              fallback="Device registration"
+              data-testid="translatedtext-drpv"
             />,
           ),
       })}

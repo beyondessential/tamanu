@@ -1,6 +1,7 @@
 import { difference } from 'lodash';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
+  DEVICE_REGISTRATION_PERMISSION,
   DEVICE_SCOPES,
   DEVICE_SCOPES_SUBJECT_TO_QUOTA,
   SETTING_KEYS,
@@ -147,13 +148,22 @@ export class Device extends Model {
           scopes,
         });
 
-        const deviceRegistrationQuotaEnabled = await settings.get(
-          SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED as SettingPath,
+        const deviceRegistrationEnabled = await settings.get(
+          SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_ENABLED as SettingPath,
         );
 
-        if (deviceRegistrationQuotaEnabled && device.requiresQuota()) {
-          const currentCount = await Device.getQuotaByUserId(user.id);
-          if (currentCount + 1 > user.deviceRegistrationQuota) {
+        if (deviceRegistrationEnabled && device.requiresQuota()) {
+          const permission = user.deviceRegistrationPermission;
+
+          if (permission === DEVICE_REGISTRATION_PERMISSION.UNLIMITED) {
+            // Unlimited permission: allow registration
+          } else if (permission === DEVICE_REGISTRATION_PERMISSION.SINGLE) {
+            const currentCount = await Device.getQuotaByUserId(user.id);
+            if (currentCount >= 1) {
+              throw new QuotaExceededError();
+            }
+          } else {
+            // NONE or any unrecognized value: fail closed
             throw new QuotaExceededError();
           }
         }
