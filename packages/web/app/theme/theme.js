@@ -13,7 +13,7 @@ const cssReset = {
     interpolateSize: 'allow-keywords',
     textWrap: 'pretty',
   },
-  ':where(h1, h2, h3, h4, h5, h6)': {
+  ':where(button, figcaption, h1, h2, h3, h4, h5, h6, label)': {
     textWrap: 'balance',
   },
   ':where(button, input, textarea, select)': {
