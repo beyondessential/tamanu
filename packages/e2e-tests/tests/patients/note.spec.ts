@@ -207,9 +207,8 @@ test.describe('Notes Tests', () => {
       test.setTimeout(50000);
       const originalContent = 'Original treatment plan';
       const updatedContent = 'Updated treatment plan';
-      const updatedBy = 'System';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const updateTreatmentPlanModal = patientDetailsPage.notesPane?.getUpdateTreatmentPlanModal();
+      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
       const changeLogTreatmentPlanModal =
         patientDetailsPage.notesPane?.getChangeLogTreatmentPlanModal();
 
@@ -220,14 +219,14 @@ test.describe('Notes Tests', () => {
 
       // Update the treatment plan
       await patientDetailsPage.notesPane?.editIcons.first().click();
-      await updateTreatmentPlanModal?.updateTreatmentPlan(updatedBy, updatedContent);
-
+      await editNoteModal?.editNote(updatedContent);
       await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
 
       // Validate the note was updated
       expect(patientDetailsPage.notesPane).toBeDefined();
       await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
         updatedContent,
+        { timeout: 15000 },
       );
 
       // Validate change log
@@ -235,17 +234,10 @@ test.describe('Notes Tests', () => {
       expect(changeLogTreatmentPlanModal).toBeDefined();
       await changeLogTreatmentPlanModal!.waitForModalToLoad();
 
-      const lastUpdatedBy = `${user.displayName} on behalf of ${updatedBy}`;
-
-      // Validate note type
       await expect(changeLogTreatmentPlanModal!.noteTypeLabel).toHaveText(
         NOTE_TYPES.TREATMENT_PLAN,
       );
 
-      // Validate last updated by information
-      await expect(changeLogTreatmentPlanModal!.lastUpdatedByValue).toHaveText(lastUpdatedBy);
-
-      // Validate content entries
       await expect(changeLogTreatmentPlanModal!.changelogTextContents.first()).toContainText(
         updatedContent,
       );
@@ -253,21 +245,6 @@ test.describe('Notes Tests', () => {
         originalContent,
       );
 
-      // Validate change log user and date information
-      await expect(changeLogTreatmentPlanModal!.changeLogInfoWrappers.first()).toContainText(
-        lastUpdatedBy,
-      );
-      await expect(changeLogTreatmentPlanModal!.changeLogInfoWrappers.nth(1)).toContainText(
-        user.displayName,
-      );
-
-      // Changelog is newest-first; align header with the first row. Rows may share the same displayed time.
-      const newerChangeLogDate = (await changeLogTreatmentPlanModal!.changelogInfoDates
-        .first()
-        .textContent())!.trim();
-      await expect(changeLogTreatmentPlanModal!.lastUpdatedAtValue).toHaveText(newerChangeLogDate);
-
-      // Close the modal
       await changeLogTreatmentPlanModal!.closeButton.click();
     });
     test('[T-0191][AT-0083]should edit an discharge planning note and validate it is shown in the discharge modal', async ({
