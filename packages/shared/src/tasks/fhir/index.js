@@ -11,7 +11,7 @@ import { resolver } from './resolver';
  * Run the FHIR worker process. Shared between central-server and facility-server.
  * @param {object} options
  * @param {{ store: object, close: () => Promise<void>, waitForClose: () => Promise<void> }} options.context - Inited application context
- * @param {{ get: (key: string) => Promise<unknown> }} options.settings - ReadSettings for fhir.worker.* (e.g. central context.settings, facility context.settings.global)
+ * @param {{ get: (key: string) => Promise<unknown> }} options.settings - ReadSettings for fhir.worker.* (e.g. central context.settings, facility context.settings[facilityId])
  * @param {string} options.serverName - For logging, e.g. 'Central' or 'Facility'
  * @param {string} options.version - Server version string
  * @param {string | string[] | null} [options.topics] - Comma string or array; null = all
