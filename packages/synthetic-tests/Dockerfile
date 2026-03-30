@@ -14,7 +14,8 @@ COPY packages/ packages/
 
 RUN npm ci
 RUN npm run build-shared
-RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios \
+  && ls -la /app/packages/synthetic-tests/src/merged-*.yml 2>/dev/null || true
 
 FROM node:20-slim
 
