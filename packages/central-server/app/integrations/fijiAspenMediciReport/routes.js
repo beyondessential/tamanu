@@ -10,7 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError, ForbiddenError } from '@tamanu/errors';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const routes = express.Router();
@@ -25,6 +25,14 @@ function formatDate(date) {
     '+00:00',
     "yyyy-MM-dd'T'HH:mm:ssXXX",
   ).replace(/Z$/, '+00:00');
+}
+
+function checkMediciReportPermission(req, _res, next) {
+  const { ability } = req;
+  if (!ability.can('read', 'MediciReport')) {
+    throw new ForbiddenError('No permission to read MediciReport');
+  }
+  next();
 }
 
 const reportQuery = `
@@ -133,6 +141,7 @@ const checkTimePeriod = (fromDate, toDate) => {
 };
 
 routes.use(requireClientHeaders);
+routes.use(checkMediciReportPermission);
 routes.get(
   '/',
   asyncHandler(async (req, res) => {
