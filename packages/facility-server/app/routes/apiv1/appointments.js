@@ -667,7 +667,7 @@ appointments.get(
       where: {
         patientId,
         status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-        startTime: { [Op.gt]: new Date() },
+        startTime: { [Op.gt]: literal("NOW()::date_time_string") },
         ...getAppointmentTypeWhereQuery(type, facilityId),
       },
       include: [
