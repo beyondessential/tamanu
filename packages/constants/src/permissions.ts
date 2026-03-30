@@ -22,7 +22,7 @@ export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb
 const { Manage, Delete, Create, Write, List, Read, Run, Submit, FhirIntegration } = PermissionVerb;
 
 // Verbs allowed at the per-object level for nouns that support objectId.
-export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+export const OBJECT_ID_PERMISSION_SCHEMA = {
   // Charting intentionally includes List and Create at the per-object level so
   // that access can be restricted to specific chart types (identified by objectId).
   Charting: [List, Read, Write, Create, Delete],
@@ -30,9 +30,11 @@ export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb
   StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
   ProgramRegistry: [Read],
-};
+} as const as Record<string, readonly PermissionVerb[]>;
 
-export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
+export const NOUNS_WITH_OBJECT_ID = Object.keys(
+  OBJECT_ID_PERMISSION_SCHEMA,
+) as (keyof typeof OBJECT_ID_PERMISSION_SCHEMA)[];
 
 // Derived from FHIR_INTEGRATION_PERMISSIONS so the two can never drift apart.
 // e.g. { FhirPatient: ['read'], FhirDiagnosticReport: ['read', 'write'], ... }
@@ -57,7 +59,7 @@ const FHIR_INTEGRATION_NOUN_SCHEMA: Record<string, PermissionVerb[]> = Object.fr
 // Display names for nouns that should appear differently in the UI.
 // The noun itself (the key) is what gets stored in the database.
 export const PERMISSION_NOUN_DISPLAY_NAMES: Partial<Record<string, string>> = Object.fromEntries(
-  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration — ${k}`]),
+  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration – ${k}`]),
 );
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -169,7 +171,7 @@ export type PermissionNoun = keyof typeof PERMISSION_SCHEMA;
 // PERMISSION_SCHEMA keys. Used for import validation only.
 export const PERMISSION_NOUNS = [...REFERENCE_TYPES_NOUNS, ...Object.keys(PERMISSION_SCHEMA)];
 
-export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
+export const VERB_ABBREVIATIONS = {
   [List]: 'L',
   [Read]: 'R',
   [Write]: 'W',
@@ -179,7 +181,7 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Run]: 'X',
   [Submit]: 'S',
   [FhirIntegration]: 'F',
-};
+} as const satisfies Record<PermissionVerb, string>;
 
 export const HIDDEN_PERMISSION_NOUNS = new Set([
   PermissionNoun.all,
@@ -188,9 +190,18 @@ export const HIDDEN_PERMISSION_NOUNS = new Set([
 
 // Verbs ordered high → low; selecting a verb auto-selects all verbs after it.
 // If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
-export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
+export const VERB_HIERARCHY = [Delete, Create, Write, Read, List] as const;
 
 // Canonical left-to-right column order for summary display (L R W C D X S).
 // Every noun gets the same number of columns so summaries stay aligned.
 // `manage` is excluded because its only noun (`all`) is hidden.
-export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit', 'fhirIntegration'];
+export const VERB_DISPLAY_ORDER = [
+  'list',
+  'read',
+  'write',
+  'create',
+  'delete',
+  'run',
+  'submit',
+  'fhirIntegration',
+] as const;

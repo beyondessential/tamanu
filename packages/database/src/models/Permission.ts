@@ -1,10 +1,15 @@
 import { DataTypes, Op } from 'sequelize';
 
-import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  OBJECT_ID_PERMISSION_SCHEMA,
+  PERMISSION_SCHEMA,
+  PermissionVerb,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
-import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model';
 
 export class Permission extends Model {
   declare id: string;
@@ -73,14 +78,19 @@ export class Permission extends Model {
     };
   }
 
-  static validatePermissionSchema(verb: PermissionVerb, noun: string, roleId: string, objectId: string) {
+  static validatePermissionSchema(
+    verb: PermissionVerb,
+    noun: string,
+    roleId: string,
+    objectId: string,
+  ) {
     if (!verb || !noun || !roleId) {
       throw new ValidationError('Each permission requires verb, noun, and roleId');
     }
 
-    const allowedVerbs = objectId
-      ? OBJECT_ID_PERMISSION_SCHEMA[noun]
-      : PERMISSION_SCHEMA[noun];
+    const allowedVerbs: readonly PermissionVerb[] = objectId
+      ? OBJECT_ID_PERMISSION_SCHEMA[noun as keyof typeof OBJECT_ID_PERMISSION_SCHEMA]
+      : PERMISSION_SCHEMA[noun as keyof typeof PERMISSION_SCHEMA];
 
     if (!allowedVerbs) {
       throw new ValidationError(
@@ -90,7 +100,9 @@ export class Permission extends Model {
       );
     }
     if (!allowedVerbs.includes(verb)) {
-      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`);
+      throw new ValidationError(
+        `Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`,
+      );
     }
   }
 
