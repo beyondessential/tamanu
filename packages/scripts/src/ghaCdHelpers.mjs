@@ -55,6 +55,10 @@ export function parseDeployConfig({ body, control, ref }, context) {
       ? deploys
       : deploys.filter(d => d.inlineName === opt.targetName);
 
+    if (opt.targetName !== null && targets.length === 0) {
+      console.warn(`deployopt target '${opt.targetName}' did not match any deploy`);
+    }
+
     for (const deploy of targets) {
       for (const key of opt.options._explicit) {
         deploy.options[key] = opt.options[key];
