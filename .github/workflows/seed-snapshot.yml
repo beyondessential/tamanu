@@ -30,13 +30,12 @@ permissions:
   contents: read
   id-token: write
 
-env:
-  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-  PULUMI_STACK: bes/seed-snapshot/tamanu-internal-main
-
 jobs:
   create-snapshot:
     runs-on: ubuntu-latest
+    env:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      PULUMI_STACK: bes/seed-snapshot/tamanu-internal-main
     name: Seed snapshot for ${{ inputs.version }} (PG ${{ inputs.postgres_major }})
     timeout-minutes: 75
     steps:
