@@ -26,7 +26,7 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     {
-      enabled: Boolean(encounterId),
+      enabled: Boolean(encounterId) && Boolean(startDate) && Boolean(endDate),
     },
   );
 

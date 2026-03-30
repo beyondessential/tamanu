@@ -13,14 +13,11 @@ export function readHandler(FhirResource) {
     const { id } = req.params;
 
     // TODO: support _summary and _elements
-    // const parameters = new Map([
-    //   normaliseParameter(['_summary', RESULT_PARAMETERS._summary], {
-    //     path: [],
-    //     sortable: false,
-    //   }),
-    // ]);
-    // const query = await parseRequest(req, parameters);
-    const record = await FhirResource.findByPk(id);
+    const query = FhirResource.applyPermissionsFilterToSearchQuery(
+      { where: { id } },
+      req.ability,
+    );
+    const record = await FhirResource.findOne(query);
     if (!record) throw new NotFound(`no ${FhirResource.fhirName} with id ${id}`);
 
     let totalAwaitedTime = 0;
