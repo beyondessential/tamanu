@@ -56,14 +56,16 @@ export function parseDeployConfig({ body, control, ref }, context) {
       : deploys.filter(d => d.inlineName === opt.targetName);
 
     for (const deploy of targets) {
-      for (const [key, value] of Object.entries(opt.options)) {
-        const def = OPTIONS.find(o => o.key === key);
-        if (def && value !== def.defaultValue) deploy.options[key] = value;
+      for (const key of opt.options._explicit) {
+        deploy.options[key] = opt.options[key];
       }
     }
   }
 
-  for (const deploy of deploys) delete deploy.inlineName;
+  for (const deploy of deploys) {
+    delete deploy.inlineName;
+    delete deploy.options._explicit;
+  }
   return deploys;
 }
 
@@ -205,6 +207,7 @@ function parseOptions(str, context) {
   );
 
   const options = {};
+  const explicit = new Set();
   for (const { key, defaultValue, parse = null, presence = false } of OPTIONS) {
     if (!inputs.has(key)) {
       if (typeof defaultValue === 'function') {
@@ -214,6 +217,8 @@ function parseOptions(str, context) {
       }
       continue;
     }
+
+    explicit.add(key);
 
     if (presence) {
       options[key] = true;
@@ -227,6 +232,7 @@ function parseOptions(str, context) {
     options[key] = value;
   }
 
+  options._explicit = explicit;
   return options;
 }
 
