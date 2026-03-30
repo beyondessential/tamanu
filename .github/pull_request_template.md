@@ -2,17 +2,17 @@
 
 _Add a brief description of the changes in this PR to help give the reviewer context._
 
-### Deploys
-
 <details>
 <summary>
 
-- [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
+### Auto-Deploy
+
+- [ ] **Deploy** <!-- #deploy -->
 
 </summary>
 
-- [ ] Synthetic traffic <!-- #deployopt %synthetic -->
-- [ ] Pause after deploy <!-- #deployopt %pause -->
+Options:
+- [ ] Synthetic test <!-- #deployopt %synthetic -->
 
 </details>
 
