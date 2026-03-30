@@ -1,7 +1,12 @@
 import { DataTypes, Op } from 'sequelize';
 
-import type { PermissionNoun, PermissionVerb } from '@tamanu/constants';
-import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  OBJECT_ID_PERMISSION_SCHEMA,
+  PERMISSION_SCHEMA,
+  SYNC_DIRECTIONS,
+  type PermissionNoun,
+  type PermissionVerb,
+} from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
 import type { InitOptions, Models } from '../types/model';
