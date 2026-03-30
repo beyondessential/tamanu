@@ -61,6 +61,10 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
   border-start-start-radius: 0;
   box-shadow: unset;
+
+  .MuiTableCell-body {
+    padding-block: 10px;
+  }
 `;
 
 export const Article = styled.article`
