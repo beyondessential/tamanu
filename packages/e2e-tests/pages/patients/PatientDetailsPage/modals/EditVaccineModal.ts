@@ -3,7 +3,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientModal } from './BasePatientModal';
 import { editFieldOption } from '@utils/fieldHelpers';
 import {
-  formatForMuiDateTimePicker,
+  fillMuiDateTimeField,
   getSidebarFacilityDisplayName,
   normalizeToIsoDate,
 } from '@utils/testHelper';
@@ -126,8 +126,7 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await this.dateGiven.fill(formatForMuiDateTimePicker(dateGiven));
-      await this.dateGiven.blur();
+      await fillMuiDateTimeField(this.dateGiven, dateGiven);
       editedFields.dateGiven = dateGiven;
     }
 
