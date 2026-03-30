@@ -16,6 +16,9 @@ import {
 import { NotFoundError, EditConflictError, InvalidOperationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
+import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -615,7 +618,7 @@ appointments.get(
         }
         WHERE patient_id = :patientId
           AND status != :cancelledStatus
-          AND start_time < NOW()::date_time_string
+          AND start_time < (NOW() AT TIME ZONE :primaryTimeZone)::date_time_string
           AND ${type === 'outpatient' ? 'location_groups.facility_id = :facilityId' : 'locations.facility_id = :facilityId'}
         LIMIT 1
       ) as "hasPastAppointment"
@@ -626,6 +629,7 @@ appointments.get(
           facilityId,
           cancelledStatus: APPOINTMENT_STATUSES.CANCELLED,
           typeColumn: type === 'outpatient' ? 'location_group_id' : 'location_id',
+          primaryTimeZone: getPrimaryTimeZone(config),
         },
         type: QueryTypes.SELECT,
       },
@@ -667,7 +671,7 @@ appointments.get(
       where: {
         patientId,
         status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
-        startTime: { [Op.gt]: literal("NOW()::date_time_string") },
+        startTime: { [Op.gt]: getCurrentPrimaryTimeZoneDateTimeString() },
         ...getAppointmentTypeWhereQuery(type, facilityId),
       },
       include: [
