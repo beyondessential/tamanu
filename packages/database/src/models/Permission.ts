@@ -80,7 +80,7 @@ export class Permission extends Model {
 
   static validatePermissionSchema(
     verb: PermissionVerb,
-    noun: string,
+    noun: keyof typeof PERMISSION_SCHEMA,
     roleId: string,
     objectId: string,
   ) {
@@ -90,7 +90,7 @@ export class Permission extends Model {
 
     const allowedVerbs: readonly PermissionVerb[] = objectId
       ? OBJECT_ID_PERMISSION_SCHEMA[noun as keyof typeof OBJECT_ID_PERMISSION_SCHEMA]
-      : PERMISSION_SCHEMA[noun as keyof typeof PERMISSION_SCHEMA];
+      : PERMISSION_SCHEMA[noun];
 
     if (!allowedVerbs) {
       throw new ValidationError(
