@@ -20,23 +20,7 @@ import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
 import { SyncTask } from '../tasks/SyncTask';
 
-async function startApiSyncAndTasks({ skipMigrationCheck }) {
-  log.info(`Starting facility server version ${version}`, {
-    serverFacilityIds: selectFacilityIds(config),
-  });
-
-  log.info(`Process info`, {
-    execArgs: process.execArgs || '<empty>',
-  });
-
-  const context = await new ApplicationContext().init({ appType: 'api' });
-
-  if (config.db.migrateOnStartup) {
-    await context.sequelize.migrate('up');
-  } else {
-    await context.sequelize.assertUpToDate({ skipMigrationCheck });
-  }
-
+async function startApiSyncAndTasks(context) {
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
@@ -90,6 +74,22 @@ async function startApiSyncAndTasks({ skipMigrationCheck }) {
 }
 
 async function startAll({ skipMigrationCheck }) {
+  log.info(`Starting facility server version ${version}`, {
+    serverFacilityIds: selectFacilityIds(config),
+  });
+
+  log.info(`Process info`, {
+    execArgs: process.execArgs || '<empty>',
+  });
+
+  const context = await new ApplicationContext().init({ appType: 'api' });
+
+  if (config.db.migrateOnStartup) {
+    await context.sequelize.migrate('up');
+  } else {
+    await context.sequelize.assertUpToDate({ skipMigrationCheck });
+  }
+
   const fhirWorkers =
     process.env.NODE_ENV !== 'production'
       ? [
@@ -110,7 +110,7 @@ async function startAll({ skipMigrationCheck }) {
         ]
       : [];
 
-  return Promise.race([startApiSyncAndTasks({ skipMigrationCheck }), ...fhirWorkers]);
+  return Promise.race([startApiSyncAndTasks(context), ...fhirWorkers]);
 }
 
 export const startAllCommand = new Command('startAll')
