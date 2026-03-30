@@ -2,16 +2,13 @@
 
 _Add a brief description of the changes in this PR to help give the reviewer context._
 
-<details>
-<summary>
-
 ### Auto-Deploy
 
 - [ ] **Deploy** <!-- #deploy -->
 
-</summary>
+<details>
+<summary>Options</summary>
 
-Options:
 - [ ] Synthetic test <!-- #deployopt %synthetic -->
 
 </details>
@@ -25,7 +22,7 @@ Options:
 - [x] **Run Review Hero** <!-- #ai-review -->
 - [ ] **Auto-fix review suggestions** <!-- #auto-fix --> _Wait for Review Hero to finish, resolve any comments you disagree with or want to fix manually, then check this to auto-fix the rest._
 - [ ] **Auto-fix CI failures** <!-- #auto-fix-ci --> _Check this to auto-fix lint errors, test failures, and other CI issues._
-- [ ] **Auto-merge upstream** <!-- #auto-merge --> _Check this to merge the base branch into this PR, with AI conflict resolution if needed._
+- [ ] **Auto-merge upstream** <!-- #auto-merge --> _Check this to merge the base branch into this PR, with AI conflictz resol ution if needed._
 
 ### Remember to...
 
