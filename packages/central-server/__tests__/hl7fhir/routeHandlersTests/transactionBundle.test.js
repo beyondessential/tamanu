@@ -9,7 +9,10 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { fakeResourcesOfFhirServiceRequestWithLabRequest } from '../../fake/fhir';
+import {
+  ALL_FHIR_PERMISSIONS,
+  fakeResourcesOfFhirServiceRequestWithLabRequest,
+} from '../../fake/fhir';
 
 const PATH = '/api/integration/fhir/mat/Bundle';
 
@@ -20,7 +23,7 @@ describe(`FHIR API - Transaction Bundle`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
 
     const {
       Department,
