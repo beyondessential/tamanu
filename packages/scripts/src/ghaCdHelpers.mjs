@@ -2,6 +2,8 @@
 
 const RX_DEPLOY_LINE =
   /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:-->)?\s*(?:%(?<options>.+))?(?:-->)?/;
+const RX_DEPLOYOPT_LINE =
+  /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deployopt(?::(?<name>[\w-]+))?\s+(?<options>%[^>-]+)\s*(?:-->)?/;
 const RX_BRANCH_LINE = /(?:<!--)?\s*#branch=(?<ref>[^\s]+)\s*(?:-->)?/;
 
 // It's important this remains stable or doesn't change: doing so will create
@@ -19,20 +21,49 @@ export function stackName(head_ref, ref_name = null) {
 
 export function parseDeployConfig({ body, control, ref }, context) {
   const deployName = stackName(ref);
+  const lines = body?.split(/\r?\n/) ?? [];
+  const optContext = { ...context, ref };
 
   const deploys = [];
-  for (const line of body?.split(/\r?\n/) ?? []) {
-    let deployLine = RX_DEPLOY_LINE.exec(line);
-    if (deployLine) {
+  const deployOpts = [];
+
+  for (const line of lines) {
+    const deploy = RX_DEPLOY_LINE.exec(line);
+    if (deploy) {
+      const { enabled, name, options } = deploy.groups;
       deploys.push({
-        enabled: deployLine.groups.enabled === 'x',
-        name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
-        options: parseOptions(deployLine.groups.options ?? '', { ...context, ref }),
+        enabled: enabled === 'x',
+        name: [deployName, name].filter(Boolean).join('-'),
+        inlineName: name ?? null,
+        options: parseOptions(options ?? '', optContext),
         control,
+      });
+      continue;
+    }
+
+    const opt = RX_DEPLOYOPT_LINE.exec(line);
+    if (opt && opt.groups.enabled === 'x') {
+      deployOpts.push({
+        targetName: opt.groups.name ?? null,
+        options: parseOptions(opt.groups.options ?? '', optContext),
       });
     }
   }
 
+  for (const opt of deployOpts) {
+    const targets = opt.targetName === null
+      ? deploys
+      : deploys.filter(d => d.inlineName === opt.targetName);
+
+    for (const deploy of targets) {
+      for (const [key, value] of Object.entries(opt.options)) {
+        const def = OPTIONS.find(o => o.key === key);
+        if (def && value !== def.defaultValue) deploy.options[key] = value;
+      }
+    }
+  }
+
+  for (const deploy of deploys) delete deploy.inlineName;
   return deploys;
 }
 
@@ -64,6 +95,7 @@ const OPTIONS = [
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },
+  { key: 'seed', defaultValue: false, presence: true },
 
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
@@ -236,6 +268,7 @@ export function configMap(deployName, imageTag, options) {
       patientPortalReplicas: options.patientportals,
 
       syntheticTests: options.synthetic,
+      seedFromSnapshot: options.seed,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
