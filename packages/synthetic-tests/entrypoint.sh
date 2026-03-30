@@ -15,6 +15,16 @@ if [[ -z "$FACILITY_TARGETS" && -z "$CENTRAL_TARGETS" ]]; then
   exit 1
 fi
 
+if [[ -n "$FACILITY_TARGETS" && ! -f "$SCENARIO_DIR/merged-facility.yml" ]]; then
+  echo "ERROR: FACILITY_TARGETS is set but $SCENARIO_DIR/merged-facility.yml does not exist" >&2
+  exit 1
+fi
+
+if [[ -n "$CENTRAL_TARGETS" && ! -f "$SCENARIO_DIR/merged-central.yml" ]]; then
+  echo "ERROR: CENTRAL_TARGETS is set but $SCENARIO_DIR/merged-central.yml does not exist" >&2
+  exit 1
+fi
+
 trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]]}"}"; echo "$s"; }
 
 wait_for_target() {
