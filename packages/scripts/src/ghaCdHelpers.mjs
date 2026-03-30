@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 const RX_DEPLOY_LINE =
-  /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:-->)?\s*(?:%(?<options>.+))?(?:-->)?/;
+  /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deploy(?!opt)(?:=(?<name>[\w-]+))?\s*(?:-->)?\s*(?:%(?<options>.+))?(?:-->)?/;
 const RX_DEPLOYOPT_LINE =
   /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deployopt(?::(?<name>[\w-]+))?\s+(?<options>%[^>-]+)\s*(?:-->)?/;
 const RX_BRANCH_LINE = /(?:<!--)?\s*#branch=(?<ref>[^\s]+)\s*(?:-->)?/;
