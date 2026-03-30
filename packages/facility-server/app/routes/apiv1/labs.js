@@ -674,22 +674,41 @@ labTest.get(
 
     const distinctChanges = [];
     let lastResult;
+    let lastSecondaryResult;
 
     for (const changeLog of changeLogs) {
       const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
-      const { result } = recordData;
+      const { result, secondaryResult } = recordData;
 
+      // Track result changes
       if (result !== lastResult) {
         distinctChanges.push({
-          id,
+          id: `${id}-result`,
           loggedAt,
           result,
+          fieldType: 'result',
           updatedByUserId,
           updatedByDisplayName: updatedByUser?.displayName,
         });
         lastResult = result;
       }
+
+      // Track secondary result changes
+      if (secondaryResult !== lastSecondaryResult) {
+        distinctChanges.push({
+          id: `${id}-secondaryResult`,
+          loggedAt,
+          result: secondaryResult,
+          fieldType: 'secondaryResult',
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
+        });
+        lastSecondaryResult = secondaryResult;
+      }
     }
+
+    // Sort by loggedAt descending to ensure chronological order
+    distinctChanges.sort((a, b) => new Date(b.loggedAt) - new Date(a.loggedAt));
 
     res.send(distinctChanges);
   }),

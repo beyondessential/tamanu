@@ -254,11 +254,19 @@ export const LabTestResultModal = React.memo(
                 {visibleHistory.map(item => (
                   <HistoryItem key={item.id} data-testid="historyitem-hist">
                     <HistoryItemValue data-testid="historyitemvalue-result">
-                      <TranslatedText
-                        stringId="lab.modal.testResult.history.result"
-                        fallback="Result: "
-                        data-testid="translatedtext-result"
-                      />
+                      {item.fieldType === 'secondaryResult' ? (
+                        <TranslatedText
+                          stringId="lab.modal.testResult.history.secondaryResult"
+                          fallback="Secondary result: "
+                          data-testid="translatedtext-secondaryresult"
+                        />
+                      ) : (
+                        <TranslatedText
+                          stringId="lab.modal.testResult.history.result"
+                          fallback="Result: "
+                          data-testid="translatedtext-result"
+                        />
+                      )}
                       {item.result || '-'}
                     </HistoryItemValue>
                     <HistoryItemLabel data-testid="historyitemlabel-time">
