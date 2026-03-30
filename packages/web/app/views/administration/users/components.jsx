@@ -16,7 +16,7 @@ export const Search = styled('search')`
 export const StyledForm = styled(Form)`
   display: grid;
   gap: inherit;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
 `;
 
 export const ButtonGroup = styled.div`
