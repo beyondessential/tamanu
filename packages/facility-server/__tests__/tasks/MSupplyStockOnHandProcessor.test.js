@@ -285,8 +285,8 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('updates existing stock entries for matching medications', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
-        { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId2, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK },
       ]);
 
       mockAuthResponse();
@@ -338,7 +338,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('skips medications without a matching reference data code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
       ]);
 
       mockAuthResponse();
@@ -360,7 +360,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('skips stock lines without a universal code', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
       ]);
 
       mockAuthResponse();
@@ -381,7 +381,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     it('aggregates multiple stock lines for the same drug', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
-        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: 0, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
+        { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
       ]);
 
       mockAuthResponse();
