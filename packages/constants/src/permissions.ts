@@ -34,7 +34,7 @@ export const OBJECT_ID_PERMISSION_SCHEMA = {
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(
   OBJECT_ID_PERMISSION_SCHEMA,
-) as (keyof typeof OBJECT_ID_PERMISSION_SCHEMA)[];
+) as readonly (keyof typeof OBJECT_ID_PERMISSION_SCHEMA)[];
 
 // Derived from FHIR_INTEGRATION_PERMISSIONS so the two can never drift apart.
 // e.g. { FhirPatient: ['read'], FhirDiagnosticReport: ['read', 'write'], ... }
