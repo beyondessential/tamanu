@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Outpatient appointments', () => {
-  test('Create an outpatient appointment', async () => {});
+test('Create an outpatient appointment', async () => {
+  // placeholder
 });

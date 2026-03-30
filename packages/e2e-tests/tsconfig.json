@@ -15,7 +15,11 @@
       "@fixtures/*": ["fixtures/*"],
       "@utils/*": ["utils/*"],
       "@pages/*": ["pages/*"],
-      "@config/*": ["config/*"]
+      "@config/*": ["config/*"],
+      "@helpers/*": ["helpers/*"],
+      "@components/*": ["components/*"],
+      "@ids": ["ids/testIds"],
+      "@data/*": ["data/*"]
     }
   },
   "include": ["**/*.ts"],

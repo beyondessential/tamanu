@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Emergency patients', () => {
-  test("Check triage category counts only include 'Triage' encounters", async () => {});
+test('Check triage category counts only include \'Triage\' encounters', async () => {
+  // placeholder
 });

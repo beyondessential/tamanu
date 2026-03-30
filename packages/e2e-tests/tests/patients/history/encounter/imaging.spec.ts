@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '../../../../fixtures/test';
 
-test.describe('Imaging', () => {
-  test('Finalise a new imaging request', async () => {});
+test('Finalise a new imaging request', async () => {
+  // placeholder
 });

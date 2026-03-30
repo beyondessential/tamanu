@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { goToFacilityFrontend } from '../utils/navigation';
+import { test, expect } from '../fixtures/test';
+import { goToFacility } from '@helpers/navigation';
 
 test('homepage has expected title', async ({ page }) => {
-  await goToFacilityFrontend(page);
+  await goToFacility(page);
   await expect(page).toHaveTitle(/Tamanu/);
 });

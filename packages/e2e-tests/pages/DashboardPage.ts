@@ -1,9 +1,10 @@
 import { Page } from '@playwright/test';
+import { facilityUrl, routes } from '@helpers/navigation';
 
-import { BasePage } from './BasePage';
+export class DashboardPage {
+  constructor(readonly page: Page) {}
 
-export class DashboardPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
+  async goto(): Promise<void> {
+    await this.page.goto(facilityUrl(routes.dashboard));
   }
 }

@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Lab requests', () => {
-  test('Search for active lab requests', async () => {});
+test('Search for active lab requests', async () => {
+  // placeholder
 });

@@ -1,11 +1,28 @@
-import { test, expect } from '@fixtures/baseFixture';
-import { getUser } from '@utils/apiHelpers';
-import { testData } from '@utils/testData';
+import { Page } from '@playwright/test';
+import { test, expect } from '../../fixtures/test';
+import { getUser } from '../../fixtures/api';
+import { seeds } from '@data/seeds';
+import { toIsoDateTime } from '@helpers/dates';
+import {
+  NotesPane,
+  NoteModal,
+  DiscardNoteModal,
+  ChangelogModal,
+} from '@pages/patients/NotesPage';
+import { PrepareDischargeModal } from '@pages/patients/PatientDetailsPage/modals/PrepareDischargeModal';
+import { User } from '@tamanu/database';
+
+function newNoteToolbarButton(page: Page) {
+  return page.getByTestId('row-v55c').getByRole('button', { name: 'New note' });
+}
+
+async function waitForNoteModalClosed(noteModal: NoteModal): Promise<void> {
+  await expect(noteModal.contentTextarea).toBeHidden({ timeout: 15000 });
+}
 
 test.describe('Notes Tests', () => {
-  let user: { displayName: string; [key: string]: any };
+  let user: User;
 
-  // Note Types Constants
   const NOTE_TYPES = {
     TREATMENT_PLAN: 'Treatment plan',
     DISCHARGE_PLANNING: 'Discharge planning',
@@ -13,139 +30,126 @@ test.describe('Notes Tests', () => {
     MEDICAL: 'Medical',
   } as const;
 
-  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
+  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, api, page }) => {
     user = await getUser(api);
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.navigateToNotesTab();
+    const notesPane = new NotesPane(page);
+    await notesPane.waitForNotesLoaded();
   });
 
   test.describe('Create Note Tests', () => {
     test('[T-0186][AT-0075]should create a treatment plan note with basic details', async ({
-      patientDetailsPage,
+      page,
     }) => {
+      const notesPane = new NotesPane(page);
       const noteContent = 'This is a test treatment plan note';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.TREATMENT_PLAN, noteContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(noteContent, NOTE_TYPES.TREATMENT_PLAN);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Validate note appears in the table
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteHeaderTexts.first()).toHaveText(
-        NOTE_TYPES.TREATMENT_PLAN,
-      );
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
+      await expect(notesPane.noteHeaders.first()).toHaveText(NOTE_TYPES.TREATMENT_PLAN);
+      await expect(notesPane.noteContents.first()).toContainText(noteContent);
     });
 
     test('[T-0186][AT-0076]should create a discharge planning note and validate it is shown in the discharge modal', async ({
+      page,
       patientDetailsPage,
     }) => {
+      const notesPane = new NotesPane(page);
       const noteContent = 'This is a discharge planning note';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.DISCHARGE_PLANNING, noteContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(noteContent, NOTE_TYPES.DISCHARGE_PLANNING);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Validate note appears in the table
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteHeaderTexts.first()).toHaveText(
-        NOTE_TYPES.DISCHARGE_PLANNING,
-      );
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
+      await expect(notesPane.noteHeaders.first()).toHaveText(NOTE_TYPES.DISCHARGE_PLANNING);
+      await expect(notesPane.noteContents.first()).toContainText(noteContent);
 
-      // Validate note appears in prepare discharge modal
       await patientDetailsPage.prepareDischargeButton.click();
-      const prepareDischargeModal = patientDetailsPage.getPrepareDischargeModal();
+      const prepareDischargeModal = new PrepareDischargeModal(page);
       await prepareDischargeModal.waitForModalToLoad();
       await expect(prepareDischargeModal.dischargeNoteTextarea).toContainText(noteContent);
       await prepareDischargeModal.cancelButton.click();
     });
 
-    test('[T-0186][AT-0077]should create an other note with basic details', async ({
-      patientDetailsPage,
-    }) => {
+    test('[T-0186][AT-0077]should create an other note with basic details', async ({ page }) => {
+      const notesPane = new NotesPane(page);
       const noteContent = 'This is a test other note';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.OTHER, noteContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(noteContent, NOTE_TYPES.OTHER);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Validate note appears in the table
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteHeaderTexts.first()).toHaveText(
-        NOTE_TYPES.OTHER,
-      );
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
+      await expect(notesPane.noteHeaders.first()).toHaveText(NOTE_TYPES.OTHER);
+      await expect(notesPane.noteContents.first()).toContainText(noteContent);
     });
 
     test('[T-0186][AT-0078]should validate form field values when creating a note', async ({
-      patientDetailsPage,
+      page,
     }) => {
+      const notesPane = new NotesPane(page);
       const noteContent = 'This is a test note for validation';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.waitForModalToLoad();
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
 
-      // Set up the form
-      await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill(noteContent);
+      await noteModal.noteTypeSelect.click();
+      await noteModal.noteTypeSelect.getByText(NOTE_TYPES.OTHER, { exact: true }).click();
+      await noteModal.contentTextarea.fill(noteContent);
 
-      // Validate form field values
-      await expect(newNoteModal?.getWrittenByValue()).resolves.toBe(user.displayName);
-      await expect(newNoteModal?.getDateTimeValue()).resolves.toMatch(
+      await expect(await noteModal.getWrittenByValue()).toBe(user.displayName);
+      await expect(toIsoDateTime(await noteModal.getDateTimeValue())).toMatch(
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
       );
 
-      // Complete the note creation
-      await newNoteModal?.confirmButton.click();
-      await newNoteModal?.waitForModalToClose();
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await noteModal.confirmButton.click();
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Validate note appears in the table
-      await expect(patientDetailsPage.notesPane!.noteHeaderTexts.first()).toHaveText(
-        NOTE_TYPES.OTHER,
-      );
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
+      await expect(notesPane.noteHeaders.first()).toHaveText(NOTE_TYPES.OTHER);
+      await expect(notesPane.noteContents.first()).toContainText(noteContent);
     });
 
     test('[T-0186][AT-0079]should not allow creating a note without required fields', async ({
-      patientDetailsPage,
+      page,
     }) => {
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.waitForModalToLoad();
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
 
-      // Try to submit without filling required fields
-      await newNoteModal?.confirmButton.click();
+      await noteModal.confirmButton.click();
 
-      // Modal should still be visible (validation should prevent submission)
-      expect(patientDetailsPage.notesPane).toBeDefined();
+      await expect(noteModal.noteTypeError.getByText('*Required')).toBeVisible();
       await expect(
-        patientDetailsPage.notesPane!.getNewNoteModal().noteTypeRequiredIndicator,
-      ).toBeVisible();
-      await expect(
-        patientDetailsPage.notesPane!.getNewNoteModal().noteContentRequiredIndicator,
+        page.getByTestId('field-wxzr').locator('p').getByText('*Required'),
       ).toBeVisible();
     });
 
-    test('[T-0186][AT-0080]should allow cancelling note creation', async ({
-      patientDetailsPage,
-    }) => {
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.waitForModalToLoad();
-      await newNoteModal?.selectType(NOTE_TYPES.OTHER);
-      await newNoteModal?.noteContentTextarea.fill('this is test note');
-      await newNoteModal?.cancelButton.click();
-      await newNoteModal?.discardNoteModal.waitForModalToLoad();
-      await newNoteModal?.discardNoteModal.confirmButton.click();
-      await newNoteModal?.discardNoteModal.waitForModalToClose();
-      await newNoteModal?.waitForModalToClose();
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+    test('[T-0186][AT-0080]should allow cancelling note creation', async ({ page }) => {
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
+      const discardNoteModal = new DiscardNoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.noteTypeSelect.click();
+      await noteModal.noteTypeSelect.getByText(NOTE_TYPES.OTHER, { exact: true }).click();
+      await noteModal.contentTextarea.fill('this is test note');
+      await noteModal.cancelButton.click();
+      await expect(discardNoteModal.confirmButton).toBeVisible();
+      await discardNoteModal.confirmButton.click();
+      await expect(discardNoteModal.confirmButton).toBeHidden();
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // No new note should be created
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      const noteContent = await patientDetailsPage.notesPane!.noDataMessage.textContent();
+      const noteContent = await notesPane.noDataMessage.textContent();
       expect(noteContent).toBe(
         'This patient has no notes to display. Click ‘New note’ to add a note.',
       );
@@ -154,267 +158,231 @@ test.describe('Notes Tests', () => {
 
   test.describe('Edit Note Tests', () => {
     test('[T-0191][AT-0081]should edit an existing note and view the change log', async ({
-      patientDetailsPage,
+      page,
     }) => {
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
+      const changelogModal = new ChangelogModal(page);
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const noteType = NOTE_TYPES.OTHER;
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
-      const changeLogModal = patientDetailsPage.notesPane?.getChangeLogModal();
 
-      // Create a note first
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(noteType, originalContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(originalContent, noteType);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Edit the note
-      await patientDetailsPage.notesPane?.editIcons.nth(0).click();
-      await editNoteModal?.editNote(updatedContent);
+      await notesPane.editIcon.nth(0).click();
+      await noteModal.waitForOpen();
+      await noteModal.contentTextarea.fill(updatedContent);
+      await noteModal.confirmButton.click();
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await expect(notesPane.noteContents.first()).toContainText(updatedContent);
 
-      // Validate the note was updated
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
-        updatedContent,
-      );
+      await notesPane.editedButton.first().click();
+      await expect(changelogModal.noteTypeLabel).toBeVisible();
 
-      //validate change log
-      await patientDetailsPage.notesPane!.editedButtons.first().click();
-      expect(changeLogModal).toBeDefined();
-      await changeLogModal!.waitForModalToLoad();
+      await expect(changelogModal.noteTypeLabel).toHaveText(noteType);
 
-      // Validate note type
-      await expect(changeLogModal!.noteTypeLabel).toHaveText(noteType);
+      await expect(changelogModal.changelogTexts.first()).toContainText(updatedContent);
+      await expect(changelogModal.changelogTexts.nth(1)).toContainText(originalContent);
 
-      // Validate content entries
-      await expect(changeLogModal!.changelogTextContents.first()).toContainText(updatedContent);
-      await expect(changeLogModal!.changelogTextContents.nth(1)).toContainText(originalContent);
-
-      // Dates: header uses `revisedBy.date` (newest). Changelog rows are oldest-first; nth(1) is the latest revision.
-      // That time can match nth(0) when both edits fall in the same displayed minute.
-      const newerChangeLogDate = (await changeLogModal!.changelogInfoDates
-        .nth(1)
-        .textContent())!.trim();
-      await expect(changeLogModal!.dateLabel).toHaveText(newerChangeLogDate);
-      await expect(changeLogModal!.changeLogInfoWrappers.first()).toContainText(user.displayName);
-      await changeLogModal!.closeButton.click();
+      const newerChangeLogDate = (await changelogModal.changelogDates.nth(1).textContent())!.trim();
+      await expect(changelogModal.headerDate).toHaveText(newerChangeLogDate);
+      await expect(changelogModal.infoWrappers.first()).toContainText(user.displayName);
+      await changelogModal.closeButton.click();
     });
+
     test('[T-0191][AT-0082]should update a treatment plan note and validate the change log', async ({
-      patientDetailsPage,
+      page,
     }) => {
       test.setTimeout(50000);
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
+      const changelogModal = new ChangelogModal(page);
       const originalContent = 'Original treatment plan';
       const updatedContent = 'Updated treatment plan';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
-      const changeLogTreatmentPlanModal =
-        patientDetailsPage.notesPane?.getChangeLogTreatmentPlanModal();
 
-      // Create a treatment plan note first
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.TREATMENT_PLAN, originalContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(originalContent, NOTE_TYPES.TREATMENT_PLAN);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Update the treatment plan
-      await patientDetailsPage.notesPane?.editIcons.first().click();
-      await editNoteModal?.editNote(updatedContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await notesPane.editIcon.first().click();
+      await noteModal.waitForOpen();
+      await noteModal.contentTextarea.fill(updatedContent);
+      await noteModal.confirmButton.click();
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Validate the note was updated
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
-        updatedContent,
-        { timeout: 15000 },
-      );
+      await expect(notesPane.noteContents.first()).toContainText(updatedContent, { timeout: 15000 });
 
-      // Validate change log
-      await patientDetailsPage.notesPane!.editedButtons.first().click();
-      expect(changeLogTreatmentPlanModal).toBeDefined();
-      await changeLogTreatmentPlanModal!.waitForModalToLoad();
+      await notesPane.editedButton.first().click();
+      await expect(changelogModal.noteTypeLabel).toBeVisible();
 
-      await expect(changeLogTreatmentPlanModal!.noteTypeLabel).toHaveText(
-        NOTE_TYPES.TREATMENT_PLAN,
-      );
+      await expect(changelogModal.noteTypeLabel).toHaveText(NOTE_TYPES.TREATMENT_PLAN);
 
-      await expect(changeLogTreatmentPlanModal!.changelogTextContents.first()).toContainText(
-        updatedContent,
-      );
-      await expect(changeLogTreatmentPlanModal!.changelogTextContents.nth(1)).toContainText(
-        originalContent,
-      );
+      await expect(changelogModal.changelogTexts.first()).toContainText(updatedContent);
+      await expect(changelogModal.changelogTexts.nth(1)).toContainText(originalContent);
 
-      await changeLogTreatmentPlanModal!.closeButton.click();
+      await changelogModal.closeButton.click();
     });
+
     test('[T-0191][AT-0083]should edit an discharge planning note and validate it is shown in the discharge modal', async ({
+      page,
       patientDetailsPage,
     }) => {
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
 
-      // Create a note first
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.DISCHARGE_PLANNING, originalContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(originalContent, NOTE_TYPES.DISCHARGE_PLANNING);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Edit the note
-      await patientDetailsPage.notesPane?.editIcons.nth(0).click();
-      await editNoteModal?.editNote(updatedContent);
+      await notesPane.editIcon.nth(0).click();
+      await noteModal.waitForOpen();
+      await noteModal.contentTextarea.fill(updatedContent);
+      await noteModal.confirmButton.click();
+      await waitForNoteModalClosed(noteModal);
 
-      // Validate the note was updated
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
-        updatedContent,
-      );
+      await expect(notesPane.noteContents.first()).toContainText(updatedContent);
       await patientDetailsPage.prepareDischargeButton.click();
-      const prepareDischargeModal = patientDetailsPage.getPrepareDischargeModal();
+      const prepareDischargeModal = new PrepareDischargeModal(page);
       await prepareDischargeModal.waitForModalToLoad();
       await expect(prepareDischargeModal.dischargeNoteTextarea).toHaveText(updatedContent);
     });
 
-    test('[AT-0084]should show edited indicator after editing a note', async ({
-      patientDetailsPage,
-    }) => {
+    test('[AT-0084]should show edited indicator after editing a note', async ({ page }) => {
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
 
-      // Create a note first
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.OTHER, originalContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(originalContent, NOTE_TYPES.OTHER);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Edit the note
-      await patientDetailsPage.notesPane?.editIcons.nth(0).click();
-      await editNoteModal?.editNote(updatedContent);
+      await notesPane.editIcon.nth(0).click();
+      await noteModal.waitForOpen();
+      await noteModal.contentTextarea.fill(updatedContent);
+      await noteModal.confirmButton.click();
+      await waitForNoteModalClosed(noteModal);
 
-      // Validate edited indicator appears
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.editedButtons.first()).toBeVisible();
+      await expect(notesPane.editedButton.first()).toBeVisible();
     });
 
-    test('[T-0191][AT-0085]should allow cancelling note edit', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0085]should allow cancelling note edit', async ({ page }) => {
+      const notesPane = new NotesPane(page);
+      const noteModal = new NoteModal(page);
+      const discardNoteModal = new DiscardNoteModal(page);
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      const editNoteModal = patientDetailsPage.notesPane?.getEditNoteModal();
-      const discardNoteModal = patientDetailsPage.notesPane?.getDiscardNoteModal();
 
-      // Create a note first
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.OTHER, originalContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(originalContent, NOTE_TYPES.OTHER);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
 
-      // Start editing but cancel
-      await patientDetailsPage.notesPane?.editIcons.nth(0).click();
-      await editNoteModal?.waitForModalToLoad();
-      await editNoteModal?.noteContentTextarea.fill(updatedContent);
-      await editNoteModal?.cancelButton.click();
-      await discardNoteModal?.waitForModalToLoad();
-      await discardNoteModal?.confirmButton.click();
-      await discardNoteModal?.waitForModalToClose();
+      await notesPane.editIcon.nth(0).click();
+      await noteModal.waitForOpen();
+      await noteModal.contentTextarea.fill(updatedContent);
+      await noteModal.cancelButton.click();
+      await expect(discardNoteModal.confirmButton).toBeVisible();
+      await discardNoteModal.confirmButton.click();
+      await expect(discardNoteModal.confirmButton).toBeHidden();
 
-      // Validate the note content remains unchanged
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
-        originalContent,
-      );
+      await expect(notesPane.noteContents.first()).toContainText(originalContent);
     });
   });
 
   test.describe('Notes Table Tests', () => {
     test.setTimeout(60000);
     test('[T-0189][AT-0086]treatment plan note should appear on top when creating multiple notes', async ({
-      patientDetailsPage,
+      page,
     }) => {
+      const notesPane = new NotesPane(page);
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
         { type: NOTE_TYPES.OTHER, content: 'Other note' },
         { type: NOTE_TYPES.TREATMENT_PLAN, content: 'Treatment plan note' },
       ];
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
 
-      // Create multiple notes
       for (const note of notes) {
-        await patientDetailsPage.notesPane?.newNoteButton.click();
-        await newNoteModal?.createBasicNote(note.type, note.content);
-        await newNoteModal?.waitForModalToClose();
-        await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
+        await newNoteToolbarButton(page).click();
+        const noteModal = new NoteModal(page);
+        await noteModal.waitForOpen();
+        await noteModal.fillAndSubmit(note.content, note.type);
+        await waitForNoteModalClosed(noteModal);
+        await notesPane.waitForNotesLoaded();
       }
-      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(3);
-      await patientDetailsPage.notesPane?.newNoteModal?.waitForModalToClose();
-      // Validate all notes appear in the table
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      const noteCount = await patientDetailsPage.notesPane!.noteRows.count();
+      await notesPane.waitForNoteRowsToEqual(3);
+
+      const noteCount = await notesPane.noteRows.count();
       expect(noteCount).toBe(notes.length);
 
-      //validate treatment plan note appears on top
-      await expect(patientDetailsPage.notesPane!.noteHeaderTexts.first()).toHaveText(
-        NOTE_TYPES.TREATMENT_PLAN,
-      );
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toHaveText(notes[2].content);
+      await expect(notesPane.noteHeaders.first()).toHaveText(NOTE_TYPES.TREATMENT_PLAN);
+      await expect(notesPane.noteContents.first()).toHaveText(notes[2].content);
 
-      // Validate notes appear in reverse order (last created on top)
       for (let i = 1; i < notes.length; i++) {
-        const noteIndex = notes.length - 1 - i; // Reverse the index
-        await expect(patientDetailsPage.notesPane!.noteHeaderTexts.nth(i)).toHaveText(
-          notes[noteIndex].type,
-        );
-        await expect(patientDetailsPage.notesPane!.noteContents.nth(i)).toContainText(
-          notes[noteIndex].content,
-        );
+        const noteIndex = notes.length - 1 - i;
+        await expect(notesPane.noteHeaders.nth(i)).toHaveText(notes[noteIndex].type);
+        await expect(notesPane.noteContents.nth(i)).toContainText(notes[noteIndex].content);
       }
     });
+
     test('[T-0190][AT-0087]should display read more and show less button when note content is too long', async ({
-      patientDetailsPage,
+      page,
     }) => {
-      const noteContent = testData.noteContent;
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
-      await patientDetailsPage.notesPane?.newNoteButton.click();
-      await newNoteModal?.createBasicNote(NOTE_TYPES.MEDICAL, noteContent);
-      await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
-      await expect(patientDetailsPage.notesPane!.readMoreButton.first()).toBeVisible();
-      await patientDetailsPage.notesPane!.readMoreButton.first().click();
-      await expect(patientDetailsPage.notesPane!.showLessButton.first()).toBeVisible();
+      const notesPane = new NotesPane(page);
+      const noteContent = seeds.noteContent;
+      const noteModal = new NoteModal(page);
+      await newNoteToolbarButton(page).click();
+      await noteModal.waitForOpen();
+      await noteModal.fillAndSubmit(noteContent, NOTE_TYPES.MEDICAL);
+      await waitForNoteModalClosed(noteModal);
+      await notesPane.waitForNotesLoaded();
+      await expect(notesPane.noteContents.first()).toContainText(noteContent);
+      await expect(notesPane.readMore.first()).toBeVisible();
+      await notesPane.readMore.first().click();
+      await expect(notesPane.showLess.first()).toBeVisible();
     });
 
-    test('[T-0188][AT-0088]should be able to filter notes by note type', async ({
-      patientDetailsPage,
-    }) => {
+    test('[T-0188][AT-0088]should be able to filter notes by note type', async ({ page }) => {
       test.setTimeout(50000);
+      const notesPane = new NotesPane(page);
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
         { type: NOTE_TYPES.OTHER, content: 'Other note' },
         { type: NOTE_TYPES.TREATMENT_PLAN, content: 'Treatment plan note' },
       ];
-      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
 
-      // Create multiple notes
       for (const note of notes) {
-        await patientDetailsPage.notesPane?.newNoteButton.click();
-        await newNoteModal?.createBasicNote(note.type, note.content);
+        await newNoteToolbarButton(page).click();
+        const noteModal = new NoteModal(page);
+        await noteModal.waitForOpen();
+        await noteModal.fillAndSubmit(note.content, note.type);
+        await waitForNoteModalClosed(noteModal);
       }
-      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(3);
-      // Validate all notes appear in the table
-      expect(patientDetailsPage.notesPane).toBeDefined();
-      const noteCount = await patientDetailsPage.notesPane!.noteRows.count();
+      await notesPane.waitForNoteRowsToEqual(3);
+
+      const noteCount = await notesPane.noteRows.count();
       expect(noteCount).toBe(notes.length);
 
-      // Filter notes by note type
-      await patientDetailsPage.notesPane?.noteTypeSelect.click();
-      await patientDetailsPage.notesPane?.noteTypeOptions
-        .getByText(NOTE_TYPES.TREATMENT_PLAN)
-        .click();
-      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(1);
-      await expect(patientDetailsPage.notesPane!.noteRows).toHaveCount(1);
-      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
-        notes[2].content,
-      );
+      await notesPane.filterByNoteType(NOTE_TYPES.TREATMENT_PLAN);
+      await notesPane.waitForNoteRowsToEqual(1);
+      await expect(notesPane.noteRows).toHaveCount(1);
+      await expect(notesPane.noteContents.first()).toContainText(notes[2].content);
     });
   });
 });

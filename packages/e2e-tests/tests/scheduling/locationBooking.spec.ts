@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Location bookings', () => {
-  test('Create a location booking', async () => {});
+test('Create a location booking', async () => {
+  // placeholder
 });

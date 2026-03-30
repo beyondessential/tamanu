@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '../../../../fixtures/test';
 
-test.describe('Vitals', () => {
-  test('Record vitals sign (°C)', async () => {});
+test('Record vitals sign (°C)', async () => {
+  // placeholder
 });

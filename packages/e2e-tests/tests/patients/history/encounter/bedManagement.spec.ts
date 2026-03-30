@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '../../../../fixtures/test';
 
-test.describe('Bed management', () => {
-  test('Plan patient move', async () => {});
+test('Plan patient move', async () => {
+  // placeholder
 });

@@ -1,21 +1,146 @@
-import { test } from '@fixtures/baseFixture';
-import {
-  addVaccineAndAssert,
-  expectedDueDateWeek,
-  recordScheduledVaccine,
-  confirmVaccineNoLongerScheduled,
-} from '@utils/vaccineTestHelpers';
-import { createPatient } from '@utils/apiHelpers';
-import { scrollTableToElement } from '@utils/tableHelper';
-import { subYears, subWeeks } from 'date-fns';
+import type { Page } from '@playwright/test';
+import { addWeeks, format, startOfWeek, subWeeks, subYears } from 'date-fns';
+import { test, expect } from '../../../fixtures/test';
+import { createPatient } from '../../../fixtures/api';
+import { getBrowserDate } from '@helpers/dates';
+import { VaccinePane, RecordVaccineModal } from '@pages/patients/VaccinePage';
+import { PatientVaccinePane } from '@pages/patients/PatientDetailsPage/panes/PatientVaccinePane';
+
+type Category = 'Routine' | 'Catchup' | 'Campaign' | 'Other';
+
+interface AddVaccineOptions {
+  specificVaccine?: string | null;
+  fillOptionalFields?: boolean;
+  viewVaccineRecord?: boolean;
+  isFollowUpVaccine?: boolean;
+  specificScheduleOption?: string;
+  specificDate?: string;
+  recordScheduledVaccine?: boolean;
+  vaccineGivenElsewhere?: string;
+}
+
+async function expectedDueDateWeek(date: Date, weeksToAdd: number): Promise<string> {
+  const dueDate = addWeeks(date, weeksToAdd);
+
+  const year = dueDate.getFullYear();
+  const month = dueDate.getMonth();
+  const day = dueDate.getDate();
+
+  const localDate = new Date(year, month, day);
+  const weekStart = startOfWeek(localDate, { weekStartsOn: 1 });
+
+  const utcWeekStart = new Date(
+    Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
+  );
+
+  return format(utcWeekStart, 'MM/dd/yyyy');
+}
+
+async function addVaccineAndAssert(
+  page: Page,
+  vaccinePane: VaccinePane,
+  patientPane: PatientVaccinePane,
+  given: boolean,
+  category: Category,
+  count: number,
+  {
+    specificVaccine = null,
+    fillOptionalFields = false,
+    viewVaccineRecord = false,
+    isFollowUpVaccine = false,
+    specificScheduleOption = undefined,
+    specificDate = undefined,
+    recordScheduledVaccine = false,
+    vaccineGivenElsewhere = undefined,
+  }: AddVaccineOptions = {},
+) {
+  if (recordScheduledVaccine) {
+    if (!specificVaccine || !specificScheduleOption) {
+      throw new Error('Vaccine and schedule are required when recordScheduledVaccine is true');
+    }
+    await vaccinePane.recordScheduledVaccine(specificVaccine, specificScheduleOption);
+  } else {
+    await vaccinePane.clickRecordVaccineButton();
+  }
+
+  const recordModal = new RecordVaccineModal(page);
+  const vaccine = await recordModal.recordVaccine(given, category, count, {
+    specificVaccine: specificVaccine ?? undefined,
+    fillOptionalFields,
+    isFollowUpVaccine,
+    specificScheduleOption,
+    specificDate,
+    recordScheduledVaccine,
+    vaccineGivenElsewhere,
+  });
+
+  if (!vaccine) {
+    throw new Error('Vaccine record was not created successfully');
+  }
+
+  await recordModal.waitForModalToClose();
+
+  expect(await patientPane.getRecordedVaccineCount()).toBe(count);
+
+  if (!given) {
+    await vaccinePane.notGivenCheckbox.click();
+  }
+
+  await patientPane.assertRecordedVaccineTable(vaccine);
+
+  if (viewVaccineRecord) {
+    await patientPane.viewVaccineRecordAndAssert(vaccine);
+  }
+
+  return vaccine;
+}
+
+interface RecordScheduledVaccineOptions {
+  given?: boolean;
+  category?: Category;
+  count?: number;
+}
+
+async function recordScheduledVaccine(
+  page: Page,
+  vaccinePane: VaccinePane,
+  patientPane: PatientVaccinePane,
+  vaccine: string,
+  schedule: string,
+  dueDate: string,
+  status: string,
+  options: RecordScheduledVaccineOptions = {},
+) {
+  await patientPane.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
+
+  const isGiven = options.given ?? true;
+  const category = options.category ?? 'Routine';
+  const defaultCount = isGiven ? 1 : 0;
+  const count = options.count ?? defaultCount;
+
+  await addVaccineAndAssert(page, vaccinePane, patientPane, isGiven, category, count, {
+    recordScheduledVaccine: true,
+    specificVaccine: vaccine,
+    specificScheduleOption: schedule,
+    viewVaccineRecord: true,
+  });
+}
+
+async function confirmVaccineNoLongerScheduled(
+  patientPane: PatientVaccinePane,
+  vaccine: string,
+  schedule: string,
+) {
+  const vaccineNoLongerScheduled = await patientPane.confirmScheduledVaccineDoesNotExist(
+    vaccine,
+    schedule,
+  );
+  expect(vaccineNoLongerScheduled).toBe(true);
+}
 
 test.describe('Scheduled vaccines', () => {
-  test('[AT-1045]Vaccines scheduled at birth display', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+  test('[AT-1045]Vaccines scheduled at birth display', async ({ page, api, patientDetailsPage }) => {
+    const currentDate = new Date(await getBrowserDate(page));
     const birthDueDate = await expectedDueDateWeek(currentDate, 1);
     const status = 'Due';
     const schedule = 'Birth';
@@ -26,27 +151,14 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const patientPane = new PatientVaccinePane(page);
 
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'BCG',
-      schedule,
-      birthDueDate,
-      status,
-    );
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'Hep B',
-      schedule,
-      birthDueDate,
-      status,
-    );
+    await patientPane.assertScheduledVaccinesTable('BCG', schedule, birthDueDate, status);
+    await patientPane.assertScheduledVaccinesTable('Hep B', schedule, birthDueDate, status);
   });
 
-  test('[AT-1046]Vaccines scheduled weeks from birth display', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+  test('[AT-1046]Vaccines scheduled weeks from birth display', async ({ page, api, patientDetailsPage }) => {
+    const currentDate = new Date(await getBrowserDate(page));
     const status = 'Scheduled';
 
     const sixWeekDueDate = await expectedDueDateWeek(currentDate, 6);
@@ -59,44 +171,20 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const vaccinePane = new VaccinePane(page);
+    const patientPane = new PatientVaccinePane(page);
 
-    //Load all records in the table by scrolling through table and triggering lazy loading
-    const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
-    const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
-    await scrollTableToElement(tableToScroll, rowToScrollTo);
+    await vaccinePane.scrollToVaccine('PCV13');
 
-    //6 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'PCV13',
-      '6 weeks',
-      sixWeekDueDate,
-      status,
-    );
-    //10 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'Pentavalent',
-      '10 weeks',
-      tenWeekDueDate,
-      status,
-    );
-    //14 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'PCV13',
-      '14 weeks',
-      fourteenWeekDueDate,
-      status,
-    );
+    await patientPane.assertScheduledVaccinesTable('PCV13', '6 weeks', sixWeekDueDate, status);
+    await patientPane.assertScheduledVaccinesTable('Pentavalent', '10 weeks', tenWeekDueDate, status);
+    await patientPane.assertScheduledVaccinesTable('PCV13', '14 weeks', fourteenWeekDueDate, status);
   });
 
-  test('[AT-1047]Vaccines scheduled months from birth display', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+  test('[AT-1047]Vaccines scheduled months from birth display', async ({ page, api, patientDetailsPage }) => {
+    const currentDate = new Date(await getBrowserDate(page));
     const status = 'Scheduled';
 
-    //Weeks are used in this calculation because this is how its calculated in the database
     const nineMonthDueDate = await expectedDueDateWeek(currentDate, 39);
     const fifteenMonthDueDate = await expectedDueDateWeek(currentDate, 65);
 
@@ -106,21 +194,13 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const vaccinePane = new VaccinePane(page);
+    const patientPane = new PatientVaccinePane(page);
 
-    //Load all records in the table by scrolling through table and triggering lazy loading
-    const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
-    const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
-    await scrollTableToElement(tableToScroll, rowToScrollTo);
+    await vaccinePane.scrollToVaccine('MMR');
 
-    //9 months from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'MMR',
-      '9 months',
-      nineMonthDueDate,
-      status,
-    );
-    //15 months from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
+    await patientPane.assertScheduledVaccinesTable('MMR', '9 months', nineMonthDueDate, status);
+    await patientPane.assertScheduledVaccinesTable(
       'DTP Booster',
       '15 months',
       fifteenMonthDueDate,
@@ -128,18 +208,13 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('[AT-1048]Vaccines scheduled years from birth display', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+  test('[AT-1048]Vaccines scheduled years from birth display', async ({ page, api, patientDetailsPage }) => {
+    const currentDate = new Date(await getBrowserDate(page));
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'Td Booster';
     const schedule = '10 years';
     const status = 'Due';
 
-    //521 weeks is used here because this is how the due date is calculated in the database
     const tenYearDueDate = await expectedDueDateWeek(birthDateTenYearsAgo, 521);
 
     const patient = await createPatient(api, page, {
@@ -148,14 +223,9 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const patientPane = new PatientVaccinePane(page);
 
-    //Assert that a vaccine is scheduled for a patient born 10 years ago
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      vaccine,
-      schedule,
-      tenYearDueDate,
-      status,
-    );
+    await patientPane.assertScheduledVaccinesTable(vaccine, schedule, tenYearDueDate, status);
   });
 
   test('[AT-1049]Vaccines scheduled weeks from last vaccination display', async ({
@@ -163,42 +233,31 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date(await getBrowserDate(page));
     const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'COVID-19 AZ';
     const schedule = 'Dose 2';
     const status = 'Scheduled';
 
-    //Create patient with birthdate <15 years ago because 15 years old is the threshold for scheduled vaccines
     const patient = await createPatient(api, page, {
       dateOfBirth: birthDateTenYearsAgo,
     });
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const vaccinePane = new VaccinePane(page);
+    const patientPane = new PatientVaccinePane(page);
 
-    //Give first dose of vaccine to trigger scheduled vaccine for second dose to appear
-    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 1, {
+    await addVaccineAndAssert(page, vaccinePane, patientPane, true, 'Campaign', 1, {
       specificVaccine: vaccine,
     });
 
-    //Assert that the second dose is scheduled
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      vaccine,
-      schedule,
-      doseTwoDueDate,
-      status,
-    );
+    await patientPane.assertScheduledVaccinesTable(vaccine, schedule, doseTwoDueDate, status);
   });
 
-  //Note that the "missed" status is not displayed in this table as per comments on NASS-1113
-  test('[AT-1050]Different scheduled statuses display', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+  test('[AT-1050]Different scheduled statuses display', async ({ page, api, patientDetailsPage }) => {
+    const currentDate = new Date(await getBrowserDate(page));
     const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
 
     const due = {
@@ -228,36 +287,19 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patientBornToday);
     await patientDetailsPage.navigateToVaccineTab();
+    let patientPane = new PatientVaccinePane(page);
 
-    //Assert statusDue
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'BCG',
-      'Birth',
-      due.dueDate,
-      due.status,
-    );
+    await patientPane.assertScheduledVaccinesTable('BCG', 'Birth', due.dueDate, due.status);
 
-    //Assert statusScheduled
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'PCV13',
-      '6 weeks',
-      scheduled.dueDate,
-      scheduled.status,
-    );
+    await patientPane.assertScheduledVaccinesTable('PCV13', '6 weeks', scheduled.dueDate, scheduled.status);
 
     await patientDetailsPage.goToPatient(patientBornThreeWeeksAgo);
     await patientDetailsPage.navigateToVaccineTab();
+    patientPane = new PatientVaccinePane(page);
 
-    //Assert statusOverdue
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      'BCG',
-      'Birth',
-      overdue.dueDate,
-      overdue.status,
-    );
+    await patientPane.assertScheduledVaccinesTable('BCG', 'Birth', overdue.dueDate, overdue.status);
 
-    //Assert statusUpcoming
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
+    await patientPane.assertScheduledVaccinesTable(
       'PCV13',
       '6 weeks',
       upcoming.dueDate,
@@ -265,7 +307,6 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  //Test data for recording scheduled vaccines test cases
   const recordScheduledVaccineTestCases = [
     {
       status: 'Due',
@@ -314,7 +355,7 @@ test.describe('Scheduled vaccines', () => {
       api,
       patientDetailsPage,
     }) => {
-      const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+      const currentDate = new Date(await getBrowserDate(page));
       const birthDate = getBirthDate(currentDate);
       const dueDate = await getDueDate(birthDate);
 
@@ -324,10 +365,12 @@ test.describe('Scheduled vaccines', () => {
 
       await patientDetailsPage.goToPatient(patient);
       await patientDetailsPage.navigateToVaccineTab();
+      const vaccinePane = new VaccinePane(page);
+      const patientPane = new PatientVaccinePane(page);
 
-      await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
+      await recordScheduledVaccine(page, vaccinePane, patientPane, vaccine, schedule, dueDate, status);
 
-      await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
+      await confirmVaccineNoLongerScheduled(patientPane, vaccine, schedule);
     });
   }
 
@@ -336,7 +379,7 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date(await getBrowserDate(page));
     const vaccine = 'BCG';
     const schedule = 'Birth';
     const status = 'Due';
@@ -349,18 +392,14 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const vaccinePane = new VaccinePane(page);
+    const patientPane = new PatientVaccinePane(page);
 
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status, {
+    await recordScheduledVaccine(page, vaccinePane, patientPane, vaccine, schedule, dueDate, status, {
       given: givenStatus,
     });
 
-    //Confirm the vaccine is still scheduled
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
-      vaccine,
-      schedule,
-      dueDate,
-      status,
-    );
+    await patientPane.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
   });
 
   test('[AT-1056]Record 2nd dose of vaccine scheduled weeks from last vaccination', async ({
@@ -368,31 +407,31 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const currentDate = new Date(await getBrowserDate(page));
     const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'COVID-19 AZ';
     const schedule = 'Dose 2';
     const status = 'Scheduled';
 
-    //Create patient with birthdate <15 years ago because 15 years old is the threshold for scheduled vaccines
     const patient = await createPatient(api, page, {
       dateOfBirth: birthDateTenYearsAgo,
     });
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+    const vaccinePane = new VaccinePane(page);
+    const patientPane = new PatientVaccinePane(page);
 
-    //Give first dose of vaccine to trigger scheduled vaccine for second dose to appear
-    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 1, {
+    await addVaccineAndAssert(page, vaccinePane, patientPane, true, 'Campaign', 1, {
       specificVaccine: vaccine,
     });
 
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, doseTwoDueDate, status, {
+    await recordScheduledVaccine(page, vaccinePane, patientPane, vaccine, schedule, doseTwoDueDate, status, {
       category: 'Campaign',
       count: 2,
     });
 
-    await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
+    await confirmVaccineNoLongerScheduled(patientPane, vaccine, schedule);
   });
 });

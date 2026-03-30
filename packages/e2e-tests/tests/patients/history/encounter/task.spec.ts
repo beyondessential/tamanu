@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '../../../../fixtures/test';
 
-test.describe('Tasks', () => {
-  test('Add new task', async () => {});
+test('Add new task', async () => {
+  // placeholder
 });

@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('IPS', () => {
-  test('Request QR code', async () => {});
+test('Request QR code', async () => {
+  // placeholder
 });

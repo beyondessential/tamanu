@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Referrals', () => {
-  test('Create a new referral', async () => {});
+test('Create a new referral', async () => {
+  // placeholder
 });

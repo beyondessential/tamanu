@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Immunisation', () => {
-  test('View immunisation register', async () => {});
+test('View immunisation register', async () => {
+  // placeholder
 });

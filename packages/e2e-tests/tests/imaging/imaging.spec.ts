@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Imaging', () => {
-  test('Search for imaging request', async () => {});
+test('Search for imaging request', async () => {
+  // placeholder
 });

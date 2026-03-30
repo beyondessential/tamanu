@@ -1,113 +1,88 @@
-import { Locator, Page } from '@playwright/test';
-import { routes } from '../../config/routes';
-import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
-import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
-import { expect } from '../../fixtures/baseFixture';
+import { Locator, Page, expect } from '@playwright/test';
+import { ids, TABLE_CELL_PREFIX } from '@ids';
+import { DataTable } from '@components/DataTable';
+import { facilityUrl, routes } from '@helpers/navigation';
+import { selectAutocomplete } from '@helpers/fields';
 
-export interface InpatientSearchCriteria extends BaseSearchCriteria {
+export interface InpatientSearchCriteria {
+  NHN?: string;
+  firstName?: string;
+  lastName?: string;
   area?: string;
   department?: string;
   clinician?: string;
   diet?: string;
+  advancedSearch?: boolean;
 }
 
-export class InpatientsPage extends BasePatientListPage {
-  readonly areaInput!: Locator;
-  readonly departmentInput!: Locator;
-  readonly clinicianInput!: Locator;
-  readonly dietInput!: Locator;
+export class InpatientsPage {
+  readonly table: DataTable;
 
-  constructor(page: Page) {
-    super(page, routes.patients.inpatients);
-    
-    // TestId mapping for InpatientsPage elements
-    const testIds = {
-      searchTitle: 'searchtabletitle-v9md',
-      tableFooter: 'styledtablefooter-7pgn',
-      downloadButton: 'download-data-button',
-      areaInput: 'localisedfield-p72m-input',
-      departmentInput: 'localisedfield-50wl-input',
-      clinicianInput: 'localisedfield-8w55-input',
-      dietInput: 'localisedfield-gzn5-input',
-    } as const;
+  readonly searchTitle: Locator;
+  readonly searchForm: Locator;
+  readonly nhnInput: Locator;
+  readonly firstNameInput: Locator;
+  readonly lastNameInput: Locator;
+  readonly areaInput: Locator;
+  readonly departmentInput: Locator;
+  readonly clinicianInput: Locator;
+  readonly dietInput: Locator;
+  readonly searchButton: Locator;
+  readonly clearButton: Locator;
+  readonly advancedSearchToggle: Locator;
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
-    this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
+  constructor(readonly page: Page) {
+    this.table = new DataTable(page);
+
+    this.searchTitle = page.getByTestId(ids.inpatients.title);
+    this.searchForm = page.getByTestId(ids.patientSearch.form);
+    this.nhnInput = page.getByTestId(ids.patientSearch.nhnInput).locator('input');
+    this.firstNameInput = page.getByTestId(ids.patientSearch.firstNameInput).locator('input');
+    this.lastNameInput = page.getByTestId(ids.patientSearch.lastNameInput).locator('input');
+    this.areaInput = page.getByTestId(ids.inpatients.nhnInput);
+    this.departmentInput = page.getByTestId(ids.inpatients.firstNameInput);
+    this.clinicianInput = page.getByTestId(ids.inpatients.lastNameInput);
+    this.dietInput = page.getByTestId(ids.inpatients.departmentInput);
+    this.searchButton = page.getByTestId(ids.patientSearch.searchButton);
+    this.clearButton = page.getByTestId(ids.patientSearch.clearButton);
+    this.advancedSearchToggle = page.getByTestId(ids.patientSearch.advancedSearchToggle);
   }
 
-  async clickOnFirstRow() {
-    await this.patientTable.waitForTableToLoad();
-    await this.patientTable.rows.first().click();
-    await this.page.waitForURL(`**/${routes.patients.inpatients}/*`);
+  async goto(): Promise<void> {
+    await this.page.goto(facilityUrl(routes.patients.inpatients));
+    await this.waitForPageToLoad();
   }
 
-  async clickOnSearchResult(nhn: string) {
-    await this.getNHNCell(nhn).click({ timeout: 5000 });
-    await this.page.waitForURL(`**/${routes.patients.inpatients}/*`);
+  async waitForPageToLoad(): Promise<void> {
+    await this.searchForm.waitFor({ state: 'visible' });
   }
 
-  async navigateToPatientDetailsPage(nhn: string) {
-    await this.goto();
-    await expect(this.searchTitle).toBeVisible();
-    await this.searchForAndSelectPatientByNHN(nhn);
-  }
-
-  // Implement abstract method from base class
-  async searchTable(searchCriteria: InpatientSearchCriteria): Promise<void> {
-    if (searchCriteria.advancedSearch) {
-      await this.hideAdvancedSearchBtn.click();
+  async search(criteria: InpatientSearchCriteria): Promise<void> {
+    if (criteria.advancedSearch) await this.advancedSearchToggle.click();
+    if (criteria.NHN) await this.nhnInput.fill(criteria.NHN);
+    if (criteria.firstName) await this.firstNameInput.fill(criteria.firstName);
+    if (criteria.lastName) await this.lastNameInput.fill(criteria.lastName);
+    if (criteria.area) {
+      await selectAutocomplete(this.page, this.areaInput, criteria.area);
     }
-    
-    // Fill search fields if provided
-    if (searchCriteria.NHN) {
-      await this.nhnInput.fill(searchCriteria.NHN);
+    if (criteria.department) {
+      await selectAutocomplete(this.page, this.departmentInput, criteria.department);
     }
-    if (searchCriteria.firstName) {
-      await this.firstNameInput.fill(searchCriteria.firstName);
+    if (criteria.clinician) {
+      await selectAutocomplete(this.page, this.clinicianInput, criteria.clinician);
     }
-    if (searchCriteria.lastName) {
-      await this.lastNameInput.fill(searchCriteria.lastName);
+    if (criteria.diet) {
+      await selectAutocomplete(this.page, this.dietInput, criteria.diet);
     }
-    if (searchCriteria.area) {
-      await selectAutocompleteFieldOption(
-        this.page,
-        this.areaInput,
-        { optionToSelect: searchCriteria.area }
-      );
-    }
-    if (searchCriteria.department) {
-      await selectAutocompleteFieldOption(
-        this.page,
-        this.departmentInput,
-        { optionToSelect: searchCriteria.department }
-      );
-    }
-    if (searchCriteria.clinician) {
-      await selectAutocompleteFieldOption(
-        this.page,
-        this.clinicianInput,
-        { optionToSelect: searchCriteria.clinician }
-      );
-    }
-    if (searchCriteria.diet) {
-      await selectAutocompleteFieldOption(
-        this.page,
-        this.dietInput,
-        { optionToSelect: searchCriteria.diet }
-      );
-    }
-    
     await this.searchButton.click();
-    await this.patientTable.waitForTableToLoad();
+    await this.table.waitForTable();
   }
 
-  // Implement abstract method from base class
-  async validateAllFieldsAreEmpty() {
+  async clearSearch(): Promise<void> {
+    await this.clearButton.click();
+  }
+
+  async validateAllFieldsAreEmpty(): Promise<void> {
     await expect(this.nhnInput).toHaveValue('');
     await expect(this.firstNameInput).toHaveValue('');
     await expect(this.lastNameInput).toHaveValue('');
@@ -117,24 +92,29 @@ export class InpatientsPage extends BasePatientListPage {
     await expect(this.dietInput.locator('input')).toHaveValue('');
   }
 
-  // Inpatient-specific sorting methods
-  async sortByArea() {
-    await this.sortByColumn('locationGroupName');
-  }
+  async searchAndSelectByNHN(nhn: string, maxAttempts = 100): Promise<void> {
+    let attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        await this.waitForPageToLoad();
+        await this.nhnInput.fill(nhn);
+        await this.searchButton.click();
+        await this.table.waitForTable();
 
-  async sortByLocation() {
-    await this.sortByColumn('locationName');
-  }
+        const secondRow = this.table.body.getByTestId(`${TABLE_CELL_PREFIX}1-displayId`);
+        if (await secondRow.isVisible()) {
+          await this.page.waitForTimeout(1000);
+          attempts++;
+          continue;
+        }
 
-  async sortByDepartment() {
-    await this.sortByColumn('departmentName');
-  }
-
-  async sortByClinician() {
-    await this.sortByColumn('clinician');
-  }
-
-  async sortByDiet() {
-    await this.sortByColumn('diets');
+        await this.table.cell(0, 'displayId').filter({ hasText: nhn }).click({ timeout: 5000 });
+        return;
+      } catch {
+        attempts++;
+        if (attempts >= maxAttempts) throw new Error(`Could not find patient ${nhn}`);
+        await this.page.waitForTimeout(1000);
+      }
+    }
   }
 }

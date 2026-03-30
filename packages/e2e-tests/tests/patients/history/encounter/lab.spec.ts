@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '../../../../fixtures/test';
 
-test.describe('Labs', () => {
-  test("Create a new lab request of type 'Panel'", async () => {});
+test("Create a new lab request of type 'Panel'", async () => {
+  // placeholder
 });

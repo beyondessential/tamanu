@@ -1,5 +1,5 @@
-import { test } from '../../../fixtures/baseFixture';
+import { test } from '../../../fixtures/test';
 
-test.describe('Reminder contacts', () => {
-  test('Add a reminder contact', async () => {});
+test('Add a reminder contact', async () => {
+  // placeholder
 });

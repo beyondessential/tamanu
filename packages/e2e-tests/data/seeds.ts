@@ -8,3 +8,19 @@ Mr. Smith is a 53-year-old male with a past medical history significant for hype
 Patient denies fever, cough, recent upper respiratory infections, or hemoptysis. Appetite is unchanged, but he reports some fatigue and reduced energy. He has not been adherent with his antihypertensive medications for the past several weeks due to running out of prescriptions.
 
 Assessment`;
+
+export const seeds = {
+  village: 'Dama',
+  villageId: 'village-Dama',
+  department: 'Cardiology',
+  departmentId: 'department-Cardiology-tamanu',
+  encounterType: 'admission',
+  locationId: 'location-EDBed1-tamanu',
+  patientBillingTypeId: 'patientType-Private',
+  areaName: 'Emergency Department',
+  dietName: 'Carbohydrate controlled',
+  dietName2: 'Citrus free',
+  dietSearchResult1: 'CarbControlled',
+  dietSearchResult2: 'Citrusfree',
+  noteContent,
+} as const;

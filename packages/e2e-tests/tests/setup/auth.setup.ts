@@ -1,4 +1,4 @@
-import { test as setup } from '../../fixtures/baseFixture';
+import { test as setup } from '../../fixtures/test';
 import path from 'path';
 
 setup('authenticate', async ({ loginPage }) => {
@@ -12,11 +12,8 @@ setup('authenticate', async ({ loginPage }) => {
   }
 
   await loginPage.login(email, password);
-
-  // Ensure state is persisted
   await loginPage.page.waitForTimeout(1000);
 
-  // Save page context
   const authStatePath = path.join(__dirname, '../../.auth/user.json');
   await loginPage.page.context().storageState({ path: authStatePath });
 });

@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '../../fixtures/test';
 
-test.describe('Medication', () => {
-  test('Check medications tab', async () => {});
+test('Check medications tab', async () => {
+  // placeholder
 });
