@@ -2,7 +2,7 @@ import { In } from 'typeorm';
 import {
   getQuestionCodesFromFormVisibilityCriteria,
   checkFormVisibilityCriteria,
-} from '@tamanu/utils/criteria';
+} from '@tamanu/utils';
 import { Survey } from '~/models/Survey';
 
 /**

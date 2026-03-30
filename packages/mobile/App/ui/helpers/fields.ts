@@ -1,7 +1,7 @@
 import { camelCase } from 'lodash';
 import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
-import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { checkJSONCriteria } from '@tamanu/utils';
 import { formatDate, parseDate } from './date';
 import { DateFormats } from './constants';
 import { getPatientNameAsString } from './patient';
