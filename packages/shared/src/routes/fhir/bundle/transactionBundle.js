@@ -1,10 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { FHIR_BUNDLE_TYPES, FHIR_INTERACTIONS } from '@tamanu/constants';
-import {
-  FhirTransactionBundle,
-  FhirTransactionResponseBundle,
-} from '../../../services/fhirTypes';
-import { OperationOutcome } from '../../../utils/fhir';
+import { FhirTransactionBundle, FhirTransactionResponseBundle } from '../../../services/fhirTypes';
+import { Invalid, OperationOutcome } from '../../../utils/fhir';
 import { resourcesThatCanDo } from '../../../utils/fhir/resources';
 import { createResource } from '../create';
 import { checkFhirWritePermissionForResource } from '../fhirPermissions';
