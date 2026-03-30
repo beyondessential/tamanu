@@ -77,6 +77,32 @@ const getErrorModalTitle = error => {
   );
 };
 
+const getErrorModalBody = error => {
+  const count = getAssignedUserCount(error);
+  const isExpectedError = Boolean(count); // We never expect 0
+  if (!isExpectedError) {
+    return (
+      <TranslatedText
+        stringId="admin.roles.delete.error.generic.presentTense"
+        fallback="Cannot delete role"
+      />
+    );
+  }
+
+  return count === 1 ? (
+    <TranslatedText
+      stringId="admin.roles.delete.error.usersAssigned.singular"
+      fallback="You cannot delete this role as there is a user assigned to it. Please update the user profile first in order to delete the role."
+    />
+  ) : (
+    <TranslatedText
+      stringId="admin.roles.delete.error.usersAssigned.plural"
+      fallback="You cannot delete this role as there are :count&nbsp;users assigned to it. Please update the user profiles first in order to delete the role."
+      replacements={{ count }}
+    />
+  );
+};
+
 export const DeleteRoleModal = ({ onSuccess }) => {
   const deleteMatch = useMatch('/admin/users/rolesAndDesignations/roles/delete/:id');
   const roleId = deleteMatch?.params.id;
@@ -154,21 +180,16 @@ export const DeleteRoleModal = ({ onSuccess }) => {
   );
 
   const body = isDeleteRestricted ? (
-    <Typography variant="body2">
-      <TranslatedText
-        stringId="admin.roles.delete.error.usersAssigned"
-        fallback="You cannot delete this role as there are currently one or more users assigned to it. Please update the user profiles first in order to delete the role."
-      />
-    </Typography>
+    getErrorModalBody(dryRunError)
   ) : (
-    <Typography variant="body2">
+    <>
       <TranslatedText
         stringId="admin.roles.delete.confirmation"
         fallback="Are you sure you would like to delete the selected role?"
       />
       &nbsp;&ndash;{' '}
       <strong aria-busy={isRoleLoading}>{isRoleLoading ? shortInlineSkeleton : role?.name}</strong>
-    </Typography>
+    </>
   );
 
   const primaryButton = isDeleteRestricted ? (
@@ -195,7 +216,13 @@ export const DeleteRoleModal = ({ onSuccess }) => {
       onClose={dismiss}
       title={isLoadingDeletability ? deleteModalHeadingSkeleton : title}
     >
-      <ModalContent>{isLoadingDeletability ? deleteModalBodySkeleton : body}</ModalContent>
+      <ModalContent>
+        {isLoadingDeletability ? (
+          deleteModalBodySkeleton
+        ) : (
+          <Typography variant="body2">{body}</Typography>
+        )}
+      </ModalContent>
       <ConfirmRowDivider />
       <StyledButtonRow>
         {isLoadingDeletability ? primaryButtonSkeleton : primaryButton}
