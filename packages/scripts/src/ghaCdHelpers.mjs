@@ -2,6 +2,8 @@
 
 const RX_DEPLOY_LINE =
   /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deploy(?:=(?<name>[\w-]+))?\s*(?:-->)?\s*(?:%(?<options>.+))?(?:-->)?/;
+const RX_DEPLOYOPT_LINE =
+  /^\s*-\s+\[(?<enabled>[\sx])\]\s+.+(?:<!--)?\s*#deployopt(?::(?<name>[\w-]+))?\s+(?<options>%[^>-]+)\s*(?:-->)?/;
 const RX_BRANCH_LINE = /(?:<!--)?\s*#branch=(?<ref>[^\s]+)\s*(?:-->)?/;
 
 // It's important this remains stable or doesn't change: doing so will create
@@ -21,18 +23,47 @@ export function parseDeployConfig({ body, control, ref }, context) {
   const deployName = stackName(ref);
 
   const deploys = [];
+  const optLines = [];
   for (const line of body?.split(/\r?\n/) ?? []) {
-    let deployLine = RX_DEPLOY_LINE.exec(line);
+    const deployLine = RX_DEPLOY_LINE.exec(line);
     if (deployLine) {
       deploys.push({
         enabled: deployLine.groups.enabled === 'x',
         name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
+        inlineName: deployLine.groups.name ?? null,
         options: parseOptions(deployLine.groups.options ?? '', { ...context, ref }),
         control,
+      });
+      continue;
+    }
+
+    const optLine = RX_DEPLOYOPT_LINE.exec(line);
+    if (optLine) {
+      optLines.push({
+        enabled: optLine.groups.enabled === 'x',
+        targetName: optLine.groups.name ?? null,
+        optionsStr: optLine.groups.options ?? '',
       });
     }
   }
 
+  for (const opt of optLines) {
+    if (!opt.enabled) continue;
+    const targets = deploys.filter(
+      d => opt.targetName === null || d.inlineName === opt.targetName,
+    );
+    const parsed = parseOptions(opt.optionsStr, { ...context, ref });
+    for (const deploy of targets) {
+      for (const [key, value] of Object.entries(parsed)) {
+        const def = OPTIONS.find(o => o.key === key);
+        if (def && value !== def.defaultValue) {
+          deploy.options[key] = value;
+        }
+      }
+    }
+  }
+
+  for (const deploy of deploys) delete deploy.inlineName;
   return deploys;
 }
 

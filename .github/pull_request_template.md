@@ -4,7 +4,18 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 ### Deploys
 
+<details>
+<summary>
+
 - [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
+
+</summary>
+
+- [ ] Synthetic tests (seeded data + traffic) <!-- #deployopt %synthetic -->
+- [ ] Seed data only <!-- #deployopt %seed -->
+- [ ] Pause after deploy <!-- #deployopt %pause -->
+
+</details>
 
 ### Tests
 
