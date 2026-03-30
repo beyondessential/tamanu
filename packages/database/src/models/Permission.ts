@@ -1,11 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 
-import {
-  OBJECT_ID_PERMISSION_SCHEMA,
-  PERMISSION_SCHEMA,
-  PermissionVerb,
-  SYNC_DIRECTIONS,
-} from '@tamanu/constants';
+import type { PermissionNoun, PermissionVerb } from '@tamanu/constants';
+import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
 import type { InitOptions, Models } from '../types/model';
@@ -80,7 +76,7 @@ export class Permission extends Model {
 
   static validatePermissionSchema(
     verb: PermissionVerb,
-    noun: keyof typeof PERMISSION_SCHEMA,
+    noun: PermissionNoun,
     roleId: string,
     objectId: string,
   ) {
