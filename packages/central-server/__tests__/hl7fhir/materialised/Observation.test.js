@@ -3,6 +3,7 @@ import { getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 
 import { createTestContext } from '../../utilities';
 import {
+  ALL_FHIR_PERMISSIONS,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../../fake/fhir';
@@ -23,7 +24,7 @@ describe('Create Observation', () => {
   beforeAll(async () => {
     ctx = await createTestContext({ initFhir: true });
     dataDicts = getFhirDataDictionaries();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
