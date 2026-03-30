@@ -2,7 +2,7 @@ import { Skeleton } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 
-import { Form } from '@tamanu/ui-components';
+import { Form, TranslatedText } from '@tamanu/ui-components';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, Field, TextField } from '../../../components';
 import { Colors } from '../../../constants';
@@ -26,6 +26,16 @@ export const ButtonGroup = styled.div`
   gap: inherit;
   button {
     font-size: inherit;
+  }
+`;
+
+export const SearchClearButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.clear" fallback="Clear" />,
+  variant: 'text',
+})`
+  &:hover {
+    text-decoration-line: underline;
+    background-color: unset;
   }
 `;
 

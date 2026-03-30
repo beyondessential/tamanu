@@ -4,10 +4,10 @@ import { useSearchParams } from 'react-router';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { FormSubmitButton, TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../../../../api';
-import { Button, TranslatedText } from '../../../../components';
+import { TranslatedText } from '../../../../components';
 import { AutocompleteField, Field } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
-import { ButtonGroup, Search, StyledForm } from '../components';
+import { ButtonGroup, Search, SearchClearButton, StyledForm } from '../components';
 
 const suggesterOptions = { formatter: ({ id }) => ({ label: id, value: id }) }; // Format ID as label and value
 
@@ -70,9 +70,7 @@ export const DesignationsSearchForm = () => {
         <FormSubmitButton color="primary" onClick={submitForm}>
           <TranslatedText stringId="general.action.search" fallback="Search" />
         </FormSubmitButton>
-        <Button onClick={onClear} variant="text">
-          <TranslatedText stringId="general.action.clear" fallback="Clear" />
-        </Button>
+        <SearchClearButton onClick={onClear} />
       </ButtonGroup>
     </>
   );
