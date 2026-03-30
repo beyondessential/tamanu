@@ -67,6 +67,8 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
        JOIN program_data_elements de ON sra.data_element_id = de.id
        WHERE e.patient_id = ?
          AND de.code IN (${placeholders})
+         AND sra.body IS NOT NULL
+         AND sra.body != ''
        ORDER BY sr.start_time DESC`,
       [patientId, ...questionCodes],
     );

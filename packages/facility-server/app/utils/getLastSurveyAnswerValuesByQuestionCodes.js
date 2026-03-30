@@ -23,6 +23,8 @@ export async function getLastSurveyAnswerValuesByQuestionCodes(models, patientId
      WHERE e.patient_id = :patientId
        AND pde.code IN (:questionCodes)
        AND sra.deleted_at IS NULL
+       AND sra.body IS NOT NULL
+       AND sra.body != ''
      ORDER BY pde.code, sr.end_time DESC NULLS LAST`,
     {
       replacements: { patientId, questionCodes },
