@@ -11,7 +11,6 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 </summary>
 
-- [ ] Seed data <!-- #deployopt %seed -->
 - [ ] Synthetic traffic <!-- #deployopt %synthetic -->
 - [ ] Pause after deploy <!-- #deployopt %pause -->
 
