@@ -11,8 +11,8 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 </summary>
 
-- [ ] Synthetic tests (seeded data + traffic) <!-- #deployopt %synthetic -->
-- [ ] Seed data only <!-- #deployopt %seed -->
+- [ ] Seed data <!-- #deployopt %seed -->
+- [ ] Synthetic traffic <!-- #deployopt %synthetic -->
 - [ ] Pause after deploy <!-- #deployopt %pause -->
 
 </details>

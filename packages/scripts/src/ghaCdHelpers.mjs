@@ -268,7 +268,7 @@ export function configMap(deployName, imageTag, options) {
       patientPortalReplicas: options.patientportals,
 
       syntheticTests: options.synthetic,
-      seedFromSnapshot: options.seed || options.synthetic,
+      seedFromSnapshot: options.seed,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
