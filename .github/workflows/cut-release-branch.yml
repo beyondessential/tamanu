@@ -102,6 +102,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      git_sha: ${{ steps.sha.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -139,3 +141,4 @@ jobs:
       branch: ${{ needs.run.outputs.branch }}
       version: ${{ needs.run.outputs.version }}
       image: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
+      git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
