@@ -21,44 +21,44 @@ export function stackName(head_ref, ref_name = null) {
 
 export function parseDeployConfig({ body, control, ref }, context) {
   const deployName = stackName(ref);
+  const lines = body?.split(/\r?\n/) ?? [];
+  const optContext = { ...context, ref };
 
   const deploys = [];
-  const optLines = [];
-  for (const line of body?.split(/\r?\n/) ?? []) {
-    const deployLine = RX_DEPLOY_LINE.exec(line);
-    if (deployLine) {
+  const deployOpts = [];
+
+  for (const line of lines) {
+    const deploy = RX_DEPLOY_LINE.exec(line);
+    if (deploy) {
+      const { enabled, name, options } = deploy.groups;
       deploys.push({
-        enabled: deployLine.groups.enabled === 'x',
-        name: [deployName, deployLine.groups.name].filter(Boolean).join('-'),
-        inlineName: deployLine.groups.name ?? null,
-        options: parseOptions(deployLine.groups.options ?? '', { ...context, ref }),
+        enabled: enabled === 'x',
+        name: [deployName, name].filter(Boolean).join('-'),
+        inlineName: name ?? null,
+        options: parseOptions(options ?? '', optContext),
         control,
       });
       continue;
     }
 
-    const optLine = RX_DEPLOYOPT_LINE.exec(line);
-    if (optLine) {
-      optLines.push({
-        enabled: optLine.groups.enabled === 'x',
-        targetName: optLine.groups.name ?? null,
-        optionsStr: optLine.groups.options ?? '',
+    const opt = RX_DEPLOYOPT_LINE.exec(line);
+    if (opt && opt.groups.enabled === 'x') {
+      deployOpts.push({
+        targetName: opt.groups.name ?? null,
+        options: parseOptions(opt.groups.options ?? '', optContext),
       });
     }
   }
 
-  for (const opt of optLines) {
-    if (!opt.enabled) continue;
-    const targets = deploys.filter(
-      d => opt.targetName === null || d.inlineName === opt.targetName,
-    );
-    const parsed = parseOptions(opt.optionsStr, { ...context, ref });
+  for (const opt of deployOpts) {
+    const targets = opt.targetName === null
+      ? deploys
+      : deploys.filter(d => d.inlineName === opt.targetName);
+
     for (const deploy of targets) {
-      for (const [key, value] of Object.entries(parsed)) {
+      for (const [key, value] of Object.entries(opt.options)) {
         const def = OPTIONS.find(o => o.key === key);
-        if (def && value !== def.defaultValue) {
-          deploy.options[key] = value;
-        }
+        if (def && value !== def.defaultValue) deploy.options[key] = value;
       }
     }
   }
