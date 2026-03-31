@@ -228,65 +228,6 @@ export class PatientDetailsPage extends BasePatientPage {
     return this._sidebarLists;
   }
 
-  // Delegated methods for backward compatibility — new code should use sidebarLists directly
-  async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
-    return this.sidebarLists.addNewOngoingConditionWithJustRequiredFields(conditionName);
-  }
-  async addNewOngoingConditionWithAllFields(conditionName: string, dateRecorded: string, clinicianName: string, notes: string) {
-    return this.sidebarLists.addNewOngoingConditionWithAllFields(conditionName, dateRecorded, clinicianName, notes);
-  }
-  async addNewAllergyWithJustRequiredFields(allergyName: string) {
-    return this.sidebarLists.addNewAllergyWithJustRequiredFields(allergyName);
-  }
-  async searchNewAllergyNotInDropdown(allergyName: string) {
-    return this.sidebarLists.searchNewAllergyNotInDropdown(allergyName);
-  }
-  async addNewAllergyNotInDropdown(allergyName: string) {
-    return this.sidebarLists.addNewAllergyNotInDropdown(allergyName);
-  }
-  async addNewFamilyHistoryWithJustRequiredFields(familyHistoryCondition: string) {
-    return this.sidebarLists.addNewFamilyHistoryWithJustRequiredFields(familyHistoryCondition);
-  }
-  async addNewFamilyHistoryWithAllFields(familyHistoryCondition: string, dateRecorded: string, relationship: string, clinicianName: string, notes: string) {
-    return this.sidebarLists.addNewFamilyHistoryWithAllFields(familyHistoryCondition, dateRecorded, relationship, clinicianName, notes);
-  }
-  async addNewOtherPatientIssueNote(otherPatientIssueNote: string) {
-    return this.sidebarLists.addNewOtherPatientIssueNote(otherPatientIssueNote);
-  }
-  async addNewOtherPatientIssueWarning(otherPatientIssueWarning: string) {
-    return this.sidebarLists.addNewOtherPatientIssueWarning(otherPatientIssueWarning);
-  }
-  async addNewCarePlan() {
-    return this.sidebarLists.addNewCarePlan();
-  }
-  async navigateToCarePlan(carePlanName: string) {
-    return this.sidebarLists.navigateToCarePlan(carePlanName);
-  }
-  generateNewAllergy(nhn: string) {
-    return this.sidebarLists.generateNewAllergy(nhn);
-  }
-  completedCarePlan(carePlanName: string) {
-    return this.sidebarLists.completedCarePlan(carePlanName);
-  }
-  async resolveOngoingCondition(clinicianName: string, note: string) {
-    return this.sidebarLists.resolveOngoingCondition(clinicianName, note);
-  }
-  getSubmitEditsButton() {
-    return this.sidebarLists.getSubmitEditsButton();
-  }
-  getOngoingConditionEditSubmitButton() {
-    return this.sidebarLists.getOngoingConditionEditSubmitButton();
-  }
-  getAllergyEditSubmitButton() {
-    return this.sidebarLists.getAllergyEditSubmitButton();
-  }
-  getFamilyHistoryEditSubmitButton() {
-    return this.sidebarLists.getFamilyHistoryEditSubmitButton();
-  }
-  getOtherPatientIssuesEditSubmitButton() {
-    return this.sidebarLists.getOtherPatientIssuesEditSubmitButton();
-  }
-
   async confirmPatientDetailsPageHasLoaded() {
     await expect(this.vaccineTab).toBeVisible();
   }
