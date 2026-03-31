@@ -30,7 +30,6 @@ export const getRoles = asyncHandler(async (req, res) => {
   }
 
   const response = await getResourceList(req, 'Role', '', options);
-  console.log('🦺', response);
   res.send(response);
 });
 
