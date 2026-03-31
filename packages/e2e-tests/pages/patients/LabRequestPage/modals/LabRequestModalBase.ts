@@ -249,7 +249,7 @@ export class LabRequestModalBase {
    * @param index - The index of the input to set
    */
   async setDateTimeCollected(dateTime: string, index: number = 0) {
-    const input = this.dateTimeCollectedInputs.nth(index);
+    const input = this.dateTimeCollectedInputs.locator('input').nth(index);
     await input.click();
     await input.waitFor({ state: 'visible' });
     await fillMuiDateTimeField(input, dateTime);

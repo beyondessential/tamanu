@@ -86,7 +86,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i
+      - run: npm ci
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/central-server build
       - run: npm run --workspace @tamanu/facility-server build
