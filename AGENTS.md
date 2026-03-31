@@ -15,6 +15,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translate Strings**: See @llm/project-rules/translate-hardcoded-strings.md for internationalization
 - **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
+- **E2E Tests**: See @llm/project-rules/adding-e2e-tests.md for Playwright E2E test conventions, helpers, and checklist
 
 ## Common Rules (Shared Across Projects)
 
