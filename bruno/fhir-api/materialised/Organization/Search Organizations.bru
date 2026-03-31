@@ -1,0 +1,22 @@
+meta {
+  name: Search Organizations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Organization
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~_count: 10
+  ~_sort: -_lastUpdated
+  ~_id: 
+  ~_lastUpdated: 
+}

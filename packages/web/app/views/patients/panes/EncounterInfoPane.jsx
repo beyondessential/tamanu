@@ -7,7 +7,7 @@ import {
   TextButton,
   TranslatedEnum,
 } from '../../../components';
-import { differenceInMinutes, formatDuration, intervalToDuration, parseISO } from 'date-fns';
+import { differenceInMinutes, formatDuration, intervalToDuration } from 'date-fns';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -33,7 +33,7 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
+import { DateField, Field, Form, TAMANU_COLORS, useDateTime } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
@@ -167,12 +167,20 @@ const LengthOfStayText = styled.span`
   color: ${props => props.theme.palette.text.darkestText};
 `;
 
+/**
+ * LOS is derived from stored startDate/endDate. We parse them in the primary (facility)
+ * timezone via storedDateTimeToEpochMilliseconds so the result is not affected by the
+ * user's browser timezone. When the encounter is still open, "now" is Date.now() (UTC).
+ */
 const LengthOfStayDisplay = ({ startDate, endDate }) => {
-  const parsedEndDate = endDate ? parseISO(endDate) : new Date();
-  const parsedStartDate = parseISO(startDate);
+  const { storedDateTimeToEpochMilliseconds } = useDateTime();
+  const startMs = storedDateTimeToEpochMilliseconds(startDate);
+  const endMs = endDate ? storedDateTimeToEpochMilliseconds(endDate) : Date.now();
 
-  const duration = intervalToDuration({ start: parsedStartDate, end: parsedEndDate });
-  const totalMinutes = differenceInMinutes(parsedEndDate, parsedStartDate);
+  if (startMs === null || (endDate !== null && endMs === null)) return null;
+
+  const duration = intervalToDuration({ start: startMs, end: endMs });
+  const totalMinutes = differenceInMinutes(endMs, startMs);
 
   let formattedDuration;
   if (totalMinutes === 0) {

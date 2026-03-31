@@ -1,0 +1,63 @@
+name: CD Synthetic Tests
+
+on:
+  push:
+    branches: ['main', 'release/**']
+    paths:
+      - 'packages/synthetic-tests/**'
+      - 'packages/api-client/**'
+      - 'packages/fake-data/**'
+      - 'packages/constants/**'
+      - 'packages/shared/**'
+      - 'packages/utils/**'
+      - 'packages/errors/**'
+      - 'packages/settings/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v3
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/beyondessential/tamanu-synthetic-tests
+          tags: |
+            sha-${{ github.sha }}
+            type=ref,event=branch
+            type=raw,value=latest,enable=false
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu Synthetic Tests
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/synthetic-tests/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          cache-from: type=gha,scope=synthetic-tests-${{ github.ref }}
+          cache-to: type=gha,mode=max,scope=synthetic-tests-${{ github.ref }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}

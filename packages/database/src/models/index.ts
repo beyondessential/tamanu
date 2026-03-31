@@ -157,3 +157,4 @@ export * from './UserLeave';
 export * from './LocationAssignmentTemplate';
 export * from './LocationAssignment';
 export * from './DHIS2PushLog';
+export * from './MSupplyPushLog';

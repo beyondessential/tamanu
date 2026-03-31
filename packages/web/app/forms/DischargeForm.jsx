@@ -11,7 +11,6 @@ import {
   MAX_REPEATS,
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
-import { isFuture, parseISO } from 'date-fns';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
   TextField,
@@ -174,13 +173,14 @@ const getDischargeInitialValues = ({
   dischargeNotes,
   medicationInitialValues,
   getCurrentDateTime,
+  storedDateTimeToEpochMilliseconds,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
-  const encounterStartDate = parseISO(encounter.startDate);
+  const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
-      if (isFuture(encounterStartDate)) {
+      if (encounterStartMs != null && encounterStartMs > Date.now()) {
         const primaryNow = getCurrentDateTime();
         const time = trimToTime(primaryNow);
         return time ? `${trimToDate(encounter.startDate)} ${time}` : primaryNow;
@@ -694,7 +694,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime, storedDateTimeToEpochMilliseconds } = useDateTime();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -799,6 +799,7 @@ export const DischargeForm = ({
           dischargeNotes,
           medicationInitialValues,
           getCurrentDateTime,
+          storedDateTimeToEpochMilliseconds,
         })}
         FormScreen={props => (
           <DischargeFormScreen
