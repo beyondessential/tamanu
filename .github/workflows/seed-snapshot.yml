@@ -20,22 +20,17 @@ on:
         type: string
         required: false
         default: ''
-    secrets:
-      PULUMI_ACCESS_TOKEN:
-        required: true
-      TAMANU_OPS_SSH:
-        required: true
 
 permissions:
   contents: read
   id-token: write
 
+env:
+  SEED_NAMESPACE: tamanu-seed
+
 jobs:
   create-snapshot:
     runs-on: ubuntu-latest
-    env:
-      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      PULUMI_STACK: bes/seed-snapshot/tamanu-internal-main
     name: Seed snapshot for ${{ inputs.version }} (PG ${{ inputs.postgres_major }})
     timeout-minutes: 75
     steps:
@@ -52,30 +47,116 @@ jobs:
 
       - uses: ./.github/actions/setup-cd
         with:
-          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
-      - name: Generate seed snapshot
-        working-directory: ops/pulumi/stacks/tamanu/seed-snapshot
+      - name: Derive job name
+        id: names
+        run: |
+          SAFE_VERSION="${{ inputs.version }}"
+          SAFE_VERSION="${SAFE_VERSION//./-}"
+          JOB_NAME="seed-migrate-${SAFE_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "job_name=${JOB_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Create seed Job
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+          BRANCH: ${{ inputs.branch }}
+          GIT_SHA: ${{ inputs.git_sha || github.sha }}
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: ${JOB_NAME}
+            namespace: ${SEED_NAMESPACE}
+            labels:
+              pgsnap.bes.au/create: "true"
+            annotations:
+              pgsnap.bes.au/size: "20Gi"
+              pgsnap.bes.au/for-version: "${VERSION}"
+              pgsnap.bes.au/source-branch: "${BRANCH}"
+              pgsnap.bes.au/git-sha: "${GIT_SHA}"
+          spec:
+            suspend: true
+            backoffLimit: 0
+            activeDeadlineSeconds: 3600
+            ttlSecondsAfterFinished: 3600
+            template:
+              spec:
+                restartPolicy: Never
+                tolerations:
+                  - key: bes.node.purpose
+                    operator: Equal
+                    value: spot-workload
+                    effect: NoSchedule
+                affinity:
+                  nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      nodeSelectorTerms:
+                        - matchExpressions:
+                            - key: bes.node.purpose
+                              operator: In
+                              values: [workload]
+                containers:
+                  - name: migrate
+                    image: ${IMAGE}
+                    command: ["/bin/bash", "-euc"]
+                    args:
+                      - |
+                        node packages/central-server/dist migrate
+                        node packages/scripts/dist/fake.js --database app --rounds 50 --from-tally packages/fake-data/src/populateDb/parseTally/standard.json
+                    envFrom:
+                      - secretRef:
+                          name: pgsnap-${JOB_NAME}
+                    env:
+                      - name: NODE_CONFIG
+                        value: '{"db":{"host":"\$(DB_HOST)","port":5432,"name":"app","username":"\$(DB_USERNAME)","password":"\$(DB_PASSWORD)"}}'
+                    resources:
+                      requests:
+                        cpu: 250m
+                        memory: 1Gi
+                      limits:
+                        cpu: "1"
+                        memory: 2Gi
+          EOF
+
+      - name: Wait for pgsnap to complete
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
         run: |
           set -euo pipefail
-          pulumi stack select --create "$PULUMI_STACK"
-          pulumi config set version "${{ inputs.version }}"
-          pulumi config set branch "${{ inputs.branch }}"
-          pulumi config set image "${{ inputs.image }}"
-          pulumi config set postgresMajor "${{ inputs.postgres_major }}"
-          pulumi config set gitSha "${{ inputs.git_sha || github.sha }}"
-          pulumi config set githubRunId "${{ github.run_id }}"
-          pulumi config set githubRunAttempt "${{ github.run_attempt }}"
-          pulumi up --yes --skip-preview
+          echo "Waiting for pgsnap to process job ${JOB_NAME}..."
+          for i in $(seq 1 360); do
+            PHASE=$(kubectl get job "${JOB_NAME}" -n "${SEED_NAMESPACE}" \
+              -o jsonpath='{.metadata.annotations.pgsnap\.bes\.au/phase}' 2>/dev/null || echo "")
 
-      - name: Cleanup ephemeral resources
-        if: always()
-        working-directory: ops/pulumi/stacks/tamanu/seed-snapshot
+            case "$PHASE" in
+              complete)
+                echo "Seed snapshot created successfully"
+                exit 0
+                ;;
+              failed)
+                echo "::error::Seed snapshot job failed"
+                kubectl logs "job/${JOB_NAME}" -n "${SEED_NAMESPACE}" --tail=50 || true
+                exit 1
+                ;;
+              *)
+                echo "Phase: ${PHASE:-pending} (attempt ${i}/360)"
+                sleep 10
+                ;;
+            esac
+          done
+          echo "::error::Timed out waiting for pgsnap to complete"
+          exit 1
+
+      - name: Cleanup on failure
+        if: failure()
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
         continue-on-error: true
         run: |
-          set -euo pipefail
-          pulumi stack select "$PULUMI_STACK"
-          pulumi destroy --yes --skip-preview
+          kubectl delete job "${JOB_NAME}" -n "${SEED_NAMESPACE}" --ignore-not-found
