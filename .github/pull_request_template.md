@@ -9,6 +9,9 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Tests
 
 - [ ] **Run E2E Tests** <!-- #e2e -->
+- [ ] **Run Synthetic Tests** <!-- #synthetic-test -->
+
+**Target URL:** _Add target URL here (e.g., https://example.tamanu.io) if running synthetic tests_
 
 ### Review Hero
 
