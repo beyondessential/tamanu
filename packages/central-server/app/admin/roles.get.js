@@ -12,7 +12,10 @@ export const getRoles = asyncHandler(async (req, res) => {
   const filters = [];
   const idQuery = req.query.id?.trim();
   if (idQuery) {
-    filters.push({ id: idQuery });
+    filters.push({
+      // Not matching word boundary; IDs often camel case
+      id: { [Op.iLike]: `%${idQuery}%` },
+    });
   }
   const nameQuery = req.query.name?.trim();
   if (nameQuery) {
@@ -27,6 +30,7 @@ export const getRoles = asyncHandler(async (req, res) => {
   }
 
   const response = await getResourceList(req, 'Role', '', options);
+  console.log('🦺', response);
   res.send(response);
 });
 

@@ -3,13 +3,10 @@ import { useSearchParams } from 'react-router';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { FormSubmitButton, TextField } from '@tamanu/ui-components';
-import { useSuggester } from '../../../../api';
 import { TranslatedText } from '../../../../components';
-import { AutocompleteField, Field } from '../../../../components/Field';
+import { Field } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
 import { ButtonGroup, Search, SearchClearButton, StyledForm } from '../components';
-
-const suggesterOptions = { formatter: ({ id }) => ({ label: id, value: id }) };
 
 export const RolesSearchForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,8 +14,7 @@ export const RolesSearchForm = () => {
   const nameQuery = searchParams.get('name');
 
   const { getTranslation } = useTranslation();
-
-  const roleSuggester = useSuggester('role', suggesterOptions);
+  const placeholder = getTranslation('general.placeholder.search...', 'Search…');
 
   const onSubmit = values => {
     const name = values.name?.trim();
@@ -55,18 +51,15 @@ export const RolesSearchForm = () => {
     <>
       <Field
         component={TextField}
-        // Max. role name length (see DDL); anything longer works but guaranteed to return nothing
-        inputProps={{ maxLength: 255 }}
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
         name="name"
-        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
+        placeholder={placeholder}
       />
       <Field
-        component={AutocompleteField}
+        component={TextField}
         label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
         name="id"
-        placeholder={getTranslation('general.placeholder.select', 'Select')}
-        suggester={roleSuggester}
+        placeholder={placeholder}
       />
       <ButtonGroup>
         <FormSubmitButton color="primary" onClick={submitForm}>
