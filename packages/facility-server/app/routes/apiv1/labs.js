@@ -678,7 +678,8 @@ labTest.get(
 
     for (const changeLog of changeLogs) {
       const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
-      const { result, secondaryResult } = recordData;
+      // recordData keys match DB columns (snake_case) from the audit trigger's to_jsonb(NEW.*)
+      const { result, secondary_result: secondaryResult } = recordData;
 
       // Track result changes
       if (result !== lastResult) {
