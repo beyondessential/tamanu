@@ -301,52 +301,6 @@ export class AllPatientsPage extends BasePatientListPage {
     await expect(rowCount).toBe(1);
   }
 
-  async validateSortOrder(isAscending: boolean, columnName: string) {
-    await expect(async () => {
-      const rowCount = await this.tableRows.count();
-      const Values: string[] = [];
-
-      for (let i = 0; i < rowCount; i++) {
-        const row = this.tableRows.nth(i);
-        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
-        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-        const cellText = await cellLocator.textContent();
-        if (cellText) Values.push(cellText);
-      }
-
-      const sortedValues = [...Values].sort((a, b) => {
-        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-      });
-
-      expect(Values).toEqual(sortedValues);
-    }).toPass({ timeout: 10000 });
-  }
-
-  async validateDateSortOrder(isAscending: boolean) {
-    await expect(async () => {
-      const rowCount = await this.tableRows.count();
-      const dateValues: string[] = [];
-
-      for (let i = 0; i < rowCount; i++) {
-        const row = this.tableRows.nth(i);
-        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
-        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-        const cellText = await cellLocator.textContent();
-        if (cellText) dateValues.push(cellText);
-      }
-
-      const sortedValues = [...dateValues].sort((a, b) => {
-        const [monthA, dayA, yearA] = a.split('/');
-        const [monthB, dayB, yearB] = b.split('/');
-        const dateA = `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`;
-        const dateB = `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`;
-        return isAscending
-          ? new Date(dateA).getTime() - new Date(dateB).getTime()
-          : new Date(dateB).getTime() - new Date(dateA).getTime();
-      });
-      expect(dateValues).toEqual(sortedValues);
-    }).toPass({ timeout: 10000 });
-  }
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
     let attempts = 0;
     while (attempts < maxAttempts) {
