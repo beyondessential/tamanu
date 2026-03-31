@@ -1,8 +1,8 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '@fixtures/baseFixture';
 import { expect } from '@playwright/test';
-import { PatientDetailsPage } from '../../pages/patients/PatientDetailsPage/PatientDetailsPage';
+import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage/PatientDetailsPage';
 import { Patient } from '../../types/Patient';
-import { RecentlyViewedPatientsList } from '../../pages/patients/RecentlyViewedPatientsList';
+import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
 
 // Color constants for recently viewed patients
 const PATIENT_COLORS = {

@@ -1,5 +1,5 @@
-import { test } from '../../fixtures/baseFixture';
+import { test } from '@fixtures/baseFixture';
 
 test.describe('Program registry', () => {
-  test('Sort program registry table', async () => {});
+  test.fixme('Sort program registry table', async () => {});
 });

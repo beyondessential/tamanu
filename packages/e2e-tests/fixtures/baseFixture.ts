@@ -1,6 +1,7 @@
 import { test as base, APIRequestContext, Page } from '@playwright/test';
 
-import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
+import { createPatient, createApiContext, getUser, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
+import { User } from '@tamanu/database';
 import {
   DashboardPage,
   LoginPage,
@@ -26,6 +27,7 @@ import {
 
 type BaseFixtures = {
   api: APIRequestContext;
+  currentUser: User;
   newPatient: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithClinicAdmission: Awaited<ReturnType<typeof createPatient>>;
@@ -56,6 +58,11 @@ export const test = base.extend<BaseFixtures>({
     const apiContext = await createApiContext({ page });
     await use(apiContext);
     await apiContext.dispose();
+  },
+
+  currentUser: async ({ api }, use) => {
+    const user = await getUser(api);
+    await use(user);
   },
 
   newPatient: async (

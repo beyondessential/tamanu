@@ -1,7 +1,7 @@
-import { test } from '../../fixtures/baseFixture';
-import { recordPatientDeathViaApi } from '../../utils/apiHelpers';
+import { test } from '@fixtures/baseFixture';
+import { recordPatientDeathViaApi } from '@utils/apiHelpers';
 import { expect } from '@playwright/test';
-import { testData } from '../../utils/testData';
+import { testData } from '@utils/testData';
 
 test.describe('All patient table tests', () => {
   test.beforeEach(async ({ allPatientsPage }) => {

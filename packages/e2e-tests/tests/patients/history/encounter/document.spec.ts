@@ -1,5 +1,5 @@
-import { test } from '../../../../fixtures/baseFixture';
+import { test } from '@fixtures/baseFixture';
 
 test.describe('Documents', () => {
-  test('Add a document', async () => {});
+  test.fixme('Add a document', async () => {});
 });

@@ -1,5 +1,5 @@
-import { test } from '../../../fixtures/baseFixture';
+import { test } from '@fixtures/baseFixture';
 
 test.describe('Patient history', () => {
-  test('Admit or check-in', async () => {});
+  test.fixme('Admit or check-in', async () => {});
 });

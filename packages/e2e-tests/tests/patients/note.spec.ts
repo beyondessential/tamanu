@@ -1,11 +1,10 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
+import { User } from '@tamanu/database';
 
 test.describe('Notes Tests', () => {
-  let user: { displayName: string; [key: string]: any };
+  let user: User;
 
-  // Note Types Constants
   const NOTE_TYPES = {
     TREATMENT_PLAN: 'Treatment plan',
     DISCHARGE_PLANNING: 'Discharge planning',
@@ -13,8 +12,8 @@ test.describe('Notes Tests', () => {
     MEDICAL: 'Medical',
   } as const;
 
-  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
-    user = await getUser(api);
+  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, currentUser }) => {
+    user = currentUser;
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.navigateToNotesTab();
   });

@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/baseFixture';
+import { test, expect } from '@fixtures/baseFixture';
 import { fillMuiDateField, fillMuiDateTimeField, normalizeToIsoDate } from '@utils/testHelper';
 
 test.describe('Patient Side Bar', () => {

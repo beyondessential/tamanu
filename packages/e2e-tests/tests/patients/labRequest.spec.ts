@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { LabRequestModal } from '../../pages/patients/LabRequestPage/modals/LabRequestModal';
+import { LabRequestModal } from '@pages/patients/LabRequestPage/modals/LabRequestModal';
 import {
   LabRequestPane,
   LabRequestTestDetails,

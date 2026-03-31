@@ -1,6 +1,5 @@
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
-import { test } from '../../fixtures/baseFixture';
-import { expect } from '@playwright/test';
+import { test, expect } from '@fixtures/baseFixture';
 import {
   assertRecentDateTime,
   convertDateFormat,
@@ -13,82 +12,66 @@ import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
-import { getUser, createApiContext } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import path from 'path';
 import { SidebarPage } from '@pages/SidebarPage';
 import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
+import { goToPatientEncounter } from '@utils/patientWorkflows';
 
 test.describe('Basic tests', () => {
-  let currentUserDisplayName: string;
-
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    // Get current user info
-    const api = await createApiContext({ page });
-    const currentUser = await getUser(api);
-    currentUserDisplayName = currentUser.displayName || '';
-    await api.dispose();
-    await context.close();
-  });
 
   test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({
     newPatient,
     patientDetailsPage,
   }) => {
     test.setTimeout(100000);
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.admitOrCheckinButton.click();
-    const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
-    await createEncounterModal.waitForModalToLoad();
-    await createEncounterModal.triageButton.click();
-    const emergencyTriageModal = patientDetailsPage.getEmergencyTriageModal();
-    await emergencyTriageModal.waitForModalToLoad();
-    await emergencyTriageModal.selectTriageScore(1);
-    const triageFormValues = await emergencyTriageModal.fillTriageForm({
-      triageScore: 1,
+
+    const triageFormValues = await test.step('Submit triage form', async () => {
+      await patientDetailsPage.goToPatient(newPatient);
+      await patientDetailsPage.admitOrCheckinButton.click();
+      const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
+      await createEncounterModal.waitForModalToLoad();
+      await createEncounterModal.triageButton.click();
+      const emergencyTriageModal = patientDetailsPage.getEmergencyTriageModal();
+      await emergencyTriageModal.waitForModalToLoad();
+      await emergencyTriageModal.selectTriageScore(1);
+      const formValues = await emergencyTriageModal.fillTriageForm({ triageScore: 1 });
+      await emergencyTriageModal.submitButton.click();
+      return formValues;
     });
-    await emergencyTriageModal.submitButton.click();
-    const emergencyPatientsPage = new EmergencyPatientsPage(patientDetailsPage.page);
-    await emergencyPatientsPage.waitForPageToLoad();
-    await emergencyPatientsPage.arrivalTimeSortButton.click();
-    // Wait for the first patient's arrival time to be 0hrs 0mins
-    await expect
-      .poll(async () => await emergencyPatientsPage.getTableItemValue(0, 'arrivalTime'), {
-        timeout: 60000,
-      })
-      .toContain('0hrs 0mins');
-    const chiefComplaintValue = await emergencyPatientsPage.getTableItemValue(0, 'chiefComplaint');
-    const displayIdValue = await emergencyPatientsPage.getTableItemValue(0, 'displayId');
-    const patientNameValue = await emergencyPatientsPage.getTableItemValue(0, 'patientName');
-    const dateOfBirthValue = await emergencyPatientsPage.getTableItemValue(0, 'dateOfBirth');
-    const sexValue = await emergencyPatientsPage.getTableItemValue(0, 'sex');
-    const areaValue = await emergencyPatientsPage.getTableItemValue(0, 'locationGroupName');
-    const locationValue = await emergencyPatientsPage.getTableItemValue(0, 'locationName');
-    expect(chiefComplaintValue).toBe(triageFormValues.chiefComplaint);
-    expect(displayIdValue).toBe(newPatient.displayId);
-    expect(patientNameValue).toBe(`${newPatient.firstName} ${newPatient.lastName}`);
-    expect(dateOfBirthValue).toBe(convertDateFormat(newPatient.dateOfBirth));
-    expect(sexValue.toLowerCase()).toBe(newPatient.sex.toLowerCase());
-    expect(areaValue).toBe(triageFormValues.area);
-    expect(locationValue).toBe(triageFormValues.location?.split('\n')[0] || '');
-    const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
-    expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
+
+    await test.step('Validate emergency patients table', async () => {
+      const emergencyPatientsPage = new EmergencyPatientsPage(patientDetailsPage.page);
+      await emergencyPatientsPage.waitForPageToLoad();
+      await emergencyPatientsPage.arrivalTimeSortButton.click();
+      await expect
+        .poll(async () => await emergencyPatientsPage.getTableItemValue(0, 'arrivalTime'), {
+          timeout: 60000,
+        })
+        .toContain('0hrs 0mins');
+      const chiefComplaintValue = await emergencyPatientsPage.getTableItemValue(0, 'chiefComplaint');
+      const displayIdValue = await emergencyPatientsPage.getTableItemValue(0, 'displayId');
+      const patientNameValue = await emergencyPatientsPage.getTableItemValue(0, 'patientName');
+      const dateOfBirthValue = await emergencyPatientsPage.getTableItemValue(0, 'dateOfBirth');
+      const sexValue = await emergencyPatientsPage.getTableItemValue(0, 'sex');
+      const areaValue = await emergencyPatientsPage.getTableItemValue(0, 'locationGroupName');
+      const locationValue = await emergencyPatientsPage.getTableItemValue(0, 'locationName');
+      expect(chiefComplaintValue).toBe(triageFormValues.chiefComplaint);
+      expect(displayIdValue).toBe(newPatient.displayId);
+      expect(patientNameValue).toBe(`${newPatient.firstName} ${newPatient.lastName}`);
+      expect(dateOfBirthValue).toBe(convertDateFormat(newPatient.dateOfBirth));
+      expect(sexValue.toLowerCase()).toBe(newPatient.sex.toLowerCase());
+      expect(areaValue).toBe(triageFormValues.area);
+      expect(locationValue).toBe(triageFormValues.location?.split('\n')[0] || '');
+      const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
+      expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
+    });
   });
   test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({
     newPatient,
     patientDetailsPage,
   }) => {
     test.setTimeout(100000);
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.admitOrCheckinButton.click();
-    const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
-    await createEncounterModal.waitForModalToLoad();
-    await createEncounterModal.triageButton.click();
-    const emergencyTriageModal = patientDetailsPage.getEmergencyTriageModal();
-    await emergencyTriageModal.waitForModalToLoad();
-    await emergencyTriageModal.selectTriageScore(1);
     const vitalsFormValues: Record<string, string> = {
       heightCm: '180',
       weightKg: '70',
@@ -114,36 +97,42 @@ test.describe('Basic tests', () => {
       tidalVolume: '10',
       minuteVentilation: '10',
     };
-    await emergencyTriageModal.fillTriageForm({
-      triageScore: 1,
-      vitalsValues: vitalsFormValues,
+
+    await test.step('Submit triage form with vitals', async () => {
+      await patientDetailsPage.goToPatient(newPatient);
+      await patientDetailsPage.admitOrCheckinButton.click();
+      const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
+      await createEncounterModal.waitForModalToLoad();
+      await createEncounterModal.triageButton.click();
+      const emergencyTriageModal = patientDetailsPage.getEmergencyTriageModal();
+      await emergencyTriageModal.waitForModalToLoad();
+      await emergencyTriageModal.selectTriageScore(1);
+      await emergencyTriageModal.fillTriageForm({
+        triageScore: 1,
+        vitalsValues: vitalsFormValues,
+      });
+      await emergencyTriageModal.submitButton.click();
     });
-    await emergencyTriageModal.submitButton.click();
-    const emergencyPatientsPage = new EmergencyPatientsPage(patientDetailsPage.page);
-    await emergencyPatientsPage.waitForPageToLoad();
-    await emergencyPatientsPage.arrivalTimeSortButton.click();
-    // Wait for the first patient's arrival time to be 0hrs 0mins
-    await expect
-      .poll(async () => await emergencyPatientsPage.getTableItemValue(0, 'arrivalTime'), {
-        timeout: 100000,
-      })
-      .toContain('0hrs 0mins');
-    await emergencyPatientsPage.tableRows.first().click();
-    await patientDetailsPage.navigateToVitalsTab();
-    const vitalsPageSection = new VitalsPage(patientDetailsPage.page);
-    await vitalsPageSection.waitForSectionToLoad();
-    const vitalsValues = await vitalsPageSection.getLatestVitalValues();
-    expect(vitalsValues).toMatchObject(vitalsFormValues);
+
+    await test.step('Navigate to patient vitals and validate', async () => {
+      const emergencyPatientsPage = new EmergencyPatientsPage(patientDetailsPage.page);
+      await emergencyPatientsPage.waitForPageToLoad();
+      await emergencyPatientsPage.arrivalTimeSortButton.click();
+      await expect
+        .poll(async () => await emergencyPatientsPage.getTableItemValue(0, 'arrivalTime'), {
+          timeout: 100000,
+        })
+        .toContain('0hrs 0mins');
+      await emergencyPatientsPage.tableRows.first().click();
+      await patientDetailsPage.navigateToVitalsTab();
+      const vitalsPageSection = new VitalsPage(patientDetailsPage.page);
+      await vitalsPageSection.waitForSectionToLoad();
+      const vitalsValues = await vitalsPageSection.getLatestVitalValues();
+      expect(vitalsValues).toMatchObject(vitalsFormValues);
+    });
   });
-  /**
-   * Test to edit patient details and verify the changes
-   * @param newPatient - The new patient object
-   * @param patientDetailsPage - The patient details page object
-   */
   test('[BT-0004][AT-2004]Edit patient details', async ({ newPatient, patientDetailsPage }) => {
     test.setTimeout(100000);
-    await patientDetailsPage.goToPatient(newPatient);
-    const patientDetailsTabPage = await patientDetailsPage.navigateToPatientDetailsTab();
     const nhn = generateNHN();
     const patientDetails: PatientDetails = {
       firstName: 'John',
@@ -166,93 +155,73 @@ test.describe('Basic tests', () => {
       sex: newPatient.sex === 'female' ? 'male' : 'female',
       selectFirstOption: true,
     };
-    const formValues = await patientDetailsTabPage.updatePatientDetailsFields(patientDetails);
-    await patientDetailsTabPage.saveButton.click();
-    const allPatientsPage = await patientDetailsPage.navigateToAllPatientsPage();
-    await allPatientsPage.waitForPageToLoad();
-    await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(nhn);
-    await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName).toHaveText(
-      `${patientDetails.firstName} ${patientDetails.lastName}`,
-    );
-    const expectedGender = patientDetails.sex ?? newPatient.sex ?? '';
-    await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedGender).toHaveText(
-      new RegExp(`^${expectedGender}$`, 'i'),
-    );
-    const formattedDate = RecentlyViewedPatientsList.formatDateForRecentlyViewed(
-      patientDetails.dateOfBirth as string,
-    );
-    await expect(
-      allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate,
-    ).toHaveText(formattedDate);
-    await allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName.click();
-    await expect(patientDetailsPage.healthIdText).toHaveText(nhn);
-    const patientDetailsTabPage2 = await patientDetailsPage.navigateToPatientDetailsTab();
-    await patientDetailsTabPage2.waitForSectionToLoad();
 
-    await expect(patientDetailsTabPage2.firstNameInput).toHaveValue(
-      patientDetails.firstName as string,
-    );
-    await expect(patientDetailsTabPage2.lastNameInput).toHaveValue(
-      patientDetails.lastName as string,
-    );
-    expect(normalizeToIsoDate(await patientDetailsTabPage2.dateOfBirthInput.inputValue())).toBe(
-      '1990-01-01',
-    );
-    if (patientDetails.sex === 'female') {
-      await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
-    } else if (patientDetails.sex === 'male') {
-      await expect(patientDetailsTabPage2.sexMaleRadio).toBeChecked();
-    }
-    await expect(patientDetailsTabPage2.emailInput).toHaveValue(patientDetails.email as string);
-    await expect(patientDetailsTabPage2.nationalHealthNumberInput).toHaveValue(nhn);
-    const patientDetailsTabPage3 = await patientDetailsPage.navigateToPatientDetailsTab();
-    await patientDetailsTabPage3.waitForSectionToLoad();
-    await expect(patientDetailsTabPage3.birthCertificateInput).toHaveValue(
-      patientDetails.birthCertificate as string,
-    );
-    await expect(patientDetailsTabPage3.drivingLicenseInput).toHaveValue(
-      patientDetails.drivingLicense as string,
-    );
-    await expect(patientDetailsTabPage3.passportInput).toHaveValue(
-      patientDetails.passport as string,
-    );
-    await expect(patientDetailsTabPage3.religionInput.locator('input')).toHaveValue(
-      formValues.religion,
-    );
-    await expect(patientDetailsTabPage3.educationalAttainmentSelect).toHaveText(
-      formValues.educationalAttainment,
-    );
-    await expect(patientDetailsTabPage3.occupationInput.locator('input')).toHaveValue(
-      formValues.occupation,
-    );
-    await expect(patientDetailsTabPage3.socialMediaSelect).toHaveText(formValues.socialMedia);
-    await expect(patientDetailsTabPage3.patientTypeSelect).toHaveText(formValues.patientType);
-    await expect(patientDetailsTabPage3.motherInput.locator('input')).toHaveValue(
-      formValues.mother,
-    );
-    await expect(patientDetailsTabPage3.fatherInput.locator('input')).toHaveValue(
-      formValues.father,
-    );
-    await expect(patientDetailsTabPage3.medicalAreaInput.locator('input')).toHaveValue(
-      formValues.medicalArea,
-    );
-    await expect(patientDetailsTabPage3.nursingZoneInput.locator('input')).toHaveValue(
-      formValues.nursingZone,
-    );
-    await expect(patientDetailsTabPage3.countryInput.locator('input')).toHaveValue(
-      formValues.country,
-    );
-    await expect(patientDetailsTabPage3.cityTownInput).toHaveValue(
-      patientDetails.cityTown as string,
-    );
-    await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(
-      patientDetails.residentialLandmark as string,
-    );
+    const formValues = await test.step('Fill and save patient details', async () => {
+      await patientDetailsPage.goToPatient(newPatient);
+      const patientDetailsTabPage = await patientDetailsPage.navigateToPatientDetailsTab();
+      const values = await patientDetailsTabPage.updatePatientDetailsFields(patientDetails);
+      await patientDetailsTabPage.saveButton.click();
+      return values;
+    });
+
+    await test.step('Verify recently viewed list reflects changes', async () => {
+      const allPatientsPage = await patientDetailsPage.navigateToAllPatientsPage();
+      await allPatientsPage.waitForPageToLoad();
+      await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(nhn);
+      await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName).toHaveText(
+        `${patientDetails.firstName} ${patientDetails.lastName}`,
+      );
+      const expectedGender = patientDetails.sex ?? newPatient.sex ?? '';
+      await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedGender).toHaveText(
+        new RegExp(`^${expectedGender}$`, 'i'),
+      );
+      const formattedDate = RecentlyViewedPatientsList.formatDateForRecentlyViewed(
+        patientDetails.dateOfBirth as string,
+      );
+      await expect(
+        allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate,
+      ).toHaveText(formattedDate);
+      await allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName.click();
+    });
+
+    await test.step('Verify saved patient details fields', async () => {
+      await expect(patientDetailsPage.healthIdText).toHaveText(nhn);
+      const patientDetailsTabPage2 = await patientDetailsPage.navigateToPatientDetailsTab();
+      await patientDetailsTabPage2.waitForSectionToLoad();
+      await expect(patientDetailsTabPage2.firstNameInput).toHaveValue(patientDetails.firstName as string);
+      await expect(patientDetailsTabPage2.lastNameInput).toHaveValue(patientDetails.lastName as string);
+      expect(normalizeToIsoDate(await patientDetailsTabPage2.dateOfBirthInput.inputValue())).toBe('1990-01-01');
+      if (patientDetails.sex === 'female') {
+        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
+      } else if (patientDetails.sex === 'male') {
+        await expect(patientDetailsTabPage2.sexMaleRadio).toBeChecked();
+      }
+      await expect(patientDetailsTabPage2.emailInput).toHaveValue(patientDetails.email as string);
+      await expect(patientDetailsTabPage2.nationalHealthNumberInput).toHaveValue(nhn);
+      const patientDetailsTabPage3 = await patientDetailsPage.navigateToPatientDetailsTab();
+      await patientDetailsTabPage3.waitForSectionToLoad();
+      await expect(patientDetailsTabPage3.birthCertificateInput).toHaveValue(patientDetails.birthCertificate as string);
+      await expect(patientDetailsTabPage3.drivingLicenseInput).toHaveValue(patientDetails.drivingLicense as string);
+      await expect(patientDetailsTabPage3.passportInput).toHaveValue(patientDetails.passport as string);
+      await expect(patientDetailsTabPage3.religionInput.locator('input')).toHaveValue(formValues.religion);
+      await expect(patientDetailsTabPage3.educationalAttainmentSelect).toHaveText(formValues.educationalAttainment);
+      await expect(patientDetailsTabPage3.occupationInput.locator('input')).toHaveValue(formValues.occupation);
+      await expect(patientDetailsTabPage3.socialMediaSelect).toHaveText(formValues.socialMedia);
+      await expect(patientDetailsTabPage3.patientTypeSelect).toHaveText(formValues.patientType);
+      await expect(patientDetailsTabPage3.motherInput.locator('input')).toHaveValue(formValues.mother);
+      await expect(patientDetailsTabPage3.fatherInput.locator('input')).toHaveValue(formValues.father);
+      await expect(patientDetailsTabPage3.medicalAreaInput.locator('input')).toHaveValue(formValues.medicalArea);
+      await expect(patientDetailsTabPage3.nursingZoneInput.locator('input')).toHaveValue(formValues.nursingZone);
+      await expect(patientDetailsTabPage3.countryInput.locator('input')).toHaveValue(formValues.country);
+      await expect(patientDetailsTabPage3.cityTownInput).toHaveValue(patientDetails.cityTown as string);
+      await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(patientDetails.residentialLandmark as string);
+    });
   });
 
   test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({
     newPatientWithHospitalAdmission,
     patientDetailsPage,
+    currentUser,
   }) => {
     test.setTimeout(100000);
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
@@ -268,10 +237,10 @@ test.describe('Basic tests', () => {
 
     const defaultRequestingClinician =
       await newImagingRequestModal.requestingClinicianInput.inputValue();
-    expect(defaultRequestingClinician).toBe(currentUserDisplayName);
+    expect(defaultRequestingClinician).toBe(currentUser.displayName);
     const supervisingClinician =
       await newImagingRequestModal.supervisingClinicianInput.inputValue();
-    expect(supervisingClinician).toBe(currentUserDisplayName);
+    expect(supervisingClinician).toBe(currentUser.displayName);
 
     const formValues = await newImagingRequestModal.fillForm({
       imagingRequestType: 'Angiogram',
@@ -294,7 +263,7 @@ test.describe('Basic tests', () => {
     const status = await getTableItems(imagingRequestPane.page, 1, 'status');
     expect(status[0]).toBe('Pending');
   });
-  test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
+  test.fixme('[BT-0009][AT-2006]Add a new prescription', async () => {});
   test.skip('[BT-0010][AT-2007]add a document and view it', async ({
     newPatient,
     patientDetailsPage,
@@ -323,12 +292,12 @@ test.describe('Basic tests', () => {
     const dateUploaded = await getTableItems(documentsPane.page, 1, 'documentUploadedAt');
     expect(dateUploaded[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
   });
-  test.skip('[BT-0010][AT-2008]add a document and download it', async () => {
+  test.fixme('[BT-0010][AT-2008]add a document and download it', async () => {
     // we can't inspect the download document modal, a blocker to write this test
   });
-  test.skip('[BT-0011][AT-2009]check result tab', async () => {});
-  test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
-  test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
+  test.fixme('[BT-0011][AT-2009]check result tab', async () => {});
+  test.fixme('[BT-0015][AT-2010]add a new referral and view it', async () => {});
+  test.fixme('[BT-0016][AT-2011]add a new program and view it', async () => {});
   test('[BT-0018][AT-2012]admit the patient to hospital', async ({
     newPatient,
     patientDetailsPage,
@@ -347,11 +316,7 @@ test.describe('Basic tests', () => {
     patientDetailsPage,
   }) => {
     test.setTimeout(60000);
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const editEncounterModal = await patientDetailsPage.openEditEncounterModal();
     const expectedDiet = 'Clear fluids';
     await editEncounterModal.selectDiet(expectedDiet);
@@ -362,11 +327,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     await patientDetailsPage.movePatientButton.click();
     const moveFormGrid = patientDetailsPage.page
       .getByTestId('formgrid-wyqp')
@@ -393,18 +354,16 @@ test.describe('Basic tests', () => {
   test('[BT-0021][AT-2015]Add a primary diagnosis', async ({
     newPatientWithHospitalAdmission,
     patientDetailsPage,
+    currentUser,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
     expect(normalizeToIsoDate(await diagnosisModal.dateInput.inputValue())).toBe(
       format(new Date(), 'yyyy-MM-dd'),
     );
-    expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
+    expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUser.displayName);
     const formValues = await diagnosisModal.fillForm(true);
     await diagnosisModal.confirmButton.click();
     await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('P');
@@ -414,10 +373,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
@@ -430,11 +386,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -470,11 +422,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -517,11 +465,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -553,11 +497,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -589,11 +529,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
-    await patientDetailsPage.waitForEncounterToBeReady();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -622,10 +558,7 @@ test.describe('Basic tests', () => {
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
-    await latestEncounter.click();
+    await goToPatientEncounter(patientDetailsPage, newPatientWithHospitalAdmission);
     const chartsPane = await patientDetailsPage.navigateToChartsTab();
     await chartsPane.waitForPageToLoad();
     await chartsPane.selectChartType('Neurological Assessment');

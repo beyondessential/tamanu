@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { getUser } from '@utils/apiHelpers';
 import { formatForMuiDatePicker } from '@utils/testHelper';
 import { format } from 'date-fns';
 
@@ -12,8 +11,8 @@ test.describe('Procedures', () => {
     await patientDetailsPage.navigateToProcedureTab();
   });
   
-  test('[T-0197][AT-0089]Validate pre-populated fields', async ({ api,patientDetailsPage }) => {
-    const user = await getUser(api);
+  test('[T-0197][AT-0089]Validate pre-populated fields', async ({ currentUser, patientDetailsPage }) => {
+    const user = currentUser;
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const date = new Date();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
