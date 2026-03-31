@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import { assignTestIdLocators } from '../../utils/locatorFactory';
 
 export class EmergencyPatientsPage extends BasePage {
   // Page elements
@@ -49,14 +50,11 @@ export class EmergencyPatientsPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    
-    const testIds = {
-      // Page elements
+
+    assignTestIdLocators(this, page, {
       pageContainer: 'pagecontainer-mjc9',
       appBar: 'appbar-eplg',
       pageHeading: 'topbarheading-bgnl',
-      
-      // Statistics cards
       statisticsCardContainer: 'statisticscardcontainer-4vpu',
       level1Container: 'container-qbh0-1',
       level1Header: 'header-2rlj-1',
@@ -73,14 +71,10 @@ export class EmergencyPatientsPage extends BasePage {
       level5Container: 'container-qbh0-5',
       level5Header: 'header-2rlj-5',
       level5Value: 'valuetext-0dus-5',
-      
-      // Table elements
       table: 'styledtable-1dlu',
       tableHead: 'styledtablehead-ays3',
       tableBody: 'styledtablebody-a0jz',
       tableFooter: 'styledtablefooter-7pgn',
-      
-      // Table sort labels
       arrivalTimeSortButton: 'tablesortlabel-0qxx-arrivalTime',
       chiefComplaintSortButton: 'tablesortlabel-0qxx-chiefComplaint',
       displayIdSortButton: 'tablesortlabel-0qxx-displayId',
@@ -89,18 +83,11 @@ export class EmergencyPatientsPage extends BasePage {
       sexSortButton: 'tablesortlabel-0qxx-sex',
       areaSortButton: 'tablesortlabel-0qxx-locationGroupName',
       locationSortButton: 'tablesortlabel-0qxx-locationName',
-      
-      // Footer elements
       downloadButton: 'download-data-button',
       pageRecordCount: 'pagerecordcount-m8ne',
       pagination: 'styledpagination-fbr1',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
     // Override specific locators
     this.tableRows = this.tableBody.locator('tr');
   }

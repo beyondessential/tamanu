@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export interface ImagingRequestFormValues {
@@ -35,7 +36,7 @@ export class NewImagingRequestModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       imagingRequestCodeInput: 'field-6jew-input',
       orderDateTimeField: 'field-xsta',
       supervisingClinicianInput: 'textinput-3wnq-input',
@@ -48,11 +49,7 @@ export class NewImagingRequestModal {
       notesTextarea: 'field-hhqc-input',
       cancelButton: 'outlinedbutton-8rnr',
       moreActionsButton: 'menubutton-dc8o',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     this.orderDateTimeInput = this.orderDateTimeField.locator('input');
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');

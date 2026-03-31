@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class ChangeDietModal {
   readonly page: Page;
@@ -11,14 +12,10 @@ export class ChangeDietModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       confirmButton: 'confirmbutton-tok1',
       cancelButton: 'outlinedbutton-95wy',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
     this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.dietMultiSelectInput = page.getByTestId('formgrid-r4hj').getByTestId('multiselectinput-vf2i').nth(1);
   }

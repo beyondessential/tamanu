@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 
 export class EncounterMedicationPane extends BasePatientPane {
@@ -24,7 +25,7 @@ export class EncounterMedicationPane extends BasePatientPane {
   constructor(page: Page) {
     super(page);
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       contentPane: 'tabpane-u787',
       tableButtonRow: 'tablebuttonrow-dl51',
       dispenseMedicationButton: 'styledtextbutton-hbja',
@@ -39,11 +40,7 @@ export class EncounterMedicationPane extends BasePatientPane {
       dateSortHeader: 'tablesortlabel-0qxx-date',
       prescriberSortHeader: 'tablesortlabel-0qxx-prescriber.displayName',
       lastOrderedHeader: 'tablelabel-0eff-lastOrderedAt',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
 
     this.newPrescriptionButton = page
       .getByTestId('component-enxe')

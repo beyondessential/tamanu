@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { NewNoteModal } from '../modals/newNoteModal';
 import { EditNoteModal } from '../modals/editNoteModal';
 import { UpdateTreatmentPlanModal } from '../modals/updateTreatmentPlanModal';
@@ -11,12 +12,10 @@ export class NotesPane {
 
   readonly notesTab!: Locator;
 
-  // Notes section controls
   readonly noteTypeSelect!: Locator;
   readonly newNoteButton!: Locator;
   readonly noteTypeOptions!: Locator;
 
-  // Individual note elements
   readonly noteRows!: Locator;
   readonly noteHeaderTexts!: Locator;
   readonly noteContents!: Locator;
@@ -28,7 +27,6 @@ export class NotesPane {
   readonly noDataMessage!: Locator;
   notesTable!: Locator;
 
-  // Modal properties
   newNoteModal?: NewNoteModal;
   editNoteModal?: EditNoteModal;
   updateTreatmentPlanModal?: UpdateTreatmentPlanModal;
@@ -39,8 +37,7 @@ export class NotesPane {
   constructor(page: Page) {
     this.page = page;
 
-    // TestId mapping for NotesPane elements
-    const testIds = {
+    assignTestIdLocators(this, page, {
       notesTab: 'styledtab-ccs8-notes',
       noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
       readMoreButton: 'readmorespan-dpwv',
@@ -51,18 +48,11 @@ export class NotesPane {
       notesTable: 'datafetchingtable-qdej',
       noteTypeOptions: 'styledtranslatedselectfield-oy9y-suggestionslist',
       noDataMessage: 'nodatamessage-78ud',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-
-    // `withPermissionCheck` forces `data-testid="component-enxe"` on permission buttons (same as Prepare discharge, etc.).
-    // The notes toolbar is `row-v55c` (note-type filter + New note).
+    // `withPermissionCheck` forces generic testid on permission buttons — use role instead.
     this.newNoteButton = page.getByTestId('row-v55c').getByRole('button', { name: 'New note' });
 
-    // Special cases that need additional processing
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
     this.noteHeaderTexts = page.getByTestId('styledtablebody-a0jz').getByTestId('noteheadertext-e3kq');
     this.noteContents = page.getByTestId('styledtablebody-a0jz').getByTestId('notecontentcontainer-cgxg');

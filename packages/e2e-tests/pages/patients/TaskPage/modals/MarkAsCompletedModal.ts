@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class MarkAsCompletedModal {
   readonly page: Page;
@@ -13,17 +14,13 @@ export class MarkAsCompletedModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       completedByInput: 'field-4r4u-input',
       completedDateTimeField: 'field-el3t',
       notesInput: 'field-kvze-input',
       confirmButton: 'formsubmitcancelrow-v41o-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     // Field that needs nested locator
     this.completedDateTimeInput = this.completedDateTimeField.locator('input');

@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { ChangeDietModal } from './modals/ChangeDietModal';
 import { ChangeLocationModal } from './modals/ChangeLocationModal';
 
@@ -20,7 +21,7 @@ export class ChangeEncounterDetailsMenu {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       paper: 'paper-0i9j',
       menuList: 'menulist-sze7',
       changeDepartmentMenuItem: 'menuitem-0qdd-0',
@@ -29,11 +30,7 @@ export class ChangeEncounterDetailsMenu {
       changeReasonMenuItem: 'menuitem-0qdd-3',
       changeDietMenuItem: 'menuitem-0qdd-4',
       encounterProgressRecordMenuItem: 'menuitem-0qdd-5',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
   }
 
   getChangeDietModal(): ChangeDietModal {

@@ -1,4 +1,5 @@
-import { Page, Locator } from '@playwright/test';                  
+import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class RecordVitalsModal {
   readonly page: Page;
@@ -37,15 +38,11 @@ export class RecordVitalsModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       modalTitle: 'verticalcenteredtext-ni4s',
       closeButton: 'iconbutton-eull',
       submitButton: 'formsubmitcancelrow-vzf5-confirmButton',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     // Inputs (by name attributes or specific selectors from provided HTML)
     this.dateInput = page.locator('input[type="datetime-local"]');

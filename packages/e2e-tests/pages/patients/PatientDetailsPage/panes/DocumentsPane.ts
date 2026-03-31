@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { AddDocumentModal } from '../modals/AddDocumentModal';
 
 export class DocumentsPane {
@@ -11,16 +12,10 @@ export class DocumentsPane {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
-        addDocumentButton: 'component-enxe',
-        noteDataContainer: 'statustablecell-rwkq',
-
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
-
+    assignTestIdLocators(this, page, {
+      addDocumentButton: 'component-enxe',
+      noteDataContainer: 'statustablecell-rwkq',
+    });
   }
 
   async waitForNoteDataContainerToDisappear(): Promise<void> {

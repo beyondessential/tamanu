@@ -2,6 +2,8 @@ import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
 import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import { assignTestIdLocators } from '../../utils/locatorFactory';
+import { expectColumnSorted, expectDateColumnSorted } from '../../utils/tableHelper';
 import { PatientTable } from './PatientTable';
 import { Patient } from '../../types/Patient';
 import { ERROR_RED_RGB } from '../../utils/testColors';
@@ -42,9 +44,8 @@ export abstract class BasePatientListPage extends BasePage {
   constructor(page: Page, url: string) {
     super(page, url);
     this.patientTable = new PatientTable(page);
-    
-    // TestId mapping for base patient list page elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       searchTitle: 'searchtabletitle-09n6',
       searchForm: 'styledform-5o5i',
       nhnInput: 'localisedfield-4cb5-input',
@@ -65,14 +66,8 @@ export abstract class BasePatientListPage extends BasePage {
       previousPageButton: 'paginationitem-hcui',
       nextPageButton: 'paginationitem-d791',
       pageButtons: 'paginationitem-c5vg',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.tableRows = this.tableBody.locator('tr');
     this.sortButtons = page.locator('[data-testid^="tablesortlabel-"]');
   }
@@ -192,52 +187,11 @@ export abstract class BasePatientListPage extends BasePage {
   }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {
-    await expect(async () => {
-      const rowCount = await this.tableRows.count();
-      const Values: string[] = [];
-
-      for (let i = 0; i < rowCount; i++) {
-        const row = this.tableRows.nth(i);
-        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
-        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-        const cellText = await cellLocator.textContent();
-        if (cellText) Values.push(cellText);
-      }
-
-      const sortedValues = [...Values].sort((a, b) => {
-        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-      });
-
-      expect(Values).toEqual(sortedValues);
-    }).toPass({ timeout: 10000 });
+    await expectColumnSorted(this.tableRows, columnName, isAscending);
   }
 
   async validateDateSortOrder(isAscending: boolean) {
-    await expect(async () => {
-      const rowCount = await this.tableRows.count();
-      const dateValues: string[] = [];
-
-      for (let i = 0; i < rowCount; i++) {
-        const row = this.tableRows.nth(i);
-        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
-        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-        const cellText = await cellLocator.textContent();
-        if (cellText) dateValues.push(cellText);
-      }
-
-      const sortedValues = [...dateValues].sort((a, b) => {
-        const [monthA, dayA, yearA] = a.split('/');
-        const [monthB, dayB, yearB] = b.split('/');
-        const dateA = new Date(
-          `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
-        ).getTime();
-        const dateB = new Date(
-          `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`,
-        ).getTime();
-        return isAscending ? dateA - dateB : dateB - dateA;
-      });
-      expect(dateValues).toEqual(sortedValues);
-    }).toPass({ timeout: 10000 });
+    await expectDateColumnSorted(this.tableRows, 'dateOfBirth', isAscending);
   }
 
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {

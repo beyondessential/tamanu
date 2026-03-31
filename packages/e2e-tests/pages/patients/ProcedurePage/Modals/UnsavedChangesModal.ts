@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../BasePage';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 
 /**
  * Page Object for Unsaved Changes Modal
@@ -15,19 +16,13 @@ export class UnsavedChangesModal extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       modalTitle: 'modaltitle-ojhf',
       closeButton: 'iconbutton-eull',
       continueEditingButton: 'outlinedbutton-p957',
       discardChangesButton: 'confirmbutton-y3tb',
-    
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
     this.modalContent = page.getByRole('dialog').getByTestId('modalcontent-bk4w');
   }
 

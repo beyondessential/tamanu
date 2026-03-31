@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
 import { fillMuiDateTimeField } from '@utils/testHelper';
 
@@ -15,19 +16,14 @@ export class DeleteTaskModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       recordedByInput: 'field-2l6f-input',
       recordDateTimeField: 'field-bnve',
       reasonForDeletionInput: 'field-4x58-input',
       confirmButton: 'formsubmitcancelrow-0v1x-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
-    } as const;
+    });
 
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-
-    // Field that needs nested locator
     this.recordDateTimeInput = this.recordDateTimeField.locator('input');
   }
 

@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
 import { formatDateTimeForDisplay } from '@utils/testHelper';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 
 
 export interface ValidateRequestFinalisedPageParams {
@@ -33,15 +34,14 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
   constructor(page: Page) {
     super(page);
     
-    // TestId mapping for IndividualLabRequestModal elements
-    const testIds = {
+    assignTestIdLocators(this, page, {
       // Page 2: Individual test selection
       individualTestSearchInput: 'styledsearchfield-92y3-input',
       individualTestCheckboxes: 'styledcheckboxcontrol-6oiy',
       selectedTestsSection: 'selectorcontainer-gewc',
       selectedTestsLabels: 'selectortable-6eaw',
       individualTestNotesTextarea: 'field-3t0x-input',
-      
+
       // Page 3: Sample details
       dateTimeCollectedInputs: 'styledfield-ratc-input',
       collectedByInputs: 'styledfield-wifm-input',
@@ -50,12 +50,7 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
       specimenTypeExpandIcons: 'styledfield-8g4b-input-expandmoreicon',
       siteInputs: 'styledfield-mog8-input',
       siteExpandIcons: 'styledfield-mog8-input-expandmoreicon',
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
     
     // Special cases that need additional processing
     this.selectedTestsLabels = page.getByTestId('selectortable-6eaw').getByTestId('labeltext-6stl');

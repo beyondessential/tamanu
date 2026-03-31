@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class AddDiagnosisModal {
   readonly page: Page;
@@ -19,7 +20,7 @@ export class AddDiagnosisModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {   
+    assignTestIdLocators(this, page, {
       closeIcon: 'closeicon-z1u6',
       diagnosisInput: 'field-f5vm-input',
       isPrimaryCheckbox: 'field-52wo-controlcheck',
@@ -27,13 +28,9 @@ export class AddDiagnosisModal {
       dateField: 'field-fszu',
       cancelButton: 'outlinedbutton-8rnr',
       confirmButton: 'formsubmitcancelrow-jfcw-confirmButton',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
     this.dateInput = this.dateField.locator('input');
-    this.clinicianInput= page.getByTestId('field-af83-input').locator('input');
+    this.clinicianInput = page.getByTestId('field-af83-input').locator('input');
   }
 
   async waitForModalToLoad(): Promise<void> {

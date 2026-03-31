@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class ChangeLocationModal {
   readonly page: Page;
@@ -13,17 +14,13 @@ export class ChangeLocationModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       areaInput: 'field-tykg-group-input',
       newLocationInput: 'field-tykg-location-input',
       cancelButton: 'outlinedbutton-8rnr',
       confirmButton: 'formsubmitcancelrow-35ou-confirmButton',
       newLocationOptions: 'field-tykg-location-option-typography',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
   }
 
   async waitForModalToLoad(): Promise<void> {

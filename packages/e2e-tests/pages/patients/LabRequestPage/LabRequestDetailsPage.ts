@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { format } from 'date-fns';
 import { fillMuiDateTimeField } from '../../../utils/testHelper';
+import { assignTestIdLocators } from '../../../utils/locatorFactory';
 import { RecordSampleModal } from './modals/RecordSampleModal';
 import { StatusLogModal } from './modals/StatusLogModal';
 import { ChangeLaboratoryModal } from './modals/ChangeLaboratoryModal';
@@ -76,9 +77,8 @@ export class LabRequestDetailsPage {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for LabRequestDetailsPage elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       container: 'container-pag3',
       labTestIdValue: 'cardvalue-wpiy',
       requestDateValue: 'cardvalue-bag0',
@@ -91,13 +91,8 @@ export class LabRequestDetailsPage {
       resultsTableBody: 'styledtablebody-a0jz',
       reasonForCancellationSelect: 'field-c7rc-select',
       cancelModalConfirmButton: 'formsubmitcancelrow-1ync-confirmButton',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
     // Special cases that need additional processing
     this.cancelRequestButton = page.getByTestId('item-8ybn-1').getByText('Cancel request');
     this.threeDotsButton = page.getByTestId('box-qy3e').getByTestId('openbutton-d1ec');

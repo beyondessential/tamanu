@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { getTableItems } from '@utils/testHelper';
 
 export class EncounterHistoryPane {
@@ -45,7 +46,7 @@ export class EncounterHistoryPane {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       contentPane: 'contentpane-n51k',
       styledTableWrapper: 'styledtable-6fdu',
       heading: 'heading4-ssa1',
@@ -84,11 +85,7 @@ export class EncounterHistoryPane {
       styledSelectField: 'styledselectfield-lunn',
       styledPagination: 'styledpagination-fbr1',
       paginationItem: 'paginationitem-hcui',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
   }
   async getLatestEncounter(): Promise<Locator> {
     return this.tableBody.locator('tr').first();

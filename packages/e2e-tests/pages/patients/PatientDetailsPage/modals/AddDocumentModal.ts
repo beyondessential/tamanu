@@ -1,10 +1,11 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class AddDocumentModal {
   readonly page: Page;
 
-  
+  readonly modalTitle!: Locator;
   readonly fileInput!: Locator;
   readonly fileNameInput!: Locator;
   readonly documentOwnerInput!: Locator;
@@ -15,7 +16,7 @@ export class AddDocumentModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       modalTitle: 'verticalcenteredtext-ni4s',
       fileInput: 'input-q5no',
       fileNameInput: 'field-b9rq-input',
@@ -23,11 +24,7 @@ export class AddDocumentModal {
       noteInput: 'field-sy66-input',
       departmentInput: 'field-ynp5-input',
       confirmButton: 'formsubmitcancelrow-me5l-confirmButton',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
   }
 
   async waitForModalToLoad(): Promise<void> {

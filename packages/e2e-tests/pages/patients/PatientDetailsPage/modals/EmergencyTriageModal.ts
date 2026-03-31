@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
 import { fillMuiDateTimeField } from '@utils/testHelper';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { RecordVitalsModal } from '../../VitalsPage/modals/RecordVitalsModal';
 
 export class EmergencyTriageModal {
@@ -51,13 +52,10 @@ export class EmergencyTriageModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    const testIds = {
-      // Modal header
+
+    assignTestIdLocators(this, page, {
       modalTitle: 'verticalcenteredtext-ni4s',
       closeButton: 'iconbutton-eull',
-      
-      // Patient details section
       patientDetailsSection: 'patientdetails-pdbh',
       firstNameLabel: 'detaillabel-l4mb-firstName',
       firstNameValue: 'detailvalue-lsjb-firstName',
@@ -68,37 +66,24 @@ export class EmergencyTriageModal {
       dateOfBirthLabel: 'detaillabel-l4mb-dateOfBirth',
       dateOfBirthValue: 'detailvalue-lsjb-dateOfBirth',
       displayIdLabel: 'displayidlabel-upiz',
-      
-      // Form fields
       form: 'styledform-5o5i',
       arrivalDateTimeField: 'field-mhav',
       triageDateTimeField: 'field-9hxy',
       areaField: 'field-ipih-group-input',
       locationField: 'field-ipih-location-input',
       arrivalModeSelect: 'selectinput-phtg-select',
-      
-      // Triage score radio buttons
       triageScoreEmergency: 'radio-il3t-1',
       triageScoreVeryUrgent: 'radio-il3t-2',
       triageScoreUrgent: 'radio-il3t-3',
       triageScoreNonUrgent: 'radio-il3t-4',
       triageScoreDeceased: 'radio-il3t-5',
-      
-      // Complaint fields
       chiefComplaintField: 'field-a7cu-input',
       secondaryComplaintField: 'field-1ktz-input',
-      
-      // Buttons
       recordVitalsButton: 'outlinedbutton-pp8c',
       triageClinicianField: 'field-388u-input',
       cancelButton: 'outlinedbutton-8rnr',
       submitButton: 'row-vpng-confirmButton',
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
     this.arrivalDateTimeInput = this.arrivalDateTimeField.locator('input');
     this.triageDateTimeInput = this.triageDateTimeField.locator('input');
     this.arrivalModeSelect = page.getByRole('dialog').getByTestId('selectinput-phtg-select');

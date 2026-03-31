@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import type { CurrentUser } from '../../../../utils/apiHelpers';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 import { fillMuiDateTimeField, getTableItems, normalizeToIsoDateTimeMinute } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
@@ -11,7 +12,6 @@ export class LabRequestModalBase {
   readonly heading!: Locator;
   readonly description!: Locator;
   
-  // Page 1: Basic lab request details (shared across all modals)
   readonly requestingClinicianInput!: Locator;
   readonly requestDateTimeInput!: Locator;
   readonly departmentInput!: Locator;
@@ -20,13 +20,11 @@ export class LabRequestModalBase {
   readonly panelRadioButton!: Locator;
   readonly individualRadioButton!: Locator;
   
-  // Action buttons (shared across all modals)
   readonly backButton!: Locator;
   readonly cancelButton!: Locator;
   readonly nextButton!: Locator;
   readonly finaliseButton!: Locator;
   
-  // Generic locators for selected items (shared across all modals)
   readonly selectedItemsList!: Locator;
   readonly selectedItems!: Locator;
   readonly listItems!: Locator;
@@ -34,7 +32,6 @@ export class LabRequestModalBase {
   readonly clearAllButton!: Locator;
   readonly testSelectionError!: Locator;
   
-  // Page 3: Sample details (shared across all modals)
   readonly dateTimeCollectedInputs!: Locator;
   readonly collectedByInputs!: Locator;
   readonly collectedBySuggestionsList!: Locator;
@@ -45,7 +42,6 @@ export class LabRequestModalBase {
   readonly sampleDetailsPanels!: Locator;
   readonly sampleDetailsCategories!: Locator;
   
-  // Page 4: Request Finalised (shared across all modals)
   readonly requestingClinicianLabel!: Locator;
   readonly requestingClinicianValue!: Locator;
   readonly requestDateTimeLabel!: Locator;
@@ -69,41 +65,25 @@ export class LabRequestModalBase {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for LabRequestModalBase elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       form: 'styledform-5o5i',
       heading: 'heading3-keat',
       description: 'styledbodytext-8egc',
-      requestingClinicianInput: 'field-z6gb-input',
-      requestDateTimeField: 'field-y6ku',
-      departmentInput: 'field-wobc-input',
-      prioritySelect: 'selectinput-phtg-select',
       panelRadioButton: 'radio-il3t-panel',
       individualRadioButton: 'radio-il3t-individual',
       backButton: 'styledbackbutton-016f',
-      cancelButton: 'formgrid-wses',
       nextButton: 'formsubmitcancelrow-aaiz-confirmButton',
       finaliseButton: 'formsubmitcancelrow-aaiz-confirmButton',
-      selectedItemsList: 'testitemwrapper-o7ha',
       selectedItems: 'testitemwrapper-o7ha',
-      listItems: 'selectortable-dwrp',
-      selectedCategoryList: 'testitemwrapper-o7ha',
       clearAllButton: 'clearallbutton-ao0r',
       testSelectionError: 'formhelpertext-198r',
       dateTimeCollectedInputs: 'styledfield-ratc-input',
-      collectedByInputs: 'styledfield-wifm-input',
       collectedBySuggestionsList: 'styledfield-wifm-suggestionslist',
-      specimenTypeInputs: 'styledfield-8g4b-input',
       specimenTypeSuggestionsList: 'styledfield-8g4b-suggestionslist',
-      siteInputs: 'styledfield-mog8-input',
       siteSuggestionsList: 'styledfield-mog8-option-typography',
       sampleDetailsPanels: 'typography-ex0x',
       sampleDetailsCategories: 'typography-772r',
-      requestingClinicianLabel: 'cardlabel-6kys',
-      requestDateTimeLabel: 'cardlabel-6kys',
-      departmentLabel: 'cardlabel-6kys',
-      priorityLabel: 'cardlabel-6kys',
       selectAllCheckbox: 'checkinput-irky-controlcheck',
       testIdColumnHeader: 'tablelabel-0eff-displayId',
       tableRowCheckboxes: 'checkinput-83pj-controlcheck',
@@ -116,18 +96,11 @@ export class LabRequestModalBase {
       closeButton: 'button-9vga',
       notesTextarea: 'field-3t0x-input',
       searchInput: 'styledsearchfield-92y3-input',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
-    // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');

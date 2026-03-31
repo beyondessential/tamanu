@@ -12,6 +12,9 @@ export * from './dateTimeHelpers';
  */
 export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
+/** Shared `data-testid` for the two-column sex/gender field used in patient search forms. */
+export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
+
 /**
  * Returns the facility name as shown in the sidebar (current facility context).
  *
@@ -38,7 +41,7 @@ export async function getSidebarFacilityDisplayName(page: Page): Promise<string>
  * @param timeout — Per-step wait budget in ms (default 10000).
  * @throws Error wrapping the underlying failure if the suggestion never becomes visible or click fails.
  */
-export async function SelectingFromSearchBox(
+export async function selectFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,

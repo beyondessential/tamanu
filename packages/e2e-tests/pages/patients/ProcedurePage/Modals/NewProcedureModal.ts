@@ -3,6 +3,7 @@ import { BasePage } from '../../../BasePage';
 import { selectAutocompleteFieldOption } from '../../../../utils/fieldHelpers';
 import { fillMuiTimeField, formatForMuiTimePicker } from '../../../../utils/testHelper';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 
 /**
  * Page Object for New Procedure Modal
@@ -42,7 +43,7 @@ export class NewProcedureModal extends BasePage {
     
     // DateField / TimeField pass data-testid to the MUI TextField root (see ui-components DateField).
     // AutocompleteField uses `${dataTestId}-input` on the text input (see ui-components AutocompleteField).
-    const testIds = {
+    assignTestIdLocators(this, page, {
       procedureInput: 'field-87c2-input',
       procedureDateInput: 'field-3a5v',
       procedureAreaInput: 'field-p4ef-group-input',
@@ -58,17 +59,12 @@ export class NewProcedureModal extends BasePage {
       timeEndedInput: 'field-hgzz',
       notesInput: 'field-7en7-input',
       completedNotesInput: 'field-qrv7-input',
-      assistantCliniciansInput: 'styledformcontrol-td30', 
-     completedCheckbox: 'field-uaz4-controlcheck',
-     completedNotesCollapse: 'collapse-e9ow',
-     dialogActions: 'dialogactions-jkc6',
-     procedureModalHeader: 'verticalcenteredtext-ni4s'
-    } as const;
-   
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+      assistantCliniciansInput: 'styledformcontrol-td30',
+      completedCheckbox: 'field-uaz4-controlcheck',
+      completedNotesCollapse: 'collapse-e9ow',
+      dialogActions: 'dialogactions-jkc6',
+      procedureModalHeader: 'verticalcenteredtext-ni4s',
+    });
     
     // Special cases that need additional processing
     this.saveProcedureButton = page.getByRole('dialog').getByRole('button').filter({ hasText: 'Save procedure' });

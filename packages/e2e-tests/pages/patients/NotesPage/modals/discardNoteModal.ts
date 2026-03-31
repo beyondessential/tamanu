@@ -1,4 +1,6 @@
 import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
+import { waitForModalOpen, waitForModalClose } from '@utils/dialogHelpers';
 
 export class DiscardNoteModal {
   readonly page: Page;
@@ -7,26 +9,19 @@ export class DiscardNoteModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for DiscardNoteModal elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       cancelButton: 'outlinedbutton-p957',
       confirmButton: 'confirmbutton-y3tb',
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
   }
 
   async waitForModalToLoad() {
-    await this.confirmButton.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await waitForModalOpen(this.confirmButton, this.page);
   }
 
   async waitForModalToClose() {
-    await this.confirmButton.waitFor({ state: 'detached' });
+    await waitForModalClose(this.confirmButton);
   }
 }
 

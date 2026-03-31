@@ -3,12 +3,13 @@ import { expect } from '../../fixtures/baseFixture';
 import {
   convertDateFormat,
   fillMuiDateField,
-  SelectingFromSearchBox,
+  selectFromSearchBox,
   STYLED_TABLE_CELL_PREFIX,
+  TWO_COLUMNS_FIELD_TEST_ID,
 } from '../../utils/testHelper';
+import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { routes } from '../../config/routes';
 import { Patient } from '../../types/Patient';
-import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
 type PatientTableRow = Locator & {
   getPatientInfo(): Promise<Patient>;
 };
@@ -51,47 +52,24 @@ export class PatientTable {
   constructor(page: Page) {
     this.page = page;
 
-    // TestId mapping for PatientTable elements
-    const testIds = {
-      loadingCell: 'statustablecell-rwkq',
-      rows: 'styledtablebody-a0jz',
+    assignTestIdLocators(this, page, {
       nhnResultCell: 'styledtablecell-2gyy-0-displayId',
       secondNHNResultCell: 'styledtablecell-2gyy-1-displayId',
-      villageSuggestionList: 'villagelocalisedfield-mcri-suggestionslist',
       searchBtn: 'searchbutton-nt24',
       clearSearchBtn: 'clearbutton-z9x3',
-      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
-      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
-      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
-      villageSortButton: 'tablesortlabel-0qxx-villageName',
-      dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
       NHNTxt: 'localisedfield-dzml-input',
       firstNameTxt: 'localisedfield-i9br-input',
       lastNameTxt: 'localisedfield-ngsn-input',
-      DOBTxt: 'field-qk60',
       CulturalNameTxt: 'localisedfield-epbq-input',
-      villageSearchBox: 'villagelocalisedfield-mcri-input',
       includeDeceasedChk: 'field-ngy7-controlcheck',
       advanceSearchIcon: 'iconbutton-zrkv',
       sexDropDownIcon: 'sexlocalisedfield-7lm9-expandmoreicon-h115',
       sexDropDownCrossIcon: 'stylediconbutton-6vh3',
-      DOBFromTxt: 'joinedfield-swzm',
-      DOBToTxt: 'field-aax5',
       downloadBtn: 'download-data-button',
-      pageRecordCountDropDown: 'styledselectfield-lunn',
       pageRecordCountDropDownOptions: 'styledmenuitem-fkrw-undefined',
-      patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
-      patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
-      patientPage2: 'paginationitem-c5vg',
       pageRecordCount: 'pagerecordcount-m8ne',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-
-    // Special cases that need additional processing
     this.table = page.getByRole('table');
     this.loadingCell = page.getByTestId('statustablecell-rwkq').filter({ hasText: 'Loading' });
     this.rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
@@ -295,7 +273,7 @@ export class PatientTable {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
     }
     if (searchCriteria.village) {
-      await SelectingFromSearchBox(
+      await selectFromSearchBox(
         this.villageSearchBox,
         this.villageSuggestionList,
         searchCriteria.village,

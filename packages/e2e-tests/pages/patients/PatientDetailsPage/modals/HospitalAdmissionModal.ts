@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class HospitalAdmissionModal {
   readonly page: Page;
@@ -27,7 +28,7 @@ export class HospitalAdmissionModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       modalContainer: 'modalcontainer-uc2n',
       modalContent: 'modalcontent-bk4w',
       form: 'styledform-5o5i',
@@ -44,11 +45,7 @@ export class HospitalAdmissionModal {
       reasonForEncounterInput: 'field-o5gm-input',
       confirmButton: 'formsubmitbutton-4ker',
       dialogActions: 'dialogactions-jkc6',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
     this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
 
   }

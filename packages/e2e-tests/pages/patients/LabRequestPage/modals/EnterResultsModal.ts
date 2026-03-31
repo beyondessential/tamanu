@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 
 export class EnterResultsModal {
   readonly page: Page;
@@ -24,21 +25,14 @@ export class EnterResultsModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for EnterResultsModal elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       form: 'modalcontainer-uc2n',
       styledForm: 'styledform-5o5i',
       confirmButton: 'confirmbutton-tok1',
       labTestTypeTitle: 'styledtableheadercell-wvus-labTestType',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.STYLED_TABLE_CELL_PREFIX = 'styledtabledatacell-bsji';
     this.form = page.getByTestId('modalcontainer-uc2n').getByTestId('styledform-5o5i');
     this.resultsFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).locator('input').locator('..').locator('div');

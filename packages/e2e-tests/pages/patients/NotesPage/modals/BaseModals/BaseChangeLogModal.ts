@@ -1,4 +1,6 @@
 import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
+import { waitForModalOpen, waitForModalClose } from '@utils/dialogHelpers';
 
 export abstract class BaseChangeLogModal {
   readonly page: Page;
@@ -10,30 +12,22 @@ export abstract class BaseChangeLogModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for BaseChangeLogModal elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       closeButton: 'iconbutton-eull',
       changeLogInfoWrappers: 'stylednotechangeloginfowrapper-zbh3',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.noteTypeLabel = page.getByTestId('cardbody-3iyj').getByTestId('cardcell-8efu').first().getByTestId('cardvalue-lcni');
     this.changelogInfoDates = this.changeLogInfoWrappers.getByTestId('datedisplay-o9yj');
     this.changelogTextContents = this.page.getByRole('dialog').getByTestId('stylednotechangeloginfowrapper-zbh3').locator('+ span');
   }
 
   async waitForModalToLoad() {
-    await this.noteTypeLabel.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await waitForModalOpen(this.noteTypeLabel, this.page);
   }
 
   async waitForModalToClose() {
-    await this.closeButton.waitFor({ state: 'detached' });
+    await waitForModalClose(this.closeButton);
   }
 }

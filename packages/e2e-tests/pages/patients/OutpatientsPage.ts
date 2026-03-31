@@ -2,6 +2,7 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
+import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { expect } from '../../fixtures/baseFixture';
 
 export interface OutpatientSearchCriteria extends BaseSearchCriteria {
@@ -17,23 +18,16 @@ export class OutpatientsPage extends BasePatientListPage {
 
   constructor(page: Page) {
     super(page, routes.patients.outpatients);
-    
-    // TestId mapping for OutpatientsPage elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       searchTitle: 'searchtabletitle-09n6',
       tableFooter: 'styledtablefooter-0eff',
       downloadButton: 'downloadbutton-0eff',
       areaInput: 'localisedfield-p72m-input',
       departmentInput: 'localisedfield-50wl-input',
       clinicianInput: 'localisedfield-8w55-input',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.tableRows = this.tableBody.locator('tr');
   }
 

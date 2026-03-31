@@ -2,6 +2,7 @@ import { Page, Locator } from '@playwright/test';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
 import * as fieldHelpers from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export class UpdateTreatmentPlanModal extends BaseNoteModal {
@@ -11,17 +12,11 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
 
   constructor(page: Page) {
     super(page);
-    
-    // TestId mapping for UpdateTreatmentPlanModal elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       updatedByInput: 'field-ar9q-input',
       updatedByDropdownList: 'field-ar9q-suggestionslist',
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
   }
 
 

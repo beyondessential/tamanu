@@ -3,6 +3,7 @@ import { DiscardNoteModal } from './discardNoteModal';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
 import { normalizeToIsoDateTimeMinute } from '@utils/testHelper';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class NewNoteModal extends BaseNoteModal {
   readonly discardNoteModal: DiscardNoteModal;
@@ -16,17 +17,10 @@ export class NewNoteModal extends BaseNoteModal {
     super(page);
     this.discardNoteModal = new DiscardNoteModal(page);
     
-    // TestId mapping for NewNoteModal elements
-    const testIds = {
+    assignTestIdLocators(this, page, {
       typeSelect: 'field-a0mv-select',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.noteTypeRequiredIndicator = page.getByTestId('field-a0mv-formhelptertext').getByText('*Required');
     this.noteContentRequiredIndicator = page.getByTestId('field-wxzr').locator('p').getByText('*Required');
   }

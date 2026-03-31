@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { AddTaskModal } from '../modals/AddTaskModal';
 import { MarkAsCompletedModal } from '../modals/MarkAsCompletedModal';
 import { MarkAsNotCompletedModal } from '../modals/MarkAsNotCompletedModal';
@@ -26,7 +27,7 @@ export class TasksPane {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       addTaskButton: 'button-a1te',
       tasksTable: 'taskstable-cv6v',
       priorityIcon: 'styledpriorityhighicon-7slu',
@@ -35,12 +36,8 @@ export class TasksPane {
       showCompletedTasksCheck: 'styledcheckinput-kqdn-controlcheck',
       markAsNotCompletedButton: 'styledcancelicon-nzdl',
       showNotCompletedTasksCheck: 'styledcheckinput-vgby-controlcheck',
-      deleteTaskButton: 'styleddeleteoutlineicon-w3ya'
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+      deleteTaskButton: 'styleddeleteoutlineicon-w3ya',
+    });
 
     // Fields that need nested locators
     this.taskName = this.tasksTable.locator('[data-test-class*="name"]');

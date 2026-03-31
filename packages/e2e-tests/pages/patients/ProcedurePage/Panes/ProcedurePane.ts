@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 import { NewProcedureModal } from '../Modals/NewProcedureModal';
 
@@ -39,8 +40,7 @@ export class ProcedurePane extends BasePatientPane {
   constructor(page: Page) {
     super(page);
 
-    // TestId mapping for ProcedurePane elements
-    const testIds = {
+    assignTestIdLocators(this, this.page, {
       tabPane: 'tabpane-q1xp',
       styledForm: 'styledform-5o5i',
       tableContainer: 'styledtablecontainer-3ttp',
@@ -63,12 +63,7 @@ export class ProcedurePane extends BasePatientPane {
       previousPageButton: 'paginationitem-hcui',
       page1Button: 'paginationitem-c5vg',
       nextPageButton: 'paginationitem-d791',
-    } as const;
-
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = this.page.getByTestId(id);
-    }
+    });
 
     // `withPermissionCheck` forces `data-testid="component-enxe"` (same as Prepare discharge / Move patient).
     this.newProcedureButton = this.page

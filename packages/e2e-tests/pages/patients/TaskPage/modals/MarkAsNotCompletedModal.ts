@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class MarkAsNotCompletedModal {
   readonly page: Page;
@@ -14,17 +15,13 @@ export class MarkAsNotCompletedModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       recordedByInput: 'field-maud-input',
       recordDateTimeField: 'field-sgto',
       reasonNotCompletedInput: 'field-r3a1-input',
       confirmButton: 'formsubmitcancelrow-y08n-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     this.recordDateTimeInput = this.recordDateTimeField.locator('input');
   }

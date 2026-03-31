@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
 import { fillMuiDateTimeField } from '@utils/testHelper';
+import { assignTestIdLocators } from '../../../../utils/locatorFactory';
 
 export interface SimpleChartFormValues {
     dateTime?: string;
@@ -44,15 +45,11 @@ export class SimpleChartModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       form: 'styledform-5o5i',
       confirmButton: 'formsubmitcancelrow-1ah9-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     this.dateTimeInput = this.form.getByText('Date & time').locator('..').locator('input');
     this.gcsEyeOpeningSelect = this.form.getByText('GCS Eye opening').locator('..').getByTestId('wrapperfieldcomponent-mkjr-select');

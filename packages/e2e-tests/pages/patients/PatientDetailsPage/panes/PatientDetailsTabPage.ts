@@ -2,6 +2,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { fillMuiDateField } from '@utils/testHelper';
 
 
@@ -102,7 +103,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
   constructor(page: Page) {
     super(page);
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       contentPane: 'contentpane-p0hd',
       form: 'styledform-5o5i',
       generalInformationHeading: 'patientdetailsheading-3ftw',
@@ -146,13 +147,9 @@ export class PatientDetailsTabPage extends BasePatientPane {
       cityTownInput: 'localisedfield-0jtf-cityTown-input',
       countryInput: 'localisedfield-0jtf-countryId-input',
       saveButton: 'formsubmitbutton-dzgy',
-    } as const;
-
-    for (const [key, testId] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(testId);
-    }
+    });
     this.divisionInput = page.getByTestId('autocompleteinput-input').locator('input[name="divisionId"]');
-    this.patientTypeSelect=page.getByTestId('secondarydetailsformgrid-qrkb').getByTestId('selectinput-phtg-select');
+    this.patientTypeSelect = page.getByTestId('secondarydetailsformgrid-qrkb').getByTestId('selectinput-phtg-select');
   }
 
   async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>): Promise<{

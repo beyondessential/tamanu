@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { convertDateFormat } from '../../utils/testHelper';
+import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { RecentlyViewedPatient } from '../../types/Patient';
 
 export class RecentlyViewedPatientsList {
@@ -12,21 +13,14 @@ export class RecentlyViewedPatientsList {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for RecentlyViewedPatientsList elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       firstRecentlyViewedName: 'cardtitle-qqhk-0',
       firstRecentlyViewedNHN: 'cardtext-iro1-0',
       firstRecentlyViewedGender: 'capitalizedcardtext-zu58-0',
       navigateNext: 'navigatenext-zeo2',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-    
-    // Special cases that need additional processing
     this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('datedisplay-tw5s-0');
   }
 

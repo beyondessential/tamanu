@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 import { selectFirstFromDropdown } from '@utils/testHelper';
 
 export class RecordSampleModal {
@@ -20,31 +21,19 @@ export class RecordSampleModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for RecordSampleModal elements
-    const testIds = {
+
+    assignTestIdLocators(this, page, {
       form: 'formgrid-3btd',
-      dateTimeCollectedInput: 'styledfield-dmjl-input',
-      collectedByInput: 'styledfield-v88m-input',
       collectedByDropdown: 'styledfield-v88m-input-expandmoreicon',
-      specimenTypeInput: 'styledfield-0950-input',
       specimenTypeDropdown: 'styledfield-0950-input-expandmoreicon',
-      siteInputDropdownIcon: 'selectinput-phtg-expandmoreicon-h115',
       recordSampleConfirmButton: 'row-vpng-confirmButton',
       closeButton: 'close-button',
       cancelButton: 'cancel-button',
-    } as const;
+    });
 
-    // Create locators using the testId mapping
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
-
-    // Special cases that need additional processing
     this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input');
     this.collectedByInput = page.getByTestId('styledfield-v88m-input');
     this.specimenTypeInput = page.getByTestId('styledfield-0950-input');
-    // Scope siteInputDropdownIcon to the record sample form to avoid matching elements in other forms
     this.siteInputDropdownIcon = page.getByTestId('formgrid-3btd').getByTestId('selectinput-phtg-expandmoreicon-h115');
   }
 

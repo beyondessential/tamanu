@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '@utils/fieldHelpers';
+import { assignTestIdLocators } from '@utils/locatorFactory';
 
 export class AddTaskModal {
   readonly page: Page;
@@ -26,7 +27,7 @@ export class AddTaskModal {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
+    assignTestIdLocators(this, page, {
       startDateTimeField: 'field-om46',
       requestDateTimeField: 'field-yduo',
       requestedByField: 'field-xhot-input',
@@ -39,11 +40,7 @@ export class AddTaskModal {
       assignedToInput: 'multiselectinput-vf2i',
       confirmButton: 'formsubmitcancelrow-jcmz-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    });
 
     // Fields that need nested locators
     this.startDateTimeInput = this.startDateTimeField.locator('input');
