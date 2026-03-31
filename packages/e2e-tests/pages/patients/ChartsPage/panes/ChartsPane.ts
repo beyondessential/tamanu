@@ -13,14 +13,10 @@ export class ChartsPane {
   constructor(page: Page) {
     this.page = page;
 
-    const testIds = {
-      recordChartButton: 'component-enxe',
-      chartTypeSelect: 'styledtranslatedselectfield-vwze-select',
-    } as const;
-
-    for (const [key, id] of Object.entries(testIds)) {
-      (this as any)[key] = page.getByTestId(id);
-    }
+    this.chartTypeSelect = page.getByTestId('styledtranslatedselectfield-vwze-select');
+    this.recordChartButton = page
+      .getByTestId('tablebuttonrowwrapper-srjx')
+      .getByRole('button', { name: 'Record' });
   }
 
   async waitForPageToLoad(): Promise<void> {
@@ -58,7 +54,7 @@ async getLatestValuesFromChartsTable(page: Page, fieldKeys: readonly string[]): 
   if (!dateTimeColumn) throw new Error(`Could not extract date/time from header: ${headerTestId}`);
   
   // Format dateTime
-  const dateTimeFormatted = format(parse(dateTimeColumn, 'yyyy-MM-dd HH:mm:ss', new Date()), 'yyyy-MM-dd\'T\'HH:mm');
+  const dateTimeFormatted = format(parse(dateTimeColumn, 'yyyy-MM-dd HH:mm:ss', new Date()), 'dd/MM/yyyy hh:mm a');
   
   // Field mappings
   const measureNameMap: Record<string, string> = {

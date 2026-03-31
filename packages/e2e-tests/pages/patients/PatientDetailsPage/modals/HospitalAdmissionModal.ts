@@ -55,6 +55,7 @@ export class HospitalAdmissionModal {
 
   async waitForModalToLoad(): Promise<void> {
     await this.modalTitle.waitFor({ state: 'visible' });
+    await this.formGrid.waitFor({ state: 'visible' });
     await this.checkInDateInput.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }

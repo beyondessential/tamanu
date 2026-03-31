@@ -1,8 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
-import { format } from 'date-fns';
-import { getTableItems } from '../../../../utils/testHelper';
+import { fillMuiDateTimeField, getTableItems, normalizeToIsoDateTimeMinute } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
 
@@ -77,7 +76,7 @@ export class LabRequestModalBase {
       heading: 'heading3-keat',
       description: 'styledbodytext-8egc',
       requestingClinicianInput: 'field-z6gb-input',
-      requestDateTimeInput: 'field-y6ku-input',
+      requestDateTimeField: 'field-y6ku',
       departmentInput: 'field-wobc-input',
       prioritySelect: 'selectinput-phtg-select',
       panelRadioButton: 'radio-il3t-panel',
@@ -126,7 +125,7 @@ export class LabRequestModalBase {
     
     // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('field-y6ku').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     // Scope prioritySelect to the visible form grid to avoid strict mode violations
     this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
@@ -135,9 +134,9 @@ export class LabRequestModalBase {
     this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');
     this.listItems = page.getByTestId('selectortable-dwrp').getByTestId('labeltext-6stl');
     this.selectedCategoryList = page.getByTestId('testitemwrapper-o7ha').getByTestId('categorytext-jno3');
-    this.collectedByInputs = page.getByTestId('styledfield-wifm-input').locator('input');
-    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input').locator('input');
-    this.siteInputs = page.getByTestId('styledfield-mog8-input').locator('input');
+    this.collectedByInputs = page.getByTestId('styledfield-wifm-input');
+    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input');
+    this.siteInputs = page.getByTestId('styledfield-mog8-input');
     this.requestingClinicianLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Requesting clinician' });
     this.requestingClinicianValue = this.requestingClinicianLabel.locator('..').getByTestId('cardvalue-lcni');
     this.requestDateTimeLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Request date & time' });
@@ -153,8 +152,9 @@ export class LabRequestModalBase {
   }
 
   async validateRequestedDateTimeIsToday() {
-    const todayString = this.getCurrentDateTime();
-    await expect(this.requestDateTimeInput).toHaveValue(todayString);
+    const todayString = await this.getCurrentDateTime();
+    const actual = normalizeToIsoDateTimeMinute(await this.requestDateTimeInput.inputValue());
+    expect(actual).toBe(todayString);
     return todayString;
   }
 
@@ -177,8 +177,12 @@ export class LabRequestModalBase {
     return currentUser;
   }
 
-  getCurrentDateTime(): string {
-    return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  async getCurrentDateTime(): Promise<string> {
+    return this.page.evaluate(() => {
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    });
   }
 
   /**
@@ -245,10 +249,10 @@ export class LabRequestModalBase {
    * @param index - The index of the input to set
    */
   async setDateTimeCollected(dateTime: string, index: number = 0) {
-    const input = this.dateTimeCollectedInputs.locator('input').nth(index);
+    const input = this.dateTimeCollectedInputs.nth(index);
     await input.click();
     await input.waitFor({ state: 'visible' });
-    await input.fill(dateTime);
+    await fillMuiDateTimeField(input, dateTime);
   }
   
   /**
