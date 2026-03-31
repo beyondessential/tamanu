@@ -5,8 +5,10 @@ import {
   assertRecentDateTime,
   convertDateFormat,
   formatDateTimeForTable,
+  formatForMuiDatePicker,
   getTableItems,
   normalizeToIsoDate,
+  STYLED_TABLE_CELL_PREFIX,
 } from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
@@ -677,11 +679,14 @@ test.describe('Basic tests', () => {
     await addReferralModal.completeReferralButton.click();
     await referralPane.waitForPageToLoad();
     const referralDate = await getTableItems(referralPane.page, 1, 'date');
-    expect(referralDate[0]).toBe(format(new Date(formValues.referralDate), 'MM/dd/yyyy'));
+    expect(referralDate[0]).toBe(formatForMuiDatePicker(formValues.referralDate));
     const referralTypeValue = await getTableItems(referralPane.page, 1, 'referralType');
     expect(referralTypeValue[0]).toBe(referralType);
-    const referralCompletedBy = await getTableItems(referralPane.page, 1, 'referredBy');
-    expect(referralCompletedBy[0]).toBe(formValues.referralCompletedBy);
+    // ReferralTable resolves "Referral completed by" via a follow-up user API call after first paint (placeholder N/A).
+    expect(formValues.referralCompletedBy).toBeDefined();
+    await expect(
+      referralPane.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-referredBy`),
+    ).toHaveText(formValues.referralCompletedBy!, { timeout: 20_000 });
     const referralStatus = await getTableItems(referralPane.page, 1, 'status');
     expect(referralStatus[0]).toBe('Pending');
   });
