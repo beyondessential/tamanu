@@ -94,10 +94,18 @@ const getErrorModalBody = error => {
   if (table === 'user_designations' && count) {
     return (
       <Typography variant="body2">
-        <TranslatedText
-          stringId="admin.designations.delete.error.usersAssigned"
-          fallback="You cannot delete this designation as there are currently one or more users assigned to it. Please update the user profiles first in order to delete the designation."
-        />
+        {count === 1 ? (
+          <TranslatedText
+            stringId="admin.designations.delete.error.usersAssigned.singular"
+            fallback="You cannot delete this designation as there is a user assigned to it. Please update the user profile first in order to delete the designation."
+          />
+        ) : (
+          <TranslatedText
+            stringId="admin.designations.delete.error.usersAssigned.plural"
+            fallback="You cannot delete this designation as there are :count&nbsp;users assigned to it. Please update the user profiles first in order to delete the designation."
+            replacements={{ count }}
+          />
+        )}
       </Typography>
     );
   }
@@ -105,10 +113,18 @@ const getErrorModalBody = error => {
   if (table === 'task_designations' && count) {
     return (
       <Typography variant="body2">
-        <TranslatedText
-          stringId="admin.designations.delete.error.tasksAssigned"
-          fallback="You cannot delete this designation as there are currently one or more tasks assigned to it. Please update the task assignments in order to delete the designation."
-        />
+        {count === 1 ? (
+          <TranslatedText
+            stringId="admin.designations.delete.error.tasksAssigned.singular"
+            fallback="You cannot delete this designation as there is a task assigned to it. Please update the task assignment in order to delete the designation."
+          />
+        ) : (
+          <TranslatedText
+            stringId="admin.designations.delete.error.tasksAssigned.plural"
+            fallback="You cannot delete this designation as there are :count&nbsp;tasks assigned to it. Please update the task assignments in order to delete the designation."
+            replacements={{ count }}
+          />
+        )}
       </Typography>
     );
   }

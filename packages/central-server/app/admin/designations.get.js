@@ -14,13 +14,10 @@ export const getDesignations = asyncHandler(async (req, res) => {
   const idQuery = req.query.id?.trim();
   const nameQuery = req.query.name?.trim();
 
-  const additionalFilters = {
-    type: REFERENCE_TYPES.DESIGNATION,
-    ...(idQuery && { id: idQuery }),
-    ...(nameQuery && {
-      name: { [Op.iRegexp]: `\\m${escapeRegExp(nameQuery)}` },
-    }),
-  };
+  const additionalFilters = { type: REFERENCE_TYPES.DESIGNATION };
+  // Not matching word boundary; IDs often camel case
+  if (idQuery) additionalFilters.id = { [Op.iLike]: `%${idQuery}%` };
+  if (nameQuery) additionalFilters.name = { [Op.iRegexp]: `\\m${escapeRegExp(nameQuery)}` };
 
   const response = await getResourceList(req, 'ReferenceData', '', { additionalFilters });
   res.send(response);

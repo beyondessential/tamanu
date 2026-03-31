@@ -2,7 +2,7 @@ import { Skeleton } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 
-import { Form } from '@tamanu/ui-components';
+import { Form, TranslatedText } from '@tamanu/ui-components';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, Field, TextField } from '../../../components';
 import { Colors } from '../../../constants';
@@ -16,7 +16,7 @@ export const Search = styled('search')`
 export const StyledForm = styled(Form)`
   display: grid;
   gap: inherit;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
 `;
 
 export const ButtonGroup = styled.div`
@@ -26,6 +26,16 @@ export const ButtonGroup = styled.div`
   gap: inherit;
   button {
     font-size: inherit;
+  }
+`;
+
+export const SearchClearButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.clear" fallback="Clear" />,
+  variant: 'text',
+})`
+  &:hover {
+    text-decoration-line: underline;
+    background-color: unset;
   }
 `;
 
@@ -51,6 +61,10 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
   border-start-start-radius: 0;
   box-shadow: unset;
+
+  .MuiTableCell-body {
+    padding-block: 10px;
+  }
 `;
 
 export const Article = styled.article`

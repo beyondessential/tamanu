@@ -3,13 +3,10 @@ import { useSearchParams } from 'react-router';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { FormSubmitButton, TextField } from '@tamanu/ui-components';
-import { useSuggester } from '../../../../api';
-import { Button, TranslatedText } from '../../../../components';
-import { AutocompleteField, Field } from '../../../../components/Field';
+import { TranslatedText } from '../../../../components';
+import { Field } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
-import { ButtonGroup, Search, StyledForm } from '../components';
-
-const suggesterOptions = { formatter: ({ id }) => ({ label: id, value: id }) }; // Format ID as label and value
+import { ButtonGroup, Search, SearchClearButton, StyledForm } from '../components';
 
 export const DesignationsSearchForm = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,8 +14,7 @@ export const DesignationsSearchForm = () => {
   const nameQuery = searchParams.get('name');
 
   const { getTranslation } = useTranslation();
-
-  const designationSuggester = useSuggester('designation', suggesterOptions);
+  const placeholder = getTranslation('general.placeholder.search...', 'Search…');
 
   const onSubmit = values => {
     const name = values.name?.trim();
@@ -57,22 +53,19 @@ export const DesignationsSearchForm = () => {
         component={TextField}
         label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
         name="name"
-        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
+        placeholder={placeholder}
       />
       <Field
-        component={AutocompleteField}
+        component={TextField}
         label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
         name="id"
-        placeholder={getTranslation('general.placeholder.select', 'Select')}
-        suggester={designationSuggester}
+        placeholder={placeholder}
       />
       <ButtonGroup>
         <FormSubmitButton color="primary" onClick={submitForm}>
           <TranslatedText stringId="general.action.search" fallback="Search" />
         </FormSubmitButton>
-        <Button onClick={onClear} variant="text">
-          <TranslatedText stringId="general.action.clear" fallback="Clear" />
-        </Button>
+        <SearchClearButton onClick={onClear} />
       </ButtonGroup>
     </>
   );
