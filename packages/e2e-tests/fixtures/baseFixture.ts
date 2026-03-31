@@ -1,6 +1,14 @@
 import { test as base, APIRequestContext, Page } from '@playwright/test';
 
-import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
+import {
+  createPatient,
+  createApiContext,
+  createHospitalAdmissionEncounterViaAPI,
+  createClinicEncounterViaApi,
+  createTriageEncounterViaApi,
+  getUser,
+  type CurrentUser,
+} from '../utils/apiHelpers';
 import {
   DashboardPage,
   LoginPage,
@@ -24,8 +32,12 @@ import {
   OutpatientAppointmentsPage,
 } from '../pages';
 
+export type { CurrentUser };
+
 type BaseFixtures = {
   api: APIRequestContext;
+  /** Logged-in facility user from `/api/user/me` (lazy; only fetched when the test uses this fixture). */
+  currentUser: CurrentUser;
   newPatient: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithClinicAdmission: Awaited<ReturnType<typeof createPatient>>;
@@ -56,6 +68,10 @@ export const test = base.extend<BaseFixtures>({
     const apiContext = await createApiContext({ page });
     await use(apiContext);
     await apiContext.dispose();
+  },
+
+  currentUser: async ({ api }, use) => {
+    await use(await getUser(api));
   },
 
   newPatient: async (

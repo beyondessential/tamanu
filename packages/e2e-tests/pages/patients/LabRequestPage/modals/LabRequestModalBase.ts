@@ -1,6 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
-import { createApiContext, getUser } from '../../../../utils/apiHelpers';
+import type { CurrentUser } from '../../../../utils/apiHelpers';
 import { fillMuiDateTimeField, getTableItems, normalizeToIsoDateTimeMinute } from '../../../../utils/testHelper';
 
 const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
@@ -165,16 +165,9 @@ export class LabRequestModalBase {
     return departmentLabel;
   }
 
-  async validateRequestingClinician() {
-    const currentUser = await this.getCurrentUser();
-    await expect(this.requestingClinicianInput).toHaveValue(currentUser.displayName); 
+  async validateRequestingClinician(currentUser: CurrentUser) {
+    await expect(this.requestingClinicianInput).toHaveValue(currentUser.displayName);
     return currentUser.displayName;
-  }
-
-  async getCurrentUser() {
-    const api = await createApiContext({ page: this.page });
-    const currentUser = await getUser(api);
-    return currentUser;
   }
 
   async getCurrentDateTime(): Promise<string> {

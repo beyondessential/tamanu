@@ -1,6 +1,5 @@
 import { testData } from '@utils/testData';
 import { test, expect } from '../../fixtures/baseFixture';
-import { getUser } from '../../utils/apiHelpers';
 
 test.describe('inpatient table tests', () => {
   test.beforeEach(async ({ inpatientsPage }) => {
@@ -47,9 +46,8 @@ test.describe('inpatient table tests', () => {
     test('[T-0502][AT-0035]Search by clinician', async ({
       newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
       inpatientsPage,
-      api,
+      currentUser,
     }) => {
-      const currentUser = await getUser(api);
       const patientClinician = currentUser.displayName;
       await inpatientsPage.searchTable({ clinician: patientClinician, advancedSearch: true });
       await inpatientsPage.validateAtLeastOneSearchResult();
@@ -75,9 +73,8 @@ test.describe('inpatient table tests', () => {
     test('[T-0502][AT-0038]Search by filling all the fields', async ({
       newPatientWithHospitalAdmission,
       inpatientsPage,
-      api,
+      currentUser,
     }) => {
-      const currentUser = await getUser(api);
       await inpatientsPage.searchTable({
         NHN: newPatientWithHospitalAdmission.displayId,
         firstName: newPatientWithHospitalAdmission.firstName,
@@ -95,8 +92,11 @@ test.describe('inpatient table tests', () => {
       await inpatientsPage.validateAllRowsContain(currentUser.displayName, 'clinician');
       await inpatientsPage.validateAllRowsContain(testData.dietSearchResult1, 'diets');
     });
-    test('[T-0502][AT-0039]Clear search', async ({ newPatientWithHospitalAdmission, inpatientsPage, api }) => {
-      const currentUser = await getUser(api);
+    test('[T-0502][AT-0039]Clear search', async ({
+      newPatientWithHospitalAdmission,
+      inpatientsPage,
+      currentUser,
+    }) => {
       await inpatientsPage.searchTable({
         NHN: newPatientWithHospitalAdmission.displayId,
         firstName: newPatientWithHospitalAdmission.firstName,

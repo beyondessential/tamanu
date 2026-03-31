@@ -1,10 +1,7 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
 
 test.describe('Notes Tests', () => {
-  let user: { displayName: string; [key: string]: any };
-
   // Note Types Constants
   const NOTE_TYPES = {
     TREATMENT_PLAN: 'Treatment plan',
@@ -13,8 +10,7 @@ test.describe('Notes Tests', () => {
     MEDICAL: 'Medical',
   } as const;
 
-  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
-    user = await getUser(api);
+  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.navigateToNotesTab();
   });
@@ -80,6 +76,7 @@ test.describe('Notes Tests', () => {
 
     test('[T-0186][AT-0078]should validate form field values when creating a note', async ({
       patientDetailsPage,
+      currentUser,
     }) => {
       const noteContent = 'This is a test note for validation';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -91,7 +88,7 @@ test.describe('Notes Tests', () => {
       await newNoteModal?.noteContentTextarea.fill(noteContent);
 
       // Validate form field values
-      await expect(newNoteModal?.getWrittenByValue()).resolves.toBe(user.displayName);
+      await expect(newNoteModal?.getWrittenByValue()).resolves.toBe(currentUser.displayName);
       await expect(newNoteModal?.getDateTimeValue()).resolves.toMatch(
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
       );
@@ -155,6 +152,7 @@ test.describe('Notes Tests', () => {
   test.describe('Edit Note Tests', () => {
     test('[T-0191][AT-0081]should edit an existing note and view the change log', async ({
       patientDetailsPage,
+      currentUser,
     }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
@@ -198,7 +196,7 @@ test.describe('Notes Tests', () => {
         .nth(1)
         .textContent())!.trim();
       await expect(changeLogModal!.dateLabel).toHaveText(newerChangeLogDate);
-      await expect(changeLogModal!.changeLogInfoWrappers.first()).toContainText(user.displayName);
+      await expect(changeLogModal!.changeLogInfoWrappers.first()).toContainText(currentUser.displayName);
       await changeLogModal!.closeButton.click();
     });
     test('[T-0191][AT-0082]should update a treatment plan note and validate the change log', async ({

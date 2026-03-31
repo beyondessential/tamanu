@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { getUser } from '@utils/apiHelpers';
 import { formatForMuiDatePicker } from '@utils/testHelper';
 import { format } from 'date-fns';
 
@@ -12,8 +11,7 @@ test.describe('Procedures', () => {
     await patientDetailsPage.navigateToProcedureTab();
   });
   
-  test('[T-0197][AT-0089]Validate pre-populated fields', async ({ api,patientDetailsPage }) => {
-    const user = await getUser(api);
+  test('[T-0197][AT-0089]Validate pre-populated fields', async ({ currentUser, patientDetailsPage }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const date = new Date();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
@@ -21,7 +19,7 @@ test.describe('Procedures', () => {
     await expect(modal.getLocatorInput(modal.procedureDateInput)).toHaveValue(
       formatForMuiDatePicker(format(date, 'yyyy-MM-dd')),
     );
-    await expect(modal.getLocatorInput(modal.leadClinicianInput)).toHaveValue(user.displayName!);
+    await expect(modal.getLocatorInput(modal.leadClinicianInput)).toHaveValue(currentUser.displayName!);
     // Time started defaults from facility `getCurrentDateTime()`, not the test runner clock — assert display shape only.
     await expect(modal.getLocatorInput(modal.timeStartedInput)).toHaveValue(/\d{1,2}:\d{2} (AM|PM)/);
   });

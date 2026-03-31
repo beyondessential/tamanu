@@ -24,6 +24,8 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+export type CurrentUser = Awaited<ReturnType<typeof getUser>>;
+
 export const createPatient = async (
   api: APIRequestContext,
   page: Page,
