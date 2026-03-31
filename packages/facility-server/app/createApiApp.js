@@ -83,8 +83,8 @@ export async function createApiApp({
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');
-    express.use('/api/integration/fhir', authMiddleware, fhir);
-    express.use('/v1/integration/fhir', authMiddleware, fhir);
+    express.use('/api/integration/fhir/mat', authMiddleware, fhir);
+    express.use('/v1/integration/fhir/mat', authMiddleware, fhir);
   }
 
   express.use('/', routes);
