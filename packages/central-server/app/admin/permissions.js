@@ -11,6 +11,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
+import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
 
 async function getObjectIdsAndNamesByNoun(models) {
   const promises = NOUNS_WITH_OBJECT_ID.map(async noun => {
@@ -47,6 +48,28 @@ async function getObjectIdsAndNamesByNoun(models) {
 
   const results = await Promise.all(promises);
   return Object.fromEntries(results.filter(Boolean));
+}
+
+async function validateNoMixedFhirPermissions(Permission, permissions) {
+  const permissionsByRole = {};
+  for (const { verb, noun, roleId } of permissions) {
+    (permissionsByRole[roleId] ??= []).push({ verb, noun });
+  }
+  for (const [roleId, incoming] of Object.entries(permissionsByRole)) {
+    const existing = await Permission.findAll({
+      where: { roleId },
+      attributes: ['verb', 'noun'],
+      raw: true,
+    });
+    const all = [...incoming, ...existing];
+    const hasFhir = all.some(isFhirPermission);
+    const hasRegular = all.some(p => !isFhirPermission(p));
+    if (hasFhir && hasRegular) {
+      throw new ValidationError(
+        `Role "${roleId}" would mix FHIR and regular permissions`,
+      );
+    }
+  }
 }
 
 export const permissionsRouter = express.Router();
@@ -164,6 +187,7 @@ permissionsRouter.post(
     }
 
     const { Permission } = req.store.models;
+    await validateNoMixedFhirPermissions(Permission, permissions);
     const results = await Permission.sequelize.transaction(async () => {
       let created = 0;
 

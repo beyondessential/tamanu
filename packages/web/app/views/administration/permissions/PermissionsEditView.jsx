@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { useAuth, useTranslation } from '@tamanu/ui-components';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
@@ -173,7 +174,9 @@ export const PermissionsEditView = () => {
     setSelectedNoun(event.target.value ?? null);
   }, []);
 
-  const togglePermission = useTogglePermissionMutation(rolesQueryParam);
+  const togglePermission = useTogglePermissionMutation(rolesQueryParam, {
+    onError: error => toast.error(error.message),
+  });
 
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 

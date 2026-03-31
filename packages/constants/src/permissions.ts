@@ -1,4 +1,5 @@
 import { GENERAL_IMPORTABLE_DATA_TYPES } from './importable';
+import { FHIR_INTEGRATION_PERMISSIONS } from './fhir';
 
 const REFERENCE_TYPES_NOUNS = GENERAL_IMPORTABLE_DATA_TYPES.map(
   noun => String(noun).charAt(0).toUpperCase() + String(noun).slice(1),
@@ -13,11 +14,12 @@ export const PermissionVerb = {
   Read: 'read',
   Run: 'run',
   Submit: 'submit',
+  FhirIntegration: 'fhirIntegration',
 } as const;
 
 export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb];
 
-const { Manage, Delete, Create, Write, List, Read, Run, Submit } = PermissionVerb;
+const { Manage, Delete, Create, Write, List, Read, Run, Submit, FhirIntegration } = PermissionVerb;
 
 // Verbs allowed at the per-object level for nouns that support objectId.
 export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -31,6 +33,32 @@ export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb
 };
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
+
+// Derived from FHIR_INTEGRATION_PERMISSIONS so the two can never drift apart.
+// e.g. { FhirPatient: ['read'], FhirDiagnosticReport: ['read', 'write'], ... }
+const FHIR_RESOURCE_PERMISSION_SCHEMA: Record<string, PermissionVerb[]> = {};
+for (const config of Object.values(FHIR_INTEGRATION_PERMISSIONS)) {
+  for (const noun of config.read) {
+    const verbs = (FHIR_RESOURCE_PERMISSION_SCHEMA[noun] ??= []);
+    if (!verbs.includes(Read)) verbs.push(Read);
+  }
+  for (const noun of config.write) {
+    const verbs = (FHIR_RESOURCE_PERMISSION_SCHEMA[noun] ??= []);
+    if (!verbs.includes(Read)) verbs.push(Read);
+    if (!verbs.includes(Write)) verbs.push(Write);
+  }
+}
+
+// e.g. { PMI: ['fhirIntegration'], LABS: ['fhirIntegration'], ... }
+const FHIR_INTEGRATION_NOUN_SCHEMA: Record<string, PermissionVerb[]> = Object.fromEntries(
+  Object.keys(FHIR_INTEGRATION_PERMISSIONS).map(k => [k, [FhirIntegration]]),
+);
+
+// Display names for nouns that should appear differently in the UI.
+// The noun itself (the key) is what gets stored in the database.
+export const PERMISSION_NOUN_DISPLAY_NAMES: Partial<Record<string, string>> = Object.fromEntries(
+  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration — ${k}`]),
+);
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   all: [Manage],
@@ -48,22 +76,11 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   EncounterDiagnosis: [List, Read, Write, Create],
   EncounterNote: [List, Read, Write, Create],
   Facility: [List, Read, Write, Create],
-  FhirDiagnosticReport: [Read, Write],
-  FhirEncounter: [Read],
-  FhirImagingServiceRequest: [Read],
-  FhirImagingStudy: [Read, Write],
-  FhirImmunization: [Read],
-  FhirLabServiceRequest: [Read],
-  FhirMedicationRequest: [Read],
-  FhirObservation: [Read, Write],
-  FhirOrganization: [Read],
-  FhirPatient: [Read],
-  FhirPractitioner: [Read],
-  FhirSpecimen: [Read],
+  ...FHIR_RESOURCE_PERMISSION_SCHEMA,
+  ...FHIR_INTEGRATION_NOUN_SCHEMA,
   ImagingAreaExternalCode: [List, Read, Write, Create],
   ImagingRequest: [List, Read, Write, Create],
   ImagingTypeExternalCode: [List, Read, Write, Create],
-  Immunization: [Read],
   Invoice: [List, Read, Write, Create, Delete],
   InvoiceInsurancePlan: [List, Read, Write, Create],
   InvoiceInsurancePlanItem: [List, Read, Write, Create],
@@ -72,7 +89,6 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   InvoicePriceListItem: [List, Read, Write, Create],
   InvoiceProduct: [List, Read, Write, Create],
   IPSRequest: [Read, Create],
-  LABS: [Read, Write],
   LabRequest: [List, Read, Write, Create],
   LabRequestLog: [List, Read, Write, Create],
   LabRequestStatus: [Write],
@@ -84,8 +100,6 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   LocationAssignment: [List, Read],
   LocationGroup: [List, Read, Write, Create],
   LocationSchedule: [List, Read, Write, Create, Delete],
-  Medici: [Read],
-  MediciReport: [Read],
   Medication: [List, Read, Write, Create],
   MedicationAdministration: [List, Read, Write, Create],
   MedicationDispense: [List, Read, Write, Create, Delete],
@@ -111,8 +125,6 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   PatientSecondaryId: [List, Read, Write, Create],
   PatientVaccine: [List, Read, Write, Create],
   Permission: [Read, Write, Create, Delete],
-  PMI: [Read],
-  Prescriptions: [Read],
   Procedure: [List, Read, Write, Create],
   Program: [List, Read, Write, Create],
   ProgramRegistry: [List, Read],
@@ -126,7 +138,6 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   ReportDefinition: [List, Read, Write, Create, Run],
   ReportDefinitionVersion: [List, Read, Write, Create],
   ReportRequest: [List, Read, Write, Create],
-  RISPACS: [Read, Write],
   Role: [List, Read, Write, Create, Delete],
   ScheduledVaccine: [List, Read, Write, Create],
   SensitiveLabRequest: [List, Read, Write, Create],
@@ -167,9 +178,15 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Manage]: 'M',
   [Run]: 'X',
   [Submit]: 'S',
+  [FhirIntegration]: 'F',
 };
 
-export const HIDDEN_PERMISSION_NOUNS = new Set([PermissionNoun.all]);
+export const FHIR_INTEGRATION_NOUNS = new Set(Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA));
+
+export const HIDDEN_PERMISSION_NOUNS = new Set([
+  PermissionNoun.all,
+  ...Object.keys(FHIR_RESOURCE_PERMISSION_SCHEMA),
+]);
 
 // Verbs ordered high → low; selecting a verb auto-selects all verbs after it.
 // If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
