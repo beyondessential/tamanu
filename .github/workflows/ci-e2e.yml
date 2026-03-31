@@ -44,19 +44,26 @@ jobs:
           node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
+        id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
-      - uses: actions/cache/save@v3
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
   e2e:
     needs: node_modules_cache
-    name: E2E Tests
+    name: E2E Tests ${{ matrix.shard }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/4, 2/4, 3/4, 4/4]
     env:
       FACILITY_FRONTEND_URL: http://localhost:5173
       ADMIN_FRONTEND_URL: http://localhost:5174
@@ -79,8 +86,10 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
-      - run: npm run build
+      - run: npm i
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/central-server build
+      - run: npm run --workspace @tamanu/facility-server build
 
       - name: Setup postgres dbs
         run: |
@@ -95,13 +104,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
-        run: npm run e2e-test
-      - name: Upload test results
-        if: failure()
+        run: npx playwright test --shard=${{ matrix.shard }}
+        working-directory: packages/e2e-tests
+      - name: Upload blob report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: |
-            packages/e2e-tests/playwright-report/
-            packages/e2e-tests/test-results/
-          retention-days: 30
+          name: blob-report-${{ strategy.job-index }}
+          path: packages/e2e-tests/blob-report/
+          retention-days: 7
