@@ -24,7 +24,10 @@ const Message = styled.div`
   margin-top: 15vh;
 `;
 
-const BackgroundImage = styled.img`
+const BackgroundImage = styled.img.attrs({
+  'aria-hidden': true,
+  src: backgroundImage,
+})`
   margin-top: auto;
   width: 70%;
   padding-bottom: 23px;
@@ -56,7 +59,7 @@ export const NoPermissionScreen = ({ showBackgroundImage = true, className }) =>
         <Description data-testid="description-u3h1">
           <TranslatedText
             stringId="general.permission.permissionRequired.message.line1"
-            fallback="You do not have permission to use this feature"
+            fallback="You do not have permission to use this feature."
             data-testid="translatedtext-oafm-line1"
           />
           <br />
@@ -67,7 +70,7 @@ export const NoPermissionScreen = ({ showBackgroundImage = true, className }) =>
           />
         </Description>
       </Message>
-      {showBackgroundImage && <BackgroundImage src={backgroundImage} />}
+      {showBackgroundImage && <BackgroundImage />}
     </Container>
   );
 };
