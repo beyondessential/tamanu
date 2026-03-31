@@ -74,7 +74,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, UserDesignation, ReferenceData, Role },
+        models: { User, UserDesignation, ReferenceData, Role, Device },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page, ...filterParams },
     } = req;
@@ -154,6 +154,9 @@ usersRouter.get(
     });
     const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
+    const userIds = users.map(user => user.id);
+    const registeredDevicesCounts = await Device.getQuotaCountsByUserIds(userIds);
+
     res.send({
       count,
       data: await Promise.all(
@@ -162,6 +165,7 @@ usersRouter.get(
           const obj = user.get({ plain: true });
           const designations = user.designations || [];
           const roleName = roleMap.get(user.role) || null;
+          const registeredDevicesCount = registeredDevicesCounts[user.id] ?? 0;
           return {
             ...pick(obj, [
               'id',
@@ -172,10 +176,12 @@ usersRouter.get(
               'role',
               'visibilityStatus',
               'facilities',
+              'deviceRegistrationQuota',
             ]),
             roleName,
             allowedFacilities,
             designations,
+            registeredDevicesCount,
           };
         }),
       ),
@@ -194,6 +200,7 @@ const CREATE_VALIDATION = yup
     designations: yup.array().of(yup.string()).nullable().optional(),
     password: yup.string().required(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
+    deviceRegistrationQuota: yup.number().integer().min(0).nullable().optional(),
   })
   .test('password-is-not-hashed', 'Password must not be hashed', function (value) {
     return !isBcryptHash(value.password);
@@ -371,6 +378,7 @@ const UPDATE_VALIDATION = yup
     newPassword: yup.string().nullable().optional(),
     confirmPassword: yup.string().nullable().optional(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
+    deviceRegistrationQuota: yup.number().integer().min(0).nullable().optional(),
   })
   .test('passwords-match', 'Passwords must match', function (value) {
     const { newPassword, confirmPassword } = value;
@@ -463,6 +471,11 @@ usersRouter.put(
     // Add password to update fields if provided
     if (fields.newPassword) {
       updateFields.password = fields.newPassword;
+    }
+
+    // Add deviceRegistrationQuota to update fields if provided
+    if (fields.deviceRegistrationQuota != null) {
+      updateFields.deviceRegistrationQuota = fields.deviceRegistrationQuota;
     }
 
     await db.transaction(async () => {
