@@ -21,7 +21,7 @@ surveyResponse.get(
     if (!surveyResponseRecord) {
       throw new NotFoundError('Survey response not found');
     }
-    const survey = await surveyResponseRecord.getSurvey({ paranoid: false });
+    const survey = await surveyResponseRecord.getSurvey();
     if (!survey) {
       throw new NotFoundError('Associated survey not found');
     }
