@@ -41,7 +41,7 @@ export class RecordSampleModal {
     }
 
     // Special cases that need additional processing
-    this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input');
+    this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input').locator('input');
     this.collectedByInput = page.getByTestId('styledfield-v88m-input');
     this.specimenTypeInput = page.getByTestId('styledfield-0950-input');
     // Scope siteInputDropdownIcon to the record sample form to avoid matching elements in other forms
