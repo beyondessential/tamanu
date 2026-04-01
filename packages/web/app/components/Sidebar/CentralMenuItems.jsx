@@ -104,7 +104,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
         label: (
           <TranslatedText
             stringId="adminSidebar.locationAssignment"
-            fallback="Location assignment"
+            fallback="Location schedule"
             data-testid="translatedtext-locationassignments"
           />
         ),
