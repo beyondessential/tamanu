@@ -2,9 +2,16 @@
 
 _Add a brief description of the changes in this PR to help give the reviewer context._
 
-### Deploys
+### Auto-Deploy
 
-- [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
+- [ ] **Deploy** <!-- #deploy -->
+
+<details>
+<summary>Options</summary>
+
+- [ ] Synthetic test <!-- #deployopt %synthetic -->
+
+</details>
 
 ### Tests
 

@@ -76,7 +76,7 @@ export const FrequencySearchModalScreen = ({
   return (
     <View style={styles.container}>
       <Autocomplete
-        placeholder={getTranslation('general.placeholder.search...', 'Search...')}
+        placeholder={getTranslation('general.placeholder.search...', 'Search…')}
         placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}

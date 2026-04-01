@@ -2,6 +2,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createTestContext } from '../../utilities';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -11,7 +12,7 @@ describe(`Materialised FHIR - Organization`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());
 

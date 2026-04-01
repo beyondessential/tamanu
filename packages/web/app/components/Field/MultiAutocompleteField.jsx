@@ -372,7 +372,7 @@ export const MultiAutocompleteInput = ({
           tabSelectsValue={false}
           backspaceRemovesValue={false}
           noOptionsMessage={() => null}
-          placeholder={placeholder ?? getTranslation('general.placeholder.search...', 'Search...')}
+          placeholder={placeholder ?? getTranslation('general.placeholder.search...', 'Search…')}
           inputValue={inputValue}
           // filter by suggester
           filterOption={null}
