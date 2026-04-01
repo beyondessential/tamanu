@@ -181,8 +181,6 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [FhirIntegration]: 'F',
 };
 
-export const FHIR_INTEGRATION_NOUNS = new Set(Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA));
-
 export const HIDDEN_PERMISSION_NOUNS = new Set([
   PermissionNoun.all,
   ...Object.keys(FHIR_RESOURCE_PERMISSION_SCHEMA),
@@ -195,4 +193,4 @@ export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
 // Canonical left-to-right column order for summary display (L R W C D X S).
 // Every noun gets the same number of columns so summaries stay aligned.
 // `manage` is excluded because its only noun (`all`) is hidden.
-export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit'];
+export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit', 'fhirIntegration'];
