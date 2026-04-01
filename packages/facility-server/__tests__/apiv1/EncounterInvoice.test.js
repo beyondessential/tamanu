@@ -1421,6 +1421,7 @@ describe('Encounter invoice', () => {
           .send({
             orderingClinicianId: user.id,
             date: getCurrentDateTimeString(),
+            isDischargePrescription: true,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: prescription.id,
@@ -1462,6 +1463,7 @@ describe('Encounter invoice', () => {
           .send({
             orderingClinicianId: user.id,
             date: getCurrentDateTimeString(),
+            isDischargePrescription: true,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: prescription.id,
@@ -1503,6 +1505,7 @@ describe('Encounter invoice', () => {
         await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
           orderingClinicianId: user.id,
           date: toDateTimeString(sub(new Date(), { days: 5 })),
+          isDischargePrescription: true,
           pharmacyOrderPrescriptions: [
             {
               prescriptionId: prescription.id,

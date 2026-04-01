@@ -38,7 +38,7 @@ const AssignmentUser = styled.div`
 `;
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
-  const { formatTimeCompact } = useDateTime();
+  const { formatTime } = useDateTime();
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
   const hasReadPermission = ability?.can?.('read', 'LocationSchedule');
@@ -58,7 +58,7 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
+        {`${formatTime(startTime)} - ${formatTime(endTime)}`}
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}

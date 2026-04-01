@@ -2,6 +2,7 @@ import config from 'config';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { chance } from '@tamanu/fake-data/fake';
 
@@ -162,6 +163,53 @@ describe('Programs', () => {
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should only list programs the user can list', async () => {
+        const permittedProgram = await createDummyProgram();
+        const forbiddenProgram = await createDummyProgram();
+        const permittedSurvey = await createDummySurvey(permittedProgram, 1, {
+          surveyType: SURVEY_TYPES.PROGRAM,
+        });
+        await createDummySurvey(forbiddenProgram, 1, {
+          surveyType: SURVEY_TYPES.PROGRAM,
+        });
+
+        const appWithPermissions = await baseApp.asNewRole([
+          ['list', 'Program', permittedProgram.id],
+          ['submit', 'Survey', permittedSurvey.id],
+        ]);
+
+        const result = await appWithPermissions.get('/api/program');
+        expect(result).toHaveSucceeded();
+        expect(result.body.data).toEqual([expect.objectContaining({ id: permittedProgram.id })]);
+      });
+
+      it('should forbid listing surveys when the user cannot read the selected program', async () => {
+        const permittedProgram = await createDummyProgram();
+        const forbiddenProgram = await createDummyProgram();
+        const permittedSurvey = await createDummySurvey(permittedProgram, 1, {
+          surveyType: SURVEY_TYPES.PROGRAM,
+        });
+        const forbiddenSurvey = await createDummySurvey(forbiddenProgram, 1, {
+          surveyType: SURVEY_TYPES.PROGRAM,
+        });
+
+        const appWithPermissions = await baseApp.asNewRole([
+          ['list', 'Program', permittedProgram.id],
+          ['list', 'Program', forbiddenProgram.id],
+          ['read', 'Program', permittedProgram.id],
+          ['list', 'Survey'],
+          ['submit', 'Survey', permittedSurvey.id],
+          ['submit', 'Survey', forbiddenSurvey.id],
+        ]);
+
+        const result = await appWithPermissions.get(`/api/program/${forbiddenProgram.id}/surveys`);
+        expect(result).toBeForbidden();
+      });
     });
   });
 
