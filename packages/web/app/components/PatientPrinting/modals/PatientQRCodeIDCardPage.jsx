@@ -52,7 +52,6 @@ export const PatientQRCodeIDCardPage = React.memo(({ patient }) => {
           measures={measures}
           patient={patient}
           getTranslation={getTranslation}
-          getSetting={getSetting}
           primaryTimeZone={primaryTimeZone}
           data-testid="qrcardprintout-qrid"
         />
