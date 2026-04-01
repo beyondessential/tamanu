@@ -10,14 +10,9 @@ test.describe('Notes Tests', () => {
     MEDICAL: 'Medical',
   } as const;
 
-  test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.navigateToNotesTab();
-  });
-
   test.describe('Create Note Tests', () => {
     test('[T-0186][AT-0075]should create a treatment plan note with basic details', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const noteContent = 'This is a test treatment plan note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -34,7 +29,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0186][AT-0076]should create a discharge planning note and validate it is shown in the discharge modal', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const noteContent = 'This is a discharge planning note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -58,7 +53,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0186][AT-0077]should create an other note with basic details', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const noteContent = 'This is a test other note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -75,7 +70,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0186][AT-0078]should validate form field values when creating a note', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
       currentUser,
     }) => {
       const noteContent = 'This is a test note for validation';
@@ -106,7 +101,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0186][AT-0079]should not allow creating a note without required fields', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -126,7 +121,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0186][AT-0080]should allow cancelling note creation', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -151,7 +146,7 @@ test.describe('Notes Tests', () => {
 
   test.describe('Edit Note Tests', () => {
     test('[T-0191][AT-0081]should edit an existing note and view the change log', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
       currentUser,
     }) => {
       const originalContent = 'Original note content';
@@ -200,7 +195,7 @@ test.describe('Notes Tests', () => {
       await changeLogModal!.closeButton.click();
     });
     test('[T-0191][AT-0082]should update a treatment plan note and validate the change log', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       test.setTimeout(50000);
       const originalContent = 'Original treatment plan';
@@ -246,7 +241,7 @@ test.describe('Notes Tests', () => {
       await changeLogTreatmentPlanModal!.closeButton.click();
     });
     test('[T-0191][AT-0083]should edit an discharge planning note and validate it is shown in the discharge modal', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
@@ -274,7 +269,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[AT-0084]should show edited indicator after editing a note', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
@@ -295,7 +290,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.editedButtons.first()).toBeVisible();
     });
 
-    test('[T-0191][AT-0085]should allow cancelling note edit', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0085]should allow cancelling note edit', async ({ patientOnNotesTab: { patientDetailsPage } }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -327,7 +322,7 @@ test.describe('Notes Tests', () => {
   test.describe('Notes Table Tests', () => {
     test.setTimeout(60000);
     test('[T-0189][AT-0086]treatment plan note should appear on top when creating multiple notes', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
@@ -368,7 +363,7 @@ test.describe('Notes Tests', () => {
       }
     });
     test('[T-0190][AT-0087]should display read more and show less button when note content is too long', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       const noteContent = testData.noteContent;
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -382,7 +377,7 @@ test.describe('Notes Tests', () => {
     });
 
     test('[T-0188][AT-0088]should be able to filter notes by note type', async ({
-      patientDetailsPage,
+      patientOnNotesTab: { patientDetailsPage },
     }) => {
       test.setTimeout(50000);
       const notes = [

@@ -25,6 +25,38 @@ packages/e2e-tests/
 | `utils/dateTimeHelpers.ts` | `fillMuiDateField`, `fillMuiDateTimeField`, `normalizeToIsoDateTimeMinute`, `parseTamanuDate` |
 | `utils/testHelper.ts` | `STYLED_TABLE_CELL_PREFIX`, `TWO_COLUMNS_FIELD_TEST_ID`, `selectFromSearchBox`, `getTableItems` |
 | `utils/apiHelpers.ts` | `createPatient`, `createApiContext`, encounter helpers, `getUser` |
+| `utils/workflowHelpers.ts` | `goToEncounterTab`, `goToPatientTab`, `createLabRequest`, `createNote`, `createProcedure` |
+
+## Composed fixtures
+
+`baseFixture.ts` provides ready-to-use fixtures that combine patient creation, navigation, and page object setup. Destructure them in your test to skip boilerplate:
+
+| Fixture | What it sets up | Yields |
+|---|---|---|
+| `patientOnLabsTab` | Admitted patient → Labs encounter tab | `{ patient, labRequestPane, labRequestModal, patientDetailsPage }` |
+| `patientOnNotesTab` | Admitted patient → Notes encounter tab | `{ patient, notesPane, patientDetailsPage }` |
+| `patientOnProceduresTab` | Admitted patient → Procedures encounter tab | `{ patient, procedurePane, patientDetailsPage }` |
+| `patientOnVaccinesTab` | Patient → Vaccines patient tab (no encounter) | `{ patient, vaccinePane, patientDetailsPage }` |
+
+```ts
+test('example', async ({ patientOnLabsTab: { labRequestPane, labRequestModal } }) => {
+  await labRequestPane.newLabRequestButton.click();
+  // already on the Labs tab with page objects ready
+});
+```
+
+## Workflow helpers (`utils/workflowHelpers.ts`)
+
+### Navigation
+
+- `goToEncounterTab(patientDetailsPage, patient, tab)` — encounter-scoped tabs: `'labs' | 'notes' | 'procedures' | 'medication' | 'imaging'`
+- `goToPatientTab(patientDetailsPage, patient, tab)` — patient-level tabs: `'vaccines' | 'vitals' | 'documents' | 'tasks' | 'charts' | 'referrals' | 'details'`
+
+### Creation
+
+- `createLabRequest(labRequestPane, labRequestModal, testsToSelect?)` — creates a basic individual lab request, waits for table, sorts by category
+- `createNote(notesPane, noteType, content)` — creates a note via the modal, waits for pane reload
+- `createProcedure(procedurePane, options?)` — fills procedure form, saves, waits for table (`{ requiredOnly: true }` for minimal fields)
 
 ## Writing a new page object
 
@@ -74,6 +106,8 @@ export class MyModal {
 
 ## Checklist for adding a new test
 
+- Use composed fixtures (`patientOnLabsTab`, `patientOnNotesTab`, etc.) or workflow helpers (`goToEncounterTab`, `goToPatientTab`) instead of manual `goToPatient` + `navigateTo*Tab` boilerplate
+- Use creation helpers (`createLabRequest`, `createNote`, `createProcedure`) for common setup steps
 - Page objects exist for all pages/modals the test interacts with (or you created them)
 - Locators use `data-testid` attributes where available; fall back to `getByRole`/`getByText` otherwise
 - Date/time inputs use `fillMuiDateField` or `fillMuiDateTimeField`
