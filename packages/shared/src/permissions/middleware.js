@@ -62,6 +62,8 @@ const checkIfHasPermission = (req, action, subject) => {
     return;
   }
 
+  console.log('process.env.NODE_ENVVV', process.env.NODE_ENV);
+
   // Validate noun/verb against PERMISSION_SCHEMA in dev/test so devs are forced
   // to register new combinations. Skipped in production to avoid blocking real
   // actions as there is a risk that the schema is incomplete.
