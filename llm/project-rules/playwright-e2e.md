@@ -36,13 +36,13 @@ Everything below lives under **`packages/e2e-tests`**. The goal is obvious place
 
 Playwright **`test.extend`** is the right place for **shared test wiring** and **per-test lifecycle**.
 
-| Kind of fixture | Role | Examples |
-|-----------------|------|----------|
-| **Browser / context** | Usually use what Playwright already injects (`page`, `context`). Only wrap if you have a cross-cutting policy. | — |
-| **API context** | Create once per test, **dispose in teardown**. Central place for base URL, cookies/storage aligned with the logged-in user. | Authenticated `APIRequestContext` |
-| **Arrange / seed** | **Create entities** (patient, encounter) before the UI runs so tests start from a known state. | `newPatient`, admission variants |
-| **Page object instances** | **`use(new SomePage(page))`** so specs do not manually construct dozens of classes. | `patientDetailsPage`, `loginPage` |
-| **Role- or suite-specific (ideal)** | Different storage state or default facility per project. | Admin vs clinician (stretch) |
+| Kind of fixture                     | Role                                                                                                                        | Examples                          |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| **Browser / context**               | Usually use what Playwright already injects (`page`, `context`). Only wrap if you have a cross-cutting policy.              | —                                 |
+| **API context**                     | Create once per test, **dispose in teardown**. Central place for base URL, cookies/storage aligned with the logged-in user. | Authenticated `APIRequestContext` |
+| **Arrange / seed**                  | **Create entities** (patient, encounter) before the UI runs so tests start from a known state.                              | `newPatient`, admission variants  |
+| **Page object instances**           | **`use(new SomePage(page))`** so specs do not manually construct dozens of classes.                                         | `patientDetailsPage`, `loginPage` |
+| **Role- or suite-specific (ideal)** | Different storage state or default facility per project.                                                                    | Admin vs clinician (stretch)      |
 
 **Guidelines:** keep fixtures **thin** — they compose `utils` and `pages`, they should not contain large selector strings or business rules. If `baseFixture.ts` grows too large, **split by domain** (e.g. patient fixtures vs scheduling fixtures) and merge with a single `test` export.
 
@@ -50,15 +50,15 @@ Playwright **`test.extend`** is the right place for **shared test wiring** and *
 
 Shared code that is **not** a page object and **not** Playwright test boilerplate. Typical categories:
 
-| Category | Put here | Examples (illustrative) | Avoid |
-|----------|-----------|-------------------------|--------|
-| **HTTP / API** | Functions that call the backend with fetch/APIRequest; **no `Page` locators**. | Create patient, create encounter, fetch current user | Mixing UI clicks into the same module |
-| **Factories & constants** | **Synthetic test data**: builders, Faker, fixed NHNs, enums the app expects. | `generateNewPatient`, shared test payloads | One-off literals copy-pasted across ten specs |
-| **Date & time** | Parse/format dates **to match how the app displays** them in tables or forms; timezone-aware helpers. | Table cell date strings, “today” relative to config TZ | Duplicated `date-fns` snippets in every spec |
-| **Tables, lists, fields** | **Generic** helpers to read grids, normalise cell text, or fill common field shapes **when shared across many pages**. | Column getters, normalise whitespace | Logic that only ever applies to one screen — that belongs on that page object |
-| **Navigation** | Reused **goto + wait** patterns that are not yet folded into a page class. | `gotoPatientWithRetry` | Duplicating `page.goto` + ten waits in each test |
-| **Feature orchestration** | **Multi-step API + data setup** for one domain (e.g. immunisation schedules) to keep specs short. | `vaccineTestHelpers.ts` | A second layer that duplicates page objects — prefer calling API utils + one page object |
-| **Pure assertion helpers** | Functions that compare **strings, numbers, dates** (no async, no browser). | Normalise id, compare “recent” timestamps | Replacing `expect()` — web assertions stay in specs |
+| Category                   | Put here                                                                                                               | Examples (illustrative)                                | Avoid                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **HTTP / API**             | Functions that call the backend with fetch/APIRequest; **no `Page` locators**.                                         | Create patient, create encounter, fetch current user   | Mixing UI clicks into the same module                                                    |
+| **Factories & constants**  | **Synthetic test data**: builders, Faker, fixed NHNs, enums the app expects.                                           | `generateNewPatient`, shared test payloads             | One-off literals copy-pasted across ten specs                                            |
+| **Date & time**            | Parse/format dates **to match how the app displays** them in tables or forms; timezone-aware helpers.                  | Table cell date strings, “today” relative to config TZ | Duplicated `date-fns` snippets in every spec                                             |
+| **Tables, lists, fields**  | **Generic** helpers to read grids, normalise cell text, or fill common field shapes **when shared across many pages**. | Column getters, normalise whitespace                   | Logic that only ever applies to one screen — that belongs on that page object            |
+| **Navigation**             | Reused **goto + wait** patterns that are not yet folded into a page class.                                             | `gotoPatientWithRetry`                                 | Duplicating `page.goto` + ten waits in each test                                         |
+| **Feature orchestration**  | **Multi-step API + data setup** for one domain (e.g. immunisation schedules) to keep specs short.                      | `vaccineTestHelpers.ts`                                | A second layer that duplicates page objects — prefer calling API utils + one page object |
+| **Pure assertion helpers** | Functions that compare **strings, numbers, dates** (no async, no browser).                                             | Normalise id, compare “recent” timestamps              | Replacing `expect()` — web assertions stay in specs                                      |
 
 If a util **only** needs `Page` and **one** screen, consider promoting it into **`pages/`** instead so selectors stay co-located.
 
@@ -174,29 +174,11 @@ test.describe('Feature area', () => {
 - **Describe blocks** group by feature or epic; nested `describe` for roles or modes is fine if it clarifies.
 - Reuse **route constants** (`config/routes.ts`) rather than string literals everywhere.
 
-## Healthcare and privacy
-
-- **No patient identifiable information** in logs, console output, or CI artifact naming.
-- Do not log raw API responses containing PHI at INFO in CI.
-- Align with broader rules: errors and reports should not leak sensitive clinical identifiers beyond what the test environment already exposes.
-
 ## What E2E is not (ideal boundaries)
 
 - **Not a substitute for unit tests** for business rules, formatting, or validation matrices.
 - **Not the place for bulk data generation** performance tests unless a dedicated scenario exists.
 - **Visual pixel-perfect checks**: optional; if introduced, use dedicated snapshots or tools with clear tolerance and ownership.
-
-## Aspirational / stretch practices
-
-Use these as a north star when improving the suite:
-
-- **Tags / projects** for `smoke` vs `full` so PRs can run a fast subset.
-- **Multi-browser projects** (Firefox/WebKit) for journeys that differ by engine — enable when stable.
-- **Lint/format** on spec files same as application code; optional `eslint-plugin-playwright` rules.
-- **fixture.use** per file for role-specific storageState (read-only vs admin).
-- **Bounded execution budget** per suite in CI (split shards if runtime grows).
-- **Merge queue / main** gating on smoke E2E only; nightly full suite if needed.
-- **Contract checks**: optional lightweight API checks shared with mobile/other clients — not full Playwright scope but complementary.
 
 ## References
 
