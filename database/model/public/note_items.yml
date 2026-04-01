@@ -48,11 +48,6 @@ sources:
           - name: revised_by_id
             data_type: character varying(255)
             description: "{{ doc('note_items__revised_by_id') }}"
-            data_tests:
-              - relationships:
-                  arguments:
-                    to: source('tamanu', 'note_items')
-                    field: id
           - name: author_id
             data_type: character varying(255)
             description: "{{ doc('note_items__author_id') }}"

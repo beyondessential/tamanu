@@ -122,6 +122,19 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "mSupplyMedIntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+  },
+  "integrations": {
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"

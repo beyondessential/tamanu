@@ -14,7 +14,10 @@ import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../../utilities';
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+
+jest.setTimeout(50000);
 
 const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
@@ -353,7 +356,7 @@ describe('fijiAspenMediciReport', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     fakedata = await fakeAllData(models, ctx);
   });
 

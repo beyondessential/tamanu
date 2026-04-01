@@ -167,7 +167,7 @@ export class ViewVaccineModal extends BasePatientModal {
     if (dateGiven) {
       await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
     } else {
-      await expect(this.dateGiven).toContainText('--/--/----');
+      await expect(this.dateGiven).toContainText('‒‒/‒‒/‒‒‒‒' /* Figure dashes U+2012 */);
     }
 
     const facilityDisplayName = await getSidebarFacilityDisplayName(this.page);

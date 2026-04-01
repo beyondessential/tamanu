@@ -27,44 +27,49 @@ type(scope): no-issue: description
 **NOT allowed in Tamanu**: `docs`, `doc`, `deps` (use `chore` instead)
 
 **Examples**:
-```bash
-# Correct - with ticket
-gh pr create --title "feat(invoicing): SAV-1234: add sliding fee scale" --fill
-gh pr create --title "fix(labs): COOL-567: correct status transition" --fill
-
-# Correct - without ticket
-gh pr create --title "chore: no-issue: update llm documentation" --fill
-gh pr create --title "refactor(auth): no-issue: simplify token validation" --fill
+```
+# Correct
+feat(invoicing): SAV-1234: add sliding fee scale
+fix(labs): COOL-567: correct status transition
+chore: no-issue: update llm documentation
+refactor(auth): no-issue: simplify token validation
 
 # Wrong - missing ticket/no-issue
-gh pr create --title "feat(invoicing): add sliding fee scale" --fill
+feat(invoicing): add sliding fee scale
 
 # Wrong - missing second colon
-gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --fill
+feat(invoicing): SAV-1234 add sliding fee scale
 
 # Wrong - docs not allowed
-gh pr create --title "docs: no-issue: update README" --fill
+docs: no-issue: update README
 ```
 
 ## Always Use the PR Template
 
-When creating pull requests with `gh pr create`, always use the repository's PR template. Do NOT provide a custom `--body` flag. Instead, let the template populate and fill in the sections:
+When creating pull requests with `gh pr create`, always include the repository's PR template in the body. **Do NOT use `--fill`** — it auto-fills from commit messages and skips the template entirely.
+
+Read `.github/pull_request_template.md` **from the target branch** (templates may differ between branches), replace the Changes placeholder with an actual summary, and pass it as the PR body.
+
+The summary should give reviewers context — what changed, why, and any notable details. Keep it concise (a short paragraph is fine).
 
 ```bash
-# Correct - uses template
-gh pr create --title "feat(scope): description" --fill
-
-# Wrong - overwrites template
-gh pr create --title "..." --body "custom body"
+# Read the template from the target branch, replace the placeholder, and create the PR
+TEMPLATE="$(git show origin/<base-branch>:.github/pull_request_template.md)"
+BODY="${TEMPLATE/_Add a brief description of the changes in this PR to help give the reviewer context._/Your summary here.}"
+gh pr create --title "feat(scope): TICKET-123: description" --body "$BODY"
 ```
 
-The PR template (`.github/pull_request_template.md`) contains important elements:
+**Don't:**
+- Use `--fill` (skips the template, fills from commits)
+- Pass a custom `--body` without the template
+- Leave the placeholder text in the Changes section
 
+The PR template contains important elements:
+
+- **Changes section**: Brief description of the PR for reviewer context
 - **Deploy checkbox**: `<!-- #deploy -->` triggers deployment to Tamanu Internal
 - **E2E checkbox**: `<!-- #e2e -->` triggers end-to-end tests
 - **Reminder checklist**: Important steps like updating docs, adding tests, etc.
-
-After creating the PR, edit it on GitHub to fill in the "Changes" section with a description.
 
 ## Always Fix Linting Issues Before Pushing
 
