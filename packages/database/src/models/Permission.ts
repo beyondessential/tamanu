@@ -89,9 +89,7 @@ export class Permission extends Model {
       throw new ValidationError('Each permission requires verb, noun, and roleId');
     }
 
-    const allowedVerbs: readonly PermissionVerb[] = objectId
-      ? OBJECT_ID_PERMISSION_SCHEMA[noun as keyof typeof OBJECT_ID_PERMISSION_SCHEMA]
-      : PERMISSION_SCHEMA[noun];
+    const allowedVerbs = objectId ? OBJECT_ID_PERMISSION_SCHEMA[noun] : PERMISSION_SCHEMA[noun];
 
     if (!allowedVerbs) {
       throw new ValidationError(
