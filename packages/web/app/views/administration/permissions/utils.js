@@ -1,3 +1,4 @@
+import { PERMISSION_NOUN_DISPLAY_NAMES } from '@tamanu/constants';
 import { NOUN_TYPES } from './constants';
 
 export function buildNouns(permissions, selectedRoleIds) {
@@ -54,5 +55,8 @@ export function buildNouns(permissions, selectedRoleIds) {
     },
   }));
 
-  return [...regularGroups, ...objectIdGroups].sort((a, b) => a.noun.localeCompare(b.noun));
+  const displayName = n => PERMISSION_NOUN_DISPLAY_NAMES[n] ?? n;
+  return [...regularGroups, ...objectIdGroups].sort((a, b) =>
+    displayName(a.noun).localeCompare(displayName(b.noun)),
+  );
 }

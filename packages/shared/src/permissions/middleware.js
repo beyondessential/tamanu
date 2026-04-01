@@ -65,7 +65,7 @@ const checkIfHasPermission = (req, action, subject) => {
   // Validate noun/verb against PERMISSION_SCHEMA in dev/test so devs are forced
   // to register new combinations. Skipped in production to avoid blocking real
   // actions as there is a risk that the schema is incomplete.
-  if (process.env.NODE_ENV !== 'production') {
+  if (!['production', 'staging'].includes(process.env.NODE_ENV)) {
     assertValidPermissionSchema(subject, action);
   }
 

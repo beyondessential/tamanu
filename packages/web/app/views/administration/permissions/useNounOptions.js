@@ -1,12 +1,16 @@
 import { useMemo } from 'react';
 
-import { HIDDEN_PERMISSION_NOUNS, PERMISSION_SCHEMA } from '@tamanu/constants';
+import {
+  HIDDEN_PERMISSION_NOUNS,
+  PERMISSION_NOUN_DISPLAY_NAMES,
+  PERMISSION_SCHEMA,
+} from '@tamanu/constants';
 import { NOUN_TYPES } from './constants';
 
 const BASE_NOUN_OPTIONS = Object.keys(PERMISSION_SCHEMA)
   .filter(n => !HIDDEN_PERMISSION_NOUNS.has(n))
-  .sort()
-  .map(noun => ({ value: noun, label: noun }));
+  .map(noun => ({ value: noun, label: PERMISSION_NOUN_DISPLAY_NAMES[noun] ?? noun }))
+  .sort((a, b) => a.label.localeCompare(b.label));
 
 /**
  * Builds the noun options for the Autocomplete Field to filter the nouns
