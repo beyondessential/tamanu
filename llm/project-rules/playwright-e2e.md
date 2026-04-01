@@ -83,7 +83,7 @@ If a util **only** needs `Page` and **one** screen, consider promoting it into *
 ## Page Object Model (POM)
 
 - **One class per screen or cohesive sub-area** (e.g. modal, tab pane). Compose larger flows from smaller objects.
-- **Ctor takes `Page`** (or parent page object if you need a consistent sub-context). Avoid static singletons.
+- **Constructor takes `Page`** (or parent page object if you need a consistent sub-context). Avoid static singletons.
 - **Expose actions**, not just elements: `submitReferral()` not only `submitButton`.
 - **Encapsulate selectors** in one place. When the UI changes, fix selectors in the page object, not across specs.
 - **Return values** that assertions need (typed structures, visible labels, ids) from action methods where appropriate.
@@ -148,7 +148,6 @@ If a util **only** needs `Page` and **one** screen, consider promoting it into *
 ## Reporting and debugging
 
 - Use **trace on failure** (`trace: 'on-first-retry'` or `retain-on-failure` where appropriate).
-- Attach **screenshots/video** in CI when it helps diagnose UI regressions — balance artifact size.
 - **Ideal:** meaningful **test titles** (see existing convention: external ids + short description) so failures map to test cases.
 
 ## Structure of a spec (ideal)
