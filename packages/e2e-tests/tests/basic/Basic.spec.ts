@@ -11,7 +11,7 @@ import {
   STYLED_TABLE_CELL_PREFIX,
 } from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
-import { generateNHN } from '@utils/generateNewPatient';
+import { generateNHN } from '@utils/apiHelpers';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';

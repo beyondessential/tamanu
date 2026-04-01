@@ -20,11 +20,12 @@ packages/e2e-tests/
 |---|---|
 | `utils/locatorFactory.ts` | `assignTestIdLocators(target, page, map)` — bulk-assign `page.getByTestId` locators from a map |
 | `utils/dialogHelpers.ts` | `waitForModalOpen` / `waitForModalClose` — reusable modal lifecycle helpers |
-| `utils/tableHelper.ts` | `readStyledTableColumn`, `expectColumnSorted`, `expectDateColumnSorted`, `scrollTableToElement` |
-| `utils/fieldHelpers.ts` | `selectAutocompleteFieldOption`, `selectFieldOption` |
+| `utils/tableHelper.ts` | `STYLED_TABLE_CELL_PREFIX`, `TWO_COLUMNS_FIELD_TEST_ID`, `getTableItems`, `compareAlphabetically`, `readStyledTableColumn`, `expectColumnSorted`, `expectDateColumnSorted`, `scrollTableToElement` |
+| `utils/fieldHelpers.ts` | `selectAutocompleteFieldOption`, `selectFieldOption`, `selectFromSearchBox`, `selectFirstFromDropdown` |
 | `utils/dateTimeHelpers.ts` | `fillMuiDateField`, `fillMuiDateTimeField`, `normalizeToIsoDateTimeMinute`, `parseTamanuDate` |
-| `utils/testHelper.ts` | `STYLED_TABLE_CELL_PREFIX`, `TWO_COLUMNS_FIELD_TEST_ID`, `selectFromSearchBox`, `getTableItems` |
-| `utils/apiHelpers.ts` | `createPatient`, `createApiContext`, encounter helpers, `getUser` |
+| `utils/testHelper.ts` | Barrel re-exports from `dateTimeHelpers`, `tableHelper`, `fieldHelpers`; own: `getSidebarFacilityDisplayName` |
+| `utils/testData.ts` | Static test data constants (`testData`, `ERROR_RED_RGB`) |
+| `utils/apiHelpers.ts` | `createPatient`, `createApiContext`, encounter helpers, `getUser`, `generateNHN` |
 | `utils/workflowHelpers.ts` | `goToEncounterTab`, `goToPatientTab`, `createLabRequest`, `createNote`, `createProcedure` |
 
 ## Composed fixtures

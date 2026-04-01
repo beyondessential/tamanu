@@ -3,10 +3,10 @@ import { expect } from '../../fixtures/baseFixture';
 import {
   convertDateFormat,
   fillMuiDateField,
-  selectFromSearchBox,
   STYLED_TABLE_CELL_PREFIX,
   TWO_COLUMNS_FIELD_TEST_ID,
 } from '../../utils/testHelper';
+import { selectFromSearchBox } from '../../utils/fieldHelpers';
 import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { routes } from '../../config/routes';
 import { Patient } from '../../types/Patient';

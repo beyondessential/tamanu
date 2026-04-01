@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { assignTestIdLocators } from '@utils/locatorFactory';
-import { selectFirstFromDropdown } from '@utils/testHelper';
+import { selectFirstFromDropdown } from '@utils/fieldHelpers';
 
 export class RecordSampleModal {
   readonly page: Page;

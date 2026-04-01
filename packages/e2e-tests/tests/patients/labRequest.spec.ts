@@ -1,13 +1,12 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { LabRequestTestDetails } from '@pages/patients/LabRequestPage/panes/LabRequestPane';
-import { selectFieldOption } from '@utils/fieldHelpers';
+import { selectFieldOption, selectFirstFromDropdown } from '@utils/fieldHelpers';
 import { format } from 'date-fns';
 import { LabRequestDetailsPage, LAB_REQUEST_STATUS } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
 import { testData } from '@utils/testData';
 import {
   fillMuiDateTimeField,
   getTableItems,
-  selectFirstFromDropdown,
   formatDateTimeForDisplay,
   normalizeToIsoDateTimeMinute,
 } from '@utils/testHelper';

@@ -6,7 +6,7 @@ import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { expectColumnSorted, expectDateColumnSorted } from '../../utils/tableHelper';
 import { PatientTable } from './PatientTable';
 import { Patient } from '../../types/Patient';
-import { ERROR_RED_RGB } from '../../utils/testColors';
+import { ERROR_RED_RGB } from '../../utils/testData';
 
 export interface BaseSearchCriteria {
   NHN?: string;

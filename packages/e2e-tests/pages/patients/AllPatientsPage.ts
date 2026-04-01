@@ -12,7 +12,7 @@ import {
 } from '../../utils/testHelper';
 import { assignTestIdLocators } from '../../utils/locatorFactory';
 import { expectColumnSorted, expectDateColumnSorted } from '../../utils/tableHelper';
-import { ERROR_RED_RGB } from '@utils/testColors';
+import { ERROR_RED_RGB } from '@utils/testData';
 
 
 export interface PatientSearchCriteria extends BaseSearchCriteria {

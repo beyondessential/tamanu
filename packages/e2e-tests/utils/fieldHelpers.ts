@@ -1,5 +1,31 @@
 import { Locator, Page, expect } from '@playwright/test';
 
+export async function selectFromSearchBox(
+  searchBox: Locator,
+  suggestionList: Locator,
+  searchText: string,
+  timeout: number = 10000,
+): Promise<void> {
+  try {
+    await searchBox.fill(searchText);
+    await searchBox.waitFor({ state: 'visible', timeout });
+    const suggestionOption = suggestionList.getByText(searchText);
+    await suggestionOption.waitFor({ state: 'visible', timeout });
+    await suggestionOption.click();
+  } catch (error) {
+    throw new Error(
+      `Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
+  await input.click();
+  const firstOption = page.locator('[role="listbox"] li').first();
+  await firstOption.click();
+  return (await firstOption.textContent()) || '';
+};
+
 async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<string> {
   const rawTestId = await field.getAttribute('data-testid');
   if (!rawTestId) {

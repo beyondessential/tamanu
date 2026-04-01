@@ -1,1 +1,0 @@
-export const ERROR_RED_RGB = 'rgb(237, 51, 58)'; 

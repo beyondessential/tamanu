@@ -1,5 +1,38 @@
-import { Locator, expect } from '@playwright/test';
-import { STYLED_TABLE_CELL_PREFIX } from './testHelper';
+import { Locator, Page, expect } from '@playwright/test';
+
+/**
+ * Prefix for `data-testid` on cells in the app's styled data tables (e.g. patient lists).
+ *
+ * Row `i`, column semantic id `columnName` → `getByTestId(\`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}\`)`.
+ */
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
+
+/** Shared `data-testid` for the two-column sex/gender field used in patient search forms. */
+export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
+
+/**
+ * Read text from a column across the first `tableRowCount` rows of a styled table.
+ *
+ * Uses {@link STYLED_TABLE_CELL_PREFIX} + row index + `columnName` as the `data-testid` suffix pattern.
+ */
+export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
+  const items: string[] = [];
+  for (let i = 0; i < tableRowCount; i++) {
+    const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
+    const itemText = await itemLocator.first().textContent();
+    if (itemText) {
+      items.push(itemText);
+    }
+  }
+  return items;
+}
+
+/**
+ * Comparator factory for locale-aware string sort (e.g. vaccine names in table order assertions).
+ */
+export function compareAlphabetically(order: 'asc' | 'desc') {
+  return (a: string, b: string) => (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
+}
 
 export async function scrollTableToElement(tableLocator: Locator, targetLocator: Locator) {
   let isVisible = await targetLocator.isVisible();

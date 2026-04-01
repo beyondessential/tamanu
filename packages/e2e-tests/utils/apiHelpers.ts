@@ -2,10 +2,24 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
-import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
-import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
+
+async function getItemFromLocalStorage(page: Page, key: string): Promise<string> {
+  const context = await page.context();
+  const storageState = await context.storageState();
+  const response = storageState.origins[0].localStorage.find(item => item.name === key)?.value;
+  if (!response) {
+    throw new Error(`No ${key} found in localStorage`);
+  }
+  return response;
+}
+
+export function generateNHN(): string {
+  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
+  const numbers = faker.string.numeric(6);
+  return `${letters}${numbers}`;
+}
 
 export const createApiContext = async ({ page }: { page: Page }) => {
   const token = await getItemFromLocalStorage(page, 'apiToken');
