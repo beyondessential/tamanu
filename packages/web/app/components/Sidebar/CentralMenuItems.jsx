@@ -7,7 +7,6 @@ import {
   Cloud as CloudIcon,
   Group as GroupIcon,
   Language as LanguageIcon,
-  SingleBed as BedIcon,
   Person as PersonIcon,
   Settings as SettingsIcon,
   Translate as TranslateIcon,
