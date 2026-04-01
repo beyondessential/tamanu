@@ -14,14 +14,69 @@ Prefer **fewer, higher-value E2E tests** and push granular logic to unit/integra
 
 ## Package layout (target)
 
-| Area        | Purpose                                                                                                                            |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `tests/`    | Spec files only — orchestration, assertions, `test.describe` grouping. Minimal logic.                                              |
-| `pages/`    | Page objects: locators, navigation, user-visible actions. No assertions about “correct” business outcomes unless truly page-local. |
-| `fixtures/` | Playwright `test.extend` — auth, API context, seeded patients, composed page objects.                                              |
-| `utils/`    | Shared helpers: dates, API setup, table reading, navigation. Pure or thin wrappers.                                                |
-| `config/`   | Routes, constants, environment assumptions.                                                                                        |
-| `types/`    | Shared TypeScript types for test data and page models.                                                                             |
+Everything below lives under **`packages/e2e-tests`**. The goal is obvious placement: if you add a file, it should be clear which folder it belongs in.
+
+### `tests/`
+
+- **Only Playwright specs** (`*.spec.ts`): `test.describe` / `test`, assertions, calling fixtures and page objects.
+- **Group by product area** when it helps (e.g. `tests/patients/`, `tests/scheduling/`, `tests/labRequests/`) so related failures and ownership stay together.
+- **`tests/setup/`** — global setup consumed by config (e.g. **auth setup** that writes `storageState`). Not a place for journey cases; keep it limited to “run once before the suite” work.
+- **Does not belong here:** page locators, HTTP clients, or heavy data-shaping logic — push those to `pages/` or `utils/`.
+
+**Ideal:** specs read as a short story (arrange → act → assert) with almost no imperative UI detail beyond calling page objects.
+
+### `pages/`
+
+- **Page object classes**: locators, clicks, fills, waits, and navigation **for one screen or sub-area** (modal, tab pane, list view).
+- **Mirror the app structure** where practical (e.g. `pages/patients/PatientDetailsPage/` with `modals/`, `panes/`) so people can find the object that matches the UI they are looking at.
+- **Barrel `index.ts` files** are fine for exporting public page types so specs do not deep-import every file.
+- **Does not belong here:** generic string/date utilities, raw REST calls (use `utils` and pass results in), or assertions about full business outcomes unless they are truly specific to that widget.
+
+### `fixtures/`
+
+Playwright **`test.extend`** is the right place for **shared test wiring** and **per-test lifecycle**.
+
+| Kind of fixture | Role | Examples |
+|-----------------|------|----------|
+| **Browser / context** | Usually use what Playwright already injects (`page`, `context`). Only wrap if you have a cross-cutting policy. | — |
+| **API context** | Create once per test, **dispose in teardown**. Central place for base URL, cookies/storage aligned with the logged-in user. | Authenticated `APIRequestContext` |
+| **Arrange / seed** | **Create entities** (patient, encounter) before the UI runs so tests start from a known state. | `newPatient`, admission variants |
+| **Page object instances** | **`use(new SomePage(page))`** so specs do not manually construct dozens of classes. | `patientDetailsPage`, `loginPage` |
+| **Role- or suite-specific (ideal)** | Different storage state or default facility per project. | Admin vs clinician (stretch) |
+
+**Guidelines:** keep fixtures **thin** — they compose `utils` and `pages`, they should not contain large selector strings or business rules. If `baseFixture.ts` grows too large, **split by domain** (e.g. patient fixtures vs scheduling fixtures) and merge with a single `test` export.
+
+### `utils/`
+
+Shared code that is **not** a page object and **not** Playwright test boilerplate. Typical categories:
+
+| Category | Put here | Examples (illustrative) | Avoid |
+|----------|-----------|-------------------------|--------|
+| **HTTP / API** | Functions that call the backend with fetch/APIRequest; **no `Page` locators**. | Create patient, create encounter, fetch current user | Mixing UI clicks into the same module |
+| **Factories & constants** | **Synthetic test data**: builders, Faker, fixed NHNs, enums the app expects. | `generateNewPatient`, shared test payloads | One-off literals copy-pasted across ten specs |
+| **Date & time** | Parse/format dates **to match how the app displays** them in tables or forms; timezone-aware helpers. | Table cell date strings, “today” relative to config TZ | Duplicated `date-fns` snippets in every spec |
+| **Tables, lists, fields** | **Generic** helpers to read grids, normalise cell text, or fill common field shapes **when shared across many pages**. | Column getters, normalise whitespace | Logic that only ever applies to one screen — that belongs on that page object |
+| **Navigation** | Reused **goto + wait** patterns that are not yet folded into a page class. | `gotoPatientWithRetry` | Duplicating `page.goto` + ten waits in each test |
+| **Feature orchestration** | **Multi-step API + data setup** for one domain (e.g. immunisation schedules) to keep specs short. | `vaccineTestHelpers.ts` | A second layer that duplicates page objects — prefer calling API utils + one page object |
+| **Pure assertion helpers** | Functions that compare **strings, numbers, dates** (no async, no browser). | Normalise id, compare “recent” timestamps | Replacing `expect()` — web assertions stay in specs |
+
+If a util **only** needs `Page` and **one** screen, consider promoting it into **`pages/`** instead so selectors stay co-located.
+
+### `config/`
+
+- **Routes and URL patterns** (`routes.ts`, regex helpers for dynamic paths).
+- **Non-secret defaults** the suite agrees on (e.g. display formats, stable slugs).
+- **Not** credentials or environment-specific secrets — those stay in **`.env`** / CI vars; `config` references **names** or patterns only.
+
+### `types/`
+
+- **Shared TypeScript types** for entities you create in tests, API responses you assert on, or shapes returned from page objects.
+- Keeps **fixtures, utils, and pages** aligned without `any` or duplicate inline types.
+
+### Top-level files
+
+- **`playwright.config.ts`** — projects, timeouts, reporters, `webServer`, setup project dependency chain.
+- **`tsconfig.json` / path aliases** — e.g. `@pages/*`, `@utils/*` (keep imports consistent with this layout).
 
 **Ideal:** specs do not construct raw `Locator`s for core flows; they call page-object methods with meaningful names.
 
