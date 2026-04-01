@@ -1,5 +1,8 @@
 import { DataTypes, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+
+import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ValidationError } from '@tamanu/errors';
+
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -68,6 +71,27 @@ export class Permission extends Model {
       noun,
       ...(objectId ? { objectId } : undefined),
     };
+  }
+
+  static validatePermissionSchema(verb: PermissionVerb, noun: string, roleId: string, objectId: string) {
+    if (!verb || !noun || !roleId) {
+      throw new ValidationError('Each permission requires verb, noun, and roleId');
+    }
+
+    const allowedVerbs = objectId
+      ? OBJECT_ID_PERMISSION_SCHEMA[noun]
+      : PERMISSION_SCHEMA[noun];
+
+    if (!allowedVerbs) {
+      throw new ValidationError(
+        objectId
+          ? `objectId is not supported for noun "${noun}"`
+          : `Permissions for noun "${noun}" are not defined in the schema.`,
+      );
+    }
+    if (!allowedVerbs.includes(verb)) {
+      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`);
+    }
   }
 
   static buildSyncFilter() {

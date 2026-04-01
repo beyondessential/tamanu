@@ -17,31 +17,20 @@ const PrimaryListItem = styled(ListItem)`
     top: -1px;
     opacity: 0.9;
     font-size: 22px;
-    transform: rotate(0deg);
   }
 
   &.Mui-selected {
-    background: ${(props) =>
-      props.$highlighted && props.$retracted ? 'rgba(255, 255, 255, 0.15)' : 'none'};
-    transition: ${(props) => props.theme.transitions.create('background')};
-
-    .MuiSvgIcon-root {
-      transform: rotate(180deg);
-    }
+    background: ${props =>
+      props.$highlighted && props.$retracted ? 'oklch(1 0 0 / 15%)' : 'none'};
+    transition: ${props => props.theme.transitions.create('background')};
   }
 
-  background: ${(props) => (props.$highlighted ? 'rgba(255, 255, 255, 0.15)' : '')};
+  background: ${props => (props.$highlighted ? 'oklch(1 0 0 / 15%)' : '')};
 
   &:hover,
   &.Mui-selected:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: oklch(1 0 0 / 15%);
   }
-`;
-
-const SidebarPrimaryIcon = styled.img`
-  width: 22px;
-  height: 22px;
-  border: none;
 `;
 
 const PrimaryItemText = styled(ListItemText)`
@@ -50,9 +39,16 @@ const PrimaryItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
-  color: ${(props) => (props.$invisible ? 'transparent' : '')};
-  max-height: ${(props) => (props.$invisible ? '18px' : 'default')};
-  transition: ${(props) => props.theme.transitions.create(['color', 'max-height'])};
+  color: ${props => (props.$invisible ? 'transparent' : '')};
+  max-height: ${props => (props.$invisible ? '18px' : 'default')};
+  transition: ${props => props.theme.transitions.create(['color', 'max-height'])};
+`;
+
+const ExpandIcon = styled(ExpandMore)`
+  transition: ${props => props.theme.transitions.create('rotate')};
+  .Mui-selected & {
+    rotate: x 0.5turn;
+  }
 `;
 
 const StyledList = styled(List)`
@@ -61,8 +57,8 @@ const StyledList = styled(List)`
 
 const ListDivider = styled(Divider)`
   background-color: rgba(255, 255, 255, 0.2);
-  margin: ${(props) => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
-  transition: ${(props) => props.theme.transitions.create('margin')};
+  margin: ${props => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
+  transition: ${props => props.theme.transitions.create('margin')};
 `;
 
 const StyledTooltip = styled(ThemedTooltip)`
@@ -82,6 +78,7 @@ const StyledTooltip = styled(ThemedTooltip)`
  * highlighted: the list item should be highlighted
  */
 export const PrimarySidebarItem = ({
+  /** @type {React.ReactNode} */
   icon,
   label,
   path,
@@ -105,18 +102,18 @@ export const PrimarySidebarItem = ({
           $retracted={retracted}
           data-testid={`primarylistitem${dataTestIdSuffix}`}
         >
-          <SidebarPrimaryIcon
-            src={icon || administrationIcon}
-            $centered={retracted}
-            data-testid="sidebarprimaryicon-yysn"
-          />
+          {typeof icon === 'string' ? (
+            <img aria-hidden src={icon || administrationIcon} width={22} height={22} />
+          ) : (
+            (icon ?? <img aria-hidden src={administrationIcon} width={22} height={22} />)
+          )}
           <PrimaryItemText
             disableTypography
             $invisible={retracted}
             primary={label}
             data-testid="primaryitemtext-000p"
           />
-          {!retracted && <ExpandMore data-testid="expandmore-opqd" />}
+          {!retracted && <ExpandIcon data-testid="expandmore-opqd" />}
         </PrimaryListItem>
       </StyledTooltip>
       <Collapse in={selected} timeout="auto" unmountOnExit data-testid="collapse-sns9">
