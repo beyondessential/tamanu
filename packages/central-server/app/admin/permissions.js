@@ -187,8 +187,8 @@ permissionsRouter.post(
     }
 
     const { Permission } = req.store.models;
-    await validateNoMixedFhirPermissions(Permission, permissions);
     const results = await Permission.sequelize.transaction(async () => {
+      await validateNoMixedFhirPermissions(Permission, permissions);
       let created = 0;
 
       for (const { verb, noun, objectId, roleId } of permissions) {
