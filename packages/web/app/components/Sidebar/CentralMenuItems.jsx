@@ -66,18 +66,6 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
   },
   {
-    key: 'locationAssignments',
-    label: (
-      <TranslatedText
-        stringId="adminSidebar.locationAssignment"
-        fallback="Location assignment"
-        data-testid="translatedtext-locationassignments"
-      />
-    ),
-    path: '/admin/locationAssignments',
-    icon: <BedIcon aria-hidden color="secondary" data-testid="bedicon-locationassignments" />,
-  },
-  {
     key: 'users',
     label: (
       <TranslatedText
@@ -110,6 +98,17 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
         ),
         path: '/admin/users/rolesAndDesignations',
         key: 'rolesAndDesignations',
+      },
+      {
+        key: 'locationAssignments',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.locationAssignment"
+            fallback="Location assignment"
+            data-testid="translatedtext-locationassignments"
+          />
+        ),
+        path: '/admin/users/locationAssignments',
       },
     ],
   },
