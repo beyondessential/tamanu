@@ -16,6 +16,10 @@ export class UserDesignation extends Model {
     );
   }
 
+  static getListReferenceAssociations() {
+    return ['referenceData'];
+  }
+
   static initRelations(models: Models) {
     this.belongsTo(models.User, {
       foreignKey: 'userId',

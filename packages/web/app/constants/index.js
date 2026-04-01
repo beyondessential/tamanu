@@ -1,4 +1,3 @@
-export * from './binary.js';
 export * from './births.js';
 export * from './documents.js';
 export * from './encounters.js';

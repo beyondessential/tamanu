@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { isValid } from 'date-fns';
 import { useDateTime } from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
@@ -17,11 +19,13 @@ export const CustomisedXAxisTick = (props) => {
   const { x, y, payload } = props;
   const { value } = payload;
   const date = new Date(value);
+  if (!isValid(date)) return null;
+  const dateString = toDateTimeString(date);
 
   return (
     <g transform={`translate(${x},${y})`}>
       <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
-        {formatShortest(date)}
+        {formatShortest(dateString)}
       </Text>
       <Text
         x={0}
@@ -30,7 +34,7 @@ export const CustomisedXAxisTick = (props) => {
         fill={Colors.midText}
         data-testid="text-cydx"
       >
-        {formatTime(date)}
+        {formatTime(dateString)}
       </Text>
     </g>
   );
