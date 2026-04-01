@@ -30,7 +30,7 @@ export const OBJECT_ID_PERMISSION_SCHEMA = {
   StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
   ProgramRegistry: [Read],
-} as const as Record<string, readonly PermissionVerb[]>;
+} as const satisfies Record<string, readonly PermissionVerb[]>;
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(
   OBJECT_ID_PERMISSION_SCHEMA,
