@@ -11,7 +11,6 @@ import { log } from '@tamanu/shared/services/logging';
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
-import { authMiddleware } from './middleware/auth';
 
 import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
@@ -79,15 +78,15 @@ export async function createApiApp({
     });
   });
 
+  express.use('/', routes);
+
   if (config.integrations?.fhir?.enabled) {
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');
-    express.use('/api/integration/fhir/mat', authMiddleware, fhir);
-    express.use('/v1/integration/fhir/mat', authMiddleware, fhir);
+    routes.use('/api/integration/fhir/mat', fhir);
+    routes.use('/v1/integration/fhir/mat', fhir);
   }
-
-  express.use('/', routes);
 
   // Dis-allow all other routes
   express.get('*', (req, res) => {

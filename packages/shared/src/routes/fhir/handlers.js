@@ -13,7 +13,11 @@ import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
 import { transactionBundleHandler } from './bundle';
-import { checkFhirReadPermission, checkFhirWritePermission, checkFhirBundleWritePermission } from './fhirPermissions';
+import {
+  checkFhirReadPermission,
+  checkFhirWritePermission,
+  checkFhirBundleWritePermission,
+} from './fhirPermissions';
 
 export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();
@@ -38,27 +42,64 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
     routes.use(requireClientHeadersMiddleware);
   }
 
-  routes.get(`/Patient/:id/([$])summary`, checkFhirReadPermission({ fhirName: 'Patient' }), patientSummaryHandler());
+  const flagPermissionChecked = (req, res, next) => {
+    if (req.flagPermissionChecked) {
+      req.flagPermissionChecked();
+    }
+    next();
+  };
+
+  routes.get(
+    `/Patient/:id/([$])summary`,
+    checkFhirReadPermission({ fhirName: 'Patient' }),
+    flagPermissionChecked,
+    patientSummaryHandler(),
+  );
 
   const { models } = ctx.store;
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.INSTANCE.READ)) {
-    routes.get(`/${Resource.fhirName}/:id`, checkFhirReadPermission(Resource), readHandler(Resource));
+    routes.get(
+      `/${Resource.fhirName}/:id`,
+      checkFhirReadPermission(Resource),
+      flagPermissionChecked,
+      readHandler(Resource),
+    );
   }
 
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.TYPE.SEARCH)) {
-    routes.get(`/${Resource.fhirName}`, checkFhirReadPermission(Resource), searchHandler(Resource));
+    routes.get(
+      `/${Resource.fhirName}`,
+      checkFhirReadPermission(Resource),
+      flagPermissionChecked,
+      searchHandler(Resource),
+    );
   }
 
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.TYPE.CREATE)) {
-    routes.post(`/${Resource.fhirName}`, checkFhirWritePermission(Resource), createHandler(Resource));
+    routes.post(
+      `/${Resource.fhirName}`,
+      checkFhirWritePermission(Resource),
+      flagPermissionChecked,
+      createHandler(Resource),
+    );
   }
 
-  routes.post(`/Bundle`, checkFhirBundleWritePermission(), transactionBundleHandler());
+  routes.post(
+    `/Bundle`,
+    checkFhirBundleWritePermission(),
+    flagPermissionChecked,
+    transactionBundleHandler(),
+  );
 
-  routes.use((err, _req, res, next) => {
+  routes.use((err, req, res, next) => {
     if (res.headersSent) {
       next(err);
       return;
+    }
+
+    // allow send when ensurePermissionCheck wrapped res.send (e.g. permission denied before flagPermissionChecked ran)
+    if (req.flagPermissionChecked) {
+      req.flagPermissionChecked();
     }
 
     const oo = new OperationOutcome([err]);

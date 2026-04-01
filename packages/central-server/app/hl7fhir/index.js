@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Problem } from '@tamanu/errors';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
 import {
   diagnosticReportHandler,
@@ -21,7 +22,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   }
 
   // temporary: will replace this entire route once done
-  routes.use('/mat', matRoutes(ctx));
+  routes.use('/mat', ensurePermissionCheck, matRoutes(ctx));
 
   routes.get('/Patient', patientHandler());
   routes.get('/DiagnosticReport', diagnosticReportHandler());
