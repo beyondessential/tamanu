@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, TextButton } from '@tamanu/ui-components';
+import {
+  ButtonWithPermissionCheck,
+  Button,
+  TextButton,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
@@ -72,6 +77,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
+  const { getTranslation } = useTranslation();
 
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
   const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
@@ -84,9 +90,8 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
 
-  const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data: medicationSets, isLoading: medicationSetsLoading } =
+    useSuggestionsQuery('medicationSet');
 
   const handleContinue = prescriptionType => {
     setPrescriptionType(prescriptionType);
@@ -193,6 +198,10 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               <>
                 {canImportOngoingPrescriptions && canCreatePrescription && (
                   <StyledTextButton
+                    aria-label={getTranslation(
+                      'medication.action.addOngoingMedications',
+                      'Add existing ongoing medication to encounter',
+                    )}
                     disabled={readonly}
                     onClick={() => setMedicationImportModalOpen(true)}
                   >
@@ -200,14 +209,14 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                       title={
                         <Box width="147px" fontWeight={400}>
                           <TranslatedText
-                            stringId="medication.action.addOngoingMedications.tooltip"
+                            stringId="medication.action.addOngoingMedications"
                             fallback="Add existing ongoing medication to encounter"
                           />
                         </Box>
                       }
                     >
                       <Box display={'flex'}>
-                        <AddMedicationIcon />
+                        <AddMedicationIcon aria-hidden />
                       </Box>
                     </ThemedTooltip>
                   </StyledTextButton>
@@ -216,6 +225,10 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   <>
                     <NoteModalActionBlocker>
                       <StyledTextButton
+                        aria-label={getTranslation(
+                          'medication.action.printPrescription',
+                          'Print prescription',
+                        )}
                         onClick={() => setPrintMedicationModalOpen(true)}
                         disabled={readonly}
                         color="primary"
@@ -223,16 +236,14 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                       >
                         <ThemedTooltip
                           title={
-                            <Box width="60px" fontWeight={400}>
-                              <TranslatedText
-                                stringId="medication.action.printPrescription"
-                                fallback="Print prescription"
-                              />
-                            </Box>
+                            <TranslatedText
+                              stringId="medication.action.printPrescription"
+                              fallback="Print prescription"
+                            />
                           }
                         >
                           <Box display={'flex'}>
-                            <PrintIcon />
+                            <PrintIcon aria-hidden />
                           </Box>
                         </ThemedTooltip>
                       </StyledTextButton>
@@ -240,6 +251,10 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                     {pharmacyOrderEnabled && canRequestPharmacyOrder && (
                       <NoteModalActionBlocker>
                         <StyledTextButton
+                          aria-label={getTranslation(
+                            'medication.action.pharmacyOrder',
+                            'Send to pharmacy',
+                          )}
                           onClick={() => setPharmacyOrderModalOpen(true)}
                           disabled={readonly}
                           color="primary"
@@ -256,7 +271,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                             }
                           >
                             <Box display={'flex'}>
-                              <SendToPharmacyIcon />
+                              <SendToPharmacyIcon aria-hidden />
                             </Box>
                           </ThemedTooltip>
                         </StyledTextButton>
