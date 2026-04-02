@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
+import { useAuth } from '../../contexts/Auth';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
@@ -132,8 +133,9 @@ const VerticalLine = styled.div`
 
 const useSelectable = (formType) => {
   const api = useApi();
+  const { facilityId } = useAuth();
   const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
-  return useQuery([endpoint], () => api.get(endpoint), {
+  return useQuery([endpoint, facilityId], () => api.get(endpoint, { facilityId }), {
     placeholderData: [],
   });
 };
