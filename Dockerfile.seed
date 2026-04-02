@@ -22,7 +22,9 @@ WORKDIR /app
 ARG GIT_SHA=unknown
 ENV NODE_ENV=production \
     NODE_CONFIG_DIR=/app/packages/central-server/config \
+    NODE_CONFIG='{"db":{"host":"$(DB_HOST)","port":5432,"name":"app","username":"$(DB_USERNAME)","password":"$(DB_PASSWORD)"}}' \
     TAMANU_GIT_SHA=${GIT_SHA}
 COPY --from=build /app/package.json ./
 COPY --from=build /app/packages/ packages/
 COPY --from=build /app/node_modules/ node_modules/
+CMD ["bash", "-euc", "node packages/central-server/dist migrate && node packages/scripts/dist/fake.js --database app --rounds 50 --from-tally packages/fake-data/src/populateDb/parseTally/standard.json"]

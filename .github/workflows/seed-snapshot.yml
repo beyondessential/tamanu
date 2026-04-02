@@ -100,17 +100,9 @@ jobs:
                 containers:
                   - name: migrate
                     image: ${IMAGE}
-                    command: ["/bin/bash", "-euc"]
-                    args:
-                      - |
-                        node packages/central-server/dist migrate
-                        node packages/scripts/dist/fake.js --database app --rounds 50 --from-tally packages/fake-data/src/populateDb/parseTally/standard.json
                     envFrom:
                       - secretRef:
                           name: pgsnap-${JOB_NAME}
-                    env:
-                      - name: NODE_CONFIG
-                        value: '{"db":{"host":"\$(DB_HOST)","port":5432,"name":"app","username":"\$(DB_USERNAME)","password":"\$(DB_PASSWORD)"}}'
                     resources:
                       requests:
                         cpu: 250m
