@@ -227,12 +227,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
       data-testid="styledtooltip-myk4"
     >
       <span>
-        {highPriority && (
-          <StyledPriorityHighIcon
-            aria-label={getTranslation('general.highPriority.label', 'High priority')}
-            data-testid="styledpriorityhighicon-8mdd"
-          />
-        )}
+        {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
         {taskType === TASK_TYPES.MEDICATION_DUE_TASK && (
           <Box display={'flex'} position={'absolute'} left={'-6px'} top={'13px'}>
             <DrugIcon aria-hidden />
