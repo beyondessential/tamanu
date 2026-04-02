@@ -9,14 +9,11 @@ import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
-import { SearchField, SuggesterSelectField } from '../../components/Field';
+import { SearchInput, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
-import {
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
@@ -106,7 +103,7 @@ const ClearAllButton = styled(TextButton)`
   }
 `;
 
-const StyledSearchField = styled(SearchField)`
+const StyledSearchInput = styled(SearchInput)`
   width: 100%;
   .MuiInputBase-root {
     padding-left: 0;
@@ -131,7 +128,7 @@ const VerticalLine = styled.div`
   height: 100%;
 `;
 
-const useSelectable = (formType) => {
+const useSelectable = formType => {
   const api = useApi();
   const { facilityId } = useAuth();
   const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
@@ -141,7 +138,7 @@ const useSelectable = (formType) => {
 };
 
 const queryBySearch = (formType, data, { search, labTestCategoryId }, getTranslation) => {
-  return data.filter((result) => {
+  return data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
       const categoryName = getTranslation(
@@ -185,7 +182,7 @@ export const TestSelectorInput = ({
   const allSelected = queriedData.length && queriedData.every(isSelected);
   const someSelected = queriedData.some(isSelected) && !allSelected;
 
-  const handleChange = (newSelected) => {
+  const handleChange = newSelected => {
     if (!onChange) return;
     const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
     onChange({ target: { name, value: newSelected }, selectedObjects });
@@ -194,20 +191,22 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     handleChange([]);
   };
-  const handleChangeSearchQuery = (event) =>
+  const handleChangeSearchQuery = event =>
     setSearchQuery({ ...searchQuery, [event.target.name]: event.target.value });
+
+  const handleClearSearch = () => setSearchQuery({ ...searchQuery, search: '' });
 
   const handleSelectAll = () =>
     handleChange(
       allSelected
-        ? value.filter((id) => !queriedData.some(({ id: dataId }) => dataId === id))
+        ? value.filter(id => !queriedData.some(({ id: dataId }) => dataId === id))
         : [...value, ...queriedData.filter(({ id }) => !value.includes(id)).map(({ id }) => id)],
     );
-  const handleSelect = (event) => {
+  const handleSelect = event => {
     handleChange(
       event.target.checked
         ? [...value, event.target.name]
-        : value.filter((id) => id !== event.target.name),
+        : value.filter(id => id !== event.target.name),
     );
   };
 
@@ -268,14 +267,13 @@ export const TestSelectorInput = ({
               onChange={handleSelectAll}
               data-testid="selectabletestitem-k1uu"
             />
-            <StyledSearchField
-              field={{
-                name: 'search',
-                value: searchQuery.search,
-                onChange: handleChangeSearchQuery,
-              }}
+            <StyledSearchInput
+              name="search"
+              value={searchQuery.search}
+              onChange={handleChangeSearchQuery}
+              onClear={handleClearSearch}
               placeholder={getSearchFieldPlaceholder()}
-              data-testid="styledsearchfield-92y3"
+              data-testid="styledsearchinput-92y3"
             />
           </Box>
           <FormSeparatorLine data-testid="formseparatorline-1waq" />
@@ -285,7 +283,7 @@ export const TestSelectorInput = ({
             )}
             {!showLoadingText &&
               (queriedData.length > 0 ? (
-                queriedData.map((selectable) => (
+                queriedData.map(selectable => (
                   <SelectableTestItem
                     key={`${selectable.id}-checkbox`}
                     label={
@@ -346,7 +344,7 @@ export const TestSelectorInput = ({
           </Box>
           <FormSeparatorLine data-testid="formseparatorline-2m0r" />
           <SelectorTable data-testid="selectortable-6eaw">
-            {selected.map((option) => {
+            {selected.map(option => {
               return (
                 <TestItem
                   key={`${option.id}-selected`}
