@@ -34,8 +34,8 @@ import { useAuth } from '../../../contexts/Auth';
 
 // Support both old format ("Changed location from X to Y") and new bullet-prefixed format
 // ("• Changed location from 'X' to 'Y'"). Also handle "encounter type" vs "type".
-const locationNoteMatcher = /Changed location from '?(?<from>.*?)'? to '?(?<to>.*?)'?\s*$/;
-const encounterTypeNoteMatcher = /Changed (?:encounter )?type from '?(?<from>.*?)'? to '?(?<to>.*?)'?\s*$/;
+const locationNoteMatcher = /Changed location from (?<from>.*?) to (?<to>.*?)\s*$/;
+const encounterTypeNoteMatcher = /Changed (?:encounter )?type from (?<from>.*?) to (?<to>.*?)\s*$/;
 
 // Since 2.49+, multiple changes in a single encounter update are combined into one system note
 // with bullet-prefixed lines. This helper expands combined notes into individual entries so each
@@ -54,6 +54,13 @@ const expandCombinedNotes = (systemNotes, matcher) => {
   return expanded;
 };
 
+const stripQuotes = str => {
+  if (!str) return str;
+  // Remove quote characters from start and end, then lowercase
+  // Handles both ASCII quotes (' ") and Unicode smart quotes (' ' " ")
+  return str.replace(/^['"\u2018\u2019\u201C\u201D]/, '').replace(/['"\u2018\u2019\u201C\u201D]$/, '').trim().toLowerCase();
+};
+
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes?.length > 0 && notes[0].content.match(matcher)) {
@@ -63,14 +70,14 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
 
     const history = [
       {
-        to: from,
+        to: stripQuotes(from),
         date: encounterData.startDate,
       },
       ...(notes?.map(({ content, date }) => {
         const {
           groups: { to },
         } = content.match(matcher);
-        return { to, date };
+        return { to: stripQuotes(to), date };
       }) ?? {}),
     ];
     return history;
