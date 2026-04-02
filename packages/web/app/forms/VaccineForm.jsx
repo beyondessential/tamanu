@@ -20,7 +20,7 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
-import { isAfter, isBefore } from 'date-fns';
+import { isBefore } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
@@ -43,7 +43,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getSetting } = useSettings();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime, storedDateTimeToEpochMilliseconds } = useDateTime();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
   const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
@@ -149,11 +149,14 @@ export const VaccineForm = ({
           fallback="Date cannot be in the future"
           data-testid="translatedtext-rure"
         />,
-        (value) => {
+        value => {
           if (!value) return true;
-          const date = parseDate(value);
-          if (!date) return true;
-          return !isAfter(date, new Date());
+          const storedMs = storedDateTimeToEpochMilliseconds(value);
+          if (storedMs === null) {
+            return true;
+          }
+
+          return storedMs <= Date.now();
         },
       ),
     locationId: yup.string().when(['status', 'givenElsewhere'], {
