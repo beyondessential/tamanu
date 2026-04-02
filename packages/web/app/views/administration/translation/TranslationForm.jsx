@@ -59,6 +59,49 @@ const StyledSearchInput = styled(SearchInput)`
   width: 340px;
 `;
 
+const normalizeTranslationText = value =>
+  value === null || value === undefined ? '' : String(value);
+
+const isTranslationTextChanged = (previous, next) =>
+  normalizeTranslationText(previous) !== normalizeTranslationText(next);
+
+/**
+ * The server accepts the same shape as before, but sending every string and language on each save
+ * is slow (upload + server work). Only non-default languages are persisted (`put` skips English).
+ */
+const buildTranslationSavePayload = (payload, initialValues) => {
+  const submitData = {};
+
+  for (const [key, value] of Object.entries(payload)) {
+    if (!value || typeof value !== 'object') continue;
+
+    const isNewEntry = Boolean(value.stringId);
+    const stringId = isNewEntry ? value.stringId : key;
+    const { stringId: _nestedStringId, ...langs } = value;
+    const langPayload = {};
+
+    for (const [lang, text] of Object.entries(langs)) {
+      if (lang === DEFAULT_LANGUAGE_CODE) continue;
+
+      if (isNewEntry) {
+        langPayload[lang] = text;
+        continue;
+      }
+
+      const initialRow = initialValues[key] ?? {};
+      if (isTranslationTextChanged(initialRow[lang], text)) {
+        langPayload[lang] = text;
+      }
+    }
+
+    if (Object.keys(langPayload).length > 0) {
+      submitData[stringId] = langPayload;
+    }
+  }
+
+  return submitData;
+};
+
 /**
  *
  * `values` is an object of existing, and new values
@@ -342,10 +385,8 @@ export const TranslationForm = () => {
     return values;
   }, [translations]);
 
-  const handleSubmit = async payload => {
-    const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
-    );
+  const handleSubmit = async (payload, initialValues) => {
+    const submitData = buildTranslationSavePayload(payload, initialValues);
     saveTranslations(submitData);
   };
 
@@ -376,7 +417,7 @@ export const TranslationForm = () => {
         initialValues={initialValues}
         enableReinitialize
         showInlineErrorsOnly
-        onSubmit={handleSubmit}
+        onSubmit={(values, formikBag) => handleSubmit(values, formikBag.initialValues)}
         validationSchema={validationSchema}
         render={props => (
           <FormContents
