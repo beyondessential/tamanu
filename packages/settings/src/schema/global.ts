@@ -1043,6 +1043,7 @@ export const globalSettings = {
     fileChooserMbSizeLimit: {
       description:
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      exposedToWeb: true,
       exposedToPatientPortal: true,
       type: yup.number().min(1),
       defaultValue: 10,
