@@ -34,8 +34,8 @@ import { useAuth } from '../../../contexts/Auth';
 
 // Support both old format ("Changed location from X to Y") and new bullet-prefixed format
 // ("• Changed location from 'X' to 'Y'"). Also handle "encounter type" vs "type".
-const locationNoteMatcher = /Changed location from '?(?<from>.*?)'? to '?(?<to>.*?)'?\s*$/;
-const encounterTypeNoteMatcher = /Changed (?:encounter )?type from '?(?<from>.*?)'? to '?(?<to>.*?)'?\s*$/;
+const locationNoteMatcher = /Changed location from (?<from>.*?) to (?<to>.*?)\s*$/;
+const encounterTypeNoteMatcher = /Changed (?:encounter )?type from (?<from>.*?) to (?<to>.*?)\s*$/;
 
 // Since 2.49+, multiple changes in a single encounter update are combined into one system note
 // with bullet-prefixed lines. This helper expands combined notes into individual entries so each
@@ -54,7 +54,12 @@ const expandCombinedNotes = (systemNotes, matcher) => {
   return expanded;
 };
 
-const stripQuotes = str => str?.replace(/^'+|'+$/g, '');
+const stripQuotes = str => {
+  if (!str) return str;
+  // Strip any non-letter/number characters from start and end, then lowercase
+  const result = str.trim().replace(/^[^a-zA-Z0-9]+/, '').replace(/[^a-zA-Z0-9]+$/, '').toLowerCase();
+  return result;
+};
 
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
@@ -94,7 +99,7 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
   }
 
   return history.map(({ to: newEncounterType, ...rest }) => ({
-    newEncounterType: newEncounterType.toLowerCase(),
+    newEncounterType,
     ...rest,
   }));
 };
