@@ -54,6 +54,8 @@ const expandCombinedNotes = (systemNotes, matcher) => {
   return expanded;
 };
 
+const stripQuotes = str => str?.replace(/^'+|'+$/g, '');
+
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes?.length > 0 && notes[0].content.match(matcher)) {
@@ -63,14 +65,14 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
 
     const history = [
       {
-        to: from,
+        to: stripQuotes(from),
         date: encounterData.startDate,
       },
       ...(notes?.map(({ content, date }) => {
         const {
           groups: { to },
         } = content.match(matcher);
-        return { to, date };
+        return { to: stripQuotes(to), date };
       }) ?? {}),
     ];
     return history;
@@ -92,7 +94,7 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
   }
 
   return history.map(({ to: newEncounterType, ...rest }) => ({
-    newEncounterType,
+    newEncounterType: newEncounterType.toLowerCase(),
     ...rest,
   }));
 };
