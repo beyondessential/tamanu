@@ -1,26 +1,27 @@
+import { Box } from '@mui/material';
 import React from 'react';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import {
-  Field,
-  TextField,
-  AutocompleteField,
-  MultiAutocompleteField,
-} from '../../../components/Field';
-import { useSuggester } from '../../../api';
-import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
-import { Form, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../../../constants';
+
 import { FORM_TYPES } from '@tamanu/constants';
-import { Box } from '@mui/material';
-import { useCreateUserMutation, useValidateUserMutation } from '../../../api/mutations';
-import { toast } from 'react-toastify';
-import { useTranslation } from '../../../contexts/Translation';
-import { foreignKey } from '../../../utils/validation';
+import { Form, FormGrid } from '@tamanu/ui-components';
+import { useSuggester } from '../../../../api';
+import { useCreateUserMutation, useValidateUserMutation } from '../../../../api/mutations';
+import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../../components';
+import {
+  AutocompleteField,
+  Field,
+  MultiAutocompleteField,
+  TextField,
+} from '../../../../components/Field';
+import { Colors } from '../../../../constants';
+import { useTranslation } from '../../../../contexts/Translation';
+import { foreignKey } from '../../../../utils/validation';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
-    max-width: 800px;
+    max-inline-size: 800px;
   }
 `;
 
@@ -41,14 +42,14 @@ const SectionContainer = styled(Box)`
 const SectionTitle = styled(Box)`
   font-size: 18px;
   font-weight: 500;
-  line-height: 24px;
+  line-height: 1.33333333;
   color: ${Colors.darkestText};
   margin: 0;
 `;
 
 const SectionSubtitle = styled(Box)`
   font-size: 14px;
-  line-height: 18px;
+  line-height: 1.3;
   color: ${Colors.midText};
 `;
 
@@ -68,7 +69,7 @@ const CREATE_VALIDATION = yup.object().shape({
   ).test(
     'passwords-match',
     <TranslatedText stringId="validation.passwords.mismatch" fallback="Passwords don't match" />,
-    function(value) {
+    function (value) {
       const { newPassword } = this.parent;
       return newPassword === value;
     },
