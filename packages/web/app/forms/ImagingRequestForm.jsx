@@ -250,13 +250,14 @@ export const ImagingRequestForm = React.memo(
                 component={TranslatedSelectField}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
-                  const allRefCodes = allImagingRefData && new Set(allImagingRefData.map(t => t.code));
-                  const visibleCodes = visibleImagingTypes && new Set(visibleImagingTypes.map(t => t.code));
+                  const allRefCodes = allImagingRefData && new Set(allImagingRefData.map(t => t.code?.toLowerCase()));
+                  const visibleCodes = visibleImagingTypes && new Set(visibleImagingTypes.map(t => t.code?.toLowerCase()));
                   return options
                     .filter(option => {
                       const key = camelCase(option.value);
                       if (!availableTypes.includes(key)) return false;
-                      if (allRefCodes && visibleCodes && allRefCodes.has(key) && !visibleCodes.has(key)) return false;
+                      const lowerKey = key.toLowerCase();
+                      if (allRefCodes && visibleCodes && allRefCodes.has(lowerKey) && !visibleCodes.has(lowerKey)) return false;
                       return true;
                     })
                     .map(option => {
