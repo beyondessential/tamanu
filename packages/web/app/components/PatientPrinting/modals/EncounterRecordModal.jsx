@@ -91,8 +91,10 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
     ];
   }
 
+  // Lowercase the encounter type to match ENCOUNTER_TYPE_LABELS keys, since post-2.49
+  // system notes use capitalize() which produces 'Admission' instead of 'admission'
   return history.map(({ to: newEncounterType, ...rest }) => ({
-    newEncounterType,
+    newEncounterType: newEncounterType.toLowerCase(),
     ...rest,
   }));
 };
