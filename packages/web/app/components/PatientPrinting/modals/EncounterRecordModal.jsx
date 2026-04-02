@@ -56,9 +56,9 @@ const expandCombinedNotes = (systemNotes, matcher) => {
 
 const stripQuotes = str => {
   if (!str) return str;
-  // Strip any non-letter/number characters from start and end, then lowercase
-  const result = str.trim().replace(/^[^a-zA-Z0-9]+/, '').replace(/[^a-zA-Z0-9]+$/, '').toLowerCase();
-  return result;
+  // Remove quote characters from start and end, then lowercase
+  // Handles both ASCII quotes (' ") and Unicode smart quotes (' ' " ")
+  return str.replace(/^['"\u2018\u2019\u201C\u201D]/, '').replace(/['"\u2018\u2019\u201C\u201D]$/, '').trim().toLowerCase();
 };
 
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
