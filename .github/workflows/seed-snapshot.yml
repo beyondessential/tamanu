@@ -26,7 +26,7 @@ env:
 
 jobs:
   create-snapshot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: Seed snapshot for ${{ inputs.version }}
     timeout-minutes: 75
     steps:
