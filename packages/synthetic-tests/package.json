@@ -11,7 +11,8 @@
     "artillery": "^2.0.22"
   },
   "scripts": {
-    "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",
+    "test:facility": "npm run merge-scenarios && artillery run src/merged-facility.yml",
+    "test:central": "npm run merge-scenarios && artillery run src/merged-central.yml",
     "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
   },
   "keywords": [],
