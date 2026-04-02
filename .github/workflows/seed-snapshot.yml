@@ -120,39 +120,3 @@ jobs:
                         memory: 2Gi
           EOF
 
-      - name: Wait for pgsnap to complete
-        env:
-          JOB_NAME: ${{ steps.names.outputs.job_name }}
-        run: |
-          set -euo pipefail
-          echo "Waiting for pgsnap to process job ${JOB_NAME}..."
-          for i in $(seq 1 360); do
-            PHASE=$(kubectl get job "${JOB_NAME}" -n "${SEED_NAMESPACE}" \
-              -o jsonpath='{.metadata.annotations.pgsnap\.bes\.au/phase}' 2>/dev/null || echo "")
-
-            case "$PHASE" in
-              complete)
-                echo "Seed snapshot created successfully"
-                exit 0
-                ;;
-              failed)
-                echo "::error::Seed snapshot job failed"
-                kubectl logs "job/${JOB_NAME}" -n "${SEED_NAMESPACE}" --tail=50 || true
-                exit 1
-                ;;
-              *)
-                echo "Phase: ${PHASE:-pending} (attempt ${i}/360)"
-                sleep 10
-                ;;
-            esac
-          done
-          echo "::error::Timed out waiting for pgsnap to complete"
-          exit 1
-
-      - name: Cleanup on failure
-        if: failure()
-        env:
-          JOB_NAME: ${{ steps.names.outputs.job_name }}
-        continue-on-error: true
-        run: |
-          kubectl delete job "${JOB_NAME}" -n "${SEED_NAMESPACE}" --ignore-not-found
