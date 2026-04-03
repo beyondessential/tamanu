@@ -34,6 +34,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
 
   const maleData = genderData?.find(item => item.gender === 'male');
   const femaleData = genderData?.find(item => item.gender === 'female');
+  const otherData = genderData?.find(item => item.gender === 'other');
   const youngData = ageData?.find(item => item.ageGroup === 'lessThanThirty');
   const oldData = ageData?.find(item => item.ageGroup === 'moreThanThirty');
   return (
@@ -114,6 +115,13 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   </DataCell>
                   <DataCell>{femaleData?.totalVisitors || '0'}</DataCell>
                   <DataCell>{femaleData?.totalSurveys || '0'}</DataCell>
+                </Row>
+                <Row>
+                  <DataCell>
+                    <TranslatedText stringId="patient.property.sex.other" fallback="Other" />
+                  </DataCell>
+                  <DataCell>{otherData?.totalVisitors || '0'}</DataCell>
+                  <DataCell>{otherData?.totalSurveys || '0'}</DataCell>
                 </Row>
               </Cell>
             </BorderRow>

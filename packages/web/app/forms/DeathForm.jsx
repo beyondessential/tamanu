@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS, FSM_FIELDS } from '@tamanu/constants';
+import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS, FSM_FIELDS, SEX_VALUES } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
 import {
   ArrayField,
@@ -153,8 +153,8 @@ const PartialWorkflowPage = ({ practitionerSuggester }) => {
 };
 
 const canBePregnant = (timeOfDeath, patient) => {
-  const isFemale = patient.sex === 'female';
-  return isFemale && differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) >= 12;
+  const canConceive = patient.sex === SEX_VALUES.FEMALE || patient.sex === SEX_VALUES.OTHER;
+  return canConceive && differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) >= 12;
 };
 
 const isInfant = (timeOfDeath, patient) => {
@@ -162,7 +162,8 @@ const isInfant = (timeOfDeath, patient) => {
 };
 
 const canBePregnantFSM = (timeOfDeath, patient) => {
-  if (!timeOfDeath || !patient?.dateOfBirth || patient?.sex !== 'female') return false;
+  if (!timeOfDeath || !patient?.dateOfBirth) return false;
+  if (patient?.sex !== SEX_VALUES.FEMALE && patient?.sex !== SEX_VALUES.OTHER) return false;
   const age = differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth));
   return age >= 15 && age <= 44;
 };

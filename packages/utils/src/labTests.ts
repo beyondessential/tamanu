@@ -31,8 +31,15 @@ interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
 export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
-  const max = sex === SEX_VALUES.MALE ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === SEX_VALUES.MALE ? labTestType.maleMin : labTestType.femaleMin;
+  let max: number | undefined;
+  let min: number | undefined;
+  if (sex === SEX_VALUES.MALE) {
+    max = labTestType.maleMax;
+    min = labTestType.maleMin;
+  } else if (sex === SEX_VALUES.FEMALE) {
+    max = labTestType.femaleMax;
+    min = labTestType.femaleMin;
+  }
   const hasMax = hasValue(max);
   const hasMin = hasValue(min);
 
