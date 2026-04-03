@@ -40,6 +40,7 @@ export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetRefer
     max = labTestType.femaleMax;
     min = labTestType.femaleMin;
   }
+  // For 'other' or unknown sex, max/min remain undefined and we fall through to rangeText or N/A
   const hasMax = hasValue(max);
   const hasMin = hasValue(min);
 
