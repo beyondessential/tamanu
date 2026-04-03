@@ -176,7 +176,7 @@ test.describe('Basic tests', () => {
        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
      } else if ((patientDetails.sex) === 'other') {
        await expect(patientDetailsTabPage2.sexOtherRadio).toBeChecked();
-     } else if ((patientDetails.sex ) === 'male') {
+     } else if ((patientDetails.sex) === 'male') {
        await expect(patientDetailsTabPage2.sexMaleRadio).toBeChecked();
      }
      await expect(patientDetailsTabPage2.emailInput).toHaveValue(patientDetails.email as string);
