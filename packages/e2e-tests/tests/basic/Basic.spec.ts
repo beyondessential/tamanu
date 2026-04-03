@@ -174,6 +174,8 @@ test.describe('Basic tests', () => {
      await expect(patientDetailsTabPage2.dateOfBirthInput.locator('input')).toHaveValue('1990-01-01');
      if ((patientDetails.sex) === 'female') {
        await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
+     } else if ((patientDetails.sex) === 'other') {
+       await expect(patientDetailsTabPage2.sexOtherRadio).toBeChecked();
      } else if ((patientDetails.sex ) === 'male') {
        await expect(patientDetailsTabPage2.sexMaleRadio).toBeChecked();
      }
