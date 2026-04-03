@@ -15,6 +15,7 @@ import { TranslatedSex, TranslatedText } from './Translation';
 const colorFromEncounterType = {
   admission: Colors.green,
   clinic: '#E9AC50',
+  imaging: '#E9AC50',
   triage: Colors.orange,
   observation: Colors.orange,
   emergency: Colors.orange,
