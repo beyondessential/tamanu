@@ -10,7 +10,7 @@ export interface PatientDetails {
   lastName?: string;
   culturalName?: string;
   dateOfBirth?: string;
-  sex?: 'male' | 'female';
+  sex?: 'male' | 'female' | 'other';
   email?: string;
   nationalHealthNumber?: string;
   birthCertificate?: string;
@@ -56,6 +56,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
 
   readonly sexMaleRadio!: Locator;
   readonly sexFemaleRadio!: Locator;
+  readonly sexOtherRadio!: Locator;
 
   readonly firstNameInput!: Locator;
   readonly middleNameInput!: Locator;
@@ -111,6 +112,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       locationInformationHeading: 'patientdetailsheading-ccov',
       sexMaleRadio: 'radio-il3t-male',
       sexFemaleRadio: 'radio-il3t-female',
+      sexOtherRadio: 'radio-il3t-other',
       firstNameInput: 'localisedfield-cqua-input',
       middleNameInput: 'localisedfield-l6hc-input',
       lastNameInput: 'localisedfield-41un-input',
@@ -184,6 +186,8 @@ export class PatientDetailsTabPage extends BasePatientPane {
     if (patientDetails.sex) {
       if (patientDetails.sex === 'female') {
         await this.sexFemaleRadio.click();
+      } else if (patientDetails.sex === 'other') {
+        await this.sexOtherRadio.click();
       } else {
         await this.sexMaleRadio.click();
       }

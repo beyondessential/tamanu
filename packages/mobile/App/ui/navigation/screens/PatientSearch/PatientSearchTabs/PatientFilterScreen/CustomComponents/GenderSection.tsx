@@ -4,7 +4,7 @@ import { RadioButtonGroup } from '/components/RadioButtonGroup';
 // Helpers
 import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { FemaleGender, MaleGender } from '/helpers/constants';
+import { FemaleGender, MaleGender, OtherGender } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
@@ -13,6 +13,7 @@ const buttonWidth = screenPercentageToDP(26, Orientation.Width);
 const options = [
   MaleGender,
   FemaleGender,
+  OtherGender,
   {
     label: 'All',
     value: 'all',
