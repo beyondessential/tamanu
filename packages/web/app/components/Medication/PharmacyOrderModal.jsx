@@ -12,11 +12,13 @@ import {
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ENCOUNTER_TYPES, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import { PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
+import { PATIENT_STATUS } from '../../constants';
+import { getPatientStatus } from '../../utils/getPatientStatus';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 
@@ -239,7 +241,7 @@ export const PharmacyOrderModal = React.memo(
     useEffect(() => {
       if (!open || !encounter?.encounterType || isOngoingMode) return;
 
-      if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
+      if (getPatientStatus(encounter.encounterType) === PATIENT_STATUS.OUTPATIENT) {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
       } else {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
