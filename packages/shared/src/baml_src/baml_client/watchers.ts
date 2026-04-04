@@ -35,53 +35,6 @@ interface InternalStreamEvent {
 }
 
 // Simple async iterable stream for watch notifications
-class NotificationStream<PartialT, FinalT> implements BamlStream<PartialT, FinalT> {
-  private eventQueue: (PartialT | null)[] = []
-  private isComplete = false
-
-  pushValue(value: PartialT): void {
-    this.eventQueue.push(value)
-  }
-
-  complete(): void {
-    this.isComplete = true
-    this.eventQueue.push(null)
-  }
-
-  async *[Symbol.asyncIterator](): AsyncIterableIterator<PartialT> {
-    while (true) {
-      const event = this.eventQueue.shift()
-
-      if (event === undefined) {
-        if (this.isComplete) {
-          break
-        }
-        // Wait a bit for more events
-        await new Promise(resolve => setTimeout(resolve, 10))
-        continue
-      }
-
-      if (event === null) {
-        break
-      }
-
-      yield event
-    }
-  }
-
-  async getFinalResponse(): Promise<FinalT> {
-    // For emit streams, just get the last value
-    let lastValue: PartialT | null = null
-    for await (const value of this) {
-      lastValue = value
-    }
-    return lastValue as unknown as FinalT
-  }
-
-  toStreamable(): ReadableStream<Uint8Array> {
-    throw new Error("toStreamable not implemented for EmitStream")
-  }
-}
 
 type VarHandler<T> = (event: VarNotification<T>) => void
 type StreamHandler<PartialT, FinalT> = (event: VarNotification<BamlStream<PartialT, FinalT>>) => void
