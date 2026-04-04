@@ -23,7 +23,7 @@ import type { BamlRuntime, BamlCtxManager, Image, Audio, Pdf, Video, FunctionLog
 import { toBamlError, HTTPRequest, ClientRegistry } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {AskAiResponse, RagSource} from "./types"
+import type {AskAiResponse} from "./types"
 import type TypeBuilder from "./type_builder"
 import type * as events from "./events"
 
@@ -43,7 +43,7 @@ env?: Record<string, string | undefined>
 
   
   async AskTamanu(
-  userQuestion: string,ragContext: string,conversationHistory: string,
+  userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
   __baml_options__?: BamlCallOptions<never>
   ): Promise<HTTPRequest> {
     try {
@@ -62,7 +62,7 @@ env?: Record<string, string | undefined>
       return await this.runtime.buildRequest(
       "AskTamanu",
       {
-      "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+      "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
       },
       this.ctxManager.cloneContext(),
       __baml_options__?.tb?.__tb(),
@@ -82,7 +82,7 @@ env?: Record<string, string | undefined>
 
       
       async AskTamanu(
-      userQuestion: string,ragContext: string,conversationHistory: string,
+      userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
       __baml_options__?: BamlCallOptions<never>
       ): Promise<HTTPRequest> {
         try {
@@ -101,7 +101,7 @@ env?: Record<string, string | undefined>
           return await this.runtime.buildRequest(
           "AskTamanu",
           {
-          "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+          "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
           },
           this.ctxManager.cloneContext(),
           __baml_options__?.tb?.__tb(),

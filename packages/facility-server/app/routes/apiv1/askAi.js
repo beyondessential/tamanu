@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { NotFoundError } from '@tamanu/errors';
-import { chat } from '@tamanu/shared/services/AskAiService';
+import { chat, sanitiseConfigForAi } from '@tamanu/shared/services/AskAiService';
 
 export const askAi = express.Router();
 
@@ -88,6 +88,9 @@ askAi.post(
 
     const { content } = req.body;
 
+    const serverConfig = JSON.stringify(sanitiseConfigForAi(config.util.toObject()), null, 2);
+    const appSettings = JSON.stringify(await req.settings[req.facilityId]?.getFrontEndSettings(), null, 2);
+
     const response = await chat({
       conversationId: conversation.id,
       userMessage: content,
@@ -96,6 +99,8 @@ askAi.post(
       voyageApiKey: askAiConfig.voyageApiKey,
       anthropicApiKey: askAiConfig.anthropicApiKey,
       ragNamespace: askAiConfig.ragNamespace,
+      serverConfig,
+      appSettings,
     });
 
     res.send(response);

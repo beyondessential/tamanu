@@ -23,7 +23,7 @@ import { toBamlError } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {AskAiResponse, RagSource} from "./types"
+import type {AskAiResponse} from "./types"
 import type TypeBuilder from "./type_builder"
 
 export class LlmResponseParser {

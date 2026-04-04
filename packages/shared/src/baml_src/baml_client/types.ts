@@ -49,13 +49,7 @@ export function get_checks<CheckName extends string>(checks: Record<CheckName, C
 }
 export interface AskAiResponse {
   answer: string
-  sources: RagSource[]
   cannotAnswer: boolean
-  
-}
-
-export interface RagSource {
-  filePath: string
-  excerpt: string
+  clarifyingQuestion: string
   
 }

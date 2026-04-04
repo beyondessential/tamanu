@@ -20,7 +20,7 @@ $ pnpm add @boundaryml/baml
 
 import type { Image, Audio, Pdf, Video } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
-import type {  AskAiResponse,  RagSource } from "./types"
+import type {  AskAiResponse } from "./types"
 import type * as types from "./types"
 
 /******************************************************************************
@@ -38,11 +38,7 @@ export interface StreamState<T> {
 export namespace partial_types {
     export interface AskAiResponse {
       answer?: string | null
-      sources: RagSource[]
       cannotAnswer?: boolean | null
-    }
-    export interface RagSource {
-      filePath?: string | null
-      excerpt?: string | null
+      clarifyingQuestion?: string | null
     }
 }

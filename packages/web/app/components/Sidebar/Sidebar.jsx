@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
-import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import { useNavigate, useLocation } from 'react-router';
@@ -19,7 +18,6 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { KebabMenu } from './KebabMenu';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
-import { AskAiPanel } from '../AskAi';
 
 const Container = styled.div`
   display: flex;
@@ -140,31 +138,6 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
-const AskAiToggleButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: ${props => (props.$retracted ? '10px 0' : '10px 13px')};
-  background: none;
-  border: none;
-  border-radius: 4px;
-  color: ${Colors.white};
-  cursor: pointer;
-  font-size: 14px;
-  justify-content: ${props => (props.$retracted ? 'center' : 'flex-start')};
-  transition: background 0.15s;
-  margin-bottom: 4px;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  & svg {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-`;
 
 const getInitials = string =>
   string
@@ -193,7 +166,6 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
-  const [askAiOpen, setAskAiOpen] = useState(false);
   const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
   const location = useLocation();
@@ -361,14 +333,6 @@ export const Sidebar = React.memo(({ items }) => {
         })}
       </List>
       <Footer $retracted={isRetracted} data-testid="footer-ymwe">
-        <AskAiToggleButton
-          $retracted={isRetracted}
-          onClick={() => setAskAiOpen(o => !o)}
-          data-testid="askai-toggle-button"
-        >
-          <ChatBubbleOutline />
-          {!isRetracted && 'Ask AI'}
-        </AskAiToggleButton>
         <StyledDivider $invisible={isRetracted} data-testid="styleddivider-hx9s" />
         <UserInfo $retracted={isRetracted} data-testid="userinfo-covo">
           <StyledHiddenSyncAvatar
@@ -427,7 +391,6 @@ export const Sidebar = React.memo(({ items }) => {
           </>
         )}
       </Footer>
-      <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
     </Container>
   );
 });

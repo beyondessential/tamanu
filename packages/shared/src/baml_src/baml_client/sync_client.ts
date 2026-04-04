@@ -22,7 +22,7 @@ import type { BamlRuntime, FunctionResult, BamlCtxManager, Image, Audio, Pdf, Vi
 import { toBamlError, BamlAbortError, ClientRegistry, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type * as types from "./types"
-import type {AskAiResponse, RagSource} from "./types"
+import type {AskAiResponse} from "./types"
 import type TypeBuilder from "./type_builder"
 import { HttpRequest, HttpStreamRequest } from "./sync_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -98,7 +98,7 @@ export class BamlSyncClient {
 
   
   AskTamanu(
-      userQuestion: string,ragContext: string,conversationHistory: string,
+      userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
       __baml_options__?: BamlCallOptions<never>
   ): types.AskAiResponse {
     try {
@@ -130,7 +130,7 @@ export class BamlSyncClient {
       const __raw__ = this.runtime.callFunctionSync(
         "AskTamanu",
         {
-          "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+          "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
         },
         this.ctxManager.cloneContext(),
         __options__.tb?.__tb(),

@@ -22,7 +22,7 @@ import type { BamlRuntime, BamlCtxManager, Image, Audio, Pdf, Video } from "@bou
 import { toBamlError, HTTPRequest, ClientRegistry } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {AskAiResponse, RagSource} from "./types"
+import type {AskAiResponse} from "./types"
 import type TypeBuilder from "./type_builder"
 import type * as events from "./events"
 
@@ -39,7 +39,7 @@ export class HttpRequest {
 
   
   AskTamanu(
-      userQuestion: string,ragContext: string,conversationHistory: string,
+      userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
       __baml_options__?: BamlCallOptions<never>
   ): HTTPRequest {
     try {
@@ -58,7 +58,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "AskTamanu",
         {
-          "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+          "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -78,7 +78,7 @@ export class HttpStreamRequest {
 
   
   AskTamanu(
-      userQuestion: string,ragContext: string,conversationHistory: string,
+      userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
       __baml_options__?: BamlCallOptions<never>
   ): HTTPRequest {
     try {
@@ -97,7 +97,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "AskTamanu",
         {
-          "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+          "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

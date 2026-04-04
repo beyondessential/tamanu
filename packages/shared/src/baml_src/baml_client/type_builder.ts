@@ -27,16 +27,14 @@ export { FieldType, EnumBuilder, ClassBuilder }
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
-    AskAiResponse: ClassViewer<'AskAiResponse', "answer" | "sources" | "cannotAnswer">;
-    
-    RagSource: ClassViewer<'RagSource', "filePath" | "excerpt">;
+    AskAiResponse: ClassViewer<'AskAiResponse', "answer" | "cannotAnswer" | "clarifyingQuestion">;
     
     
 
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "AskAiResponse","RagSource",
+            "AskAiResponse",
           ]),
           enums: new Set([
             
@@ -45,11 +43,7 @@ export default class TypeBuilder {
         });
         
         this.AskAiResponse = this.tb.classViewer("AskAiResponse", [
-          "answer","sources","cannotAnswer",
-        ]);
-        
-        this.RagSource = this.tb.classViewer("RagSource", [
-          "filePath","excerpt",
+          "answer","cannotAnswer","clarifyingQuestion",
         ]);
         
         

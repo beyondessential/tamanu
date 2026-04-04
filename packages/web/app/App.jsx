@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
+import { IconButton } from '@material-ui/core';
+import { ChatBubbleOutline } from '@material-ui/icons';
+import { AskAiPanel } from './components/AskAi';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
@@ -33,7 +36,24 @@ const AppContentsContainer = styled.div`
   border-top: 1px solid ${Colors.softOutline};
 `;
 
+const AskAiFab = styled(IconButton)`
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  background: ${Colors.primaryDark};
+  color: white;
+  z-index: 1200;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: #4e5f71;
+  }
+`;
+
 export function App({ sidebar, children }) {
+  const [askAiOpen, setAskAiOpen] = useState(false);
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
@@ -76,6 +96,10 @@ export function App({ sidebar, children }) {
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
+      <AskAiFab onClick={() => setAskAiOpen(o => !o)} title="Chat">
+        <ChatBubbleOutline fontSize="small" />
+      </AskAiFab>
+      <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
     </AppContainer>
   );
 }

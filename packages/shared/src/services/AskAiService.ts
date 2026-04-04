@@ -1,9 +1,26 @@
 import { Sequelize } from 'sequelize';
 import { b } from '../baml_src/baml_client/index';
-import type { AskAiResponse, RagSource } from '../baml_src/baml_client/types';
+
+const SENSITIVE_KEY_PATTERN = /password|apikey|secret|token|databaseurl|connectionstring/i;
+
+export function sanitiseConfigForAi(value: unknown, depth = 0): unknown {
+  if (depth > 10 || value === null || value === undefined) return value;
+  if (typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map(item => sanitiseConfigForAi(item, depth + 1));
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    result[k] = SENSITIVE_KEY_PATTERN.test(k) ? '[REDACTED]' : sanitiseConfigForAi(v, depth + 1);
+  }
+  return result;
+}
 
 const RAG_TOP_K = 10;
 const CONVERSATION_HISTORY_LIMIT = 20;
+
+interface RagSource {
+  filePath: string;
+  excerpt: string;
+}
 
 interface SearchRagResult {
   chunks: string;
@@ -18,6 +35,15 @@ interface ChatParams {
   voyageApiKey: string;
   anthropicApiKey: string;
   ragNamespace: string;
+  serverConfig?: string;
+  appSettings?: string;
+}
+
+interface ChatResponse {
+  answer: string;
+  cannotAnswer: boolean;
+  clarifyingQuestion: string;
+  sources: RagSource[];
 }
 
 // Cache Sequelize connections to the RAG database by URL to avoid reconnecting on every request
@@ -139,7 +165,9 @@ export async function chat({
   voyageApiKey,
   anthropicApiKey,
   ragNamespace,
-}: ChatParams): Promise<AskAiResponse> {
+  serverConfig,
+  appSettings,
+}: ChatParams): Promise<ChatResponse> {
   // Load recent conversation history
   const recentMessages = await models.AskAiMessage.findAll({
     where: { conversationId },
@@ -151,8 +179,8 @@ export async function chat({
     .map((m: any) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
     .join('\n');
 
-  // Search RAG
-  const { chunks: ragContext, sources } = await searchRag(
+  // Search RAG before calling the LLM so it has relevant documentation to answer from
+  const { chunks, sources: collectedSources } = await searchRag(
     userMessage,
     ragDatabaseUrl,
     ragNamespace,
@@ -161,28 +189,40 @@ export async function chat({
 
   // BAML lazily reads env vars on each call — set the key before invoking
   process.env.ANTHROPIC_API_KEY = anthropicApiKey;
-  const response = await b.AskTamanu(userMessage, ragContext, conversationHistory);
 
-  // Attach RAG sources to response (BAML returns empty sources; we fill them from our search)
-  // Sources from the tamanu namespace are codebase file paths — not meaningful for end users
-  const includeSources = !response.cannotAnswer && ragNamespace !== 'tamanu';
-  const result: AskAiResponse = {
+  const response = await b.AskTamanu(
+    userMessage,
+    conversationHistory,
+    serverConfig ?? '',
+    appSettings ?? '',
+    chunks,
+  );
+
+  // Sources from the tamanu codebase namespace are file paths — not meaningful for end users
+  const includeSources = collectedSources.length > 0 && ragNamespace !== 'tamanu';
+
+  const result: ChatResponse = {
     answer: response.answer,
     cannotAnswer: response.cannotAnswer,
-    sources: includeSources ? sources : [],
+    clarifyingQuestion: response.clarifyingQuestion,
+    sources: includeSources ? collectedSources : [],
   };
 
-  // Persist messages
+  // Persist messages — always save the user message; save assistant response
+  // regardless of whether it's an answer or a clarifying question
+  const assistantContent = response.clarifyingQuestion || response.answer;
   await models.AskAiMessage.create({
     conversationId,
     role: 'user',
     content: userMessage,
   });
-  await models.AskAiMessage.create({
-    conversationId,
-    role: 'assistant',
-    content: result.answer,
-  });
+  if (assistantContent) {
+    await models.AskAiMessage.create({
+      conversationId,
+      role: 'assistant',
+      content: assistantContent,
+    });
+  }
 
   return result;
 }

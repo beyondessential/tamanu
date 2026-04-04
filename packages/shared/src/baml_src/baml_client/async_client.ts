@@ -24,7 +24,7 @@ import { toBamlError, BamlStream, BamlAbortError, Collector, ClientRegistry } fr
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {AskAiResponse, RagSource} from "./types"
+import type {AskAiResponse} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -98,7 +98,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
 
         
         async AskTamanu(
-        userQuestion: string,ragContext: string,conversationHistory: string,
+        userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
         __baml_options__?: BamlCallOptions<never>
         ): Promise<types.AskAiResponse> {
           try {
@@ -112,7 +112,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
           // Check if onTick is provided - route through streaming if so
           if (__options__.onTick) {
           const __stream__ = this.stream.AskTamanu(
-          userQuestion,ragContext,conversationHistory,
+          userQuestion,conversationHistory,serverConfig,appSettings,ragContext,
           __baml_options__
           );
 
@@ -136,7 +136,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
             const __raw__ = await this.runtime.callFunction(
             "AskTamanu",
             {
-            "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+            "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
             },
             this.ctxManager.cloneContext(),
             __options__.tb?.__tb(),
@@ -168,7 +168,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
 
             
             AskTamanu(
-            userQuestion: string,ragContext: string,conversationHistory: string,
+            userQuestion: string,conversationHistory: string,serverConfig: string,appSettings: string,ragContext: string,
             __baml_options__?: BamlCallOptions<never>
             ): BamlStream<partial_types.AskAiResponse, types.AskAiResponse>
               {
@@ -217,7 +217,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
                 const __raw__ = this.runtime.streamFunction(
                 "AskTamanu",
                 {
-                "userQuestion": userQuestion,"ragContext": ragContext,"conversationHistory": conversationHistory
+                "userQuestion": userQuestion,"conversationHistory": conversationHistory,"serverConfig": serverConfig,"appSettings": appSettings,"ragContext": ragContext
                 },
                 undefined,
                 this.ctxManager.cloneContext(),
