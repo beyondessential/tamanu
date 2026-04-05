@@ -85,17 +85,19 @@ sources:
             description: "{{ doc('procedures__procedure_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'procedureType'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'procedureType'
           - name: anaesthetic_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetic_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'drug'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'drug'
           - name: physician_id
             data_type: character varying(255)
             description: "{{ doc('procedures__physician_id') }}"
