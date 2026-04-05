@@ -265,7 +265,7 @@ export async function chat({
     answer: response.answer,
     cannotAnswer: response.cannotAnswer,
     clarifyingQuestion: response.clarifyingQuestion,
-    sources: [],
+    sources: collectedSources ?? [],
   };
 
   // Persist messages — always save the user message; save assistant response
