@@ -17,7 +17,7 @@ echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" 
 # remove existing postgresql and install desired version
 sudo apt update
 sudo apt remove -y postgresql\*
-sudo apt install -y "postgresql-$pgversion"
+sudo apt install -y "postgresql-$pgversion" "postgresql-$pgversion-pgvector"
 
 # add postgresql binaries to path
 echo "/usr/lib/postgresql/$pgversion/bin" >> $GITHUB_PATH
