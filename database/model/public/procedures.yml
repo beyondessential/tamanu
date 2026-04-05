@@ -69,15 +69,17 @@ sources:
             description: "{{ doc('procedures__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('procedures__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: procedure_type_id
             data_type: character varying(255)
             description: "{{ doc('procedures__procedure_type_id') }}"
@@ -99,15 +101,17 @@ sources:
             description: "{{ doc('procedures__physician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: anaesthetist_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetist_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: start_time
             data_type: character(19)
             description: "{{ doc('procedures__start_time') }}"
