@@ -7,6 +7,8 @@ import { Resizable } from 're-resizable';
 import Markdown from 'react-markdown';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { useTranslation } from '../../contexts/Translation';
 
 const OuterContainer = styled.div`
   position: fixed;
@@ -186,6 +188,7 @@ const SendButton = styled(IconButton)`
 
 export const AskAiPanel = ({ open, onClose }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [conversationId, setConversationId] = useState(null);
@@ -244,7 +247,10 @@ export const AskAiPanel = ({ open, onClose }) => {
     } catch {
       setMessages(prev => [
         ...prev,
-        { role: 'error', content: 'Something went wrong. Please try again.' },
+        {
+          role: 'error',
+          content: getTranslation('askAi.chat.error', 'Something went wrong. Please try again.'),
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -267,7 +273,9 @@ export const AskAiPanel = ({ open, onClose }) => {
     <Draggable handle=".chat-drag-handle" nodeRef={nodeRef} bounds="parent">
       <OuterContainer ref={nodeRef}>
         <Header className="chat-drag-handle" $minimised={minimised}>
-          <HeaderTitle variant="body1">Chat</HeaderTitle>
+          <HeaderTitle variant="body1">
+            <TranslatedText stringId="askAi.chat.title" fallback="Chat" />
+          </HeaderTitle>
           <HeaderButtons>
             <HeaderButton
               onClick={() => setMinimised(m => !m)}
@@ -317,7 +325,10 @@ export const AskAiPanel = ({ open, onClose }) => {
                       marginTop: 40,
                     }}
                   >
-                    Ask a question about how Tamanu works.
+                    <TranslatedText
+                      stringId="askAi.chat.emptyState"
+                      fallback="Ask a question about how Tamanu works."
+                    />
                   </div>
                 )}
 
@@ -326,8 +337,10 @@ export const AskAiPanel = ({ open, onClose }) => {
                     return (
                       <React.Fragment key={index}>
                         <CannotAnswerBubble $role="assistant">
-                          I don&apos;t have enough information to answer that question. For
-                          direct support, visit{' '}
+                          <TranslatedText
+                            stringId="askAi.chat.cannotAnswer"
+                            fallback="I don't have enough information to answer that question. For direct support, visit "
+                          />{' '}
                           <a
                             href="https://bes-support.zendesk.com/hc/en-us/"
                             target="_blank"
@@ -349,14 +362,19 @@ export const AskAiPanel = ({ open, onClose }) => {
                       </MessageBubble>
                       {msg.role === 'assistant' && msg.sources?.length > 0 && (
                         <SourcesBox>
-                          Sources:
+                          <TranslatedText stringId="askAi.chat.sources" fallback="Sources:" />
                           {msg.sources.map((source, i) => (
                             <SourceItem key={i}>{source.filePath}</SourceItem>
                           ))}
                         </SourcesBox>
                       )}
                       {msg.role === 'assistant' && (
-                        <DisclaimerNote>Note: This answer may need verification</DisclaimerNote>
+                        <DisclaimerNote>
+                          <TranslatedText
+                            stringId="askAi.chat.disclaimer"
+                            fallback="Note: This answer may need verification"
+                          />
+                        </DisclaimerNote>
                       )}
                     </React.Fragment>
                   );
@@ -365,7 +383,7 @@ export const AskAiPanel = ({ open, onClose }) => {
                 {isLoading && (
                   <LoadingRow>
                     <CircularProgress size={14} style={{ color: Colors.midText }} />
-                    Thinking…
+                    <TranslatedText stringId="askAi.chat.thinking" fallback="Thinking…" />
                   </LoadingRow>
                 )}
               </MessageList>
@@ -375,7 +393,7 @@ export const AskAiPanel = ({ open, onClose }) => {
                   variant="outlined"
                   multiline
                   maxRows={4}
-                  placeholder="Ask a question…"
+                  placeholder={getTranslation('askAi.chat.inputPlaceholder', 'Ask a question…')}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}

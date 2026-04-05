@@ -15,7 +15,7 @@ import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
-import { askAi } from './askAi';
+import { askAi, askAiPublicRouter } from './askAi';
 import { appointments } from './appointments';
 import { asset } from './asset';
 import { attachment } from './attachment';
@@ -110,6 +110,9 @@ apiv1.get(
     res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
+
+// Pre-auth Ask AI routes (e.g. /status) — must come before authMiddleware
+apiv1.use('/ask-ai', askAiPublicRouter);
 
 apiv1.use(authMiddleware);
 

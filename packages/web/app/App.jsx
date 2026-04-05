@@ -21,6 +21,7 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { useAskAiStatusQuery } from './api/queries/useAskAiStatusQuery';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -57,6 +58,9 @@ export function App({ sidebar, children }) {
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
+  const isFacilityReady = isUserLoggedIn && isFacilitySelected;
+  const { data: askAiStatus } = useAskAiStatusQuery({ enabled: isFacilityReady });
+  const isAskAiEnabled = Boolean(askAiStatus?.enabled);
   const location = useLocation();
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
@@ -96,10 +100,14 @@ export function App({ sidebar, children }) {
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
-      <AskAiFab onClick={() => setAskAiOpen(o => !o)} title="Chat">
-        <ChatBubbleOutline fontSize="small" />
-      </AskAiFab>
-      <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
+      {isAskAiEnabled && (
+        <>
+          <AskAiFab onClick={() => setAskAiOpen(o => !o)} title="Chat">
+            <ChatBubbleOutline fontSize="small" />
+          </AskAiFab>
+          <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
+        </>
+      )}
     </AppContainer>
   );
 }

@@ -1,17 +1,64 @@
+import { pick } from 'lodash';
 import { Sequelize } from 'sequelize';
 import { b } from '../baml_src/baml_client/index';
 
-const SENSITIVE_KEY_PATTERN = /password|apikey|secret|token|databaseurl|connectionstring/i;
+// Explicit allowlist of config paths safe to share with the LLM.
+// Only include paths that are known to be non-sensitive.
+// Never add credentials, API keys, secrets, or database connection strings here.
+const SAFE_CONFIG_PATHS = [
+  // Server identity
+  'port',
+  'canonicalHostName',
+  'deviceId',
+  'primaryTimeZone',
+  'countryTimeZone',
+  'allowMismatchedTimeZones',
 
-export function sanitiseConfigForAi(value: unknown, depth = 0): unknown {
-  if (depth > 10 || value === null || value === undefined) return value;
-  if (typeof value !== 'object') return value;
-  if (Array.isArray(value)) return value.map(item => sanitiseConfigForAi(item, depth + 1));
-  const result: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-    result[k] = SENSITIVE_KEY_PATTERN.test(k) ? '[REDACTED]' : sanitiseConfigForAi(v, depth + 1);
-  }
-  return result;
+  // Logging
+  'log.consoleLevel',
+  'log.color',
+  'log.timeless',
+
+  // Error reporting — enabled flag and type only, not the API key
+  'errors.enabled',
+  'errors.type',
+
+  // Admin
+  'admin.allowAdminRoutes',
+
+  // Authentication — operational settings only, not secrets
+  'auth.saltRounds',
+  'auth.tokenDuration',
+  'auth.useHardcodedPermissions',
+  'auth.reportNoUserError',
+
+  // Sync — connectivity and tuning settings, not credentials
+  'sync.schedule',
+  'sync.host',
+  'sync.enabled',
+  'sync.timeout',
+  'sync.jitterTime',
+  'sync.backoff',
+  'sync.dynamicLimiter',
+  'sync.maxConcurrentSessions',
+  'sync.lookupTable',
+  'sync.persistedCacheBatchSize',
+
+  // Feature availability
+  'askAi.enabled',
+  'patientMerge',
+  'export',
+  'cors',
+
+  // Schedules and infrastructure — cron expressions and batch sizes only
+  'schedules',
+  'loadshedder',
+  'metaServer.hosts',
+  'updateUrls',
+];
+
+export function sanitiseConfigForAi(config: Record<string, unknown>): Record<string, unknown> {
+  return pick(config, SAFE_CONFIG_PATHS);
 }
 
 const RAG_TOP_K = 10;
@@ -34,7 +81,6 @@ interface ChatParams {
   models: Record<string, any>;
   voyageApiKey: string;
   anthropicApiKey: string;
-  ragNamespace: string;
   serverConfig?: string;
   appSettings?: string;
 }
@@ -51,7 +97,28 @@ const ragDbCache = new Map<string, Sequelize>();
 
 function getRagDb(url: string): Sequelize {
   if (!ragDbCache.has(url)) {
-    ragDbCache.set(url, new Sequelize(url, { logging: false }));
+    ragDbCache.set(
+      url,
+      new Sequelize(url, {
+        logging: false,
+        pool: {
+          max: 2,
+          min: 0,
+          idle: 30_000,
+          acquire: 30_000,
+          evict: 60_000,
+          // Test the connection before handing it to a caller — discards dead
+          // connections that survive after a database restart
+          validate: (connection: any) =>
+            Boolean(connection && !connection.connection?.stream?.destroyed),
+        },
+        dialectOptions: {
+          // TCP keepalives so the OS detects dead connections without waiting
+          // for a query to time out
+          keepAlive: true,
+        },
+      }),
+    );
   }
   return ragDbCache.get(url)!;
 }
@@ -81,7 +148,6 @@ async function embedQuery(query: string, voyageApiKey: string): Promise<number[]
 async function searchRag(
   query: string,
   ragDatabaseUrl: string,
-  namespace: string,
   voyageApiKey: string,
 ): Promise<SearchRagResult> {
   const embedding = await embedQuery(query, voyageApiKey);
@@ -92,25 +158,25 @@ async function searchRag(
   const sql = `
     WITH vector_search AS (
       (SELECT file_path, text, 1 - (embedding <=> ${embeddingLiteral}::vector) AS score
-      FROM ${namespace}_code
+      FROM tamanu_code
       WHERE embedding IS NOT NULL
       ORDER BY embedding <=> ${embeddingLiteral}::vector
       LIMIT ${RAG_TOP_K * 2})
       UNION ALL
       (SELECT file_path, text, 1 - (embedding <=> ${embeddingLiteral}::vector) AS score
-      FROM ${namespace}_docs
+      FROM tamanu_docs
       WHERE embedding IS NOT NULL
       ORDER BY embedding <=> ${embeddingLiteral}::vector
       LIMIT ${RAG_TOP_K * 2})
     ),
     fts_search AS (
       (SELECT file_path, text, ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
-      FROM ${namespace}_code
+      FROM tamanu_code
       WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
       LIMIT ${RAG_TOP_K * 2})
       UNION ALL
       (SELECT file_path, text, ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
-      FROM ${namespace}_docs
+      FROM tamanu_docs
       WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
       LIMIT ${RAG_TOP_K * 2})
     ),
@@ -164,7 +230,6 @@ export async function chat({
   models,
   voyageApiKey,
   anthropicApiKey,
-  ragNamespace,
   serverConfig,
   appSettings,
 }: ChatParams): Promise<ChatResponse> {
@@ -183,12 +248,8 @@ export async function chat({
   const { chunks, sources: collectedSources } = await searchRag(
     userMessage,
     ragDatabaseUrl,
-    ragNamespace,
     voyageApiKey,
   );
-
-  // BAML lazily reads env vars on each call — set the key before invoking
-  process.env.ANTHROPIC_API_KEY = anthropicApiKey;
 
   const response = await b.AskTamanu(
     userMessage,
@@ -196,16 +257,15 @@ export async function chat({
     serverConfig ?? '',
     appSettings ?? '',
     chunks,
+    { env: { ANTHROPIC_API_KEY: anthropicApiKey } },
   );
 
   // Sources from the tamanu codebase namespace are file paths — not meaningful for end users
-  const includeSources = collectedSources.length > 0 && ragNamespace !== 'tamanu';
-
   const result: ChatResponse = {
     answer: response.answer,
     cannotAnswer: response.cannotAnswer,
     clarifyingQuestion: response.clarifyingQuestion,
-    sources: includeSources ? collectedSources : [],
+    sources: [],
   };
 
   // Persist messages — always save the user message; save assistant response
