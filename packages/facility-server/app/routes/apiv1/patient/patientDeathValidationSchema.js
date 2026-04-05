@@ -69,4 +69,5 @@ export const PATIENT_DEATH_FULL_SCHEMA = yup.object().shape({
   pregnancyMoment: yup.string().nullable(),
   multiplePregnancy: yesNoUnknown,
   motherConditionDescription: yup.string().nullable(),
+  extraData: yup.object().nullable(),
 });

@@ -30,8 +30,10 @@ export class LabTestType extends Model {
   declare options?: string;
   declare isSensitive: boolean;
   declare visibilityStatus: string;
+  declare availableFacilities: string[] | null;
   declare externalCode?: string;
   declare labTestCategoryId?: string;
+  declare supportsSecondaryResults: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -70,9 +72,19 @@ export class LabTestType extends Model {
           defaultValue: false,
           allowNull: false,
         },
+        supportsSecondaryResults: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        availableFacilities: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+          defaultValue: null,
         },
         externalCode: DataTypes.TEXT,
       },

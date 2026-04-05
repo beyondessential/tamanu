@@ -1,0 +1,12 @@
+scenarios:
+  - name: Create patient
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generatePatientPayload
+      - post:
+          url: '/api/patient'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{patientPayload}}'

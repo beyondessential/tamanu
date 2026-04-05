@@ -33,7 +33,7 @@ import { useTranslation } from '../../contexts/TranslationContext';
 
 const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
-const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm'];
+const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm', 'HH:mm:ss'];
 
 // Parses a string value to Date, trying storage formats first (ISO 9075),
 // then user-input display formats (dd/MM/yyyy etc) as a fallback for typed input.
@@ -298,6 +298,7 @@ export const DateInput = ({
   const handleClose = useCallback(() => setOpen(false), []);
   const handleSetToday = useCallback(() => {
     handleChange(getFacilityNowDate?.() ?? new Date());
+    setOpen(false);
   }, [handleChange, getFacilityNowDate]);
 
   const handleClear = useCallback(() => {

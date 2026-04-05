@@ -236,7 +236,7 @@ export const SelectInput = ({
             menuShouldBlockScroll="true"
             placeholder={
               options.filter(option => option.value !== '').length > 7
-                ? getTranslation('general.placeholder.search...', 'Search...')
+                ? getTranslation('general.placeholder.search...', 'Search…')
                 : getTranslation('general.placeholder.select', 'Select')
             }
             isClearable={value !== '' && isClearable && !disabled}
