@@ -34,8 +34,8 @@ const patientDataColumnString = allowedLocations =>
 
         if (allowedLocations.includes(value)) return true;
 
-        const { customPatientFieldIds } = options.context;
-        if (customPatientFieldIds && customPatientFieldIds.includes(value)) return true;
+        const { customPatientFieldIds = [] } = options.context;
+        if (customPatientFieldIds.includes(value)) return true;
 
         return createError({
           path,
