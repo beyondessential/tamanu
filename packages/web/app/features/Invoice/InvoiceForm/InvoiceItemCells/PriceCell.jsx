@@ -89,20 +89,18 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
       title={discountReason}
       open={discountReason ? undefined : false}
     >
-      <>
-        <Row>
-          <RowName>Item {text}</RowName>
-          <RowValue>
-            <Price price={priceDifference} />
-          </RowValue>
-        </Row>
-        <Row>
-          <RowName>Price after {text}</RowName>
-          <RowValue>
-            <Price price={discountedPrice} />
-          </RowValue>
-        </Row>
-      </>
+      <Row>
+        <RowName>Item {text}</RowName>
+        <RowValue>
+          <Price price={priceDifference} />
+        </RowValue>
+      </Row>
+      <Row>
+        <RowName>Price after {text}</RowName>
+        <RowValue>
+          <Price price={discountedPrice} />
+        </RowValue>
+      </Row>
     </ThemedTooltip>
   );
 };
@@ -128,45 +126,43 @@ export const PriceCell = ({
   const showDiscount = hasDiscount && !isEditing && isSaved;
 
   return (
-    <>
-      <StyledItemCell $width={cellWidths.PRICE}>
-        <Container>
-          <MainContent>
-            {hidePriceInput ? (
-              <>
-                <Price
-                  $isCrossedOut={hasDiscount && showDiscount}
-                  price={showDiscount ? price : discountedPrice}
-                  data-testid="pricetext-is33"
+    <StyledItemCell $width={cellWidths.PRICE}>
+      <Container>
+        <MainContent>
+          {hidePriceInput ? (
+            <>
+              <Price
+                $isCrossedOut={hasDiscount && showDiscount}
+                price={showDiscount ? price : discountedPrice}
+                data-testid="pricetext-is33"
+              />
+              {showDiscount && (
+                <DiscountSection
+                  discountReason={item.discount?.reason}
+                  discountedPrice={discountedPrice}
+                  price={price}
                 />
-                {showDiscount && (
-                  <DiscountSection
-                    discountReason={item.discount?.reason}
-                    discountedPrice={discountedPrice}
-                    price={price}
-                  />
-                )}
-              </>
-            ) : (
-              item.productId && (
-                <NoteModalActionBlocker>
-                  <StyledField
-                    name={`invoiceItems.${index}.manualEntryPrice`}
-                    component={PriceField}
-                    required
-                    data-testid="field-05x9"
-                  />
-                </NoteModalActionBlocker>
-              )
-            )}
-          </MainContent>
-          {!isEditing && (
-            <Collapse in={isExpanded}>
-              <InsuranceSection item={item} discountedPrice={discountedPrice} />
-            </Collapse>
+              )}
+            </>
+          ) : (
+            item.productId && (
+              <NoteModalActionBlocker>
+                <StyledField
+                  name={`invoiceItems.${index}.manualEntryPrice`}
+                  component={PriceField}
+                  required
+                  data-testid="field-05x9"
+                />
+              </NoteModalActionBlocker>
+            )
           )}
-        </Container>
-      </StyledItemCell>
-    </>
+        </MainContent>
+        {!isEditing && (
+          <Collapse in={isExpanded}>
+            <InsuranceSection item={item} discountedPrice={discountedPrice} />
+          </Collapse>
+        )}
+      </Container>
+    </StyledItemCell>
   );
 };

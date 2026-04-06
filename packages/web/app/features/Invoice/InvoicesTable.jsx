@@ -270,48 +270,46 @@ export const InvoicesTable = ({ patient }) => {
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   return (
-    <>
-      <Table
-        endpoint={`patient/${patient.id}/invoices`}
-        columns={COLUMNS}
-        noDataMessage={
-          <TranslatedText
-            stringId="patient.invoice.table.noData"
-            fallback="No invoices found"
-            data-testid="translatedtext-swy0"
-          />
-        }
-        TableHeader={
-          <TableTitle data-testid="tabletitle-xw5v">
-            <span>
-              <TranslatedText
-                stringId="patient.invoice.table.title"
-                fallback="Patient invoices"
-                data-testid="translatedtext-umfy"
-              />
-            </span>
-            <span>
-              <TranslatedText
-                stringId="patient.invoice.table.totalBalance"
-                fallback="Total balance: $:totalBalance"
-                replacements={{
-                  totalBalance: formatDisplayPrice(totalOutstandingBalance?.result || 0),
-                }}
-                data-testid="translatedtext-y63h"
-              />
-            </span>
-          </TableTitle>
-        }
-        onClickRow={
-          ability.can('read', 'Invoice')
-            ? (_, data) => {
-                setNavigateBackTab(PATIENT_TABS.INVOICES);
-                navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
-              }
-            : undefined
-        }
-        data-testid="table-ea81"
-      />
-    </>
+    <Table
+      endpoint={`patient/${patient.id}/invoices`}
+      columns={COLUMNS}
+      noDataMessage={
+        <TranslatedText
+          stringId="patient.invoice.table.noData"
+          fallback="No invoices found"
+          data-testid="translatedtext-swy0"
+        />
+      }
+      TableHeader={
+        <TableTitle data-testid="tabletitle-xw5v">
+          <span>
+            <TranslatedText
+              stringId="patient.invoice.table.title"
+              fallback="Patient invoices"
+              data-testid="translatedtext-umfy"
+            />
+          </span>
+          <span>
+            <TranslatedText
+              stringId="patient.invoice.table.totalBalance"
+              fallback="Total balance: $:totalBalance"
+              replacements={{
+                totalBalance: formatDisplayPrice(totalOutstandingBalance?.result || 0),
+              }}
+              data-testid="translatedtext-y63h"
+            />
+          </span>
+        </TableTitle>
+      }
+      onClickRow={
+        ability.can('read', 'Invoice')
+          ? (_, data) => {
+              setNavigateBackTab(PATIENT_TABS.INVOICES);
+              navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
+            }
+          : undefined
+      }
+      data-testid="table-ea81"
+    />
   );
 };
