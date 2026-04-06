@@ -151,7 +151,11 @@ async function searchRag(
   voyageApiKey: string,
 ): Promise<SearchRagResult> {
   const embedding = await embedQuery(query, voyageApiKey);
-  const embeddingLiteral = `'[${embedding.join(',')}]'`;
+  // Pass the vector as a bind parameter ($embedding) so Postgres receives it
+  // out-of-band and can cache the query plan. Interpolating 1024 floats inline
+  // produces a ~10 KB literal repeated 4 times (~40 KB per request) that must
+  // be re-parsed on every call.
+  const embeddingVector = `[${embedding.join(',')}]`;
   const db = getRagDb(ragDatabaseUrl);
 
   // Hybrid search: vector (cosine) + full-text, combined with Reciprocal Rank Fusion.
@@ -169,13 +173,13 @@ async function searchRag(
       SELECT file_path, text,
         ROW_NUMBER() OVER (ORDER BY distance) AS rank
       FROM (
-        (SELECT file_path, text, embedding <=> ${embeddingLiteral}::vector AS distance
+        (SELECT file_path, text, embedding <=> $embedding::vector AS distance
          FROM tamanu_code
          WHERE embedding IS NOT NULL
          ORDER BY distance
          LIMIT ${RAG_TOP_K * 2})
         UNION ALL
-        (SELECT file_path, text, embedding <=> ${embeddingLiteral}::vector AS distance
+        (SELECT file_path, text, embedding <=> $embedding::vector AS distance
          FROM tamanu_docs
          WHERE embedding IS NOT NULL
          ORDER BY distance
@@ -187,15 +191,15 @@ async function searchRag(
         ROW_NUMBER() OVER (ORDER BY score DESC) AS rank
       FROM (
         (SELECT file_path, text,
-           ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
+           ts_rank(to_tsvector('english', text), plainto_tsquery('english', $query)) AS score
          FROM tamanu_code
-         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
+         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', $query)
          LIMIT ${RAG_TOP_K * 2})
         UNION ALL
         (SELECT file_path, text,
-           ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
+           ts_rank(to_tsvector('english', text), plainto_tsquery('english', $query)) AS score
          FROM tamanu_docs
-         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
+         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', $query)
          LIMIT ${RAG_TOP_K * 2})
       ) f
     ),
@@ -213,7 +217,7 @@ async function searchRag(
 
   let rows: Array<{ file_path: string; text: string }>;
   try {
-    [rows] = (await db.query(sql, { replacements: { query } })) as [
+    [rows] = (await db.query(sql, { bind: { embedding: embeddingVector, query } })) as [
       Array<{ file_path: string; text: string }>,
       unknown,
     ];
