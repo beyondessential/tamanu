@@ -273,8 +273,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
       unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
       isSensitive: false,
       externalCode: chance.pickone([chance.word(), null]), // sometimes external code not mapped
+      availableFacilities: null,
     };
   },
+  LabTestPanel: () => ({
+    availableFacilities: null,
+  }),
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
@@ -376,6 +380,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),
+    availableFacilities: null,
   }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,

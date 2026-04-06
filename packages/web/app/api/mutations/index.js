@@ -14,3 +14,4 @@ export {
 } from './useLocationAssignmentMutation';
 export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';
 export { useRegisterPatientPortal } from './useRegisterPatientPortal';
+export { useTogglePermissionMutation } from './usePermissionMutation';

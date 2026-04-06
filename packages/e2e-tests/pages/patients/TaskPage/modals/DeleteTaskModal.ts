@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export class DeleteTaskModal {
   readonly page: Page;
@@ -16,7 +17,7 @@ export class DeleteTaskModal {
 
     const testIds = {
       recordedByInput: 'field-2l6f-input',
-      recordDateTimeField: 'field-bnve-input',
+      recordDateTimeField: 'field-bnve',
       reasonForDeletionInput: 'field-4x58-input',
       confirmButton: 'formsubmitcancelrow-0v1x-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
@@ -48,7 +49,7 @@ export class DeleteTaskModal {
     }
 
     if (values.recordDateTime) {
-      await this.recordDateTimeInput.fill(values.recordDateTime);
+      await fillMuiDateTimeField(this.recordDateTimeInput, values.recordDateTime);
     }
 
     if (values.reasonForDeletion) {
