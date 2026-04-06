@@ -315,6 +315,19 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
+// Reusable filter: if availableFacilities is set on a reference data row,
+// only show it when the requesting facility is in the list. NULL means visible everywhere.
+// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
+const buildAvailableFacilitiesFilter = facilityId => {
+  if (!facilityId) return null;
+  return {
+    [Op.or]: [
+      { availableFacilities: null },
+      { availableFacilities: { [Op.contains]: [facilityId] } },
+    ],
+  };
+};
+
 const afterCreatedReferenceData = async (req, newRecord) => {
   const { models } = req;
 
@@ -345,10 +358,17 @@ const referenceDataBodyBuilder = ({ type, name }) => {
 createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  ({ endpoint, modelName, query: { types } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: { [Op.in]: types },
-  }),
+  ({ endpoint, modelName, query: { types }, req }) => {
+    const baseWhere = {
+      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+      type: { [Op.in]: types },
+    };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
   {
     includeBuilder: req => {
       const {
@@ -357,6 +377,12 @@ createSuggester(
       } = req;
 
       if (!relationType) return undefined;
+
+      const childrenWhere = { ...VISIBILITY_CRITERIA };
+      const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+      if (facilityFilter) {
+        childrenWhere[Op.and] = [facilityFilter];
+      }
 
       return [
         {
@@ -380,7 +406,7 @@ createSuggester(
             as: 'taskTemplate',
             include: TaskTemplate.getFullReferenceAssociations(),
           },
-          where: VISIBILITY_CRITERIA,
+          where: childrenWhere,
         },
       ];
     },
@@ -481,6 +507,27 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
+      const facilityFilterTypes = [
+        REFERENCE_TYPES.PROCEDURE_TYPE,
+        REFERENCE_TYPES.IMAGING_TYPE,
+        REFERENCE_TYPES.DRUG,
+        REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        REFERENCE_TYPES.MEDICATION_SET,
+        REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        REFERENCE_TYPES.LAB_TEST_PRIORITY,
+        REFERENCE_TYPES.LAB_TEST_LABORATORY,
+        REFERENCE_TYPES.LAB_TEST_METHOD,
+        REFERENCE_TYPES.LAB_SAMPLE_SITE,
+        REFERENCE_TYPES.TASK_TEMPLATE,
+        REFERENCE_TYPES.TASK_SET,
+      ];
+      if (facilityFilterTypes.includes(typeName)) {
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+        if (facilityFilter) {
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
+        }
+      }
+
       return baseWhere;
     },
     {
@@ -525,27 +572,37 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && {
-            model: ReferenceData,
-            as: 'children',
-            where: VISIBILITY_CRITERIA,
-            through: {
-              attributes: [],
-              where: {
-                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
+            const childrenWhere = { ...VISIBILITY_CRITERIA };
+            const medicationWhere = { ...VISIBILITY_CRITERIA };
+            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+            if (facilityFilter) {
+              childrenWhere[Op.and] = [facilityFilter];
+              medicationWhere[Op.and] = [facilityFilter];
+            }
+            return {
+              model: ReferenceData,
+              as: 'children',
+              where: childrenWhere,
+              through: {
+                attributes: [],
+                where: {
+                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                  deleted_at: null,
+                },
               },
-            },
-            include: {
-              model: ReferenceMedicationTemplate,
-              as: 'medicationTemplate',
               include: {
-                model: ReferenceData,
-                as: 'medication',
-                where: VISIBILITY_CRITERIA,
+                model: ReferenceMedicationTemplate,
+                as: 'medicationTemplate',
+                include: {
+                  model: ReferenceData,
+                  as: 'medication',
+                  where: medicationWhere,
+                  required: !!facilityFilter,
+                },
               },
-            },
-          },
+            };
+          })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -585,7 +642,14 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
+createSuggester('labTestType', 'LabTestType', ({ req }) => {
+  const baseWhere = { ...VISIBILITY_CRITERIA };
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+  if (facilityFilter) {
+    baseWhere[Op.and] = [facilityFilter];
+  }
+  return baseWhere;
+}, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
     name,
     code,
@@ -1048,8 +1112,14 @@ createNameSuggester(
   },
 );
 
-// TODO: Use generic LabTest permissions for this suggester
-createNameSuggester('labTestPanel', 'LabTestPanel');
+createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+  if (facilityFilter) {
+    baseWhere[Op.and] = [facilityFilter];
+  }
+  return baseWhere;
+});
 
 createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
