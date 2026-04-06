@@ -102,9 +102,12 @@ const ragDbCache = new Map<string, Sequelize>();
 function getRagDb(url: string): Sequelize {
   if (!ragDbCache.has(url)) {
     if (ragDbCache.size >= MAX_RAG_DB_CACHE_SIZE) {
-      const [oldestUrl, oldestDb] = ragDbCache.entries().next().value;
-      oldestDb.close().catch(() => {});
-      ragDbCache.delete(oldestUrl);
+      const oldest = ragDbCache.entries().next().value as [string, Sequelize] | undefined;
+      if (oldest) {
+        const [oldestUrl, oldestDb] = oldest;
+        oldestDb.close().catch(() => {});
+        ragDbCache.delete(oldestUrl);
+      }
     }
     ragDbCache.set(
       url,
