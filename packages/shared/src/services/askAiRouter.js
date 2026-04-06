@@ -76,7 +76,7 @@ export const createAskAiRouter = getAppSettings => {
     }),
   );
 
-  // GET /ask-ai/conversations/:id
+  // GET /ask-ai/conversations/:id?limit=50&offset=0
   router.get(
     '/conversations/:id',
     asyncHandler(async (req, res) => {
@@ -89,12 +89,17 @@ export const createAskAiRouter = getAppSettings => {
 
       if (!conversation) throw new NotFoundError();
 
-      const messages = await models.AskAiMessage.findAll({
+      const limit = Math.min(parseInt(req.query.limit ?? '50', 10), 100);
+      const offset = parseInt(req.query.offset ?? '0', 10);
+
+      const { rows: messages, count } = await models.AskAiMessage.findAndCountAll({
         where: { conversationId: conversation.id },
         order: [['createdAt', 'ASC']],
+        limit,
+        offset,
       });
 
-      res.send({ ...conversation.toJSON(), messages });
+      res.send({ ...conversation.toJSON(), messages, messageCount: count });
     }),
   );
 
