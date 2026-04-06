@@ -51,6 +51,7 @@ export const RolesSearchForm = () => {
     <>
       <Field
         component={TextField}
+        enterKeyHint="search"
         // Max. role name length (see DDL); anything longer works but guaranteed to return nothing
         inputProps={{ maxLength: 255 }}
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
@@ -59,6 +60,7 @@ export const RolesSearchForm = () => {
       />
       <Field
         component={TextField}
+        enterKeyHint="search"
         label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
         name="id"
         placeholder={placeholder}

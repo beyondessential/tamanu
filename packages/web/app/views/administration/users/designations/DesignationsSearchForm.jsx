@@ -51,12 +51,14 @@ export const DesignationsSearchForm = () => {
     <>
       <Field
         component={TextField}
+        enterKeyHint="search"
         label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
         name="name"
         placeholder={placeholder}
       />
       <Field
         component={TextField}
+        enterKeyHint="search"
         label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
         name="id"
         placeholder={placeholder}
