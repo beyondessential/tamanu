@@ -92,11 +92,20 @@ interface ChatResponse {
   sources: RagSource[];
 }
 
-// Cache Sequelize connections to the RAG database by URL to avoid reconnecting on every request
+// Cache Sequelize connection pools keyed by RAG database URL.
+// Capped at MAX_RAG_DB_CACHE_SIZE: if a new URL arrives when the cache is full
+// the oldest entry is closed and evicted first, preventing pool leaks if the URL
+// ever rotates or varies per request.
+const MAX_RAG_DB_CACHE_SIZE = 10;
 const ragDbCache = new Map<string, Sequelize>();
 
 function getRagDb(url: string): Sequelize {
   if (!ragDbCache.has(url)) {
+    if (ragDbCache.size >= MAX_RAG_DB_CACHE_SIZE) {
+      const [oldestUrl, oldestDb] = ragDbCache.entries().next().value;
+      oldestDb.close().catch(() => {});
+      ragDbCache.delete(oldestUrl);
+    }
     ragDbCache.set(
       url,
       new Sequelize(url, {
