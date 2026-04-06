@@ -38,14 +38,13 @@ export class PatientVaccinePane extends BasePatientPane {
     super(page);
 
     this.recordVaccineButton = this.page.getByTestId('component-enxe');
+    this.recordedVaccinesTableWrapper = this.page.getByTestId('immunisationstable-q9jd');
     this.recordedVaccinesTable = this.page
       .getByRole('table')
       .filter({ hasText: 'VaccineScheduleDateGiven' });
-    this.recordedVaccinesTableLoadingIndicator = this.recordedVaccinesTable.getByRole('cell', {
-      name: 'Loading...',
-    });
+    this.recordedVaccinesTableLoadingIndicator =
+      this.recordedVaccinesTableWrapper.getByTestId('translatedtext-yvlt');
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
-    this.recordedVaccinesTableWrapper = this.page.getByTestId('immunisationstable-q9jd');
     this.scheduledVaccinesTableWrapper = this.page.getByTestId('tablewrapper-rbs7');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.vaccineTableRowPrefix = `styledtablecell-2gyy-`;
