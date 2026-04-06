@@ -45,6 +45,8 @@
     "dbt-check-todos": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
+    "e2e-playwright-cli": "npm run playwright-cli --workspace=@tamanu/e2e-tests --",
+    "e2e-playwright-cli-install-skills": "npm run playwright-cli-install-skills --workspace=@tamanu/e2e-tests",
     "synthetic-test:facility": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test:facility",
     "synthetic-test:central": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test:central"
   },

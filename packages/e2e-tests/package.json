@@ -6,7 +6,9 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "show-report": "playwright show-report"
+    "show-report": "playwright show-report",
+    "playwright-cli": "playwright-cli",
+    "playwright-cli-install-skills": "playwright-cli install --skills"
   },
   "dependencies": {
     "@tamanu/database": "*",
@@ -14,6 +16,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@playwright/cli": "^0.1.5",
     "@playwright/test": "1.59.1",
     "@types/node": "^20.9.0",
     "dotenv": "^16.0.0"

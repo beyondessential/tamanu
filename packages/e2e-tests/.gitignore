@@ -6,3 +6,6 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /.auth/
+
+# Playwright CLI (microsoft/playwright-cli) — snapshots and session output
+/.playwright-cli/

@@ -150,6 +150,63 @@ If a util **only** needs `Page` and **one** screen, consider promoting it into *
 - Use **trace on failure** (`trace: 'on-first-retry'` or `retain-on-failure` where appropriate).
 - **Ideal:** meaningful **test titles** (see existing convention: external ids + short description) so failures map to test cases.
 
+## Playwright CLI (interactive E2E development)
+
+The repo includes [**@playwright/cli**](https://github.com/microsoft/playwright-cli) (Microsoft **playwright-cli**) as a **devDependency** of `@tamanu/e2e-tests`. It is a terminal-driven browser helper: open a page, take **snapshots** with stable **element refs** (`e12`, …), then `click`, `fill`, `screenshot`, etc. Use it when **exploring the app**, **prototyping selectors**, or **debugging flows** without running the full Playwright Test suite.
+
+**Agents: use only these repo-root commands** (do not `cd` into `packages/e2e-tests` for the CLI unless debugging path issues):
+
+| Goal | Command |
+|------|---------|
+| Run the CLI | `npm run e2e-playwright-cli -- <args>` |
+| Install upstream [agent skills](https://github.com/microsoft/playwright-cli#installing-skills) (optional) | `npm run e2e-playwright-cli-install-skills` |
+
+The **`--`** after `e2e-playwright-cli` separates npm’s arguments from playwright-cli’s (required when invoking from the monorepo root).
+
+### Setup
+
+- From the repo root, run a normal **`npm install`** so `packages/e2e-tests` gets `@playwright/cli`.
+- **Optional — agent “skills”** (Claude Code, Copilot, etc.): **`npm run e2e-playwright-cli-install-skills`** from the repo root (delegates to **`playwright-cli-install-skills`** in **`@tamanu/e2e-tests`**). That runs **`playwright-cli install --skills`** with cwd **`packages/e2e-tests`**, and copies the upstream skill bundle into **`.claude/skills/playwright-cli/`** (or **`.agents/...`** with **`--skills=agents`** — see [installing skills](https://github.com/microsoft/playwright-cli#installing-skills)). It does **not** change terminal `playwright-cli` behaviour; it only adds files for coding agents. Skip if you only use the CLI yourself.
+
+### How to run it
+
+Always **from the repo root**:
+
+```bash
+npm run e2e-playwright-cli -- <playwright-cli-args>
+```
+
+Examples:
+
+```bash
+npm run e2e-playwright-cli -- --help
+npm run e2e-playwright-cli -- open http://localhost:5173 --headed
+npm run e2e-playwright-cli -- snapshot
+npm run e2e-playwright-cli -- click e15
+```
+
+### App URL and auth
+
+- Point the CLI at the same frontends you use for tests. Defaults and env names are documented in **`packages/e2e-tests/.env.example`** (e.g. `FACILITY_FRONTEND_URL`, `ADMIN_FRONTEND_URL`).
+- Start local servers the same way you do for E2E (manually or with `LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS` when running tests — the CLI does not read `playwright.config.ts` `webServer`; you still need a reachable URL).
+- If the screen requires login, use **`open`** / **`goto`** to the app and sign in interactively in a **headed** browser, or persist session with **`state-save`** / **`state-load`**, or cookie commands — see [upstream CLI docs](https://github.com/microsoft/playwright-cli).
+
+### Config and local output
+
+- **`packages/e2e-tests/.playwright/cli.config.json`** sets CLI **`outputDir`** to **`.playwright-cli/`** (snapshots, screenshots, etc.).
+- **`.playwright-cli/`** is **gitignored** — do not commit exploratory artifacts.
+
+### Relationship to `@playwright/test`
+
+- The suite uses **`@playwright/test`** (see `packages/e2e-tests/package.json`). **playwright-cli** bundles its **own** Playwright version for the standalone browser session; versions may not match the test runner exactly. That is expected: use the CLI for **manual exploration**, and **`@playwright/test`** + page objects for **automated tests**.
+
+### Useful upstream commands
+
+- **`playwright-cli show`** — dashboard for active sessions ([monitoring](https://github.com/microsoft/playwright-cli#monitoring)).
+- **`playwright-cli snapshot`** — capture structure and refs; combine with **`click <ref>`**, **`fill <ref> <text>`**, **`getByRole(...)`**-style targets as in the upstream README.
+
+Full command list: **`npm run e2e-playwright-cli -- --help`** or the [playwright-cli README](https://github.com/microsoft/playwright-cli).
+
 ## Structure of a spec (ideal)
 
 ```text
@@ -184,3 +241,4 @@ test.describe('Feature area', () => {
 - [Playwright Best Practices](https://playwright.dev/docs/best-practices)
 - [Playwright Test configuration](https://playwright.dev/docs/test-configuration)
 - [Page object models](https://playwright.dev/docs/pom)
+- [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli) (terminal CLI for snapshots, refs, and ad hoc browser control)
