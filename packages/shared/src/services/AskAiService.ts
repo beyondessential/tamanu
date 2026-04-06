@@ -154,44 +154,60 @@ async function searchRag(
   const embeddingLiteral = `'[${embedding.join(',')}]'`;
   const db = getRagDb(ragDatabaseUrl);
 
-  // Hybrid search: vector (cosine) + full-text, RRF-ranked
+  // Hybrid search: vector (cosine) + full-text, combined with Reciprocal Rank Fusion.
+  //
+  // Each source CTE ranks its own results before the join. The final step is a
+  // UNION ALL of both ranked sets followed by GROUP BY dedup — this avoids the
+  // cross-product blowup that a FULL OUTER JOIN on (file_path, text) would cause
+  // when the two sources return different chunks.
+  //
+  // Note: the FTS clauses use inline to_tsvector. If the RAG database gains a
+  // stored tsvector column with a GIN index this can be replaced with a direct
+  // index scan for better performance.
   const sql = `
-    WITH vector_search AS (
-      (SELECT file_path, text, 1 - (embedding <=> ${embeddingLiteral}::vector) AS score
-      FROM tamanu_code
-      WHERE embedding IS NOT NULL
-      ORDER BY embedding <=> ${embeddingLiteral}::vector
-      LIMIT ${RAG_TOP_K * 2})
-      UNION ALL
-      (SELECT file_path, text, 1 - (embedding <=> ${embeddingLiteral}::vector) AS score
-      FROM tamanu_docs
-      WHERE embedding IS NOT NULL
-      ORDER BY embedding <=> ${embeddingLiteral}::vector
-      LIMIT ${RAG_TOP_K * 2})
+    WITH vector_ranked AS (
+      SELECT file_path, text,
+        ROW_NUMBER() OVER (ORDER BY distance) AS rank
+      FROM (
+        (SELECT file_path, text, embedding <=> ${embeddingLiteral}::vector AS distance
+         FROM tamanu_code
+         WHERE embedding IS NOT NULL
+         ORDER BY distance
+         LIMIT ${RAG_TOP_K * 2})
+        UNION ALL
+        (SELECT file_path, text, embedding <=> ${embeddingLiteral}::vector AS distance
+         FROM tamanu_docs
+         WHERE embedding IS NOT NULL
+         ORDER BY distance
+         LIMIT ${RAG_TOP_K * 2})
+      ) v
     ),
-    fts_search AS (
-      (SELECT file_path, text, ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
-      FROM tamanu_code
-      WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
-      LIMIT ${RAG_TOP_K * 2})
-      UNION ALL
-      (SELECT file_path, text, ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
-      FROM tamanu_docs
-      WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
-      LIMIT ${RAG_TOP_K * 2})
+    fts_ranked AS (
+      SELECT file_path, text,
+        ROW_NUMBER() OVER (ORDER BY score DESC) AS rank
+      FROM (
+        (SELECT file_path, text,
+           ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
+         FROM tamanu_code
+         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
+         LIMIT ${RAG_TOP_K * 2})
+        UNION ALL
+        (SELECT file_path, text,
+           ts_rank(to_tsvector('english', text), plainto_tsquery('english', :query)) AS score
+         FROM tamanu_docs
+         WHERE to_tsvector('english', text) @@ plainto_tsquery('english', :query)
+         LIMIT ${RAG_TOP_K * 2})
+      ) f
     ),
     rrf AS (
-      SELECT
-        COALESCE(v.file_path, f.file_path) AS file_path,
-        COALESCE(v.text, f.text) AS text,
-        COALESCE(1.0 / (60 + ROW_NUMBER() OVER (ORDER BY v.score DESC)), 0) +
-        COALESCE(1.0 / (60 + ROW_NUMBER() OVER (ORDER BY f.score DESC)), 0) AS rrf_score
-      FROM vector_search v
-      FULL OUTER JOIN fts_search f ON v.file_path = f.file_path AND v.text = f.text
+      SELECT file_path, text, 1.0 / (60 + rank) AS rrf_score FROM vector_ranked
+      UNION ALL
+      SELECT file_path, text, 1.0 / (60 + rank) AS rrf_score FROM fts_ranked
     )
     SELECT file_path, text
     FROM rrf
-    ORDER BY rrf_score DESC
+    GROUP BY file_path, text
+    ORDER BY SUM(rrf_score) DESC
     LIMIT ${RAG_TOP_K};
   `;
 
