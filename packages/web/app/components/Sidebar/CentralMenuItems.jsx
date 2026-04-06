@@ -53,6 +53,30 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     ),
     path: '/admin/programs',
     icon: <WorkspacesIcon aria-hidden color="secondary" />,
+    children: [
+      {
+        key: 'programsAndForms',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.programsAndForms"
+            fallback="Programs & forms"
+            data-testid="translatedtext-programs-and-forms"
+          />
+        ),
+        path: '/admin/programs/forms',
+      },
+      {
+        key: 'programRegistries',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.programRegistries"
+            fallback="Program registries"
+            data-testid="translatedtext-program-registries"
+          />
+        ),
+        path: '/admin/programs/registries',
+      },
+    ],
   },
   {
     key: 'surveyResponses',
