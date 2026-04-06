@@ -165,9 +165,9 @@ async function searchRag(
   // cross-product blowup that a FULL OUTER JOIN on (file_path, text) would cause
   // when the two sources return different chunks.
   //
-  // Note: the FTS clauses use inline to_tsvector. If the RAG database gains a
-  // stored tsvector column with a GIN index this can be replaced with a direct
-  // index scan for better performance.
+  // Note: the FTS clauses use inline to_tsvector. The github-repo-rag sidecar
+  // creates a GIN index on to_tsvector('english', text) for each table
+  // ({table}_fts_idx), so these WHERE clauses benefit from index scans.
   const sql = `
     WITH vector_ranked AS (
       SELECT file_path, text,
