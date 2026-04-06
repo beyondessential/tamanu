@@ -55,19 +55,24 @@ export const createAskAiRouter = getAppSettings => {
     }),
   );
 
-  // GET /ask-ai/conversations
+  // GET /ask-ai/conversations?limit=50&offset=0
   router.get(
     '/conversations',
     asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
       const { models } = req;
 
-      const conversations = await models.AskAiConversation.findAll({
+      const limit = Math.min(parseInt(req.query.limit ?? '50', 10), 100);
+      const offset = parseInt(req.query.offset ?? '0', 10);
+
+      const { rows: conversations, count } = await models.AskAiConversation.findAndCountAll({
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
+        limit,
+        offset,
       });
 
-      res.send({ data: conversations, count: conversations.length });
+      res.send({ data: conversations, count });
     }),
   );
 
