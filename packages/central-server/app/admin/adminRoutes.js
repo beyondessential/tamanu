@@ -80,6 +80,18 @@ adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.get('/programRegistries', simpleGetList('ProgramRegistry'));
+adminRoutes.get(
+  '/programRegistries/:id/programRegistryClinicalStatuses',
+  simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
+);
+adminRoutes.get(
+  '/programRegistries/:id/programRegistryConditions',
+  simpleGetList('ProgramRegistryCondition', 'programRegistryId'),
+);
+adminRoutes.get(
+  '/programRegistries/:id/programRegistryConditionCategories',
+  simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
+);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
