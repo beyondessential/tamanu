@@ -2,7 +2,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import React from 'react';
 
 import { PROGRAM_REFERENCE_TYPES } from '@tamanu/constants/importable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText } from '@tamanu/ui-components';
 import { ImportExportView } from '../../components/ImportExportView';
 import { ManageProgramRegistriesAdminView } from './ManageProgramRegistriesAdminView';
 
