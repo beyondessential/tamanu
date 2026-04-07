@@ -11,7 +11,7 @@ const TabBar = styled.div`
   overflow: hidden;
 `;
 
-const TabContainer = styled(Tabs)`
+export const TabContainer = styled(Tabs)`
   background: ${Colors.white};
 
   .MuiTabs-indicator {
