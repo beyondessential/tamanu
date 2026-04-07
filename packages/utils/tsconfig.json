@@ -17,6 +17,6 @@
     "lib": ["ES2020", "DOM"]
   },
   "extends": "../../common.tsconfig.json",
-  "include": ["src/**/*.ts", "__test__/**/*.test.ts"],
+  "include": ["src/**/*.ts", "__tests__/**/*.test.ts"],
   "exclude": ["**/*.test.ts"]
 }
