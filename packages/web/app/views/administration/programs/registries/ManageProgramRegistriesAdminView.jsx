@@ -3,11 +3,12 @@ import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-rou
 import styled from 'styled-components';
 
 import { Chip } from '@mui/material';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
-import { useAdminProgramRegistriesQuery } from './useAdminProgramRegistriesQuery';
+import { useAdminProgramRegistriesQuery, useAdminProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
   overflow: auto;
@@ -82,13 +83,30 @@ const tabs = /** @type {const} */ ([
 
 const tabPathSegments = new Set(Object.values(tab));
 
+const programRegistryVisibilityChipCopy = {
+  [VISIBILITY_STATUSES.CURRENT]: {
+    stringId: 'admin.programRegistries.visibilityStatus.current',
+    fallback: 'Current',
+  },
+  [VISIBILITY_STATUSES.HISTORICAL]: {
+    stringId: 'admin.programRegistries.visibilityStatus.historical',
+    fallback: 'Historical',
+  },
+  [VISIBILITY_STATUSES.MERGED]: {
+    stringId: 'admin.programRegistries.visibilityStatus.merged',
+    fallback: 'Merged',
+  },
+};
+
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
   const { data: registries } = useAdminProgramRegistriesQuery();
   const options = useMemo(
-    () => registries?.map(({ id, name }) => ({ value: id, label: name })),
+    () => registries?.map(({ id, name }) => ({ value: id, label: name })) ?? [],
     [registries],
   );
+
+  const { data: registry } = useAdminProgramRegistryQuery(programRegistryId);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -141,7 +159,18 @@ export function ManageProgramRegistriesAdminView() {
           options={options}
           value={programRegistryId ?? ''}
         />
-        <Chip color="#ededed" label="Historical" />
+        {programRegistryId && registry?.visibilityStatus && (
+          <Chip
+            label={
+              <TranslatedText
+                {...(programRegistryVisibilityChipCopy[registry.visibilityStatus] ?? {
+                  stringId: 'admin.programRegistries.visibilityStatus.unknown',
+                  fallback: registry.visibilityStatus,
+                })}
+              />
+            }
+            color="#ededed"
+          />
         <Button style={{ marginInlineStart: 'auto' }}>Edit program registry metadata</Button>
       </Header>
       {programRegistryId && (
