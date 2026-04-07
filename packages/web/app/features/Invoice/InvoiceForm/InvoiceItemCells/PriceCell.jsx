@@ -89,18 +89,20 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
       title={discountReason}
       open={discountReason ? undefined : false}
     >
-      <Row>
-        <RowName>Item {text}</RowName>
-        <RowValue>
-          <Price price={priceDifference} />
-        </RowValue>
-      </Row>
-      <Row>
-        <RowName>Price after {text}</RowName>
-        <RowValue>
-          <Price price={discountedPrice} />
-        </RowValue>
-      </Row>
+      <>
+        <Row>
+          <RowName>Item {text}</RowName>
+          <RowValue>
+            <Price price={priceDifference} />
+          </RowValue>
+        </Row>
+        <Row>
+          <RowName>Price after {text}</RowName>
+          <RowValue>
+            <Price price={discountedPrice} />
+          </RowValue>
+        </Row>
+      </>
     </ThemedTooltip>
   );
 };
