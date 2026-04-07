@@ -1,10 +1,13 @@
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+
 import { TranslatedText } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
 import { TabDisplay } from '../../components/TabDisplay';
-import { ImporterView } from './components/ImporterView';
+import { Colors } from '../../constants/styles';
 import { AdminViewContainer } from './components/AdminViewContainer';
+import { ImporterView } from './components/ImporterView';
 import { ProgramExporterView } from './components/ProgramExporterView';
 
 const StyledTabDisplay = styled(TabDisplay)`
@@ -31,7 +34,7 @@ export const ProgramsAdminView = () => {
       {
         label: 'Import',
         key: 'import',
-        icon: 'fa fa-file-import',
+        icon: <LoginIcon />,
         render: () => (
           <TabContainer data-testid="tabcontainer-g2le">
             <ImporterView
@@ -45,7 +48,7 @@ export const ProgramsAdminView = () => {
       {
         label: 'Export',
         key: 'export',
-        icon: 'fa fa-file-export',
+        icon: <LogoutIcon />,
         render: () => (
           <TabContainer data-testid="tabcontainer-za63">
             <ProgramExporterView
