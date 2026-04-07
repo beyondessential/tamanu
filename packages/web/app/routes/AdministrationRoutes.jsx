@@ -13,6 +13,7 @@ import {
   PermissionsAdminView,
   ProgramsAdminView,
   ProgramRegistriesAdminView,
+  ProgramRegistriesDetailAdminRoutes,
   RolesAdminView,
   RolesAndDesignationsAdminView,
   SurveyResponsesAdminView,
@@ -41,7 +42,10 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="programs">
       <Route index element={<Navigate to="forms" replace />} />
       <Route path="forms" element={<ProgramsAdminView />} />
-      <Route path="registries" element={<ProgramRegistriesAdminView />} />
+      <Route path="registries">
+        <Route index element={<ProgramRegistriesAdminView />} />
+        <Route path=":programRegistryId/*" element={<ProgramRegistriesDetailAdminRoutes />} />
+      </Route>
     </Route>
     <Route path="referenceData" element={<ReferenceDataAdminView />} />
     <Route path="reports/*" element={<ReportAdminRoutes />} />
