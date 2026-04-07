@@ -46,6 +46,14 @@ Use the **agent** returned from `asRole` / `asUser` for `.get` / `.post` / `.put
 - Prefer **`@tamanu/fake-data`** and **`@tamanu/shared/test-helpers`** over ad-hoc objects; keep payloads minimal but valid.
 - **Healthcare:** synthetic identifiers and fake profiles only; do not use real patient data. Error assertions must not encode identifiable patient information in expected messages (`coding-rules.md`).
 
+### Central defaults in `fake` (avoid repeating boilerplate)
+
+When many integration tests pass the **same** field values only to satisfy the schema or to represent a normal row (e.g. `createdTime` set to “now” in primary datetime format, empty `metadata: {}`), **add those values to the model’s entry in `MODEL_SPECIFIC_OVERRIDES`** in `packages/fake-data/src/fake/fake.ts` instead of listing them in every `fake(models.SomeModel, { ... })` call.
+
+- **`fake(model, overrides)`** still merges **test-specific** fields last: use the second argument only for what the case actually asserts (different user, status, a deliberately old timestamp for time-window behaviour, etc.).
+- **Do not** push values into `MODEL_SPECIFIC_OVERRIDES` when most tests need different values or when randomness is important; keep those explicit in the test or in a local helper.
+- Match storage conventions the product expects (e.g. primary datetime strings via shared utilities where plain `fakeDateTimeString` is wrong for that column).
+
 ## Coverage checklist (per route or feature group)
 
 | Area | What to assert |
