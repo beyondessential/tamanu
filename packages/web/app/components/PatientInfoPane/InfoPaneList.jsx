@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Button, Collapse, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';

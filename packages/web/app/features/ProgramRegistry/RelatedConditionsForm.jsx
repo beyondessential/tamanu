@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import MuiDivider from '@material-ui/core/Divider';
-import { Add } from '@material-ui/icons';
+import Add from '@mui/icons-material/Add';
 import {
   DateDisplay,
   DateField,

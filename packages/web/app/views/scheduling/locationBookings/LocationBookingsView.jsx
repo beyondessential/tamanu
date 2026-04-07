@@ -1,5 +1,5 @@
 import { Typography } from '@material-ui/core';
-import { AddRounded } from '@material-ui/icons';
+import AddRounded from '@mui/icons-material/AddRounded';
 import { parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';

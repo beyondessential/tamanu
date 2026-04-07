@@ -9,7 +9,8 @@ import {
   CircularProgress,
   IconButton,
 } from '@material-ui/core';
-import { ChevronLeft, Lock } from '@material-ui/icons';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import Lock from '@mui/icons-material/Lock';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';

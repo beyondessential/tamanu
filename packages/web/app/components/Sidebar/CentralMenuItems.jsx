@@ -1,17 +1,15 @@
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import BedIcon from '@mui/icons-material/Bed';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
+import CloudIcon from '@mui/icons-material/Cloud';
+import GroupIcon from '@mui/icons-material/Group';
+import LanguageIcon from '@mui/icons-material/Language';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TranslateIcon from '@mui/icons-material/Translate';
 import React from 'react';
-import {
-  Assignment as AssignmentIcon,
-  AttachMoney as AttachMoneyIcon,
-  BarChart as BarChartIcon,
-  CallMerge as CallMergeIcon,
-  Cloud as CloudIcon,
-  Group as GroupIcon,
-  Language as LanguageIcon,
-  SingleBed as BedIcon,
-  Person as PersonIcon,
-  Settings as SettingsIcon,
-  Translate as TranslateIcon,
-} from '@material-ui/icons';
 
 import { TranslatedText } from '../Translation/TranslatedText';
 import {

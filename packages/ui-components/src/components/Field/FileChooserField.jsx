@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
-import { CameraAlt } from '@material-ui/icons';
+import CameraAlt from '@mui/icons-material/CameraAlt';
 import { toast } from 'react-toastify';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';

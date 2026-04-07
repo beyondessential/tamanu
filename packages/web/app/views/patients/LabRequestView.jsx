@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
+import AssignmentLate from '@mui/icons-material/AssignmentLate';
+import Business from '@mui/icons-material/Business';
+import Timelapse from '@mui/icons-material/Timelapse';
 import {
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUS_LABELS,
