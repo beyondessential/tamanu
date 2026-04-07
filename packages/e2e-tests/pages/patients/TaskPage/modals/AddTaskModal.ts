@@ -27,8 +27,8 @@ export class AddTaskModal {
     this.page = page;
 
     const testIds = {
-      startDateTimeField: 'field-om46-input',
-      requestDateTimeField: 'field-yduo-input',
+      startDateTimeField: 'field-om46',
+      requestDateTimeField: 'field-yduo',
       requestedByField: 'field-xhot-input',
       notesField: 'field-e475',
       taskInput: 'field-hp09-input',

@@ -2,6 +2,7 @@ import { Page, Locator } from '@playwright/test';
 import { DiscardNoteModal } from './discardNoteModal';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
+import { normalizeToIsoDateTimeMinute } from '@utils/testHelper';
 
 export class NewNoteModal extends BaseNoteModal {
   readonly discardNoteModal: DiscardNoteModal;
@@ -48,7 +49,7 @@ export class NewNoteModal extends BaseNoteModal {
   }
 
   async getDateTimeValue(): Promise<string> {
-    return await this.dateTimeInput.inputValue();
+    return normalizeToIsoDateTimeMinute(await this.dateTimeInput.inputValue());
   }
 
   // Helper method to create a basic note
