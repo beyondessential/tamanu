@@ -100,16 +100,37 @@ const programRegistryVisibilityChipCopy = {
 
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
-  const { data: registries } = useAdminProgramRegistriesQuery();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const switchToProgramRegistry = id => {
+    const prev = programRegistryId ? String(programRegistryId) : '';
+    const next = id ? String(id) : '';
+    if (next === prev) return;
+    if (!next) {
+      navigate('/admin/programs/registries');
+      return;
+    }
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const lastSegment = pathSegments.at(-1);
+    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : tab.ClinicalStatuses;
+    navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
+  };
+
+  const { data: registries } = useAdminProgramRegistriesQuery({
+    onSuccess: function defaultToFirst(data) {
+      if (programRegistryId) return;
+      const firstRegistryId = data?.[0]?.id;
+      if (!firstRegistryId) return;
+      switchToProgramRegistry(firstRegistryId);
+    },
+  });
   const options = useMemo(
     () => registries?.map(({ id, name }) => ({ value: id, label: name })) ?? [],
     [registries],
   );
 
   const { data: registry } = useAdminProgramRegistryQuery(programRegistryId);
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -128,21 +149,6 @@ export function ManageProgramRegistriesAdminView() {
     navigate(`/admin/programs/registries/${encodeURIComponent(programRegistryId)}/${tabKey}`);
   };
 
-  const onChange = event => {
-    const id = event.target.value;
-    const prev = programRegistryId ? String(programRegistryId) : '';
-    const next = id ? String(id) : '';
-    if (next === prev) return;
-    if (!next) {
-      navigate('/admin/programs/registries');
-      return;
-    }
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : tab.ClinicalStatuses;
-    navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
-  };
-
   return (
     <Article>
       <Header>
@@ -155,7 +161,7 @@ export function ManageProgramRegistriesAdminView() {
             />
           }
           name="programRegistryId"
-          onChange={onChange}
+          onChange={e => switchToProgramRegistry(e.target.value)}
           options={options}
           value={programRegistryId ?? ''}
         />
