@@ -23,7 +23,7 @@ export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
 };
 
-export const STATUS_COLOR = {
+export const STATUS_COLOR = /** @type {const} */ {
   purple: COLORS.purple,
   pink: COLORS.pink,
   orange: COLORS.darkOrange,
