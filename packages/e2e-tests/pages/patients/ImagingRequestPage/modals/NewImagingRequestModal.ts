@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export interface ImagingRequestFormValues {
   orderDateTime?: string;
@@ -36,7 +37,7 @@ export class NewImagingRequestModal {
 
     const testIds = {
       imagingRequestCodeInput: 'field-6jew-input',
-      orderDateTimeField: 'field-xsta-input',
+      orderDateTimeField: 'field-xsta',
       supervisingClinicianInput: 'textinput-3wnq-input',
       requestingClinicianField: 'field-g6kl-input',
       requestingClinicianClearButton: 'field-g6kl-input-clearbutton',
@@ -76,7 +77,7 @@ export class NewImagingRequestModal {
     } = values;
 
     if (orderDateTime) {
-      await this.orderDateTimeInput.fill(orderDateTime);
+      await fillMuiDateTimeField(this.orderDateTimeInput, orderDateTime);
     }
 
     let selectedRequestingClinician: string | undefined;

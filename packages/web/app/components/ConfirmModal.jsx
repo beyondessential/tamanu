@@ -36,6 +36,7 @@ export const ConfirmModal = ({
   className,
   customContent,
   noteBlockConfirmButton = false,
+  confirmButtonProps,
 }) => (
   <Modal
     className={className}
@@ -58,12 +59,22 @@ export const ConfirmModal = ({
       </OutlinedButton>
       {noteBlockConfirmButton ? (
         <NoteModalActionBlocker>
-          <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
+          <ConfirmButton
+            {...confirmButtonProps}
+            variant="contained"
+            onClick={onConfirm}
+            data-testid="confirmbutton-y3tb"
+          >
             {confirmButtonText}
           </ConfirmButton>
         </NoteModalActionBlocker>
       ) : (
-        <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
+        <ConfirmButton
+          {...confirmButtonProps}
+          variant="contained"
+          onClick={onConfirm}
+          data-testid="confirmbutton-y3tb"
+        >
           {confirmButtonText}
         </ConfirmButton>
       )}

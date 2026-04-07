@@ -28,3 +28,7 @@ Actual data
 {% docs reference_data__system_required %}
 Indicates if this record is system-managed and cannot be modified by users
 {% enddocs %}
+
+{% docs reference_data__available_facilities %}
+JSON array of facility IDs where this reference data item is available. If null, the item is available at all facilities.
+{% enddocs %}

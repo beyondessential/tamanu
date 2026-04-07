@@ -8,7 +8,13 @@ import { selectFieldOption } from '@utils/fieldHelpers';
 import { format } from 'date-fns';
 import { LabRequestDetailsPage, LAB_REQUEST_STATUS } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
 import { testData } from '@utils/testData';
-import { getTableItems, selectFirstFromDropdown, formatDateTimeForDisplay } from '@utils/testHelper';
+import {
+  fillMuiDateTimeField,
+  getTableItems,
+  selectFirstFromDropdown,
+  formatDateTimeForDisplay,
+  normalizeToIsoDateTimeMinute,
+} from '@utils/testHelper';
 test.setTimeout(80000);
 
 test.describe('Lab Request Tests', () => {
@@ -206,7 +212,7 @@ test.describe('Lab Request Tests', () => {
       const noteToAdd = 'This is a test note';
       await labRequestModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
-      const currentDateTime = labRequestModal.getCurrentDateTime();
+      const currentDateTime = await labRequestModal.getCurrentDateTime();
       for (let i = 0; i < distinctCategories.length; i++) {
         await labRequestModal.individualModal.setDateTimeCollected(currentDateTime, i);
         await labRequestModal.individualModal.selectFirstCollectedBy(i);
@@ -258,7 +264,7 @@ test.describe('Lab Request Tests', () => {
     test('[AT-0063]Should allow navigating back to the previous page for individual lab request', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
-      const requestedDateTime = await labRequestModal.requestDateTimeInput.inputValue();
+      const requestedDateTime = normalizeToIsoDateTimeMinute(await labRequestModal.requestDateTimeInput.inputValue());
       await labRequestModal.individualRadioButton.click();
       await labRequestModal.nextButton.click();
       const testsToSelect = [
@@ -283,7 +289,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.backButton.click();
       await labRequestModal.validateDepartment();
       await labRequestModal.validateRequestingClinician();
-      await expect(labRequestModal.requestDateTimeInput).toHaveValue(requestedDateTime);
+      expect(normalizeToIsoDateTimeMinute(await labRequestModal.requestDateTimeInput.inputValue())).toBe(requestedDateTime);
     });
     test('[T-0209][AT-0064]Should not allow creating a lab request without selecting any tests', async () => {
       await labRequestPane.newLabRequestButton.click();
@@ -378,7 +384,7 @@ test.describe('Lab Request Tests', () => {
       const noteToAdd = 'This is a test note';
       await labRequestModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
-      const currentDateTime = labRequestModal.getCurrentDateTime();
+      const currentDateTime = await labRequestModal.getCurrentDateTime();
       await labRequestModal.setDateTimeCollected(currentDateTime);
       await labRequestModal.selectFirstCollectedBy(0);
       await labRequestModal.selectFirstSpecimenType(0);
@@ -466,7 +472,10 @@ test.describe('Lab Request Tests', () => {
       const date = new Date();
       const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
       const expectedDateTime = formatDateTimeForDisplay(date);
-      await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
+      await fillMuiDateTimeField(
+        labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput,
+        currentDateTime,
+      );
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
       await labRequestDetailsPage.recordSampleModal.recordSampleConfirmButton.click();
       await labRequestDetailsPage.recordSampleModal.waitForSampleCollectedModalToClose();

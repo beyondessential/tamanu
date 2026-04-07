@@ -36,7 +36,7 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     // TestId mapping for IndividualLabRequestModal elements
     const testIds = {
       // Page 2: Individual test selection
-      individualTestSearchInput: 'styledsearchfield-92y3-input',
+      individualTestSearchInput: 'styledsearchinput-92y3-input',
       individualTestCheckboxes: 'styledcheckboxcontrol-6oiy',
       selectedTestsSection: 'selectorcontainer-gewc',
       selectedTestsLabels: 'selectortable-6eaw',
