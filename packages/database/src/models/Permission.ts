@@ -73,6 +73,10 @@ export class Permission extends Model {
     };
   }
 
+  static generatePermissionId(roleId: string, verb: string, noun: string, objectId?: string | null): string {
+    return `${roleId}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
+  }
+
   static validatePermissionSchema(verb: PermissionVerb, noun: string, roleId: string, objectId: string) {
     if (!verb || !noun || !roleId) {
       throw new ValidationError('Each permission requires verb, noun, and roleId');
