@@ -1,23 +1,21 @@
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import BedIcon from '@mui/icons-material/Bed';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CloudIcon from '@mui/icons-material/Cloud';
+import FeedIcon from '@mui/icons-material/Feed';
 import GroupIcon from '@mui/icons-material/Group';
 import LanguageIcon from '@mui/icons-material/Language';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TranslateIcon from '@mui/icons-material/Translate';
+import UploadIcon from '@mui/icons-material/Upload';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import React from 'react';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import {
-  autoAwesomeMotionIcon,
-  newsIcon,
-  upload2Icon,
-  workspacesIcon,
-} from '../../constants/images';
 
 export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
   {
@@ -55,7 +53,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/programs',
-    icon: workspacesIcon,
+    icon: <WorkspacesIcon aria-hidden color="secondary" />,
   },
   {
     key: 'surveyResponses',
@@ -133,7 +131,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/templates',
-    icon: autoAwesomeMotionIcon,
+    icon: <AutoAwesomeMotionIcon aria-hidden color="secondary" />,
   },
   {
     key: 'translation',
@@ -158,7 +156,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/assets',
-    icon: upload2Icon,
+    icon: <UploadIcon aria-hidden color="secondary" />,
   },
   {
     key: 'sync',
@@ -207,7 +205,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/reports',
-    icon: newsIcon,
+    icon: <FeedIcon aria-hidden color="secondary" />,
   },
   {
     key: 'Insurer payments',
