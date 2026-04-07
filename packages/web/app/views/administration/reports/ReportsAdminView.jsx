@@ -1,12 +1,17 @@
+import EditIcon from '@mui/icons-material/Edit';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AddIcon from '@mui/icons-material/Add';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import { TranslatedText } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
+import { Colors } from '../../../constants/styles';
+import { CreateReportView } from './CreateReportView';
 import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
-import { CreateReportView } from './CreateReportView';
 import { SelectReportView } from './SelectReportView';
 
 const OuterContainer = styled.div`
@@ -46,7 +51,7 @@ export const ReportsAdminView = () => {
         />
       ),
       key: REPORT_TABS.EDIT,
-      icon: 'fa fa-edit',
+      icon: <EditIcon />,
       render: () => (
         <TabContainer data-testid="tabcontainer-1z1w">
           <SelectReportView data-testid="selectreportview-o0eh" />
@@ -62,7 +67,7 @@ export const ReportsAdminView = () => {
         />
       ),
       key: REPORT_TABS.CREATE,
-      icon: 'fa fa-plus',
+      icon: <AddIcon />,
       render: () => (
         <TabContainer data-testid="tabcontainer-5zc2">
           <CreateReportView data-testid="createreportview-4awe" />
@@ -78,7 +83,7 @@ export const ReportsAdminView = () => {
         />
       ),
       key: REPORT_TABS.EXPORT,
-      icon: 'fa fa-file-export',
+      icon: <LogoutIcon />,
       render: () => (
         <TabContainer data-testid="tabcontainer-e5rr">
           <ExportReportView data-testid="exportreportview-a9dx" />
@@ -94,7 +99,7 @@ export const ReportsAdminView = () => {
         />
       ),
       key: REPORT_TABS.IMPORT,
-      icon: 'fa fa-file-import',
+      icon: <LoginIcon />,
       render: () => (
         <TabContainer data-testid="tabcontainer-wzws">
           <ImportReportView data-testid="importreportview-synr" />
