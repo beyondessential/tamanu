@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 
 import { exporterRouter } from './exporter';
@@ -22,6 +22,7 @@ import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { permissionsRouter } from './permissions';
 import { roleRouter, rolesRouter } from './roles';
+import { getProgramRegistryHandler } from './programRegistries';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -79,7 +80,6 @@ adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.get('/programRegistries', simpleGetList('ProgramRegistry'));
-adminRoutes.get('/programRegistry/:id', simpleGet('ProgramRegistry'));
 adminRoutes.get(
   '/programRegistries/:id/programRegistryClinicalStatuses',
   simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
@@ -92,6 +92,7 @@ adminRoutes.get(
   '/programRegistries/:id/programRegistryConditionCategories',
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
+adminRoutes.get('/programRegistry/:id', getProgramRegistryHandler);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
 
