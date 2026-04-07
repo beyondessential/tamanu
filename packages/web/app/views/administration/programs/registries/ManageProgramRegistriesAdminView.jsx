@@ -171,7 +171,13 @@ export function ManageProgramRegistriesAdminView() {
             }
             color="#ededed"
           />
-        <Button style={{ marginInlineStart: 'auto' }}>Edit program registry metadata</Button>
+        )}
+        <Button style={{ marginInlineStart: 'auto' }}>
+          <TranslatedText
+            stringId="admin.programRegistries.editMetadata"
+            fallback="Edit program registry metadata"
+          />
+        </Button>
       </Header>
       {programRegistryId && (
         <StyledTabDisplay
