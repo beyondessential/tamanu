@@ -1,244 +1,112 @@
 # Playwright E2E tests — Tamanu
 
-Guidance for writing and maintaining end-to-end tests in **`packages/e2e-tests`**. This describes an **ideal** target state and common Playwright best practices; the existing suite may not match every point yet — use this document to align new work and refactors.
+Guidance for writing and maintaining end-to-end tests in **`packages/e2e-tests`**. This describes an **ideal** target state; the existing suite may not match every point yet.
 
 Also see `llm/project-rules/coding-rules.md` (readability, healthcare boundaries) and `llm/project-rules/important-project-rules.md`.
 
 ## Goals of E2E tests
 
-- **Prove critical user journeys** in a running stack (or realistic subset), not every edge case.
+- **Prove critical user journeys** in a running stack, not every edge case.
 - **Fail for the right reasons**: behaviour regressions, not timing, selectors, or shared data.
 - **Stay maintainable**: stable abstractions, one obvious place to update when the UI changes.
 
 Prefer **fewer, higher-value E2E tests** and push granular logic to unit/integration tests where possible.
 
-## Package layout (target)
+## Package layout
 
-Everything below lives under **`packages/e2e-tests`**. The goal is obvious placement: if you add a file, it should be clear which folder it belongs in.
+Everything lives under **`packages/e2e-tests`**:
 
-### `tests/`
+- **`tests/`** — only Playwright specs (`*.spec.ts`). Group by product area (`tests/patients/`, `tests/scheduling/`). `tests/setup/` is for global setup only (auth state, etc.).
+- **`pages/`** — page object classes. One class per screen or sub-area. Mirror the app structure so people can find the object matching the UI they're looking at.
+- **`fixtures/`** — `test.extend` wiring: API context, seed data (patient, encounter), page object instances.
+- **`utils/`** — shared non-POM code: API helpers, data factories, date/string helpers.
+- **`config/`** — routes, URL patterns, non-secret defaults.
+- **`types/`** — shared TypeScript types for entities and API responses.
 
-- **Only Playwright specs** (`*.spec.ts`): `test.describe` / `test`, assertions, calling fixtures and page objects.
-- **Group by product area** when it helps (e.g. `tests/patients/`, `tests/scheduling/`, `tests/labRequests/`) so related failures and ownership stay together.
-- **`tests/setup/`** — global setup consumed by config (e.g. **auth setup** that writes `storageState`). Not a place for journey cases; keep it limited to “run once before the suite” work.
-- **Does not belong here:** page locators, HTTP clients, or heavy data-shaping logic — push those to `pages/` or `utils/`.
+## Developing new tests
 
-**Ideal:** specs read as a short story (arrange → act → assert) with almost no imperative UI detail beyond calling page objects.
+Use **playwright-cli** to explore the live app before writing page objects. This is faster and more reliable than reading source code to guess test IDs.
 
-### `pages/`
+**Workflow:**
 
-- **Page object classes**: locators, clicks, fills, waits, and navigation **for one screen or sub-area** (modal, tab pane, list view).
-- **Mirror the app structure** where practical (e.g. `pages/patients/PatientDetailsPage/` with `modals/`, `panes/`) so people can find the object that matches the UI they are looking at.
-- **Barrel `index.ts` files** are fine for exporting public page types so specs do not deep-import every file.
-- **Does not belong here:** generic string/date utilities, raw REST calls (use `utils` and pass results in), or assertions about full business outcomes unless they are truly specific to that widget.
+1. **Snapshot the live page** — open the target screen in a headed session, then `snapshot` to see rendered elements and their `data-testid` values. Don't guess from source.
+2. **Build the page object** — use the test IDs from the snapshot to define locators in `pages/`.
+3. **Arrange via API** — seed data (patient, encounter) via `utils/apiHelpers.ts` so tests start from a known state.
+4. **Write the spec** — call page object methods; keep specs short (arrange → act → assert).
 
-### `fixtures/`
+```bash
+# Always run from the repo root
+npm run e2e-playwright-cli -- open http://localhost:5173 --headed
+# Sign in interactively, navigate to the target screen, then:
+npm run e2e-playwright-cli -- snapshot
+npm run e2e-playwright-cli -- snapshot --depth 3   # drill into a subtree
+npm run e2e-playwright-cli -- click e15             # interact by element ref
+npm run e2e-playwright-cli -- --help                # full command list
+```
 
-Playwright **`test.extend`** is the right place for **shared test wiring** and **per-test lifecycle**.
+The `--` separates npm args from playwright-cli args. Output goes to `packages/e2e-tests/.playwright-cli/` (gitignored).
 
-| Kind of fixture                     | Role                                                                                                                        | Examples                          |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **Browser / context**               | Usually use what Playwright already injects (`page`, `context`). Only wrap if you have a cross-cutting policy.              | —                                 |
-| **API context**                     | Create once per test, **dispose in teardown**. Central place for base URL, cookies/storage aligned with the logged-in user. | Authenticated `APIRequestContext` |
-| **Arrange / seed**                  | **Create entities** (patient, encounter) before the UI runs so tests start from a known state.                              | `newPatient`, admission variants  |
-| **Page object instances**           | **`use(new SomePage(page))`** so specs do not manually construct dozens of classes.                                         | `patientDetailsPage`, `loginPage` |
-| **Role- or suite-specific (ideal)** | Different storage state or default facility per project.                                                                    | Admin vs clinician (stretch)      |
+For auth, use `state-save` / `state-load` to persist sessions across CLI invocations rather than logging in every time.
 
-**Guidelines:** keep fixtures **thin** — they compose `utils` and `pages`, they should not contain large selector strings or business rules. If `baseFixture.ts` grows too large, **split by domain** (e.g. patient fixtures vs scheduling fixtures) and merge with a single `test` export.
+## Page Object Model
 
-### `utils/`
-
-Shared code that is **not** a page object and **not** Playwright test boilerplate. Typical categories:
-
-| Category                   | Put here                                                                                                               | Examples (illustrative)                                | Avoid                                                                                    |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| **HTTP / API**             | Functions that call the backend with fetch/APIRequest; **no `Page` locators**.                                         | Create patient, create encounter, fetch current user   | Mixing UI clicks into the same module                                                    |
-| **Factories & constants**  | **Synthetic test data**: builders, Faker, fixed NHNs, enums the app expects.                                           | `generateNewPatient`, shared test payloads             | One-off literals copy-pasted across ten specs                                            |
-| **Date & time**            | Parse/format dates **to match how the app displays** them in tables or forms; timezone-aware helpers.                  | Table cell date strings, “today” relative to config TZ | Duplicated `date-fns` snippets in every spec                                             |
-| **Tables, lists, fields**  | **Generic** helpers to read grids, normalise cell text, or fill common field shapes **when shared across many pages**. | Column getters, normalise whitespace                   | Logic that only ever applies to one screen — that belongs on that page object            |
-| **Navigation**             | Reused **goto + wait** patterns that are not yet folded into a page class.                                             | `gotoPatientWithRetry`                                 | Duplicating `page.goto` + ten waits in each test                                         |
-| **Feature orchestration**  | **Multi-step API + data setup** for one domain (e.g. immunisation schedules) to keep specs short.                      | `vaccineTestHelpers.ts`                                | A second layer that duplicates page objects — prefer calling API utils + one page object |
-| **Pure assertion helpers** | Functions that compare **strings, numbers, dates** (no async, no browser).                                             | Normalise id, compare “recent” timestamps              | Replacing `expect()` — web assertions stay in specs                                      |
-
-If a util **only** needs `Page` and **one** screen, consider promoting it into **`pages/`** instead so selectors stay co-located.
-
-### `config/`
-
-- **Routes and URL patterns** (`routes.ts`, regex helpers for dynamic paths).
-- **Non-secret defaults** the suite agrees on (e.g. display formats, stable slugs).
-- **Not** credentials or environment-specific secrets — those stay in **`.env`** / CI vars; `config` references **names** or patterns only.
-
-### `types/`
-
-- **Shared TypeScript types** for entities you create in tests, API responses you assert on, or shapes returned from page objects.
-- Keeps **fixtures, utils, and pages** aligned without `any` or duplicate inline types.
-
-### Top-level files
-
-- **`playwright.config.ts`** — projects, timeouts, reporters, `webServer`, setup project dependency chain.
-- **`tsconfig.json` / path aliases** — e.g. `@pages/*`, `@utils/*` (keep imports consistent with this layout).
-
-**Ideal:** specs do not construct raw `Locator`s for core flows; they call page-object methods with meaningful names.
-
-## Page Object Model (POM)
-
-- **One class per screen or cohesive sub-area** (e.g. modal, tab pane). Compose larger flows from smaller objects.
-- **Constructor takes `Page`** (or parent page object if you need a consistent sub-context). Avoid static singletons.
+- **One class per screen or cohesive sub-area**. Compose larger flows from smaller objects.
 - **Expose actions**, not just elements: `submitReferral()` not only `submitButton`.
-- **Encapsulate selectors** in one place. When the UI changes, fix selectors in the page object, not across specs.
-- **Return values** that assertions need (typed structures, visible labels, ids) from action methods where appropriate.
+- **Encapsulate selectors** in one place — when the UI changes, fix in the page object, not across specs.
 
 ### Locator strategy (priority order)
 
-1. **`data-testid`** (or team-agreed `data-*`) — best stability when the app provides it.
-2. **Role + accessible name** — `getByRole('button', { name: 'Save' })` — good for resilience and accessibility alignment.
-3. **User-visible text** — `getByText`, `getByLabel` — use when stable and not translated in ways that break tests.
+1. **`data-testid`** — best stability. Discover actual values via `playwright-cli snapshot`, not source reading.
+2. **Role + accessible name** — `getByRole('button', { name: 'Save' })`.
+3. **User-visible text** — `getByText`, `getByLabel` — when stable and not subject to translation changes.
 4. **CSS/XPath** — last resort; document why if unavoidable.
 
-**Ideal:** no brittle selectors tied to layout (`nth-child`, long CSS chains) unless isolated in one helper with a comment.
+## Fixtures and test structure
 
-**Ideal:** avoid `page.locator()` with string selectors scattered in specs; centralise in page objects.
+- **Custom fixtures** (`test.extend`): inject `api` context, seed data, page object instances so specs stay short and teardown is automatic.
+- **`beforeEach`**: per-test navigation / UI state reset.
+- **`beforeAll`**: expensive one-time setup — use sparingly; prefer fixtures for per-test resources.
+- Each test should get **fresh, isolated data** (own patient, own encounter) to avoid order-dependence.
 
-## Tests vs fixtures
+## API usage
 
-- **`test.beforeEach` / `afterEach`**: per-test setup (navigate, reset UI state).
-- **`test.beforeAll` / `afterAll`**: expensive one-time setup — use sparingly; watch for **worker isolation** (parallel runs may not share memory the way you expect). Prefer fixtures for per-test resources.
-- **Custom fixtures** (`base.extend`): inject `api` context, `newPatient`, page objects, so specs stay short and teardown is consistent (e.g. dispose API context).
-
-**Ideal:** each test gets **fresh,correlated data** (own patient, own encounter) via API setup to avoid order-dependence.
-
-## API usage in E2E
-
-- Use **API to arrange** state (create patient, encounter, seed data) and **UI to act/assert** the journey under test — faster and less flaky than doing everything through clicks.
-- Keep HTTP helpers in `utils/apiHelpers.ts` (or feature-specific helpers), not in specs.
-- Reuse the same auth/session model the browser uses where possible so permissions match reality.
-
-**Ideal:** document in the helper which environment assumptions it makes (facility, user role).
+- **API to arrange** (create patient, encounter, seed data), **UI to act and assert** — faster and less flaky than doing everything through clicks.
+- Keep HTTP helpers in `utils/apiHelpers.ts`, not in specs.
 
 ## Assertions and waiting
 
-- Prefer Playwright **auto-waiting** (`expect(locator).toBeVisible()`, `toHaveText()`, etc.) over raw `waitForTimeout()`.
-- Use **`expect.poll`** when the UI depends on async backend or animations — with a bounded timeout and a clear predicate.
-- Avoid **fixed sleeps** except as a last resort; if used, add a **short comment** explaining what non-determinism cannot be observed yet (and log a follow-up to replace with event-driven wait).
+- Prefer Playwright **auto-waiting** (`expect(locator).toBeVisible()`, `toHaveText()`) over `waitForTimeout()`.
+- Use **`expect.poll`** for async backend-dependent state.
+- Avoid fixed sleeps; if unavoidable, add a comment explaining why and a follow-up to remove it.
 
-**Ideal:** assertions read like user expectations: “user sees success”, “row appears”, not “wait 3 seconds”.
+## Flakiness
 
-## Flakiness and isolation
+- Don't share mutable entities between parallel tests.
+- Don't rely on default sort order — sort explicitly when a test needs "first row".
+- CI retries masked race conditions — fix the wait/assertion rather than relying on retry to pass.
 
-- **Parallel-safe data**: tests should not share mutable entities (same patient id, same table row) unless the environment guarantees isolation.
-- **Deterministic ordering**: don’t rely on default sort; sort explicitly in UI or API setup if the test needs “first row”.
-- **Idempotency**: where possible, arrange state so re-runs don’t depend on previous run leftovers.
-- **Retries**: CI may retry failed tests — avoid tests that **pass on retry** by hiding race conditions; fix the wait/assertion instead.
+## Spec structure (ideal)
 
-## Timeouts
-
-- Prefer **global/reasonable defaults** in `playwright.config.ts`; use **`test.setTimeout`** only for known slow journeys (large imports, heavy flows).
-- **Ideal:** per-action slowness is handled with `expect` timeouts and `poll`, not giant per-test timeouts.
-
-## Authentication and projects
-
-- **storageState** (saved cookies/localStorage) for authenticated projects is appropriate; keep generation in a **dedicated setup project** (`setup` → `chromium`).
-- **Ideal:** document how to refresh auth artifacts for local dev and CI secrets (without committing credentials).
-
-## Configuration and environments
-
-- Environment via **`.env`** and `playwright.config.ts` (see existing `LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS` pattern).
-- **Workers / `fullyParallel`**: align with environment stability (CI often reduces workers to limit load).
-
-## Reporting and debugging
-
-- Use **trace on failure** (`trace: 'on-first-retry'` or `retain-on-failure` where appropriate).
-- **Ideal:** meaningful **test titles** (see existing convention: external ids + short description) so failures map to test cases.
-
-## Playwright CLI (interactive E2E development)
-
-The repo includes [**@playwright/cli**](https://github.com/microsoft/playwright-cli) (Microsoft **playwright-cli**) as a **devDependency** of `@tamanu/e2e-tests`. It is a terminal-driven browser helper: open a page, take **snapshots** with stable **element refs** (`e12`, …), then `click`, `fill`, `screenshot`, etc. Use it when **exploring the app**, **prototyping selectors**, or **debugging flows** without running the full Playwright Test suite.
-
-**Agents: use only these repo-root commands** (do not `cd` into `packages/e2e-tests` for the CLI unless debugging path issues):
-
-| Goal | Command |
-|------|---------|
-| Run the CLI | `npm run e2e-playwright-cli -- <args>` |
-| Install upstream [agent skills](https://github.com/microsoft/playwright-cli#installing-skills) (optional) | `npm run e2e-playwright-cli-install-skills` |
-
-The **`--`** after `e2e-playwright-cli` separates npm’s arguments from playwright-cli’s (required when invoking from the monorepo root).
-
-### Setup
-
-- From the repo root, run a normal **`npm install`** so `packages/e2e-tests` gets `@playwright/cli`.
-- **Optional — agent “skills”** (Claude Code, Copilot, etc.): **`npm run e2e-playwright-cli-install-skills`** from the repo root (delegates to **`playwright-cli-install-skills`** in **`@tamanu/e2e-tests`**). That runs **`playwright-cli install --skills`** with cwd **`packages/e2e-tests`**, and copies the upstream skill bundle into **`.claude/skills/playwright-cli/`** (or **`.agents/...`** with **`--skills=agents`** — see [installing skills](https://github.com/microsoft/playwright-cli#installing-skills)). It does **not** change terminal `playwright-cli` behaviour; it only adds files for coding agents. Skip if you only use the CLI yourself.
-
-### How to run it
-
-Always **from the repo root**:
-
-```bash
-npm run e2e-playwright-cli -- <playwright-cli-args>
-```
-
-Examples:
-
-```bash
-npm run e2e-playwright-cli -- --help
-npm run e2e-playwright-cli -- open http://localhost:5173 --headed
-npm run e2e-playwright-cli -- snapshot
-npm run e2e-playwright-cli -- click e15
-```
-
-### App URL and auth
-
-- Point the CLI at the same frontends you use for tests. Defaults and env names are documented in **`packages/e2e-tests/.env.example`** (e.g. `FACILITY_FRONTEND_URL`, `ADMIN_FRONTEND_URL`).
-- Start local servers the same way you do for E2E (manually or with `LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS` when running tests — the CLI does not read `playwright.config.ts` `webServer`; you still need a reachable URL).
-- If the screen requires login, use **`open`** / **`goto`** to the app and sign in interactively in a **headed** browser, or persist session with **`state-save`** / **`state-load`**, or cookie commands — see [upstream CLI docs](https://github.com/microsoft/playwright-cli).
-
-### Config and local output
-
-- **`packages/e2e-tests/.playwright/cli.config.json`** sets CLI **`outputDir`** to **`.playwright-cli/`** (snapshots, screenshots, etc.).
-- **`.playwright-cli/`** is **gitignored** — do not commit exploratory artifacts.
-
-### Relationship to `@playwright/test`
-
-- The suite uses **`@playwright/test`** (see `packages/e2e-tests/package.json`). **playwright-cli** bundles its **own** Playwright version for the standalone browser session; versions may not match the test runner exactly. That is expected: use the CLI for **manual exploration**, and **`@playwright/test`** + page objects for **automated tests**.
-
-### Useful upstream commands
-
-- **`playwright-cli show`** — dashboard for active sessions ([monitoring](https://github.com/microsoft/playwright-cli#monitoring)).
-- **`playwright-cli snapshot`** — capture structure and refs; combine with **`click <ref>`**, **`fill <ref> <text>`**, **`getByRole(...)`**-style targets as in the upstream README.
-
-Full command list: **`npm run e2e-playwright-cli -- --help`** or the [playwright-cli README](https://github.com/microsoft/playwright-cli).
-
-## Structure of a spec (ideal)
-
-```text
+```typescript
 test.describe('Feature area', () => {
-  test.beforeEach(async ({ /* fixture deps */ }) => { /* arrange common navigation */ });
+  test.beforeEach(async ({ bedManagementPage }) => {
+    await bedManagementPage.goto();
+    await bedManagementPage.waitForPageToLoad();
+  });
 
   test('[ID-0001] completes happy path', async ({ page, patientDetailsPage, newPatient }) => {
-    // arrange (minimal, often via fixture)
-    // act — only page object methods + high-level expect
+    // arrange (minimal — usually done by fixture)
+    // act — page object methods only
     // assert — user-visible outcomes
   });
 });
 ```
 
-- **One main behaviour per test**; multiple soft assertions on the same outcome are fine.
-- **Ideal:** avoid long linear scripts without breakpoints — split journeys so failures pinpoint the regression.
-
-## Naming and organisation
-
-- File names: **domain-oriented** (`vaccine.spec.ts`, `outpatient.spec.ts`), not `test1.spec.ts`.
-- **Describe blocks** group by feature or epic; nested `describe` for roles or modes is fine if it clarifies.
-- Reuse **route constants** (`config/routes.ts`) rather than string literals everywhere.
-
-## What E2E is not (ideal boundaries)
-
-- **Not a substitute for unit tests** for business rules, formatting, or validation matrices.
-- **Not the place for bulk data generation** performance tests unless a dedicated scenario exists.
-- **Visual pixel-perfect checks**: optional; if introduced, use dedicated snapshots or tools with clear tolerance and ownership.
+- File names: domain-oriented (`vaccine.spec.ts`), not `test1.spec.ts`.
+- Use route constants from `config/routes.ts` rather than string literals.
 
 ## References
 
 - [Playwright Best Practices](https://playwright.dev/docs/best-practices)
-- [Playwright Test configuration](https://playwright.dev/docs/test-configuration)
 - [Page object models](https://playwright.dev/docs/pom)
-- [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli) (terminal CLI for snapshots, refs, and ad hoc browser control)
+- [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)
