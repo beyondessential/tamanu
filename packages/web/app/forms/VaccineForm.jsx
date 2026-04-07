@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
+import {
+  SETTING_KEYS,
+  VACCINE_CATEGORIES,
+  VACCINE_RECORDING_TYPES,
+  FORM_TYPES,
+} from '@tamanu/constants';
 import { parseDate } from '@tamanu/utils/dateTime';
 import { Form, useDateTime } from '@tamanu/ui-components';
 
@@ -64,7 +69,7 @@ export const VaccineForm = ({
   const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
 
   const selectedVaccine = useMemo(
-    () => vaccineOptions.find((v) => v.value === vaccineLabel),
+    () => vaccineOptions.find(v => v.value === vaccineLabel),
     [vaccineLabel, vaccineOptions],
   );
 
@@ -79,7 +84,7 @@ export const VaccineForm = ({
         }
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
-          availableScheduledVaccines.map((vaccine) => ({
+          availableScheduledVaccines.map(vaccine => ({
             label: (
               <TranslatedReferenceData
                 fallback={vaccine.label}
@@ -174,7 +179,7 @@ export const VaccineForm = ({
   const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
     category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     vaccineLabel: yup.string().when('category', {
-      is: (categoryValue) => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
+      is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
       then: yup.string().nullable().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
@@ -184,7 +189,7 @@ export const VaccineForm = ({
       otherwise: yup.string().nullable(),
     }),
     scheduledVaccineId: yup.string().when('category', {
-      is: (categoryValue) => categoryValue !== VACCINE_CATEGORIES.OTHER,
+      is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
       then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
@@ -225,7 +230,7 @@ export const VaccineForm = ({
 
   return (
     <Form
-      onSubmit={async (data) => onSubmit({ ...data, category })}
+      onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
       formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
