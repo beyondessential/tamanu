@@ -1,19 +1,21 @@
+import EditIcon from '@mui/icons-material/Edit';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { TranslationForm } from './TranslationForm';
-import { ImportExportView } from '../components/ImportExportView';
-import { useTranslation } from '../../../contexts/Translation';
+
 import {
   Button,
-  FormSubmitButton,
-  OutlinedButton,
   ButtonRow,
+  FormSubmitButton,
   Modal,
+  OutlinedButton,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { makeModalRow } from '../../../components';
 import { Field } from '../../../components/Field';
+import { useTranslation } from '../../../contexts/Translation';
+import { ImportExportView } from '../components/ImportExportView';
 import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
+import { TranslationForm } from './TranslationForm';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
@@ -153,7 +155,7 @@ export const TranslationAdminView = () => {
       />
     ),
     key: 'edit',
-    icon: 'fa fa-edit',
+    icon: <EditIcon />,
     render: TranslationForm,
   };
 
