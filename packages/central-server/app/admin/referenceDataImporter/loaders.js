@@ -295,8 +295,7 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id =
-        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
