@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Chip } from '@mui/material';
+import { Chip, Typography } from '@mui/material';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
-import { useAdminProgramRegistriesQuery, useAdminProgramRegistryQuery } from './queries';
+import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
   overflow: auto;
@@ -33,6 +33,14 @@ const Header = styled.header`
 
 const Select = styled(SelectField)`
   min-inline-size: 23rem;
+`;
+
+const Metadata = styled.div`
+  align-items: baseline;
+  display: flex;
+  font-size: 14px;
+  gap: 10px;
+  letter-spacing: 0.015em;
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
@@ -117,7 +125,7 @@ export function ManageProgramRegistriesAdminView() {
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
-  const { data: registries } = useAdminProgramRegistriesQuery({
+  const { data: registries } = useProgramRegistriesQuery({
     onSuccess: function defaultToFirst(data) {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
@@ -130,7 +138,7 @@ export function ManageProgramRegistriesAdminView() {
     [registries],
   );
 
-  const { data: registry } = useAdminProgramRegistryQuery(programRegistryId);
+  const { data: registry } = useProgramRegistryQuery(programRegistryId);
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -165,19 +173,27 @@ export function ManageProgramRegistriesAdminView() {
           options={options}
           value={programRegistryId ?? ''}
         />
-        {programRegistryId && registry?.visibilityStatus && (
-          <Chip
-            label={
-              <TranslatedText
-                {...(programRegistryVisibilityChipCopy[registry.visibilityStatus] ?? {
-                  stringId: 'admin.programRegistries.visibilityStatus.unknown',
-                  fallback: registry.visibilityStatus,
-                })}
-              />
-            }
-            color="#ededed"
-          />
-        )}
+        <Metadata>
+          {registry?.visibilityStatus && (
+            <Chip
+              label={
+                <TranslatedText
+                  {...(programRegistryVisibilityChipCopy[registry.visibilityStatus] ?? {
+                    stringId: 'admin.programRegistries.visibilityStatus.unknown',
+                    fallback: registry.visibilityStatus,
+                  })}
+                />
+              }
+              color="#ededed"
+              size="small"
+            />
+          )}
+          {registry?.program?.name && (
+            <Typography variant="body1" style={{ fontSize: 'inherit' }}>
+              {registry.program.name}
+            </Typography>
+          )}
+        </Metadata>
         <Button style={{ marginInlineStart: 'auto' }}>
           <TranslatedText
             stringId="admin.programRegistries.editMetadata"

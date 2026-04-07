@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../api/useApi';
 
-export function useAdminProgramRegistriesQuery(options = {}) {
+export function useProgramRegistriesQuery(options = {}) {
   const api = useApi();
 
   const getProgramRegistries = async () => {
@@ -16,7 +16,7 @@ export function useAdminProgramRegistriesQuery(options = {}) {
   });
 }
 
-export function useAdminProgramRegistryQuery(programRegistryId) {
+export function useProgramRegistryQuery(programRegistryId) {
   const api = useApi();
 
   const getProgramRegistry = async () =>
