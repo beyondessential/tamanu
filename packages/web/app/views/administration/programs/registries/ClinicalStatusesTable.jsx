@@ -1,10 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams } from 'react-router';
 
 import { TranslatedText } from '@tamanu/ui-components';
-import { StyledDataFetchingTable } from '../../users/components';
 
-import { ColourCell, VisibilityCell } from './components';
+import { ColourCell, StyledDataFetchingTable, VisibilityStatusCell } from './components';
 
 const columns = /** @type {const} */ ([
   {
@@ -27,10 +26,10 @@ const columns = /** @type {const} */ ([
     title: (
       <TranslatedText
         stringId="admin.programRegistries.table.column.visibilityStatus"
-        fallback="Visibility"
+        fallback="Visibility status"
       />
     ),
-    accessor: VisibilityCell,
+    accessor: VisibilityStatusCell,
   },
 ]);
 
