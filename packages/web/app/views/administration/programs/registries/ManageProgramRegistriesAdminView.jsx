@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Chip } from '@mui/material';
+import { Chip, tabsClasses } from '@mui/material';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
@@ -21,8 +21,7 @@ export const Article = styled.article`
 const Header = styled.header`
   align-items: flex-end;
   background-color: ${Colors.white};
-  border-block-start: 1px solid ${Colors.outline};
-  border-inline: 1px solid ${Colors.outline};
+  border: 1px solid ${Colors.outline};
   border-start-end-radius: 0.3125rem;
   border-start-start-radius: 0.3125rem;
   display: flex;
@@ -36,9 +35,12 @@ const Select = styled(SelectField)`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  border-inline: 1px solid ${Colors.outline};
+  .MuiTabs-root {
+    border-inline: 1px solid ${Colors.outline};
+  }
   ${TabContainer} {
     background-color: unset;
+    border-bottom: unset;
   }
 `;
 

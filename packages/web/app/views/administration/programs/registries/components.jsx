@@ -1,21 +1,22 @@
 import React from 'react';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
+import styled from 'styled-components';
+import { DataFetchingTable } from '../../../../components';
 
-const VISIBILITY_STATUS_FALLBACKS = /** @type {const} */ ({
-  [VISIBILITY_STATUSES.CURRENT]: 'Current',
-  [VISIBILITY_STATUSES.HISTORICAL]: 'Historical',
-  [VISIBILITY_STATUSES.MERGED]: 'Merged',
-});
+export const StyledDataFetchingTable = styled(DataFetchingTable)`
+  border-start-end-radius: 0;
+  border-start-start-radius: 0;
+  box-shadow: unset;
 
-export const ColourCell = ({ color }) => {
+  .MuiTableCell-body {
+    padding-block: 16px;
+  }
+`;
+
+export function ColourCell({ color }) {
   return color || <>&mdash;</>;
-};
+}
 
-export const VisibilityCell = ({ visibilityStatus }) => (
-  <TranslatedText
-    stringId={`admin.programRegistries.visibilityStatus.${visibilityStatus || 'unknown'}`}
-    fallback={VISIBILITY_STATUS_FALLBACKS[visibilityStatus] ?? visibilityStatus ?? '—'}
-  />
-);
+export function VisibilityStatusCell({ visibilityStatus }) {
+  return visibilityStatus || <>&mdash;</>;
+}
