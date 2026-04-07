@@ -125,7 +125,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
 
-export const VISIBILITY_STATUSES = {
+export const VISIBILITY_STATUSES = /** @type {const} */ {
   CURRENT: 'current',
   HISTORICAL: 'historical',
   MERGED: 'merged',

@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 
 import { exporterRouter } from './exporter';
@@ -79,6 +79,7 @@ adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.get('/programRegistries', simpleGetList('ProgramRegistry'));
+adminRoutes.get('/programRegistry/:id', simpleGet('ProgramRegistry'));
 adminRoutes.get(
   '/programRegistries/:id/programRegistryClinicalStatuses',
   simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
