@@ -1,17 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { cloneDeep } from 'lodash';
-
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { usePatientDataDisplayValue } from '@tamanu/ui-components';
-
 import { useApi } from '../useApi';
 
-export const useSurveyResponseQuery = surveyResponseId => {
+export const useSurveyResponseQuery = (surveyResponseId, options = {}) => {
   const api = useApi();
   return useQuery(
     ['surveyResponse', surveyResponseId],
-    () => api.get(`surveyResponse/${surveyResponseId}`),
+    () => api.get(`surveyResponse/${surveyResponseId}`, {}, options),
     { enabled: !!surveyResponseId },
   );
 };
@@ -53,10 +51,7 @@ export const useTransformedSurveyResponseQuery = surveyResponseId => {
               ? sourceConfig
               : originalConfig;
 
-          const displayValue = await getDisplayValue(
-            answer.originalBody,
-            safeJsonParse(config),
-          );
+          const displayValue = await getDisplayValue(answer.originalBody, safeJsonParse(config));
           return {
             dataElementId: answer.dataElementId,
             displayValue,
