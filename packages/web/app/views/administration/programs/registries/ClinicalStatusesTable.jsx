@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router';
 
-import { TranslatedText } from '@tamanu/ui-components';
+import { ContentUnavailableView, TranslatedText } from '@tamanu/ui-components';
 
 import { ColourCell, StyledDataFetchingTable, VisibilityStatusCell } from './components';
 
@@ -45,9 +45,19 @@ export function ClinicalStatusesTable() {
       endpoint={endpoint}
       initialSort={{ orderBy: 'name', order: 'asc' }}
       noDataMessage={
-        <TranslatedText
-          stringId="admin.programRegistries.clinicalStatuses.noData"
-          fallback="No clinical statuses found for this program registry"
+        <ContentUnavailableView
+          heading={
+            <TranslatedText
+              stringId="admin.programRegistries.clinicalStatuses.noData.heading"
+              fallback="No clinical statuses"
+            />
+          }
+          description={
+            <TranslatedText
+              stringId="admin.programRegistries.clinicalStatuses.noData.description"
+              fallback="No clinical statuses found for this program registry"
+            />
+          }
         />
       }
       data-testid="program-registry-clinical-statuses-table"
