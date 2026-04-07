@@ -4,7 +4,7 @@ export { LocationAssignmentsAdminView } from './LocationAssignmentsAdminView';
 export { AssetUploaderView } from './AssetUploaderView';
 export * from './users';
 export { ProgramsAdminView } from './ProgramsAdminView';
-export { ProgramRegistriesAdminView } from './ProgramRegistriesAdminView';
+export { ProgramRegistriesAdminView } from './programs/registries/ProgramRegistriesAdminView';
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
