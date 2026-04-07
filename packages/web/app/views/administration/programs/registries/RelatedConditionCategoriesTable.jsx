@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router';
 
-import { TranslatedText } from '@tamanu/ui-components';
+import { ContentUnavailableView, TranslatedText } from '@tamanu/ui-components';
 import { StyledDataFetchingTable, VisibilityStatusCell } from './components';
 
 const columns = /** @type {const} */ ([
@@ -39,9 +39,19 @@ export function RelatedConditionCategoriesTable() {
       endpoint={endpoint}
       initialSort={{ orderBy: 'name', order: 'asc' }}
       noDataMessage={
-        <TranslatedText
-          stringId="admin.programRegistries.conditionCategories.noData"
-          fallback="No related condition categories found for this program registry"
+        <ContentUnavailableView
+          heading={
+            <TranslatedText
+              stringId="admin.programRegistries.conditionCategories.noData.heading"
+              fallback="No related condition categories"
+            />
+          }
+          description={
+            <TranslatedText
+              stringId="admin.programRegistries.conditionCategories.noData.description"
+              fallback="No related condition categories found for this program registry"
+            />
+          }
         />
       }
       data-testid="program-registry-condition-categories-table"
