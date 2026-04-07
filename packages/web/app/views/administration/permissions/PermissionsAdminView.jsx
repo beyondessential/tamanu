@@ -19,12 +19,14 @@ const EDIT_TAB = {
   render: PermissionsEditView,
 };
 
+const buildTabs = (importTab, exportTab) => [EDIT_TAB, importTab, exportTab];
+
 export const PermissionsAdminView = () => (
   <ImportExportView
     title="Permissions"
     endpoint="referenceData"
     dataTypes={PERMISSION_IMPORTABLE_DATA_TYPES}
-    buildTabs={(importTab, exportTab) => [EDIT_TAB, importTab, exportTab]}
+    buildTabs={buildTabs}
     defaultTab="edit"
     data-testid="importexportview-2fw2"
   />

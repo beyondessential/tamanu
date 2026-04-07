@@ -143,28 +143,30 @@ const ExportButton = props => {
   );
 };
 
+const editTab = {
+  label: (
+    <TranslatedText
+      stringId="admin.translation.edit"
+      fallback="Edit"
+      data-testid="translatedtext-4wh9"
+    />
+  ),
+  key: 'edit',
+  icon: <EditIcon />,
+  render: TranslationForm,
+};
+
+const buildTabs = (importTab, exportTab) => [editTab, importTab, exportTab];
+
 export const TranslationAdminView = () => {
   const { getTranslation } = useTranslation();
-
-  const editTab = {
-    label: (
-      <TranslatedText
-        stringId="admin.translation.edit"
-        fallback="Edit"
-        data-testid="translatedtext-4wh9"
-      />
-    ),
-    key: 'edit',
-    icon: <EditIcon />,
-    render: TranslationForm,
-  };
 
   return (
     <ImportExportView
       title={getTranslation('admin.translation.title', 'Translation')}
       endpoint="referenceData"
       dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
-      buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+      buildTabs={buildTabs}
       defaultTab="edit"
       ImportButton={ImportButton}
       ExportButton={ExportButton}
