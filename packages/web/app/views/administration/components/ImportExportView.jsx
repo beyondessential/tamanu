@@ -24,13 +24,24 @@ const TabContainer = styled.div`
   overflow-y: auto;
 `;
 
+/**
+ * @template ImportTabT
+ * @template ExportTabT
+ * @param {ImportTabT} importTab
+ * @param {ExportTabT} exportTab
+ * @returns {[ImportTabT, ExportTabT]}
+ */
+function defaultTabBuilder(importTab, exportTab) {
+  return [importTab, exportTab];
+}
+
 export const ImportExportView = memo(
   ({
     title,
     endpoint,
     dataTypes,
     dataTypesSelectable,
-    buildTabs,
+    buildTabs = defaultTabBuilder,
     defaultTab,
     ImportButton,
     ExportButton,
@@ -93,7 +104,7 @@ export const ImportExportView = memo(
       [title, endpoint, dataTypes, dataTypesSelectable, ExportButton],
     );
 
-    const tabs = buildTabs ? buildTabs(importTab, exportTab) : [importTab, exportTab];
+    const tabs = buildTabs(importTab, exportTab);
 
     return (
       <AdminViewContainer
