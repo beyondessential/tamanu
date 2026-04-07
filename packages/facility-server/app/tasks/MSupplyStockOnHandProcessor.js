@@ -8,14 +8,14 @@ import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 
 import { MSupplyClient } from '../utils/MSupplyClient';
 
-const STOCK_LINES_PAGE_SIZE = 500;
-
-function getStockLinesQuery(storeId, first, offset) {
+// mSupply's stockLines query does not support first/offset pagination,
+// so we fetch all lines in a single request. Per-facility catalogues are
+// expected to be in the low thousands at most.
+function getStockLinesQuery(storeId) {
   return `
     query Stock {
-      stockLines(storeId: "${storeId}", first: ${first}, offset: ${offset}) {
+      stockLines(storeId: "${storeId}") {
         ... on StockLineConnector {
-          totalCount
           nodes {
             id
             item {
@@ -52,32 +52,18 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   async fetchStockLines(host, storeId, authToken, backoff) {
-    const allNodes = [];
-    let offset = 0;
-    let totalCount;
+    const { data, errors } = await this.client.graphqlQuery({
+      host,
+      query: getStockLinesQuery(storeId),
+      authToken,
+      backoff,
+    });
 
-    do {
-      const { data, errors } = await this.client.graphqlQuery({
-        host,
-        query: getStockLinesQuery(storeId, STOCK_LINES_PAGE_SIZE, offset),
-        authToken,
-        backoff,
-      });
+    if (errors?.length) {
+      throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
+    }
 
-      if (errors?.length) {
-        throw new Error(`mSupply stockLines query failed: ${errors[0].message}`);
-      }
-
-      const connector = data?.stockLines;
-      const nodes = connector?.nodes ?? [];
-      totalCount = connector?.totalCount ?? 0;
-      allNodes.push(...nodes);
-
-      if (nodes.length === 0) break;
-      offset += nodes.length;
-    } while (offset < totalCount);
-
-    return allNodes;
+    return data?.stockLines?.nodes ?? [];
   }
 
   aggregateStockByCode(stockLines) {
