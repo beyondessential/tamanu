@@ -6,7 +6,7 @@ import { ConditionsTable } from './ConditionsTable';
 import { ProgramRegistriesAdminView } from './ProgramRegistriesAdminView';
 import { RelatedConditionCategoriesTable } from './RelatedConditionCategoriesTable';
 
-export const ProgramRegistriesDetailAdminRoutes = React.memo(() => (
+export const ManageProgramRegistriesRoutes = React.memo(() => (
   <Routes>
     <Route element={<ProgramRegistriesAdminView />}>
       <Route index element={<Navigate to="statuses" replace />} />
