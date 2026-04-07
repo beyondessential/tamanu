@@ -12,6 +12,18 @@ export class ProgramRegistry extends Model {
   declare visibilityStatus: string;
   declare programId?: string;
 
+  static getFullReferenceAssociations() {
+    const { models } = this.sequelize;
+
+    return [
+      {
+        model: models.Program,
+        as: 'program',
+        attributes: ['id', 'name'],
+      },
+    ];
+  }
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
