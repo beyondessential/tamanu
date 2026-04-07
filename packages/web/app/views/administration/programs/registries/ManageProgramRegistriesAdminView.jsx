@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Chip, tabsClasses } from '@mui/material';
+import { Chip } from '@mui/material';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
@@ -93,18 +93,17 @@ export function ManageProgramRegistriesAdminView() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const matchConditions = Boolean(
+  const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
   );
-  const matchRelatedConditionCategories = Boolean(
+  const isConditionCategoriesRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
   );
-
-  const currentTab = matchRelatedConditionCategories
-    ? tab.RelatedConditionCategories
-    : matchConditions
-      ? tab.Conditions
-      : tab.ClinicalStatuses;
+  const currentTab = (() => {
+    if (isConditionsRoute) return tab.Conditions;
+    if (isConditionCategoriesRoute) return tab.RelatedConditionCategories;
+    return tab.ClinicalStatuses;
+  })();
 
   const onTabSelect = tabKey => {
     if (!programRegistryId) return;
