@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Chip, Typography } from '@mui/material';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Typography } from '@mui/material';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
+import { VisibilityStatusChip } from './components';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
@@ -91,21 +91,6 @@ const tabs = /** @type {const} */ ([
 
 const tabPathSegments = new Set(Object.values(tab));
 
-const programRegistryVisibilityChipCopy = {
-  [VISIBILITY_STATUSES.CURRENT]: {
-    stringId: 'admin.programRegistries.visibilityStatus.current',
-    fallback: 'Current',
-  },
-  [VISIBILITY_STATUSES.HISTORICAL]: {
-    stringId: 'admin.programRegistries.visibilityStatus.historical',
-    fallback: 'Historical',
-  },
-  [VISIBILITY_STATUSES.MERGED]: {
-    stringId: 'admin.programRegistries.visibilityStatus.merged',
-    fallback: 'Merged',
-  },
-};
-
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
   const navigate = useNavigate();
@@ -174,20 +159,7 @@ export function ManageProgramRegistriesAdminView() {
           value={programRegistryId ?? ''}
         />
         <Metadata>
-          {registry?.visibilityStatus && (
-            <Chip
-              label={
-                <TranslatedText
-                  {...(programRegistryVisibilityChipCopy[registry.visibilityStatus] ?? {
-                    stringId: 'admin.programRegistries.visibilityStatus.unknown',
-                    fallback: registry.visibilityStatus,
-                  })}
-                />
-              }
-              color="#ededed"
-              size="small"
-            />
-          )}
+          <VisibilityStatusChip visibilityStatus={registry?.visibilityStatus} />
           {registry?.program?.name && (
             <Typography variant="body1" style={{ fontSize: 'inherit' }}>
               {registry.program.name}
