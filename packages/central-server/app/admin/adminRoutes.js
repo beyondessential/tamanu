@@ -13,6 +13,7 @@ import { assetRoutes } from './asset';
 import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
 import { mergePatientHandler } from './patientMerge';
+import { getProgramRegistryHandler } from './programRegistries';
 import { templateRoutes } from './template';
 import { reportsRouter } from './reports/reportRoutes';
 import { syncLastCompleted } from './sync';
@@ -22,7 +23,6 @@ import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { permissionsRouter } from './permissions';
 import { roleRouter, rolesRouter } from './roles';
-import { getProgramRegistryHandler } from './programRegistries';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
