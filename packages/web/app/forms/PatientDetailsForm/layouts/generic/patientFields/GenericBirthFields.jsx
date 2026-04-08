@@ -5,6 +5,7 @@ import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
+  PATIENT_FIELD_SECTIONS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
@@ -213,6 +214,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
   return (
     <ConfiguredMandatoryPatientFields
       fields={BIRTH_FIELDS}
+      section={PATIENT_FIELD_SECTIONS.BIRTH_DETAILS}
       filterByMandatory={filterByMandatory}
       data-testid="configuredmandatorypatientfields-dsxk"
     />

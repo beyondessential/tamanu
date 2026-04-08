@@ -4,7 +4,7 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_SECTIONS, REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
 import { useSettings } from '../../../../../contexts/Settings';
 
@@ -158,6 +158,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
       )}
       <ConfiguredMandatoryPatientFields
         fields={LOCATION_FIELDS}
+        section={PATIENT_FIELD_SECTIONS.LOCATION_INFORMATION}
         filterByMandatory={filterByMandatory}
         data-testid="configuredmandatorypatientfields-kh6c"
       />

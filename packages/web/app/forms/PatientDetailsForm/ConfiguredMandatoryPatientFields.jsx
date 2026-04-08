@@ -3,8 +3,14 @@ import React from 'react';
 import { LocalisedField } from '../../components';
 import { useFilterPatientFields } from './useFilterPatientFields';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
+import { usePatientFieldLayoutOrder } from './usePatientFieldLayoutOrder';
+
 export const ConfiguredMandatoryPatientFields = props => {
-  const { fieldsToShow } = useFilterPatientFields(props);
+  const { orderByFieldKeyBySection } = usePatientFieldLayoutOrder();
+  const orderByFieldKey = props.section
+    ? orderByFieldKeyBySection?.get(props.section) ?? null
+    : null;
+  const { fieldsToShow } = useFilterPatientFields({ ...props, orderByFieldKey });
 
   return fieldsToShow.length ? (
     <>

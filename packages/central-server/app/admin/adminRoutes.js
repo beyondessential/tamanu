@@ -21,6 +21,7 @@ import { usersRouter } from './users';
 import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { permissionsRouter } from './permissions';
+import { patientFieldLayoutsRouter } from './patientFieldLayouts';
 import { roleRouter, rolesRouter } from './roles';
 
 export const adminRoutes = express.Router();
@@ -78,6 +79,7 @@ adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
+adminRoutes.use('/patientFieldLayouts', patientFieldLayoutsRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
 

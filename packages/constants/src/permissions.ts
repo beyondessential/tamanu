@@ -113,6 +113,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   PatientCondition: [List, Read, Write, Create, Delete],
   PatientFieldDefinition: [List, Read, Write, Create],
   PatientFieldDefinitionCategory: [List, Read, Write, Create],
+  PatientFieldLayout: [Read, Write],
   PatientDeath: [Read, Create],
   PatientDeathData: [Read, Write],
   PatientFamilyHistory: [List, Read, Write, Create],

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { PATIENT_FIELD_SECTIONS } from '@tamanu/constants';
 import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
@@ -53,6 +54,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
   return (
     <ConfiguredMandatoryPatientFields
       fields={CONTACT_FIELDS}
+      section={PATIENT_FIELD_SECTIONS.CONTACT_INFORMATION}
       filterByMandatory={filterByMandatory}
       data-testid="configuredmandatorypatientfields-0kxw"
     />

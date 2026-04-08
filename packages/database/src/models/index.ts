@@ -19,6 +19,7 @@ export * from './PatientContact';
 
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
+export * from './PatientFieldLayout';
 export * from './PatientFieldValue';
 export * from './PatientInvoiceInsurancePlan';
 

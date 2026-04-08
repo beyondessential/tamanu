@@ -1,6 +1,25 @@
 // Please keep in sync with:
 // - mobile/App/constants/patientFields.ts
 
+export const PATIENT_FIELD_SOURCES = {
+  PATIENT: 'patient',
+  ADDITIONAL_DATA: 'additionalData',
+  CUSTOM: 'custom',
+} as const;
+
+export const PATIENT_FIELD_SOURCE_VALUES = Object.values(PATIENT_FIELD_SOURCES);
+
+export const PATIENT_FIELD_SECTIONS = {
+  GENERAL_INFORMATION: 'generalInformation',
+  IDENTIFICATION_INFORMATION: 'identificationInformation',
+  CONTACT_INFORMATION: 'contactInformation',
+  PERSONAL_INFORMATION: 'personalInformation',
+  LOCATION_INFORMATION: 'locationInformation',
+  BIRTH_DETAILS: 'birthDetails',
+} as const;
+
+export const PATIENT_FIELD_SECTION_VALUES = Object.values(PATIENT_FIELD_SECTIONS);
+
 export const PATIENT_FIELD_DEFINITION_TYPES = {
   STRING: 'string',
   NUMBER: 'number',

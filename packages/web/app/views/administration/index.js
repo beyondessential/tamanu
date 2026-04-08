@@ -7,6 +7,7 @@ export { ProgramsAdminView } from './ProgramsAdminView';
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
+export { PatientAdditionalDataView } from './patientAdditionalData';
 export { PatientMergeView } from './patientMerge';
 export { SyncView } from './SyncView';
 export { FhirJobStatsView } from './FhirJobStatsView';

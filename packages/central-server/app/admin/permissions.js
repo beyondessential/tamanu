@@ -194,13 +194,15 @@ permissionsRouter.post(
       for (const { verb, noun, objectId, roleId } of permissions) {
         Permission.validatePermissionSchema(verb, noun, roleId, objectId);
 
-        const where = { verb, noun, roleId, objectId: objectId ?? null };
+        const normalizedObjectId = objectId ?? null;
+        const id = `${roleId}-${verb}-${noun}-${normalizedObjectId || 'any'}`.toLowerCase();
+        const where = { verb, noun, roleId, objectId: normalizedObjectId };
         const existing = await Permission.findOne({ where, paranoid: false });
         if (existing && existing.deletedAt) {
           await existing.restore();
           created++;
         } else if (!existing) {
-          await Permission.create(where);
+          await Permission.create({ ...where, id });
           created++;
         }
       }

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  PATIENT_FIELD_SECTIONS,
   PATIENT_REGISTRY_TYPES,
   MARTIAL_STATUS_LABELS,
   BLOOD_LABELS,
@@ -207,6 +208,7 @@ export const GenericPersonalFields = ({
   return (
     <ConfiguredMandatoryPatientFields
       fields={PERSONAL_FIELDS}
+      section={PATIENT_FIELD_SECTIONS.PERSONAL_INFORMATION}
       filterByMandatory={filterByMandatory}
       data-testid="configuredmandatorypatientfields-vhzu"
     />

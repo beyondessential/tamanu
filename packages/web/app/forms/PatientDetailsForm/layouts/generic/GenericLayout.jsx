@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-import { PATIENT_REGISTRY_TYPES, SETTING_KEYS, SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_SECTIONS,
+  PATIENT_REGISTRY_TYPES,
+  SETTING_KEYS,
+  SEX_LABELS,
+  SEX_VALUES,
+} from '@tamanu/constants';
 
 import {
   LocalisedField,
@@ -25,6 +31,7 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
+import { usePatientFieldLayoutOrder } from '../../usePatientFieldLayoutOrder';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
@@ -38,22 +45,17 @@ export const GenericPrimaryDetailsLayout = ({
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
   const isUsingLocationHierarchy = getSetting('features.patientDetailsLocationHierarchy');
+  const { orderByFieldKeyBySection } = usePatientFieldLayoutOrder();
+  const orderByFieldKey = orderByFieldKeyBySection?.get(PATIENT_FIELD_SECTIONS.GENERAL_INFORMATION) ?? null;
 
-  return (
-    <>
-      <PatientDetailsHeading data-testid="patientdetailsheading-3ftw">
-        <TranslatedText
-          stringId="patient.detail.subheading.general"
-          fallback="General information"
-          data-testid="translatedtext-rfsz"
-        />
-        {isReminderContactEnabled && isDetailsForm && (
-          <ReminderContactSection data-testid="remindercontactsection-q5m4" />
-        )}
-      </PatientDetailsHeading>
-      <FormGrid data-testid="formgrid-y53s">
-        <NoteModalActionBlocker>
+  // Define primary fields as an array so they can be sorted by layout order
+  const primaryFields = useMemo(() => {
+    const fields = [
+      {
+        name: 'firstName',
+        element: (
           <LocalisedField
+            key="firstName"
             name="firstName"
             label={
               <TranslatedText
@@ -67,7 +69,13 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-cqua"
           />
+        ),
+      },
+      {
+        name: 'middleName',
+        element: (
           <LocalisedField
+            key="middleName"
             name="middleName"
             label={
               <TranslatedText
@@ -81,7 +89,13 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-l6hc"
           />
+        ),
+      },
+      {
+        name: 'lastName',
+        element: (
           <LocalisedField
+            key="lastName"
             name="lastName"
             label={
               <TranslatedText
@@ -95,7 +109,13 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-41un"
           />
+        ),
+      },
+      {
+        name: 'culturalName',
+        element: (
           <LocalisedField
+            key="culturalName"
             name="culturalName"
             label={
               <TranslatedText
@@ -109,7 +129,13 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-ew4s"
           />
+        ),
+      },
+      {
+        name: 'dateOfBirth',
+        element: (
           <LocalisedField
+            key="dateOfBirth"
             name="dateOfBirth"
             label={
               <TranslatedText
@@ -118,28 +144,41 @@ export const GenericPrimaryDetailsLayout = ({
                 data-testid="translatedtext-o7gm"
               />
             }
-            max={getCurrentDate()}  
+            max={getCurrentDate()}
             component={DateField}
             required
             data-testid="localisedfield-oafl"
           />
-
-          {!isUsingLocationHierarchy && (
-            <LocalisedField
-              name="villageId"
-              label={
-                <TranslatedText
-                  stringId="general.localisedField.villageId.label"
-                  fallback="Village"
+        ),
+      },
+      ...(!isUsingLocationHierarchy
+        ? [
+            {
+              name: 'villageId',
+              element: (
+                <LocalisedField
+                  key="villageId"
+                  name="villageId"
+                  label={
+                    <TranslatedText
+                      stringId="general.localisedField.villageId.label"
+                      fallback="Village"
+                    />
+                  }
+                  component={AutocompleteField}
+                  suggester={villageSuggester}
+                  required={isRequiredPatientData('villageId')}
+                  data-testid="localisedfield-rpma"
                 />
-              }
-              component={AutocompleteField}
-              suggester={villageSuggester}
-              required={isRequiredPatientData('villageId')}
-              data-testid="localisedfield-rpma"
-            />
-          )}
+              ),
+            },
+          ]
+        : []),
+      {
+        name: 'sex',
+        element: (
           <LocalisedField
+            key="sex"
             name="sex"
             label={
               <TranslatedText
@@ -156,7 +195,13 @@ export const GenericPrimaryDetailsLayout = ({
             required
             data-testid="localisedfield-aial"
           />
+        ),
+      },
+      {
+        name: 'email',
+        element: (
           <LocalisedField
+            key="email"
             name="email"
             label={
               <TranslatedText
@@ -171,6 +216,43 @@ export const GenericPrimaryDetailsLayout = ({
             enablePasting
             data-testid="localisedfield-j8v5"
           />
+        ),
+      },
+    ];
+
+    if (orderByFieldKey) {
+      fields.sort((a, b) => {
+        const orderA = orderByFieldKey.get(a.name) ?? Number.MAX_SAFE_INTEGER;
+        const orderB = orderByFieldKey.get(b.name) ?? Number.MAX_SAFE_INTEGER;
+        return orderA - orderB;
+      });
+    }
+
+    return fields;
+  }, [
+    isRequiredPatientData,
+    getCurrentDate,
+    isUsingLocationHierarchy,
+    villageSuggester,
+    hideOtherSex,
+    orderByFieldKey,
+  ]);
+
+  return (
+    <>
+      <PatientDetailsHeading data-testid="patientdetailsheading-3ftw">
+        <TranslatedText
+          stringId="patient.detail.subheading.general"
+          fallback="General information"
+          data-testid="translatedtext-rfsz"
+        />
+        {isReminderContactEnabled && isDetailsForm && (
+          <ReminderContactSection data-testid="remindercontactsection-q5m4" />
+        )}
+      </PatientDetailsHeading>
+      <FormGrid data-testid="formgrid-y53s">
+        <NoteModalActionBlocker>
+          {primaryFields.map(field => field.element)}
           <RequiredSecondaryDetails
             patientRegistryType={patientRegistryType}
             registeredBirthPlace={registeredBirthPlace}

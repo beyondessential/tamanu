@@ -7,3 +7,4 @@ export const USERS_ENDPOINT = 'admin/users';
 export const SYNC_LAST_COMPLETED_ENDPOINT = 'admin/sync/lastCompleted';
 export const TEMPLATE_ENDPOINT = 'admin/template';
 export const FHIR_JOB_STATS_ENDPOINT = 'admin/fhir/jobStats';
+export const PATIENT_FIELD_LAYOUTS_ENDPOINT = 'admin/patientFieldLayouts';

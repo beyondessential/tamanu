@@ -1,0 +1,1 @@
+export { patientFieldLayoutsRouter } from './patientFieldLayouts';

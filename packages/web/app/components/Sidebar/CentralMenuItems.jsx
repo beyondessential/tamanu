@@ -7,6 +7,7 @@ import {
   Cloud as CloudIcon,
   Group as GroupIcon,
   Language as LanguageIcon,
+  ListAlt as ListAltIcon,
   SingleBed as BedIcon,
   Person as PersonIcon,
   Settings as SettingsIcon,
@@ -112,6 +113,18 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
         key: 'rolesAndDesignations',
       },
     ],
+  },
+  {
+    key: 'patientAdditionalData',
+    label: (
+      <TranslatedText
+        stringId="adminSidebar.patientAdditionalData"
+        fallback="Patient additional data"
+        data-testid="translatedtext-pad"
+      />
+    ),
+    path: '/admin/patientAdditionalData',
+    icon: <ListAltIcon aria-hidden color="secondary" data-testid="listalticon-pad" />,
   },
   {
     key: 'patientMerge',

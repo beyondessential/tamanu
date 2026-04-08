@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_SECTIONS, PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
 import { AutocompleteField, DisplayIdField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
@@ -78,6 +78,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
   return (
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_FIELDS}
+      section={PATIENT_FIELD_SECTIONS.IDENTIFICATION_INFORMATION}
       filterByMandatory={filterByMandatory}
       data-testid="configuredmandatorypatientfields-y6v9"
     />

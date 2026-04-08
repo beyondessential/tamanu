@@ -11,6 +11,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptions';
+import { usePatientFieldLayoutOrder } from './usePatientFieldLayoutOrder';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -76,30 +77,40 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
 };
 
 export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
+  const { orderByDefinitionId } = usePatientFieldLayoutOrder();
   const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'categoryId'));
   return (
     <div>
-      {groupedFieldDefs.map(([categoryId, defs]) => (
-        <Fragment key={categoryId} data-testid="fragment-e981">
-          <StyledHeading data-testid="styledheading-5shc">
-            <TranslatedReferenceData
-              category="patientFieldDefinitionCategory"
-              value={categoryId}
-              fallback={defs[0].category}
-            />
-          </StyledHeading>
-          <StyledFormGrid data-testid="styledformgrid-kotn">
-            {defs.map(f => (
-              <PatientField
-                key={f.definitionId}
-                definition={f}
-                value={fieldValues ? fieldValues[f.definitionId] : ''}
-                data-testid={`patientfield-6i02-${f.definitionId}`}
+      {groupedFieldDefs.map(([categoryId, defs]) => {
+        const sortedDefs = orderByDefinitionId
+          ? [...defs].sort((a, b) => {
+              const orderA = orderByDefinitionId.get(a.definitionId) ?? Number.MAX_SAFE_INTEGER;
+              const orderB = orderByDefinitionId.get(b.definitionId) ?? Number.MAX_SAFE_INTEGER;
+              return orderA - orderB;
+            })
+          : defs;
+        return (
+          <Fragment key={categoryId} data-testid="fragment-e981">
+            <StyledHeading data-testid="styledheading-5shc">
+              <TranslatedReferenceData
+                category="patientFieldDefinitionCategory"
+                value={categoryId}
+                fallback={defs[0].category}
               />
-            ))}
-          </StyledFormGrid>
-        </Fragment>
-      ))}
+            </StyledHeading>
+            <StyledFormGrid data-testid="styledformgrid-kotn">
+              {sortedDefs.map(f => (
+                <PatientField
+                  key={f.definitionId}
+                  definition={f}
+                  value={fieldValues ? fieldValues[f.definitionId] : ''}
+                  data-testid={`patientfield-6i02-${f.definitionId}`}
+                />
+              ))}
+            </StyledFormGrid>
+          </Fragment>
+        );
+      })}
     </div>
   );
 };

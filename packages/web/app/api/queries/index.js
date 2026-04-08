@@ -36,3 +36,4 @@ export { useSurveyQuery } from './useSurveyQuery';
 export { useFacilityQuery } from './useFacilityQuery';
 export { usePatientInsurancePlansQuery } from './usePatientInsurancePlansQuery';
 export { usePatientInsurancePlansInUseQuery } from './usePatientInsurancePlansInUseQuery';
+export { usePatientFieldLayoutQuery } from './usePatientFieldLayoutQuery';
