@@ -1,7 +1,9 @@
+import { Tab, Tabs } from '@material-ui/core';
+import { svgIconClasses, tabsClasses } from '@mui/material';
+
 import React from 'react';
 import styled from 'styled-components';
 
-import { Tab, Tabs } from '@material-ui/core';
 import { Colors } from '../constants';
 
 const TabBar = styled.div`
@@ -19,23 +21,23 @@ export const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab)`
-  .MuiTab-wrapper {
+  ${tabsClasses.wrapper} {
     flex-direction: row;
     text-transform: capitalize;
     gap: 5px;
   }
 
   /* Reset MUI style */
-  && :is(.fa, .lucide, .MuiSvgIcon-root) {
+  && :is(.fa, .lucide, .${svgIconClasses.root}) {
     margin-bottom: unset;
   }
-  :is([aria-selected='true'], .Mui-selected) :is(.fa, .lucide, .MuiSvgIcon-root) {
+  :is([aria-selected='true'], .Mui-selected) :is(.fa, .lucide, .${svgIconClasses.root}) {
     color: ${Colors.primary};
   }
   & .fa {
     font-size: 22px;
   }
-  & :is(.lucide, .MuiSvgIcon-root) {
+  & :is(.lucide, .${svgIconClasses.root}) {
     font-size: 24px;
   }
 `;

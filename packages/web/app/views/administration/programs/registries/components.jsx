@@ -1,8 +1,9 @@
+import Chip, { chipClasses } from '@mui/material/Chip';
+import { tableCellClasses } from '@mui/material/TableCell';
 import React from 'react';
-
-import { Chip } from '@mui/material';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import styled from 'styled-components';
+
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
 
 export const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -10,7 +11,7 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-start-radius: 0;
   box-shadow: unset;
 
-  .MuiTableCell-body {
+  .${tableCellClasses.body} {
     padding-block: 16px;
   }
 `;
@@ -42,7 +43,7 @@ const visibilityStatusText = /** @type {const} */ {
 };
 
 const StyledChip = styled(Chip)`
-  &.MuiChip-root {
+  &.${chipClasses.root} {
     background-color: oklch(from currentColor l c h / 10%);
   }
 `;
