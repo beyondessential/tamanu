@@ -57,6 +57,7 @@ export const RolesSearchForm = () => {
         label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
         name="name"
         placeholder={placeholder}
+        type="search"
       />
       <Field
         component={TextField}
@@ -64,6 +65,7 @@ export const RolesSearchForm = () => {
         label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
         name="id"
         placeholder={placeholder}
+        type="search"
       />
       <ButtonGroup>
         <FormSubmitButton color="primary" onClick={submitForm}>

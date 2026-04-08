@@ -31,6 +31,7 @@ export const ButtonGroup = styled.div`
 
 export const SearchClearButton = styled(Button).attrs({
   children: <TranslatedText stringId="general.action.clear" fallback="Clear" />,
+  type: 'reset',
   variant: 'text',
 })`
   &:hover {
