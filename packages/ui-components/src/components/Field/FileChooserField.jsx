@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import CameraAlt from '@mui/icons-material/CameraAlt';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { toast } from 'react-toastify';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
@@ -11,7 +12,6 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
-import { FileUploadIcon as FileUpload } from '../Icons/FileUploadIcon';
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -138,7 +138,7 @@ export const FileChooserInput = ({
       toast.error(
         <TranslatedText
           stringId="chooseFile.alert.exceedsMaxSize"
-          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB MB"
+          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB&nbsp;MB"
           replacements={{ maxFileSizeInMB }}
           data-testid="translatedtext-b4t3"
         />,
@@ -214,8 +214,8 @@ export const FileChooserInput = ({
                   variant="outlined"
                   color="primary"
                   data-testid="button-webcam"
+                  startIcon={<CameraAlt />}
                 >
-                  <CameraAlt />
                   <TranslatedText
                     stringId="general.questionComponent.photoField.takePhotoButtonText"
                     fallback="Take photo with camera"
@@ -226,11 +226,9 @@ export const FileChooserInput = ({
               <Button
                 onClick={showFileDialog}
                 variant="outlined"
-                color="primary"
                 data-testid="button-1mo9"
+                startIcon={<FileUploadIcon />}
               >
-                <FileUpload />
-                <Box width="10px" />
                 {buttonText}
               </Button>
 
@@ -238,7 +236,7 @@ export const FileChooserInput = ({
                 <Box component="span" fontWeight="500">
                   <TranslatedText
                     stringId="chooseFile.hint.maxSize.label"
-                    fallback="Max :maxFileSizeInMB MB"
+                    fallback="Max. :maxFileSizeInMB&nbsp;MB"
                     replacements={{ maxFileSizeInMB }}
                     data-testid="translatedtext-u0s3"
                   />
