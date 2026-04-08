@@ -1,6 +1,25 @@
 name: Seed Snapshot
 
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Release branch (e.g. release/2.1.0)'
+        type: string
+        required: true
+      version:
+        description: 'Semver version (e.g. 2.1.0)'
+        type: string
+        required: true
+      image:
+        description: 'Seed image ref (e.g. ghcr.io/beyondessential/tamanu-seed:2.1.0)'
+        type: string
+        required: true
+      git_sha:
+        description: 'Git SHA to tag the snapshot with (defaults to HEAD)'
+        type: string
+        required: false
+        default: ''
   workflow_call:
     inputs:
       branch:
