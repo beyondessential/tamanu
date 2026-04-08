@@ -28,7 +28,7 @@ jobs:
   create-snapshot:
     runs-on: ubuntu-slim
     name: Seed snapshot for ${{ inputs.version }}
-    timeout-minutes: 75
+    timeout-minutes: 15
     steps:
       - name: Validate version format
         env:
