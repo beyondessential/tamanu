@@ -1,4 +1,5 @@
 import Chip, { chipClasses } from '@mui/material/Chip';
+import Skeleton from '@mui/material/Skeleton';
 import { tableCellClasses } from '@mui/material/TableCell';
 import React from 'react';
 import styled from 'styled-components';
@@ -41,9 +42,26 @@ const StyledChip = styled(Chip)`
   }
 `;
 
-export function VisibilityStatusChip({ visibilityStatus, ...props }) {
-  if (!visibilityStatus) return null;
-  return (
+const chipColor = {
+  [VISIBILITY_STATUSES.CURRENT]: TAMANU_COLORS.green,
+  [VISIBILITY_STATUSES.HISTORICAL]: TAMANU_COLORS.darkestText,
+  [VISIBILITY_STATUSES.MERGED]: TAMANU_COLORS.darkestText,
+};
+
+export function VisibilityStatusChip({ isLoading, visibilityStatus, ...props }) {
+  return isLoading ? (
+    <Skeleton animation="wave" variant="rounded" style={{ borderRadius: 'calc(infinity * 1px)' }}>
+      <StyledChip
+        label={
+          <TranslatedText
+            stringId="admin.programRegistries.visibilityStatus.current"
+            fallback="Current"
+          />
+        }
+        size="small"
+      />
+    </Skeleton>
+  ) : (
     <StyledChip
       label={
         visibilityStatusText[visibilityStatus] ?? (
@@ -53,12 +71,7 @@ export function VisibilityStatusChip({ visibilityStatus, ...props }) {
           />
         )
       }
-      style={{
-        color:
-          visibilityStatus === VISIBILITY_STATUSES.CURRENT
-            ? TAMANU_COLORS.green
-            : TAMANU_COLORS.darkestText,
-      }}
+      style={{ color: chipColor[visibilityStatus] }}
       size="small"
       {...props}
     />
