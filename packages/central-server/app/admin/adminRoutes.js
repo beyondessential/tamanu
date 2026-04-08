@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -12,21 +12,18 @@ import { importerRouter } from './importer';
 import { assetRoutes } from './asset';
 import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
-import { mergePatientHandler } from './patientMerge';
-import { templateRoutes } from './template';
-import { reportsRouter } from './reports/reportRoutes';
-import { syncLastCompleted } from './sync';
-import { translationRouter } from './translation';
-import { usersRouter } from './users';
-import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
+import { mergePatientHandler } from './patientMerge';
 import { permissionsRouter } from './permissions';
-import { roleRouter, rolesRouter } from './roles';
-<<<<<<< HEAD
-import { referenceDataManageRouter } from './referenceDataManage';
-=======
 import { getProgramRegistryHandler } from './programRegistries';
->>>>>>> 6a47d0aa55 (refactors, renames, show program name)
+import { referenceDataManageRouter } from './referenceDataManage';
+import { reportsRouter } from './reports/reportRoutes';
+import { roleRouter, rolesRouter } from './roles';
+import { syncLastCompleted } from './sync';
+import { templateRoutes } from './template';
+import { translationRouter } from './translation';
+import { userPreferencesRouter } from './userPreferences';
+import { usersRouter } from './users';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
