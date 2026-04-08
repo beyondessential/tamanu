@@ -86,7 +86,7 @@ const CardFooter = ({ averageWaitTime, color }) => {
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.round((averageWaitTime - hours * HOUR) / MINUTE);
 
-  const formatter = new Intl.DurationFormat(undefined, { style: 'short' });
+  const formatter = new Intl.DurationFormat(navigator?.language, { style: 'short' });
   return (
     <>
       <Row data-testid="row-vqca">
