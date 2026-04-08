@@ -1,8 +1,10 @@
+import Skeleton from '@mui/material/Skeleton';
+import { tabsClasses } from '@mui/material/Tabs';
+import Typography from '@mui/material/Typography';
 import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Typography, tabsClasses } from '@mui/material';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
@@ -123,7 +125,8 @@ export function ManageProgramRegistriesAdminView() {
     [registries],
   );
 
-  const { data: registry } = useProgramRegistryQuery(programRegistryId);
+  const { data: registry, isLoading: isRegistryLoading } =
+    useProgramRegistryQuery(programRegistryId);
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -158,12 +161,19 @@ export function ManageProgramRegistriesAdminView() {
           options={options}
           value={programRegistryId ?? ''}
         />
-        <Metadata>
-          <VisibilityStatusChip visibilityStatus={registry?.visibilityStatus} />
-          {registry?.program?.name && (
-            <Typography variant="body1" style={{ fontSize: 'inherit' }}>
-              {registry.program.name}
-            </Typography>
+        <Metadata aria-busy={isRegistryLoading}>
+          <VisibilityStatusChip
+            isLoading={isRegistryLoading}
+            visibilityStatus={registry?.visibilityStatus}
+          />
+          {isRegistryLoading ? (
+            <Skeleton animation="wave" variant="text" width="25ch" />
+          ) : (
+            registry?.program?.name && (
+              <Typography variant="body1" style={{ fontSize: 'inherit' }}>
+                {registry.program.name}
+              </Typography>
+            )
           )}
         </Metadata>
         <Button style={{ marginInlineStart: 'auto' }}>
