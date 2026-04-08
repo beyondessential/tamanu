@@ -74,7 +74,7 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     const noteToAdd = 'This is a test note';
     await this.addNotes(noteToAdd);
     await this.nextButton.click();
-    const currentDateTime = this.getCurrentDateTime();
+    const currentDateTime = await this.getCurrentDateTime();
     await this.setDateTimeCollected(currentDateTime);
     await this.selectFirstCollectedBy(0);
     await this.selectFirstSpecimenType(0);

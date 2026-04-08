@@ -102,6 +102,7 @@ export const TextInput = ({
   label,
   enablePasting = false,
   ['data-testid']: dataTestId,
+  inputProps,
   ...props
 }) => {
   const { getSetting } = useSettings();
@@ -144,7 +145,7 @@ export const TextInput = ({
         onDragOver={onDragOver}
         onDragEnter={onDragEnter}
         inputProps={{
-          ...props.inputProps,
+          ...inputProps,
           'data-testid': `${dataTestId}-input`,
         }}
         {...props}

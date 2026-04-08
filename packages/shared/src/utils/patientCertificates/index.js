@@ -17,4 +17,5 @@ export * from './LabResultsPrintout'
 export * from './PrescriptionPrintout';
 export * from './IDCardPrintout'
 export * from './IDLabelPrintout';
+export * from './QRCodeIDCardPrintout';
 export * from './SurveyResponsesPrintout';

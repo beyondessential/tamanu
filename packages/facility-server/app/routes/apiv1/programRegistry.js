@@ -275,6 +275,7 @@ programRegistry.get(
     }
     const sortKeys = {
       displayId: 'patient.display_id',
+      patientName: 'UPPER(patient.last_name)',
       firstName: 'UPPER(patient.first_name)',
       lastName: 'UPPER(patient.last_name)',
       dateOfBirth: 'patient.date_of_birth',

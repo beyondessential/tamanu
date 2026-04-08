@@ -1,0 +1,19 @@
+meta {
+  name: Read Organization
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Organization/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
