@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Typography } from '@mui/material';
+import { Typography, tabsClasses } from '@mui/material';
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
@@ -44,7 +44,7 @@ const Metadata = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  .MuiTabs-root {
+  .${tabsClasses.root} {
     border-inline: 1px solid ${Colors.outline};
   }
   ${TabContainer} {
