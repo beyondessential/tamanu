@@ -13,3 +13,4 @@ export * from './Survey';
 export * from './Tag';
 export * from './Tooltip';
 export * from './Translation';
+export { VisuallyHidden } from './VisuallyHidden';
