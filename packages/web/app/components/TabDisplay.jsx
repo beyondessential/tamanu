@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@material-ui/core';
-import { svgIconClasses, tabsClasses } from '@mui/material';
+import { svgIconClasses } from '@mui/material/SvgIcon';
+import { tabsClasses } from '@mui/material/Tabs';
 
 import React from 'react';
 import styled from 'styled-components';
