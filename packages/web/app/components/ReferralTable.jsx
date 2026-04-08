@@ -33,7 +33,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 
   useEffect(() => {
     (async () => {
-      const referralByComponent = survey.components.find(({ dataElement }) =>
+      const referralByComponent = survey?.components?.find(({ dataElement }) =>
         fieldNames.includes(dataElement.name),
       );
       if (!referralByComponent) {
@@ -70,7 +70,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 const getDate = ({ surveyResponse: { submissionDate } }) => {
   return <DateDisplay date={submissionDate} data-testid="datedisplay-qbev" />;
 };
-const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
+const getReferralType = ({ surveyResponse: { survey } }) => survey?.name;
 const getReferralBy = ({ surveyResponse }) => (
   <ReferralBy surveyResponse={surveyResponse} data-testid="referralby-eov4" />
 );

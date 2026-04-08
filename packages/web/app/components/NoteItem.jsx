@@ -119,7 +119,11 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
             />
           </span>
         ) : null}
-        <DateDisplay date={noteItem.date} timeFormat="default" data-testid={`datedisplay-5hu9${index}`} />
+        <DateDisplay
+          date={noteItem.date}
+          timeFormat="default"
+          data-testid={`datedisplay-5hu9${index}`}
+        />
       </StyledNoteItemLogMetadata>
 
       <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>
@@ -142,52 +146,51 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
         <StyledEditIcon onClick={onEditClick} data-testid="styledediticon-s5ol" />
       )}
       <br />
-      <>
-        <span>{noteItem.author?.displayName || ''} </span>
-        {noteItem.onBehalfOf ? (
+
+      <span>{noteItem.author?.displayName || ''} </span>
+      {noteItem.onBehalfOf ? (
+        <span>
+          <TranslatedText
+            stringId="note.onBehalfOf"
+            fallback="on behalf of :displayName"
+            replacements={{
+              displayName: noteItem.onBehalfOf.displayName,
+            }}
+            data-testid="translatedtext-on-behalf-prefix2"
+          />
+        </span>
+      ) : null}
+      <DateDisplay date={noteItem.date} timeFormat="default" data-testid="datedisplay-zaes" />
+      {noteItem?.noteItems?.length > 0 && (
+        <>
           <span>
             <TranslatedText
-              stringId="note.onBehalfOf"
-              fallback="on behalf of :displayName"
-              replacements={{
-                displayName: noteItem.onBehalfOf.displayName,
-              }}
-              data-testid="translatedtext-on-behalf-prefix2"
+              stringId="note.status.edited"
+              fallback="(edited)"
+              data-testid="translatedtext-edited"
             />
           </span>
-        ) : null}
-        <DateDisplay date={noteItem.date} timeFormat="default" data-testid="datedisplay-zaes" />
-        {noteItem?.noteItems?.length > 0 && (
-          <>
-            <span>
-              <TranslatedText
-                stringId="note.status.edited"
-                fallback="(edited)"
-                data-testid="translatedtext-edited"
-              />
-            </span>
-            <StyledTooltip
-              open={isTooltipOpen}
-              onClickAway={() => setTooltipOpen(false)}
-              title={
-                <ItemTooltip childNoteItems={noteItem.noteItems} data-testid="itemtooltip-bv1t" />
-              }
-              data-testid="styledtooltip-egfj"
+          <StyledTooltip
+            open={isTooltipOpen}
+            onClickAway={() => setTooltipOpen(false)}
+            title={
+              <ItemTooltip childNoteItems={noteItem.noteItems} data-testid="itemtooltip-bv1t" />
+            }
+            data-testid="styledtooltip-egfj"
+          >
+            <StyledViewChangeLogWrapper
+              onClick={() => setTooltipOpen(true)}
+              data-testid="styledviewchangelogwrapper-bl80"
             >
-              <StyledViewChangeLogWrapper
-                onClick={() => setTooltipOpen(true)}
-                data-testid="styledviewchangelogwrapper-bl80"
-              >
-                <TranslatedText
-                  stringId="note.action.viewChangeLog"
-                  fallback="View change log"
-                  data-testid="translatedtext-view-changelog"
-                />
-              </StyledViewChangeLogWrapper>
-            </StyledTooltip>
-          </>
-        )}
-      </>
+              <TranslatedText
+                stringId="note.action.viewChangeLog"
+                fallback="View change log"
+                data-testid="translatedtext-view-changelog"
+              />
+            </StyledViewChangeLogWrapper>
+          </StyledTooltip>
+        </>
+      )}
     </StyledNoteItemSecondaryWrapper>
   );
 };
