@@ -1,0 +1,18 @@
+name: Test Seed Snapshot (temporary)
+
+on:
+  push:
+    branches:
+      - ci/tan-2611-snapshot-creation
+
+jobs:
+  trigger:
+    uses: ./.github/workflows/seed-snapshot.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      branch: release/2.53
+      version: '2.53.0'
+      image: ghcr.io/beyondessential/tamanu-seed:2.53.0
