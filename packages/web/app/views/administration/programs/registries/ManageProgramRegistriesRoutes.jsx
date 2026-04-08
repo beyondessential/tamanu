@@ -1,10 +1,12 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 
-import { ClinicalStatusesTable } from './ClinicalStatusesTable';
-import { ConditionsTable } from './ConditionsTable';
+import {
+  ClinicalStatusesTable,
+  ConditionsTable,
+  RelatedConditionCategoriesTable,
+} from './ManageProgramRegistriesTable';
 import { ProgramRegistriesAdminView } from './ProgramRegistriesAdminView';
-import { RelatedConditionCategoriesTable } from './RelatedConditionCategoriesTable';
 
 export const ManageProgramRegistriesRoutes = React.memo(() => (
   <Routes>
