@@ -205,9 +205,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },
@@ -238,9 +238,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
@@ -285,6 +285,7 @@ describe('Reference data exporter', () => {
               'code',
               'name',
               'visibilityStatus',
+              'availableFacilities',
               'externalCode',
               'categoryId',
               'testTypesInPanel',
@@ -294,6 +295,7 @@ describe('Reference data exporter', () => {
               'panel-with-two-types',
               'Panel with two types',
               'current',
+              null,
               null,
               null,
               'test-type-1,test-type-2',
@@ -314,17 +316,17 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },
@@ -428,17 +430,17 @@ describe('Reference data exporter', () => {
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },

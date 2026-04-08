@@ -455,14 +455,12 @@ export const LabRequestView = () => {
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
-              <>
-                <DateDisplay
-                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
-                  date={labRequest.sampleTime}
-                  timeFormat="default"
-                  data-testid="datedisplay-h6el"
-                />
-              </>
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                timeFormat="default"
+                data-testid="datedisplay-h6el"
+              />
             }
             actions={actions}
             data-testid="tile-v8kr"

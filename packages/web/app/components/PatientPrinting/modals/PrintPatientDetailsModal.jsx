@@ -12,9 +12,11 @@ import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
+import { PatientQRCodeIDCardPage } from './PatientQRCodeIDCardPage';
 import { SendToPatientModal } from './SendToPatientModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
 import { MultilabelIdIcon } from '../icons/MultilabelIdIcon';
+import { QRCodeIdIcon } from '../icons/QRCodeIdIcon';
 import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon';
 import { ClearanceCertificateCovid19Icon } from '../icons/ClearanceCertificateCovid19Icon';
 import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
@@ -45,19 +47,37 @@ const PRINT_OPTIONS = {
     label: (
       <TranslatedText
         stringId="patientDetails.resources.idCard"
-        fallback="ID Card"
+        fallback="ID card"
         data-testid="translatedtext-nq3p"
       />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.resources.idCard.caption"
-        fallback="Patient identification card"
+        fallback="Patient identification card with barcode"
         data-testid="translatedtext-mxwh"
       />
     ),
     icon: IdCardIcon,
     component: PatientIDCardPage,
+  },
+  qrCodeId: {
+    label: (
+      <TranslatedText
+        stringId="patientDetails.resources.qrCodeId"
+        fallback="QR code ID"
+        data-testid="translatedtext-qrid"
+      />
+    ),
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.resources.qrCodeId.caption"
+        fallback="Patient identification card with QR code"
+        data-testid="translatedtext-qrcap"
+      />
+    ),
+    icon: QRCodeIdIcon,
+    component: PatientQRCodeIDCardPage,
   },
   covidTestCert: {
     label: (
@@ -130,7 +150,6 @@ const PRINT_OPTIONS = {
         data-testid="translatedtext-y3mu"
       />
     ),
-    // TODO: Replace with new icon
     icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
     condition: (_, ability) => ability?.can('create', 'IPSRequest'),
@@ -183,6 +202,17 @@ const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
             onPress={() => setCurrentlyPrinting('barcode')}
             icon={PRINT_OPTIONS.barcode.icon}
             data-testid="printoption-nbx2"
+          />
+        )}
+      </StyledPrintOptionsRow>
+      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-qrid">
+        {isVisible(PRINT_OPTIONS.qrCodeId.condition) && (
+          <PrintOption
+            label={PRINT_OPTIONS.qrCodeId.label}
+            caption={PRINT_OPTIONS.qrCodeId.caption}
+            onPress={() => setCurrentlyPrinting('qrCodeId')}
+            icon={PRINT_OPTIONS.qrCodeId.icon}
+            data-testid="printoption-qrid"
           />
         )}
       </StyledPrintOptionsRow>

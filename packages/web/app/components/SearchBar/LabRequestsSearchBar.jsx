@@ -147,152 +147,150 @@ export const LabRequestsSearchBar = ({ statuses }) => {
       }
       data-testid="customisablesearchbarwithpermissioncheck-29hw"
     >
-      <>
+      <LocalisedField
+        name="displayId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid="translatedtext-fajs"
+          />
+        }
+        component={SearchField}
+        data-testid="localisedfield-5eui"
+      />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid="translatedtext-2q54"
+          />
+        }
+        component={SearchField}
+        data-testid="localisedfield-w99c"
+      />
+      <LocalisedField
+        name="lastName"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid="translatedtext-ow8a"
+          />
+        }
+        component={SearchField}
+        data-testid="localisedfield-3lzc"
+      />
+      <Field
+        name="requestId"
+        label={
+          <TranslatedText
+            stringId="lab.requestId.label.short"
+            fallback="Test ID"
+            data-testid="translatedtext-8b9r"
+          />
+        }
+        component={SearchField}
+        data-testid="field-jpmb"
+      />
+      <Field
+        name="category"
+        label={
+          <TranslatedText
+            stringId="lab.testCategory.label"
+            fallback="Test category"
+            data-testid="translatedtext-iate"
+          />
+        }
+        component={SuggesterSelectField}
+        endpoint="labTestCategory"
+        size="small"
+        data-testid="field-84q8"
+      />
+      <Field
+        name="labTestPanelId"
+        label={
+          <TranslatedText
+            stringId="lab.panel.label"
+            fallback="Panel"
+            data-testid="translatedtext-6w50"
+          />
+        }
+        component={SuggesterSelectField}
+        endpoint="labTestPanel"
+        size="small"
+        data-testid="field-vqdd"
+      />
+      <LocalisedField
+        name="requestedDateFrom"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.requestedDateFrom.label"
+            fallback="Requested from"
+            data-testid="translatedtext-0gk7"
+          />
+        }
+        component={DateField}
+        $joined
+        data-testid="localisedfield-vo15"
+      />
+      <LocalisedField
+        name="requestedDateTo"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.requestedDateTo.label"
+            fallback="Requested to"
+            data-testid="translatedtext-l4xg"
+          />
+        }
+        component={DateField}
+        data-testid="localisedfield-kswp"
+      />
+      {publishedStatus ? (
         <LocalisedField
-          name="displayId"
+          name="laboratory"
           label={
             <TranslatedText
-              stringId="general.localisedField.displayId.label.short"
-              fallback="NHN"
-              data-testid="translatedtext-fajs"
-            />
-          }
-          component={SearchField}
-          data-testid="localisedfield-5eui"
-        />
-        <LocalisedField
-          name="firstName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.firstName.label"
-              fallback="First name"
-              data-testid="translatedtext-2q54"
-            />
-          }
-          component={SearchField}
-          data-testid="localisedfield-w99c"
-        />
-        <LocalisedField
-          name="lastName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.lastName.label"
-              fallback="Last name"
-              data-testid="translatedtext-ow8a"
-            />
-          }
-          component={SearchField}
-          data-testid="localisedfield-3lzc"
-        />
-        <Field
-          name="requestId"
-          label={
-            <TranslatedText
-              stringId="lab.requestId.label.short"
-              fallback="Test ID"
-              data-testid="translatedtext-8b9r"
-            />
-          }
-          component={SearchField}
-          data-testid="field-jpmb"
-        />
-        <Field
-          name="category"
-          label={
-            <TranslatedText
-              stringId="lab.testCategory.label"
-              fallback="Test category"
-              data-testid="translatedtext-iate"
+              stringId="lab.laboratory.label"
+              fallback="Laboratory"
+              data-testid="translatedtext-zw6f"
             />
           }
           component={SuggesterSelectField}
-          endpoint="labTestCategory"
+          endpoint="labTestLaboratory"
           size="small"
-          data-testid="field-84q8"
+          data-testid="localisedfield-7jda"
         />
-        <Field
-          name="labTestPanelId"
+      ) : (
+        <LocalisedField
+          name="status"
           label={
             <TranslatedText
-              stringId="lab.panel.label"
-              fallback="Panel"
-              data-testid="translatedtext-6w50"
+              stringId="general.localisedField.status.label"
+              fallback="Status"
+              data-testid="translatedtext-763d"
             />
           }
-          component={SuggesterSelectField}
-          endpoint="labTestPanel"
+          component={TranslatedSelectField}
+          transformOptions={options =>
+            options.filter(
+              option =>
+                ![
+                  LAB_REQUEST_STATUSES.PUBLISHED,
+                  LAB_REQUEST_STATUSES.DELETED,
+                  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+                  LAB_REQUEST_STATUSES.CANCELLED,
+                  LAB_REQUEST_STATUSES.INVALIDATED,
+                ].includes(option.value),
+            )
+          }
+          enumValues={LAB_REQUEST_STATUS_LABELS}
           size="small"
-          data-testid="field-vqdd"
+          data-testid="localisedfield-2it8"
         />
-        <LocalisedField
-          name="requestedDateFrom"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.requestedDateFrom.label"
-              fallback="Requested from"
-              data-testid="translatedtext-0gk7"
-            />
-          }
-          component={DateField}
-          $joined
-          data-testid="localisedfield-vo15"
-        />
-        <LocalisedField
-          name="requestedDateTo"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.requestedDateTo.label"
-              fallback="Requested to"
-              data-testid="translatedtext-l4xg"
-            />
-          }
-          component={DateField}
-          data-testid="localisedfield-kswp"
-        />
-        {publishedStatus ? (
-          <LocalisedField
-            name="laboratory"
-            label={
-              <TranslatedText
-                stringId="lab.laboratory.label"
-                fallback="Laboratory"
-                data-testid="translatedtext-zw6f"
-              />
-            }
-            component={SuggesterSelectField}
-            endpoint="labTestLaboratory"
-            size="small"
-            data-testid="localisedfield-7jda"
-          />
-        ) : (
-          <LocalisedField
-            name="status"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.status.label"
-                fallback="Status"
-                data-testid="translatedtext-763d"
-              />
-            }
-            component={TranslatedSelectField}
-            transformOptions={(options) =>
-              options.filter(
-                (option) =>
-                  ![
-                    LAB_REQUEST_STATUSES.PUBLISHED,
-                    LAB_REQUEST_STATUSES.DELETED,
-                    LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-                    LAB_REQUEST_STATUSES.CANCELLED,
-                    LAB_REQUEST_STATUSES.INVALIDATED,
-                  ].includes(option.value),
-              )
-            }
-            enumValues={LAB_REQUEST_STATUS_LABELS}
-            size="small"
-            data-testid="localisedfield-2it8"
-          />
-        )}
-      </>
+      )}
     </CustomisableSearchBarWithPermissionCheck>
   );
 };

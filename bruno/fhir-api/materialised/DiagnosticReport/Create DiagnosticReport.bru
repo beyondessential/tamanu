@@ -1,0 +1,40 @@
+meta {
+  name: Create DiagnosticReport
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/integration/fhir/mat/DiagnosticReport
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "resourceType": "DiagnosticReport",
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "58410-2",
+          "display": "Complete blood count (CBC)"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/{{patientId}}"
+    },
+    "effectiveDateTime": "2024-01-01T12:00:00Z",
+    "result": [
+      {
+        "reference": "Observation/{{observationId}}"
+      }
+    ]
+  }
+}

@@ -230,7 +230,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
         {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
         {taskType === TASK_TYPES.MEDICATION_DUE_TASK && (
           <Box display={'flex'} position={'absolute'} left={'-6px'} top={'13px'}>
-            <DrugIcon />
+            <DrugIcon aria-hidden />
           </Box>
         )}
         {taskName()}

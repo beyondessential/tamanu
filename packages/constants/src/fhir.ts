@@ -323,3 +323,89 @@ export const SUPPORTED_CONTENT_TYPES = {
   PDF: 'application/pdf',
 };
 export const DEFAULT_REASON_CANCELLED_BY_API = 'cancelled externally via api';
+export const SERVICE_REQUEST_CATEGORY_CODES = {
+  LAB: '108252007',
+  IMAGING: '363679005',
+} as const;
+
+export const FHIR_RESOURCE_TO_PERMISSION_NOUN: Record<string, string> = {
+  Patient: 'FhirPatient',
+  Practitioner: 'FhirPractitioner',
+  Encounter: 'FhirEncounter',
+  Organization: 'FhirOrganization',
+  Specimen: 'FhirSpecimen',
+  DiagnosticReport: 'FhirDiagnosticReport',
+  Observation: 'FhirObservation',
+  ImagingStudy: 'FhirImagingStudy',
+  MedicationRequest: 'FhirMedicationRequest',
+  Immunization: 'FhirImmunization',
+};
+
+export const SERVICE_REQUEST_PERMISSION_NOUNS = {
+  LAB: 'FhirLabServiceRequest',
+  IMAGING: 'FhirImagingServiceRequest',
+} as const;
+
+export const FHIR_INTEGRATION_VERB = 'fhirIntegration';
+
+export const FHIR_INTEGRATION_PERMISSIONS: Record<
+  string,
+  { read: string[]; write: string[] }
+> = {
+  PMI: {
+    read: ['FhirPatient'],
+    write: [],
+  },
+  LABS: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirLabServiceRequest',
+      'FhirSpecimen',
+    ],
+    write: ['FhirDiagnosticReport', 'FhirObservation'],
+  },
+  RISPACS: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirImagingServiceRequest',
+    ],
+    write: ['FhirImagingStudy'],
+  },
+  Prescriptions: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirMedicationRequest',
+    ],
+    write: [],
+  },
+  Immunization: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirImmunization',
+    ],
+    write: [],
+  },
+  Medici: {
+    read: ['MediciReport'],
+    write: [],
+  },
+};
+
+export const FHIR_PERMISSION_NOUNS: ReadonlySet<string> = new Set([
+  ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
+  ...Object.values(SERVICE_REQUEST_PERMISSION_NOUNS),
+  ...Object.keys(FHIR_INTEGRATION_PERMISSIONS),
+  ...Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => [...c.read, ...c.write]),
+]);

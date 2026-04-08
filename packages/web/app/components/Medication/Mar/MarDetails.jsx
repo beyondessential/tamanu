@@ -666,7 +666,7 @@ export const MarDetails = ({
                               })
                             }
                           >
-                            <StyledAddIcon />
+                            <StyledAddIcon aria-hidden />
                             <TranslatedText
                               stringId="medication.mar.addAdditionalDose"
                               fallback="Add additional dose"
