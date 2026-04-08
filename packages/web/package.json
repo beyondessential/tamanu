@@ -108,7 +108,6 @@
     "shortid": "^2.2.8",
     "socket.io-client": "^4.8.3",
     "styled-components": "^5.3.3",
-    "typeface-roboto": "^0.0.54",
     "validator": "^13.15.35",
     "vite": "^7.3.5",
     "vite-plugin-json5": "^1.4.4",
