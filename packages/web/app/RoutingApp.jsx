@@ -33,26 +33,24 @@ export const RoutingFacilityApp = React.memo(() => {
   const { isSettingsLoaded } = useSettings();
 
   return (
-    <>
-      <App sidebar={<Sidebar items={sidebarMenuItems} />}>
-        <UserActivityMonitor />
-        <Routes>
-          {isSettingsLoaded ? (
-            <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
-          ) : null}
-          <Route path="/dashboard" element={<DashboardView />} />
-          <Route path="/patients/*" element={<PatientsRoutes />} />
-          <Route path="/appointments/*" element={<AppointmentRoutes />} />
-          <Route path="/imaging-requests/*" element={<ImagingRoutes />} />
-          <Route path="/medication/*" element={<MedicationRoutes />} />
-          <Route path="/lab-requests/*" element={<LabsRoutes />} />
-          <Route path="/invoices/*" element={<BillingRoutes />} />
-          <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
-          <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
-          <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
-        </Routes>
-      </App>
-    </>
+    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <UserActivityMonitor />
+      <Routes>
+        {isSettingsLoaded ? (
+          <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
+        ) : null}
+        <Route path="/dashboard" element={<DashboardView />} />
+        <Route path="/patients/*" element={<PatientsRoutes />} />
+        <Route path="/appointments/*" element={<AppointmentRoutes />} />
+        <Route path="/imaging-requests/*" element={<ImagingRoutes />} />
+        <Route path="/medication/*" element={<MedicationRoutes />} />
+        <Route path="/lab-requests/*" element={<LabsRoutes />} />
+        <Route path="/invoices/*" element={<BillingRoutes />} />
+        <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
+        <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
+        <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
+      </Routes>
+    </App>
   );
 });
 
