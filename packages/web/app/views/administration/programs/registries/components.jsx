@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
 
 export const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -60,7 +61,12 @@ export function VisibilityStatusChip({ visibilityStatus, ...props }) {
           />
         )
       }
-      style={{ color: visibilityStatus === VISIBILITY_STATUSES.CURRENT ? '#19934e' : '#444' }}
+      style={{
+        color:
+          visibilityStatus === VISIBILITY_STATUSES.CURRENT
+            ? TAMANU_COLORS.green
+            : TAMANU_COLORS.darkestText,
+      }}
       size="small"
       {...props}
     />
