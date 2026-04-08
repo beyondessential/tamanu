@@ -57,7 +57,7 @@ export const PaymentFormCard = styled(BaseFormCard)`
     display: grid;
     align-items: start;
     grid-template-columns: ${props =>
-      props.$isEditMode ? '150px 1fr 150px' : '140px 1fr 120px 80px'};
+      props.$isEditMode ? '170px 1fr 150px' : '170px 1fr 120px 80px'};
     gap: 20px;
   }
 `;

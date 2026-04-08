@@ -415,50 +415,48 @@ export const EditMedicationDispenseModal = memo(
       );
 
     return (
-      <>
-        <StyledModal title={title} open={open} onClose={handleClose} actions={actions} $step={step}>
-          {step === MODAL_STEPS.DISPENSE && (
-            <>
-              <HeaderRow>
-                <BodyText>
-                  <TranslatedText
-                    stringId="modal.medication.editDispensedMedication.description"
-                    fallback="Edit the dispensed medication details below"
-                  />
-                </BodyText>
-                <Box width="365px">
-                  <AutocompleteInput
-                    name="dispensedByUserId"
-                    label={
-                      <TranslatedText
-                        stringId="medication.dispense.dispensedBy"
-                        fallback="Dispensed by"
-                      />
-                    }
-                    suggester={practitionerSuggester}
-                    value={dispensedByUserId}
-                    onChange={e => setDispensedByUserId(e.target.value)}
-                    required
-                    error={showValidationErrors && !dispensedByUserId}
-                    helperText={
-                      showValidationErrors && !dispensedByUserId
-                        ? getTranslation('validation.required.inline', '*Required')
-                        : ''
-                    }
-                    data-testid="dispense-dispensed-by"
-                  />
-                </Box>
-              </HeaderRow>
+      <StyledModal title={title} open={open} onClose={handleClose} actions={actions} $step={step}>
+        {step === MODAL_STEPS.DISPENSE && (
+          <>
+            <HeaderRow>
+              <BodyText>
+                <TranslatedText
+                  stringId="modal.medication.editDispensedMedication.description"
+                  fallback="Edit the dispensed medication details below"
+                />
+              </BodyText>
+              <Box width="365px">
+                <AutocompleteInput
+                  name="dispensedByUserId"
+                  label={
+                    <TranslatedText
+                      stringId="medication.dispense.dispensedBy"
+                      fallback="Dispensed by"
+                    />
+                  }
+                  suggester={practitionerSuggester}
+                  value={dispensedByUserId}
+                  onChange={e => setDispensedByUserId(e.target.value)}
+                  required
+                  error={showValidationErrors && !dispensedByUserId}
+                  helperText={
+                    showValidationErrors && !dispensedByUserId
+                      ? getTranslation('validation.required.inline', '*Required')
+                      : ''
+                  }
+                  data-testid="dispense-dispensed-by"
+                />
+              </Box>
+            </HeaderRow>
 
-              <StyledTableFormFields columns={columns} data={item ? [item] : []} />
-            </>
-          )}
+            <StyledTableFormFields columns={columns} data={item ? [item] : []} />
+          </>
+        )}
 
-          {step === MODAL_STEPS.REVIEW && labelForPrint && (
-            <MedicationLabelPrintPreview labels={[labelForPrint]} />
-          )}
-        </StyledModal>
-      </>
+        {step === MODAL_STEPS.REVIEW && labelForPrint && (
+          <MedicationLabelPrintPreview labels={[labelForPrint]} />
+        )}
+      </StyledModal>
     );
   },
 );

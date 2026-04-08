@@ -616,7 +616,7 @@ export const PatientMedicationPane = ({ patient }) => {
                     !currentEncounter ? (
                       <Box width="120px" fontWeight={400}>
                         <TranslatedText
-                          stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
+                          stringId="patient.medication.ongoing.sendToPharmacy"
                           fallback="Send to pharmacy"
                         />
                       </Box>
@@ -631,10 +631,14 @@ export const PatientMedicationPane = ({ patient }) => {
                   }
                 >
                   <SendToPharmacyButton
+                    aria-label={getTranslation(
+                      'patient.medication.ongoing.sendToPharmacy',
+                      'Send to pharmacy',
+                    )}
                     disabled={!!currentEncounter}
                     onClick={handleSendToPharmacyClick}
                   >
-                    <SendToPharmacyIcon />
+                    <SendToPharmacyIcon aria-hidden />
                   </SendToPharmacyButton>
                 </ThemedTooltip>
               )}
