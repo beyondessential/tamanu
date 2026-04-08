@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import 'typeface-roboto';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
 
