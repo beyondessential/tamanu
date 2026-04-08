@@ -107,8 +107,8 @@ const themeConfig = {
     },
   },
   typography: {
+    fontFamily: 'var(--font-stack-sans)',
     useNextVariants: true,
-    fontFamily: 'Roboto',
   },
   shape: { borderRadius: 3 },
   overrides: {
