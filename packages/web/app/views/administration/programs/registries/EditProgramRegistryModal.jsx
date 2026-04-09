@@ -35,10 +35,10 @@ const Footer = styled.footer`
   padding-block-start: 20px;
 `;
 
-const visibilityStatusSelectOptions = [
-  VISIBILITY_STATUSES.CURRENT,
-  VISIBILITY_STATUSES.HISTORICAL,
-].map(value => ({ value, label: value }));
+const visibilityStatusSelectOptions = /** @type {const} */ ([
+  { value: VISIBILITY_STATUSES.CURRENT, label: VISIBILITY_STATUSES.CURRENT },
+  { value: VISIBILITY_STATUSES.HISTORICAL, label: VISIBILITY_STATUSES.HISTORICAL },
+]);
 
 const currentlyAtTypeSelectOptions = Object.values(CURRENTLY_AT_TYPES).map(value => ({
   value,
