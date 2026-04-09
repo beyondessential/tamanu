@@ -33,7 +33,13 @@ import { useTranslation } from '../../contexts/TranslationContext';
 
 const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
-const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm', 'HH:mm:ss'];
+const USER_INPUT_FORMATS = /** @type {const} */ ([
+  'dd/MM/yyyy hh:mm a',
+  'dd/MM/yyyy HH:mm',
+  'dd/MM/yyyy',
+  'HH:mm',
+  'HH:mm:ss',
+]);
 
 // Parses a string value to Date, trying storage formats first (ISO 9075),
 // then user-input display formats (dd/MM/yyyy etc) as a fallback for typed input.
@@ -351,9 +357,10 @@ export const DateInput = ({
       fieldDayPlaceholder: () => getTranslation('date.placeholder.day', 'dd'),
       fieldMonthPlaceholder: () => getTranslation('date.placeholder.month', 'mm'),
       fieldYearPlaceholder: () => getTranslation('date.placeholder.year', 'yyyy'),
-      fieldHoursPlaceholder: () => getTranslation('date.placeholder.hours', '--'),
-      fieldMinutesPlaceholder: () => getTranslation('date.placeholder.minutes', '--'),
-      fieldMeridiemPlaceholder: () => getTranslation('date.placeholder.meridiem', '--'),
+      // Figure dashes below
+      fieldHoursPlaceholder: () => getTranslation('date.placeholder.hours', '‒‒'),
+      fieldMinutesPlaceholder: () => getTranslation('date.placeholder.minutes', '‒‒'),
+      fieldMeridiemPlaceholder: () => getTranslation('date.placeholder.meridiem', '‒‒'),
     }),
     [getTranslation],
   );
@@ -446,6 +453,7 @@ export const DateInput = ({
     return (
       <Box display="flex" alignContent="center" data-testid="box-13xp">
         <DefaultIconButton
+          aria-label={getTranslation('date.prev', 'Previous day')}
           onClick={() => handleChange(addDays(dateValue || todayDate, -1))}
           disabled={disabled}
           data-testid="defaulticonbutton-1fiy"
@@ -454,6 +462,7 @@ export const DateInput = ({
         </DefaultIconButton>
         {picker}
         <DefaultIconButton
+          aria-label={getTranslation('date.next', 'Next day')}
           onClick={() => handleChange(addDays(dateValue || todayDate, 1))}
           disabled={disabled}
           data-testid="defaulticonbutton-rmeh"
