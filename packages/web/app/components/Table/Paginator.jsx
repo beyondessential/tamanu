@@ -7,7 +7,7 @@ import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-const PaginatorWrapper = styled.td``;
+const PaginatorWrapper = 'td';
 
 const FooterContent = styled.div`
   display: flex;
