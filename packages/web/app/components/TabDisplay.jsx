@@ -1,5 +1,5 @@
 import { svgIconClasses } from '@mui/material/SvgIcon';
-import Tab, { tabClasses } from '@mui/material/Tab';
+import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import React from 'react';
 import styled from 'styled-components';
@@ -14,9 +14,6 @@ export const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab).attrs({ iconPosition: 'start' })`
-  &.${tabClasses.root} {
-    text-transform: none;
-  }
   &:not([aria-selected='true'], .Mui-selected) .fa {
     color: ${Colors.softText};
   }

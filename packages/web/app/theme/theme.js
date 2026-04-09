@@ -88,7 +88,10 @@ const themeConfig = {
     },
     MuiTab: {
       styleOverrides: {
-        root: { minHeight: '48px' },
+        root: {
+          minHeight: '48px',
+          textTransform: 'none',
+        },
       },
     },
   },
