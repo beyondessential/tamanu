@@ -237,7 +237,7 @@ export const BackButton = ({ ['aria-label']: ariaLabel, text = true, ...props })
 
 export const FormSubmitButton = ({
   children,
-  text = 'Confirm',
+  text = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   color = 'primary',
   onSubmit,
   ...props
