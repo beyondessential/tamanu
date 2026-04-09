@@ -681,7 +681,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
     };
   },
   LabTestType: () => {
-    const { code, name, unit } = chance.pickone([
+    const suffix = chance.hash({ length: 4 });
+    const { code: baseCode, name: baseName, unit } = chance.pickone([
       { code: 'WBC', name: 'White Blood Cell Count', unit: 'x10^9/L' },
       { code: 'RBC', name: 'Red Blood Cell Count', unit: 'x10^12/L' },
       { code: 'HGB', name: 'Haemoglobin', unit: 'g/dL' },
@@ -711,6 +712,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
       { code: 'HBsAg', name: 'Hepatitis B Surface Antigen', unit: '' },
       { code: 'URINE-MC', name: 'Urine Microscopy & Culture', unit: '' },
     ]);
+    const code = `${baseCode}-${suffix}`;
+    const name = `${baseName} (${suffix})`;
     return {
       code,
       name,
