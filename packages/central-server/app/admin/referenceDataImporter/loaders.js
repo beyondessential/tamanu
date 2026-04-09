@@ -245,7 +245,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   return rows;
 }
 
-async function validateObjectId(item, models, pushError) {
+async function validateObjectId(item, models, pushError, objectIdCache) {
   const { noun, objectId } = item;
   if (!objectId || !noun || !NOUNS_WITH_OBJECT_ID.includes(noun)) {
     return;
@@ -270,49 +270,59 @@ async function validateObjectId(item, models, pushError) {
     return;
   }
 
-  const record = await models[noun].findByPk(objectId);
-  if (!record) {
+  const cacheKey = `${noun}:${objectId}`;
+  if (!objectIdCache.has(cacheKey)) {
+    const record = await models[noun].findByPk(objectId);
+    objectIdCache.set(cacheKey, !!record);
+  }
+  if (!objectIdCache.get(cacheKey)) {
     pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
   }
 }
 
-export async function permissionLoader(item, { models, pushError }) {
-  const { verb, noun, objectId = null, ...roles } = stripNotes(item);
+export function permissionLoaderFactory() {
+  // Cache shared across all rows within a single import to avoid repeated objectId lookups
+  const objectIdCache = new Map();
 
-  const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
-  const normalizedVerb = verb.trim();
-  const normalizedNoun = noun.trim();
+  return async function permissionLoader(item, { models, pushError }) {
+    const { verb, noun, objectId = null, ...roles } = stripNotes(item);
 
-  await validateObjectId(
-    { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
-    models,
-    message => pushError(message, 'Permission'),
-  );
+    const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
+    const normalizedVerb = verb.trim();
+    const normalizedNoun = noun.trim();
 
-  // Any non-empty value in the role cell would mean the role
-  // is enabled for the permission
-  return Object.entries(roles)
-    .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
-    .filter(([, yCell]) => yCell)
-    .map(([role, yCell]) => {
-      const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
+    await validateObjectId(
+      { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
+      models,
+      message => pushError(message, 'Permission'),
+      objectIdCache,
+    );
 
-      const isDeleted = yCell === 'n';
-      const deletedAt = isDeleted ? new Date() : null;
+    // Any non-empty value in the role cell would mean the role
+    // is enabled for the permission
+    return Object.entries(roles)
+      .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
+      .filter(([, yCell]) => yCell)
+      .map(([role, yCell]) => {
+        const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
 
-      return {
-        model: 'Permission',
-        values: {
-          _yCell: yCell,
-          id,
-          verb: normalizedVerb,
-          noun: normalizedNoun,
-          objectId: normalizedObjectId,
-          role,
-          deletedAt,
-        },
-      };
-    });
+        const isDeleted = yCell === 'n';
+        const deletedAt = isDeleted ? new Date() : null;
+
+        return {
+          model: 'Permission',
+          values: {
+            _yCell: yCell,
+            id,
+            verb: normalizedVerb,
+            noun: normalizedNoun,
+            objectId: normalizedObjectId,
+            role,
+            deletedAt,
+          },
+        };
+      });
+  };
 }
 
 export function labTestPanelLoader(item) {

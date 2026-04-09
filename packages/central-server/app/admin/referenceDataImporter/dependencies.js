@@ -4,7 +4,7 @@ import {
   labTestPanelLoader,
   patientDataLoader,
   patientFieldDefinitionLoader,
-  permissionLoader,
+  permissionLoaderFactory,
   taskTemplateLoader,
   taskSetLoader,
   translatedStringLoader,
@@ -93,7 +93,9 @@ export default {
 
   role: {},
   permission: {
-    loader: permissionLoader,
+    get loader() {
+      return permissionLoaderFactory();
+    },
     needs: ['role'],
   },
 

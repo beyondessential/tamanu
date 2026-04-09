@@ -126,6 +126,8 @@ export async function importRows(
 
   log.debug('Resolving foreign keys', { rows: rows.length });
   const resolvedRows = [];
+  // Cache remote FK lookups to avoid repeated DB queries for the same FK value
+  const fkRemoteCache = new Map();
   for (const { model, sheetRow, values } of rows) {
     try {
       for (const fkSchema of foreignKeySchemata[model] ?? []) {
@@ -147,31 +149,38 @@ export async function importRows(
             delete values[fkFieldName];
             values[fkNameLowerId] = idByLocalName;
           } else {
-            const hasRemoteId =
-              (fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.count({
-                    where: { type: fkSchema.types, id: fkFieldValue },
-                  })
-                : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
+            const cacheKey = `${fkSchema.model}:${fkSchema.types || ''}:${fkFieldValue}`;
+            let cached = fkRemoteCache.get(cacheKey);
+            if (!cached) {
+              const hasRemoteId =
+                (fkSchema.model === 'ReferenceData'
+                  ? await models.ReferenceData.count({
+                      where: { type: fkSchema.types, id: fkFieldValue },
+                    })
+                  : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (
-              fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.findOne({
-                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                  })
-                : await models[fkSchema.model].findOne({
-                    where: {
-                      name: { [Op.iLike]: fkFieldValue },
-                    },
-                  })
-            )?.id;
+              const idByRemoteName = (
+                fkSchema.model === 'ReferenceData'
+                  ? await models.ReferenceData.findOne({
+                      where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                    })
+                  : await models[fkSchema.model].findOne({
+                      where: {
+                        name: { [Op.iLike]: fkFieldValue },
+                      },
+                    })
+              )?.id;
 
-            if (hasRemoteId) {
+              cached = { hasRemoteId, idByRemoteName };
+              fkRemoteCache.set(cacheKey, cached);
+            }
+
+            if (cached.hasRemoteId) {
               delete values[fkFieldName];
               values[fkNameLowerId] = fkFieldValue;
-            } else if (idByRemoteName) {
+            } else if (cached.idByRemoteName) {
               delete values[fkFieldName];
-              values[fkNameLowerId] = idByRemoteName;
+              values[fkNameLowerId] = cached.idByRemoteName;
             } else {
               throw new Error(
                 `valid foreign key expected in column ${fkFieldName} (corresponding to ${fkNameLowerId}) but found: ${fkFieldValue}`,
@@ -253,10 +262,85 @@ export async function importRows(
   };
   await validateTableRows(models, validRows, pushErrorFn);
 
+  // Batch-prefetch existing records to avoid one query per row
+  log.debug('Prefetching existing records', { rows: validRows.length });
+  const existingByModelAndId = new Map();
+  const idsByModel = new Map();
+  for (const { model, values } of validRows) {
+    if (values.id && !existingRecordLoaders[model]) {
+      // Only batch-fetch models that use the default findByPk loader
+      if (!idsByModel.has(model)) idsByModel.set(model, new Set());
+      idsByModel.get(model).add(values.id);
+    }
+  }
+  for (const [model, ids] of idsByModel) {
+    const Model = models[model];
+    const records = await Model.findAll({
+      where: { id: { [Op.in]: [...ids] } },
+      paranoid: false,
+    });
+    for (const record of records) {
+      existingByModelAndId.set(`${model}:${record.id}`, record);
+    }
+  }
+
+  // Bulk path for Permission rows — replaces the row-by-row loop with a single bulkCreate
+  const allPermissions = validRows.length > 0 && validRows.every(r => r.model === 'Permission');
+  if (allPermissions) {
+    log.debug('Bulk importing permissions', { rows: validRows.length });
+    const bulkRecords = [];
+    for (const { values } of validRows) {
+      const normalizedValues = { ...values };
+      delete normalizedValues._yCell; // validation-only field, not a DB column
+      for (const key of Object.keys(normalizedValues)) {
+        if (normalizedValues[key] === undefined) normalizedValues[key] = null;
+      }
+
+      // Compute stats using prefetched existing records
+      const existing = existingByModelAndId.get(`Permission:${values.id}`);
+      if (normalizedValues.deletedAt) {
+        if (existing && !existing.deletedAt) {
+          updateStat(stats, statkey('Permission', sheetName), 'updated');
+          updateStat(stats, statkey('Permission', sheetName), 'deleted');
+        } else {
+          updateStat(stats, statkey('Permission', sheetName), 'skipped');
+        }
+      } else if (existing) {
+        const changed = Object.keys(normalizedValues).some(key => {
+          const existingVal = existing.dataValues[key];
+          return String(normalizedValues[key] ?? '') !== String(existingVal ?? '');
+        });
+        updateStat(stats, statkey('Permission', sheetName), changed ? 'updated' : 'skipped');
+      } else {
+        updateStat(stats, statkey('Permission', sheetName), 'created');
+      }
+
+      bulkRecords.push(normalizedValues);
+    }
+
+    try {
+      await models.Permission.bulkCreate(bulkRecords, {
+        updateOnDuplicate: ['verb', 'noun', 'objectId', 'roleId', 'deletedAt', 'updatedAt'],
+      });
+    } catch (err) {
+      for (const { sheetRow } of validRows) {
+        updateStat(stats, statkey('Permission', sheetName), 'errored');
+        errors.push(new UpsertionError(sheetName, sheetRow, err));
+        break;
+      }
+    }
+
+    log.debug('Done with bulk permission import');
+    return stats;
+  }
+
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const existing = await loadExisting(Model, values);
+    const prefetched = values.id && !existingRecordLoaders[model]
+      ? existingByModelAndId.get(`${model}:${values.id}`) ?? null
+      : undefined;
+    const existing = prefetched !== undefined ? prefetched : await loadExisting(Model, values);
 
     if (existing && skipExisting) {
       updateStat(stats, statkey(model, sheetName), 'skipped');
