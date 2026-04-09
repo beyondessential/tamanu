@@ -9,7 +9,7 @@ import { useParams } from 'react-router';
 import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import {
   ColourCell,
-  ProgramRegistryRowActionsCell,
+  createProgramRegistryRowActionsAccessor,
   StyledDataFetchingTable,
   VisibilityStatusCell,
 } from './components';
@@ -24,8 +24,7 @@ const visibilityStatusColumn = /** @type {const} */ ({
   title: 'visibilityStatus',
 });
 
-const actionsColumn = /** @type {const} */ ({
-  accessor: ProgramRegistryRowActionsCell,
+const actionsColumnBase = /** @type {const} */ ({
   dontCallRowInput: true,
   isExportable: false,
   key: 'actions',
@@ -38,6 +37,21 @@ const actionsColumn = /** @type {const} */ ({
   ),
 });
 
+const clinicalStatusesActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus'),
+});
+
+const conditionsActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition'),
+});
+
+const conditionCategoriesActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory'),
+});
+
 const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
@@ -47,7 +61,7 @@ const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
     title: 'color',
   },
   visibilityStatusColumn,
-  actionsColumn,
+  clinicalStatusesActionsColumn,
 ]);
 
 function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, dataTestId }) {
@@ -97,7 +111,7 @@ const conditionsColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
   visibilityStatusColumn,
-  actionsColumn,
+  conditionsActionsColumn,
 ]);
 
 export function ConditionsTable() {
@@ -130,7 +144,7 @@ const relatedConditionCategoriesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
   visibilityStatusColumn,
-  actionsColumn,
+  conditionCategoriesActionsColumn,
 ]);
 
 export function RelatedConditionCategoriesTable() {
