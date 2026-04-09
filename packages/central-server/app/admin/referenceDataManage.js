@@ -104,6 +104,13 @@ referenceDataManageRouter.get(
       throw new InvalidOperationError(`Invalid order value: ${order}`);
     }
 
+    const validOrderByColumns = new Set(
+      Object.keys(model.rawAttributes ?? {}).filter(key => key !== 'deletedAt'),
+    );
+    if (!validOrderByColumns.has(orderBy)) {
+      throw new InvalidOperationError(`Invalid orderBy value: ${orderBy}`);
+    }
+
     const EXACT_MATCH_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL', 'BOOLEAN'];
     const exactMatchKeys = new Set(
       columns
