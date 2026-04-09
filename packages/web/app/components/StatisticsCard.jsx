@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import { Colors } from '../constants';
 
 const Container = styled.div`

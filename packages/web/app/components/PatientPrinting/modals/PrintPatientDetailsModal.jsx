@@ -1,3 +1,4 @@
+import { BookUser as BookUserIcon } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
@@ -5,7 +6,6 @@ import { OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { BookUserIcon } from '../../Icons/BookUserIcon';
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
@@ -469,13 +469,11 @@ export const PrintPatientDetailsModal = ({ patient }) => {
 
   return (
     <>
-      <OutlinedButton onClick={openModal} data-testid="button-kdtv">
-        <BookUserIcon
-          htmlColor={Colors.primary}
-          width={20}
-          height={20}
-          style={{ marginRight: 8 }}
-        />
+      <OutlinedButton
+        onClick={openModal}
+        data-testid="button-kdtv"
+        startIcon={<BookUserIcon size={20} />}
+      >
         <TranslatedText
           stringId="patient.detailsSidebar.action.patientResources"
           fallback="Patient resources"
