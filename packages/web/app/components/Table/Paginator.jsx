@@ -101,8 +101,6 @@ const useStyles = makeStyles({
   },
 });
 
-const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
-
 export const Paginator = React.memo(
   ({
     page: pageIndex,
@@ -124,6 +122,8 @@ export const Paginator = React.memo(
     const lowerRange = isDataInTable ? pageIndex * rowsPerPage + 1 : 0;
     // This is the index of the bottom row of the table (set it to total count if less than a whole page is present or on last page)
     const upperRange = isLastPage || !isDataInTable ? count : selectedPageNumber * rowsPerPage;
+
+    const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
 
     return (
       <PaginatorWrapper colSpan={colSpan} data-testid="paginatorwrapper-l9c5">
