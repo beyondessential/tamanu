@@ -38,10 +38,7 @@ const Footer = styled.footer`
 const visibilityStatusSelectOptions = [
   VISIBILITY_STATUSES.CURRENT,
   VISIBILITY_STATUSES.HISTORICAL,
-].map(value => ({
-  value,
-  label: value,
-}));
+].map(value => ({ value, label: value }));
 
 const currentlyAtTypeSelectOptions = Object.values(CURRENTLY_AT_TYPES).map(value => ({
   value,
