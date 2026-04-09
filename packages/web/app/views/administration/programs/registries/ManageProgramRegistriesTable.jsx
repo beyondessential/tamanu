@@ -1,39 +1,31 @@
+/**
+ * Column names in these tables are not translated, as they should mirror those from
+ * imported/exported spreadsheets.
+ */
+
 import React from 'react';
 import { useParams } from 'react-router';
 
 import { ContentUnavailableView, TranslatedText } from '@tamanu/ui-components';
 import { ColourCell, StyledDataFetchingTable, VisibilityStatusCell } from './components';
 
-const codeColumn = /** @type {const} */ ({
-  key: 'code',
-  title: <TranslatedText stringId="admin.programRegistries.table.column.code" fallback="Code" />,
-});
+const codeColumn = /** @type {const} */ ({ key: 'code', title: 'code' });
 
-const nameColumn = /** @type {const} */ ({
-  key: 'name',
-  title: <TranslatedText stringId="admin.programRegistries.table.column.name" fallback="Name" />,
-});
+const nameColumn = /** @type {const} */ ({ key: 'name', title: 'name' });
 
 const visibilityStatusColumn = /** @type {const} */ ({
   accessor: VisibilityStatusCell,
   key: 'visibilityStatus',
-  title: (
-    <TranslatedText
-      stringId="admin.programRegistries.table.column.visibilityStatus"
-      fallback="Visibility status"
-    />
-  ),
+  title: 'visibilityStatus',
 });
 
 const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
   {
-    key: 'color',
-    title: (
-      <TranslatedText stringId="admin.programRegistries.table.column.colour" fallback="Colour" />
-    ),
     accessor: ColourCell,
+    key: 'color',
+    title: 'color',
   },
   visibilityStatusColumn,
 ]);
