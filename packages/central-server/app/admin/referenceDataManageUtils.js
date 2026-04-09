@@ -28,11 +28,19 @@ const HIDDEN_COLUMNS = /** @type {const} */ (
 );
 
 // Fields that are always read-only (create and edit)
-const READONLY_COLUMNS = /** @type {const} */ (new Set(['id', 'type']));
+const READONLY_COLUMNS = /** @type {const} */ (new Set(['type']));
+// Fields that are read-only only on edit
+const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
 
-// Explicit overrides for FK columns where the association alias doesn't match the suggester endpoint
+// Explicit overrides for FK columns where the association alias doesn't match the suggester endpoint.
+// Keyed by "ModelName.foreignKey" to handle the same FK name on different models.
+// Add an entry here when a BelongsTo alias doesn't match the suggester endpoint name.
 const FK_ENDPOINT_OVERRIDES = /** @type {const} */ {
-  // e.g. 'someForeignKeyId': 'customEndpoint',
+  'LabTestType.labTestCategoryId': 'labTestCategory',
+  'LabTestPanel.categoryId': 'labTestCategory',
+  'PatientFieldDefinition.categoryId': 'patientFieldDefinitionCategory',
+  'InvoicePriceListItem.invoiceProductId': 'invoiceProduct',
+  'InvoicePriceListItem.invoicePriceListId': 'invoicePriceList',
 };
 
 // Build a map of foreignKey -> suggester endpoint from BelongsTo associations.
@@ -44,29 +52,43 @@ const getForeignKeySuggesters = model => {
     if (assoc.associationType !== 'BelongsTo') {
       continue;
     }
-    const endpoint = FK_ENDPOINT_OVERRIDES[assoc.foreignKey] ?? assoc.as;
-    if (
-      SUGGESTER_ENDPOINTS.includes(endpoint) &&
-      GENERAL_IMPORTABLE_DATA_TYPES.includes(endpoint)
-    ) {
+    const overrideKey = `${model.name}.${assoc.foreignKey}`;
+    const endpoint = FK_ENDPOINT_OVERRIDES[overrideKey] ?? assoc.as;
+    if (SUGGESTER_ENDPOINTS.includes(endpoint)) {
       fkToEndpoint[assoc.foreignKey] = endpoint;
     }
   }
   return fkToEndpoint;
 };
 
-export const getColumnsForModel = model => {
+const getDbColumnInfo = async model => {
+  const tableName = model.getTableName();
+  const [results] = await model.sequelize.query(
+    `SELECT column_name, is_nullable, column_default
+     FROM information_schema.columns
+     WHERE table_name = :tableName AND table_schema = 'public'`,
+    { replacements: { tableName } },
+  );
+  return new Map(results.map(row => [row.column_name, row]));
+};
+
+export const getColumnsForModel = async model => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
+  const dbColumns = await getDbColumnInfo(model);
+
   return Object.entries(rawAttributes)
     .filter(([key]) => !HIDDEN_COLUMNS.has(key))
     .map(([key, attr]) => {
+      const dbField = attr.field ?? key;
+      const dbCol = dbColumns.get(dbField);
       const col = {
         key,
         type: attr.type?.constructor?.name ?? 'STRING',
-        allowNull: attr.allowNull !== false,
-        defaultValue: attr.defaultValue ?? null,
+        allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
+        hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
         readOnly: READONLY_COLUMNS.has(key),
+        readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];

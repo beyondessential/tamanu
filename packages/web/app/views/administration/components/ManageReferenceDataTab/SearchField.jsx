@@ -2,12 +2,18 @@ import React from 'react';
 import { startCase } from 'lodash';
 import styled from 'styled-components';
 import { TextField, useTranslation } from '@tamanu/ui-components';
-import { AutocompleteField, CheckField, Field } from '../../../../components/Field';
+import {
+  AutocompleteField,
+  CheckField,
+  Field,
+  MultiAutocompleteField,
+} from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../../api/suggesters';
 
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
+const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
 const NUMERIC_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL'];
 
 const CentredCheckContainer = styled.div`
@@ -16,6 +22,19 @@ const CentredCheckContainer = styled.div`
   height: 100%;
   padding-top: 20px;
 `;
+
+const AvailableFacilitiesSearchField = () => {
+  const suggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+  return (
+    <Field
+      name="availableFacilities"
+      label={startCase('availableFacilities')}
+      component={MultiAutocompleteField}
+      suggester={suggester}
+      data-testid="searchfield-availableFacilities"
+    />
+  );
+};
 
 const SuggesterSearchField = ({ col }) => {
   const suggester = useSuggester(col.suggesterEndpoint);
@@ -50,6 +69,9 @@ export const SearchField = ({ col }) => {
         />
       </CentredCheckContainer>
     );
+  }
+  if (col.key === AVAILABLE_FACILITIES_KEY) {
+    return <AvailableFacilitiesSearchField />;
   }
   if (col.suggesterEndpoint) {
     return <SuggesterSearchField col={col} />;

@@ -271,9 +271,9 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
+const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
-  ...VISIBILITY_CRITERIA,
+  ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
 
 const DEFAULT_MAPPER = ({ name, code, id }) => ({
@@ -689,6 +689,12 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+createNameSuggester(
+  'patientFieldDefinitionCategory',
+  'PatientFieldDefinitionCategory',
+  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+);
+createNameSuggester('invoicePriceList');
 
 // Calculate the availability of the location before passing on to the front end
 createSuggester(

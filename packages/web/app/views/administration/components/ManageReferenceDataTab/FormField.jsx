@@ -2,11 +2,17 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { startCase } from 'lodash';
 import { TextField } from '@tamanu/ui-components';
-import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { Field, SelectField, AutocompleteField } from '../../../../components/Field';
+import { REFERENCE_DATA_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
+import {
+  Field,
+  SelectField,
+  AutocompleteField,
+  MultiAutocompleteField,
+} from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
+import { REQUIRED_FIELDS } from './constants';
 
 const CheckFieldWrapper = styled.div`
   display: flex;
@@ -15,7 +21,7 @@ const CheckFieldWrapper = styled.div`
   padding-top: 20px;
 `;
 
-const VISIBILITY_STATUS_OPTIONS = Object.values(VISIBILITY_STATUSES).map(value => ({
+const VISIBILITY_STATUS_OPTIONS = REFERENCE_DATA_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
   label: startCase(value),
 }));
@@ -43,15 +49,34 @@ const SuggesterFormField = memo(({ col, disabled }) => {
       label={startCase(col.key)}
       component={AutocompleteField}
       suggester={suggester}
-      required={!col.allowNull}
+      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
       disabled={disabled}
       data-testid={`field-form-${col.key}`}
     />
   );
 });
 
+const AvailableFacilitiesFormField = memo(({ disabled }) => {
+  const suggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+  return (
+    <Field
+      name="availableFacilities"
+      label={startCase('availableFacilities')}
+      component={MultiAutocompleteField}
+      suggester={suggester}
+      allowSelectAll
+      disabled={disabled}
+      data-testid="field-form-availableFacilities"
+    />
+  );
+});
+
 export const FormField = memo(({ col, isEditMode }) => {
   const disabled = isEditMode && (col.readOnly || col.readOnlyOnEdit);
+
+  if (col.key === 'availableFacilities') {
+    return <AvailableFacilitiesFormField disabled={disabled} />;
+  }
 
   if (col.suggesterEndpoint) {
     return <SuggesterFormField col={col} disabled={disabled} />;
@@ -64,7 +89,7 @@ export const FormField = memo(({ col, isEditMode }) => {
         label={startCase(col.key)}
         component={SelectField}
         options={VISIBILITY_STATUS_OPTIONS}
-        required={!col.allowNull}
+        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}
       />
@@ -76,7 +101,7 @@ export const FormField = memo(({ col, isEditMode }) => {
       name={col.key}
       label={startCase(col.key)}
       component={getFieldComponent(col.type)}
-      required={!col.allowNull}
+      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
       disabled={disabled}
       data-testid={`field-form-${col.key}`}
     />

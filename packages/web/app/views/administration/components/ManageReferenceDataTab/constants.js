@@ -10,3 +10,5 @@ export const DATA_TYPE_OPTIONS = MANAGEABLE_DATA_TYPES.map(value => ({
   value,
   label: startCase(value),
 }));
+
+export const REQUIRED_FIELDS = new Set(['id', 'code', 'name']);

@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
+import { SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
@@ -22,7 +22,7 @@ referenceDataManageRouter.post(
     assertValidType(type);
 
     const { model, typeFilter } = getModelForType(req.store.models, type);
-    const columns = getColumnsForModel(model);
+    const columns = await getColumnsForModel(model);
     const data = getWritableData(columns, rawData, false);
 
     try {
@@ -56,7 +56,7 @@ referenceDataManageRouter.put(
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    const columns = getColumnsForModel(model);
+    const columns = await getColumnsForModel(model);
     const data = getWritableData(columns, rawData, true);
 
     await record.update(data);
@@ -71,7 +71,7 @@ referenceDataManageRouter.get(
     const { type } = req.query;
     assertValidType(type);
     const { model } = getModelForType(req.store.models, type);
-    res.send(getColumnsForModel(model));
+    res.send(await getColumnsForModel(model));
   }),
 );
 
@@ -87,7 +87,7 @@ referenceDataManageRouter.get(
     assertValidType(type);
 
     const { model, typeFilter } = getModelForType(req.store.models, type);
-    const columns = getColumnsForModel(model);
+    const columns = await getColumnsForModel(model);
 
     // Build search filters from query params
     const searchWhere = {};
@@ -115,16 +115,31 @@ referenceDataManageRouter.get(
         .filter(
           c =>
             c.suggesterEndpoint ||
-            c.key === 'visibilityStatus' ||
             EXACT_MATCH_TYPES.has(c.type),
         )
         .map(c => c.key),
     );
 
     for (const [key, value] of Object.entries(filters)) {
-      if (searchableKeys.has(key) && value) {
+      if (!value) continue;
+      if (key === 'availableFacilities') {
+        const facilityIds = Array.isArray(value) ? value : value.split(',');
+        searchWhere.availableFacilities = { [Op.contains]: facilityIds };
+        continue;
+      }
+      if (key === 'visibilityStatus') {
+        searchWhere.visibilityStatus = value.split(',');
+        continue;
+      }
+      if (searchableKeys.has(key)) {
         searchWhere[key] = exactMatchKeys.has(key) ? value : { [Op.iLike]: `%${value}%` };
       }
+    }
+
+    // Default to current records when model has visibilityStatus and no filter was sent
+    const hasVisibilityStatus = columns.some(c => c.key === 'visibilityStatus');
+    if (hasVisibilityStatus && !searchWhere.visibilityStatus) {
+      searchWhere.visibilityStatus = VISIBILITY_STATUSES.CURRENT;
     }
 
     const where = { ...typeFilter, ...searchWhere };
@@ -132,7 +147,7 @@ referenceDataManageRouter.get(
     const count = await model.count({ where });
     const data = await model.findAll({
       where,
-      order: [[orderBy, normalizedOrder]],
+      order: [[orderBy, normalizedOrder], ['id', 'ASC']],
       limit: Number(rowsPerPage),
       offset: Number(page) * Number(rowsPerPage),
     });

@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SEARCHABLE_COLUMN_TYPES, REFERENCE_DATA_VISIBILITY_STATUS_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
+const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
 const DEFAULT_VISIBLE_FILTER_COUNT = 4;
 
 const STRING_TYPES = new Set(['STRING', 'TEXT', 'CHAR', 'VARCHAR']);
@@ -13,7 +14,7 @@ const getFieldSortOrder = col => {
   if (col.key === VISIBILITY_STATUS_KEY) return 4;
   if (col.type === 'BOOLEAN') return 3;
   if (NUMERIC_TYPES.has(col.type)) return 2;
-  if (col.suggesterEndpoint) return 1;
+  if (col.suggesterEndpoint || col.key === AVAILABLE_FACILITIES_KEY) return 1;
   if (STRING_TYPES.has(col.type)) return 0;
   return 0;
 };
@@ -22,7 +23,12 @@ export const SearchBar = ({ columns, onSearch }) => {
   const searchFields = useMemo(
     () =>
       columns
-        .filter(col => SEARCHABLE_COLUMN_TYPES.includes(col.type) || col.suggesterEndpoint)
+        .filter(
+          col =>
+            SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
+            col.suggesterEndpoint ||
+            col.key === AVAILABLE_FACILITIES_KEY,
+        )
         .sort((a, b) => getFieldSortOrder(a) - getFieldSortOrder(b)),
     [columns],
   );
@@ -47,9 +53,10 @@ export const SearchBar = ({ columns, onSearch }) => {
           nonEmpty[key] = value;
         }
       }
-      // When "Include historical" is unchecked, filter to current only
-      if (hasVisibilityStatus && !values[VISIBILITY_STATUS_KEY]) {
-        nonEmpty[VISIBILITY_STATUS_KEY] = VISIBILITY_STATUSES.CURRENT;
+      if (hasVisibilityStatus) {
+        nonEmpty[VISIBILITY_STATUS_KEY] = values[VISIBILITY_STATUS_KEY]
+          ? REFERENCE_DATA_VISIBILITY_STATUS_VALUES.join(',')
+          : VISIBILITY_STATUSES.CURRENT;
       }
       onSearch(nonEmpty);
     },
@@ -64,6 +71,7 @@ export const SearchBar = ({ columns, onSearch }) => {
       showExpandButton={hasAdvancedFields}
       isExpanded={isExpanded}
       setIsExpanded={setIsExpanded}
+
       hiddenFields={advancedFields.map(col => (
         <SearchField key={col.key} col={col} />
       ))}

@@ -40,10 +40,9 @@ const SelectLabel = styled.label`
   color: ${Colors.darkText};
 `;
 
-const StyledDataFetchingTable = styled(DataFetchingTable)`
+const TableWrapper = styled.div`
   flex: 1;
   min-height: 0;
-  box-shadow: none;
 
   .MuiTableBody-root .MuiTableRow-root {
     cursor: pointer;
@@ -81,11 +80,17 @@ export const ManageReferenceDataTab = () => {
 
   const tableColumns = useMemo(
     () =>
-      columns.map(col => ({
-        key: col.key,
-        title: startCase(col.key),
-        sortable: true,
-      })),
+      columns.map(col => {
+        const column = {
+          key: col.key,
+          title: startCase(col.key),
+          sortable: true,
+        };
+        if (col.type === 'BOOLEAN') {
+          column.accessor = row => (row[col.key] ? 'Yes' : 'No');
+        }
+        return column;
+      }),
     [columns],
   );
 
@@ -134,24 +139,27 @@ export const ManageReferenceDataTab = () => {
       {selectedType && columns.length > 0 && (
         <>
           <SearchBar columns={columns} onSearch={handleSearch} data-testid="searchbar-refdata" />
-          <StyledDataFetchingTable
-            endpoint={ENDPOINT}
-            columns={tableColumns}
-            fetchOptions={fetchOptions}
-            defaultRowsPerPage={10}
-            initialSort={{ orderBy: 'createdAt', order: 'asc' }}
-            fixedHeader
-            refreshCount={refreshCount}
-            onRowClick={handleRowClick}
-            noDataMessage={
-              <TranslatedText
-                stringId="admin.referenceData.noData"
-                fallback="No reference data found"
-                data-testid="translatedtext-nodata-refdata"
-              />
-            }
-            data-testid="table-refdata-manage"
-          />
+          <TableWrapper>
+            <DataFetchingTable
+              endpoint={ENDPOINT}
+              columns={tableColumns}
+              fetchOptions={fetchOptions}
+              defaultRowsPerPage={10}
+              initialSort={{ orderBy: 'createdAt', order: 'asc' }}
+              fixedHeader
+              refreshCount={refreshCount}
+              onRowClick={handleRowClick}
+              containerStyle="table { width: 100%; }"
+              noDataMessage={
+                <TranslatedText
+                  stringId="admin.referenceData.noData"
+                  fallback="No reference data found"
+                  data-testid="translatedtext-nodata-refdata"
+                />
+              }
+              data-testid="table-refdata-manage"
+            />
+          </TableWrapper>
         </>
       )}
       {!selectedType && (
