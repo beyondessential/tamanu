@@ -1,12 +1,11 @@
 import Skeleton from '@mui/material/Skeleton';
-import { tabsClasses } from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
 import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
-import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
+import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { VisibilityStatusChip } from './components';
