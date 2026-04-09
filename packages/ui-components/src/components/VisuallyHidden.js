@@ -7,7 +7,7 @@ export const VisuallyHidden = styled.span`
   &:not(:active, :focus-visible, :focus-within) {
     border: 0;
     clip: rect(0 0 0 0);
-    height: auto;
+    height: 1px;
     margin: 0;
     overflow: hidden;
     padding: 0;
