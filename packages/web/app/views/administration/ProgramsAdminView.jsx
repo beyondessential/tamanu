@@ -11,10 +11,8 @@ import { ImporterView } from './components/ImporterView';
 import { ProgramExporterView } from './components/ProgramExporterView';
 
 const StyledTabDisplay = styled(TabDisplay)`
-  margin-top: 20px;
-  border-top: 1px solid ${Colors.outline};
-  padding: 0px 20px;
-  border-bottom: 1px solid ${Colors.outline};
+  border-block-end: 1px solid ${Colors.outline};
+  padding-inline: 20px;
 `;
 
 const TabContainer = styled.div`
