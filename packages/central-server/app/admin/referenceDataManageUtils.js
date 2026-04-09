@@ -23,7 +23,7 @@ export const getModelForType = (models, type) => {
 // Types that can be managed via this endpoint (must match the frontend MANAGEABLE_DATA_TYPES)
 const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFERENCE_TYPE_VALUES];
 
-const HIDDEN_COLUMNS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
+const HIDDEN_COLUMNS = new Set(['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick']);
 // Fields that are always read-only (create and edit)
 const READ_ONLY_COLUMNS = ['id', 'type'];
 
@@ -53,7 +53,7 @@ export const getColumnsForModel = (model) => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   return Object.entries(rawAttributes)
-    .filter(([key]) => !HIDDEN_COLUMNS.includes(key))
+    .filter(([key]) => !HIDDEN_COLUMNS.has(key))
     .map(([key, attr]) => {
       const col = {
         key,
