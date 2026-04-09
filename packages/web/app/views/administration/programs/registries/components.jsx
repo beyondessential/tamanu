@@ -8,6 +8,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { useVisibilityStatusMutation } from './useVisibilityStatusMutation';
 
 export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
@@ -19,34 +20,55 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-export function ProgramRegistryRowActionsCell({ visibilityStatus }) {
-  const items = [
-    {
-      label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-    },
-  ];
+/**
+ * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
+ */
+export function createProgramRegistryRowActionsAccessor(resourceSegment) {
+  return function ProgramRegistryRowActionsCell({ id, refreshTable, visibilityStatus }) {
+    const { isLoading, mutateAsync } = useVisibilityStatusMutation();
 
-  if (visibilityStatus === VISIBILITY_STATUSES.CURRENT) {
-    items.push({
-      label: (
-        <TranslatedText
-          stringId="admin.programRegistries.table.action.makeHistorical"
-          fallback="Make historical"
-        />
-      ),
-    });
-  } else if (visibilityStatus === VISIBILITY_STATUSES.HISTORICAL) {
-    items.push({
-      label: (
-        <TranslatedText
-          stringId="admin.programRegistries.table.action.makeCurrent"
-          fallback="Make current"
-        />
-      ),
-    });
-  }
+    const updateVisibilityStatus = nextVisibilityStatus =>
+      mutateAsync(
+        {
+          recordId: id,
+          resourceSegment,
+          visibilityStatus: nextVisibilityStatus,
+        },
+        { onSuccess: () => refreshTable?.() },
+      );
 
-  return <ThreeDotMenu items={items} />;
+    const items = [
+      {
+        label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+      },
+    ];
+
+    if (visibilityStatus === VISIBILITY_STATUSES.CURRENT) {
+      items.push({
+        disabled: isLoading,
+        label: (
+          <TranslatedText
+            stringId="admin.programRegistries.table.action.makeHistorical"
+            fallback="Make historical"
+          />
+        ),
+        onClick: () => updateVisibilityStatus(VISIBILITY_STATUSES.HISTORICAL),
+      });
+    } else if (visibilityStatus === VISIBILITY_STATUSES.HISTORICAL) {
+      items.push({
+        disabled: isLoading,
+        label: (
+          <TranslatedText
+            stringId="admin.programRegistries.table.action.makeCurrent"
+            fallback="Make current"
+          />
+        ),
+        onClick: () => updateVisibilityStatus(VISIBILITY_STATUSES.CURRENT),
+      });
+    }
+
+    return <ThreeDotMenu items={items} />;
+  };
 }
 
 const visibilityStatusText = /** @type {const} */ {

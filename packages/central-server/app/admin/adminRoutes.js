@@ -2,9 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
+import { simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -82,6 +82,12 @@ adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
+adminRoutes.put('/programRegistryClinicalStatus/:id', simplePut('ProgramRegistryClinicalStatus'));
+adminRoutes.put('/programRegistryCondition/:id', simplePut('ProgramRegistryCondition'));
+adminRoutes.put(
+  '/programRegistryConditionCategory/:id',
+  simplePut('ProgramRegistryConditionCategory'),
+);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
