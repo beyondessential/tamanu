@@ -30,7 +30,7 @@ export const EditReferenceDataModal = ({
       title={
         <TranslatedText
           stringId="admin.referenceData.editTitle"
-          fallback="Edit :type"
+          fallback="Edit reference data | :type"
           replacements={{ type: startCase(selectedType) }}
           data-testid="translatedtext-edit-refdata-title"
         />

@@ -18,7 +18,7 @@ export const AddReferenceDataModal = ({ open, onClose, columns, selectedType, on
       title={
         <TranslatedText
           stringId="admin.referenceData.addTitle"
-          fallback="Add :type"
+          fallback="Add reference data | :type"
           replacements={{ type: startCase(selectedType) }}
           data-testid="translatedtext-add-refdata-title"
         />

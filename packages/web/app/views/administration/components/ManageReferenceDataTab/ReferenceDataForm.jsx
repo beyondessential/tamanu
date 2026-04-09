@@ -32,8 +32,8 @@ export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, 
         <ModalFormActionRow
           confirmText={
             <TranslatedText
-              stringId={isEditMode ? 'general.action.save' : 'general.action.create'}
-              fallback={isEditMode ? 'Save' : 'Create'}
+              stringId={isEditMode ? 'admin.referenceData.editSave' : 'admin.referenceData.addNew'}
+              fallback={isEditMode ? 'Confirm' : 'Add Reference Data'}
               data-testid="translatedtext-confirm-refdata"
             />
           }
