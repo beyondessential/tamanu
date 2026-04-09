@@ -12,7 +12,6 @@ interface CreateTriageParams extends CommonParams {
 }
 export const createTriage = async ({
   models,
-  limit,
   patientId,
   departmentId,
   locationId,

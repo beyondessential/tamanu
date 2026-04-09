@@ -21,7 +21,7 @@ export const createProcedure = async ({
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
       locationId: locationId || (await randomRecordId(models, 'Location')),
       physicianId: physicianId || (await randomRecordId(models, 'User')),
-      date: chance.date({ year: 2024 }).toISOString(),
+      date: (chance.date({ year: 2024 }) as Date).toISOString(),
       completed: chance.bool(),
     }),
   );
