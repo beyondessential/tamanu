@@ -13,6 +13,7 @@ const cssReset = {
     interpolateSize: 'allow-keywords',
     textWrap: 'pretty',
   },
+  button: { font: 'inherit' },
   ':where(button, figcaption, h1, h2, h3, h4, h5, h6, label)': {
     textWrap: 'balance',
   },

@@ -28,7 +28,6 @@ test.describe('All patient table tests', () => {
     });
 
     test('[T-0027][AT-0004]Search by DOB', async ({ newPatient, allPatientsPage }) => {
-      console.log('newPatient.dateOfBirth', newPatient.dateOfBirth);
       await allPatientsPage.searchTable({ DOB: newPatient.dateOfBirth, advancedSearch: false });
       await allPatientsPage.validateAtLeastOneSearchResult();
       await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);

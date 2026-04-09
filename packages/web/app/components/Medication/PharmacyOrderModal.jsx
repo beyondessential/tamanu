@@ -455,17 +455,17 @@ export const PharmacyOrderModal = React.memo(
           $modalType={MODAL_TYPES.REQUEST_SENT}
         >
           <DialogContent>
-            <PharmacyIcon />
+            <PharmacyIcon alt="Pharmacy" />
             <DialogPrimaryText>
               <TranslatedText
                 stringId="pharmacyOrder.success.message"
-                fallback="Your order has been sent to pharmacy"
+                fallback="Your order has been sent to pharmacy."
               />
             </DialogPrimaryText>
             <DialogSecondaryText>
               <TranslatedText
                 stringId="pharmacyOrder.success.description"
-                fallback="Please do not send additional requests for these item/s until the original request has been filled by pharmacy"
+                fallback="Please do not send additional requests for these item/s until the original request has been filled by pharmacy."
               />
             </DialogSecondaryText>
           </DialogContent>

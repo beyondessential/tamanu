@@ -7,6 +7,7 @@ export const makePermissionsForRole = async (models, roleId, perms) =>
   Promise.all(
     perms.map(p =>
       models.Permission.create({
+        id: models.Permission.generatePermissionId(roleId, p.verb, p.noun, p.objectId),
         roleId,
         ...p,
       }),

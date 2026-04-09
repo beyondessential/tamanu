@@ -106,7 +106,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should pre-populate objectId rows from database records', async () => {
-      const program = await models.Program.create({
+      const program = await models.Program.upsert({
         id: 'test-program',
         name: 'Test Program',
       });
@@ -130,7 +130,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should pre-populate Charting objectId rows from charting-type surveys', async () => {
-      const program = await models.Program.create({
+      const program = await models.Program.upsert({
         id: 'test-program',
         name: 'Test Program',
       });

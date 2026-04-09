@@ -52,11 +52,34 @@ export const Base = yup.object().shape({
   id: fieldTypes.id.required(),
 });
 
+const availableFacilities = yup
+  .mixed()
+  .nullable()
+  .default(null)
+  .transform(value => {
+    if (!value) return null;
+    if (Array.isArray(value)) return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  })
+  .test(
+    'is-valid-facility-array',
+    'availableFacilities must be null or a JSON array of facility IDs',
+    value => {
+      if (value === null || value === undefined) return true;
+      return Array.isArray(value) && value.every(id => typeof id === 'string');
+    },
+  );
+
 export const ReferenceData = Base.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
   name: yup.string().required(),
   visibilityStatus,
+  availableFacilities,
 });
 
 export const RDmanufacturer = ReferenceData.shape({
@@ -162,6 +185,7 @@ export const LabTestType = Base.shape({
     .string()
     .default(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT)
     .oneOf(Object.values(LAB_TEST_TYPE_VISIBILITY_STATUSES)),
+  availableFacilities,
 });
 
 export const LabTestPanel = Base.shape({
@@ -169,6 +193,7 @@ export const LabTestPanel = Base.shape({
   code: yup.string().required(),
   categoryId: yup.string().required(),
   visibilityStatus,
+  availableFacilities,
 });
 
 export const LabTestPanelLabTestTypes = yup.object().shape({

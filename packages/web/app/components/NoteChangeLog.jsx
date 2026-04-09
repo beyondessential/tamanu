@@ -32,20 +32,18 @@ const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
 
 const NoteChangeLogInfo = ({ note }) => (
   <StyledNoteChangeLogInfoWrapper data-testid="stylednotechangeloginfowrapper-zbh3">
-    <>
-      <span>{note.author?.displayName || ''} </span>
-      {note.onBehalfOf ? (
-        <span>
-          <TranslatedText
-            stringId="note.table.onBehalfOfText"
-            fallback="on behalf of :changeOnBehalfOfName"
-            replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
-            data-testid="translatedtext-89o7"
-          />{' '}
-        </span>
-      ) : null}
-      <DateDisplay date={note.date} timeFormat="default" data-testid="datedisplay-o9yj" />
-    </>
+    <span>{note.author?.displayName || ''} </span>
+    {note.onBehalfOf ? (
+      <span>
+        <TranslatedText
+          stringId="note.table.onBehalfOfText"
+          fallback="on behalf of :changeOnBehalfOfName"
+          replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
+          data-testid="translatedtext-89o7"
+        />{' '}
+      </span>
+    ) : null}
+    <DateDisplay date={note.date} timeFormat="default" data-testid="datedisplay-o9yj" />
   </StyledNoteChangeLogInfoWrapper>
 );
 

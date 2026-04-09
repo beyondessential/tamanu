@@ -115,25 +115,23 @@ export const LocationAssignmentsCalendar = ({
   }
 
   return (
-    <>
-      <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
-        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
-          <LocationAssignmentsCalendarHeader
-            monthOf={monthOf}
-            setMonthOf={setMonthOf}
-            displayedDates={displayedDates}
-            data-testid="locationassignmentscalendarheader-yzb4"
-          />
-          <LocationAssignmentsCalendarBody
-            displayedDates={displayedDates}
-            locations={locations}
-            isLocationsLoading={isLocationsLoading}
-            assignments={assignments}
-            openAssignmentDrawer={openAssignmentDrawer}
-            data-testid="locationassignmentscalendarbody-4f9q"
-          />
-        </CarouselGrid.Root>
-      </Carousel>
-    </>
+    <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
+      <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
+        <LocationAssignmentsCalendarHeader
+          monthOf={monthOf}
+          setMonthOf={setMonthOf}
+          displayedDates={displayedDates}
+          data-testid="locationassignmentscalendarheader-yzb4"
+        />
+        <LocationAssignmentsCalendarBody
+          displayedDates={displayedDates}
+          locations={locations}
+          isLocationsLoading={isLocationsLoading}
+          assignments={assignments}
+          openAssignmentDrawer={openAssignmentDrawer}
+          data-testid="locationassignmentscalendarbody-4f9q"
+        />
+      </CarouselGrid.Root>
+    </Carousel>
   );
 };

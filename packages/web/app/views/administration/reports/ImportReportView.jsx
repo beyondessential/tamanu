@@ -236,20 +236,16 @@ export const ImportReportView = () => {
   };
 
   return (
-    <>
-      <Form
-        onSubmit={handleSubmit}
-        validationSchema={schema}
-        formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{
-          dryRun: true,
-        }}
-        showInlineErrorsOnly
-        render={props => (
-          <ImportForm {...props} feedback={feedback} data-testid="importform-4f8n" />
-        )}
-        data-testid="form-aryy"
-      />
-    </>
+    <Form
+      onSubmit={handleSubmit}
+      validationSchema={schema}
+      formType={FORM_TYPES.CREATE_FORM}
+      initialValues={{
+        dryRun: true,
+      }}
+      showInlineErrorsOnly
+      render={props => <ImportForm {...props} feedback={feedback} data-testid="importform-4f8n" />}
+      data-testid="form-aryy"
+    />
   );
 };

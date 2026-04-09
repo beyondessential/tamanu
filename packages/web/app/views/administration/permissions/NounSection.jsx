@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
-import { PERMISSION_SCHEMA } from '@tamanu/constants';
+import { PERMISSION_NOUN_DISPLAY_NAMES, PERMISSION_SCHEMA } from '@tamanu/constants';
 
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
@@ -134,7 +134,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
               )
             }
           >
-            <span>{nounGroup.nounKey}</span>
+            <span>{PERMISSION_NOUN_DISPLAY_NAMES[nounGroup.noun] ?? nounGroup.nounKey}</span>
           </ThemedTooltip>
         </NounCell>
         {selectedRoles.map(role => (
