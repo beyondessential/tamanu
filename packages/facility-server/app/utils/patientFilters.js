@@ -1,14 +1,14 @@
 import { sub } from 'date-fns';
 import { snakeCase } from 'lodash';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  isValidAdditionalSearchField,
+  isPatientModelSearchField,
+  isReferenceDataSearchField,
+} from '@tamanu/constants';
 
 import { makeDeletedAtIsNullFilter, makeFilter } from './query';
-import {
-  isValidAdditionalSearchField,
-  isPatientModelField,
-  isReferenceDataField,
-} from '../routes/apiv1/patient/constants';
 
 export const createPatientFilters = filterParams => {
   const filters = [
@@ -101,11 +101,11 @@ export const createAdditionalSearchFilters = (filterParams, configuredFields = [
     if (!isValidAdditionalSearchField(fieldName)) continue;
     if (!filterParams[fieldName]) continue;
 
-    const table = isPatientModelField(fieldName) ? 'patients' : 'patient_additional_data';
+    const table = isPatientModelSearchField(fieldName) ? 'patients' : 'patient_additional_data';
     const column = snakeCase(fieldName);
     const paramKey = `additionalField_${fieldName}`;
 
-    if (isReferenceDataField(fieldName)) {
+    if (isReferenceDataSearchField(fieldName)) {
       filters.push(
         makeFilter(true, `${table}.${column} = :${paramKey}`, () => ({
           [paramKey]: filterParams[fieldName],
@@ -127,7 +127,7 @@ export const additionalFieldsRequirePadJoin = (filterParams, configuredFields = 
   return configuredFields.some(
     fieldName =>
       isValidAdditionalSearchField(fieldName) &&
-      !isPatientModelField(fieldName) &&
+      !isPatientModelSearchField(fieldName) &&
       Boolean(filterParams[fieldName]),
   );
 };
