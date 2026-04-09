@@ -1,6 +1,5 @@
 import { Tab, Tabs } from '@material-ui/core';
 import { svgIconClasses } from '@mui/material/SvgIcon';
-import { tabsClasses } from '@mui/material/Tabs';
 
 import React from 'react';
 import styled from 'styled-components';
@@ -23,7 +22,7 @@ export const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab)`
-  ${tabsClasses.wrapper} {
+  span {
     flex-direction: row;
     text-transform: capitalize;
     gap: 5px;
