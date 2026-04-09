@@ -363,7 +363,7 @@ export function fakeUser(prefix: string = 'test-') {
     displayId: chance.hash({ length: 5 }).toUpperCase(),
     email: chance.email(),
     displayName: `${firstName} ${lastName}`,
-    role: chance.weighted(['practitioner', 'admin', 'nurse', 'receptionist'], [5, 1, 3, 2]),
+    role: 'practitioner',
   };
 }
 
