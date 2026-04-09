@@ -1,3 +1,4 @@
+import AddIcon from '@material-ui/icons/Add';
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
@@ -148,8 +149,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
         data-testid="buttonwithpermissioncheck-itoq"
+        startIcon={<AddIcon />}
       >
-        +{'\u00A0'}
         <TranslatedText
           stringId="patientList.action.add"
           fallback="Add new patient"
