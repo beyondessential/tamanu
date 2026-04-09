@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ClickAwayListener, Popover } from '@material-ui/core';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import styled from 'styled-components';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';

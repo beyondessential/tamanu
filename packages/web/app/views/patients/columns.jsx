@@ -1,5 +1,6 @@
 import React from 'react';
-import { CloudOff, CloudDone } from '@material-ui/icons';
+import CloudOff from '@mui/icons-material/CloudOff';
+import CloudDone from '@mui/icons-material/CloudDone';
 import {
   DateDisplay,
   TranslatedReferenceData,
