@@ -148,12 +148,12 @@ export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
-export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled(StyledButton)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled(StyledButton)`
   border: 1px solid ${TAMANU_COLORS.alert};
   color: ${TAMANU_COLORS.alert};
 `;
@@ -259,7 +259,7 @@ export const FormSubmitButton = ({
   );
 };
 
-export const FormCancelButton = ({ ...props }) => {
+export const FormCancelButton = props => {
   const { isSubmitting } = useFormikContext();
 
   return (
@@ -289,11 +289,9 @@ export const LargeSubmitButton = props => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props} data-testid="iconbutton-zsiq">
-    {children}
-  </IconButton>
-))`
+export const DefaultIconButton = styled(IconButton).attrs({
+  'data-testid': 'iconbutton-zsiq',
+})`
   border-radius: 20%;
   padding: 0px;
 `;
