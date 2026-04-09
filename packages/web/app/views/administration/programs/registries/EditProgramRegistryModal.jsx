@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { CURRENTLY_AT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FORM_TYPES } from '@tamanu/constants/forms';
@@ -14,7 +15,6 @@ import {
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
-import * as yup from 'yup';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
@@ -91,69 +91,69 @@ function EditProgramRegistryModal({ onClose, open }) {
         />
       }
     >
-      {open && registry /* redundant `registry` check for type inference */ && (
-        <Form
-          enableReinitialize
-          formType={FORM_TYPES.EDIT_FORM}
-          initialValues={initialValues}
-          onSubmit={async values => {
-            if (!programRegistryId) return;
-            await mutateProgramRegistry({
-              programRegistryId,
-              name: values.name,
-              visibilityStatus: values.visibilityStatus,
-              currentlyAtType: values.currentlyAtType,
-            });
-          }}
-          render={({ submitForm, isSubmitting }) => (
-            <>
-              <Fieldset>
-                <Field name="code" component={ReadOnlyTextField} label="code" />
-                <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
-                <Field
-                  name="visibilityStatus"
-                  component={SelectField}
-                  disabled={isSubmitting}
-                  isClearable={false}
-                  label="visibilityStatus"
-                  options={visibilityStatusSelectOptions}
-                />
-                <Field
-                  name="currentlyAtType"
-                  component={SelectField}
-                  disabled={isSubmitting}
-                  isClearable={false}
-                  label="currentlyAtType"
-                  options={currentlyAtTypeSelectOptions}
-                />
-              </Fieldset>
-              <Footer>
-                <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
-                  <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                </Button>
-                <OutlinedButton disabled={isSubmitting} onClick={onClose} type="button">
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                </OutlinedButton>
-              </Footer>
-            </>
-          )}
-          validationSchema={metadataValidationSchema}
-        />
-      )}
+      <Form
+        enableReinitialize
+        formType={FORM_TYPES.EDIT_FORM}
+        initialValues={initialValues}
+        onSubmit={async values => {
+          if (!programRegistryId) return;
+          await mutateProgramRegistry({
+            programRegistryId,
+            name: values.name,
+            visibilityStatus: values.visibilityStatus,
+            currentlyAtType: values.currentlyAtType,
+          });
+        }}
+        render={({ submitForm, isSubmitting }) => (
+          <>
+            <Fieldset>
+              <Field name="code" component={ReadOnlyTextField} label="code" />
+              <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
+              <Field
+                name="visibilityStatus"
+                component={SelectField}
+                disabled={isSubmitting}
+                isClearable={false}
+                label="visibilityStatus"
+                options={visibilityStatusSelectOptions}
+              />
+              <Field
+                name="currentlyAtType"
+                component={SelectField}
+                disabled={isSubmitting}
+                isClearable={false}
+                label="currentlyAtType"
+                options={currentlyAtTypeSelectOptions}
+              />
+            </Fieldset>
+            <Footer>
+              <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
+                <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+              </Button>
+              <OutlinedButton disabled={isSubmitting} onClick={onClose}>
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              </OutlinedButton>
+            </Footer>
+          </>
+        )}
+        validationSchema={metadataValidationSchema}
+      />
     </FormModal>
   );
 }
 
-export function EditProgramRegistryMetadataButton(props) {
+export function EditProgramRegistryButton(props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <Button {...props} onClick={() => setIsModalOpen(true)} style={{ marginInlineStart: 'auto' }}>
-      <TranslatedText
-        stringId="admin.programRegistries.editMetadata"
-        fallback="Edit program registry metadata"
-      />
+    <>
+      <Button {...props} onClick={() => setIsModalOpen(true)}>
+        <TranslatedText
+          stringId="admin.programRegistries.editMetadata"
+          fallback="Edit program registry metadata"
+        />
+      </Button>
       <EditProgramRegistryModal onClose={() => setIsModalOpen(false)} open={isModalOpen} />
-    </Button>
+    </>
   );
 }

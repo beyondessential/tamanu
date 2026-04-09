@@ -9,7 +9,7 @@ import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { VisibilityStatusChip } from './components';
-import { EditProgramRegistryMetadataButton } from './EditProgramRegistryModal';
+import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
@@ -175,7 +175,10 @@ export function ManageProgramRegistriesAdminView() {
             )
           )}
         </Metadata>
-        <EditProgramRegistryMetadataButton disabled={!isRegistrySuccess} />
+        <EditProgramRegistryButton
+          disabled={!isRegistrySuccess}
+          style={{ marginInlineStart: 'auto' }}
+        />
       </Header>
       {programRegistryId && (
         <StyledTabDisplay
