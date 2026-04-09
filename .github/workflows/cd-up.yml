@@ -86,7 +86,7 @@ jobs:
 
       - name: Find and clone seed snapshot
         id: snapshot
-        if: fromJson(inputs.options).seed-snapshot
+        if: fromJson(inputs.options)['seed-snapshot']
         run: |
           NS_NAME="tamanu-${{ inputs.deploy-name }}"
           SEED_NS="tamanu-seed"
