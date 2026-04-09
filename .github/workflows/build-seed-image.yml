@@ -32,6 +32,7 @@ jobs:
           context: .
           file: Dockerfile.seed
           push: true
+          no-cache: true
           platforms: linux/arm64
           tags: ghcr.io/beyondessential/tamanu-seed:2.53.0
           build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
