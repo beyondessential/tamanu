@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { startCase } from 'lodash';
 import styled from 'styled-components';
 import { SelectInput, Button } from '@tamanu/ui-components';
