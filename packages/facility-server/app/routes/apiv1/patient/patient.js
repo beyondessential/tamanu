@@ -19,7 +19,11 @@ import {
 import { isGeneratedDisplayId, isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
-import { createPatientFilters } from '../../../utils/patientFilters';
+import {
+  createPatientFilters,
+  createAdditionalSearchFilters,
+  additionalFieldsRequirePadJoin,
+} from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
@@ -297,6 +301,7 @@ patientRoute.get(
     const {
       models: { Patient },
       query,
+      settings,
     } = req;
 
     req.checkPermission('list', 'Patient');
@@ -372,10 +377,26 @@ patientRoute.get(
     // clauses to improve query speed by removing unused joins
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
+
+    const additionalSearchFields =
+      isAllPatientsListing && filterParams.facilityId
+        ? (await settings[filterParams.facilityId]?.get(
+            'patientSearch.additionalSearchFields',
+          )) ?? []
+        : [];
+    const additionalFilters = createAdditionalSearchFilters(filterParams, additionalSearchFields);
+    const needsPadJoin = additionalFieldsRequirePadJoin(filterParams, additionalSearchFields);
+
+    const allFilters = [...filters, ...additionalFilters];
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
-      filters,
+      allFilters,
       filterParams,
     );
+
+    const padJoin = needsPadJoin
+      ? `LEFT JOIN patient_additional_data
+          ON (patient_additional_data.patient_id = patients.id)`
+      : '';
 
     const from = isAllPatientsListing
       ? `
@@ -399,6 +420,7 @@ patientRoute.get(
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
           ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
+        ${padJoin}
       ${whereClauses && `WHERE ${whereClauses}`}
       `
       : `
