@@ -82,15 +82,15 @@ adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.get('/programRegistries', simpleGetList('ProgramRegistry'));
 adminRoutes.get(
-  '/programRegistries/:id/programRegistryClinicalStatuses',
+  '/programRegistry/:id/programRegistryClinicalStatuses',
   simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
 );
 adminRoutes.get(
-  '/programRegistries/:id/programRegistryConditions',
+  '/programRegistry/:id/programRegistryConditions',
   simpleGetList('ProgramRegistryCondition', 'programRegistryId'),
 );
 adminRoutes.get(
-  '/programRegistries/:id/programRegistryConditionCategories',
+  '/programRegistry/:id/programRegistryConditionCategories',
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
 adminRoutes.get('/programRegistry/:id', getProgramRegistryHandler);
