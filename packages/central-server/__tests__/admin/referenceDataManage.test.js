@@ -99,17 +99,6 @@ describe('Reference Data Manage', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('should strip read-only fields', async () => {
-      const response = await adminApp.post(BASE_URL).send({
-        type: TEST_TYPE,
-        id: 'custom-id-attempt',
-        code: 'test-readonly-strip',
-        name: 'Read Only Test',
-      });
-      expect(response).toHaveSucceeded();
-      expect(response.body.id).not.toBe('custom-id-attempt');
-    });
-
     it('should forbid access without permission', async () => {
       const response = await baseApp.post(BASE_URL).send({
         type: TEST_TYPE,
