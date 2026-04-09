@@ -15,10 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: release/2.53
-
-      - name: Grab Dockerfile.seed from CI branch
-        run: git fetch origin ci/tan-2611-snapshot-creation && git checkout origin/ci/tan-2611-snapshot-creation -- Dockerfile.seed
+          ref: ci/tan-2611-snapshot-creation
 
       - name: Get SHA
         id: sha
