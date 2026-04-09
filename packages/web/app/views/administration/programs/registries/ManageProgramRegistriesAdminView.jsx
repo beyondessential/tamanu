@@ -65,7 +65,7 @@ const tabs = /** @type {const} */ ([
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.statuses"
-        fallback="Clinical Statuses"
+        fallback="Clinical statuses"
       />
     ),
     render: Outlet,
@@ -82,7 +82,7 @@ const tabs = /** @type {const} */ ([
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.conditionCategories"
-        fallback="Related Condition Categories"
+        fallback="Related condition categories"
       />
     ),
     render: Outlet,
