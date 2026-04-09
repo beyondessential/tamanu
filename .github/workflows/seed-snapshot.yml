@@ -119,7 +119,6 @@ jobs:
                 containers:
                   - name: migrate
                     image: ${IMAGE}
-                    imagePullPolicy: Always
                     envFrom:
                       - secretRef:
                           name: pgsnap-${JOB_NAME}
