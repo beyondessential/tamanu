@@ -32,9 +32,7 @@ referenceDataManageRouter.post(
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
         const value = err.errors?.[0]?.value ?? '';
-        throw new DatabaseDuplicateError(
-          `A record with ${field} "${value}" already exists`,
-        );
+        throw new DatabaseDuplicateError(`A record with ${field} "${value}" already exists`);
       }
       throw err;
     }
@@ -95,8 +93,8 @@ referenceDataManageRouter.get(
     const searchWhere = {};
     const searchableKeys = new Set(
       columns
-        .filter((c) => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint)
-        .map((c) => c.key),
+        .filter(c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint)
+        .map(c => c.key),
     );
 
     const normalizedOrder = order.toUpperCase();
@@ -111,16 +109,16 @@ referenceDataManageRouter.get(
       throw new InvalidOperationError(`Invalid orderBy value: ${orderBy}`);
     }
 
-    const EXACT_MATCH_TYPES = ['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL', 'BOOLEAN'];
+    const EXACT_MATCH_TYPES = new Set(['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL', 'BOOLEAN']);
     const exactMatchKeys = new Set(
       columns
         .filter(
-          (c) =>
+          c =>
             c.suggesterEndpoint ||
             c.key === 'visibilityStatus' ||
-            EXACT_MATCH_TYPES.includes(c.type),
+            EXACT_MATCH_TYPES.has(c.type),
         )
-        .map((c) => c.key),
+        .map(c => c.key),
     );
 
     for (const [key, value] of Object.entries(filters)) {
@@ -141,7 +139,7 @@ referenceDataManageRouter.get(
 
     res.send({
       count,
-      data: data.map((record) => record.forResponse()),
+      data: data.map(record => record.forResponse()),
     });
   }),
 );

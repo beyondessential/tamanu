@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { startCase } from 'lodash';
 import styled from 'styled-components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, useTranslation } from '@tamanu/ui-components';
 import { AutocompleteField, CheckField, Field } from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -17,7 +17,7 @@ const CentredCheckContainer = styled.div`
   padding-top: 20px;
 `;
 
-const SuggesterSearchField = memo(({ col }) => {
+const SuggesterSearchField = ({ col }) => {
   const suggester = useSuggester(col.suggesterEndpoint);
   return (
     <Field
@@ -28,9 +28,11 @@ const SuggesterSearchField = memo(({ col }) => {
       data-testid={`searchfield-${col.key}`}
     />
   );
-});
+};
 
-export const SearchField = memo(({ col }) => {
+export const SearchField = ({ col }) => {
+  const { getTranslation } = useTranslation();
+
   if (col.key === VISIBILITY_STATUS_KEY) {
     return (
       <CentredCheckContainer>
@@ -70,8 +72,8 @@ export const SearchField = memo(({ col }) => {
       component={isNumeric ? NumberField : TextField}
       name={col.key}
       label={startCase(col.key)}
-      placeholder="Search..."
+      placeholder={getTranslation('general.placeholder.search...', 'Search…')}
       data-testid={`searchfield-${col.key}`}
     />
   );
-});
+};

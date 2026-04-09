@@ -18,4 +18,4 @@ export const SEARCHABLE_COLUMN_TYPES = [
   'DECIMAL',
   'REAL',
   'BOOLEAN',
-];
+] as const;

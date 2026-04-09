@@ -53,7 +53,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-export const ManageReferenceDataTab = memo(() => {
+export const ManageReferenceDataTab = () => {
   const api = useApi();
   const [selectedType, setSelectedType] = useState('');
   const [columns, setColumns] = useState([]);
@@ -167,7 +167,7 @@ export const ManageReferenceDataTab = memo(() => {
         </>
       )}
       {!selectedType && (
-        <div
+        <p
           style={{ textAlign: 'center', padding: '60px 0', color: Colors.softText }}
           data-testid="placeholder-refdata"
         >
@@ -176,7 +176,7 @@ export const ManageReferenceDataTab = memo(() => {
             fallback="Select a reference data type to view and manage records"
             data-testid="translatedtext-prompt-refdata"
           />
-        </div>
+        </p>
       )}
       {isAddModalOpen && (
         <AddReferenceDataModal
@@ -201,4 +201,4 @@ export const ManageReferenceDataTab = memo(() => {
       )}
     </Container>
   );
-});
+};

@@ -23,18 +23,21 @@ export const getModelForType = (models, type) => {
 // Types that can be managed via this endpoint (must match the frontend MANAGEABLE_DATA_TYPES)
 const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFERENCE_TYPE_VALUES];
 
-const HIDDEN_COLUMNS = new Set(['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick']);
+const HIDDEN_COLUMNS = /** @type {const} */ (
+  new Set(['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'])
+);
+
 // Fields that are always read-only (create and edit)
-const READ_ONLY_COLUMNS = ['id', 'type'];
+const READONLY_COLUMNS = /** @type {const} */ (new Set(['id', 'type']));
 
 // Explicit overrides for FK columns where the association alias doesn't match the suggester endpoint
-const FK_ENDPOINT_OVERRIDES = {
+const FK_ENDPOINT_OVERRIDES = /** @type {const} */ {
   // e.g. 'someForeignKeyId': 'customEndpoint',
 };
 
 // Build a map of foreignKey -> suggester endpoint from BelongsTo associations.
 // Only allows suggesters for models that are both importable reference data and have a suggester endpoint.
-const getForeignKeySuggesters = (model) => {
+const getForeignKeySuggesters = model => {
   const associations = model.associations ?? {};
   const fkToEndpoint = {};
   for (const assoc of Object.values(associations)) {
@@ -42,14 +45,17 @@ const getForeignKeySuggesters = (model) => {
       continue;
     }
     const endpoint = FK_ENDPOINT_OVERRIDES[assoc.foreignKey] ?? assoc.as;
-    if (SUGGESTER_ENDPOINTS.includes(endpoint) && GENERAL_IMPORTABLE_DATA_TYPES.includes(endpoint)) {
+    if (
+      SUGGESTER_ENDPOINTS.includes(endpoint) &&
+      GENERAL_IMPORTABLE_DATA_TYPES.includes(endpoint)
+    ) {
       fkToEndpoint[assoc.foreignKey] = endpoint;
     }
   }
   return fkToEndpoint;
 };
 
-export const getColumnsForModel = (model) => {
+export const getColumnsForModel = model => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   return Object.entries(rawAttributes)
@@ -60,7 +66,7 @@ export const getColumnsForModel = (model) => {
         type: attr.type?.constructor?.name ?? 'STRING',
         allowNull: attr.allowNull !== false,
         defaultValue: attr.defaultValue ?? null,
-        readOnly: READ_ONLY_COLUMNS.includes(key),
+        readOnly: READONLY_COLUMNS.has(key),
       };
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];
@@ -70,7 +76,7 @@ export const getColumnsForModel = (model) => {
     });
 };
 
-export const assertValidType = (type) => {
+export const assertValidType = type => {
   if (!type) {
     throw new InvalidOperationError('type is required in request body');
   }
@@ -82,7 +88,7 @@ export const assertValidType = (type) => {
 
 export const getWritableData = (columns, data, isEditMode) => {
   const writableKeys = new Set(
-    columns.filter((c) => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map((c) => c.key),
+    columns.filter(c => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map(c => c.key),
   );
   return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
 };
