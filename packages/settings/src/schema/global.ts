@@ -1613,6 +1613,18 @@ export const globalSettings = {
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
+    patientSearch: {
+      description: 'Patient search configuration',
+      exposedToWeb: true,
+      properties: {
+        additionalSearchFields: {
+          description:
+            'Additional patient or patient additional data fields that are searchable in the all patients listing',
+          type: yup.array(yup.string().required()),
+          defaultValue: [],
+        },
+      },
+    },
     notifications: {
       description: 'Notification settings',
       properties: {
