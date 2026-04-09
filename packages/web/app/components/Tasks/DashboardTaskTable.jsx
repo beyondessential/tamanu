@@ -8,6 +8,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
+import { VisuallyHidden } from '@tamanu/ui-components';
 import { BodyText, SmallBodyText, TranslatedText, Table, DateDisplay, TimeDisplay } from '../.';
 import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
@@ -20,6 +21,7 @@ import { reloadPatient } from '../../store';
 import { useEncounter } from '../../contexts/Encounter';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { DrugIcon } from '../../assets/icons/DrugIcon';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
   height: calc(100% - 110px);
@@ -33,76 +35,47 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 `;
 
 const StyledTable = styled(Table)`
-  height: 100%;
-  border-left: 0px solid white;
-  border-right: 0px solid white;
-  border-radius: 0px;
+  block-size: 100%;
+  border-inline: 0;
+  border-radius: 0;
   box-shadow: none;
-  margin-top: 5px;
+  margin-block-start: 5px;
   .MuiTableCell-head {
     background-color: ${Colors.white};
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-block: 8px;
     span {
       font-weight: 400;
       color: ${Colors.midText};
     }
-    padding-left: 11px;
-    padding-right: 11px;
+    padding-inline: 11px;
     &:last-child {
       padding-right: 20px;
     }
   }
   .MuiTableCell-body {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 11px;
-    padding-right: 11px;
-    &:last-child {
-      padding-right: 20px;
-    }
+    padding-block: 4px;
+    padding-inline: 11px;
     &:first-child {
-      padding-left: 0px;
-      padding-right: 0px;
-      width: 20px;
-    }
-  }
-  td {
-    &:nth-child(2) {
-      width: 22%;
-    }
-    &:nth-child(3) {
-      width: 20%;
-    }
-    &:nth-child(4) {
-      width: 20%;
-    }
-    &:nth-child(5) {
-      position: relative;
-      width: 28%;
-    }
-    &:nth-child(6) {
-      width: 10%;
+      inline-size: 20px;
     }
   }
   .MuiTableFooter-root {
     background-color: ${Colors.white};
     .MuiPagination-root {
-      padding-top: 6px;
-      padding-bottom: 6px;
-      margin-right: 0;
+      padding-block: 6px;
+      margin-inline-end: 0;
     }
     td > div:first-child {
-      padding-top: 6px;
+      padding-block-start: 6px;
     }
   }
 `;
 
 const StatusTodo = styled.div`
-  width: 15px;
-  height: 15px;
+  aspect-ratio: 1;
+  block-size: 1em;
+  border-radius: calc(infinity * 1px);
   border: 1px dashed ${Colors.blue};
-  border-radius: 50%;
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
@@ -144,15 +117,14 @@ const StyledToolTip = styled(ThemedTooltip)`
 `;
 
 const PaginatorContainer = styled.div`
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-top: -14px;
-  margin-bottom: -18px;
+  margin-block: -14px -18px;
 `;
 
 const StyledDivider = styled(Divider)`
-  margin-top: 5px;
+  margin-block-start: 5px;
   background-color: ${Colors.outline};
 `;
 
@@ -161,28 +133,42 @@ const DateWrapper = styled.div`
   white-space: pre;
 `;
 
-const getStatus = row => {
-  const { status } = row;
+const StatusCell = ({ status }) => {
+  const { getTranslation } = useTranslation();
+
   switch (status) {
     case TASK_STATUSES.TODO:
       return (
-        <Box marginLeft="1.5px" data-testid="box-zu8j">
-          <StatusTodo data-testid="statustodo-cgar" />
-        </Box>
+        <StatusTodo
+          aria-label={getTranslation('dashboard.tasks.table.status.todo', 'To do')}
+          data-testid="statustodo-cgar"
+        />
       );
     case TASK_STATUSES.COMPLETED:
-      return <StyledCheckCircleIcon data-testid="styledcheckcircleicon-2zud" />;
+      return (
+        <StyledCheckCircleIcon
+          aria-label={getTranslation('dashboard.tasks.table.status.completed', 'Completed')}
+          data-testid="styledcheckcircleicon-2zud"
+        />
+      );
     case TASK_STATUSES.NON_COMPLETED:
-      return <StyledCancelIcon data-testid="styledcancelicon-a0it" />;
+      return (
+        <StyledCancelIcon
+          aria-label={getTranslation('dashboard.tasks.table.status.notCompleted', 'Not completed')}
+          data-testid="styledcancelicon-a0it"
+        />
+      );
     default:
-      break;
+      return null;
   }
 };
 
 const getDueTime = ({ dueTime }) => {
   return (
     <DateWrapper data-testid="datewrapper-hd7h">
-      <BodyText data-testid="bodytext-fq9o"><TimeDisplay date={dueTime} /></BodyText>
+      <BodyText data-testid="bodytext-fq9o">
+        <TimeDisplay date={dueTime} />
+      </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-grca">
         <DateDisplay date={dueTime} format="shortest" />
       </SmallBodyText>
@@ -251,8 +237,13 @@ const NoDataMessage = () => (
 
 const COLUMNS = [
   {
-    key: '',
-    accessor: getStatus,
+    key: 'status',
+    title: (
+      <VisuallyHidden>
+        <TranslatedText stringId="dashboard.tasks.table.column.status" fallback="Status" />
+      </VisuallyHidden>
+    ),
+    accessor: StatusCell,
     maxWidth: 20,
     sortable: false,
   },
@@ -290,7 +281,7 @@ const COLUMNS = [
     accessor: ({ encounter }) => {
       const { patient } = encounter;
       return (
-        <div>
+        <>
           <BodyText data-testid="bodytext-patient-main">
             {patient.firstName} {patient.lastName}
           </BodyText>
@@ -299,7 +290,7 @@ const COLUMNS = [
               {patient.culturalName}
             </SmallBodyText>
           )}
-        </div>
+        </>
       );
     },
   },
