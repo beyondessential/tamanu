@@ -1,33 +1,16 @@
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { CURRENTLY_AT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { FORM_TYPES } from '@tamanu/constants/forms';
-import * as yup from 'yup';
-import {
-  Button,
-  Field,
-  Form,
-  OutlinedButton,
-  ReadOnlyTextField,
-  SelectField,
-  TextField,
-  TranslatedText,
-} from '@tamanu/ui-components';
-import { FormModal } from '../../../../components';
+import { SelectField, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
-import { notifySuccess } from '../../../../utils';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { VisibilityStatusChip } from './components';
-import {
-  useProgramRegistriesQuery,
-  useProgramRegistryMutation,
-  useProgramRegistryQuery,
-} from './queries';
+import { EditProgramRegistryMetadataButton } from './EditProgramRegistryModal';
+import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
   overflow: auto;
@@ -106,44 +89,6 @@ const tabs = /** @type {const} */ ([
 
 const tabPathSegments = new Set(Object.values(TabKey));
 
-const visibilityStatusSelectOptions = [
-  VISIBILITY_STATUSES.CURRENT,
-  VISIBILITY_STATUSES.HISTORICAL,
-].map(value => ({
-  value,
-  label: value,
-}));
-
-const currentlyAtTypeSelectOptions = Object.values(CURRENTLY_AT_TYPES).map(value => ({
-  value,
-  label: value,
-}));
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
-
-const Footer = styled.footer`
-  border-block-start: 1px solid ${props => props.theme.palette.divider};
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 16px;
-  justify-content: flex-start;
-  margin-block-start: 24px;
-  padding-block-start: 20px;
-`;
-
-const metadataValidationSchema = yup.object().shape({
-  name: yup.string().trim().required('Required'),
-  visibilityStatus: yup
-    .string()
-    .required('Required')
-    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
-  currentlyAtType: yup.string().required('Required'),
-});
-
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
   const navigate = useNavigate();
@@ -181,32 +126,6 @@ export function ManageProgramRegistriesAdminView() {
     isLoading: isRegistryLoading,
     isSuccess: isRegistrySuccess,
   } = useProgramRegistryQuery(programRegistryId);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const openMetadataModal = useCallback(() => void setIsModalOpen(true), []);
-  const closeMetadataModal = useCallback(() => void setIsModalOpen(false), []);
-
-  const { mutateAsync: mutateProgramRegistry } = useProgramRegistryMutation({
-    onSuccess: () => {
-      setIsModalOpen(false);
-      notifySuccess(
-        <TranslatedText
-          stringId="admin.programRegistries.metadataUpdateSuccess"
-          fallback="Program registry updated"
-        />,
-      );
-    },
-  });
-
-  const metadataInitialValues = useMemo(
-    () => ({
-      code: registry?.code ?? '',
-      name: registry?.name ?? '',
-      visibilityStatus: registry?.visibilityStatus ?? '',
-      currentlyAtType: registry?.currentlyAtType ?? '',
-    }),
-    [registry],
-  );
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -256,81 +175,8 @@ export function ManageProgramRegistriesAdminView() {
             )
           )}
         </Metadata>
-        <Button
-          disabled={!isRegistrySuccess}
-          onClick={openMetadataModal}
-          style={{ marginInlineStart: 'auto' }}
-        >
-          <TranslatedText
-            stringId="admin.programRegistries.editMetadata"
-            fallback="Edit program registry metadata"
-          />
-        </Button>
+        <EditProgramRegistryMetadataButton disabled={!isRegistrySuccess} />
       </Header>
-      <FormModal
-        onClose={closeMetadataModal}
-        open={isModalOpen}
-        title={
-          <TranslatedText
-            stringId="admin.programRegistries.editMetadata"
-            fallback="Edit program registry metadata"
-          />
-        }
-      >
-        {isModalOpen && registry ? (
-          <Form
-            enableReinitialize
-            formType={FORM_TYPES.EDIT_FORM}
-            initialValues={metadataInitialValues}
-            onSubmit={async values => {
-              if (!programRegistryId) return;
-              await mutateProgramRegistry({
-                programRegistryId,
-                name: values.name,
-                visibilityStatus: values.visibilityStatus,
-                currentlyAtType: values.currentlyAtType,
-              });
-            }}
-            render={({ submitForm, isSubmitting }) => (
-              <>
-                <Fieldset>
-                  <Field name="code" component={ReadOnlyTextField} label="code" />
-                  <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
-                  <Field
-                    name="visibilityStatus"
-                    component={SelectField}
-                    disabled={isSubmitting}
-                    isClearable={false}
-                    label="visibilityStatus"
-                    options={visibilityStatusSelectOptions}
-                  />
-                  <Field
-                    name="currentlyAtType"
-                    component={SelectField}
-                    disabled={isSubmitting}
-                    isClearable={false}
-                    label="currentlyAtType"
-                    options={currentlyAtTypeSelectOptions}
-                  />
-                </Fieldset>
-                <Footer>
-                  <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
-                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                  </Button>
-                  <OutlinedButton
-                    disabled={isSubmitting}
-                    onClick={closeMetadataModal}
-                    type="button"
-                  >
-                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                  </OutlinedButton>
-                </Footer>
-              </>
-            )}
-            validationSchema={metadataValidationSchema}
-          />
-        ) : null}
-      </FormModal>
       {programRegistryId && (
         <StyledTabDisplay
           currentTab={currentTab}
