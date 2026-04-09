@@ -84,7 +84,7 @@ const Time = styled.time`
 
 const CardFooter = ({ averageWaitTime, color }) => {
   const hours = Math.floor(averageWaitTime / HOUR);
-  const minutes = Math.round((averageWaitTime - hours * HOUR) / MINUTE);
+  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
 
   const formatter = new Intl.DurationFormat(navigator?.language, { style: 'short' });
   return (
@@ -100,7 +100,7 @@ const CardFooter = ({ averageWaitTime, color }) => {
           :{' '}
         </FooterLabel>
       </Row>
-      <Time datetime={`${hours}h ${minutes}m`} data-testid="footertime-pe6h">
+      <Time dateTime={`${hours}h ${minutes}m`} data-testid="footertime-pe6h">
         {formatter.format({ hours, minutes }) || '—' /* em dash */}
       </Time>
     </>

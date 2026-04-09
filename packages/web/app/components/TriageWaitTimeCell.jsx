@@ -17,7 +17,7 @@ const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
   if (startMs == null) return '—';
   const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
-  const minutes = Math.round((time - hours * HOUR) / MINUTE);
+  const minutes = Math.floor((time - hours * HOUR) / MINUTE);
   const formatter = new Intl.DurationFormat(undefined, { style: 'short' });
   return <time dateTime={`${hours}h ${minutes}m`}>{formatter.format({ hours, minutes })}</time>;
 };
