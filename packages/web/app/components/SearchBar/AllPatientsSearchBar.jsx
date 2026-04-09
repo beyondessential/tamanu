@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Box from '@material-ui/core/Box';
+import { startCase } from 'lodash';
 import { useDateTime } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
@@ -34,11 +35,72 @@ const VillageLocalisedField = styled(LocalisedField)`
   font-size: 11px;
 `;
 
+const REFERENCE_DATA_FIELDS = new Set([
+  'nationalityId',
+  'countryId',
+  'divisionId',
+  'subdivisionId',
+  'medicalAreaId',
+  'nursingZoneId',
+  'settlementId',
+  'ethnicityId',
+  'occupationId',
+  'religionId',
+  'patientBillingTypeId',
+  'countryOfBirthId',
+  'insurerId',
+  'secondaryVillageId',
+]);
+
+const getReferenceDataType = fieldName => fieldName.replace(/Id$/, '');
+
+const getFieldLabel = fieldName => startCase(fieldName.replace(/Id$/, ''));
+
+const ReferenceDataSearchField = ({ fieldName }) => {
+  const referenceType = getReferenceDataType(fieldName);
+  const suggester = useSuggester(referenceType);
+  return (
+    <LocalisedField
+      component={AutocompleteField}
+      name={fieldName}
+      label={
+        <TranslatedText
+          stringId={`general.localisedField.${fieldName}.label.short`}
+          fallback={getFieldLabel(fieldName)}
+        />
+      }
+      suggester={suggester}
+      size="small"
+    />
+  );
+};
+
+const TextSearchField = ({ fieldName }) => (
+  <LocalisedField
+    component={SearchField}
+    name={fieldName}
+    label={
+      <TranslatedText
+        stringId={`general.localisedField.${fieldName}.label.short`}
+        fallback={getFieldLabel(fieldName)}
+      />
+    }
+  />
+);
+
+const AdditionalSearchField = ({ fieldName }) => {
+  if (REFERENCE_DATA_FIELDS.has(fieldName)) {
+    return <ReferenceDataSearchField fieldName={fieldName} />;
+  }
+  return <TextSearchField fieldName={fieldName} />;
+};
+
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
+  const additionalSearchFields = getSetting('patientSearch.additionalSearchFields') ?? [];
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
@@ -109,6 +171,9 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             }
             data-testid="searchbarcheckfield-7dw8"
           />
+          {additionalSearchFields.map(fieldName => (
+            <AdditionalSearchField key={fieldName} fieldName={fieldName} />
+          ))}
         </>
       }
       data-testid="customisablesearchbarwithpermissioncheck-al75"
