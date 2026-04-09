@@ -37,6 +37,27 @@ import {
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
 import { Model } from '@tamanu/database/models/Model';
+import { DRUGS } from '@tamanu/database/demoData/drugs';
+import { ALLERGIES } from '@tamanu/database/demoData/allergies';
+import { DIAGNOSES } from '@tamanu/database/demoData/diagnoses';
+import { TRIAGE_DIAGNOSES } from '@tamanu/database/demoData/triageDiagnoses';
+import { VILLAGES } from '@tamanu/database/demoData/villages';
+import { PROCEDURE_TYPES } from '@tamanu/database/demoData/procedureTypes';
+import {
+  X_RAY_IMAGING_AREAS,
+  CT_SCAN_IMAGING_AREAS,
+  ULTRASOUND_IMAGING_AREAS,
+} from '@tamanu/database/demoData/imagingAreas';
+
+const DRUG_NAMES = DRUGS.map(d => d.name);
+const ALLERGY_NAMES = ALLERGIES.map(a => a.name);
+const DIAGNOSIS_NAMES = DIAGNOSES.map(d => d.name.split('\t')[0]);
+const TRIAGE_REASON_NAMES = TRIAGE_DIAGNOSES.map(t => t.name);
+const VILLAGE_NAMES = VILLAGES.map(v => v.name);
+const PROCEDURE_TYPE_NAMES = PROCEDURE_TYPES.map(p => p.name.split('\t')[1] || p.name);
+const X_RAY_AREA_NAMES = X_RAY_IMAGING_AREAS.map(a => a.name);
+const CT_SCAN_AREA_NAMES = CT_SCAN_IMAGING_AREAS.map(a => a.name);
+const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
@@ -188,31 +209,15 @@ export function fakeProgramDataElement(prefix: string = 'test-') {
 export function fakeReferenceData(prefix: string = 'test-') {
   const id = fakeUUID();
   const { type, name } = chance.pickone([
-    { type: 'drug', name: chance.pickone([
-      'Amoxicillin', 'Paracetamol', 'Ibuprofen', 'Metformin', 'Omeprazole',
-      'Amlodipine', 'Salbutamol', 'Ciprofloxacin', 'Doxycycline', 'Prednisolone',
-      'Atenolol', 'Diazepam', 'Morphine Sulfate', 'Oral Rehydration Salts', 'Ferrous Sulfate',
-    ]) },
-    { type: 'allergy', name: chance.pickone([
-      'Penicillin', 'Peanuts', 'Latex', 'Shellfish', 'Sulfonamides',
-      'Aspirin', 'Bee stings', 'Egg', 'Soy', 'Dust mites', 'Codeine', 'Iodine',
-    ]) },
-    { type: 'diagnosis', name: chance.pickone([
-      'Essential hypertension', 'Type 2 diabetes mellitus', 'Acute bronchitis',
-      'Iron deficiency anaemia', 'Malaria due to P. falciparum', 'Pneumonia',
-      'Acute gastroenteritis', 'Urinary tract infection', 'Cellulitis',
-      'Asthma', 'Tuberculosis', 'Dengue fever', 'Scabies', 'Otitis media',
-    ]) },
-    { type: 'triageReason', name: chance.pickone([
-      'Chest pain', 'Difficulty breathing', 'High fever', 'Severe bleeding',
-      'Loss of consciousness', 'Seizure', 'Severe abdominal pain', 'Snake bite',
-      'Traumatic injury', 'Allergic reaction', 'Poisoning', 'Severe dehydration',
-    ]) },
-    { type: 'village', name: chance.pickone([
-      'Riverside', 'Hilltop', 'Lakeside', 'Northfield', 'Greendale',
-      'Coconut Grove', 'Port Haven', 'Coral Bay', 'Palm Ridge', 'Sunrise Valley',
-      'Mangrove Point', 'Cedar Flats', 'Blue Lagoon', 'Mission Hill',
-    ]) },
+    { type: 'drug', name: chance.pickone(DRUG_NAMES) },
+    { type: 'allergy', name: chance.pickone(ALLERGY_NAMES) },
+    { type: 'diagnosis', name: chance.pickone(DIAGNOSIS_NAMES) },
+    { type: 'triageReason', name: chance.pickone(TRIAGE_REASON_NAMES) },
+    { type: 'village', name: chance.pickone(VILLAGE_NAMES) },
+    { type: 'xRayImagingArea', name: chance.pickone(X_RAY_AREA_NAMES) },
+    { type: 'ctScanImagingArea', name: chance.pickone(CT_SCAN_AREA_NAMES) },
+    { type: 'ultrasoundImagingArea', name: chance.pickone(ULTRASOUND_AREA_NAMES) },
+    { type: 'procedureType', name: chance.pickone(PROCEDURE_TYPE_NAMES) },
     { type: 'division', name: chance.pickone([
       'Northern Division', 'Southern Division', 'Eastern Division', 'Western Division',
       'Central Division', 'Highlands Division', 'Islands Division', 'Coastal Division',
@@ -236,19 +241,6 @@ export function fakeReferenceData(prefix: string = 'test-') {
     { type: 'religion', name: chance.pickone([
       'Catholic', 'Lutheran', 'United Church', 'Seventh Day Adventist',
       'Anglican', 'Pentecostal', 'Baptist', 'Evangelical',
-    ]) },
-    { type: 'xRayImagingArea', name: chance.pickone([
-      'Chest', 'Abdomen', 'Pelvis', 'Spine', 'Skull', 'Hand', 'Knee', 'Shoulder',
-    ]) },
-    { type: 'ctScanImagingArea', name: chance.pickone([
-      'Head', 'Chest', 'Abdomen & Pelvis', 'Spine', 'Sinuses',
-    ]) },
-    { type: 'ultrasoundImagingArea', name: chance.pickone([
-      'Abdomen', 'Pelvis', 'Obstetric', 'Thyroid', 'Renal', 'Breast',
-    ]) },
-    { type: 'procedureType', name: chance.pickone([
-      'Wound suturing', 'Incision and drainage', 'Biopsy', 'Catheterisation',
-      'Lumbar puncture', 'Chest tube insertion', 'Fracture reduction', 'Endoscopy',
     ]) },
     { type: 'labTestCategory', name: chance.pickone([
       'Haematology', 'Biochemistry', 'Microbiology', 'Serology',
