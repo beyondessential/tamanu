@@ -19,23 +19,21 @@ const FooterContent = styled.div`
 const StyledPagination = styled(Pagination)`
   margin-right: 20px;
   padding: 24px 0;
-  ul {
-    li {
+  ul li {
+    .MuiPaginationItem-page {
+      border: 1px solid ${Colors.outline};
+      font-size: 13px;
+      margin: 0 3px;
+    }
+    .MuiPaginationItem-page.Mui-selected {
+      background: ${Colors.primary};
+      border: none;
+      color: ${Colors.white};
+    }
+    &:first-child,
+    &:last-child {
       .MuiPaginationItem-page {
-        border: 1px solid ${Colors.outline};
-        font-size: 13px;
-        margin: 0 3px;
-      }
-      .MuiPaginationItem-page.Mui-selected {
-        background: ${Colors.primary};
         border: none;
-        color: ${Colors.white};
-      }
-      &:first-child,
-      &:last-child {
-        .MuiPaginationItem-page {
-          border: none;
-        }
       }
     }
   }
