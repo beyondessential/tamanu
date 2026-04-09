@@ -1,4 +1,5 @@
 export * from './dbReport.js';
+export * from './facility.js';
 export * from './tasking.js';
 export * from './patient.js';
 export * from './encounter.js';
@@ -6,8 +7,11 @@ export * from './invoice.js';
 export * from './imagingRequest.js';
 export * from './labRequest.js';
 export * from './appointment.js';
+export * from './note.js';
+export * from './procedure.js';
 export * from './programRegistry.js';
 export * from './survey.js';
+export * from './triage.js';
 export * from './vaccine.js';
 export * from './importData.js';
 export * from './medication.js';

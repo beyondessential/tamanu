@@ -7,30 +7,39 @@ import {
   createAdministeredVaccine,
   createDbReport,
   createEncounter,
+  createFacility,
   createImagingRequest,
   createInvoice,
   createLabRequest,
+  createMedication,
+  createNote,
   createPatient,
+  createProcedure,
   createProgramRegistry,
   createRepeatingAppointment,
   createSurveyResponse,
   createTask,
+  createTriage,
   generateImportData,
 } from '../helpers/index.js';
 
-// TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
-  Patient: { POST: createPatient },
   Encounter: { POST: createEncounter },
+  Facility: { POST: createFacility },
   ImagingRequest: { POST: createImagingRequest },
   Invoice: { POST: createInvoice },
   LabRequest: { POST: createLabRequest },
+  Medication: { POST: createMedication },
+  Note: { POST: createNote },
+  Patient: { POST: createPatient },
+  Procedure: { POST: createProcedure },
   ProgramRegistry: { POST: createProgramRegistry },
+  ReportDefinition: { POST: createDbReport },
   Survey: { POST: createSurveyResponse },
   Tasking: { POST: createTask },
+  Triage: { POST: createTriage },
   Vaccine: { POST: createAdministeredVaccine },
-  ReportDefinition: { POST: createDbReport },
 };
 
 export const readJSON = async (path: string): Promise<object> => {
