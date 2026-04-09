@@ -857,7 +857,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     revisedById: undefined,
   }),
   Location: () => ({
-    maxOccupancy: chance.weighted([1, 2, 4, 6, 8, 12, 20], [4, 2, 2, 1, 1, 1, 1]),
+    maxOccupancy: chance.pickone([1, null]),
   }),
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
