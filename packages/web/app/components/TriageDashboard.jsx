@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@mui/icons-material/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
@@ -86,7 +86,7 @@ const CardFooter = ({ averageWaitTime, color }) => {
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
 
-  const formatter = new Intl.DurationFormat(navigator?.language, { style: 'short' });
+  const formatter = new Intl.DurationFormat(getCurrentLanguageCode(), { style: 'short' });
   return (
     <>
       <Row data-testid="row-vqca">

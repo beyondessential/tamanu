@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useDateTime } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const MINUTE = 60 * 1000;
@@ -18,7 +18,7 @@ const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
   const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
-  const formatter = new Intl.DurationFormat(undefined, { style: 'short' });
+  const formatter = new Intl.DurationFormat(getCurrentLanguageCode(), { style: 'short' });
   return <time dateTime={`${hours}h ${minutes}m`}>{formatter.format({ hours, minutes })}</time>;
 };
 
