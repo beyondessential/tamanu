@@ -53,7 +53,7 @@ const StyledTabDisplay = styled(TabDisplay)`
   }
 `;
 
-const tab = /** @type {const} */ ({
+const Tab = /** @type {const} */ ({
   ClinicalStatuses: 'statuses',
   Conditions: 'conditions',
   RelatedConditionCategories: 'conditionCategories',
@@ -61,7 +61,7 @@ const tab = /** @type {const} */ ({
 
 const tabs = /** @type {const} */ ([
   {
-    key: tab.ClinicalStatuses,
+    key: Tab.ClinicalStatuses,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.statuses"
@@ -71,14 +71,14 @@ const tabs = /** @type {const} */ ([
     render: Outlet,
   },
   {
-    key: tab.Conditions,
+    key: Tab.Conditions,
     label: (
       <TranslatedText stringId="admin.programRegistries.tab.conditions" fallback="Conditions" />
     ),
     render: Outlet,
   },
   {
-    key: tab.RelatedConditionCategories,
+    key: Tab.RelatedConditionCategories,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.conditionCategories"
@@ -89,7 +89,7 @@ const tabs = /** @type {const} */ ([
   },
 ]);
 
-const tabPathSegments = new Set(Object.values(tab));
+const tabPathSegments = new Set(Object.values(Tab));
 
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
@@ -106,7 +106,7 @@ export function ManageProgramRegistriesAdminView() {
     }
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const lastSegment = pathSegments.at(-1);
-    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : tab.ClinicalStatuses;
+    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : Tab.ClinicalStatuses;
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
@@ -132,9 +132,9 @@ export function ManageProgramRegistriesAdminView() {
     useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
   );
   const currentTab = (() => {
-    if (isConditionsRoute) return tab.Conditions;
-    if (isConditionCategoriesRoute) return tab.RelatedConditionCategories;
-    return tab.ClinicalStatuses;
+    if (isConditionsRoute) return Tab.Conditions;
+    if (isConditionCategoriesRoute) return Tab.RelatedConditionCategories;
+    return Tab.ClinicalStatuses;
   })();
 
   const onTabSelect = tabKey => {
