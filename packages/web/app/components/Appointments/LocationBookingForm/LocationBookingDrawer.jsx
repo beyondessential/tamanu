@@ -1,4 +1,4 @@
-import OvernightIcon from '@material-ui/icons/Brightness2';
+import OvernightIcon from '@mui/icons-material/Brightness2';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';

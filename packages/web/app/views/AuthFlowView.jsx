@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { Launch } from '@material-ui/icons';
+import Launch from '@mui/icons-material/Launch';
 import { Colors } from '../constants';
 import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';

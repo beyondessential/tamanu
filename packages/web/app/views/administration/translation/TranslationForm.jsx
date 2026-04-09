@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
-import HelpIcon from '@material-ui/icons/HelpOutlined';
+import HelpIcon from '@mui/icons-material/HelpOutlined';
 import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   DEFAULT_LANGUAGE_CODE,

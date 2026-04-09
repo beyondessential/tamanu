@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
