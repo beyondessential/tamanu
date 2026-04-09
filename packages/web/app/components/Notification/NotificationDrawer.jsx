@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
@@ -116,13 +117,6 @@ const ActionLink = styled.span`
   &:hover {
     font-weight: 500;
     color: ${Colors.primary};
-  }
-`;
-
-const CloseButton = styled.div`
-  cursor: pointer;
-  svg {
-    fill: ${Colors.darkText};
   }
 `;
 
@@ -261,9 +255,9 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
             data-testid="translatedtext-fq6k"
           />
         )}
-        <CloseButton onClick={onClose} data-testid="closebutton-rgw9">
-          <CloseIcon data-testid="closeicon-x89c" />
-        </CloseButton>
+        <IconButton onClick={onClose} data-testid="closebutton-rgw9">
+          <CloseIcon htmlColor={Colors.darkText} data-testid="closeicon-x89c" />
+        </IconButton>
       </Title>
       {!unreadNotifications.length && !readNotifications.length && (
         <NoDataContainer data-testid="nodatacontainer-2xqs">

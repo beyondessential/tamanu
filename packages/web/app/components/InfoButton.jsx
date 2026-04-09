@@ -1,14 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
-import Info from '@mui/icons-material/InfoOutlined';
+import IconButton from '@mui/material/IconButton';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
-const InfoIcon = styled(Info)`
-  width: 1.2rem;
-  height: 1.2rem;
-  vertical-align: bottom;
-  cursor: pointer;
-`;
-
-export const InfoButton = ({ onClick }) => (
-  <InfoIcon onClick={onClick} data-testid="infoicon-cnfl" />
+export const InfoButton = props => (
+  <IconButton data-testid="infoicon-cnfl" {...props}>
+    <InfoOutlined />
+  </IconButton>
 );

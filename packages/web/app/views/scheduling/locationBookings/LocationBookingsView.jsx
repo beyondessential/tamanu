@@ -162,8 +162,11 @@ export const LocationBookingsView = () => {
         <ViewTypeToggle data-testid="viewtypetoggle-main" disabled={isDrawerOpen} />
         <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
-          <Button onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
-            <PlusIcon data-testid="plusicon-ufmc" />
+          <Button
+            onClick={handleNewBooking}
+            data-testid="newbookingbutton-sl1p"
+            startIcon={<PlusIcon data-testid="plusicon-ufmc" />}
+          >
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
