@@ -47,14 +47,14 @@ export const createProgramRegistry = async ({
   );
 
   const categoryCode = PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN;
-  const conditionCategory = await ProgramRegistryConditionCategory.create(
-    fake(ProgramRegistryConditionCategory, {
-      id: `program-registry-condition-category-${resolvedRegistryId}-${categoryCode}-${chance.string({ length: 8, alpha: true })}`,
+  const [conditionCategory] = await ProgramRegistryConditionCategory.findOrCreate({
+    where: { programRegistryId: resolvedRegistryId, code: categoryCode },
+    defaults: fake(ProgramRegistryConditionCategory, {
       code: categoryCode,
       name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[categoryCode],
       programRegistryId: resolvedRegistryId,
     }),
-  );
+  });
 
   await Promise.all(
     times(conditionCount, () =>

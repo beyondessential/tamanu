@@ -38,17 +38,22 @@ export const createTask = async ({
     }),
   );
 
-  const taskTemplate = await TaskTemplate.create(fake(TaskTemplate, { referenceDataId: resolvedRefDataId }));
-  await TaskTemplateDesignation.create(
-    fake(TaskTemplateDesignation, {
+  const [taskTemplate] = await TaskTemplate.findOrCreate({
+    where: { referenceDataId: resolvedRefDataId },
+    defaults: fake(TaskTemplate, { referenceDataId: resolvedRefDataId }),
+  });
+  await TaskTemplateDesignation.findOrCreate({
+    where: { taskTemplateId: taskTemplate.id, designationId: resolvedRefDataId },
+    defaults: fake(TaskTemplateDesignation, {
       taskTemplateId: taskTemplate.id,
       designationId: resolvedRefDataId,
     }),
-  );
-  await UserDesignation.create(
-    fake(UserDesignation, {
+  });
+  await UserDesignation.findOrCreate({
+    where: { userId: resolvedUserId, designationId: resolvedRefDataId },
+    defaults: fake(UserDesignation, {
       userId: resolvedUserId,
       designationId: resolvedRefDataId,
     }),
-  );
+  });
 };
