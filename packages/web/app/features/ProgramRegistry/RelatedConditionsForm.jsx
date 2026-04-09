@@ -195,7 +195,6 @@ export const RelatedConditionsForm = ({
   const totalInitialValues = {
     clinicalStatusId,
     conditions: getGroupedData(conditions),
-    date: patientProgramRegistration.date,
     ...initialValues,
   };
 

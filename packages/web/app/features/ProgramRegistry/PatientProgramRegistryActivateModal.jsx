@@ -62,6 +62,7 @@ export const PatientProgramRegistryActivateModal = ({
           clinicianId: currentUser?.id,
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          date: patientProgramRegistration.date,
         }}
         validationSchema={{
           clinicalStatusId: optionalForeignKey().nullable(),
