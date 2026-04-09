@@ -14,7 +14,7 @@ const HOUR = 60 * MINUTE;
  */
 const getDuration = (startTime, storedDateTimeToEpochMilliseconds) => {
   const startMs = storedDateTimeToEpochMilliseconds(startTime);
-  if (startMs == null) return '—';
+  if (startMs == null) return <>&mdash;</>;
   const time = Date.now() - startMs;
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
