@@ -70,7 +70,7 @@ function EditProgramRegistryModal({ onClose, open }) {
     },
   });
 
-  const metadataInitialValues = useMemo(
+  const initialValues = useMemo(
     () => ({
       code: registry?.code ?? '',
       name: registry?.name ?? '',
@@ -95,7 +95,7 @@ function EditProgramRegistryModal({ onClose, open }) {
         <Form
           enableReinitialize
           formType={FORM_TYPES.EDIT_FORM}
-          initialValues={metadataInitialValues}
+          initialValues={initialValues}
           onSubmit={async values => {
             if (!programRegistryId) return;
             await mutateProgramRegistry({
