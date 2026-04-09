@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
-import styled from 'styled-components';
-import { Pagination, PaginationItem } from '@material-ui/lab';
 import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Pagination, PaginationItem } from '@material-ui/lab';
+import { getCurrentLanguageCode } from '@tamanu/ui-components';
+import React, { useRef } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -102,6 +103,8 @@ const useStyles = makeStyles({
   },
 });
 
+const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
+
 export const Paginator = React.memo(
   ({
     page: pageIndex,
@@ -133,9 +136,9 @@ export const Paginator = React.memo(
                 stringId="general.table.pageRecordCount"
                 fallback=":lowerRange–:upperRange of :count"
                 replacements={{
-                  lowerRange: lowerRange.toLocaleString(),
-                  upperRange: upperRange.toLocaleString(),
-                  count: count.toLocaleString(),
+                  lowerRange: numberFormatter.format(lowerRange),
+                  upperRange: numberFormatter.format(upperRange),
+                  count: numberFormatter.format(count),
                 }}
                 data-testid="translatedtext-yhs4"
               />
@@ -156,7 +159,7 @@ export const Paginator = React.memo(
             disabled={!isDataInTable}
             data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map((option) => (
+            {rowsPerPageOptions.map(option => (
               <StyledMenuItem
                 key={option}
                 value={option}
@@ -171,7 +174,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={(item) => {
+            renderItem={item => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (
