@@ -1,8 +1,7 @@
 import { upperFirst } from 'lodash';
 import {
   REFERENCE_TYPE_VALUES,
-  OTHER_REFERENCE_TYPE_VALUES,
-  GENERAL_IMPORTABLE_DATA_TYPES,
+  MANAGEABLE_REFERENCE_DATA_TYPES,
   SUGGESTER_ENDPOINTS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
@@ -19,9 +18,6 @@ export const getModelForType = (models, type) => {
   }
   return { model, typeFilter: {} };
 };
-
-// Types that can be managed via this endpoint (must match the frontend MANAGEABLE_DATA_TYPES)
-const MANAGEABLE_REFERENCE_DATA_TYPES = [...REFERENCE_TYPE_VALUES, ...OTHER_REFERENCE_TYPE_VALUES];
 
 const HIDDEN_COLUMNS = /** @type {const} */ (
   new Set(['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'])
@@ -41,6 +37,8 @@ const FK_ENDPOINT_OVERRIDES = /** @type {const} */ {
   'PatientFieldDefinition.categoryId': 'patientFieldDefinitionCategory',
   'InvoicePriceListItem.invoiceProductId': 'invoiceProduct',
   'InvoicePriceListItem.invoicePriceListId': 'invoicePriceList',
+  'CertifiableVaccine.vaccineId': 'drug',
+  'ScheduledVaccine.vaccineId': 'drug',
 };
 
 // Build a map of foreignKey -> suggester endpoint from BelongsTo associations.

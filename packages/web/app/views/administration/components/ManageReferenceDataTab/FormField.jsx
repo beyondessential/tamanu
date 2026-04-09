@@ -12,7 +12,7 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
-import { REQUIRED_FIELDS } from './constants';
+import { REQUIRED_FIELDS, SUGGESTER_OPTIONS } from './constants';
 
 const CheckFieldWrapper = styled.div`
   display: flex;
@@ -42,7 +42,7 @@ const getFieldComponent = columnType => {
 };
 
 const SuggesterFormField = memo(({ col, disabled }) => {
-  const suggester = useSuggester(col.suggesterEndpoint);
+  const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
   return (
     <Field
       name={col.key}
@@ -57,7 +57,7 @@ const SuggesterFormField = memo(({ col, disabled }) => {
 });
 
 const AvailableFacilitiesFormField = memo(({ disabled }) => {
-  const suggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+  const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { ...SUGGESTER_OPTIONS.baseQueryParameters, noLimit: true } });
   return (
     <Field
       name="availableFacilities"

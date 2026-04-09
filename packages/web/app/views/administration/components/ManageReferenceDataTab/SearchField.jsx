@@ -11,6 +11,7 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../../api/suggesters';
+import { SUGGESTER_OPTIONS } from './constants';
 
 const VISIBILITY_STATUS_KEY = 'visibilityStatus';
 const AVAILABLE_FACILITIES_KEY = 'availableFacilities';
@@ -24,7 +25,7 @@ const CentredCheckContainer = styled.div`
 `;
 
 const AvailableFacilitiesSearchField = () => {
-  const suggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+  const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
   return (
     <Field
       name="availableFacilities"
@@ -37,7 +38,7 @@ const AvailableFacilitiesSearchField = () => {
 };
 
 const SuggesterSearchField = ({ col }) => {
-  const suggester = useSuggester(col.suggesterEndpoint);
+  const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
   return (
     <Field
       name={col.key}

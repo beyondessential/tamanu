@@ -114,7 +114,7 @@ export const SYSTEM_DATA_TYPES = {
   IMAGING_AREA_EXTERNAL_CODE: 'imagingAreaExternalCode',
   IMAGING_TYPE_EXTERNAL_CODE: 'imagingTypeExternalCode',
 };
-const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
+export const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
   ...REFERENCE_TYPE_VALUES,
