@@ -1,4 +1,5 @@
 import { times } from 'lodash';
+import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 import {
@@ -7,9 +8,9 @@ import {
 } from '@tamanu/constants/programRegistry';
 
 interface CreateProgramRegistryParams extends CommonParams {
-  userId: string;
-  patientId: string;
-  programRegistryId: string;
+  userId?: string;
+  patientId?: string;
+  programRegistryId?: string;
   conditionCount?: number;
 }
 export const createProgramRegistry = async ({
@@ -27,27 +28,31 @@ export const createProgramRegistry = async ({
     PatientProgramRegistrationCondition,
   } = models;
 
+  const resolvedUserId = userId || (await randomRecordId(models, 'User'));
+  const resolvedPatientId = patientId || (await randomRecordId(models, 'Patient'));
+  const resolvedRegistryId = programRegistryId || (await randomRecordId(models, 'ProgramRegistry'));
+
   const { id: patientProgramRegistrationId } = await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
-      clinicianId: userId,
-      patientId,
-      programRegistryId,
+      clinicianId: resolvedUserId,
+      patientId: resolvedPatientId,
+      programRegistryId: resolvedRegistryId,
     }),
   );
 
   const condition = await ProgramRegistryCondition.create(
     fake(ProgramRegistryCondition, {
-      programRegistryId,
+      programRegistryId: resolvedRegistryId,
     }),
   );
 
   const categoryCode = PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN;
   const conditionCategory = await ProgramRegistryConditionCategory.create(
     fake(ProgramRegistryConditionCategory, {
-      id: `program-registry-condition-category-${programRegistryId}-${categoryCode}`,
+      id: `program-registry-condition-category-${resolvedRegistryId}-${categoryCode}-${chance.string({ length: 8, alpha: true })}`,
       code: categoryCode,
       name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[categoryCode],
-      programRegistryId,
+      programRegistryId: resolvedRegistryId,
     }),
   );
 
