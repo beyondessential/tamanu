@@ -19,6 +19,7 @@ import {
   REGISTRATION_STATUSES,
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
+  VACCINE_RECORDING_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -83,13 +84,44 @@ export function fakeScheduledVaccine(prefix: string = 'test-') {
     vaccineId: null,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     sortIndex: 0,
-    category: chance.pickone(['Routine', 'Catch-up', 'Travel', 'Seasonal', 'Supplementary', 'Outbreak Response']),
-    label: chance.pickone([
-      'BCG', 'Hepatitis B', 'OPV', 'IPV', 'DTP', 'Measles', 'Rubella', 'MMR',
-      'Tetanus', 'Pneumococcal', 'Rotavirus', 'HPV', 'Yellow Fever', 'Typhoid',
-      'Influenza', 'Varicella', 'Hepatitis A', 'Meningococcal', 'Japanese Encephalitis',
+    category: chance.pickone([
+      'Routine',
+      'Catch-up',
+      'Travel',
+      'Seasonal',
+      'Supplementary',
+      'Outbreak Response',
     ]),
-    doseLabel: chance.pickone(['Dose 1', 'Dose 2', 'Dose 3', 'Dose 4', 'Booster', 'Birth dose', 'Annual']),
+    label: chance.pickone([
+      'BCG',
+      'Hepatitis B',
+      'OPV',
+      'IPV',
+      'DTP',
+      'Measles',
+      'Rubella',
+      'MMR',
+      'Tetanus',
+      'Pneumococcal',
+      'Rotavirus',
+      'HPV',
+      'Yellow Fever',
+      'Typhoid',
+      'Influenza',
+      'Varicella',
+      'Hepatitis A',
+      'Meningococcal',
+      'Japanese Encephalitis',
+    ]),
+    doseLabel: chance.pickone([
+      'Dose 1',
+      'Dose 2',
+      'Dose 3',
+      'Dose 4',
+      'Booster',
+      'Birth dose',
+      'Annual',
+    ]),
   };
 }
 
@@ -101,7 +133,7 @@ export function fakeSurvey(prefix: string = 'test-') {
     'Mental Health Questionnaire',
     'Chronic Disease Follow-up',
     'Community Health Survey',
-    'Immunization Checklist',
+    'Immunisation Checklist',
     'Antenatal Care Visit',
     'Postnatal Care Assessment',
     'TB Screening Form',
@@ -141,7 +173,7 @@ export function fakeSurveyScreenComponent(prefix: string = 'test-') {
     { text: 'Fundal height (cm)', detail: 'Measure from pubic symphysis' },
     { text: 'Oedema', detail: 'Check ankles, shins, and sacral area' },
     { text: 'Clinical notes', detail: 'Free text observations' },
-    { text: 'Presenting complaint', detail: 'Chief complaint in patient\'s own words' },
+    { text: 'Presenting complaint', detail: "Chief complaint in patient's own words" },
   ]);
   return {
     id: `${prefix}surveyScreenComponent_${id}`,
@@ -218,34 +250,100 @@ export function fakeReferenceData(prefix: string = 'test-') {
     { type: 'ctScanImagingArea', name: chance.pickone(CT_SCAN_AREA_NAMES) },
     { type: 'ultrasoundImagingArea', name: chance.pickone(ULTRASOUND_AREA_NAMES) },
     { type: 'procedureType', name: chance.pickone(PROCEDURE_TYPE_NAMES) },
-    { type: 'division', name: chance.pickone([
-      'Northern Division', 'Southern Division', 'Eastern Division', 'Western Division',
-      'Central Division', 'Highlands Division', 'Islands Division', 'Coastal Division',
-    ]) },
-    { type: 'subdivision', name: chance.pickone([
-      'Kairuku District', 'Rigo District', 'Abau District', 'Goilala District',
-      'North Coast', 'South Coast', 'Upper Valley', 'Lower Valley',
-    ]) },
-    { type: 'ethnicity', name: chance.pickone([
-      'Melanesian', 'Polynesian', 'Micronesian', 'Papuan', 'Chinese',
-      'European', 'Mixed Heritage', 'Indian', 'Filipino',
-    ]) },
-    { type: 'nationality', name: chance.pickone([
-      'Papua New Guinean', 'Australian', 'New Zealander', 'Fijian',
-      'Samoan', 'Tongan', 'Solomon Islander', 'Vanuatuan',
-    ]) },
-    { type: 'occupation', name: chance.pickone([
-      'Farmer', 'Teacher', 'Nurse', 'Trader', 'Fisherman',
-      'Driver', 'Carpenter', 'Student', 'Homemaker', 'Public servant',
-    ]) },
-    { type: 'religion', name: chance.pickone([
-      'Catholic', 'Lutheran', 'United Church', 'Seventh Day Adventist',
-      'Anglican', 'Pentecostal', 'Baptist', 'Evangelical',
-    ]) },
-    { type: 'labTestCategory', name: chance.pickone([
-      'Haematology', 'Biochemistry', 'Microbiology', 'Serology',
-      'Urinalysis', 'Parasitology', 'Immunology', 'Cytology',
-    ]) },
+    {
+      type: 'division',
+      name: chance.pickone([
+        'Northern Division',
+        'Southern Division',
+        'Eastern Division',
+        'Western Division',
+        'Central Division',
+        'Highlands Division',
+        'Islands Division',
+        'Coastal Division',
+      ]),
+    },
+    {
+      type: 'subdivision',
+      name: chance.pickone([
+        'Kairuku District',
+        'Rigo District',
+        'Abau District',
+        'Goilala District',
+        'North Coast',
+        'South Coast',
+        'Upper Valley',
+        'Lower Valley',
+      ]),
+    },
+    {
+      type: 'ethnicity',
+      name: chance.pickone([
+        'Melanesian',
+        'Polynesian',
+        'Micronesian',
+        'Papuan',
+        'Chinese',
+        'European',
+        'Mixed Heritage',
+        'Indian',
+        'Filipino',
+      ]),
+    },
+    {
+      type: 'nationality',
+      name: chance.pickone([
+        'Papua New Guinean',
+        'Australian',
+        'New Zealander',
+        'Fijian',
+        'Samoan',
+        'Tongan',
+        'Solomon Islander',
+        'Vanuatuan',
+      ]),
+    },
+    {
+      type: 'occupation',
+      name: chance.pickone([
+        'Farmer',
+        'Teacher',
+        'Nurse',
+        'Trader',
+        'Fisherman',
+        'Driver',
+        'Carpenter',
+        'Student',
+        'Homemaker',
+        'Public servant',
+      ]),
+    },
+    {
+      type: 'religion',
+      name: chance.pickone([
+        'Catholic',
+        'Lutheran',
+        'United Church',
+        'Seventh Day Adventist',
+        'Anglican',
+        'Pentecostal',
+        'Baptist',
+        'Evangelical',
+      ]),
+    },
+    {
+      type: 'labTestCategory',
+      name: chance.pickone([
+        'Haematology',
+        'Biochemistry',
+        'Microbiology',
+        'Serology',
+        'Urinalysis',
+        'Parasitology',
+        'Immunology',
+        'Cytology',
+      ]),
+    },
   ]);
   return {
     id: `${prefix}referenceData_${id}`,
@@ -265,7 +363,7 @@ export function fakeUser(prefix: string = 'test-') {
     displayId: chance.hash({ length: 5 }).toUpperCase(),
     email: chance.email(),
     displayName: `${firstName} ${lastName}`,
-    role: 'practitioner',
+    role: chance.weighted(['practitioner', 'admin', 'nurse', 'receptionist'], [5, 1, 3, 2]),
   };
 }
 
@@ -302,11 +400,18 @@ export function fakeAdministeredVaccine(prefix: string = 'test-', scheduledVacci
     scheduledVaccineId,
     date: formatISO9075(fakeDate()),
     batch: `${chance.character({ alpha: true }).toUpperCase()}${chance.natural({ min: 1000, max: 9999 })}`,
-    status: chance.pickone(['GIVEN', 'NOT_GIVEN', 'SCHEDULED']),
+    status: chance.pickone(Object.values(VACCINE_RECORDING_TYPES)),
     reason: chance.pickone([
-      'Routine schedule', 'Catch-up', 'Post-exposure', 'Travel requirement',
-      'Outbreak response', 'School entry requirement', 'Occupational health',
-      'Maternal immunisation', 'Campaign', '',
+      'Routine schedule',
+      'Catch-up',
+      'Post-exposure',
+      'Travel requirement',
+      'Outbreak response',
+      'School entry requirement',
+      'Occupational health',
+      'Maternal immunisation',
+      'Campaign',
+      '',
     ]),
   };
 }
@@ -368,7 +473,10 @@ export function fakeSurveyResponse(prefix: string = 'test-') {
 export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   const id = fakeUUID();
   const { name, body } = chance.pickone([
-    { name: 'Blood pressure', body: `${chance.integer({ min: 90, max: 160 })}/${chance.integer({ min: 50, max: 100 })}` },
+    {
+      name: 'Blood pressure',
+      body: `${chance.integer({ min: 90, max: 160 })}/${chance.integer({ min: 50, max: 100 })}`,
+    },
     { name: 'Temperature', body: `${chance.floating({ min: 36.0, max: 39.5, fixed: 1 })}` },
     { name: 'Weight', body: `${chance.floating({ min: 40, max: 120, fixed: 1 })}` },
     { name: 'Height', body: `${chance.integer({ min: 140, max: 195 })}` },
@@ -382,18 +490,24 @@ export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
     { name: 'Gestational age (weeks)', body: `${chance.integer({ min: 4, max: 42 })}` },
     { name: 'Fundal height', body: `${chance.integer({ min: 12, max: 40 })}` },
     { name: 'Malaria RDT', body: chance.pickone(['Positive', 'Negative']) },
-    { name: 'HIV test result', body: chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']) },
+    {
+      name: 'HIV test result',
+      body: chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']),
+    },
     { name: 'Oedema', body: chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']) },
-    { name: 'Notes', body: chance.pickone([
-      'Patient reports feeling better',
-      'No complaints today',
-      'Mild discomfort noted',
-      'Awaiting lab results',
-      'Referred for further investigation',
-      'Condition stable, continue treatment',
-      'Patient counselled on medication adherence',
-      'Wound healing well',
-    ]) },
+    {
+      name: 'Notes',
+      body: chance.pickone([
+        'Patient reports feeling better',
+        'No complaints today',
+        'Mild discomfort noted',
+        'Awaiting lab results',
+        'Referred for further investigation',
+        'Condition stable, continue treatment',
+        'Patient counselled on medication adherence',
+        'Wound healing well',
+      ]),
+    },
   ]);
   return {
     id: `${prefix}surveyResponseAnswer_${id}`,
@@ -459,13 +573,23 @@ export function fakePrescription(prefix: string = 'test-') {
       'HIV antiretroviral therapy',
     ]),
     route: chance.pickone([
-      'Oral', 'Intravenous', 'Intramuscular', 'Topical', 'Subcutaneous',
-      'Rectal', 'Sublingual', 'Inhaled', 'Ophthalmic', 'Otic',
+      'Oral',
+      'Intravenous',
+      'Intramuscular',
+      'Topical',
+      'Subcutaneous',
+      'Rectal',
+      'Sublingual',
+      'Inhaled',
+      'Ophthalmic',
+      'Otic',
     ]),
   };
 }
 
-export const fakeDate = () => chance.date({ year: chance.integer({ min: 2020, max: 2025 }) }) as Date;
+const CURRENT_YEAR = new Date().getFullYear();
+export const fakeDate = () =>
+  chance.date({ year: chance.integer({ min: CURRENT_YEAR - 5, max: CURRENT_YEAR }) }) as Date;
 export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
   `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
@@ -509,13 +633,25 @@ const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTic
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: () => {
     const facilityType = chance.pickone([
-      'hospital', 'clinic', 'health_centre', 'aid_post', 'dispensary',
-      'district_hospital', 'provincial_hospital', 'urban_clinic',
+      'hospital',
+      'clinic',
+      'health_centre',
+      'aid_post',
+      'dispensary',
+      'district_hospital',
+      'provincial_hospital',
+      'urban_clinic',
     ]);
-    const namePrefix = chance.pickone([
-      chance.city(), `${chance.last()} Memorial`, `St. ${chance.first()}`,
-      `${chance.city()} District`, 'Central', 'National', `Port ${chance.last()}`,
-    ]);
+    const namePrefixGenerators = [
+      () => chance.city(),
+      () => `${chance.last()} Memorial`,
+      () => `St. ${chance.first()}`,
+      () => `${chance.city()} District`,
+      () => 'Central',
+      () => 'National',
+      () => `Port ${chance.last()}`,
+    ];
+    const namePrefix = chance.pickone(namePrefixGenerators)();
     const nameSuffix = {
       hospital: 'Hospital',
       clinic: 'Clinic',
@@ -609,7 +745,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
-      dateOfBirth: toDateString(chance.date({ year: chance.integer({ min: 1940, max: 2024 }) }) as Date),
+      dateOfBirth: toDateString(
+        chance.date({ year: chance.integer({ min: 1940, max: CURRENT_YEAR - 1 }) }) as Date,
+      ),
       dateOfDeath: null,
       email: chance.email(),
     };
@@ -645,7 +783,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
       title: chance.prefix(),
       birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
       drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
-      passport: chance.character({ alpha: true }).toUpperCase() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
+      passport:
+        chance.character({ alpha: true }).toUpperCase() +
+        chance.natural({ min: 10000000, max: 99999999 }).toString(),
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
       secondaryVillageId: null,
@@ -717,7 +857,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     revisedById: undefined,
   }),
   Location: () => ({
-    maxOccupancy: chance.pickone([1, 1, 2, 4, 6, 8, 12, 20]),
+    maxOccupancy: chance.weighted([1, 2, 4, 6, 8, 12, 20], [4, 2, 2, 1, 1, 1, 1]),
   }),
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
@@ -741,10 +881,22 @@ const MODEL_SPECIFIC_OVERRIDES = {
     tableOid: chance.integer({ min: 10000, max: 99999 }),
     tableSchema: chance.pickone(['public', 'fhir', 'logs']),
     tableName: chance.pickone([
-      'patients', 'encounters', 'lab_requests', 'lab_tests', 'imaging_requests',
-      'survey_responses', 'survey_response_answers', 'administered_vaccines',
-      'encounter_diagnoses', 'prescriptions', 'reference_data', 'users',
-      'patient_additional_data', 'notes', 'appointments', 'locations',
+      'patients',
+      'encounters',
+      'lab_requests',
+      'lab_tests',
+      'imaging_requests',
+      'survey_responses',
+      'survey_response_answers',
+      'administered_vaccines',
+      'encounter_diagnoses',
+      'prescriptions',
+      'reference_data',
+      'users',
+      'patient_additional_data',
+      'notes',
+      'appointments',
+      'locations',
     ]),
     loggedAt: fakeDateTimeString(),
     recordCreatedAt: fakeDateTimeString(),
