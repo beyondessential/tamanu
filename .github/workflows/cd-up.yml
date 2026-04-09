@@ -96,9 +96,12 @@ jobs:
           APP_MAJOR_MINOR=$(echo "$APP_VERSION" | cut -d. -f1,2)
           echo "Looking for snapshot closest to v${APP_VERSION}"
 
-          # List all snapshots with version annotations, sorted by version descending
+          # Helper: sort versions semantically by splitting into numeric parts
+          SEMVER_SORT='sort_by(.version | split(".") | map(tonumber? // 0)) | reverse'
+
+          # List all snapshots with version annotations, sorted by semver descending
           SNAPSHOT=$(kubectl -n "$SEED_NS" get volumesnapshot \
-            -o json | jq -r --arg mm "$APP_MAJOR_MINOR" '
+            -o json | jq -r --arg mm "$APP_MAJOR_MINOR." '
             [.items[]
               | select(.metadata.annotations["pgsnap.bes.au/for-version"] != null)
               | select(.status.readyToUse == true)
@@ -108,7 +111,7 @@ jobs:
                   created: .metadata.annotations["pgsnap.bes.au/created-at"]
                 }
               | select(.version | startswith($mm))
-            ] | sort_by(.version) | reverse | .[0].name // empty')
+            ] | '"$SEMVER_SORT"' | .[0].name // empty')
 
           if [ -z "$SNAPSHOT" ]; then
             echo "::warning::No matching seed snapshot found for v${APP_MAJOR_MINOR}.x, trying any available snapshot"
@@ -122,7 +125,7 @@ jobs:
                     version: .metadata.annotations["pgsnap.bes.au/for-version"],
                     created: .metadata.annotations["pgsnap.bes.au/created-at"]
                   }
-              ] | sort_by(.version) | reverse | .[0].name // empty')
+              ] | '"$SEMVER_SORT"' | .[0].name // empty')
           fi
 
           if [ -z "$SNAPSHOT" ]; then
@@ -153,7 +156,7 @@ jobs:
             name: ${CLONE_CONTENT}
           spec:
             driver: ${DRIVER}
-            deletionPolicy: Delete
+            deletionPolicy: Retain
             source:
               snapshotHandle: ${HANDLE}
             volumeSnapshotRef:
