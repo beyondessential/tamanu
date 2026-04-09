@@ -13,11 +13,8 @@ import { ProgramExporterView } from './components/ProgramExporterView';
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
   border-top: 1px solid ${Colors.outline};
-
-  .MuiTabs-root {
-    padding: 0px 20px;
-    border-bottom: 1px solid ${Colors.outline};
-  }
+  padding: 0px 20px;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const TabContainer = styled.div`

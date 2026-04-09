@@ -46,13 +46,9 @@ const Metadata = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  .${tabsClasses.root} {
-    border-inline: 1px solid ${Colors.outline};
-  }
-  ${TabContainer} {
-    background-color: unset;
-    border-bottom: unset;
-  }
+  background-color: unset;
+  border-bottom: unset;
+  border-inline: 1px solid ${Colors.outline};
 `;
 
 const Tab = /** @type {const} */ ({
