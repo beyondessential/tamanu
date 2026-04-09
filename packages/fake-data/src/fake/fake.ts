@@ -64,6 +64,7 @@ const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 // jest won't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
+
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
     (obj: Record<string, string>, field: string) => ({
@@ -240,19 +241,19 @@ export function fakeProgramDataElement(prefix: string = 'test-') {
 
 export function fakeReferenceData(prefix: string = 'test-') {
   const id = fakeUUID();
-  const { type, name } = chance.pickone([
-    { type: 'drug', name: chance.pickone(DRUG_NAMES) },
-    { type: 'allergy', name: chance.pickone(ALLERGY_NAMES) },
-    { type: 'diagnosis', name: chance.pickone(DIAGNOSIS_NAMES) },
-    { type: 'triageReason', name: chance.pickone(TRIAGE_REASON_NAMES) },
-    { type: 'village', name: chance.pickone(VILLAGE_NAMES) },
-    { type: 'xRayImagingArea', name: chance.pickone(X_RAY_AREA_NAMES) },
-    { type: 'ctScanImagingArea', name: chance.pickone(CT_SCAN_AREA_NAMES) },
-    { type: 'ultrasoundImagingArea', name: chance.pickone(ULTRASOUND_AREA_NAMES) },
-    { type: 'procedureType', name: chance.pickone(PROCEDURE_TYPE_NAMES) },
+  const REFERENCE_DATA_OPTIONS: Array<{ type: string; names: string[] }> = [
+    { type: 'drug', names: DRUG_NAMES },
+    { type: 'allergy', names: ALLERGY_NAMES },
+    { type: 'diagnosis', names: DIAGNOSIS_NAMES },
+    { type: 'triageReason', names: TRIAGE_REASON_NAMES },
+    { type: 'village', names: VILLAGE_NAMES },
+    { type: 'xRayImagingArea', names: X_RAY_AREA_NAMES },
+    { type: 'ctScanImagingArea', names: CT_SCAN_AREA_NAMES },
+    { type: 'ultrasoundImagingArea', names: ULTRASOUND_AREA_NAMES },
+    { type: 'procedureType', names: PROCEDURE_TYPE_NAMES },
     {
       type: 'division',
-      name: chance.pickone([
+      names: [
         'Northern Division',
         'Southern Division',
         'Eastern Division',
@@ -261,11 +262,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Highlands Division',
         'Islands Division',
         'Coastal Division',
-      ]),
+      ],
     },
     {
       type: 'subdivision',
-      name: chance.pickone([
+      names: [
         'Kairuku District',
         'Rigo District',
         'Abau District',
@@ -274,11 +275,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'South Coast',
         'Upper Valley',
         'Lower Valley',
-      ]),
+      ],
     },
     {
       type: 'ethnicity',
-      name: chance.pickone([
+      names: [
         'Melanesian',
         'Polynesian',
         'Micronesian',
@@ -288,11 +289,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Mixed Heritage',
         'Indian',
         'Filipino',
-      ]),
+      ],
     },
     {
       type: 'nationality',
-      name: chance.pickone([
+      names: [
         'Papua New Guinean',
         'Australian',
         'New Zealander',
@@ -301,11 +302,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Tongan',
         'Solomon Islander',
         'Vanuatuan',
-      ]),
+      ],
     },
     {
       type: 'occupation',
-      name: chance.pickone([
+      names: [
         'Farmer',
         'Teacher',
         'Nurse',
@@ -316,11 +317,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Student',
         'Homemaker',
         'Public servant',
-      ]),
+      ],
     },
     {
       type: 'religion',
-      name: chance.pickone([
+      names: [
         'Catholic',
         'Lutheran',
         'United Church',
@@ -329,11 +330,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Pentecostal',
         'Baptist',
         'Evangelical',
-      ]),
+      ],
     },
     {
       type: 'labTestCategory',
-      name: chance.pickone([
+      names: [
         'Haematology',
         'Biochemistry',
         'Microbiology',
@@ -342,9 +343,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
         'Parasitology',
         'Immunology',
         'Cytology',
-      ]),
+      ],
     },
-  ]);
+  ];
+  const { type, names } = chance.pickone(REFERENCE_DATA_OPTIONS);
+  const name = chance.pickone(names);
   return {
     id: `${prefix}referenceData_${id}`,
     type,
@@ -472,32 +475,26 @@ export function fakeSurveyResponse(prefix: string = 'test-') {
 
 export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   const id = fakeUUID();
-  const { name, body } = chance.pickone([
-    {
-      name: 'Blood pressure',
-      body: `${chance.integer({ min: 90, max: 160 })}/${chance.integer({ min: 50, max: 100 })}`,
-    },
-    { name: 'Temperature', body: `${chance.floating({ min: 36.0, max: 39.5, fixed: 1 })}` },
-    { name: 'Weight', body: `${chance.floating({ min: 40, max: 120, fixed: 1 })}` },
-    { name: 'Height', body: `${chance.integer({ min: 140, max: 195 })}` },
-    { name: 'Heart rate', body: `${chance.integer({ min: 50, max: 120 })}` },
-    { name: 'SpO2', body: `${chance.integer({ min: 90, max: 100 })}%` },
-    { name: 'Respiratory rate', body: `${chance.integer({ min: 12, max: 28 })}` },
-    { name: 'Blood glucose', body: `${chance.floating({ min: 3.5, max: 15.0, fixed: 1 })}` },
-    { name: 'MUAC', body: `${chance.floating({ min: 10.0, max: 30.0, fixed: 1 })}` },
-    { name: 'Pain score', body: `${chance.integer({ min: 0, max: 10 })}` },
-    { name: 'Haemoglobin', body: `${chance.floating({ min: 7.0, max: 17.0, fixed: 1 })}` },
-    { name: 'Gestational age (weeks)', body: `${chance.integer({ min: 4, max: 42 })}` },
-    { name: 'Fundal height', body: `${chance.integer({ min: 12, max: 40 })}` },
-    { name: 'Malaria RDT', body: chance.pickone(['Positive', 'Negative']) },
-    {
-      name: 'HIV test result',
-      body: chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']),
-    },
-    { name: 'Oedema', body: chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']) },
+  const SURVEY_ANSWER_OPTIONS: Array<{ name: string; body: () => string }> = [
+    { name: 'Blood pressure', body: () => `${chance.integer({ min: 90, max: 160 })}/${chance.integer({ min: 50, max: 100 })}` },
+    { name: 'Temperature', body: () => `${chance.floating({ min: 36.0, max: 39.5, fixed: 1 })}` },
+    { name: 'Weight', body: () => `${chance.floating({ min: 40, max: 120, fixed: 1 })}` },
+    { name: 'Height', body: () => `${chance.integer({ min: 140, max: 195 })}` },
+    { name: 'Heart rate', body: () => `${chance.integer({ min: 50, max: 120 })}` },
+    { name: 'SpO2', body: () => `${chance.integer({ min: 90, max: 100 })}%` },
+    { name: 'Respiratory rate', body: () => `${chance.integer({ min: 12, max: 28 })}` },
+    { name: 'Blood glucose', body: () => `${chance.floating({ min: 3.5, max: 15.0, fixed: 1 })}` },
+    { name: 'MUAC', body: () => `${chance.floating({ min: 10.0, max: 30.0, fixed: 1 })}` },
+    { name: 'Pain score', body: () => `${chance.integer({ min: 0, max: 10 })}` },
+    { name: 'Haemoglobin', body: () => `${chance.floating({ min: 7.0, max: 17.0, fixed: 1 })}` },
+    { name: 'Gestational age (weeks)', body: () => `${chance.integer({ min: 4, max: 42 })}` },
+    { name: 'Fundal height', body: () => `${chance.integer({ min: 12, max: 40 })}` },
+    { name: 'Malaria RDT', body: () => chance.pickone(['Positive', 'Negative']) },
+    { name: 'HIV test result', body: () => chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']) },
+    { name: 'Oedema', body: () => chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']) },
     {
       name: 'Notes',
-      body: chance.pickone([
+      body: () => chance.pickone([
         'Patient reports feeling better',
         'No complaints today',
         'Mild discomfort noted',
@@ -508,7 +505,10 @@ export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
         'Wound healing well',
       ]),
     },
-  ]);
+  ];
+  const answer = chance.pickone(SURVEY_ANSWER_OPTIONS);
+  const { name } = answer;
+  const body = answer.body();
   return {
     id: `${prefix}surveyResponseAnswer_${id}`,
     dataElementId: null,
