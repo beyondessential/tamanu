@@ -17,14 +17,6 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-export function ColourCell({ color }) {
-  return color || <>&mdash;</>;
-}
-
-export function VisibilityStatusCell({ visibilityStatus }) {
-  return visibilityStatus || <>&mdash;</>;
-}
-
 const visibilityStatusText = /** @type {const} */ {
   [VISIBILITY_STATUSES.CURRENT]: (
     <TranslatedText
@@ -70,5 +62,19 @@ export function VisibilityStatusChip({ visibilityStatus, ...props }) {
       size="small"
       {...props}
     />
+  );
+}
+
+const emptyCell = <em style={{ color: TAMANU_COLORS.softText }}>None</em>;
+
+export function ColourCell({ color }) {
+  return color || emptyCell;
+}
+
+export function VisibilityStatusCell({ visibilityStatus }) {
+  return visibilityStatus ? (
+    <VisibilityStatusChip visibilityStatus={visibilityStatus} />
+  ) : (
+    emptyCell
   );
 }
