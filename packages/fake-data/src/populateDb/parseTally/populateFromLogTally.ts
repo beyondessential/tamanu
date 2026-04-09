@@ -65,11 +65,15 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   const runBatched = async (fn: (arg: any) => Promise<any>, count: number) => {
     for (let i = 0; i < count; i += BATCH_SIZE) {
       const batchCount = Math.min(BATCH_SIZE, count - i);
-      await Promise.all(
+      const results = await Promise.allSettled(
         times(batchCount, () =>
-          fn({ models, limit: (f: any) => f() }).then(print('.'), print('!')),
+          fn({ models, limit: (f: any) => f() }).then(print('.'), print('!', true)),
         ),
       );
+      const failures = results.filter((r) => r.status === 'rejected');
+      if (failures.length === batchCount) {
+        throw new Error(`All ${batchCount} operations failed in batch`);
+      }
     }
   };
 
