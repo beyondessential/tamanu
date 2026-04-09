@@ -133,9 +133,9 @@ export const Paginator = React.memo(
                 stringId="general.table.pageRecordCount"
                 fallback=":lowerRange–:upperRange of :count"
                 replacements={{
-                  lowerRange,
-                  upperRange,
-                  count,
+                  lowerRange: lowerRange.toLocaleString(),
+                  upperRange: upperRange.toLocaleString(),
+                  count: count.toLocaleString(),
                 }}
                 data-testid="translatedtext-yhs4"
               />
