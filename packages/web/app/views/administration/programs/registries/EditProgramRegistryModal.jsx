@@ -50,7 +50,7 @@ const metadataValidationSchema = yup.object().shape({
   visibilityStatus: yup
     .string()
     .required('Required')
-    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
+    .oneOf(visibilityStatusSelectOptions.map(option => option.value)),
   currentlyAtType: yup.string().required('Required'),
 });
 
