@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { startCase } from 'lodash';
 import styled from 'styled-components';
 import { SelectInput, Button } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { useApi } from '../../../../api';
 import { SearchBar } from './SearchBar';
 import { AddReferenceDataModal } from './AddReferenceDataModal';
 import { EditReferenceDataModal } from './EditReferenceDataModal';
-import { DATA_TYPE_OPTIONS, ENDPOINT, COLUMNS_ENDPOINT } from './constants';
+import { useReferenceDataColumns } from './useReferenceDataColumns';
+import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
   padding: 20px;
@@ -54,24 +54,12 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 export const ManageReferenceDataTab = () => {
-  const api = useApi();
   const [selectedType, setSelectedType] = useState('');
-  const [columns, setColumns] = useState([]);
+  const { data: columns = [] } = useReferenceDataColumns(selectedType);
   const [searchParams, setSearchParams] = useState({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-
-  useEffect(() => {
-    if (!selectedType) {
-      setColumns([]);
-      return;
-    }
-    (async () => {
-      const result = await api.get(COLUMNS_ENDPOINT, { type: selectedType });
-      setColumns(result);
-    })();
-  }, [api, selectedType]);
 
   const handleTypeChange = useCallback(event => {
     const newType = event.target.value;
