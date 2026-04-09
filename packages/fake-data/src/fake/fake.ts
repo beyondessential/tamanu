@@ -65,15 +65,6 @@ const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
 
-export function fakeStringFields(prefix: string, fields: string[]) {
-  return fields.reduce(
-    (obj: Record<string, string>, field: string) => ({
-      ...obj,
-      [field]: prefix + field,
-    }),
-    {},
-  );
-}
 
 export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();
