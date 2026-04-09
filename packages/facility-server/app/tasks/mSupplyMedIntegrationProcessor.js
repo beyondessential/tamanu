@@ -1,35 +1,15 @@
 import config from 'config';
-import { fetch } from 'undici';
 import { Op } from 'sequelize';
 
 import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-// INTEGRATION DETAILS
-const INTEGRATION_PLUGIN_CODE = 'bes-plugins';
-const INTEGRATION_ENDPOINT = '/graphql';
+import { MSupplyClient } from '../utils/MSupplyClient';
 
-// GRAPHQL QUERIES
-const AUTH_QUERY = `
-  query Auth($password: String!, $username: String!) {
-    authToken(password: $password, username: $username) {
-      ... on AuthToken {
-        __typename
-        token
-      }
-      ... on AuthTokenError {
-        __typename
-        error {
-          description
-        }
-      }
-    }
-  }
-`;
+const INTEGRATION_PLUGIN_CODE = 'bes-plugins';
 
 function getPostQuery(storeId) {
   return `
@@ -56,8 +36,9 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.scheduleConfig = conf;
     this.context = context;
     this.models = context.models;
+    this.client = new MSupplyClient(context);
     this.serverFacilityIds = selectFacilityIds(config);
-    this.authHeader = null;
+    this.authToken = null;
   }
 
   async createLog(values) {
@@ -65,45 +46,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     const hasItems = items && Array.isArray(items) && items.length > 0;
     const payload = { ...rest, ...(hasItems && { items }) };
     await this.models.MSupplyPushLog.create(payload);
-  }
-
-  async getSettings(facilityId) {
-    const integrationSettings = await this.context.settings[facilityId]?.get(
-      'integrations.mSupplyMed',
-    );
-    return integrationSettings ?? {};
-  }
-
-  async getAuthHeader(facilityId) {
-    const { host, backoff } = await this.getSettings(facilityId);
-    const { username, password } = config.integrations.mSupplyMed;
-    const variables = { username, password };
-
-    try {
-      const response = await fetchWithRetryBackoff(
-        `${host}${INTEGRATION_ENDPOINT}`,
-        {
-          fetch,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ query: AUTH_QUERY, variables }),
-        },
-        { ...backoff, log },
-      );
-
-      const { data } = await response.json();
-      const authToken = data?.authToken?.token;
-
-      if (!authToken) {
-        throw new Error('No auth token found');
-      }
-
-      return `Bearer ${authToken}`;
-    } catch (error) {
-      throw new Error('Authentication failed: ' + error.message);
-    }
   }
 
   async updateMSupplyStock(medications, facilityId) {
@@ -119,8 +61,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       maxMedicationId,
     });
 
-    const { host, backoff, storeId, customerCode } = await this.getSettings(facilityId);
-    const postQuery = getPostQuery(storeId);
+    const { host, backoff, storeId, customerCode } = await this.client.getSettings(facilityId);
     const variables = {
       input: {
         invoiceId: minMedicationId, // Identify batch by the first medication's id
@@ -133,21 +74,13 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     };
 
     try {
-      const response = await fetchWithRetryBackoff(
-        `${host}${INTEGRATION_ENDPOINT}`,
-        {
-          fetch,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authHeader,
-          },
-          body: JSON.stringify({ query: postQuery, variables }),
-        },
-        { ...backoff, log },
-      );
-
-      const { data } = await response.json();
+      const { data } = await this.client.graphqlQuery({
+        host,
+        query: getPostQuery(storeId),
+        variables,
+        authToken: this.authToken,
+        backoff,
+      });
       const { success, message, items } = data?.pluginGraphqlQuery ?? {};
 
       if (success) {
@@ -297,7 +230,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
     const [facilityId] = this.serverFacilityIds;
 
-    const { host, storeId, customerCode } = await this.getSettings(facilityId);
+    const { host, storeId, customerCode } = await this.client.getSettings(facilityId);
     if (!host || !username || !password || !storeId || !customerCode) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;
@@ -315,7 +248,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     if (toProcess === 0) return;
 
     // Log in and process the dispensed medications in batches
-    this.authHeader = await this.getAuthHeader(facilityId);
+    this.authToken = await this.client.authenticate(facilityId);
     const batchCount = Math.ceil(toProcess / batchSize);
 
     for (let i = 0; i < batchCount; i++) {
