@@ -71,8 +71,11 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
         ),
       );
       const failures = results.filter((r) => r.status === 'rejected');
-      if (failures.length === batchCount) {
-        throw new Error(`All ${batchCount} operations failed in batch`);
+      if (failures.length > batchCount / 2) {
+        const firstReason = (failures[0] as PromiseRejectedResult).reason;
+        throw new Error(
+          `${failures.length}/${batchCount} operations failed in batch: ${firstReason}`,
+        );
       }
     }
   };
