@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { DeleteOutlined } from '@material-ui/icons';
+import DeleteOutlined from '@mui/icons-material/DeleteOutlined';
 import { toDateString, toWeekdayCode, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';

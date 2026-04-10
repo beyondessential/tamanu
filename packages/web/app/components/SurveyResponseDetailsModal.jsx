@@ -1,5 +1,5 @@
 import React from 'react';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 import styled from 'styled-components';
 import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';

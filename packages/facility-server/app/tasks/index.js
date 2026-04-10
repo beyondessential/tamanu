@@ -1,6 +1,7 @@
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
+import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 
@@ -9,6 +10,7 @@ const DEFAULT_TASK_CLASSES = [
   SendStatusToMetaServer,
   TimeSyncTask,
   mSupplyMedIntegrationProcessor,
+  MSupplyStockOnHandProcessor,
 ];
 
 export function startScheduledTasks(context, taskClasses) {
