@@ -1,4 +1,4 @@
-import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';

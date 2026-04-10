@@ -1,5 +1,5 @@
 import { Box, Typography } from '@material-ui/core';
-import { AddRounded } from '@material-ui/icons';
+import AddRounded from '@mui/icons-material/AddRounded';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 

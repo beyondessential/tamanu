@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import {
