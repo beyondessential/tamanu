@@ -1,5 +1,5 @@
 import React from 'react';
-import { startCase } from 'lodash';
+
 import styled from 'styled-components';
 import { TextField, useTranslation } from '@tamanu/ui-components';
 import {
@@ -29,7 +29,7 @@ const AvailableFacilitiesSearchField = () => {
   return (
     <Field
       name="availableFacilities"
-      label={startCase('availableFacilities')}
+      label="availableFacilities"
       component={MultiAutocompleteField}
       suggester={suggester}
       data-testid="searchfield-availableFacilities"
@@ -42,7 +42,7 @@ const SuggesterSearchField = ({ col }) => {
   return (
     <Field
       name={col.key}
-      label={startCase(col.key)}
+      label={col.key}
       component={AutocompleteField}
       suggester={suggester}
       data-testid={`searchfield-${col.key}`}
@@ -83,7 +83,7 @@ export const SearchField = ({ col }) => {
         <Field
           component={CheckField}
           name={col.key}
-          label={startCase(col.key)}
+          label={col.key}
           data-testid={`searchfield-${col.key}`}
         />
       </CentredCheckContainer>
@@ -94,7 +94,7 @@ export const SearchField = ({ col }) => {
     <Field
       component={isNumeric ? NumberField : TextField}
       name={col.key}
-      label={startCase(col.key)}
+      label={col.key}
       placeholder={getTranslation('general.placeholder.search...', 'Search…')}
       data-testid={`searchfield-${col.key}`}
     />

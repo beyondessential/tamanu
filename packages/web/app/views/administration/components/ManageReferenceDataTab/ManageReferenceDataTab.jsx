@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { startCase } from 'lodash';
+
 import styled from 'styled-components';
 import { SelectInput, Button } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
@@ -13,12 +13,14 @@ import { useReferenceDataColumns } from './useReferenceDataColumns';
 import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
+  margin: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   height: 100%;
   overflow: hidden;
+  border: 1px solid ${Colors.outline};
 `;
 
 const TopRow = styled.div`
@@ -26,6 +28,8 @@ const TopRow = styled.div`
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const SelectContainer = styled.div`
@@ -95,7 +99,7 @@ export const ManageReferenceDataTab = () => {
       columns.map(col => {
         const column = {
           key: col.key,
-          title: startCase(col.key),
+          title: col.key,
           sortable: true,
         };
         if (col.type === 'BOOLEAN') {
@@ -123,11 +127,13 @@ export const ManageReferenceDataTab = () => {
             value={selectedType}
             onChange={handleTypeChange}
             options={DATA_TYPE_OPTIONS}
-            placeholder={<TranslatedText
-              stringId="admin.referenceData.selectTypePlaceholder"
-              fallback="Select reference data..."
-              data-testid="translatedtext-select-refdata-type"
-            />}
+            placeholder={
+              <TranslatedText
+                stringId="admin.referenceData.selectTypePlaceholder"
+                fallback="Select reference data..."
+                data-testid="translatedtext-select-refdata-type"
+              />
+            }
             data-testid="selectinput-refdata-type"
           />
         </SelectContainer>
@@ -139,7 +145,9 @@ export const ManageReferenceDataTab = () => {
                 fallback="Select desired reference data to add new"
                 data-testid="translatedtext-tooltip-add-refdata"
               />
-            ) : ''
+            ) : (
+              ''
+            )
           }
         >
           <span>

@@ -46,7 +46,7 @@ const SuggesterFormField = memo(({ col, disabled }) => {
   return (
     <Field
       name={col.key}
-      label={startCase(col.key)}
+      label={col.key}
       component={AutocompleteField}
       suggester={suggester}
       required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
@@ -61,7 +61,7 @@ const AvailableFacilitiesFormField = memo(({ disabled }) => {
   return (
     <Field
       name="availableFacilities"
-      label={startCase('availableFacilities')}
+      label="availableFacilities"
       component={MultiAutocompleteField}
       suggester={suggester}
       allowSelectAll
@@ -86,7 +86,7 @@ export const FormField = memo(({ col, isEditMode }) => {
     return (
       <Field
         name={col.key}
-        label={startCase(col.key)}
+        label={col.key}
         component={SelectField}
         options={VISIBILITY_STATUS_OPTIONS}
         required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
@@ -99,7 +99,7 @@ export const FormField = memo(({ col, isEditMode }) => {
   const field = (
     <Field
       name={col.key}
-      label={startCase(col.key)}
+      label={col.key}
       component={getFieldComponent(col.type)}
       required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
       disabled={disabled}
