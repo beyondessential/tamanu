@@ -52,7 +52,7 @@ export const SearchField = props => {
 export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
-  const { label, placeholder, value, onChange, onClear } = props;
+  const { label, placeholder, value, onClear } = props;
 
   return (
     <StyledTextInput
@@ -68,14 +68,12 @@ export const SearchInput = props => {
           </StyledIconButton>
         ),
       }}
-      {...props}
       // Not type="search" because ‘Clear’ button above duplicates <input type="search"> behaviour
       enterKeyHint="search"
+      {...props}
       placeholder={
         placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }
-      value={value}
-      onChange={onChange}
     />
   );
 };

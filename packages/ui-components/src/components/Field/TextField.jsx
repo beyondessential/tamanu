@@ -20,9 +20,9 @@ const JoinedFieldStyles = css`
   }
 `;
 
-export const StyledTextField = styled(MuiTextField).withConfig({
-  shouldForwardProp: prop => prop !== 'field' && prop !== 'form',
-})`
+export const StyledTextField = styled(MuiTextField)
+  .withConfig({ shouldForwardProp: prop => prop !== 'field' && prop !== 'form' })
+  .attrs({ variant: 'outlined' })`
   ${props => (props.$joined ? JoinedFieldStyles : null)};
 
   .MuiInputBase-root {
@@ -100,6 +100,7 @@ export const StyledTextField = styled(MuiTextField).withConfig({
 `;
 
 export const TextInput = ({
+  className,
   value = '',
   label,
   enablePasting = false,
@@ -138,18 +139,15 @@ export const TextInput = ({
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} data-testid={dataTestId} {...props}>
+    <OuterLabelFieldWrapper className={className} label={label} data-testid={dataTestId} {...props}>
       <StyledTextField
-        value={value}
-        variant="outlined"
-        onPaste={onPaste}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
+        data-testid={`${dataTestId}-input`}
         onDragEnter={onDragEnter}
-        inputProps={{
-          ...inputProps,
-          'data-testid': `${dataTestId}-input`,
-        }}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        onPaste={onPaste}
+        value={value}
+        {...inputProps}
         {...props}
       />
     </OuterLabelFieldWrapper>
