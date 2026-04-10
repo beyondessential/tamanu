@@ -34,11 +34,8 @@ const SelectContainer = styled.div`
   width: 18.75rem;
 `;
 
-const SelectLabel = styled.label`
-  font-weight: 500;
-  font-size: 14px;
-  white-space: nowrap;
-  color: ${Colors.darkText};
+const StyledAddButton = styled(Button)`
+  min-height: 44px;
 `;
 
 const TableWrapper = styled.div`
@@ -121,19 +118,16 @@ export const ManageReferenceDataTab = () => {
     <Container data-testid="manage-refdata-container">
       <TopRow data-testid="toprow-refdata">
         <SelectContainer data-testid="selectcontainer-refdata">
-          <SelectLabel htmlFor="reference-data-type-select">
-            <TranslatedText
-              stringId="admin.referenceData.selectType"
-              fallback="Select reference data"
-              data-testid="translatedtext-select-refdata"
-            />
-          </SelectLabel>
           <SelectInput
             id="reference-data-type-select"
             value={selectedType}
             onChange={handleTypeChange}
             options={DATA_TYPE_OPTIONS}
-            placeholder="Select a type..."
+            placeholder={<TranslatedText
+              stringId="admin.referenceData.selectTypePlaceholder"
+              fallback="Select reference data..."
+              data-testid="translatedtext-select-refdata-type"
+            />}
             data-testid="selectinput-refdata-type"
           />
         </SelectContainer>
@@ -149,7 +143,7 @@ export const ManageReferenceDataTab = () => {
           }
         >
           <span>
-            <Button
+            <StyledAddButton
               color="primary"
               variant="contained"
               disabled={!selectedType}
@@ -161,7 +155,7 @@ export const ManageReferenceDataTab = () => {
                 fallback="+ Add reference data"
                 data-testid="translatedtext-add-refdata"
               />
-            </Button>
+            </StyledAddButton>
           </span>
         </ThemedTooltip>
       </TopRow>
