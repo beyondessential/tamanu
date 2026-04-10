@@ -20,7 +20,9 @@ const JoinedFieldStyles = css`
   }
 `;
 
-export const StyledTextField = styled(MuiTextField)`
+export const StyledTextField = styled(MuiTextField).withConfig({
+  shouldForwardProp: prop => prop !== 'field' && prop !== 'form',
+})`
   ${props => (props.$joined ? JoinedFieldStyles : null)};
 
   .MuiInputBase-root {
