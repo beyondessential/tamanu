@@ -7,18 +7,25 @@ import { formatISO9075 } from 'date-fns';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  BLOOD_TYPES,
   CURRENTLY_AT_TYPES,
   DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
+  DRUG_ROUTE_VALUES,
+  EDUCATIONAL_ATTAINMENT_TYPES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
+  MARTIAL_STATUS_VALUES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   REGISTRATION_STATUSES,
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
+  SEX_VALUES,
+  TITLES,
+  VACCINE_CATEGORIES_VALUES,
   VACCINE_RECORDING_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -76,14 +83,7 @@ export function fakeScheduledVaccine(prefix: string = 'test-') {
     vaccineId: null,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     sortIndex: 0,
-    category: chance.pickone([
-      'Routine',
-      'Catch-up',
-      'Travel',
-      'Seasonal',
-      'Supplementary',
-      'Outbreak Response',
-    ]),
+    category: chance.pickone(VACCINE_CATEGORIES_VALUES),
     label: chance.pickone([
       'BCG',
       'Hepatitis B',
@@ -547,18 +547,7 @@ export function fakePrescription(prefix: string = 'test-') {
       'Tuberculosis',
       'HIV antiretroviral therapy',
     ]),
-    route: chance.pickone([
-      'Oral',
-      'Intravenous',
-      'Intramuscular',
-      'Topical',
-      'Subcutaneous',
-      'Rectal',
-      'Sublingual',
-      'Inhaled',
-      'Ophthalmic',
-      'Otic',
-    ]),
+    route: chance.pickone(DRUG_ROUTE_VALUES),
   };
 }
 
@@ -711,7 +700,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     };
   },
   Patient: () => {
-    const sex = chance.pickone(['male', 'female', 'other']);
+    const sex = chance.pickone(Object.values(SEX_VALUES));
     const nameGender: 'male' | 'female' =
       sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
@@ -735,29 +724,15 @@ const MODEL_SPECIFIC_OVERRIDES = {
       id: commonId,
       patientId: commonId,
       placeOfBirth: chance.city(),
-      bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
+      bloodType: chance.pickone(Object.values(BLOOD_TYPES)),
       primaryContactNumber: chance.phone(),
       secondaryContactNumber: chance.phone(),
-      maritalStatus: chance.pickone([
-        'Single',
-        'Married',
-        'Widowed',
-        'Divorced',
-        'Separated',
-        'De Facto',
-      ]),
+      maritalStatus: chance.pickone(Object.values(MARTIAL_STATUS_VALUES)),
       cityTown: chance.city(),
       streetVillage: chance.street(),
-      educationalLevel: chance.pickone([
-        'None',
-        'Primary',
-        'High School',
-        'Bachelors',
-        'Masters',
-        'PhD',
-      ]),
+      educationalLevel: chance.pickone(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)),
       socialMedia: `@${chance.first().toLowerCase()}${chance.last().toLowerCase()}${chance.integer({ min: 1, max: 99 })}`,
-      title: chance.prefix(),
+      title: chance.pickone(Object.values(TITLES)),
       birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
       drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
       passport:
