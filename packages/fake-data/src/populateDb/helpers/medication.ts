@@ -21,10 +21,13 @@ export const createMedication = async ({
     EncounterPausePrescriptionHistory,
   } = models;
 
+  // Create with hooks disabled: the afterCreate hook tries to push a notification
+  // via EncounterPrescription.encounter, but EncounterPrescription doesn't exist yet
   const prescription = await Prescription.create(
     fake(Prescription, {
       medicationId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
     }),
+    { hooks: false },
   );
 
   const encounterPrescription = await EncounterPrescription.create(
