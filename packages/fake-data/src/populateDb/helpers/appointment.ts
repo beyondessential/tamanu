@@ -41,10 +41,11 @@ export const createRepeatingAppointment = async ({
   apptCount = chance.integer({ min: 1, max: 50 }),
 }: CreateRepeatingAppointmentParams): Promise<void> => {
   const { AppointmentSchedule, Appointment } = models;
+  const resolvedLocationGroupId = locationGroupId ?? (await randomRecordId(models, 'LocationGroup'));
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
       frequency: REPEAT_FREQUENCY.WEEKLY,
-      locationGroupId: locationGroupId ?? (await randomRecordId(models, 'LocationGroup')),
+      locationGroupId: resolvedLocationGroupId,
     }),
   );
 
@@ -55,7 +56,7 @@ export const createRepeatingAppointment = async ({
           fake(Appointment, {
             patientId: patientId ?? (await randomRecordId(models, 'Patient')),
             clinicianId: clinicianId ?? (await randomRecordId(models, 'User')),
-            locationGroupId: locationGroupId ?? (await randomRecordId(models, 'LocationGroup')),
+            locationGroupId: resolvedLocationGroupId,
             scheduleId: appointmentSchedule.id,
           }),
         );
