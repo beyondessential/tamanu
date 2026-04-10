@@ -19,7 +19,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 16px;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid ${Colors.outline};
 `;
 
