@@ -284,31 +284,11 @@ export function fakeReferenceData(prefix: string = 'test-') {
     },
     {
       type: 'nationality',
-      names: [
-        'Papua New Guinean',
-        'Australian',
-        'New Zealander',
-        'Fijian',
-        'Samoan',
-        'Tongan',
-        'Solomon Islander',
-        'Vanuatuan',
-      ],
+      names: chance.n(() => chance.country({ full: true }), 20),
     },
     {
       type: 'occupation',
-      names: [
-        'Farmer',
-        'Teacher',
-        'Nurse',
-        'Trader',
-        'Fisherman',
-        'Driver',
-        'Carpenter',
-        'Student',
-        'Homemaker',
-        'Public servant',
-      ],
+      names: chance.n(() => chance.profession(), 20),
     },
     {
       type: 'religion',
@@ -466,20 +446,24 @@ export function fakeSurveyResponse(prefix: string = 'test-') {
 
 export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   const id = fakeUUID();
+  const clampedNormal = (mean: number, dev: number, min: number, max: number, decimals = 0) => {
+    const val = Math.max(min, Math.min(max, chance.normal({ mean, dev })));
+    return decimals > 0 ? val.toFixed(decimals) : Math.round(val).toString();
+  };
   const SURVEY_ANSWER_OPTIONS: Array<{ name: string; body: () => string }> = [
-    { name: 'Blood pressure', body: () => `${chance.integer({ min: 90, max: 160 })}/${chance.integer({ min: 50, max: 100 })}` },
-    { name: 'Temperature', body: () => `${chance.floating({ min: 36.0, max: 39.5, fixed: 1 })}` },
-    { name: 'Weight', body: () => `${chance.floating({ min: 40, max: 120, fixed: 1 })}` },
-    { name: 'Height', body: () => `${chance.integer({ min: 140, max: 195 })}` },
-    { name: 'Heart rate', body: () => `${chance.integer({ min: 50, max: 120 })}` },
-    { name: 'SpO2', body: () => `${chance.integer({ min: 90, max: 100 })}%` },
-    { name: 'Respiratory rate', body: () => `${chance.integer({ min: 12, max: 28 })}` },
-    { name: 'Blood glucose', body: () => `${chance.floating({ min: 3.5, max: 15.0, fixed: 1 })}` },
-    { name: 'MUAC', body: () => `${chance.floating({ min: 10.0, max: 30.0, fixed: 1 })}` },
-    { name: 'Pain score', body: () => `${chance.integer({ min: 0, max: 10 })}` },
-    { name: 'Haemoglobin', body: () => `${chance.floating({ min: 7.0, max: 17.0, fixed: 1 })}` },
-    { name: 'Gestational age (weeks)', body: () => `${chance.integer({ min: 4, max: 42 })}` },
-    { name: 'Fundal height', body: () => `${chance.integer({ min: 12, max: 40 })}` },
+    { name: 'Blood pressure', body: () => `${clampedNormal(120, 15, 80, 180)}/${clampedNormal(80, 10, 40, 110)}` },
+    { name: 'Temperature', body: () => clampedNormal(37.0, 0.5, 35.5, 41.0, 1) },
+    { name: 'Weight', body: () => clampedNormal(70, 15, 30, 150, 1) },
+    { name: 'Height', body: () => clampedNormal(165, 10, 140, 200) },
+    { name: 'Heart rate', body: () => clampedNormal(75, 12, 40, 150) },
+    { name: 'SpO2', body: () => `${clampedNormal(97, 2, 85, 100)}%` },
+    { name: 'Respiratory rate', body: () => clampedNormal(16, 3, 10, 35) },
+    { name: 'Blood glucose', body: () => clampedNormal(5.5, 2.0, 2.0, 20.0, 1) },
+    { name: 'MUAC', body: () => clampedNormal(25, 4, 10, 35, 1) },
+    { name: 'Pain score', body: () => clampedNormal(3, 2.5, 0, 10) },
+    { name: 'Haemoglobin', body: () => clampedNormal(13.0, 2.0, 5.0, 19.0, 1) },
+    { name: 'Gestational age (weeks)', body: () => clampedNormal(28, 8, 4, 42) },
+    { name: 'Fundal height', body: () => clampedNormal(28, 7, 12, 42) },
     { name: 'Malaria RDT', body: () => chance.pickone(['Positive', 'Negative']) },
     { name: 'HIV test result', body: () => chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']) },
     { name: 'Oedema', body: () => chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']) },
@@ -641,6 +625,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       () => 'Central',
       () => 'National',
       () => `Port ${chance.last()}`,
+      () => chance.company(),
     ];
     const namePrefix = chance.pickone(namePrefixGenerators)();
     const nameSuffix = {
@@ -657,7 +642,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       name: `${namePrefix} ${nameSuffix}`,
       email: chance.email(),
       contactNumber: chance.phone(),
-      streetAddress: `${chance.natural({ max: 999 })} ${chance.street()}`,
+      streetAddress: chance.address(),
       cityTown: chance.city(),
       division: chance.province({ full: true }),
       type: facilityType,
@@ -739,9 +724,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
-      dateOfBirth: toDateString(
-        chance.date({ year: chance.integer({ min: 1940, max: CURRENT_YEAR - 1 }) }) as Date,
-      ),
+      dateOfBirth: toDateString(chance.birthday({ type: 'adult' }) as Date),
       dateOfDeath: null,
       email: chance.email(),
     };
@@ -900,104 +883,47 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
 };
 
+const fhirArray = (fakeFn: (...args: any[]) => any) =>
+  (...args: any[]) => chance.n(() => fakeFn(...args), chance.integer({ min: 0, max: 3 }));
+
 const FHIR_MODELS_HANDLERS = {
   FhirPatient: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    name: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirHumanName.fake(...args)),
-    telecom: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirContactPoint.fake(...args)),
-    address: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirAddress.fake(...args)),
-    link: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirPatientLink.fake(...args)),
-    extension: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirExtension.fake(...args)),
+    identifier: fhirArray(FhirIdentifier.fake),
+    name: fhirArray(FhirHumanName.fake),
+    telecom: fhirArray(FhirContactPoint.fake),
+    address: fhirArray(FhirAddress.fake),
+    link: fhirArray(FhirPatientLink.fake),
+    extension: fhirArray(FhirExtension.fake),
   },
   FhirServiceRequest: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    category: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    order_detail: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    location_code: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
+    identifier: fhirArray(FhirIdentifier.fake),
+    category: fhirArray(FhirCodeableConcept.fake),
+    order_detail: fhirArray(FhirCodeableConcept.fake),
+    location_code: fhirArray(FhirCodeableConcept.fake),
     code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     subject: (...args: any[]) => FhirReference.fake(...args),
     requester: (...args: any[]) => FhirReference.fake(...args),
   },
   FhirDiagnosticReport: {
-    extension: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirExtension.fake(...args)),
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
+    extension: fhirArray(FhirExtension.fake),
+    identifier: fhirArray(FhirIdentifier.fake),
     code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     subject: (...args: any[]) => FhirReference.fake(...args),
-    performer: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
-    result: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
+    performer: fhirArray(FhirReference.fake),
+    result: fhirArray(FhirReference.fake),
   },
   FhirImmunization: {
     vaccine_code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     patient: (...args: any[]) => FhirReference.fake(...args),
     encounter: (...args: any[]) => FhirReference.fake(...args),
-    site: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    performer: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirImmunizationPerformer.fake(...args)),
-    protocol_applied: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirImmunizationProtocolApplied.fake(...args)),
+    site: fhirArray(FhirCodeableConcept.fake),
+    performer: fhirArray(FhirImmunizationPerformer.fake),
+    protocol_applied: fhirArray(FhirImmunizationProtocolApplied.fake),
   },
   FhirImagingStudy: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    basedOn: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
-    note: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirAnnotation.fake(...args)),
+    identifier: fhirArray(FhirIdentifier.fake),
+    basedOn: fhirArray(FhirReference.fake),
+    note: fhirArray(FhirAnnotation.fake),
   },
 };
 
