@@ -112,6 +112,7 @@ export const LocationAssignmentsAdminView = () => {
       data
         .filter(
           location =>
+            location.locationGroup &&
             location.locationGroup?.isBookable !== LOCATION_BOOKABLE_VIEW.NO &&
             (selectedFacilityId ? location.facilityId === selectedFacilityId : true),
         )
@@ -121,7 +122,7 @@ export const LocationAssignmentsAdminView = () => {
             a.name.localeCompare(b.name),
         ),
   });
-  const hasNoLocations = locations?.length === 0;
+  const hasNoLocations = !isLocationsLoading && locations?.length === 0;
 
   const openAssignmentDrawer = (initialValues = {}) => {
     setDrawerInitialValues({
