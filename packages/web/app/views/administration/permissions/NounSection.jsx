@@ -79,8 +79,10 @@ export const SummaryCell = styled.td`
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.darkestText};
   background-color: ${Colors.white};
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-weight: 500;
   font-size: 12px;
-  font-family: monospace;
   letter-spacing: 1px;
   white-space: pre;
   tr:hover > & {
