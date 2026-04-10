@@ -138,16 +138,31 @@ jobs:
           # Get the VolumeSnapshotContent (cluster-scoped) backing this snapshot
           CONTENT=$(kubectl -n "$SEED_NS" get volumesnapshot "$SNAPSHOT" \
             -o jsonpath='{.status.boundVolumeSnapshotContentName}')
+          if [ -z "$CONTENT" ]; then
+            echo "::error::boundVolumeSnapshotContentName is empty for snapshot $SNAPSHOT"
+            exit 1
+          fi
+
           DRIVER=$(kubectl get volumesnapshotcontent "$CONTENT" \
             -o jsonpath='{.spec.driver}')
           HANDLE=$(kubectl get volumesnapshotcontent "$CONTENT" \
             -o jsonpath='{.status.snapshotHandle}')
 
-          echo "Cloning snapshot to namespace $NS_NAME (content=$CONTENT, handle=$HANDLE)"
+          if [ -z "$DRIVER" ] || [ -z "$HANDLE" ]; then
+            echo "::error::driver or snapshotHandle is empty (driver=$DRIVER, content=$CONTENT)"
+            exit 1
+          fi
+
+          echo "::add-mask::${HANDLE}"
+          echo "Cloning snapshot to namespace $NS_NAME (content=$CONTENT)"
 
           # Create a new VolumeSnapshotContent pointing to the same underlying storage snapshot
           CLONE_CONTENT="seed-clone-${{ inputs.deploy-name }}"
           CLONE_SNAP="seed-snapshot"
+
+          # VolumeSnapshotContent spec fields (including snapshotHandle) are immutable once bound,
+          # so delete any existing resource before re-creating with potentially different values.
+          kubectl delete volumesnapshotcontent "${CLONE_CONTENT}" --ignore-not-found
 
           kubectl apply -f - <<EOF
           apiVersion: snapshot.storage.k8s.io/v1
@@ -155,10 +170,10 @@ jobs:
           metadata:
             name: ${CLONE_CONTENT}
           spec:
-            driver: ${DRIVER}
+            driver: "${DRIVER}"
             deletionPolicy: Retain
             source:
-              snapshotHandle: ${HANDLE}
+              snapshotHandle: "${HANDLE}"
             volumeSnapshotRef:
               name: ${CLONE_SNAP}
               namespace: ${NS_NAME}
