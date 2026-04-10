@@ -58,6 +58,9 @@ export const readJSON = async (path: string): Promise<object> => {
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
 
+  const { default: pLimit } = await import('p-limit');
+  const limit = pLimit(10);
+
   const tallyJson = await readJSON(tallyFilePath);
   const tallies = Object.entries(tallyJson);
   const BATCH_SIZE = 50;
@@ -65,11 +68,18 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   const runBatched = async (fn: (arg: any) => Promise<any>, count: number) => {
     for (let i = 0; i < count; i += BATCH_SIZE) {
       const batchCount = Math.min(BATCH_SIZE, count - i);
-      await Promise.all(
+      const results = await Promise.allSettled(
         times(batchCount, () =>
-          fn({ models, limit: (f: any) => f() }).then(print('.'), print('!')),
+          limit(() => fn({ models, limit }).then(print('.'), print('!', true))),
         ),
       );
+      const failures = results.filter((r) => r.status === 'rejected');
+      if (failures.length > batchCount / 2) {
+        const firstReason = (failures[0] as PromiseRejectedResult).reason;
+        throw new Error(
+          `${failures.length}/${batchCount} operations failed in batch: ${firstReason}`,
+        );
+      }
     }
   };
 

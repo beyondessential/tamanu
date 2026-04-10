@@ -80,22 +80,6 @@ const TableHeaderActions = styled.div`
   margin-bottom: 7px;
 `;
 
-const AddUserButton = styled(Button)`
-  background-color: ${Colors.primary};
-  color: ${Colors.white};
-  font-size: 14px;
-  padding: 8px 16px;
-  min-width: auto;
-  width: 124px;
-  height: 44px;
-
-  svg {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-  }
-`;
-
 const UserStatusIndicator = ({ visibilityStatus }) => {
   const isActive = visibilityStatus === VISIBILITY_STATUSES.CURRENT;
   const tooltipText = isActive ? (
@@ -202,10 +186,9 @@ export const UserProfilesAdminView = React.memo(() => {
   const title = <TranslatedText stringId="adminSidebar.user-profiles" fallback="User profiles" />;
 
   const titleActions = canCreateUser && (
-    <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
-      <PlusIcon aria-hidden fill={Colors.white} className="plus-icon" />
+    <Button onClick={handleAddUserClick} data-testid="add-user-button" startIcon={<PlusIcon />}>
       <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
-    </AddUserButton>
+    </Button>
   );
 
   if (!hasPermission) {

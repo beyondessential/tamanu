@@ -6,8 +6,8 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import Popper from '@mui/material/Popper';
 import Button from '@mui/material/Button';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, format as dateFnsFormat, isValid, isSameDay, parse } from 'date-fns';
 

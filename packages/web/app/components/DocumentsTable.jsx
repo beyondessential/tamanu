@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 
-import GetAppIcon from '@material-ui/icons/GetApp';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';

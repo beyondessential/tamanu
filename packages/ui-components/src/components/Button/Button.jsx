@@ -9,7 +9,9 @@ import {
   CircularProgress,
   IconButton,
 } from '@material-ui/core';
-import { ChevronLeft, Lock } from '@material-ui/icons';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import Lock from '@mui/icons-material/Lock';
+import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
@@ -42,15 +44,15 @@ const StyledButton = styled(({ ...props }) => {
   this is only to visually make it more obvious that the button is disabled */
   ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
-  .MuiSvgIcon-root {
+  /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
+  & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
     width: 19.5px;
     height: auto;
     margin-right: 10px;
   }
 
   &.MuiButton-sizeSmall {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-inline: 14px;
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
