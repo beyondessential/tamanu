@@ -69,6 +69,8 @@ export const SearchInput = props => {
         ),
       }}
       {...props}
+      // Not type="search" because ‘Clear’ button above duplicates <input type="search"> behaviour
+      enterKeyHint="search"
       placeholder={
         placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }

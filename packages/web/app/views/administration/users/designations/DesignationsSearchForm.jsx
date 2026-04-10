@@ -2,9 +2,9 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { FormSubmitButton, TextField } from '@tamanu/ui-components';
+import { FormSubmitButton } from '@tamanu/ui-components';
 import { TranslatedText } from '../../../../components';
-import { Field } from '../../../../components/Field';
+import { Field, SearchField } from '../../../../components/Field';
 import { useTranslation } from '../../../../contexts/Translation';
 import { ButtonGroup, Search, SearchClearButton, StyledForm } from '../components';
 
@@ -50,20 +50,18 @@ export const DesignationsSearchForm = () => {
   const render = ({ submitForm }) => (
     <>
       <Field
-        component={TextField}
-        enterKeyHint="search"
+        autoComplete="off"
+        component={SearchField}
         label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
         name="name"
         placeholder={placeholder}
-        type="search"
       />
       <Field
-        component={TextField}
-        enterKeyHint="search"
+        autoComplete="off"
+        component={SearchField}
         label={<TranslatedText stringId="admin.designations.id.label" fallback="ID" />}
         name="id"
         placeholder={placeholder}
-        type="search"
       />
       <ButtonGroup>
         <FormSubmitButton color="primary" onClick={submitForm}>
