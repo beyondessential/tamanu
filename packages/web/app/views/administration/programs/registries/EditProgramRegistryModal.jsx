@@ -3,7 +3,11 @@ import { useParams } from 'react-router';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { CURRENTLY_AT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CURRENTLY_AT_TYPES,
+  NONPATIENT_VISIBILITY_STATUS_VALUES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
@@ -35,10 +39,10 @@ const Footer = styled.footer`
   padding-block-start: 20px;
 `;
 
-const visibilityStatusSelectOptions = /** @type {const} */ ([
-  { value: VISIBILITY_STATUSES.CURRENT, label: VISIBILITY_STATUSES.CURRENT },
-  { value: VISIBILITY_STATUSES.HISTORICAL, label: VISIBILITY_STATUSES.HISTORICAL },
-]);
+const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
+  value,
+  label: value,
+}));
 
 const currentlyAtTypeSelectOptions = Object.values(CURRENTLY_AT_TYPES).map(value => ({
   value,
