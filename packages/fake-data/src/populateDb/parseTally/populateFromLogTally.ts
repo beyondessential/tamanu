@@ -111,13 +111,12 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   }
 };
 
-function print(char: string, reject: boolean = false) {
+function print(char: string) {
   return (value: any) => {
     process.stdout.write(char);
-    if (reject) {
-      throw value;
-    } else {
-      return value;
+    if (char === '!' && value) {
+      console.error(value?.message ?? value);
     }
+    return value;
   };
 }
