@@ -20,6 +20,7 @@ import {
   StyledCheckbox,
   EmptyChevronCell,
   stickyLeft,
+  DisclosureIcon,
 } from './NounSection';
 import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggles';
 
@@ -95,11 +96,7 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
         <ChildNounCell>
           <ChildNounContent>
             <ChildChevron>
-              {expanded ? (
-                <KeyboardArrowDown fontSize="small" />
-              ) : (
-                <KeyboardArrowRight fontSize="small" />
-              )}
+              <DisclosureIcon />
             </ChildChevron>
             <ThemedTooltip
               title={
@@ -114,7 +111,9 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
                         data-testid="translatedtext-permissions-available-objectid"
                       />
                       <br />
-                      {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
+                      {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun]
+                        .map(v => getVerbAbbreviation(v))
+                        .join(' ')}
                     </>
                   )}
                 </>
@@ -158,17 +157,13 @@ export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, o
 
   return (
     <>
-      <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
+      <GroupHeaderRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? (
-            <KeyboardArrowDown fontSize="small" />
-          ) : (
-            <KeyboardArrowRight fontSize="small" />
-          )}
+          <DisclosureIcon />
         </ChevronCell>
         <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
         {selectedRoles.map(role => (
-          <GroupDashCell key={role.id}>-</GroupDashCell>
+          <GroupDashCell key={role.id}>&mdash;</GroupDashCell>
         ))}
       </GroupHeaderRow>
       {expanded &&
