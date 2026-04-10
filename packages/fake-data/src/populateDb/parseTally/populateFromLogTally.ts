@@ -70,7 +70,7 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
       const batchCount = Math.min(BATCH_SIZE, count - i);
       const results = await Promise.allSettled(
         times(batchCount, () =>
-          fn({ models, limit }).then(print('.'), print('!', true)),
+          limit(() => fn({ models, limit }).then(print('.'), print('!', true))),
         ),
       );
       const failures = results.filter((r) => r.status === 'rejected');
