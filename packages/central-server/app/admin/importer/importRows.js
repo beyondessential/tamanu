@@ -296,25 +296,6 @@ export async function importRows(
         if (normalizedValues[key] === undefined) normalizedValues[key] = null;
       }
 
-      // Compute stats using prefetched existing records
-      const existing = existingByModelAndId.get(`Permission:${values.id}`);
-      if (normalizedValues.deletedAt) {
-        if (existing && !existing.deletedAt) {
-          updateStat(stats, statkey('Permission', sheetName), 'updated');
-          updateStat(stats, statkey('Permission', sheetName), 'deleted');
-        } else {
-          updateStat(stats, statkey('Permission', sheetName), 'skipped');
-        }
-      } else if (existing) {
-        const changed = Object.keys(normalizedValues).some(key => {
-          const existingVal = existing.dataValues[key];
-          return String(normalizedValues[key] ?? '') !== String(existingVal ?? '');
-        });
-        updateStat(stats, statkey('Permission', sheetName), changed ? 'updated' : 'skipped');
-      } else {
-        updateStat(stats, statkey('Permission', sheetName), 'created');
-      }
-
       bulkRecords.push(normalizedValues);
     }
 
@@ -322,12 +303,33 @@ export async function importRows(
       await models.Permission.bulkCreate(bulkRecords, {
         updateOnDuplicate: ['verb', 'noun', 'objectId', 'roleId', 'deletedAt', 'updatedAt'],
       });
-    } catch (err) {
-      for (const { sheetRow } of validRows) {
-        updateStat(stats, statkey('Permission', sheetName), 'errored');
-        errors.push(new UpsertionError(sheetName, sheetRow, err));
-        break;
+
+      // Compute stats only after bulkCreate succeeds
+      for (const normalizedValues of bulkRecords) {
+        const existing = existingByModelAndId.get(`Permission:${normalizedValues.id}`);
+        if (normalizedValues.deletedAt) {
+          if (existing && !existing.deletedAt) {
+            updateStat(stats, statkey('Permission', sheetName), 'updated');
+            updateStat(stats, statkey('Permission', sheetName), 'deleted');
+          } else if (existing) {
+            updateStat(stats, statkey('Permission', sheetName), 'skipped');
+          } else {
+            updateStat(stats, statkey('Permission', sheetName), 'created');
+          }
+        } else if (existing) {
+          const changed = Object.keys(normalizedValues).some(key => {
+            const existingVal = existing.dataValues[key];
+            return String(normalizedValues[key] ?? '') !== String(existingVal ?? '');
+          });
+          updateStat(stats, statkey('Permission', sheetName), changed ? 'updated' : 'skipped');
+        } else {
+          updateStat(stats, statkey('Permission', sheetName), 'created');
+        }
       }
+    } catch (err) {
+      const firstRow = validRows[0];
+      updateStat(stats, statkey('Permission', sheetName), 'errored');
+      errors.push(new UpsertionError(sheetName, firstRow.sheetRow, err));
     }
 
     log.debug('Done with bulk permission import');
