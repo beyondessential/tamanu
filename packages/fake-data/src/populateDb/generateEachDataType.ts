@@ -16,10 +16,10 @@ import {
   createAccessLog,
   generateImportData,
 } from './helpers/index.js';
+import { createLimiter } from './helpers/common.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
-  const { default: pLimit } = await import('p-limit');
-  const limit = pLimit(10);
+  const limit = createLimiter(10);
 
   // Create one of each basic deployment/reference data to reference for clinical data
   const {

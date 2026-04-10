@@ -22,23 +22,7 @@ import {
   createTriage,
   generateImportData,
 } from '../helpers/index.js';
-
-function createLimiter(concurrency: number) {
-  let active = 0;
-  const queue: Array<() => void> = [];
-  return <T>(fn: () => Promise<T>): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      const run = () => {
-        active++;
-        fn().then(resolve, reject).finally(() => {
-          active--;
-          if (queue.length > 0) queue.shift()!();
-        });
-      };
-      if (active < concurrency) run();
-      else queue.push(run);
-    });
-}
+import { createLimiter } from '../helpers/common.js';
 
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
