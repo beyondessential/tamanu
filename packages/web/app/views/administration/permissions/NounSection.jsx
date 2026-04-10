@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
+import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import React, { useId, useState } from 'react';
+import styled, { css } from 'styled-components';
 
 import { PERMISSION_NOUN_DISPLAY_NAMES, PERMISSION_SCHEMA } from '@tamanu/constants';
-
-import { ThemedTooltip } from '../../../components/Tooltip';
-import { Colors } from '../../../constants';
+import { useTranslation } from '@tamanu/ui-components';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
+import { ThemedTooltip } from '../../../components/Tooltip';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Colors } from '../../../constants';
 import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggles';
 
 export const CHEVRON_WIDTH = 32;
@@ -30,7 +31,11 @@ export const NounRow = styled.tr`
   }
 `;
 
-export const DisclosureIcon = styled(KeyboardArrowRight).attrs({
+export const RowGroup = styled.div.attrs({ role: 'rowgroup' })`
+  display: contents;
+`;
+
+const DisclosureIcon = styled(KeyboardArrowRight).attrs({
   fontSize: 'small',
 })`
   transition: ${({ theme: { transitions } }) =>
@@ -43,6 +48,12 @@ export const DisclosureIcon = styled(KeyboardArrowRight).attrs({
     rotate: 90deg;
   }
 `;
+
+export const DisclosureButton = props => (
+  <IconButton size="small" {...props}>
+    <DisclosureIcon />
+  </IconButton>
+);
 
 export const ChevronCell = styled.td`
   width: ${CHEVRON_WIDTH}px;
@@ -113,11 +124,28 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
     ? objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]
     : null;
 
+  const displayName = PERMISSION_NOUN_DISPLAY_NAMES[nounGroup.noun] ?? nounGroup.nounKey;
+
+  const rowGroupId = useId();
+
+  const { getTranslation } = useTranslation();
+  const disclosureLabel = expanded
+    ? getTranslation('admin.permissions.collapseRow', 'Collapse :rowName row', {
+        replacements: { rowName: displayName },
+      })
+    : getTranslation('admin.permissions.expandRow', 'Expand :rowName row', {
+        replacements: { rowName: displayName },
+      });
+
   return (
     <>
-      <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
+      <NounRow onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          <DisclosureIcon />
+          <DisclosureButton
+            aria-controls={rowGroupId}
+            aria-expanded={expanded}
+            aria-label={disclosureLabel}
+          />
         </ChevronCell>
         <NounCell>
           <ThemedTooltip
@@ -143,34 +171,37 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
               )
             }
           >
-            <span>{PERMISSION_NOUN_DISPLAY_NAMES[nounGroup.noun] ?? nounGroup.nounKey}</span>
+            <span>{displayName}</span>
           </ThemedTooltip>
         </NounCell>
         {selectedRoles.map(role => (
           <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
         ))}
       </NounRow>
-      {expanded &&
-        nounGroup.verbs.map(({ verb }) => (
-          <VerbRow key={verb}>
-            <EmptyChevronCell />
-            <VerbLabelCell>{verb.charAt(0).toUpperCase() + verb.slice(1)}</VerbLabelCell>
-            {selectedRoles.map(role => (
-              <VerbCheckCell key={role.id}>
-                <StyledCheckbox
-                  checked={isChecked(verb, role.id)}
-                  icon={<CheckboxIconUnchecked width={15} height={15} />}
-                  checkedIcon={<CheckboxIconChecked width={15} height={15} />}
-                  size="small"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleToggle(verb, role);
-                  }}
-                />
-              </VerbCheckCell>
-            ))}
-          </VerbRow>
-        ))}
+      {expanded && (
+        <RowGroup id={rowGroupId}>
+          {nounGroup.verbs.map(({ verb }) => (
+            <VerbRow key={verb}>
+              <EmptyChevronCell />
+              <VerbLabelCell>{verb.charAt(0).toUpperCase() + verb.slice(1)}</VerbLabelCell>
+              {selectedRoles.map(role => (
+                <VerbCheckCell key={role.id}>
+                  <StyledCheckbox
+                    checked={isChecked(verb, role.id)}
+                    icon={<CheckboxIconUnchecked width={15} height={15} />}
+                    checkedIcon={<CheckboxIconChecked width={15} height={15} />}
+                    size="small"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleToggle(verb, role);
+                    }}
+                  />
+                </VerbCheckCell>
+              ))}
+            </VerbRow>
+          ))}
+        </RowGroup>
+      )}
     </>
   );
 };

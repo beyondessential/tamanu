@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
 import { OBJECT_ID_PERMISSION_SCHEMA } from '@tamanu/constants';
-import { ThemedTooltip } from '../../../components/Tooltip';
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '@tamanu/ui-components';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Colors } from '../../../constants';
 import {
   CHEVRON_WIDTH,
   ChevronCell,
-  NounRow,
-  SummaryCell,
-  VerbRow,
-  VerbLabelCell,
-  VerbCheckCell,
-  StyledCheckbox,
+  DisclosureButton,
   EmptyChevronCell,
+  NounRow,
+  RowGroup,
   stickyLeft,
-  DisclosureIcon,
+  StyledCheckbox,
+  SummaryCell,
+  VerbCheckCell,
+  VerbLabelCell,
+  VerbRow,
 } from './NounSection';
 import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggles';
 
@@ -86,14 +88,29 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
   const displayName = objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] ?? nounGroup.objectId;
   const { isChecked, handleToggle, getSummary } = usePermissionToggles(nounGroup, onToggle);
 
+  const rowGroupId = useId();
+
+  const { getTranslation } = useTranslation();
+  const disclosureLabel = expanded
+    ? getTranslation('admin.permissions.collapseRow', 'Collapse :rowName row', {
+        replacements: { rowName: displayName },
+      })
+    : getTranslation('admin.permissions.expandRow', 'Expand :rowName row', {
+        replacements: { rowName: displayName },
+      });
+
   return (
     <>
-      <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
+      <NounRow onClick={() => setExpanded(prev => !prev)}>
         <EmptyChevronCell />
         <ChildNounCell>
           <ChildNounContent>
             <ChildChevron>
-              <DisclosureIcon />
+              <DisclosureButton
+                aria-controls={rowGroupId}
+                aria-expanded={expanded}
+                aria-label={disclosureLabel}
+              />
             </ChildChevron>
             <ThemedTooltip
               title={
@@ -124,27 +141,32 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
           <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
         ))}
       </NounRow>
-      {expanded &&
-        nounGroup.verbs.map(({ verb }) => (
-          <VerbRow key={verb}>
-            <EmptyChevronCell />
-            <ChildVerbLabelCell>{verb.charAt(0).toUpperCase() + verb.slice(1)}</ChildVerbLabelCell>
-            {selectedRoles.map(role => (
-              <VerbCheckCell key={role.id}>
-                <StyledCheckbox
-                  checked={isChecked(verb, role.id)}
-                  icon={<CheckboxIconUnchecked width={15} height={15} />}
-                  checkedIcon={<CheckboxIconChecked width={15} height={15} />}
-                  size="small"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleToggle(verb, role);
-                  }}
-                />
-              </VerbCheckCell>
-            ))}
-          </VerbRow>
-        ))}
+      {expanded && (
+        <RowGroup id={rowGroupId}>
+          {nounGroup.verbs.map(({ verb }) => (
+            <VerbRow key={verb}>
+              <EmptyChevronCell />
+              <ChildVerbLabelCell>
+                {verb.charAt(0).toUpperCase() + verb.slice(1)}
+              </ChildVerbLabelCell>
+              {selectedRoles.map(role => (
+                <VerbCheckCell key={role.id}>
+                  <StyledCheckbox
+                    checked={isChecked(verb, role.id)}
+                    icon={<CheckboxIconUnchecked width={15} height={15} />}
+                    checkedIcon={<CheckboxIconChecked width={15} height={15} />}
+                    size="small"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleToggle(verb, role);
+                    }}
+                  />
+                </VerbCheckCell>
+              ))}
+            </VerbRow>
+          ))}
+        </RowGroup>
+      )}
     </>
   );
 };
@@ -152,27 +174,47 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
 export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
 
+  const { getTranslation } = useTranslation();
+
+  const disclosureLabel = expanded
+    ? getTranslation('admin.permissions.collapseRow', 'Collapse :rowName row', {
+        replacements: { noun },
+      })
+    : getTranslation('admin.permissions.expandRow', 'Expand :rowName row', {
+        replacements: { noun },
+      });
+
+  const rowGroupId = useId();
+
   return (
     <>
-      <GroupHeaderRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
+      <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          <DisclosureIcon />
+          <DisclosureButton
+            aria-controls={rowGroupId}
+            aria-expanded={expanded}
+            aria-label={disclosureLabel}
+          />
         </ChevronCell>
         <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
         {selectedRoles.map(role => (
           <GroupDashCell key={role.id}>&mdash;</GroupDashCell>
         ))}
       </GroupHeaderRow>
-      {expanded &&
-        entries.map(entry => (
-          <ObjectIdChildSection
-            key={entry.objectId}
-            nounGroup={entry}
-            selectedRoles={selectedRoles}
-            onToggle={onToggle}
-            objectNames={objectNames}
-          />
-        ))}
+      {expanded && (
+        <RowGroup id={rowGroupId}>
+          {entries.map(entry => (
+            <ObjectIdChildSection
+              id={rowGroupId}
+              key={entry.objectId}
+              nounGroup={entry}
+              selectedRoles={selectedRoles}
+              onToggle={onToggle}
+              objectNames={objectNames}
+            />
+          ))}
+        </RowGroup>
+      )}
     </>
   );
 };
