@@ -5,6 +5,7 @@ import { SelectInput, Button } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
+import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SearchBar } from './SearchBar';
 import { AddReferenceDataModal } from './AddReferenceDataModal';
 import { EditReferenceDataModal } from './EditReferenceDataModal';
@@ -50,6 +51,20 @@ const TableWrapper = styled.div`
       background-color: ${Colors.veryLightBlue};
     }
   }
+`;
+
+const PlaceholderBox = styled.div`
+  flex: 1;
+  min-height: calc(100vh - 290px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${Colors.background};
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
 `;
 
 export const ManageReferenceDataTab = () => {
@@ -122,19 +137,33 @@ export const ManageReferenceDataTab = () => {
             data-testid="selectinput-refdata-type"
           />
         </SelectContainer>
-        <Button
-          color="primary"
-          variant="contained"
-          disabled={!selectedType}
-          onClick={() => setIsAddModalOpen(true)}
-          data-testid="add-refdata-button"
+        <ThemedTooltip
+          title={
+            !selectedType ? (
+              <TranslatedText
+                stringId="admin.referenceData.selectTypeToAdd"
+                fallback="Select desired reference data to add new"
+                data-testid="translatedtext-tooltip-add-refdata"
+              />
+            ) : ''
+          }
         >
-          <TranslatedText
-            stringId="admin.referenceData.addNew"
-            fallback="+ Add reference data"
-            data-testid="translatedtext-add-refdata"
-          />
-        </Button>
+          <span>
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={!selectedType}
+              onClick={() => setIsAddModalOpen(true)}
+              data-testid="add-refdata-button"
+            >
+              <TranslatedText
+                stringId="admin.referenceData.addNew"
+                fallback="+ Add reference data"
+                data-testid="translatedtext-add-refdata"
+              />
+            </Button>
+          </span>
+        </ThemedTooltip>
       </TopRow>
       {selectedType && columns.length > 0 && (
         <>
@@ -163,16 +192,13 @@ export const ManageReferenceDataTab = () => {
         </>
       )}
       {!selectedType && (
-        <p
-          style={{ textAlign: 'center', padding: '60px 0', color: Colors.softText }}
-          data-testid="placeholder-refdata"
-        >
+        <PlaceholderBox data-testid="placeholder-refdata">
           <TranslatedText
             stringId="admin.referenceData.selectTypePrompt"
-            fallback="Select a reference data type to view and manage records"
+            fallback="Select the desired reference data from the field above to view."
             data-testid="translatedtext-prompt-refdata"
           />
-        </p>
+        </PlaceholderBox>
       )}
       {isAddModalOpen && (
         <AddReferenceDataModal
