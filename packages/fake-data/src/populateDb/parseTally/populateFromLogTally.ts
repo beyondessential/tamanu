@@ -23,6 +23,23 @@ import {
   generateImportData,
 } from '../helpers/index.js';
 
+function createLimiter(concurrency: number) {
+  let active = 0;
+  const queue: Array<() => void> = [];
+  return <T>(fn: () => Promise<T>): Promise<T> =>
+    new Promise<T>((resolve, reject) => {
+      const run = () => {
+        active++;
+        fn().then(resolve, reject).finally(() => {
+          active--;
+          if (queue.length > 0) queue.shift()!();
+        });
+      };
+      if (active < concurrency) run();
+      else queue.push(run);
+    });
+}
+
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
   Encounter: { POST: createEncounter },
@@ -58,8 +75,7 @@ export const readJSON = async (path: string): Promise<object> => {
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
 
-  const { default: pLimit } = await import('p-limit');
-  const limit = pLimit(10);
+  const limit = createLimiter(10);
 
   const tallyJson = await readJSON(tallyFilePath);
   const tallies = Object.entries(tallyJson);

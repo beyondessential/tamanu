@@ -1,5 +1,6 @@
 import type { Models } from '@tamanu/database';
-import type { LimitFunction } from 'p-limit';
+
+export type LimitFunction = <T>(fn: () => Promise<T>) => Promise<T>;
 
 export interface CommonParams {
   models: Models;
