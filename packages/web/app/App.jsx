@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
 import { IconButton } from '@material-ui/core';
-import { ChatBubbleOutline } from '@material-ui/icons';
+import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline';
 import { AskAiPanel } from './components/AskAi';
 import 'typeface-roboto';
 import { Colors } from './constants';

@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CircularProgress, IconButton, TextField, Typography } from '@material-ui/core';
-import { Close, Remove, Send } from '@material-ui/icons';
+import Close from '@mui/icons-material/Close';
+import Remove from '@mui/icons-material/Remove';
+import Send from '@mui/icons-material/Send';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
 import Markdown from 'react-markdown';
