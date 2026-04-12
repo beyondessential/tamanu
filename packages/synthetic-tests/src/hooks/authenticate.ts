@@ -1,13 +1,14 @@
+import { randomUUID } from 'node:crypto';
+
 import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetcher';
 
 import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';
 
-const DEVICE_ID_POOL_SIZE = 5;
-const deviceIds = Array.from({ length: DEVICE_ID_POOL_SIZE }, (_, i) => `synthetic-tests-${i}`);
-
-function pickDeviceId(): string {
-  return deviceIds[Math.floor(Math.random() * deviceIds.length)];
+/** One device id per login. A small fixed pool caused concurrent updates to the same `devices` row
+ * (`last_seen_at`) under Artillery load and PostgreSQL serialization failures. */
+function newSyntheticDeviceId(): string {
+  return `synthetic-tests-${randomUUID()}`;
 }
 
 async function resolveToken(
@@ -33,7 +34,7 @@ export async function authenticate(context: any, _events: any): Promise<void> {
     endpoint: `${context.vars.target}/api`,
     agentName: 'Tamanu Desktop',
     agentVersion: version,
-    deviceId: pickDeviceId(),
+    deviceId: newSyntheticDeviceId(),
     logger: console,
   });
 

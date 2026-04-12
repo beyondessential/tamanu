@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@tamanu/api-client": "*",
+    "@tamanu/constants": "*",
     "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0"
   },
