@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 import { OBJECT_ID_PERMISSION_SCHEMA } from '@tamanu/constants';
-
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
