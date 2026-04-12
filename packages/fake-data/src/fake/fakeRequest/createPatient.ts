@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { DEFAULT_PATIENT_DISPLAY_ID_PATTERN } from '@tamanu/constants';
 import { createPatientSchema } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
 import { generateIdFromPattern } from '@tamanu/utils/generateId';
 import { keysFor, type WithRequired } from '../utils/types.js';
@@ -21,9 +22,6 @@ const buildPatientBodyWithoutDisplayId = createFakeSchemaFactory(
 );
 
 type RequiredKeys = (typeof requiredKeys)[number];
-
-/** Must stay aligned with `patientDisplayIdPattern.defaultValue` in @tamanu/settings facility schema. */
-const DEFAULT_PATIENT_DISPLAY_ID_PATTERN = 'AAAA000000';
 
 export type FakeCreatePatientRequestOverrides = WithRequired<Schema, RequiredKeys> & {
   /** Facility `patientDisplayIdPattern` (A = random letter, 0 = random digit, literal in []). */
