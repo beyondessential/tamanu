@@ -3,11 +3,7 @@ import { useParams } from 'react-router';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import {
-  CURRENTLY_AT_TYPES,
-  NONPATIENT_VISIBILITY_STATUS_VALUES,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { CURRENTLY_AT_TYPES, NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
