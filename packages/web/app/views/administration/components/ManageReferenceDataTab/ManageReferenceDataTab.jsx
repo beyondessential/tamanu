@@ -104,8 +104,9 @@ export const ManageReferenceDataTab = () => {
   });
 
   const handleRowClick = useCallback(row => {
+    if (selectedType === SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION) return;
     setEditingRecord(row);
-  }, []);
+  }, [selectedType]);
 
   const tableColumns = useMemo(() => {
     const cols = columns.map(col => {
