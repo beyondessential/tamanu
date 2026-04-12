@@ -87,6 +87,7 @@ export const SearchField = ({ col }) => {
         name={col.key}
         label={col.key}
         options={options}
+        size="small"
         data-testid={`searchfield-${col.key}`}
       />
     );
