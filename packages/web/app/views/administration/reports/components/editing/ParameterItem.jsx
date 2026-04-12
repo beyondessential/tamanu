@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
+import BaseDeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import {
   ArrayField,
   Field,

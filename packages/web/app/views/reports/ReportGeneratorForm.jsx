@@ -3,7 +3,7 @@ import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import {
