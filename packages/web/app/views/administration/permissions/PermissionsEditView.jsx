@@ -60,12 +60,17 @@ const FilterFieldContainer = styled.div`
 `;
 
 const MatrixTable = styled.table`
+  th {
+    font-weight: inherit;
+    text-align: start;
+  }
+
   min-width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 `;
 
-const ChevronTh = styled.th`
+const ChevronTh = styled.th.attrs({ scope: 'row' })`
   width: ${CHEVRON_WIDTH}px;
   padding: 0;
   border-bottom: 1px solid ${Colors.outline};
@@ -77,7 +82,7 @@ const ChevronTh = styled.th`
   z-index: 2;
 `;
 
-const NounTh = styled.th`
+const NounTh = styled.th.attrs({ scope: 'col' })`
   text-align: left;
   padding: 10px 12px 10px 10px;
   border-bottom: 1px solid ${Colors.outline};
@@ -92,7 +97,7 @@ const NounTh = styled.th`
   white-space: nowrap;
 `;
 
-const RoleTh = styled.th`
+const RoleTh = styled.th.attrs({ scope: 'col' })`
   text-align: left;
   padding: 10px 12px;
   border-bottom: 1px solid ${Colors.outline};
@@ -246,28 +251,27 @@ export const PermissionsEditView = () => {
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {filteredNouns.map(group =>
-                group.type === NOUN_TYPES.NOUN ? (
-                  <NounSection
-                    key={group.data.nounKey}
-                    nounGroup={group.data}
-                    selectedRoles={rolesToDisplay}
-                    onToggle={handleToggle}
-                    objectNames={objectNames}
-                  />
-                ) : (
-                  <ObjectIdGroupSection
-                    key={`objectId-${group.data.noun}`}
-                    noun={group.data.noun}
-                    entries={group.data.children}
-                    selectedRoles={rolesToDisplay}
-                    onToggle={handleToggle}
-                    objectNames={objectNames}
-                  />
-                ),
-              )}
-            </tbody>
+            {/* Rendering `<tbody>`s delegated to NounSection and ObjectIdGroupSection */}
+            {filteredNouns.map(group =>
+              group.type === NOUN_TYPES.NOUN ? (
+                <NounSection
+                  key={group.data.nounKey}
+                  nounGroup={group.data}
+                  selectedRoles={rolesToDisplay}
+                  onToggle={handleToggle}
+                  objectNames={objectNames}
+                />
+              ) : (
+                <ObjectIdGroupSection
+                  key={`objectId-${group.data.noun}`}
+                  noun={group.data.noun}
+                  entries={group.data.children}
+                  selectedRoles={rolesToDisplay}
+                  onToggle={handleToggle}
+                  objectNames={objectNames}
+                />
+              ),
+            )}
           </MatrixTable>
         )}
         {isSuccess && selectedRoles.length > 0 && filteredNouns.length === 0 && (

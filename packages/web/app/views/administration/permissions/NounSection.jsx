@@ -31,10 +31,6 @@ export const NounRow = styled.tr`
   }
 `;
 
-export const RowGroup = styled.div.attrs({ role: 'rowgroup' })`
-  display: contents;
-`;
-
 const DisclosureIcon = styled(KeyboardArrowRight).attrs({
   fontSize: 'small',
 })`
@@ -55,7 +51,7 @@ export const DisclosureButton = props => (
   </IconButton>
 );
 
-export const ChevronCell = styled.td`
+export const ChevronCell = styled.th.attrs({ scope: 'row' })`
   width: ${CHEVRON_WIDTH}px;
   padding: 6px 4px 6px 12px;
   border-bottom: 1px solid ${Colors.outline};
@@ -65,7 +61,7 @@ export const ChevronCell = styled.td`
   ${stickyLeft(0)}
 `;
 
-const NounCell = styled.td`
+const NounCell = styled.th.attrs({ scope: 'rowgroup' })`
   padding: 10px 12px 10px 10px;
   color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
@@ -94,7 +90,7 @@ export const VerbRow = styled.tr`
   background-color: ${Colors.white};
 `;
 
-export const VerbLabelCell = styled.td`
+export const VerbLabelCell = styled.th.attrs({ scope: 'row' })`
   padding: 4px 12px 4px 20px;
   color: ${Colors.darkestText};
   ${stickyLeft(CHEVRON_WIDTH, Colors.white)}
@@ -112,7 +108,7 @@ export const StyledCheckbox = styled(Checkbox)`
   }
 `;
 
-export const EmptyChevronCell = styled.td`
+export const EmptyChevronCell = styled.th.attrs({ scope: 'rowgroup' })`
   width: ${CHEVRON_WIDTH}px;
   text-align: start;
   ${stickyLeft(0, Colors.white)}
@@ -141,47 +137,49 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
 
   return (
     <>
-      <NounRow onClick={() => setExpanded(prev => !prev)}>
-        <ChevronCell>
-          <DisclosureButton
-            aria-controls={rowGroupId}
-            aria-expanded={expanded}
-            aria-label={disclosureLabel}
-          />
-        </ChevronCell>
-        <NounCell>
-          <ThemedTooltip
-            title={
-              PERMISSION_SCHEMA[nounGroup.noun] ? (
-                <>
-                  {objectName && (
-                    <>
-                      {objectName}
-                      <br />
-                    </>
-                  )}
-                  <TranslatedText
-                    stringId="admin.permissions.available"
-                    fallback="Permissions available:"
-                    data-testid="translatedtext-permissions-available"
-                  />
-                  <br />
-                  {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
-                </>
-              ) : (
-                nounGroup.nounKey
-              )
-            }
-          >
-            <span>{displayName}</span>
-          </ThemedTooltip>
-        </NounCell>
-        {selectedRoles.map(role => (
-          <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
-        ))}
-      </NounRow>
+      <tbody>
+        <NounRow onClick={() => setExpanded(prev => !prev)}>
+          <ChevronCell>
+            <DisclosureButton
+              aria-controls={rowGroupId}
+              aria-expanded={expanded}
+              aria-label={disclosureLabel}
+            />
+          </ChevronCell>
+          <NounCell>
+            <ThemedTooltip
+              title={
+                PERMISSION_SCHEMA[nounGroup.noun] ? (
+                  <>
+                    {objectName && (
+                      <>
+                        {objectName}
+                        <br />
+                      </>
+                    )}
+                    <TranslatedText
+                      stringId="admin.permissions.available"
+                      fallback="Permissions available:"
+                      data-testid="translatedtext-permissions-available"
+                    />
+                    <br />
+                    {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
+                  </>
+                ) : (
+                  nounGroup.nounKey
+                )
+              }
+            >
+              <span>{displayName}</span>
+            </ThemedTooltip>
+          </NounCell>
+          {selectedRoles.map(role => (
+            <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
+          ))}
+        </NounRow>
+      </tbody>
       {expanded && (
-        <RowGroup id={rowGroupId}>
+        <tbody id={rowGroupId}>
           {nounGroup.verbs.map(({ verb }) => (
             <VerbRow key={verb}>
               <EmptyChevronCell />
@@ -202,7 +200,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
               ))}
             </VerbRow>
           ))}
-        </RowGroup>
+        </tbody>
       )}
     </>
   );

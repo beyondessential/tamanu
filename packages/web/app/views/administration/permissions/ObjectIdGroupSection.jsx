@@ -13,7 +13,6 @@ import {
   DisclosureButton,
   EmptyChevronCell,
   NounRow,
-  RowGroup,
   stickyLeft,
   StyledCheckbox,
   SummaryCell,
@@ -33,7 +32,7 @@ const GroupHeaderRow = styled.tr`
   }
 `;
 
-const GroupHeaderCell = styled.td`
+const GroupHeaderCell = styled.th.attrs({ scope: 'row' })`
   padding: 10px 12px 10px 10px;
   color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
@@ -51,7 +50,7 @@ const GroupDashCell = styled.td`
   }
 `;
 
-const ChildNounCell = styled.td`
+const ChildNounCell = styled.th.attrs({ scope: 'row' })`
   padding: 10px 12px 10px 0px;
   color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
@@ -101,48 +100,50 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
 
   return (
     <>
-      <NounRow onClick={() => setExpanded(prev => !prev)}>
-        <EmptyChevronCell />
-        <ChildNounCell>
-          <ChildNounContent>
-            <ChildChevron>
-              <DisclosureButton
-                aria-controls={rowGroupId}
-                aria-expanded={expanded}
-                aria-label={disclosureLabel}
-              />
-            </ChildChevron>
-            <ThemedTooltip
-              title={
-                <>
-                  {displayName} ({nounGroup.objectId})
-                  {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun] && (
-                    <>
-                      <br />
-                      <TranslatedText
-                        stringId="admin.permissions.available"
-                        fallback="Permissions available:"
-                        data-testid="translatedtext-permissions-available-objectid"
-                      />
-                      <br />
-                      {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun]
-                        .map(v => getVerbAbbreviation(v))
-                        .join(' ')}
-                    </>
-                  )}
-                </>
-              }
-            >
-              <TruncatedName>{displayName}</TruncatedName>
-            </ThemedTooltip>
-          </ChildNounContent>
-        </ChildNounCell>
-        {selectedRoles.map(role => (
-          <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
-        ))}
-      </NounRow>
+      <tbody>
+        <NounRow onClick={() => setExpanded(prev => !prev)}>
+          <EmptyChevronCell />
+          <ChildNounCell>
+            <ChildNounContent>
+              <ChildChevron>
+                <DisclosureButton
+                  aria-controls={rowGroupId}
+                  aria-expanded={expanded}
+                  aria-label={disclosureLabel}
+                />
+              </ChildChevron>
+              <ThemedTooltip
+                title={
+                  <>
+                    {displayName} ({nounGroup.objectId})
+                    {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun] && (
+                      <>
+                        <br />
+                        <TranslatedText
+                          stringId="admin.permissions.available"
+                          fallback="Permissions available:"
+                          data-testid="translatedtext-permissions-available-objectid"
+                        />
+                        <br />
+                        {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun]
+                          .map(v => getVerbAbbreviation(v))
+                          .join(' ')}
+                      </>
+                    )}
+                  </>
+                }
+              >
+                <TruncatedName>{displayName}</TruncatedName>
+              </ThemedTooltip>
+            </ChildNounContent>
+          </ChildNounCell>
+          {selectedRoles.map(role => (
+            <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
+          ))}
+        </NounRow>
+      </tbody>
       {expanded && (
-        <RowGroup id={rowGroupId}>
+        <tbody id={rowGroupId}>
           {nounGroup.verbs.map(({ verb }) => (
             <VerbRow key={verb}>
               <EmptyChevronCell />
@@ -165,7 +166,7 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
               ))}
             </VerbRow>
           ))}
-        </RowGroup>
+        </tbody>
       )}
     </>
   );
@@ -184,37 +185,35 @@ export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, o
         replacements: { noun },
       });
 
-  const rowGroupId = useId();
-
   return (
     <>
-      <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
-        <ChevronCell>
-          <DisclosureButton
-            aria-controls={rowGroupId}
-            aria-expanded={expanded}
-            aria-label={disclosureLabel}
-          />
-        </ChevronCell>
-        <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
-        {selectedRoles.map(role => (
-          <GroupDashCell key={role.id}>&mdash;</GroupDashCell>
-        ))}
-      </GroupHeaderRow>
-      {expanded && (
-        <RowGroup id={rowGroupId}>
-          {entries.map(entry => (
-            <ObjectIdChildSection
-              id={rowGroupId}
-              key={entry.objectId}
-              nounGroup={entry}
-              selectedRoles={selectedRoles}
-              onToggle={onToggle}
-              objectNames={objectNames}
-            />
+      <tbody>
+        <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
+          <ChevronCell>
+            {/* No aria-controls because of nested rowgroup troubles. See below. */}
+            <DisclosureButton aria-expanded={expanded} aria-label={disclosureLabel} />
+          </ChevronCell>
+          <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
+          {selectedRoles.map(role => (
+            <GroupDashCell key={role.id}>&mdash;</GroupDashCell>
           ))}
-        </RowGroup>
-      )}
+        </GroupHeaderRow>
+      </tbody>
+      {/*
+       * Not wrapped in a rowgroup (e.g. <tbody>) because nested rowgroups cause accessibility
+       * issues for some browsers/readers. Also not wrapping in <div style="display: contents">
+       * because <tbody> (rendered by ObjectIdChildSection) is not a valid child of <div>.
+       */}
+      {expanded &&
+        entries.map(entry => (
+          <ObjectIdChildSection
+            key={entry.objectId}
+            nounGroup={entry}
+            selectedRoles={selectedRoles}
+            onToggle={onToggle}
+            objectNames={objectNames}
+          />
+        ))}
     </>
   );
 };
