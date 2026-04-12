@@ -75,8 +75,12 @@ export const isValidAdditionalSearchField = (fieldName: string): boolean => {
   return false;
 };
 
-export const isPatientModelSearchField = (fieldName: string): boolean =>
-  patientModelFieldSet.has(fieldName);
+export const isPatientModelSearchField = (
+  fieldName: string,
+): fieldName is (typeof PATIENT_MODEL_SEARCH_FIELDS)[number] => patientModelFieldSet.has(fieldName);
 
-export const isReferenceDataSearchField = (fieldName: string): boolean =>
+export const isReferenceDataSearchField = (
+  fieldName: string,
+): fieldName is (typeof PAD_REFERENCE_DATA_FIELDS)[number] =>
   padReferenceDataFieldSet.has(fieldName);
+
