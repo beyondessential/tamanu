@@ -1,9 +1,3 @@
-export {
-  isValidAdditionalSearchField,
-  isPatientModelSearchField,
-  isReferenceDataSearchField,
-} from '@tamanu/constants';
-
 export const PATIENT_SORT_KEYS = {
   markedForSync: 'patient_facilities.patient_id',
   displayId: 'patients.display_id',
