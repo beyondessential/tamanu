@@ -1,12 +1,13 @@
 import React from 'react';
 
 import styled from 'styled-components';
-import { TextField, useTranslation } from '@tamanu/ui-components';
+import { useTranslation } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   CheckField,
   Field,
   MultiAutocompleteField,
+  SearchField as SearchTextField,
   SelectField,
 } from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
@@ -108,7 +109,7 @@ export const SearchField = ({ col }) => {
   const isNumeric = NUMERIC_TYPES.includes(col.type);
   return (
     <Field
-      component={isNumeric ? NumberField : TextField}
+      component={isNumeric ? NumberField : SearchTextField}
       name={col.key}
       label={col.key}
       placeholder={getTranslation('general.placeholder.search...', 'Search…')}
