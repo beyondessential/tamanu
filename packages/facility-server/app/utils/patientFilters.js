@@ -96,12 +96,16 @@ export const createPatientFilters = filterParams => {
 
 export const createAdditionalSearchFilters = (filterParams, configuredFields = []) => {
   const filters = [];
+  let requiresPadJoin = false;
 
   for (const fieldName of configuredFields) {
     if (!isValidAdditionalSearchField(fieldName)) continue;
     if (!filterParams[fieldName]) continue;
 
     const table = isPatientModelSearchField(fieldName) ? 'patients' : 'patient_additional_data';
+    if (table === 'patient_additional_data') {
+      requiresPadJoin = true;
+    }
     const column = snakeCase(fieldName);
     const paramKey = `additionalField_${fieldName}`;
 
@@ -112,22 +116,15 @@ export const createAdditionalSearchFilters = (filterParams, configuredFields = [
         })),
       );
     } else {
+      // Prefix match (param ends with %) avoids a leading wildcard so indexes can be
+      // used where present; substring search would need expression indexes / collation.
       filters.push(
         makeFilter(true, `UPPER(${table}.${column}) LIKE UPPER(:${paramKey})`, () => ({
-          [paramKey]: `%${filterParams[fieldName]}%`,
+          [paramKey]: `${filterParams[fieldName]}%`,
         })),
       );
     }
   }
 
-  return filters.filter(Boolean);
-};
-
-export const additionalFieldsRequirePadJoin = (filterParams, configuredFields = []) => {
-  return configuredFields.some(
-    fieldName =>
-      isValidAdditionalSearchField(fieldName) &&
-      !isPatientModelSearchField(fieldName) &&
-      Boolean(filterParams[fieldName]),
-  );
+  return { filters, requiresPadJoin };
 };
