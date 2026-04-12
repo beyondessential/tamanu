@@ -17,6 +17,7 @@ import {
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
+import { visibilityStatusText } from './components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
 
 const Fieldset = styled.fieldset`
@@ -37,12 +38,21 @@ const Footer = styled.footer`
 
 const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
-  label: value,
+  label: visibilityStatusText[value],
 }));
+
+const currentlyAtTypeText = /** @type {const} */ {
+  [CURRENTLY_AT_TYPES.VILLAGE]: (
+    <TranslatedText stringId="general.currentlyAtType.village" fallback="Village" />
+  ),
+  [CURRENTLY_AT_TYPES.FACILITY]: (
+    <TranslatedText stringId="general.currentlyAtType.facility" fallback="Facility" />
+  ),
+};
 
 const currentlyAtTypeSelectOptions = Object.values(CURRENTLY_AT_TYPES).map(value => ({
   value,
-  label: value,
+  label: currentlyAtTypeText[value],
 }));
 
 const metadataValidationSchema = yup.object().shape({
