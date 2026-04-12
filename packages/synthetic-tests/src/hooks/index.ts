@@ -3,3 +3,4 @@
 export * from './authenticate';
 export * from './createPatient';
 export * from './createEncounter';
+export * from './createImagingRequest';
