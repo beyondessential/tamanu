@@ -77,10 +77,7 @@ export const SearchField = ({ col }) => {
     return <AvailableFacilitiesSearchField />;
   }
   if (col.enumValues) {
-    const options = [
-      { value: '', label: 'All' },
-      ...col.enumValues.map(value => ({ value, label: value })),
-    ];
+    const options = col.enumValues.map(value => ({ value, label: value }));
     return (
       <Field
         component={SelectField}
