@@ -27,7 +27,6 @@ const HIDDEN_COLUMNS = {
   deletedAt: true,
   updatedAtSyncTick: true,
   type: new Set(['ReferenceData']),
-  id: new Set(['ReferenceDataRelation']),
 };
 
 const isColumnHidden = (key, modelName) => {
@@ -39,6 +38,11 @@ const isColumnHidden = (key, modelName) => {
 
 // Fields that are read-only only on edit
 const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
+
+// Fields that are always read-only (hidden from form) for specific models
+const READONLY_COLUMNS = {
+  id: new Set(['ReferenceDataRelation']),
+};
 
 // FK columns that should render as multi-select autocomplete instead of single select
 const MULTI_SELECT_FK_COLUMNS = new Set(['ReferenceDataRelation.referenceDataId']);
@@ -103,7 +107,7 @@ export const getColumnsForModel = async model => {
         type: typeName,
         allowNull: dbCol ? dbCol.is_nullable === 'YES' : attr.allowNull !== false,
         hasDefault: dbCol ? dbCol.column_default != null : attr.defaultValue != null,
-        readOnly: false,
+        readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
       if (typeName === 'ENUM' && attr.type?.values) {

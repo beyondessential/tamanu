@@ -266,15 +266,25 @@ export const ManageReferenceDataTab = () => {
           title={
             <TranslatedText
               stringId="admin.referenceData.deleteTitle"
-              fallback="Delete reference data relation"
+              fallback="Delete item"
               data-testid="translatedtext-delete-refdata-title"
             />
           }
-          text={
+          subText={
+            <>
+              <TranslatedText
+                stringId="admin.referenceData.deleteConfirmPrefix"
+                fallback="Are you sure you would like to delete "
+                data-testid="translatedtext-delete-refdata-prefix"
+              />
+              <b>{deletingRecordId}</b>?
+            </>
+          }
+          confirmButtonText={
             <TranslatedText
-              stringId="admin.referenceData.deleteConfirm"
-              fallback="Are you sure you want to delete this reference data relation?"
-              data-testid="translatedtext-delete-refdata-confirm"
+              stringId="admin.referenceData.deleteConfirmButton"
+              fallback="Delete item"
+              data-testid="translatedtext-delete-refdata-button"
             />
           }
           onConfirm={() => deleteRecord(deletingRecordId)}
