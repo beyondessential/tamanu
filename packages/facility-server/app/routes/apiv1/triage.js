@@ -63,7 +63,7 @@ triage.post(
 
     if (vitals) {
       const getDefaultId = async type =>
-        models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
+        models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId], facilityId);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),

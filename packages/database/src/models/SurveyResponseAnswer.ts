@@ -102,7 +102,11 @@ export class SurveyResponseAnswer extends Model {
   }
 
   // eslint-disable-next-line no-unused-vars
-  static getDefaultId = async (resource: string, settings: { get: (_arg0: string) => any }) => {
+  static getDefaultId = async (
+    resource: string,
+    settings: { get: (_arg0: string) => any },
+    facilityId?: string,
+  ) => {
     const { models } = this.sequelize;
     const code = await settings.get(`survey.defaultCodes.${resource}`);
 
@@ -112,10 +116,17 @@ export class SurveyResponseAnswer extends Model {
       throw new Error(`Model not found: ${modelName}`);
     }
 
-    const record = await model.findOne({ where: { code } });
+    const where: Record<string, any> = { code };
+    if (facilityId && model.rawAttributes?.facilityId) {
+      where.facilityId = facilityId;
+    }
+
+    const record = await model.findOne({ where });
     if (!record) {
+      const facilityMsg =
+        facilityId && model.rawAttributes?.facilityId ? ` at facility '${facilityId}'` : '';
       throw new Error(
-        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the settings)`,
+        `Could not find default answer for '${resource}': code '${code}'${facilityMsg} not found (check survey.defaultCodes.${resource} in the settings)`,
       );
     }
     return record.id;

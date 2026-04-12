@@ -30,7 +30,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { facilityId } = assignedSurvey;
   const settingsReader = new ReadSettings(models, facilityId);
   const getDefaultId = async resource =>
-    models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
+    models.SurveyResponseAnswer.getDefaultId(resource, settingsReader, facilityId);
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { locationId, departmentId, ...payload } = body;

@@ -66,6 +66,37 @@ describe('SurveyResponseAnswer', () => {
       });
       expect(locationId).toBe(location.id);
     });
+
+    it('should filter by facilityId when the model has a facilityId attribute', async () => {
+      const { Department, Setting, Facility } = models;
+      const otherFacility = await Facility.create(fake(Facility));
+      const code = 'shared-dept-code';
+
+      const deptAtTestFacility = await Department.create({
+        ...fake(Department),
+        code,
+        facilityId,
+      });
+      await Department.create({
+        ...fake(Department),
+        code,
+        facilityId: otherFacility.id,
+      });
+
+      await Setting.set(
+        'survey.defaultCodes.department',
+        code,
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+
+      const result = await models.SurveyResponseAnswer.getDefaultId(
+        'department',
+        settings,
+        facilityId,
+      );
+      expect(result).toEqual(deptAtTestFacility.id);
+    });
   });
 
   describe('vitals', () => {

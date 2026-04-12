@@ -19,7 +19,7 @@ referral.post(
     req.checkPermission('create', 'Referral');
 
     const getDefaultId = async (type) =>
-      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
+      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId], facilityId);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
