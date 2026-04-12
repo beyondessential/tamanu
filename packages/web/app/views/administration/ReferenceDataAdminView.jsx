@@ -13,7 +13,7 @@ const MANAGE_TAB = {
     />
   ),
   key: 'manage',
-  icon: 'fa fa-tasks',
+  icon: 'fa fa-sliders-h',
   render: () => <ManageReferenceDataTab data-testid="manage-refdata-tab" />,
 };
 

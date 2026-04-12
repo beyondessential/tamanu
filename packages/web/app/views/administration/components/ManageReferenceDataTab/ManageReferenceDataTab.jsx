@@ -7,6 +7,7 @@ import { DataFetchingTable } from '../../../../components/Table/DataFetchingTabl
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ThemedTooltip } from '../../../../components/Tooltip';
+import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { SearchBar } from './SearchBar';
@@ -193,9 +194,10 @@ export const ManageReferenceDataTab = () => {
               onClick={() => setIsAddModalOpen(true)}
               data-testid="add-refdata-button"
             >
+              <PlusIcon width={18} height={18} style={{ marginInlineEnd: '0.5em' }} />
               <TranslatedText
                 stringId="admin.referenceData.addNew"
-                fallback="+ Add reference data"
+                fallback="Add reference data"
                 data-testid="translatedtext-add-refdata"
               />
             </StyledAddButton>
