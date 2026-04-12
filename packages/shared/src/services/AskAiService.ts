@@ -1,6 +1,5 @@
 import { pick } from 'lodash';
 import { Sequelize } from 'sequelize';
-import { b } from '../baml_src/baml_client/index';
 
 // Explicit allowlist of config paths safe to share with the LLM.
 // Only include paths that are known to be non-sensitive.
@@ -283,6 +282,7 @@ export async function chat({
     voyageApiKey,
   );
 
+  const { b } = await import('../baml_src/baml_client/index');
   const response = await b.AskTamanu(
     userMessage,
     conversationHistory,
