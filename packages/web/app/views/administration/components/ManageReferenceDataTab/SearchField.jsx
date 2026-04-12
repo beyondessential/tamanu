@@ -7,6 +7,7 @@ import {
   CheckField,
   Field,
   MultiAutocompleteField,
+  SelectField,
 } from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -73,6 +74,21 @@ export const SearchField = ({ col }) => {
   }
   if (col.key === AVAILABLE_FACILITIES_KEY) {
     return <AvailableFacilitiesSearchField />;
+  }
+  if (col.enumValues) {
+    const options = [
+      { value: '', label: 'All' },
+      ...col.enumValues.map(value => ({ value, label: value })),
+    ];
+    return (
+      <Field
+        component={SelectField}
+        name={col.key}
+        label={col.key}
+        options={options}
+        data-testid={`searchfield-${col.key}`}
+      />
+    );
   }
   if (col.suggesterEndpoint) {
     return <SuggesterSearchField col={col} />;

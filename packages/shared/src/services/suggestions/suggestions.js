@@ -695,6 +695,7 @@ createNameSuggester(
   args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
 );
 createNameSuggester('invoicePriceList');
+createNameSuggester('referenceData', 'ReferenceData');
 
 // Calculate the availability of the location before passing on to the front end
 createSuggester(

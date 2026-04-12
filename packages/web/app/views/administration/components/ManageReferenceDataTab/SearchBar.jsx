@@ -27,6 +27,7 @@ export const SearchBar = ({ columns, onSearch }) => {
           col =>
             SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
             col.suggesterEndpoint ||
+            col.enumValues ||
             col.key === AVAILABLE_FACILITIES_KEY,
         )
         .sort((a, b) => getFieldSortOrder(a) - getFieldSortOrder(b)),

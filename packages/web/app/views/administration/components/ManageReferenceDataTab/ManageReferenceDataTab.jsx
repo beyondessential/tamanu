@@ -2,14 +2,18 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { SelectInput, Button } from '@tamanu/ui-components';
+import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ThemedTooltip } from '../../../../components/Tooltip';
+import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { SearchBar } from './SearchBar';
 import { AddReferenceDataModal } from './AddReferenceDataModal';
 import { EditReferenceDataModal } from './EditReferenceDataModal';
 import { useReferenceDataColumns } from './useReferenceDataColumns';
+import { useReferenceDataDeleteMutation } from './useReferenceDataDeleteMutation';
 import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
@@ -90,30 +94,60 @@ export const ManageReferenceDataTab = () => {
     setRefreshCount(prev => prev + 1);
   }, []);
 
+  const [deletingRecordId, setDeletingRecordId] = useState(null);
+
+  const { mutateAsync: deleteRecord } = useReferenceDataDeleteMutation({
+    onSuccess: () => {
+      setDeletingRecordId(null);
+      handleSuccess();
+    },
+  });
+
   const handleRowClick = useCallback(row => {
     setEditingRecord(row);
   }, []);
 
-  const tableColumns = useMemo(
-    () =>
-      columns.map(col => {
-        const column = {
-          key: col.key,
-          title: col.key,
-          sortable: true,
-        };
-        if (col.type === 'BOOLEAN') {
-          column.accessor = row => (row[col.key] ? 'Yes' : 'No');
-        }
-        return column;
-      }),
-    [columns],
-  );
+  const tableColumns = useMemo(() => {
+    const cols = columns.map(col => {
+      const column = {
+        key: col.key,
+        title: col.key,
+        sortable: true,
+      };
+      if (col.type === 'BOOLEAN') {
+        column.accessor = row => (row[col.key] ? 'Yes' : 'No');
+      }
+      return column;
+    });
+
+    if (selectedType === SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION) {
+      cols.push({
+        key: 'actions',
+        title: '',
+        sortable: false,
+        dontCallRowInput: true,
+        CellComponent: ({ data }) => (
+          <ThreeDotMenu
+            items={[
+              {
+                label: (
+                  <TranslatedText stringId="general.action.delete" fallback="Delete" />
+                ),
+                onClick: () => setDeletingRecordId(data.id),
+              },
+            ]}
+          />
+        ),
+      });
+    }
+
+    return cols;
+  }, [columns, selectedType]);
 
   const fetchOptions = useMemo(
     () => ({
-      type: selectedType,
       ...searchParams,
+      referenceDataType: selectedType,
     }),
     [selectedType, searchParams],
   );
@@ -221,6 +255,28 @@ export const ManageReferenceDataTab = () => {
           record={editingRecord}
           onSuccess={handleSuccess}
           data-testid="edit-refdata-modal"
+        />
+      )}
+      {Boolean(deletingRecordId) && (
+        <ConfirmModal
+          open={Boolean(deletingRecordId)}
+          title={
+            <TranslatedText
+              stringId="admin.referenceData.deleteTitle"
+              fallback="Delete reference data relation"
+              data-testid="translatedtext-delete-refdata-title"
+            />
+          }
+          text={
+            <TranslatedText
+              stringId="admin.referenceData.deleteConfirm"
+              fallback="Are you sure you want to delete this reference data relation?"
+              data-testid="translatedtext-delete-refdata-confirm"
+            />
+          }
+          onConfirm={() => deleteRecord(deletingRecordId)}
+          onCancel={() => setDeletingRecordId(null)}
+          data-testid="confirm-delete-refdata"
         />
       )}
     </Container>

@@ -7,7 +7,7 @@ export const useReferenceDataCreateMutation = (selectedType, useMutationOptions)
 
   return useMutation({
     mutationKey: ['referenceData', 'create', selectedType],
-    mutationFn: async data => api.post(ENDPOINT, { ...data, type: selectedType }),
+    mutationFn: async data => api.post(ENDPOINT, { ...data, referenceDataType: selectedType }),
     ...useMutationOptions,
   });
 };

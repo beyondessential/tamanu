@@ -7,7 +7,7 @@ export const useReferenceDataColumns = selectedType => {
 
   return useQuery({
     queryKey: ['referenceData', 'columns', selectedType],
-    queryFn: () => api.get(COLUMNS_ENDPOINT, { type: selectedType }),
+    queryFn: () => api.get(COLUMNS_ENDPOINT, { referenceDataType: selectedType }),
     enabled: Boolean(selectedType),
   });
 };

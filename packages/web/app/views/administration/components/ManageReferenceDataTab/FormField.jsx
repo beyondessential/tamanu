@@ -56,6 +56,22 @@ const SuggesterFormField = memo(({ col, disabled }) => {
   );
 });
 
+const MultiSuggesterFormField = memo(({ col, disabled }) => {
+  const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
+  return (
+    <Field
+      name={col.key}
+      label={col.key}
+      component={MultiAutocompleteField}
+      suggester={suggester}
+      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+      disabled={disabled}
+      data-testid={`field-form-${col.key}`}
+      style={{ gridColumn: 'span 2' }}
+    />
+  );
+});
+
 const AvailableFacilitiesFormField = memo(({ disabled }) => {
   const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { ...SUGGESTER_OPTIONS.baseQueryParameters, noLimit: true } });
   return (
@@ -78,8 +94,27 @@ export const FormField = memo(({ col, isEditMode }) => {
     return <AvailableFacilitiesFormField disabled={disabled} />;
   }
 
+  if (col.suggesterEndpoint && col.multiSelect) {
+    return <MultiSuggesterFormField col={col} disabled={disabled} />;
+  }
+
   if (col.suggesterEndpoint) {
     return <SuggesterFormField col={col} disabled={disabled} />;
+  }
+
+  if (col.enumValues) {
+    const options = col.enumValues.map(value => ({ value, label: value }));
+    return (
+      <Field
+        name={col.key}
+        label={col.key}
+        component={SelectField}
+        options={options}
+        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        disabled={disabled}
+        data-testid={`field-form-${col.key}`}
+      />
+    );
   }
 
   if (col.key === 'visibilityStatus') {

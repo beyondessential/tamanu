@@ -8,6 +8,7 @@ import {
   getColumnsForModel,
   assertValidType,
   getWritableData,
+  createMultiSelectRecords,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -17,13 +18,18 @@ referenceDataManageRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'ReferenceData');
 
-    const { type, ...rawData } = req.body;
+    const { referenceDataType, ...rawData } = req.body;
 
-    assertValidType(type);
+    assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, type);
+    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model);
     const data = getWritableData(columns, rawData, false);
+
+    if (columns.some(c => c.multiSelect)) {
+      const records = await createMultiSelectRecords(model, columns, data, typeFilter);
+      return res.send(records);
+    }
 
     try {
       const record = await model.create({ ...typeFilter, ...data });
@@ -44,12 +50,12 @@ referenceDataManageRouter.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'ReferenceData');
 
-    const { type, ...rawData } = req.body;
+    const { referenceDataType, ...rawData } = req.body;
     const { id } = req.params;
 
-    assertValidType(type);
+    assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, type);
+    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const record = await model.findOne({ where: { id, ...typeFilter } });
 
     if (!record) {
@@ -64,13 +70,31 @@ referenceDataManageRouter.put(
   }),
 );
 
+referenceDataManageRouter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'ReferenceData');
+
+    const { id } = req.params;
+    const { ReferenceDataRelation } = req.store.models;
+    const record = await ReferenceDataRelation.findByPk(id);
+
+    if (!record) {
+      throw new InvalidOperationError(`Reference data relation with id "${id}" not found`);
+    }
+
+    await record.destroy();
+    res.send({});
+  }),
+);
+
 referenceDataManageRouter.get(
   '/columns',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'ReferenceData');
-    const { type } = req.query;
-    assertValidType(type);
-    const { model } = getModelForType(req.store.models, type);
+    const { referenceDataType } = req.query;
+    assertValidType(referenceDataType);
+    const { model } = getModelForType(req.store.models, referenceDataType);
     res.send(await getColumnsForModel(model));
   }),
 );
@@ -81,19 +105,19 @@ referenceDataManageRouter.get(
     req.checkPermission('list', 'ReferenceData');
 
     const {
-      query: { type, page = 0, rowsPerPage = 10, orderBy = 'createdAt', order = 'ASC', ...filters },
+      query: { referenceDataType, page = 0, rowsPerPage = 10, orderBy = 'createdAt', order = 'ASC', ...filters },
     } = req;
 
-    assertValidType(type);
+    assertValidType(referenceDataType);
 
-    const { model, typeFilter } = getModelForType(req.store.models, type);
+    const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model);
 
     // Build search filters from query params
     const searchWhere = {};
     const searchableKeys = new Set(
       columns
-        .filter(c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint)
+        .filter(c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues)
         .map(c => c.key),
     );
 
@@ -115,6 +139,7 @@ referenceDataManageRouter.get(
         .filter(
           c =>
             c.suggesterEndpoint ||
+            c.enumValues ||
             EXACT_MATCH_TYPES.has(c.type),
         )
         .map(c => c.key),

@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES, MANAGEABLE_REFERENCE_DATA_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
@@ -25,7 +25,7 @@ describe('Reference Data Manage', () => {
 
   describe('GET /columns', () => {
     it('should return columns for a valid type', async () => {
-      const response = await adminApp.get(COLUMNS_URL).query({ type: TEST_TYPE });
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toHaveSucceeded();
       expect(response.body).toBeInstanceOf(Array);
       expect(response.body.length).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ describe('Reference Data Manage', () => {
     });
 
     it('should reject an invalid type', async () => {
-      const response = await adminApp.get(COLUMNS_URL).query({ type: 'invalidType' });
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: 'invalidType' });
       expect(response).toHaveRequestError();
     });
 
@@ -51,15 +51,34 @@ describe('Reference Data Manage', () => {
     });
 
     it('should forbid access without permission', async () => {
-      const response = await baseApp.get(COLUMNS_URL).query({ type: TEST_TYPE });
+      const response = await baseApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
+    });
+
+    it('should resolve all FK columns to a suggester endpoint for every manageable type', async () => {
+      const failures = [];
+      for (const type of MANAGEABLE_REFERENCE_DATA_TYPES) {
+        const response = await adminApp.get(COLUMNS_URL).query({ type });
+        if (response.status >= 400) continue;
+        for (const col of response.body) {
+          if (col.readOnlyOnEdit && !col.suggesterEndpoint && col.key.endsWith('Id')) {
+            failures.push(
+              `${type}.${col.key}: FK column has no suggester endpoint. ` +
+              'Either the suggester endpoint is missing in packages/constants/src/suggesters.ts, ' +
+              "or the association alias doesn't match the endpoint name and needs an override in " +
+              'packages/central-server/app/admin/referenceDataManageUtils.js (FK_ENDPOINT_OVERRIDES).',
+            );
+          }
+        }
+      }
+      expect(failures).toEqual([]);
     });
   });
 
   describe('POST /', () => {
     it('should create a new reference data record', async () => {
       const data = {
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         code: 'test-create-code',
         name: 'Test Create Drug',
       };
@@ -68,7 +87,7 @@ describe('Reference Data Manage', () => {
       expect(response.body).toMatchObject({
         code: 'test-create-code',
         name: 'Test Create Drug',
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
       });
 
       const record = await models.ReferenceData.findByPk(response.body.id);
@@ -79,12 +98,12 @@ describe('Reference Data Manage', () => {
     it('should reject creating a record with a duplicate unique field', async () => {
       const existing = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         code: 'duplicate-code',
       });
 
       const response = await adminApp.post(BASE_URL).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         code: existing.code,
         name: 'Another Drug',
       });
@@ -93,7 +112,7 @@ describe('Reference Data Manage', () => {
 
     it('should reject an invalid type', async () => {
       const response = await adminApp.post(BASE_URL).send({
-        type: 'invalidType',
+        referenceDataType: 'invalidType',
         name: 'Should Fail',
       });
       expect(response).toHaveRequestError();
@@ -101,7 +120,7 @@ describe('Reference Data Manage', () => {
 
     it('should forbid access without permission', async () => {
       const response = await baseApp.post(BASE_URL).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         name: 'Should Fail',
       });
       expect(response).toBeForbidden();
@@ -112,11 +131,11 @@ describe('Reference Data Manage', () => {
     it('should update an existing record', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
       });
 
       const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         name: 'Updated Name',
       });
       expect(response).toHaveSucceeded();
@@ -128,7 +147,7 @@ describe('Reference Data Manage', () => {
 
     it('should return an error for a non-existent record', async () => {
       const response = await adminApp.put(`${BASE_URL}/non-existent-id`).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         name: 'Should Fail',
       });
       expect(response).toHaveRequestError();
@@ -137,12 +156,12 @@ describe('Reference Data Manage', () => {
     it('should not update read-only fields', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
       });
       const originalId = record.id;
 
       const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         id: 'hacked-id',
         name: 'Valid Update',
       });
@@ -156,11 +175,11 @@ describe('Reference Data Manage', () => {
     it('should forbid access without permission', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
       });
 
       const response = await baseApp.put(`${BASE_URL}/${record.id}`).send({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         name: 'Should Fail',
       });
       expect(response).toBeForbidden();
@@ -173,21 +192,21 @@ describe('Reference Data Manage', () => {
       await Promise.all([
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          type: TEST_TYPE,
+          referenceDataType: TEST_TYPE,
           name: 'Alpha Drug',
           code: 'search-alpha',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          type: TEST_TYPE,
+          referenceDataType: TEST_TYPE,
           name: 'Beta Drug',
           code: 'search-beta',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          type: TEST_TYPE,
+          referenceDataType: TEST_TYPE,
           name: 'Historical Drug',
           code: 'search-historical',
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
@@ -196,7 +215,7 @@ describe('Reference Data Manage', () => {
     });
 
     it('should list records for a valid type', async () => {
-      const response = await adminApp.get(BASE_URL).query({ type: TEST_TYPE });
+      const response = await adminApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count');
       expect(response.body).toHaveProperty('data');
@@ -205,7 +224,7 @@ describe('Reference Data Manage', () => {
 
     it('should support pagination', async () => {
       const response = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         page: 0,
         rowsPerPage: 2,
       });
@@ -215,7 +234,7 @@ describe('Reference Data Manage', () => {
 
     it('should filter by text fields using iLike', async () => {
       const response = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         name: 'Alpha',
       });
       expect(response).toHaveSucceeded();
@@ -226,7 +245,7 @@ describe('Reference Data Manage', () => {
 
     it('should filter by visibilityStatus with exact match', async () => {
       const response = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
       expect(response).toHaveSucceeded();
@@ -236,7 +255,7 @@ describe('Reference Data Manage', () => {
 
     it('should return historical records when no visibilityStatus filter is sent', async () => {
       const response = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         code: 'search-historical',
       });
       expect(response).toHaveSucceeded();
@@ -246,7 +265,7 @@ describe('Reference Data Manage', () => {
 
     it('should support sorting', async () => {
       const ascResponse = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         orderBy: 'name',
         order: 'ASC',
         code: 'search-',
@@ -255,7 +274,7 @@ describe('Reference Data Manage', () => {
       const ascNames = ascResponse.body.data.map(r => r.name);
 
       const descResponse = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         orderBy: 'name',
         order: 'DESC',
         code: 'search-',
@@ -268,19 +287,19 @@ describe('Reference Data Manage', () => {
 
     it('should reject an invalid order value', async () => {
       const response = await adminApp.get(BASE_URL).query({
-        type: TEST_TYPE,
+        referenceDataType: TEST_TYPE,
         order: 'INVALID',
       });
       expect(response).toHaveRequestError();
     });
 
     it('should reject an invalid type', async () => {
-      const response = await adminApp.get(BASE_URL).query({ type: 'invalidType' });
+      const response = await adminApp.get(BASE_URL).query({ referenceDataType: 'invalidType' });
       expect(response).toHaveRequestError();
     });
 
     it('should forbid access without permission', async () => {
-      const response = await baseApp.get(BASE_URL).query({ type: TEST_TYPE });
+      const response = await baseApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
     });
   });
