@@ -83,7 +83,11 @@ const AssignmentDetails = ({ assignment }) => {
           fallback="Time"
         />
       ),
-      value: getDisplayTime(assignment.startTime) + ' - ' + getDisplayTime(assignment.endTime),
+      value: (
+        <>
+          {getDisplayTime(assignment.startTime)} &ndash; {getDisplayTime(assignment.endTime)}
+        </>
+      ),
     },
   ];
 
