@@ -87,11 +87,7 @@ export const LocationAssignmentsCalendar = ({
 
   // Signal that calendar is ready when data is loaded
   useEffect(() => {
-    if (!isLocationsLoading && !isAssignmentsLoading) {
-      setIsCalendarLoaded(true);
-    } else {
-      setIsCalendarLoaded(false);
-    }
+    setIsCalendarLoaded(!isLocationsLoading && !isAssignmentsLoading);
   }, [isLocationsLoading, isAssignmentsLoading, setIsCalendarLoaded]);
 
   if (isLocationsLoading || isAssignmentsLoading) {
