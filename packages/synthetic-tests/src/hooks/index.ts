@@ -7,3 +7,4 @@ export * from './createImagingRequest';
 export * from './createLabRequest';
 export * from './createVitalsSurveyResponse';
 export * from './createMedicationWorkflow';
+export * from './createReportWorkflow';
