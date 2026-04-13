@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
 import 'typeface-roboto';
-import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
 import { LoginView, FacilitySelectionView } from './views';
@@ -27,10 +26,9 @@ const AppContainer = styled.div`
 `;
 
 const AppContentsContainer = styled.div`
-  height: 100vh;
+  height: 100dvh;
   overflow: auto;
   flex: 1;
-  border-top: 1px solid ${Colors.softOutline};
 `;
 
 export function App({ sidebar, children }) {
