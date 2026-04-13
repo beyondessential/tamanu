@@ -6,3 +6,4 @@ export * from './createEncounter';
 export * from './createImagingRequest';
 export * from './createLabRequest';
 export * from './createVitalsSurveyResponse';
+export * from './createMedicationWorkflow';
