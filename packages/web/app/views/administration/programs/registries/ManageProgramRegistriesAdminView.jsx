@@ -4,11 +4,10 @@ import React, { useId, useMemo } from 'react';
 import { Link, Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, VisibilityStatusChip } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
-import { VisibilityStatusChip } from './components';
 import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 

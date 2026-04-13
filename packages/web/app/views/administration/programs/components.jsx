@@ -1,6 +1,12 @@
+import React from 'react';
 import styled from 'styled-components';
 
-import { SelectField } from '@tamanu/ui-components';
+import {
+  SelectField,
+  TAMANU_COLORS,
+  TranslatedText,
+  VisibilityStatusChip,
+} from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { ContentContainer } from '../components/AdminViewContainer';
@@ -31,3 +37,13 @@ export const TableScopeSelect = styled(SelectField).attrs({
 })`
   min-inline-size: 23rem;
 `;
+
+export function VisibilityStatusCell({ visibilityStatus }) {
+  return visibilityStatus ? (
+    <VisibilityStatusChip visibilityStatus={visibilityStatus} />
+  ) : (
+    <em style={{ color: TAMANU_COLORS.softText }}>
+      <TranslatedText stringId="general.none" fallback="None" />
+    </em>
+  );
+}

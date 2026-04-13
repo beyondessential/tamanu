@@ -18,13 +18,14 @@ export function useProgramsQuery(options = {}) {
 }
 
 export function useProgramQuery(programId, options = {}) {
+  const { enabled = true } = options;
   const api = useApi();
 
   return useQuery({
     queryKey: ['programs', programId],
     queryFn: async () => await fetchPrograms(api),
     select: data => data?.find(p => p.id === programId) ?? null,
-    enabled: Boolean(programId),
     ...options,
+    enabled: enabled && Boolean(programId),
   });
 }

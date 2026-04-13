@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { TranslatedText } from '@tamanu/ui-components';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
-import { useProgramQuery, useProgramsQuery } from './queries';
+import { useProgramsQuery } from './queries';
 
 function programToOption(programs) {
   return programs?.map(({ id, name }) => ({ value: id, label: name }));
@@ -33,8 +33,6 @@ export function ManageProgramsAdminView() {
     select: programToOption,
   });
 
-  const { isLoading: isProgramLoading } = useProgramQuery(programId);
-
   return (
     <Article>
       <TableScopeHeader>
@@ -49,7 +47,6 @@ export function ManageProgramsAdminView() {
           options={options}
           value={programId ?? ''}
         />
-        <div aria-busy={isProgramLoading} />
       </TableScopeHeader>
     </Article>
   );

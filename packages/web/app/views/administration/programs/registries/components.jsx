@@ -1,5 +1,3 @@
-import Chip, { chipClasses } from '@mui/material/Chip';
-import Skeleton from '@mui/material/Skeleton';
 import { tableCellClasses } from '@mui/material/TableCell';
 import React from 'react';
 import styled from 'styled-components';
@@ -71,76 +69,12 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment) {
   };
 }
 
-export const visibilityStatusText = /** @type {const} */ {
-  [VISIBILITY_STATUSES.CURRENT]: (
-    <TranslatedText
-      stringId="admin.programRegistries.visibilityStatus.current"
-      fallback="Current"
-    />
-  ),
-  [VISIBILITY_STATUSES.HISTORICAL]: (
-    <TranslatedText
-      stringId="admin.programRegistries.visibilityStatus.historical"
-      fallback="Historical"
-    />
-  ),
-  [VISIBILITY_STATUSES.MERGED]: (
-    <TranslatedText stringId="admin.programRegistries.visibilityStatus.merged" fallback="Merged" />
-  ),
-};
-
-const StyledChip = styled(Chip)`
-  &.${chipClasses.root} {
-    background-color: oklch(from currentColor l c h / 10%);
-  }
-`;
-
-const chipColor = {
-  [VISIBILITY_STATUSES.CURRENT]: TAMANU_COLORS.green,
-  [VISIBILITY_STATUSES.HISTORICAL]: TAMANU_COLORS.darkestText,
-  [VISIBILITY_STATUSES.MERGED]: TAMANU_COLORS.darkestText,
-};
-
-export function VisibilityStatusChip({ isLoading, visibilityStatus, ...props }) {
-  return isLoading ? (
-    <Skeleton animation="wave" variant="rounded" style={{ borderRadius: 'calc(infinity * 1px)' }}>
-      <StyledChip
-        label={
-          <TranslatedText
-            stringId="admin.programRegistries.visibilityStatus.current"
-            fallback="Current"
-          />
-        }
-        size="small"
-      />
-    </Skeleton>
-  ) : (
-    <StyledChip
-      label={
-        visibilityStatusText[visibilityStatus] ?? (
-          <TranslatedText
-            stringId="admin.programRegistries.visibilityStatus.unknown"
-            fallback="Unknown"
-          />
-        )
-      }
-      style={{ color: chipColor[visibilityStatus] }}
-      size="small"
-      {...props}
-    />
-  );
-}
-
-const emptyCell = <em style={{ color: TAMANU_COLORS.softText }}>None</em>;
-
 export function ColourCell({ color }) {
-  return color || emptyCell;
-}
-
-export function VisibilityStatusCell({ visibilityStatus }) {
-  return visibilityStatus ? (
-    <VisibilityStatusChip visibilityStatus={visibilityStatus} />
-  ) : (
-    emptyCell
+  return (
+    color || (
+      <em style={{ color: TAMANU_COLORS.softText }}>
+        <TranslatedText stringId="general.none" fallback="None" />
+      </em>
+    )
   );
 }
