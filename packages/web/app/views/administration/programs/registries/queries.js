@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../api/useApi';
 
 export function useProgramRegistriesQuery(options = {}) {
@@ -26,5 +26,28 @@ export function useProgramRegistryQuery(programRegistryId) {
     queryKey: ['adminProgramRegistry', programRegistryId],
     queryFn: getProgramRegistry,
     enabled: Boolean(programRegistryId),
+  });
+}
+
+export function useProgramRegistryMutation(useMutationOptions = {}) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['admin', 'programRegistry', 'updateMetadata'],
+    mutationFn: async ({ programRegistryId, name, visibilityStatus, currentlyAtType }) =>
+      await api.put(`admin/programRegistry/${encodeURIComponent(programRegistryId)}`, {
+        name,
+        visibilityStatus,
+        currentlyAtType,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['adminProgramRegistry', variables.programRegistryId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['programRegistries'] });
+      useMutationOptions.onSuccess?.(data, variables, context);
+    },
+    onError: useMutationOptions.onError,
   });
 }

@@ -71,7 +71,7 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment) {
   };
 }
 
-const visibilityStatusText = /** @type {const} */ {
+export const visibilityStatusText = /** @type {const} */ {
   [VISIBILITY_STATUSES.CURRENT]: (
     <TranslatedText
       stringId="admin.programRegistries.visibilityStatus.current"
