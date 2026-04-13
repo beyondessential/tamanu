@@ -315,4 +315,119 @@ describe('SurveyResponse.createWithAnswers', () => {
       registrationStatus: REGISTRATION_STATUSES.ACTIVE,
     });
   });
+
+  it('sets registration date to endTime on new registration', async () => {
+    const survey = await createDummySurvey(models);
+    const registry = await models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        programId: survey.programId,
+      }),
+    );
+    const clinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+      fake(models.ProgramRegistryClinicalStatus, {
+        programRegistryId: registry.id,
+      }),
+    );
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+      config: {
+        writeToPatient: {
+          fieldName: 'registrationClinicalStatus',
+        },
+      },
+    });
+    const { id: userId } = await models.User.create({
+      displayName: 'Test clinician',
+      email: 'testclinician-date@test.test',
+    });
+
+    const submittedEndTime = '2024-01-15 10:30:00';
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        userId,
+        surveyId: survey.id,
+        endTime: submittedEndTime,
+        answers: {
+          [dataElement.id]: clinicalStatus.id,
+        },
+      }),
+    );
+
+    const registration = await models.PatientProgramRegistration.findOne();
+    expect(registration.date).toBe(submittedEndTime);
+  });
+
+  it('does not overwrite registration date on subsequent survey submission', async () => {
+    const survey = await createDummySurvey(models);
+    const registry = await models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        programId: survey.programId,
+      }),
+    );
+    const clinicalStatus1 = await models.ProgramRegistryClinicalStatus.create(
+      fake(models.ProgramRegistryClinicalStatus, {
+        programRegistryId: registry.id,
+      }),
+    );
+    const clinicalStatus2 = await models.ProgramRegistryClinicalStatus.create(
+      fake(models.ProgramRegistryClinicalStatus, {
+        programRegistryId: registry.id,
+      }),
+    );
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+      config: {
+        writeToPatient: {
+          fieldName: 'registrationClinicalStatus',
+        },
+      },
+    });
+    const { id: userId } = await models.User.create({
+      displayName: 'Test clinician',
+      email: 'testclinician-noupdate@test.test',
+    });
+
+    const originalEndTime = '2024-01-15 10:30:00';
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        userId,
+        surveyId: survey.id,
+        endTime: originalEndTime,
+        answers: {
+          [dataElement.id]: clinicalStatus1.id,
+        },
+      }),
+    );
+
+    const registrationAfterCreate = await models.PatientProgramRegistration.findOne();
+    expect(registrationAfterCreate.date).toBe(originalEndTime);
+    expect(registrationAfterCreate.clinicalStatusId).toBe(clinicalStatus1.id);
+
+    const laterEndTime = '2024-06-01 14:00:00';
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        userId,
+        surveyId: survey.id,
+        endTime: laterEndTime,
+        answers: {
+          [dataElement.id]: clinicalStatus2.id,
+        },
+      }),
+    );
+
+    const registrationAfterUpdate = await models.PatientProgramRegistration.findOne();
+    expect(registrationAfterUpdate.clinicalStatusId).toBe(clinicalStatus2.id);
+    expect(registrationAfterUpdate.date).toBe(originalEndTime);
+  });
 });
