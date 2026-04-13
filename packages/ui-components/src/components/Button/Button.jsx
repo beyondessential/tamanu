@@ -197,7 +197,6 @@ const StyledTextButton = styled(Button)`
   min-block-size: auto;
   min-inline-size: auto;
   padding: 0;
-  text-transform: capitalize;
   :hover {
     background: transparent;
     color: #23476b;
