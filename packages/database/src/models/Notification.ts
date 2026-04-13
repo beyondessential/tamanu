@@ -4,7 +4,11 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildPatientLinkedLookupFilter, buildPatientSyncFilterViaPatientId } from '../sync';
+import {
+  buildPatientSyncFilterViaPatientId,
+  buildSyncLookupSelect,
+  ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
+} from '../sync';
 
 const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
 const NOTIFICATION_STATUS_VALUES = Object.values(NOTIFICATION_STATUSES);
@@ -61,7 +65,20 @@ export class Notification extends Model {
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async buildSyncLookupQueryDetails() {
-    return buildPatientLinkedLookupFilter(this);
+    return {
+      select: await buildSyncLookupSelect(this, {
+        patientId: `${this.tableName}.patient_id`,
+        facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
+      }),
+      joins: `
+        LEFT JOIN encounters
+          ON encounters.id::text = ${this.tableName}.metadata->>'encounterId'
+        LEFT JOIN locations
+          ON locations.id = encounters.location_id
+        LEFT JOIN facilities
+          ON facilities.id = locations.facility_id
+      `,
+    };
   }
 
   static getFullReferenceAssociations() {
