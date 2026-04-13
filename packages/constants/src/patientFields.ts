@@ -1,6 +1,12 @@
 // Please keep in sync with:
 // - mobile/App/constants/patientFields.ts
 
+/**
+ * Default facility `patientDisplayIdPattern`: four random letters + six random digits
+ * (see `generateIdFromPattern` in @tamanu/utils).
+ */
+export const DEFAULT_PATIENT_DISPLAY_ID_PATTERN = 'AAAA000000';
+
 export const PATIENT_FIELD_DEFINITION_TYPES = {
   STRING: 'string',
   NUMBER: 'number',
