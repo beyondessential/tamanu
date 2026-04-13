@@ -106,10 +106,13 @@ export const ManageReferenceDataTab = () => {
     },
   });
 
-  const handleRowClick = useCallback(row => {
-    if (selectedType === SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION) return;
-    setEditingRecord(row);
-  }, [selectedType]);
+  const handleRowClick = useCallback(
+    row => {
+      if (selectedType === SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION) return;
+      setEditingRecord(row);
+    },
+    [selectedType],
+  );
 
   const tableColumns = useMemo(() => {
     const cols = columns.map(col => {
@@ -134,9 +137,7 @@ export const ManageReferenceDataTab = () => {
           <ThreeDotMenu
             items={[
               {
-                label: (
-                  <TranslatedText stringId="general.action.delete" fallback="Delete" />
-                ),
+                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
                 onClick: () => setDeletingRecordId(data.id),
               },
             ]}
@@ -273,14 +274,11 @@ export const ManageReferenceDataTab = () => {
             />
           }
           subText={
-            <>
-              <TranslatedText
-                stringId="admin.referenceData.deleteConfirmPrefix"
-                fallback="Are you sure you would like to delete "
-                data-testid="translatedtext-delete-refdata-prefix"
-              />
-              <b>{deletingRecordId}</b>?
-            </>
+            <TranslatedText
+              stringId="admin.referenceData.deleteConfirmPrefix"
+              fallback="Are you sure you would like to delete the selected item?"
+              data-testid="translatedtext-delete-refdata-prefix"
+            />
           }
           confirmButtonText={
             <TranslatedText
