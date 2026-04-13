@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { TranslatedText } from '@tamanu/ui-components';
@@ -9,27 +9,33 @@ export function ManageProgramsAdminView() {
   const { programId } = useParams();
   const navigate = useNavigate();
 
-  const switchToProgram = id => {
-    const prev = programId ? String(programId) : '';
-    const next = id ? String(id) : '';
-    if (next === prev) return;
-    const to = next
-      ? `/admin/programs/programs/manage/${encodeURIComponent(next)}`
-      : '/admin/programs/programs/manage';
-    navigate(to);
-  };
-
-  const { data: programs, isLoading: isProgramsLoading } = useProgramsQuery({
-    onSuccess: function defaultToFirst(data) {
-      if (programId) return;
-      const firstProgramId = data?.[0]?.id;
-      if (!firstProgramId) return;
-      switchToProgram(firstProgramId);
+  const switchToProgram = useCallback(
+    id => {
+      const prev = programId ? String(programId) : '';
+      const next = id ? String(id) : '';
+      if (next === prev) return;
+      const to = next
+        ? `/admin/programs/programs/manage/${encodeURIComponent(next)}`
+        : '/admin/programs/programs/manage';
+      navigate(to);
     },
-  });
+    [navigate, programId],
+  );
+
+  const { data: programs, isLoading: isProgramsLoading } = useProgramsQuery();
+
   const options = useMemo(
     () => programs?.map(({ id, name }) => ({ value: id, label: name })),
     [programs],
+  );
+
+  useEffect(
+    function defaultToFirst() {
+      if (programId) return; // Only if no existing selection
+      if (!programs) return; // Wait for query data
+      switchToProgram(programs[0].id);
+    },
+    [programId, programs, switchToProgram],
   );
 
   return (
