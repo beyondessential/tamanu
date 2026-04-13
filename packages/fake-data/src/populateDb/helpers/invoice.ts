@@ -6,10 +6,10 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateInvoiceParams extends CommonParams {
-  encounterId: string;
-  userId: string;
-  referenceDataId: string;
-  productId: string;
+  encounterId?: string;
+  userId?: string;
+  referenceDataId?: string;
+  productId?: string;
   itemCount?: number;
 }
 export const createInvoice = async ({

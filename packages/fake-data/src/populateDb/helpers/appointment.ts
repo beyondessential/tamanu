@@ -7,9 +7,9 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams, ExtendedCommonParams } from './common.js';
 
 interface CreateAppointmentParams extends CommonParams {
-  locationGroupId: string;
-  patientId: string;
-  clinicianId: string;
+  locationGroupId?: string;
+  patientId?: string;
+  clinicianId?: string;
 }
 
 export const createAppointment = async ({

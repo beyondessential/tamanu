@@ -7,11 +7,11 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateEncounterParams extends CommonParams {
-  patientId: string;
-  departmentId: string;
-  locationId: string;
-  userId: string;
-  referenceDataId: string;
+  patientId?: string;
+  departmentId?: string;
+  locationId?: string;
+  userId?: string;
+  referenceDataId?: string;
   noteCount?: number;
   diagnosisCount?: number;
   isDischarged?: boolean;

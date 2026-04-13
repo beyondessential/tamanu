@@ -5,9 +5,9 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateImagingRequestParams extends CommonParams {
-  userId: string;
-  encounterId: string;
-  locationGroupId: string;
+  userId?: string;
+  encounterId?: string;
+  locationGroupId?: string;
   isResulted?: boolean;
 }
 export const createImagingRequest = async ({
