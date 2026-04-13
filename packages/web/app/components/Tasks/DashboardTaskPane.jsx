@@ -63,17 +63,35 @@ export const DashboardTaskPane = React.memo(() => {
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = (e) => {
-    const { value } = e.target;
+  const updateTaskFilterPreference = value => {
+    userPreferencesMutation.mutate({
+      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
+      value,
+    });
+  };
 
-    const newParams = value
+  const onLocationIdChange = (e) => {
+    const { value, groupValue } = e.target;
+
+    const paramsWithLocation = value
       ? { ...clinicianDashboardTaskingTableFilter, locationId: value }
       : omit(clinicianDashboardTaskingTableFilter, 'locationId');
 
-    userPreferencesMutation.mutate({
-      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
-    });
+    const newParams = groupValue
+      ? { ...paramsWithLocation, locationGroupId: groupValue }
+      : omit(paramsWithLocation, 'locationGroupId');
+
+
+
+    updateTaskFilterPreference(newParams);
+  };
+
+  const onLocationGroupIdChange = locationGroupId => {
+    const newParams = locationGroupId
+      ? { ...clinicianDashboardTaskingTableFilter, locationGroupId }
+      : omit(clinicianDashboardTaskingTableFilter, 'locationGroupId');
+
+    updateTaskFilterPreference(newParams);
   };
 
   const onHighPriorityOnlyChange = (e) => {
@@ -83,10 +101,7 @@ export const DashboardTaskPane = React.memo(() => {
       ? { ...clinicianDashboardTaskingTableFilter, highPriority: checked }
       : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
 
-    userPreferencesMutation.mutate({
-      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
-    });
+    updateTaskFilterPreference(newParams);
   };
 
   return (
@@ -104,6 +119,7 @@ export const DashboardTaskPane = React.memo(() => {
             <LocationInput
               name="locationId"
               onChange={onLocationIdChange}
+              onGroupChange={onLocationGroupIdChange}
               size="small"
               label={
                 <TranslatedText
@@ -120,6 +136,7 @@ export const DashboardTaskPane = React.memo(() => {
                 />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
+              groupValue={clinicianDashboardTaskingTableFilter.locationGroupId}
               autofill={false}
               isMulti={true}
               data-testid="locationinput-aabz"
