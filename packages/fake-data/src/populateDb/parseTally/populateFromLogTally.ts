@@ -65,13 +65,6 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   const tallies = Object.entries(tallyJson);
   const BATCH_SIZE = 50;
 
-  const logMemory = () => {
-    const mem = process.memoryUsage();
-    console.log(
-      `[mem] rss=${(mem.rss / 1024 / 1024).toFixed(0)}MB heap=${(mem.heapUsed / 1024 / 1024).toFixed(0)}/${(mem.heapTotal / 1024 / 1024).toFixed(0)}MB`,
-    );
-  };
-
   const runBatched = async (fn: (arg: any) => Promise<any>, count: number) => {
     for (let i = 0; i < count; i += BATCH_SIZE) {
       const batchCount = Math.min(BATCH_SIZE, count - i);
@@ -81,17 +74,11 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
         ),
       );
       const failures = results.filter((r) => r.status === 'rejected');
-      if (failures.length > 0) {
+      if (failures.length > batchCount / 2) {
         const firstReason = (failures[0] as PromiseRejectedResult).reason;
-        console.error(
-          `\n[batch ${i / BATCH_SIZE + 1}] ${failures.length}/${batchCount} failed:`,
-          firstReason,
+        throw new Error(
+          `${failures.length}/${batchCount} operations failed in batch: ${firstReason}`,
         );
-        if (failures.length > batchCount / 2) {
-          throw new Error(
-            `${failures.length}/${batchCount} operations failed in batch: ${firstReason}`,
-          );
-        }
       }
     }
   };
@@ -120,7 +107,6 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
     if (total > 0) {
       console.log();
       console.log(`[ ${n + 1} / ${tallies.length} ] Simulated ${total} ${model} endpoint calls`);
-      logMemory();
     }
   }
 };
