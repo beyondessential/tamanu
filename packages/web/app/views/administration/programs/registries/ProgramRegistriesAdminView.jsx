@@ -1,17 +1,24 @@
 import React from 'react';
 
-import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import styled from 'styled-components';
+import { AdminViewContainer, TitleContainer } from '../../components/AdminViewContainer';
 import { ManageProgramRegistriesAdminView } from './ManageProgramRegistriesAdminView';
-import { TranslatedText } from '@tamanu/ui-components';
+
+const StyledAdminViewContainer = styled(AdminViewContainer)`
+  ${TitleContainer} {
+    border-block-end: 1px solid ${TAMANU_COLORS.outline};
+  }
+`;
 
 export const ProgramRegistriesAdminView = () => {
   return (
-    <AdminViewContainer
+    <StyledAdminViewContainer
       title={
         <TranslatedText stringId="admin.programRegistries.title" fallback="Program registries" />
       }
     >
       <ManageProgramRegistriesAdminView />
-    </AdminViewContainer>
+    </StyledAdminViewContainer>
   );
 };

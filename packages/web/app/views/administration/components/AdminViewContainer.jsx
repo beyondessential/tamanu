@@ -27,7 +27,7 @@ const LoadingContainer = styled.div`
   z-index: 9999;
 `;
 
-const TitleContainer = styled.div`
+export const TitleContainer = styled.div`
   align-items: center;
   background-color: ${Colors.white};
   display: flex;
