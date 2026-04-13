@@ -17,7 +17,9 @@ export const DEPARTMENTS = splitIds(`
 `);
 
 export const seedDepartments = async (models) => {
-  const facilityId = await randomRecordId(models, 'Facility');
-  const departments = DEPARTMENTS.map((d) => ({ ...d, code: d.name, facilityId }));
+  const facilities = await models.Facility.findAll();
+  const departments = facilities.flatMap((facility) =>
+    DEPARTMENTS.map((d) => ({ ...d, code: d.name, facilityId: facility.id })),
+  );
   return models.Department.bulkCreate(departments);
 };

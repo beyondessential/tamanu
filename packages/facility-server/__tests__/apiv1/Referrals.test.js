@@ -130,9 +130,14 @@ describe('Referrals', () => {
 
   it('should use the default department if one is not provided', async () => {
     const { department: departmentCode } = await settings.get('survey.defaultCodes');
-    const department = await findOneOrCreate(models, models.Department, {
-      code: departmentCode,
-    });
+    const department = await findOneOrCreate(
+      models,
+      models.Department,
+      {
+        code: departmentCode,
+      },
+      { facilityId },
+    );
 
     const { locationId } = encounter;
     const result = await app.post('/api/referral').send({
@@ -154,7 +159,12 @@ describe('Referrals', () => {
 
   it('should use the default location if one is not provided', async () => {
     const { location: locationCode } = await settings.get('survey.defaultCodes');
-    const location = await findOneOrCreate(models, models.Location, { code: locationCode });
+    const location = await findOneOrCreate(
+      models,
+      models.Location,
+      { code: locationCode },
+      { facilityId },
+    );
 
     const { departmentId } = encounter;
     const result = await app.post('/api/referral').send({
