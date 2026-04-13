@@ -1,9 +1,14 @@
 import React from 'react';
 import { startCase } from 'lodash';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FormModal } from '../../../../components/FormModal';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReferenceDataForm } from './ReferenceDataForm';
 import { useReferenceDataCreateMutation } from './useReferenceDataCreateMutation';
+
+const DEFAULT_VALUES = {
+  visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+};
 
 export const AddReferenceDataModal = ({ open, onClose, columns, selectedType, onSuccess }) => {
   const { mutateAsync: createRecord } = useReferenceDataCreateMutation(selectedType, {
@@ -31,6 +36,7 @@ export const AddReferenceDataModal = ({ open, onClose, columns, selectedType, on
         columns={columns}
         onSubmit={createRecord}
         onCancel={onClose}
+        initialValues={DEFAULT_VALUES}
         isEditMode={false}
         data-testid="form-add-refdata"
       />

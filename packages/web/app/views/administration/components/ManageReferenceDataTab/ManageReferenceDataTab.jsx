@@ -23,7 +23,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
+  min-height: calc(100vh - 200px);
   overflow: auto;
   border: 1px solid ${Colors.outline};
 `;
@@ -60,8 +60,9 @@ const TableWrapper = styled.div`
 `;
 
 const PlaceholderBox = styled.div`
-  flex: 1;
-  min-height: calc(100vh - 290px);
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,6 +72,7 @@ const PlaceholderBox = styled.div`
   color: ${Colors.primary};
   font-weight: 500;
   font-size: 14px;
+  overflow: auto;
 `;
 
 export const ManageReferenceDataTab = () => {
