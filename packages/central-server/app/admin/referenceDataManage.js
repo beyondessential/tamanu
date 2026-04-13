@@ -26,12 +26,12 @@ referenceDataManageRouter.post(
     const columns = await getColumnsForModel(model);
     const data = getWritableData(columns, rawData, false);
 
-    if (columns.some(c => c.multiSelect)) {
-      const records = await createMultiSelectRecords(model, columns, data, typeFilter);
-      return res.send(records);
-    }
-
     try {
+      if (columns.some(c => c.multiSelect)) {
+        const records = await createMultiSelectRecords(model, columns, data, typeFilter);
+        return res.send(records);
+      }
+
       const record = await model.create({ ...typeFilter, ...data });
       res.send(record.forResponse());
     } catch (err) {
@@ -105,7 +105,14 @@ referenceDataManageRouter.get(
     req.checkPermission('list', 'ReferenceData');
 
     const {
-      query: { referenceDataType, page = 0, rowsPerPage = 10, orderBy = 'createdAt', order = 'ASC', ...filters },
+      query: {
+        referenceDataType,
+        page = 0,
+        rowsPerPage = 10,
+        orderBy = 'createdAt',
+        order = 'ASC',
+        ...filters
+      },
     } = req;
 
     assertValidType(referenceDataType);
@@ -117,7 +124,9 @@ referenceDataManageRouter.get(
     const searchWhere = {};
     const searchableKeys = new Set(
       columns
-        .filter(c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues)
+        .filter(
+          c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues,
+        )
         .map(c => c.key),
     );
 
@@ -136,12 +145,7 @@ referenceDataManageRouter.get(
     const EXACT_MATCH_TYPES = new Set(['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL', 'BOOLEAN']);
     const exactMatchKeys = new Set(
       columns
-        .filter(
-          c =>
-            c.suggesterEndpoint ||
-            c.enumValues ||
-            EXACT_MATCH_TYPES.has(c.type),
-        )
+        .filter(c => c.suggesterEndpoint || c.enumValues || EXACT_MATCH_TYPES.has(c.type))
         .map(c => c.key),
     );
 
@@ -172,7 +176,10 @@ referenceDataManageRouter.get(
     const count = await model.count({ where });
     const data = await model.findAll({
       where,
-      order: [[orderBy, normalizedOrder], ['id', 'ASC']],
+      order: [
+        [orderBy, normalizedOrder],
+        ['id', 'ASC'],
+      ],
       limit: Number(rowsPerPage),
       offset: Number(page) * Number(rowsPerPage),
     });
