@@ -1,13 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { TranslatedText } from '@tamanu/ui-components';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
 import { useProgramsQuery } from './queries';
-
-function programToOption(programs) {
-  return programs?.map(({ id, name }) => ({ value: id, label: name }));
-}
 
 export function ManageProgramsAdminView() {
   const { programId } = useParams();
@@ -23,22 +19,25 @@ export function ManageProgramsAdminView() {
     navigate(to);
   };
 
-  const { data: options, isLoading: isOptionsLoading } = useProgramsQuery({
+  const { data: programs, isLoading: isProgramsLoading } = useProgramsQuery({
     onSuccess: function defaultToFirst(data) {
       if (programId) return;
       const firstProgramId = data?.[0]?.id;
       if (!firstProgramId) return;
       switchToProgram(firstProgramId);
     },
-    select: programToOption,
   });
+  const options = useMemo(
+    () => programs?.map(({ id, name }) => ({ value: id, label: name })),
+    [programs],
+  );
 
   return (
     <Article>
       <TableScopeHeader>
         <TableScopeSelect
-          aria-busy={isOptionsLoading}
-          disabled={isOptionsLoading}
+          aria-busy={isProgramsLoading}
+          disabled={isProgramsLoading}
           label={
             <TranslatedText stringId="admin.programs.select.label" fallback="Select program" />
           }
