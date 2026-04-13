@@ -193,9 +193,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     }
 
     return PatientProgramRegistration.createAndSaveOne({
+      ...(submittedTime ? { date: submittedTime } : {}),
       ...getValuesFromRelations(data),
       ...data,
-      ...(submittedTime ? { date: submittedTime } : {}),
       programRegistry: programRegistryId,
       patient: patientId,
     });
