@@ -40,8 +40,8 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs">
-      <Route index element={<Navigate to="forms" replace />} />
-      <Route path="forms" element={<ProgramsAdminView />} />
+      <Route index element={<Navigate to="programs" replace />} />
+      <Route path="programs" element={<ProgramsAdminView />} />
       <Route path="registries">
         <Route index element={<ProgramRegistriesAdminView />} />
         <Route path=":programRegistryId/*" element={<ManageProgramRegistriesRoutes />} />
