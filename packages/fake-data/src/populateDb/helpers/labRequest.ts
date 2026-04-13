@@ -14,7 +14,6 @@ interface CreateLabRequestParams extends CommonParams {
 }
 export const createLabRequest = async ({
   models,
-  limit,
   departmentId,
   userId,
   encounterId,
@@ -47,25 +46,21 @@ export const createLabRequest = async ({
     }),
   );
 
-  await Promise.all(
-    times(testCount, () =>
-      limit(async () => {
-        const labTest = await LabTest.create(
-          fake(LabTest, {
-            labRequestId: labRequest.id,
-            categoryId: resolvedRefDataId,
-            labTestMethodId: resolvedRefDataId,
-            labTestTypeId: resolvedLabTestTypeId,
-          }),
-        );
-        await CertificateNotification.create(
-          fake(CertificateNotification, {
-            patientId: resolvedPatientId,
-            labTestId: labTest.id,
-            labRequestId: labRequest.id,
-          }),
-        );
+  for (const _ of times(testCount)) {
+    const labTest = await LabTest.create(
+      fake(LabTest, {
+        labRequestId: labRequest.id,
+        categoryId: resolvedRefDataId,
+        labTestMethodId: resolvedRefDataId,
+        labTestTypeId: resolvedLabTestTypeId,
       }),
-    ),
-  );
+    );
+    await CertificateNotification.create(
+      fake(CertificateNotification, {
+        patientId: resolvedPatientId,
+        labTestId: labTest.id,
+        labRequestId: labRequest.id,
+      }),
+    );
+  }
 };

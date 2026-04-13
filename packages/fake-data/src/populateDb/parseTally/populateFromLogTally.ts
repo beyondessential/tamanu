@@ -70,7 +70,7 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
       const batchCount = Math.min(BATCH_SIZE, count - i);
       const results = await Promise.allSettled(
         times(batchCount, () =>
-          limit(() => fn({ models, limit }).then(print('.'), print('!'))),
+          limit(() => fn({ models }).then(print('.'), print('!'))),
         ),
       );
       const failures = results.filter((r) => r.status === 'rejected');
@@ -106,17 +106,7 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
 
     if (total > 0) {
       console.log();
-      console.log(
-        '[',
-        n + 1,
-        '/',
-        tallies.length,
-        ']',
-        'Simulated',
-        total,
-        model,
-        'endpoint calls',
-      );
+      console.log(`[ ${n + 1} / ${tallies.length} ] Simulated ${total} ${model} endpoint calls`);
     }
   }
 };

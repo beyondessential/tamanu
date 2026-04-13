@@ -7,18 +7,17 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateEncounterParams extends CommonParams {
-  patientId: string;
-  departmentId: string;
-  locationId: string;
-  userId: string;
-  referenceDataId: string;
+  patientId?: string;
+  departmentId?: string;
+  locationId?: string;
+  userId?: string;
+  referenceDataId?: string;
   noteCount?: number;
   diagnosisCount?: number;
   isDischarged?: boolean;
 }
 export const createEncounter = async ({
   models,
-  limit,
   patientId,
   departmentId,
   locationId,
@@ -49,32 +48,24 @@ export const createEncounter = async ({
     }),
   );
 
-  await Promise.all(
-    times(diagnosisCount, () =>
-      limit(async () => {
-        await EncounterDiagnosis.create(
-          fake(EncounterDiagnosis, {
-            diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
-            encounterId: encounter.id,
-          }),
-        );
+  for (const _ of times(diagnosisCount)) {
+    await EncounterDiagnosis.create(
+      fake(EncounterDiagnosis, {
+        diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+        encounterId: encounter.id,
       }),
-    ),
-  );
+    );
+  }
 
-  await Promise.all(
-    times(noteCount, () =>
-      limit(async () => {
-        await Note.create(
-          fake(Note, {
-            recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-            recordId: encounter.id,
-            authorId: userId || (await randomRecordId(models, 'User')),
-          }),
-        );
+  for (const _ of times(noteCount)) {
+    await Note.create(
+      fake(Note, {
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        recordId: encounter.id,
+        authorId: userId || (await randomRecordId(models, 'User')),
       }),
-    ),
-  );
+    );
+  }
 
   if (isDischarged) {
     await Discharge.create(

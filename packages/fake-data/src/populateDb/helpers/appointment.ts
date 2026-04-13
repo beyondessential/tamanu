@@ -7,9 +7,9 @@ import { fake, chance } from '../../fake/index.js';
 import type { CommonParams, ExtendedCommonParams } from './common.js';
 
 interface CreateAppointmentParams extends CommonParams {
-  locationGroupId: string;
-  patientId: string;
-  clinicianId: string;
+  locationGroupId?: string;
+  patientId?: string;
+  clinicianId?: string;
 }
 
 export const createAppointment = async ({
@@ -34,7 +34,6 @@ interface CreateRepeatingAppointmentParams extends ExtendedCommonParams<CreateAp
 
 export const createRepeatingAppointment = async ({
   models,
-  limit,
   locationGroupId,
   patientId,
   clinicianId,
@@ -49,18 +48,14 @@ export const createRepeatingAppointment = async ({
     }),
   );
 
-  await Promise.all(
-    times(apptCount, () =>
-      limit(async () => {
-        await Appointment.create(
-          fake(Appointment, {
-            patientId: patientId ?? (await randomRecordId(models, 'Patient')),
-            clinicianId: clinicianId ?? (await randomRecordId(models, 'User')),
-            locationGroupId: resolvedLocationGroupId,
-            scheduleId: appointmentSchedule.id,
-          }),
-        );
+  for (const _ of times(apptCount)) {
+    await Appointment.create(
+      fake(Appointment, {
+        patientId: patientId ?? (await randomRecordId(models, 'Patient')),
+        clinicianId: clinicianId ?? (await randomRecordId(models, 'User')),
+        locationGroupId: resolvedLocationGroupId,
+        scheduleId: appointmentSchedule.id,
       }),
-    ),
-  );
+    );
+  }
 };

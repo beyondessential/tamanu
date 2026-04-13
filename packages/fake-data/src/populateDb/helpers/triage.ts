@@ -14,11 +14,13 @@ export const createTriage = async ({
 }: CreateTriageParams): Promise<void> => {
   const { Triage } = models;
 
-  await Triage.create(
+  // Triage.create has business logic that creates an encounter as part of the
+  // triage workflow — bypass it with build().save() for seeding.
+  await Triage.build(
     fake(Triage, {
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
       practitionerId: practitionerId || (await randomRecordId(models, 'User')),
       score: chance.pickone(['1', '2', '3', '4', '5']),
     }),
-  );
+  ).save();
 };
