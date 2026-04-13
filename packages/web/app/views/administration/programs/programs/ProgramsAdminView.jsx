@@ -25,13 +25,7 @@ const TabKey = /** @type {const} */ ({
 });
 
 const manageTab = /** @type {const} */ ({
-  label: (
-    <TranslatedText
-      stringId="admin.programRegistries.tab.manage"
-      fallback="Manage"
-      data-testid="translatedtext-programregistries-tab-manage"
-    />
-  ),
+  label: <TranslatedText stringId="admin.programs.tab.manage" fallback="Manage" />,
   key: TabKey.Manage,
   icon: <TuneIcon />,
 });
