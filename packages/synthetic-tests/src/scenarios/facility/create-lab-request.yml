@@ -1,0 +1,67 @@
+scenarios:
+  - name: Create lab request (individual, single test)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadIndividualSingle
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
+  - name: Create lab request (individual, two tests same category)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadIndividualTwoTestsSameCategory
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
+  - name: Create lab request (individual, two categories)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadIndividualTwoCategories
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
+  - name: Create lab request (panel)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadPanel
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
+  - name: Create lab request (panel, sample collected)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadPanelSampleCollected
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
+  - name: Create lab request (individual, sample + note)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateLabRequestPayloadIndividualSampleAndNote
+      - post:
+          url: '/api/labRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{labRequestPayload}}'
