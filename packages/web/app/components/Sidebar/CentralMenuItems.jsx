@@ -64,7 +64,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
             data-testid="translatedtext-programs-and-forms"
           />
         ),
-        path: '/admin/programs/forms',
+        path: '/admin/programs/programs',
       },
       {
         key: 'programRegistries',
