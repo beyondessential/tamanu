@@ -93,6 +93,7 @@ adminRoutes.get(
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
 adminRoutes.get('/programRegistry/:id', getProgramRegistryHandler);
+adminRoutes.put('/programRegistry/:id', simplePut('ProgramRegistry'));
 adminRoutes.put('/programRegistryClinicalStatus/:id', simplePut('ProgramRegistryClinicalStatus'));
 adminRoutes.put('/programRegistryCondition/:id', simplePut('ProgramRegistryCondition'));
 adminRoutes.put(
