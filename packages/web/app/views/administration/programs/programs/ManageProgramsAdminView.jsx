@@ -1,17 +1,56 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-import styled from 'styled-components';
-import { ContentContainer } from '../../components/AdminViewContainer';
+import React, { useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router';
 
-export const Article = styled.article`
-  border-block-start: 1px solid ${TAMANU_COLORS.outline};
-  overflow: auto;
-  padding-block: 26px;
-  padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
-  }
-`;
+import { TranslatedText } from '@tamanu/ui-components';
+import { Article, TableScopeHeader, TableScopeSelect } from '../components';
+import { useProgramQuery, useProgramsQuery } from './queries';
+
+function programToOption(programs) {
+  return programs?.map(({ id, name }) => ({ value: id, label: name }));
+}
 
 export function ManageProgramsAdminView() {
-  return <Article>ManageProgramsAdminView</Article>;
+  const { programId } = useParams();
+  const navigate = useNavigate();
+
+  const switchToProgram = id => {
+    const prev = programId ? String(programId) : '';
+    const next = id ? String(id) : '';
+    if (next === prev) return;
+    const to = next
+      ? `/admin/programs/programs/manage/${encodeURIComponent(next)}`
+      : '/admin/programs/programs/manage';
+    navigate(to);
+  };
+
+  const { data: options, isLoading: isOptionsLoading } = useProgramsQuery({
+    onSuccess: function defaultToFirst(data) {
+      if (programId) return;
+      const firstProgramId = data?.[0]?.id;
+      if (!firstProgramId) return;
+      switchToProgram(firstProgramId);
+    },
+    select: programToOption,
+  });
+
+  const { isLoading: isProgramLoading } = useProgramQuery(programId);
+
+  return (
+    <Article>
+      <TableScopeHeader>
+        <TableScopeSelect
+          aria-busy={isOptionsLoading}
+          disabled={isOptionsLoading}
+          label={
+            <TranslatedText stringId="admin.programs.select.label" fallback="Select program" />
+          }
+          name="programId"
+          onChange={e => switchToProgram(e.target.value)}
+          options={options}
+          value={programId ?? ''}
+        />
+        <div aria-busy={isProgramLoading} />
+      </TableScopeHeader>
+    </Article>
+  );
 }

@@ -1,41 +1,16 @@
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import React, { useId, useMemo } from 'react';
-import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
+import { Link, Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { SelectField, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
-import { ContentContainer } from '../../components/AdminViewContainer';
+import { Article, TableScopeHeader, TableScopeSelect } from '../components';
 import { VisibilityStatusChip } from './components';
 import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
-
-export const Article = styled.article`
-  overflow: auto;
-  padding-block: 26px;
-  padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
-  }
-`;
-
-const Header = styled.header`
-  align-items: flex-end;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  border-start-end-radius: 0.3125rem;
-  border-start-start-radius: 0.3125rem;
-  display: flex;
-  gap: 10px;
-  padding-block: 16px;
-  padding-inline: 24px;
-`;
-
-const Select = styled(SelectField)`
-  min-inline-size: 23rem;
-`;
 
 const Metadata = styled.div`
   align-items: baseline;
@@ -128,10 +103,12 @@ export function ManageProgramRegistriesAdminView() {
     isSuccess: isRegistrySuccess,
   } = useProgramRegistryQuery(programRegistryId);
 
-  const isConditionsRoute =
-    useMatch('/admin/programs/registries/:programRegistryId/conditions') !== null;
-  const isConditionCategoriesRoute =
-    useMatch('/admin/programs/registries/:programRegistryId/conditionCategories') !== null;
+  const isConditionsRoute = Boolean(
+    useMatch('/admin/programs/registries/:programRegistryId/conditions'),
+  );
+  const isConditionCategoriesRoute = Boolean(
+    useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
+  );
   const currentTab = (() => {
     if (isConditionsRoute) return TabKey.Conditions;
     if (isConditionCategoriesRoute) return TabKey.RelatedConditionCategories;
@@ -145,13 +122,12 @@ export function ManageProgramRegistriesAdminView() {
 
   return (
     <Article>
-      <Header>
-        <Select
+      <TableScopeHeader>
+        <TableScopeSelect
           // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
           // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
           // by react-select to forward it to.
           aria-controls={scopedTableId}
-          isClearable={false}
           label={
             <TranslatedText
               stringId="admin.program-registry.select.label"
@@ -171,9 +147,13 @@ export function ManageProgramRegistriesAdminView() {
           {isRegistryLoading ? (
             <Skeleton animation="wave" variant="text" width="25ch" />
           ) : (
-            registry?.program?.name && (
+            registry?.program && (
               <Typography variant="body1" style={{ fontSize: 'inherit' }}>
-                {registry.program.name}
+                <Link
+                  to={`/admin/programs/programs/manage/${encodeURIComponent(registry.program.id)}`}
+                >
+                  {registry.program.name}
+                </Link>
               </Typography>
             )
           )}
@@ -182,7 +162,7 @@ export function ManageProgramRegistriesAdminView() {
           disabled={!isRegistrySuccess}
           style={{ marginInlineStart: 'auto' }}
         />
-      </Header>
+      </TableScopeHeader>
       <article id={scopedTableId}>
         {programRegistryId && (
           <StyledTabDisplay

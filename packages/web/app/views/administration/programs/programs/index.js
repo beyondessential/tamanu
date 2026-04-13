@@ -1,2 +1,2 @@
 export { ManageProgramsAdminView } from './ManageProgramsAdminView';
-export { ProgramsAdminView } from './ProgramsAdminView';
+export { ProgramsAdminView, ProgramsExportTab, ProgramsImportTab } from './ProgramsAdminView';

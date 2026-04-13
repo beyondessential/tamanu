@@ -5,8 +5,11 @@ export { AssetUploaderView } from './AssetUploaderView';
 export * from './users';
 export {
   ManageProgramRegistriesRoutes,
+  ManageProgramsAdminView,
   ProgramRegistriesAdminView,
   ProgramsAdminView,
+  ProgramsExportTab,
+  ProgramsImportTab,
 } from './programs';
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
