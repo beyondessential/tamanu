@@ -175,6 +175,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     patientId: string,
     programRegistryId: string,
     data: any,
+    submittedTime?: string,
   ): Promise<PatientProgramRegistration> {
     const { programId } = await ProgramRegistry.findOne({ where: { id: programRegistryId } });
     const existingRegistration = await PatientProgramRegistration.getRecentOne(
@@ -192,9 +193,9 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     }
 
     return PatientProgramRegistration.createAndSaveOne({
-      ...getValuesFromRelations(existingRegistration),
       ...getValuesFromRelations(data),
       ...data,
+      ...(submittedTime ? { date: submittedTime } : {}),
       programRegistry: programRegistryId,
       patient: patientId,
     });
