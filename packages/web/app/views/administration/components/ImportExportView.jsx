@@ -13,10 +13,8 @@ const StyledTabDisplay = styled(TabDisplay)`
   display: grid;
   grid-template-rows: auto 1fr;
 
-  .MuiTabs-root {
-    padding: 0px 20px;
-    border-bottom: 1px solid #dededede;
-  }
+  padding: 0px 20px;
+  border-bottom: 1px solid #dededede;
 `;
 
 const TabContainer = styled.div`

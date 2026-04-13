@@ -1,15 +1,15 @@
 import Skeleton from '@mui/material/Skeleton';
-import { tabsClasses } from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import React, { useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
-import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
+import { SelectField, TranslatedText } from '@tamanu/ui-components';
+import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { VisibilityStatusChip } from './components';
+import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
 
 export const Article = styled.article`
@@ -46,16 +46,12 @@ const Metadata = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  .${tabsClasses.root} {
-    border-inline: 1px solid ${Colors.outline};
-  }
-  ${TabContainer} {
-    background-color: unset;
-    border-bottom: unset;
-  }
+  background-color: unset;
+  border-bottom: unset;
+  border-inline: 1px solid ${Colors.outline};
 `;
 
-const Tab = /** @type {const} */ ({
+const TabKey = /** @type {const} */ ({
   ClinicalStatuses: 'statuses',
   Conditions: 'conditions',
   RelatedConditionCategories: 'conditionCategories',
@@ -63,7 +59,7 @@ const Tab = /** @type {const} */ ({
 
 const tabs = /** @type {const} */ ([
   {
-    key: Tab.ClinicalStatuses,
+    key: TabKey.ClinicalStatuses,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.statuses"
@@ -73,14 +69,14 @@ const tabs = /** @type {const} */ ([
     render: Outlet,
   },
   {
-    key: Tab.Conditions,
+    key: TabKey.Conditions,
     label: (
       <TranslatedText stringId="admin.programRegistries.tab.conditions" fallback="Conditions" />
     ),
     render: Outlet,
   },
   {
-    key: Tab.RelatedConditionCategories,
+    key: TabKey.RelatedConditionCategories,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.conditionCategories"
@@ -91,7 +87,7 @@ const tabs = /** @type {const} */ ([
   },
 ]);
 
-const tabPathSegments = new Set(Object.values(Tab));
+const tabPathSegments = new Set(Object.values(TabKey));
 
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
@@ -108,7 +104,7 @@ export function ManageProgramRegistriesAdminView() {
     }
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const lastSegment = pathSegments.at(-1);
-    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : Tab.ClinicalStatuses;
+    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : TabKey.ClinicalStatuses;
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
@@ -125,8 +121,11 @@ export function ManageProgramRegistriesAdminView() {
     [registries],
   );
 
-  const { data: registry, isLoading: isRegistryLoading } =
-    useProgramRegistryQuery(programRegistryId);
+  const {
+    data: registry,
+    isLoading: isRegistryLoading,
+    isSuccess: isRegistrySuccess,
+  } = useProgramRegistryQuery(programRegistryId);
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -135,9 +134,9 @@ export function ManageProgramRegistriesAdminView() {
     useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
   );
   const currentTab = (() => {
-    if (isConditionsRoute) return Tab.Conditions;
-    if (isConditionCategoriesRoute) return Tab.RelatedConditionCategories;
-    return Tab.ClinicalStatuses;
+    if (isConditionsRoute) return TabKey.Conditions;
+    if (isConditionCategoriesRoute) return TabKey.RelatedConditionCategories;
+    return TabKey.ClinicalStatuses;
   })();
 
   const onTabSelect = tabKey => {
@@ -176,12 +175,10 @@ export function ManageProgramRegistriesAdminView() {
             )
           )}
         </Metadata>
-        <Button style={{ marginInlineStart: 'auto' }}>
-          <TranslatedText
-            stringId="admin.programRegistries.editMetadata"
-            fallback="Edit program registry metadata"
-          />
-        </Button>
+        <EditProgramRegistryButton
+          disabled={!isRegistrySuccess}
+          style={{ marginInlineStart: 'auto' }}
+        />
       </Header>
       {programRegistryId && (
         <StyledTabDisplay

@@ -1,37 +1,21 @@
-import { Tab, Tabs } from '@material-ui/core';
 import { svgIconClasses } from '@mui/material/SvgIcon';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
 
-const TabBar = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
 export const TabContainer = styled(Tabs)`
   background: ${Colors.white};
-
   .MuiTabs-indicator {
     background-color: ${Colors.primary};
   }
 `;
 
-const StyledTab = styled(Tab)`
-  span {
-    flex-direction: row;
-    text-transform: capitalize;
-    gap: 5px;
-  }
-
-  /* Reset MUI style */
-  && :is(.fa, .lucide, .${svgIconClasses.root}) {
-    margin-bottom: unset;
-  }
-  :is([aria-selected='true'], .Mui-selected) :is(.fa, .lucide, .${svgIconClasses.root}) {
-    color: ${Colors.primary};
+const StyledTab = styled(Tab).attrs({ iconPosition: 'start' })`
+  &:not([aria-selected='true'], .Mui-selected) .fa {
+    color: ${Colors.softText};
   }
   & .fa {
     font-size: 22px;
@@ -51,11 +35,7 @@ export const TabDisplay = React.memo(
     const buttons = tabs.map(({ key, label, render, icon }) => {
       const tabIcon =
         icon &&
-        (typeof icon === 'string' ? (
-          <i className={icon} data-testid={`icon-r0ru-${key}`} />
-        ) : (
-          React.cloneElement(icon)
-        ));
+        (typeof icon === 'string' ? <i className={icon} data-testid={`icon-r0ru-${key}`} /> : icon);
 
       return (
         <StyledTab
@@ -70,18 +50,20 @@ export const TabDisplay = React.memo(
         />
       );
     });
+
     return (
-      <TabBar className={className} data-testid="tabbar-bg0b">
+      <>
         <TabContainer
+          className={className}
           variant={scrollable ? 'scrollable' : 'fixed'}
-          scrollButtons={scrollable ? 'on' : 'off'}
+          scrollButtons={Boolean(scrollable)}
           value={currentTab}
           data-testid="tabcontainer-4j73"
         >
           {buttons}
         </TabContainer>
         {currentTabData.render(tabProps)}
-      </TabBar>
+      </>
     );
   },
 );
