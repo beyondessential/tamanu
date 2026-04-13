@@ -15,7 +15,6 @@ interface CreatePatientParams extends CommonParams {
 }
 export const createPatient = async ({
   models,
-  limit,
   facilityId,
   userId,
   isBirth = chance.bool(),
@@ -50,17 +49,13 @@ export const createPatient = async ({
     );
   }
 
-  await Promise.all(
-    times(allergyCount, () =>
-      limit(async () => {
-        await PatientAllergy.create(
-          fake(PatientAllergy, {
-            patientId: patient.id,
-          }),
-        );
+  for (const _ of times(allergyCount)) {
+    await PatientAllergy.create(
+      fake(PatientAllergy, {
+        patientId: patient.id,
       }),
-    ),
-  );
+    );
+  }
 
   return { patient };
 };

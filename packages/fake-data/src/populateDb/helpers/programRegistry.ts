@@ -15,7 +15,6 @@ interface CreateProgramRegistryParams extends CommonParams {
 }
 export const createProgramRegistry = async ({
   models,
-  limit,
   userId,
   patientId,
   programRegistryId,
@@ -56,17 +55,13 @@ export const createProgramRegistry = async ({
     }),
   });
 
-  await Promise.all(
-    times(conditionCount, () =>
-      limit(async () => {
-        await PatientProgramRegistrationCondition.create(
-          fake(PatientProgramRegistrationCondition, {
-            patientProgramRegistrationId,
-            programRegistryConditionId: condition.id,
-            programRegistryConditionCategoryId: conditionCategory.id,
-          }),
-        );
+  for (const _ of times(conditionCount)) {
+    await PatientProgramRegistrationCondition.create(
+      fake(PatientProgramRegistrationCondition, {
+        patientProgramRegistrationId,
+        programRegistryConditionId: condition.id,
+        programRegistryConditionCategoryId: conditionCategory.id,
       }),
-    ),
-  );
+    );
+  }
 };

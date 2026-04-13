@@ -34,7 +34,6 @@ interface CreateRepeatingAppointmentParams extends ExtendedCommonParams<CreateAp
 
 export const createRepeatingAppointment = async ({
   models,
-  limit,
   locationGroupId,
   patientId,
   clinicianId,
@@ -48,18 +47,14 @@ export const createRepeatingAppointment = async ({
     }),
   );
 
-  await Promise.all(
-    times(apptCount, () =>
-      limit(async () => {
-        await Appointment.create(
-          fake(Appointment, {
-            patientId: patientId ?? (await randomRecordId(models, 'Patient')),
-            clinicianId: clinicianId ?? (await randomRecordId(models, 'User')),
-            locationGroupId: locationGroupId ?? (await randomRecordId(models, 'LocationGroup')),
-            scheduleId: appointmentSchedule.id,
-          }),
-        );
+  for (const _ of times(apptCount)) {
+    await Appointment.create(
+      fake(Appointment, {
+        patientId: patientId ?? (await randomRecordId(models, 'Patient')),
+        clinicianId: clinicianId ?? (await randomRecordId(models, 'User')),
+        locationGroupId: locationGroupId ?? (await randomRecordId(models, 'LocationGroup')),
+        scheduleId: appointmentSchedule.id,
       }),
-    ),
-  );
+    );
+  }
 };
