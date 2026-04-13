@@ -33,7 +33,7 @@ export const TableScopeHeader = styled.header`
 `;
 
 export const TableScopeSelect = styled(SelectField).attrs({
-  clearable: false,
+  isClearable: false,
 })`
   min-inline-size: 23rem;
 `;
