@@ -22,7 +22,7 @@ import {
   createTriage,
   generateImportData,
 } from '../helpers/index.js';
-import { createLimiter } from '../helpers/common.js';
+import pLimit from 'p-limit';
 
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
@@ -59,7 +59,7 @@ export const readJSON = async (path: string): Promise<object> => {
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
 
-  const limit = createLimiter(10);
+  const limit = pLimit(10);
 
   const tallyJson = await readJSON(tallyFilePath);
   const tallies = Object.entries(tallyJson);
