@@ -13,11 +13,14 @@ import {
   MissingCredentialError,
   QuotaExceededError,
 } from '@tamanu/errors';
+import { stringToStableInteger } from '@tamanu/shared/utils';
 import { Model } from './Model';
 import type { ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';
 import type { User } from './User';
 import type { InitOptions, Models } from '../types/model';
+
+const BASE_DEVICE_REGISTRATION_ADVISORY_KEY = 'deviceRegistrationAdvisoryLock';
 
 export class Device extends Model {
   declare id: string;
@@ -131,6 +134,9 @@ export class Device extends Model {
           }
         }
 
+        // If the same user tries to register two devices concurrently, the second will wait until the first is complete.
+        await Device.acquireRegistrationLockForUser(user.id);
+
         const syncDevice = await Device.findByPk(deviceId);
         if (syncDevice) {
           if (difference(scopes, syncDevice.scopes).length > 0) {
@@ -162,6 +168,13 @@ export class Device extends Model {
         return device;
       },
     );
+  }
+
+  private static async acquireRegistrationLockForUser(userId: string): Promise<void> {
+    const lockId = stringToStableInteger(`${BASE_DEVICE_REGISTRATION_ADVISORY_KEY}:${userId}`);
+    await Device.sequelize.query(`SELECT pg_advisory_xact_lock(:lockId)`, {
+      replacements: { lockId },
+    });
   }
 }
 
