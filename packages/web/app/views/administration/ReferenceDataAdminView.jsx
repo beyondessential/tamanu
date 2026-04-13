@@ -1,4 +1,5 @@
 import React from 'react';
+import TuneIcon from '@mui/icons-material/Tune';
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { ImportExportView } from './components/ImportExportView';
@@ -13,7 +14,7 @@ const MANAGE_TAB = {
     />
   ),
   key: 'manage',
-  icon: 'fa fa-sliders-h',
+  icon: <TuneIcon />,
   render: () => <ManageReferenceDataTab data-testid="manage-refdata-tab" />,
 };
 
