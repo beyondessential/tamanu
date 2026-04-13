@@ -4,9 +4,14 @@ import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';
 
 /**
- * Bounded pool of device ids: at most `SYNTHETIC_DEVICE_POOL_SIZE` logins run at once; others wait
- * for a slot before `TamanuApi` is constructed. The id is returned to the pool after `login` finishes
- * (success or failure). Same ids are reused across Artillery workers.
+ * Bounded pool of device ids: at most `SYNTHETIC_DEVICE_POOL_SIZE` logins run at once **per
+ * Artillery worker process**; others wait for a slot before `TamanuApi` is constructed. The id
+ * is returned to the pool after `login` finishes (success or failure).
+ *
+ * Note: Artillery spawns one Node.js process per worker, so this pool is not shared across
+ * workers. Under a multi-worker run, total concurrent logins can reach
+ * `SYNTHETIC_DEVICE_POOL_SIZE × workerCount`. The advisory lock in `Device.ensureRegistration`
+ * still prevents DB-level races regardless of worker count.
  *
  * @see packages/database Device.ensureRegistration (per-user advisory lock) for concurrent login safety.
  */
