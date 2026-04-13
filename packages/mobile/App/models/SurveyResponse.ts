@@ -95,17 +95,12 @@ async function writeToPatientFields(
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
-    const existingRegistration = await PatientProgramRegistration.getRecentOne(
-      programRegistryDetail.programId,
-      patientId,
-    );
     await PatientProgramRegistration.upsertRegistration(patientId, programRegistryDetail.id, {
-      ...(existingRegistration ? {} : { date: submittedTime }),
       ...valuesByModel.PatientProgramRegistration,
       registeringFacilityId:
         valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    });
+    }, submittedTime);
   }
 }
 
