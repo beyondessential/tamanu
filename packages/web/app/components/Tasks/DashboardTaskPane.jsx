@@ -85,7 +85,17 @@ export const DashboardTaskPane = React.memo(() => {
   };
 
   const onLocationGroupIdChange = locationGroupId => {
-    const paramsWithoutLocation = omit(clinicianDashboardTaskingTableFilter, 'locationId');
+    // If we have a locationId but no locationGroupId, this is likely an initialization
+    // where the LocationInput is auto-detecting the group for an existing location.
+    // In this case, preserve the locationId instead of stripping it.
+    const isInitialization =
+      clinicianDashboardTaskingTableFilter.locationId &&
+      !clinicianDashboardTaskingTableFilter.locationGroupId;
+
+    const paramsWithoutLocation = isInitialization
+      ? clinicianDashboardTaskingTableFilter
+      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
+
     const newParams = locationGroupId
       ? { ...paramsWithoutLocation, locationGroupId }
       : omit(paramsWithoutLocation, 'locationGroupId');
