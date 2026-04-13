@@ -95,7 +95,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
         key: 'rolesAndDesignations',
       },
       {
-        key: 'locationSchedule',
+        key: 'locationAssignment',
         label: (
           <TranslatedText
             stringId="adminSidebar.locationAssignment"
@@ -103,7 +103,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
             data-testid="translatedtext-locationassignments"
           />
         ),
-        path: '/admin/users/locationSchedule',
+        path: '/admin/users/locationAssignment',
       },
     ],
   },

@@ -55,7 +55,7 @@ export const AdministrationRoutes = React.memo(() => (
         </Route>
       </Route>
       <Route
-        path="locationSchedule"
+        path="locationAssignment"
         element={
           <LocationAssignmentsContextProvider>
             <LocationAssignmentsAdminView />
