@@ -22,8 +22,6 @@ import {
   createTriage,
   generateImportData,
 } from '../helpers/index.js';
-import pLimit from 'p-limit';
-
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
   Encounter: { POST: createEncounter },
@@ -59,18 +57,16 @@ export const readJSON = async (path: string): Promise<object> => {
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
 
-  const limit = pLimit(10);
-
   const tallyJson = await readJSON(tallyFilePath);
   const tallies = Object.entries(tallyJson);
-  const BATCH_SIZE = 50;
+  const CONCURRENCY = 10;
 
   const runBatched = async (fn: (arg: any) => Promise<any>, count: number) => {
-    for (let i = 0; i < count; i += BATCH_SIZE) {
-      const batchCount = Math.min(BATCH_SIZE, count - i);
+    for (let i = 0; i < count; i += CONCURRENCY) {
+      const batchCount = Math.min(CONCURRENCY, count - i);
       const results = await Promise.allSettled(
         times(batchCount, () =>
-          limit(() => fn({ models }).then(print('.'), print('!'))),
+          fn({ models }).then(print('.'), print('!')),
         ),
       );
       const failures = results.filter((r) => r.status === 'rejected');
