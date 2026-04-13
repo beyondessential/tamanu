@@ -58,18 +58,24 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   ): Promise<Record<string, string>> {
     if (!questionCodes.length) return {};
 
-    const placeholders = questionCodes.map(() => '?').join(', ');
+    const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
     const rows: { code: string; body: string }[] = await this.getRepository().query(
-      `SELECT de.code, sra.body
-       FROM survey_response_answers sra
-       JOIN survey_responses sr ON sra.response_id = sr.id
-       JOIN encounters e ON sr.encounter_id = e.id
-       JOIN program_data_elements de ON sra.data_element_id = de.id
-       WHERE e.patient_id = ?
-         AND de.code IN (${placeholders})
-         AND sra.body IS NOT NULL
-         AND sra.body != ''
-       ORDER BY sr.start_time DESC`,
+      `
+      SELECT pde.code, answer.body
+      FROM survey_response_answers answer
+      INNER JOIN survey_responses response
+        ON response.id = answer.responseId
+      INNER JOIN encounters encounter
+        ON encounter.id = response.encounterId
+      INNER JOIN program_data_elements pde
+        ON pde.id = answer.dataElementId
+      WHERE encounter.patientId = $1
+        AND pde.code IN (${codePlaceholders})
+        AND answer.body IS NOT NULL
+        AND answer.body != ''
+        AND answer.deletedAt IS NULL
+      ORDER BY response.startTime DESC
+    `,
       [patientId, ...questionCodes],
     );
 
