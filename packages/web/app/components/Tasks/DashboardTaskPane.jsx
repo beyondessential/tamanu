@@ -82,7 +82,6 @@ export const DashboardTaskPane = React.memo(() => {
       : omit(paramsWithLocation, 'locationGroupId');
 
 
-
     updateTaskFilterPreference(newParams);
   };
 
