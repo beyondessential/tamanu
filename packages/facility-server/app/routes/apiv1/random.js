@@ -107,7 +107,11 @@ function buildRandomRecordQuery(baseWhere, clientWhere, clientInclude) {
   }
 
   const where =
-    whereParts.length === 0 ? {} : whereParts.length === 1 ? whereParts[0] : { [Op.and]: whereParts };
+    whereParts.length === 0
+      ? {}
+      : whereParts.length === 1
+        ? whereParts[0]
+        : { [Op.and]: whereParts };
 
   return { where, include };
 }
@@ -141,16 +145,12 @@ random.get(
     const { models, facilityId } = req;
     const model = models[modelName];
 
-    const baseWhere =
-      facilityId && model.rawAttributes.facilityId ? { facilityId } : {};
+    const baseWhere = facilityId && model.rawAttributes.facilityId ? { facilityId } : {};
 
     const clientWhere = parseOptionalJsonObject(req.query.where, 'where');
     const clientInclude = parseOptionalJsonArray(req.query.include, 'include');
 
     for (const includeModelName of collectIncludeModelNames(clientInclude)) {
-      if (!WHITELISTED_MODEL_NAMES.has(includeModelName)) {
-        throw new InvalidParameterError(`include: model "${includeModelName}" is not permitted`);
-      }
       req.checkPermission('read', includeModelName);
     }
 
