@@ -57,8 +57,6 @@ function parseOptionalJsonArray(raw, paramName) {
   }
 }
 
-const WHITELISTED_MODEL_NAMES = new Set(Object.values(WHITELISTED_ENTITIES));
-
 /** Recursively collect all string model names from a nested include list. */
 function collectIncludeModelNames(includeList) {
   const names = [];
