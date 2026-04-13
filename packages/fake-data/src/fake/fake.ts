@@ -5,8 +5,6 @@ import Sequelize, { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
-// dummy commit to make pr
-
 import {
   ADMINISTRATION_FREQUENCIES,
   CURRENTLY_AT_TYPES,

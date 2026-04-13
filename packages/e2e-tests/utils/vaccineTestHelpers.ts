@@ -80,6 +80,8 @@ export async function addVaccineAndAssert(
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
+  await patientDetailsPage.page.waitForLoadState('networkidle', { timeout: 5000 });
+
   expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
 
   if (!given) {
