@@ -68,10 +68,8 @@ export class CarePlanModal extends BasePatientModal {
   }
 
   async fillOutCarePlan(carePlanName: string, carePlanDetails: string) {
-    await this.carePlanDropdown.waitFor({ state: 'visible', timeout: 10000 });
     await this.carePlanDropdown.fill(carePlanName);
     await this.page.getByRole('menuitem', { name: carePlanName }).click();
-    await this.carePlanClinicianDropdown.waitFor({ state: 'visible', timeout: 10000 });
     await this.carePlanClinicianDropdown.fill('Initial Admin');
     await this.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
     await this.mainCarePlanFieldDetails.fill(carePlanDetails);
