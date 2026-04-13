@@ -128,7 +128,6 @@ async function writeToPatientFields(
     const registrationData = {
       patientId,
       programRegistryId: programRegistryDetail.id,
-      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       registeringFacilityId:
         valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
@@ -136,11 +135,12 @@ async function writeToPatientFields(
     };
 
     if (existingRegistration) {
-      // Update the existing record
       await existingRegistration.update(registrationData);
     } else {
-      // Create a new record
-      await models.PatientProgramRegistration.create(registrationData);
+      await models.PatientProgramRegistration.create({
+        date: submittedTime,
+        ...registrationData,
+      });
     }
   }
 }
