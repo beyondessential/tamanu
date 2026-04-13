@@ -1,18 +1,9 @@
+import { DEFAULT_PATIENT_DISPLAY_ID_PATTERN } from '@tamanu/constants';
 import { v4 } from 'uuid';
 
 const generators: Record<string, () => string> = {
   A: () => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
   '0': () => Math.floor(Math.random() * 10).toFixed(0),
-};
-
-const DISPLAY_ID_FORMAT = 'AAAA000000';
-
-// Checks if the passed displayId was generated using generateId function above
-// with the specific 10 digit format DISPLAY_ID_FORMAT. It will need to be reevaluated
-// if the format ever changes.
-export const isGeneratedDisplayId = (displayId: string) => {
-  if (DISPLAY_ID_FORMAT !== 'AAAA000000') return false;
-  return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
 
 // Max pattern length to avoid ReDoS with PATTERN_TOKEN_REGEX on long input
@@ -62,7 +53,7 @@ export const generateIdFromPattern = (pattern: string) => {
   });
 };
 
-export const generateId = () => generateIdFromPattern(DISPLAY_ID_FORMAT);
+export const generateId = () => generateIdFromPattern(DEFAULT_PATIENT_DISPLAY_ID_PATTERN);
 
 /**
  * Validates if a display ID matches a given pattern.
@@ -82,6 +73,10 @@ export const isGeneratedIdFromPattern = (displayId: string, pattern: string) => 
   const patternRegex = new RegExp(`^${expression}$`);
   return patternRegex.test(displayId);
 };
+
+/** True if `displayId` matches the default patient display-id pattern (`generateId`). */
+export const isGeneratedDisplayId = (displayId: string) =>
+  isGeneratedIdFromPattern(displayId, DEFAULT_PATIENT_DISPLAY_ID_PATTERN);
 
 /**
  * Makes a 'fake' but valid uuid like '2964ea0d-073d-0000-bda1-ce47fd5de340'.
