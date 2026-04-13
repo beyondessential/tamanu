@@ -1,14 +1,16 @@
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import TuneIcon from '@mui/icons-material/Tune';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { TranslatedText } from '@tamanu/ui-components';
-import { TabDisplay } from '../../components/TabDisplay';
-import { Colors } from '../../constants/styles';
-import { AdminViewContainer } from './components/AdminViewContainer';
-import { ImporterView } from './components/ImporterView';
-import { ProgramExporterView } from './components/ProgramExporterView';
+import { TabDisplay } from '../../../../components/TabDisplay';
+import { Colors } from '../../../../constants/styles';
+import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { ImporterView } from '../../components/ImporterView';
+import { ProgramExporterView } from '../../components/ProgramExporterView';
+import { ManageProgramsAdminView } from './ManageProgramsAdminView';
 
 const StyledTabDisplay = styled(TabDisplay)`
   border-block-end: 1px solid ${Colors.outline};
@@ -20,12 +22,26 @@ const TabContainer = styled.div`
   overflow-y: auto;
 `;
 
+const manageTab = /** @type {const} */ ({
+  label: (
+    <TranslatedText
+      stringId="admin.programRegistries.tab.manage"
+      fallback="Manage"
+      data-testid="translatedtext-programregistries-tab-manage"
+    />
+  ),
+  key: 'manage',
+  icon: <TuneIcon />,
+  render: ManageProgramsAdminView,
+});
+
 export const ProgramsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState('import');
+  const [currentTab, setCurrentTab] = useState('manage');
   const [isLoading, setIsLoading] = useState(false);
 
   const tabs = useMemo(
     () => [
+      manageTab,
       {
         label: 'Import',
         key: 'import',
@@ -59,6 +75,7 @@ export const ProgramsAdminView = () => {
 
   return (
     <AdminViewContainer
+      aria-busy={isLoading}
       title={
         <TranslatedText
           stringId="admin.program.title"

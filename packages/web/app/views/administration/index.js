@@ -3,8 +3,11 @@ export { LocationAdminView } from './LocationAdminView';
 export { LocationAssignmentsAdminView } from './LocationAssignmentsAdminView';
 export { AssetUploaderView } from './AssetUploaderView';
 export * from './users';
-export { ProgramsAdminView } from './ProgramsAdminView';
-export { ManageProgramRegistriesRoutes, ProgramRegistriesAdminView } from './programs/registries';
+export {
+  ManageProgramRegistriesRoutes,
+  ProgramRegistriesAdminView,
+  ProgramsAdminView,
+} from './programs';
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
