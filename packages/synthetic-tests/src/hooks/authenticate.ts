@@ -1,14 +1,43 @@
-import { randomUUID } from 'node:crypto';
-
 import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetcher';
 
 import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';
 
-/** One device id per login. A small fixed pool caused concurrent updates to the same `devices` row
- * (`last_seen_at`) under Artillery load and PostgreSQL serialization failures. */
-function newSyntheticDeviceId(): string {
-  return `synthetic-tests-${randomUUID()}`;
+/**
+ * Bounded pool of device ids: at most `SYNTHETIC_DEVICE_POOL_SIZE` logins run at once; others wait
+ * for a slot before `TamanuApi` is constructed. The id is returned to the pool after `login` finishes
+ * (success or failure). Same ids are reused across Artillery workers.
+ *
+ * @see packages/database Device.ensureRegistration (per-user advisory lock) for concurrent login safety.
+ */
+const SYNTHETIC_DEVICE_POOL_SIZE = 32;
+
+const SYNTHETIC_DEVICE_IDS = Array.from(
+  { length: SYNTHETIC_DEVICE_POOL_SIZE },
+  (_, i) => `synthetic-tests-artillery-pool-${i}`,
+);
+
+const availableSyntheticDeviceIds: string[] = [...SYNTHETIC_DEVICE_IDS];
+const syntheticDeviceIdWaiters: Array<(id: string) => void> = [];
+
+function acquireSyntheticDeviceId(): Promise<string> {
+  return new Promise(resolve => {
+    const id = availableSyntheticDeviceIds.pop();
+    if (id !== undefined) {
+      resolve(id);
+    } else {
+      syntheticDeviceIdWaiters.push(resolve);
+    }
+  });
+}
+
+function releaseSyntheticDeviceId(id: string): void {
+  const waiter = syntheticDeviceIdWaiters.shift();
+  if (waiter) {
+    waiter(id);
+  } else {
+    availableSyntheticDeviceIds.push(id);
+  }
 }
 
 async function resolveToken(
@@ -30,15 +59,22 @@ async function resolveToken(
 export async function authenticate(context: any, _events: any): Promise<void> {
   const { email = 'admin@tamanu.io', password = 'admin' } = context.vars;
 
-  const api = new TamanuApi({
-    endpoint: `${context.vars.target}/api`,
-    agentName: 'Tamanu Desktop',
-    agentVersion: version,
-    deviceId: newSyntheticDeviceId(),
-    logger: console,
-  });
+  const deviceId = await acquireSyntheticDeviceId();
+  let api: TamanuApi;
+  let loginResponse: any;
+  try {
+    api = new TamanuApi({
+      endpoint: `${context.vars.target}/api`,
+      agentName: 'Tamanu Desktop',
+      agentVersion: version,
+      deviceId,
+      logger: console,
+    });
+    loginResponse = await api.login(email, password);
+  } finally {
+    releaseSyntheticDeviceId(deviceId);
+  }
 
-  const loginResponse: any = await api.login(email, password);
   const { user, availableFacilities } = loginResponse;
 
   const facilityId = availableFacilities?.[0]?.id;
