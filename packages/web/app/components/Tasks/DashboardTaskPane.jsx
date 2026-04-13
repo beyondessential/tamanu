@@ -70,7 +70,7 @@ export const DashboardTaskPane = React.memo(() => {
     });
   };
 
-  const onLocationIdChange = (e) => {
+  const onLocationIdChange = e => {
     const { value, groupValue } = e.target;
 
     const paramsWithLocation = value
@@ -81,19 +81,19 @@ export const DashboardTaskPane = React.memo(() => {
       ? { ...paramsWithLocation, locationGroupId: groupValue }
       : omit(paramsWithLocation, 'locationGroupId');
 
-
     updateTaskFilterPreference(newParams);
   };
 
   const onLocationGroupIdChange = locationGroupId => {
+    const paramsWithoutLocation = omit(clinicianDashboardTaskingTableFilter, 'locationId');
     const newParams = locationGroupId
-      ? { ...clinicianDashboardTaskingTableFilter, locationGroupId }
-      : omit(clinicianDashboardTaskingTableFilter, 'locationGroupId');
+      ? { ...paramsWithoutLocation, locationGroupId }
+      : omit(paramsWithoutLocation, 'locationGroupId');
 
     updateTaskFilterPreference(newParams);
   };
 
-  const onHighPriorityOnlyChange = (e) => {
+  const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
 
     const newParams = checked
