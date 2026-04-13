@@ -18,6 +18,7 @@ const WHITELISTED_ENTITIES = {
  *
  * - `where`: URL-encoded JSON object merged into the Sequelize query.
  * - `include`: URL-encoded JSON array; `"model": "Encounter"` strings are resolved to `models[model]`.
+ *   Includes affect filtering/count only; the response body is always the root entity (no nested rows).
  */
 
 function parseOptionalJsonObject(raw, paramName) {
@@ -92,6 +93,18 @@ function buildRandomRecordQuery(baseWhere, clientWhere, clientInclude) {
   return { where, include };
 }
 
+/** JSON for the root model only; `include` is not serialized (still used for filtering/count). */
+function instanceToPlainRootModelOnly(instance, model) {
+  const plain = instance.get({ plain: true });
+  const out = {};
+  for (const key of Object.keys(model.rawAttributes)) {
+    if (Object.hasOwn(plain, key)) {
+      out[key] = plain[key];
+    }
+  }
+  return out;
+}
+
 export const random = express.Router();
 
 random.get(
@@ -144,6 +157,6 @@ random.get(
       offset,
     });
 
-    res.send(record);
+    res.send(instanceToPlainRootModelOnly(record, model));
   }),
 );
