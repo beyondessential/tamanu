@@ -57,6 +57,25 @@ function parseOptionalJsonArray(raw, paramName) {
   }
 }
 
+const WHITELISTED_MODEL_NAMES = new Set(Object.values(WHITELISTED_ENTITIES));
+
+/** Recursively collect all string model names from a nested include list. */
+function collectIncludeModelNames(includeList) {
+  const names = [];
+  if (!includeList?.length) {
+    return names;
+  }
+  for (const item of includeList) {
+    if (typeof item.model === 'string') {
+      names.push(item.model);
+    }
+    if (item.include?.length) {
+      names.push(...collectIncludeModelNames(item.include));
+    }
+  }
+  return names;
+}
+
 /** Replace string `model` keys with Sequelize model classes (JSON cannot carry class refs). */
 function resolveIncludeModelStrings(includeList, models) {
   if (!includeList?.length) {
@@ -127,6 +146,14 @@ random.get(
 
     const clientWhere = parseOptionalJsonObject(req.query.where, 'where');
     const clientInclude = parseOptionalJsonArray(req.query.include, 'include');
+
+    for (const includeModelName of collectIncludeModelNames(clientInclude)) {
+      if (!WHITELISTED_MODEL_NAMES.has(includeModelName)) {
+        throw new InvalidParameterError(`include: model "${includeModelName}" is not permitted`);
+      }
+      req.checkPermission('read', includeModelName);
+    }
+
     resolveIncludeModelStrings(clientInclude, models);
 
     const { where, include } = buildRandomRecordQuery(baseWhere, clientWhere, clientInclude);
@@ -146,6 +173,8 @@ random.get(
           }
         : queryBase;
 
+    // Note: count + random OFFSET is O(n) — both queries scan the (joined) result set up to
+    // the chosen offset. Only use this endpoint against reasonably-sized tables.
     const count = await model.count(countOptions);
     if (count === 0) {
       throw new NotFoundError('No record found');
@@ -156,6 +185,11 @@ random.get(
       ...queryBase,
       offset,
     });
+
+    // Guard against TOCTOU: a record may have been deleted between count and findOne
+    if (!record) {
+      throw new NotFoundError('No record found');
+    }
 
     res.send(instanceToPlainRootModelOnly(record, model));
   }),
