@@ -3,6 +3,7 @@ import React from 'react';
 
 import { PROGRAM_REFERENCE_TYPES } from '@tamanu/constants/importable';
 import { TranslatedText } from '@tamanu/ui-components';
+import { useTranslation } from '../../../../contexts/Translation';
 import { ImportExportView } from '../../components/ImportExportView';
 import { ManageProgramRegistriesAdminView } from './ManageProgramRegistriesAdminView';
 
@@ -30,14 +31,18 @@ function buildTabs(importTab, exportTab) {
   return [manageTab, importTab, exportTab];
 }
 
-export const ProgramRegistriesAdminView = () => (
-  <ImportExportView
-    title="Program registries"
-    endpoint="program"
-    dataTypes={PROGRAM_REGISTRY_DATA_TYPES}
-    dataTypesSelectable
-    buildTabs={buildTabs}
-    defaultTab="manage"
-    data-testid="importexportview-programregistries"
-  />
-);
+export const ProgramRegistriesAdminView = () => {
+  const { getTranslation } = useTranslation();
+
+  return (
+    <ImportExportView
+      title={getTranslation('admin.programRegistries.title', 'Program registries')}
+      endpoint="program"
+      dataTypes={PROGRAM_REGISTRY_DATA_TYPES}
+      dataTypesSelectable
+      buildTabs={buildTabs}
+      defaultTab="manage"
+      data-testid="importexportview-programregistries"
+    />
+  );
+};
