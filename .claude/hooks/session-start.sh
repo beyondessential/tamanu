@@ -6,8 +6,6 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
-echo '{"async": true, "asyncTimeout": 600000}'
-
 cd "$CLAUDE_PROJECT_DIR"
 
 # ── 1. npm install ────────────────────────────────────────────────────────────
