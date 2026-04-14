@@ -60,10 +60,10 @@ function mockStockLinesErrorResponse(errorMessage) {
   });
 }
 
-function makeStockLine({ code, availableNumberOfPacks, totalNumberOfPacks, packSize }) {
+function makeStockLine({ itemCode, availableNumberOfPacks, totalNumberOfPacks, packSize }) {
   return {
     id: `stock-${Math.random().toString(36).slice(2)}`,
-    item: { code },
+    item: { itemCode },
     availableNumberOfPacks,
     totalNumberOfPacks,
     packSize,
@@ -201,12 +201,12 @@ describe('MSupplyStockOnHandProcessor', () => {
   });
 
   describe('stock aggregation', () => {
-    it('aggregates multiple stock lines for the same item code', () => {
+    it('aggregates multiple stock lines for the same itemCode', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
-        makeStockLine({ code: 'MED-002', availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 20 }),
+        makeStockLine({ itemCode: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
+        makeStockLine({ itemCode: 'MED-001', availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
+        makeStockLine({ itemCode: 'MED-002', availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 20 }),
       ];
 
       const result = task.aggregateStockByCode(stockLines);
@@ -215,11 +215,11 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(result.get('MED-002')).toBe(40);
     });
 
-    it('skips stock lines without an item code', () => {
+    it('skips stock lines without an itemCode', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        makeStockLine({ code: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
-        makeStockLine({ code: null, availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
+        makeStockLine({ itemCode: 'MED-001', availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: 10 }),
+        makeStockLine({ itemCode: null, availableNumberOfPacks: 3, totalNumberOfPacks: 5, packSize: 10 }),
         { id: 'no-item', item: null, availableNumberOfPacks: 1, totalNumberOfPacks: 1, packSize: 1 },
       ];
 
@@ -232,7 +232,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     it('treats missing packSize as 1', () => {
       const task = new MSupplyStockOnHandProcessor(context);
       const stockLines = [
-        { id: 's1', item: { code: 'MED-001' }, availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: null },
+        { id: 's1', item: { itemCode: 'MED-001' }, availableNumberOfPacks: 5, totalNumberOfPacks: 10, packSize: null },
       ];
 
       const result = task.aggregateStockByCode(stockLines);
@@ -291,8 +291,8 @@ describe('MSupplyStockOnHandProcessor', () => {
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 10, totalNumberOfPacks: 10, packSize: 5 }),
-        makeStockLine({ code: drugCode2, availableNumberOfPacks: 0, totalNumberOfPacks: 0, packSize: 1 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 10, totalNumberOfPacks: 10, packSize: 5 }),
+        makeStockLine({ itemCode: drugCode2, availableNumberOfPacks: 0, totalNumberOfPacks: 0, packSize: 1 }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -323,7 +323,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 5 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 2, totalNumberOfPacks: 2, packSize: 5 }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -343,8 +343,8 @@ describe('MSupplyStockOnHandProcessor', () => {
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: 'NON-EXISTENT-CODE', availableNumberOfPacks: 99, totalNumberOfPacks: 99, packSize: 1 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 3, totalNumberOfPacks: 3, packSize: 1 }),
+        makeStockLine({ itemCode: 'NON-EXISTENT-CODE', availableNumberOfPacks: 99, totalNumberOfPacks: 99, packSize: 1 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 3, totalNumberOfPacks: 3, packSize: 1 }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -358,15 +358,15 @@ describe('MSupplyStockOnHandProcessor', () => {
       expect(allStock[0].quantity).toBe(3);
     });
 
-    it('skips stock lines without an item code', async () => {
+    it('skips stock lines without an itemCode', async () => {
       await models.ReferenceDrugFacility.bulkCreate([
         { referenceDrugId: referenceDrugId1, facilityId: FACILITY_ID, quantity: null, stockStatus: DRUG_STOCK_STATUSES.UNKNOWN },
       ]);
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: null, availableNumberOfPacks: 50, totalNumberOfPacks: 50, packSize: 1 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 7, totalNumberOfPacks: 7, packSize: 1 }),
+        makeStockLine({ itemCode: null, availableNumberOfPacks: 50, totalNumberOfPacks: 50, packSize: 1 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 7, totalNumberOfPacks: 7, packSize: 1 }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);
@@ -386,8 +386,8 @@ describe('MSupplyStockOnHandProcessor', () => {
 
       mockAuthResponse();
       mockStockLinesResponse([
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 4, totalNumberOfPacks: 4, packSize: 10 }),
-        makeStockLine({ code: drugCode1, availableNumberOfPacks: 6, totalNumberOfPacks: 6, packSize: 10 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 4, totalNumberOfPacks: 4, packSize: 10 }),
+        makeStockLine({ itemCode: drugCode1, availableNumberOfPacks: 6, totalNumberOfPacks: 6, packSize: 10 }),
       ]);
 
       const task = new MSupplyStockOnHandProcessor(context);

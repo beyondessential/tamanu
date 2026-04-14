@@ -19,7 +19,7 @@ function getStockLinesQuery(storeId) {
           nodes {
             id
             item {
-              code
+              itemCode
             }
             availableNumberOfPacks
             totalNumberOfPacks
@@ -70,12 +70,12 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     const aggregated = new Map();
 
     for (const line of stockLines) {
-      const code = line.item?.code;
-      if (!code) continue;
+      const itemCode = line.item?.itemCode;
+      if (!itemCode) continue;
 
       const totalUnits = (line.availableNumberOfPacks ?? 0) * (line.packSize ?? 1);
-      const current = aggregated.get(code) ?? 0;
-      aggregated.set(code, current + totalUnits);
+      const current = aggregated.get(itemCode) ?? 0;
+      aggregated.set(itemCode, current + totalUnits);
     }
 
     return aggregated;
@@ -158,7 +158,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
 
     const stockByCode = this.aggregateStockByCode(stockLines);
 
-    log.info('MSupplyStockOnHandProcessor: aggregated stock by item code', {
+    log.info('MSupplyStockOnHandProcessor: aggregated stock by itemCode', {
       uniqueMedications: stockByCode.size,
     });
 

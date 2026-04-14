@@ -67,7 +67,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         invoiceId: minMedicationId, // Identify batch by the first medication's id
         customerCode,
         items: medications.map(medication => ({
-          code: medication.pharmacyOrderPrescription.prescription.medication.code,
+          itemCode: medication.pharmacyOrderPrescription.prescription.medication.code,
           numberOfUnits: medication.quantity,
         })),
       },
