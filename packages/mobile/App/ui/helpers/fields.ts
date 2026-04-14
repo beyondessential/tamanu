@@ -142,7 +142,7 @@ function fallbackParseVisibilityCriteria(
   }
   const expectedTrimmed = expectedAnswer.toLowerCase().trim();
 
-  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+  const comparisonComponent = getComponentsByCode(allComponents).get(elementCode);
 
   if (!comparisonComponent) {
     console.warn(`Comparison component ${elementCode} not found!`);
@@ -154,15 +154,30 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
+const parsedCriteriaCache = new Map<string, any>();
+const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
+
+function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+  let map = componentsByCodeCache.get(allComponents);
+  if (!map) {
+    map = new Map(allComponents.map(c => [c.dataElement?.code, c]));
+    componentsByCodeCache.set(allComponents, map);
+  }
+  return map;
+}
+
 export function checkJSONCriteria(
   criteria: string,
   allComponents: ISurveyScreenComponent[],
   values: any,
 ) {
-  // nothing set - show by default
   if (!criteria) return true;
 
-  const criteriaObject = JSON.parse(criteria);
+  let criteriaObject = parsedCriteriaCache.get(criteria);
+  if (criteriaObject === undefined) {
+    criteriaObject = JSON.parse(criteria);
+    parsedCriteriaCache.set(criteria, criteriaObject);
+  }
 
   if (!criteriaObject) {
     return true;
@@ -172,6 +187,8 @@ export function checkJSONCriteria(
   if (Object.keys(restOfCriteria).length === 0) {
     return true;
   }
+
+  const byCode = getComponentsByCode(allComponents);
 
   const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
     const value = values[questionCode];
@@ -187,7 +204,7 @@ export function checkJSONCriteria(
       return false;
     }
 
-    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+    const matchingComponent = byCode.get(questionCode);
     const isMultiSelect = matchingComponent?.dataElement?.type === DataElementType.MultiSelect;
 
     if (Array.isArray(answersEnablingFollowUp)) {
