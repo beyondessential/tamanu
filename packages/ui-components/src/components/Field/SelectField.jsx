@@ -14,6 +14,7 @@ import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 import { extractTranslationFromComponent } from '../Translation/utils';
+import { ThemedTooltip } from '../Tooltip';
 
 const ExpandMoreIcon = styled(ChevronIcon)`
   transform: rotate(0);
@@ -59,16 +60,28 @@ const ExpandIcon = styled(ExpandMoreIcon)`
 
 const Option = ({ children, ['data-testid']: dataTestId, ...props }) => {
   const tag = props.data?.tag;
+  const tooltip = props.data?.tooltip;
+
+  const content = (
+    <div data-testid={`${dataTestId}-option`}>
+      {children}
+      {tag && (
+        <OptionTag $background={tag.background} $color={tag.color} data-testid="optiontag-dcl5">
+          {tag.label}
+        </OptionTag>
+      )}
+    </div>
+  );
+
+  if (tooltip == null || tooltip === '') {
+    return <components.Option {...props}>{content}</components.Option>;
+  }
+
   return (
     <components.Option {...props}>
-      <div data-testid={`${dataTestId}-option`}>
-        {children}
-        {tag && (
-          <OptionTag $background={tag.background} $color={tag.color} data-testid="optiontag-dcl5">
-            {tag.label}
-          </OptionTag>
-        )}
-      </div>
+      <ThemedTooltip title={tooltip} placement="top">
+        <span style={{ display: 'block', width: '100%' }}>{content}</span>
+      </ThemedTooltip>
     </components.Option>
   );
 };
