@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGet, simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
@@ -66,6 +66,7 @@ adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
 
 adminRoutes.get('/programs', simpleGetList('Program'));
+adminRoutes.get('/program/:id', simpleGet('Program'));
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
