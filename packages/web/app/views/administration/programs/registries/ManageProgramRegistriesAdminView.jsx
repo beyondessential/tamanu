@@ -1,6 +1,6 @@
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
@@ -93,6 +93,7 @@ export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const scopedTableId = useId();
 
   const switchToProgramRegistry = id => {
     const prev = programRegistryId ? String(programRegistryId) : '';
@@ -127,12 +128,10 @@ export function ManageProgramRegistriesAdminView() {
     isSuccess: isRegistrySuccess,
   } = useProgramRegistryQuery(programRegistryId);
 
-  const isConditionsRoute = Boolean(
-    useMatch('/admin/programs/registries/:programRegistryId/conditions'),
-  );
-  const isConditionCategoriesRoute = Boolean(
-    useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
-  );
+  const isConditionsRoute =
+    useMatch('/admin/programs/registries/:programRegistryId/conditions') !== null;
+  const isConditionCategoriesRoute =
+    useMatch('/admin/programs/registries/:programRegistryId/conditionCategories') !== null;
   const currentTab = (() => {
     if (isConditionsRoute) return TabKey.Conditions;
     if (isConditionCategoriesRoute) return TabKey.RelatedConditionCategories;
@@ -148,6 +147,7 @@ export function ManageProgramRegistriesAdminView() {
     <Article>
       <Header>
         <Select
+          aria-controls={scopedTableId}
           isClearable={false}
           label={
             <TranslatedText
@@ -180,14 +180,16 @@ export function ManageProgramRegistriesAdminView() {
           style={{ marginInlineStart: 'auto' }}
         />
       </Header>
-      {programRegistryId && (
-        <StyledTabDisplay
-          currentTab={currentTab}
-          onTabSelect={onTabSelect}
-          scrollable={false}
-          tabs={tabs}
-        />
-      )}
+      <article id={scopedTableId}>
+        {programRegistryId && (
+          <StyledTabDisplay
+            currentTab={currentTab}
+            onTabSelect={onTabSelect}
+            scrollable={false}
+            tabs={tabs}
+          />
+        )}
+      </article>
     </Article>
   );
 }
