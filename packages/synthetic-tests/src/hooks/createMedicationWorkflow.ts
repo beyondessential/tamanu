@@ -5,6 +5,7 @@ import {
 } from '@tamanu/constants';
 
 import { generateEncounterPayload } from './createEncounter';
+import { nowIso9075, todayDateString } from './dateUtils';
 import { RANDOM_PATIENT_NO_OPEN_ENCOUNTER_QUERY } from './randomPatientQuery';
 
 type DrugRow = { id: string };
@@ -15,19 +16,12 @@ type MedicationRequestRow = {
   pharmacyOrder?: { encounterId: string };
 };
 
-function nowForMedication(): string {
-  return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
-
-function todayForMedication(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 async function fetchNonSensitiveDrugId(context: any): Promise<string> {
   const { api, facilityId } = context.vars;
   const rows = (await api.get('suggestions/drug', {
     facilityId,
-    noLimit: 'true',
+    rowsPerPage: '1',
   })) as DrugRow[];
   const first = rows[0];
   if (!first?.id) {
@@ -62,8 +56,8 @@ export async function prepareMedicationEncounterAcutePharmacyDispenseContext(
   const { userId } = context.vars;
   const encounter = await createOpenEncounterForMedication(context);
   const medicationId = await fetchNonSensitiveDrugId(context);
-  const startDate = encounter.startDate || nowForMedication();
-  const prescriptionDate = todayForMedication();
+  const startDate = encounter.startDate ?? nowIso9075();
+  const prescriptionDate = todayDateString();
   const marDate = startDate.slice(0, 10);
 
   const medicationEncounterPrescriptionBody = {
@@ -131,6 +125,8 @@ export async function prepareMedicationDispensePayload(context: any, _events: an
     facilityId,
     rowsPerPage: '50',
     page: '0',
+    orderBy: 'createdAt',
+    order: 'desc',
   })) as { data: MedicationRequestRow[] };
 
   const row = res.data?.find(
@@ -166,8 +162,8 @@ export async function preparePatientOngoingPrescriptionContext(context: any, _ev
     ...RANDOM_PATIENT_NO_OPEN_ENCOUNTER_QUERY,
   });
   const medicationId = await fetchNonSensitiveDrugId(context);
-  const startDate = nowForMedication();
-  const prescriptionDate = todayForMedication();
+  const startDate = nowIso9075();
+  const prescriptionDate = todayDateString();
 
   const patientOngoingMedicationBody = {
     date: prescriptionDate,
@@ -206,8 +202,8 @@ export async function prepareMedicationEncounterOngoingPrescriptionContext(
   const { userId } = context.vars;
   const encounter = await createOpenEncounterForMedication(context);
   const medicationId = await fetchNonSensitiveDrugId(context);
-  const startDate = encounter.startDate || nowForMedication();
-  const prescriptionDate = todayForMedication();
+  const startDate = encounter.startDate ?? nowIso9075();
+  const prescriptionDate = todayDateString();
 
   context.vars = {
     ...context.vars,

@@ -5,6 +5,7 @@ import {
 } from '@tamanu/constants';
 
 import { generateEncounterPayload } from './createEncounter';
+import { nowIso9075 } from './dateUtils';
 
 type VitalsSurveyComponent = {
   dataElement?: {
@@ -19,9 +20,6 @@ type VitalsSurveyResponse = {
   components: VitalsSurveyComponent[];
 };
 
-function nowSubmissionDate(): string {
-  return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
 
 async function openEncounterForVitals(
   context: any,
@@ -119,7 +117,7 @@ export async function generateVitalsSurveyResponsePayload(context: any, _events:
     );
   }
 
-  const submissionDate = nowSubmissionDate();
+  const submissionDate = nowIso9075();
   const answers = buildVitalsAnswersFromComponents(survey.components, submissionDate);
   if (Object.keys(answers).length === 0) {
     throw new Error(

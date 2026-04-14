@@ -1,4 +1,5 @@
 import { generateEncounterPayload } from './createEncounter';
+import { nowIso9075, todayDateString } from './dateUtils';
 
 type LabTestTypeRow = {
   id: string;
@@ -10,13 +11,6 @@ type LabTestPanelRow = { id: string; name?: string };
 
 type SuggestionRow = { id: string };
 
-function nowRequestedDate(): string {
-  return new Date().toISOString().replace('T', ' ').slice(0, 19);
-}
-
-function todayLabTestDate(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 async function openEncounterForLabRequest(
   context: any,
@@ -42,8 +36,8 @@ function labRequestCommon(
     encounterId,
     departmentId,
     requestedById: context.vars.userId,
-    requestedDate: nowRequestedDate(),
-    labTest: { date: todayLabTestDate() },
+    requestedDate: nowIso9075(),
+    labTest: { date: todayDateString() },
   };
 }
 
@@ -61,7 +55,7 @@ async function fetchLabPanels(context: any): Promise<LabTestPanelRow[]> {
 async function fetchFirstSpecimenTypeId(context: any): Promise<string> {
   const { api } = context.vars;
   const rows = (await api.get('suggestions/specimenType', {
-    noLimit: 'true',
+    rowsPerPage: '1',
   })) as SuggestionRow[];
   const first = rows[0];
   if (!first?.id) {
@@ -207,7 +201,7 @@ export async function generateLabRequestPayloadPanelSampleCollected(
   }
 
   const specimenTypeId = await fetchFirstSpecimenTypeId(context);
-  const sampleTime = nowRequestedDate();
+  const sampleTime = nowIso9075();
 
   context.vars.labRequestPayload = {
     ...labRequestCommon(context, encounterId, departmentId),
@@ -240,7 +234,7 @@ export async function generateLabRequestPayloadIndividualSampleAndNote(
   }
 
   const specimenTypeId = await fetchFirstSpecimenTypeId(context);
-  const sampleTime = nowRequestedDate();
+  const sampleTime = nowIso9075();
 
   context.vars.labRequestPayload = {
     ...labRequestCommon(context, encounterId, departmentId),
