@@ -43,16 +43,19 @@ fi
 echo "[session-start] Ensuring PostgreSQL is running..."
 if ! pg_lsclusters | grep -q "online"; then
   service postgresql start
+  until sudo -u postgres pg_isready -q; do sleep 1; done
 fi
 
 # Create tamanu superuser if missing
-if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='tamanu'" | grep -q 1; then
+role_exists=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='tamanu'")
+if [ "$role_exists" != "1" ]; then
   echo "[session-start] Creating tamanu database user..."
   sudo -u postgres psql -c "CREATE USER tamanu WITH SUPERUSER PASSWORD 'tamanu';"
 fi
 
 # Create central database if missing
-if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='central'" | grep -q 1; then
+db_exists=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='central'")
+if [ "$db_exists" != "1" ]; then
   echo "[session-start] Creating central database..."
   sudo -u postgres createdb -O tamanu central
 fi
