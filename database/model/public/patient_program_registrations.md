@@ -2,7 +2,6 @@
 Table with information about the program registrations of a patient. This is helpful
 to enroll a specific patient within a program that will be followed for an extended
 period of time.
-
 {% enddocs %}
 
 {% docs patient_program_registrations__registration_status %}
