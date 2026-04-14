@@ -7,15 +7,15 @@ type SurveyListResponse = { surveys?: SurveyRow[] } | SurveyRow[];
 
 function getConfiguredLineListReportId(context: any): string {
   return (
-    context.vars.syntheticLineListReportId ||
-    context.vars.SYNTHETIC_LINE_LIST_REPORT_ID ||
+    context.vars.syntheticLineListReportId ??
+    context.vars.SYNTHETIC_LINE_LIST_REPORT_ID ??
     DEFAULT_LINE_LIST_REPORT_ID
   );
 }
 
 async function resolveSurveyId(context: any): Promise<string> {
   const configuredSurveyId =
-    context.vars.syntheticLineListSurveyId || context.vars.SYNTHETIC_LINE_LIST_SURVEY_ID;
+    context.vars.syntheticLineListSurveyId ?? context.vars.SYNTHETIC_LINE_LIST_SURVEY_ID;
   if (configuredSurveyId) {
     return configuredSurveyId;
   }
