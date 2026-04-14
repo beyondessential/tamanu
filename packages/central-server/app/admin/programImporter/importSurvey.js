@@ -1,7 +1,9 @@
 import { utils } from 'xlsx';
+import { Op } from 'sequelize';
 import { CHARTING_SURVEY_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { getQuestionCodesFromFormVisibilityCriteria } from '@tamanu/utils/criteria';
 
-import { ImporterMetadataError } from '../errors';
+import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importer/importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
@@ -11,6 +13,27 @@ import {
   validateVitalsSurvey,
 } from './validation';
 import { validateProgramDataElementRecords } from './programDataElementValidation';
+
+async function validateFormVisibilityCriteriaQuestionCodes(context, surveyInfo) {
+  const { visibilityCriteria, rowIndex, name } = surveyInfo;
+  const questionCodes = getQuestionCodesFromFormVisibilityCriteria(visibilityCriteria);
+  if (questionCodes.length === 0) return;
+
+  const { models } = context;
+  const existing = await models.ProgramDataElement.findAll({
+    where: { code: { [Op.in]: questionCodes } },
+    attributes: ['code'],
+  });
+  const existingCodes = new Set(existing.map(el => el.code));
+  const missingCodes = questionCodes.filter(code => !existingCodes.has(code));
+  if (missingCodes.length > 0) {
+    throw new ValidationError(
+      'Metadata',
+      rowIndex,
+      `Survey "${name}" has form visibility criteria referencing question code(s) "${missingCodes.join('", "')}" which do not exist. The question codes must exist in the database (from this or another program).`,
+    );
+  }
+}
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -54,6 +77,10 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   if (CHARTING_SURVEY_TYPES.includes(surveyType)) {
     await validateChartingSurvey(context, surveyInfo);
+  }
+
+  if (surveyInfo.visibilityCriteria) {
+    await validateFormVisibilityCriteriaQuestionCodes(context, surveyInfo);
   }
 
   surveyInfo.notifiable ??= false;
