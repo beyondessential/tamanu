@@ -22,9 +22,6 @@ import { FullView, RowView, StyledText, StyledView } from '../../../styled/commo
 import { theme } from '../../../styled/theme';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { BackHandler } from 'react-native';
-import { useBackendEffect } from '~/ui/hooks';
-import { LoadingScreen } from '../../LoadingScreen';
-import { ErrorScreen } from '../../ErrorScreen';
 import { TranslatedText } from '../../Translations/TranslatedText';
 
 interface UseScrollToFirstError {
@@ -66,6 +63,7 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
+  encounter?: { encounterType?: string };
   isSubmitting: boolean;
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
@@ -79,6 +77,7 @@ export const FormFields = ({
   setCurrentScreenIndex,
   isSubmitting,
   patient,
+  encounter,
   onCancel,
   onGoBack,
 }: FormFieldsProps): ReactElement => {
@@ -86,15 +85,6 @@ export const FormFields = ({
   const { errors, validateForm, setStatus, submitForm, values, resetForm } =
     useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
-  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
-    async ({ models }) => {
-      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
-      return {
-        encounter,
-      };
-    },
-    [patient.id],
-  );
 
   const [disableSubmit, setDisableSubmit] = useState(false);
 
@@ -118,15 +108,6 @@ export const FormFields = ({
     return () => backHandler.remove();
   }, [onGoBack, currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
-  if (encounterError) {
-    return <ErrorScreen error={encounterError} />;
-  }
-
-  if (isEncounterLoading) {
-    return <LoadingScreen />;
-  }
-
-  const { encounter } = encounterResult || {};
   const maxIndex = components
     .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
