@@ -324,6 +324,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
       await task.run();
 
       expect(fetchWithRetryBackoff).toHaveBeenCalledTimes(2);
+      const pluginCall = fetchWithRetryBackoff.mock.calls[1];
+      const pluginBody = JSON.parse(pluginCall[1].body);
+      expect(pluginBody.variables.input.items).toEqual([
+        { code: 'MED-TEST-001', numberOfUnits: 1 },
+        { code: 'MED-TEST-001', numberOfUnits: 1 },
+      ]);
+
       const successLog = await models.MSupplyPushLog.findOne({
         where: { status: 'success' },
         order: [['createdAt', 'DESC']],

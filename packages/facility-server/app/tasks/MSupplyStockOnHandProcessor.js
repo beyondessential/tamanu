@@ -158,7 +158,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
 
     const stockByCode = this.aggregateStockByCode(stockLines);
 
-    log.info('MSupplyStockOnHandProcessor: aggregated stock by universal code', {
+    log.info('MSupplyStockOnHandProcessor: aggregated stock by item code', {
       uniqueMedications: stockByCode.size,
     });
 
