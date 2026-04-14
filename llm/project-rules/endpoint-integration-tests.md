@@ -82,4 +82,4 @@ Share **arrange** helpers within a file or `__tests__` utilities when many cases
 
 ## Running tests
 
-- `npm --workspace packages/central-server run test` or `packages/facility-server` (see root `package.json` for shortcuts such as `central-test`, `facility-test`).
+- `npm --workspace @tamanu/central-server run test` or `@tamanu/facility-server` (see root `package.json` for shortcuts such as `central-test`, `facility-test`).
