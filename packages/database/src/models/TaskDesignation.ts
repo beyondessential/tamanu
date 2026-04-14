@@ -1,10 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+  buildEncounterLinkedLookupSelect,
+  buildEncounterLinkedLookupJoins,
+} from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 
 export class TaskDesignation extends Model {
@@ -45,10 +45,8 @@ export class TaskDesignation extends Model {
 
   static async buildSyncLookupQueryDetails() {
     return {
-      select: await buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-      }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'tasks', 'encounters']),
+      select: await buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['tasks', 'encounters']),
     };
   }
 }
