@@ -147,6 +147,9 @@ export function ManageProgramRegistriesAdminView() {
     <Article>
       <Header>
         <Select
+          // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
+          // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
+          // by react-select to forward it to.
           aria-controls={scopedTableId}
           isClearable={false}
           label={
