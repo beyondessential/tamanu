@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { FormikHandlers } from 'formik';
+import { FormikProps } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
@@ -30,7 +30,6 @@ export type SurveyFormProps = {
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
   patient: any;
-  note: string;
   validate?: any;
   patientAdditionalData: IPatientAdditionalData;
   patientProgramRegistration?: IPatientProgramRegistration;
@@ -41,7 +40,6 @@ export type SurveyFormProps = {
 export const SurveyForm = ({
   onSubmit,
   components,
-  note,
   patient,
   patientAdditionalData,
   patientProgramRegistration,
@@ -80,14 +78,19 @@ export const SurveyForm = ({
 
   const { encounter } = encounterResult || {};
   const [formValues, setFormValues] = useState(initialValues);
+  const visibleComponents = useMemo(
+    () => components.filter(c => checkVisibilityCriteria(c, components, formValues)),
+    [components, formValues],
+  );
+  const visibleComponentKey = useMemo(
+    () => visibleComponents.map(c => c.id).join(','),
+    [visibleComponents],
+  );
   const formValidationSchema = useMemo(
     () =>
-      getFormSchema(
-        components.filter(c => checkVisibilityCriteria(c, components, formValues)),
-        { encounterType: encounter?.encounterType },
-        getTranslation,
-      ),
-    [encounter?.encounterType, components, formValues, getTranslation],
+      getFormSchema(visibleComponents, { encounterType: encounter?.encounterType }, getTranslation),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [visibleComponentKey, encounter?.encounterType, getTranslation],
   );
 
   const submitVisibleValues = useCallback(
@@ -120,35 +123,53 @@ export const SurveyForm = ({
 
   return (
     <Form
-      validateOnChange
       validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue, isSubmitting }: FormikHandlers): ReactElement => {
+      {({ values, setValues, isSubmitting }: FormikProps<any>): ReactElement => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
+          const changes = Object.entries(calculatedValues).filter(
+            ([key, value]) => values[key] !== value,
+          );
 
-          // write values that have changed back into answers
-          Object.entries(calculatedValues)
-            .filter(([key, value]) => values[key] !== value)
-            .map(([key, value]) => setFieldValue(key, value, false));
+          if (changes.length > 0) {
+            const changedCalculatedValues = Object.fromEntries(changes);
+            setValues(
+              prev => ({
+                ...prev,
+                ...changedCalculatedValues,
+              }),
+              false,
+            );
+          }
 
-          // set parent formValues variable to the values here
-          setFormValues({
+          const nextFormValues = {
             ...values,
             ...calculatedValues,
+          };
+
+          setFormValues(prev => {
+            const keys = Object.keys(nextFormValues);
+            if (
+              keys.length === Object.keys(prev).length &&
+              keys.every(k => prev[k] === nextFormValues[k])
+            ) {
+              return prev;
+            }
+            return nextFormValues;
           });
-        }, [values, setFieldValue]);
+        }, [components, setValues, values]);
         return (
           <FormFields
             components={components}
-            note={note}
             patient={patient}
+            encounter={encounter ? { encounterType: encounter.encounterType } : undefined}
             isSubmitting={isSubmitting}
             onCancel={onCancel}
             setCurrentScreenIndex={setCurrentScreenIndex}
