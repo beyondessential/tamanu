@@ -32,7 +32,7 @@ export function ManageProgramsAdminView() {
   useEffect(
     function defaultToFirst() {
       if (programId) return; // Only if no existing selection
-      if (!programs) return; // Wait for query data
+      if (!programs?.[0]) return; // Wait for query data, short-circuit if no options
       switchToProgram(programs[0].id);
     },
     [programId, programs, switchToProgram],
