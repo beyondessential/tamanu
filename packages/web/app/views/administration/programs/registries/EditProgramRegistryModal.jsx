@@ -14,10 +14,10 @@ import {
   SelectField,
   TextField,
   TranslatedText,
+  TranslatedVisibilityStatus,
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
-import { visibilityStatusText } from './components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
 
 const Fieldset = styled.fieldset`
@@ -38,7 +38,7 @@ const Footer = styled.footer`
 
 const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
-  label: visibilityStatusText[value],
+  label: <TranslatedVisibilityStatus visibilityStatus={value} />,
 }));
 
 const currentlyAtTypeText = /** @type {const} */ {

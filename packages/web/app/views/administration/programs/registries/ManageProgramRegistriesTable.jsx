@@ -7,11 +7,11 @@ import React from 'react';
 import { useParams } from 'react-router';
 
 import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
+import { VisibilityStatusCell } from '../components';
 import {
   ColourCell,
   createProgramRegistryRowActionsAccessor,
   StyledDataFetchingTable,
-  VisibilityStatusCell,
 } from './components';
 
 const codeColumn = /** @type {const} */ ({ key: 'code', title: 'code' });
