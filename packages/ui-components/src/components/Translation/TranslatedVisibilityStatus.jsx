@@ -17,12 +17,7 @@ const translations = /** @type {const} */ ({
 
 export function TranslatedVisibilityStatus({ visibilityStatus }) {
   if (!visibilityStatus) {
-    return (
-      <TranslatedText
-        stringId="admin.programRegistries.visibilityStatus.unknown"
-        fallback="Unknown"
-      />
-    );
+    return <TranslatedText stringId="visibilityStatus.unknown" fallback="Unknown" />;
   }
 
   return translations[visibilityStatus] ?? visibilityStatus;
