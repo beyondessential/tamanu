@@ -1,6 +1,12 @@
 import { sub } from 'date-fns';
+import { snakeCase } from 'lodash';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  isValidAdditionalSearchField,
+  isPatientModelSearchField,
+  isReferenceDataSearchField,
+} from '@tamanu/constants';
 
 import { makeDeletedAtIsNullFilter, makeFilter } from './query';
 
@@ -86,4 +92,39 @@ export const createPatientFilters = filterParams => {
   ].filter(f => f);
 
   return filters;
+};
+
+export const createAdditionalSearchFilters = (filterParams, configuredFields = []) => {
+  const filters = [];
+  let requiresPadJoin = false;
+
+  for (const fieldName of configuredFields) {
+    if (!isValidAdditionalSearchField(fieldName)) continue;
+    if (!filterParams[fieldName]) continue;
+
+    const table = isPatientModelSearchField(fieldName) ? 'patients' : 'patient_additional_data';
+    if (table === 'patient_additional_data') {
+      requiresPadJoin = true;
+    }
+    const column = snakeCase(fieldName);
+    const paramKey = `additionalField_${fieldName}`;
+
+    if (isReferenceDataSearchField(fieldName)) {
+      filters.push(
+        makeFilter(true, `${table}.${column} = :${paramKey}`, () => ({
+          [paramKey]: filterParams[fieldName],
+        })),
+      );
+    } else {
+      // Prefix match (param ends with %) avoids a leading wildcard so indexes can be
+      // used where present; substring search would need expression indexes / collation.
+      filters.push(
+        makeFilter(true, `UPPER(${table}.${column}) LIKE UPPER(:${paramKey})`, () => ({
+          [paramKey]: `${filterParams[fieldName]}%`,
+        })),
+      );
+    }
+  }
+
+  return { filters, requiresPadJoin };
 };
