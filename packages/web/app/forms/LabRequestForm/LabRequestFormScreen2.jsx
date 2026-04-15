@@ -113,6 +113,13 @@ export const LabRequestFormScreen2 = (props) => {
 
     if (requestFormType === LAB_REQUEST_FORM_TYPES.PANEL) {
       setFieldValue('labTestTypeIds', []);
+      return;
+    }
+
+    if (requestFormType === LAB_REQUEST_FORM_TYPES.SUPERSET) {
+      setFieldValue('panelIds', []);
+      setFieldValue('labTestTypeIds', []);
+      return
     }
   }, [requestFormType, setFieldValue]);
 
