@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
+import Brightness2Icon from '@mui/icons-material/Brightness2';
 import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { Table } from '../Table';

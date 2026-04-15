@@ -25,7 +25,7 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
-import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, isValidAdditionalSearchField } from '@tamanu/constants';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
@@ -1612,6 +1612,35 @@ export const globalSettings = {
       exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+    },
+    patientSearch: {
+      description: 'Patient search configuration',
+      exposedToWeb: true,
+      properties: {
+        additionalSearchFields: {
+          description:
+            'Additional patient or patient additional data fields that are searchable in the all patients listing',
+          type: yup
+            .array(
+              yup
+                .string()
+                .required()
+                .test(
+                  'is-valid-search-field',
+                  // eslint-disable-next-line no-template-curly-in-string
+                  '${path} must be a valid, non-default patient or additional data field name',
+                  value => typeof value === 'string' && isValidAdditionalSearchField(value),
+                ),
+            )
+            .test(
+              'no-duplicates',
+              'additionalSearchFields must not contain duplicate entries',
+              value =>
+                !value || new Set(value).size === value.length,
+            ),
+          defaultValue: [],
+        },
+      },
     },
     notifications: {
       description: 'Notification settings',

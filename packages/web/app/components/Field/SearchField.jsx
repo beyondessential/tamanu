@@ -1,5 +1,5 @@
 import React from 'react';
-import Search from '@material-ui/icons/Search';
+import Search from '@mui/icons-material/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';

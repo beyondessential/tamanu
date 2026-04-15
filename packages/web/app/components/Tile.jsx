@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Typography } from '@material-ui/core';
-import LabelIcon from '@material-ui/icons/Label';
+import LabelIcon from '@mui/icons-material/Label';
 import { MenuButton } from './MenuButton';
 import { TableCellTag } from './Tag';
 

@@ -203,23 +203,21 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
       accessor: row =>
         !canEditPayment || Boolean(row.refundPayment) ? null : (
-          <>
-            <NoteModalActionBlocker>
-              <ThreeDotMenu
-                items={[
-                  {
-                    label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-                    onClick: () => onEditPaymentRecord(row),
-                  },
-                  {
-                    label: <TranslatedText stringId="general.action.refund" fallback="Refund" />,
-                    onClick: () => onRefundPaymentRecord(row),
-                  },
-                ]}
-                data-testid="invoice-payment-menu-c4w2"
-              />
-            </NoteModalActionBlocker>
-          </>
+          <NoteModalActionBlocker>
+            <ThreeDotMenu
+              items={[
+                {
+                  label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                  onClick: () => onEditPaymentRecord(row),
+                },
+                {
+                  label: <TranslatedText stringId="general.action.refund" fallback="Refund" />,
+                  onClick: () => onRefundPaymentRecord(row),
+                },
+              ]}
+              data-testid="invoice-payment-menu-c4w2"
+            />
+          </NoteModalActionBlocker>
         ),
     },
   ];

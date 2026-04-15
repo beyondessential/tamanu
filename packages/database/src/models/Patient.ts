@@ -336,8 +336,8 @@ export class Patient extends Model {
         order: [['updatedAt', 'DESC']],
       });
       if (field) {
-        await field.update({ value });
-      } else {
+        await field.update({ value: value ?? '' });
+      } else if (value != null && value !== '') {
         await PatientFieldValue.create({ value, definitionId, patientId: this.id });
       }
     }

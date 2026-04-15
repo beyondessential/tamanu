@@ -1,5 +1,5 @@
-import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import OvernightIcon from '@material-ui/icons/Brightness2';
+import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
+import OvernightIcon from '@mui/icons-material/Brightness2';
 import { isSameDay, parseISO } from 'date-fns';
 import queryString from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';

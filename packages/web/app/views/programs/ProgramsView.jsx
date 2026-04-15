@@ -92,6 +92,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
       setSelectedProgramId(programId);
       setProgramRegistryIdByProgramId(programId);
+      setSelectedSurveyId(null);
       setProgramReadError(null);
 
       if (!programId) {
@@ -100,14 +101,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${programId}/surveys`);
+        const { data } = await api.get(`program/${programId}/surveys`, {
+          ...(patient?.id ? { patientId: patient.id } : {}),
+        });
+        const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
         setSurveys(
-          data
-            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-            .map(x => ({
-              value: x.id,
-              label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
-            })),
+          programSurveys.map(x => ({
+            value: x.id,
+            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
+            passesFormVisibility: x.passesFormVisibility,
+          })),
         );
       } catch (error) {
         if (error instanceof ForbiddenError || error?.status === 403) {
@@ -118,7 +121,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         throw error;
       }
     },
-    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
+    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId, patient?.id],
   );
 
   const submitSurveyResponse = async data => {

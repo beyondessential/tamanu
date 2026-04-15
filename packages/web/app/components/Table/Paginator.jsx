@@ -1,13 +1,14 @@
-import React, { useRef } from 'react';
-import styled from 'styled-components';
-import { Pagination, PaginationItem } from '@material-ui/lab';
 import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Pagination, PaginationItem } from '@material-ui/lab';
+import { getCurrentLanguageCode } from '@tamanu/ui-components';
+import React, { useRef } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-const PaginatorWrapper = styled.td``;
+const PaginatorWrapper = 'td';
 
 const FooterContent = styled.div`
   display: flex;
@@ -18,23 +19,21 @@ const FooterContent = styled.div`
 const StyledPagination = styled(Pagination)`
   margin-right: 20px;
   padding: 24px 0;
-  ul {
-    li {
+  ul li {
+    .MuiPaginationItem-page {
+      border: 1px solid ${Colors.outline};
+      font-size: 13px;
+      margin: 0 3px;
+    }
+    .MuiPaginationItem-page.Mui-selected {
+      background: ${Colors.primary};
+      border: none;
+      color: ${Colors.white};
+    }
+    &:first-child,
+    &:last-child {
       .MuiPaginationItem-page {
-        border: 1px solid ${Colors.outline};
-        font-size: 13px;
-        margin: 0 3px;
-      }
-      .MuiPaginationItem-page.Mui-selected {
-        background: ${Colors.primary};
         border: none;
-        color: ${Colors.white};
-      }
-      &:first-child,
-      &:last-child {
-        .MuiPaginationItem-page {
-          border: none;
-        }
       }
     }
   }
@@ -124,6 +123,8 @@ export const Paginator = React.memo(
     // This is the index of the bottom row of the table (set it to total count if less than a whole page is present or on last page)
     const upperRange = isLastPage || !isDataInTable ? count : selectedPageNumber * rowsPerPage;
 
+    const numberFormatter = new Intl.NumberFormat(getCurrentLanguageCode());
+
     return (
       <PaginatorWrapper colSpan={colSpan} data-testid="paginatorwrapper-l9c5">
         <FooterContent data-testid="footercontent-yb09">
@@ -133,9 +134,9 @@ export const Paginator = React.memo(
                 stringId="general.table.pageRecordCount"
                 fallback=":lowerRange–:upperRange of :count"
                 replacements={{
-                  lowerRange,
-                  upperRange,
-                  count,
+                  lowerRange: numberFormatter.format(lowerRange),
+                  upperRange: numberFormatter.format(upperRange),
+                  count: numberFormatter.format(count),
                 }}
                 data-testid="translatedtext-yhs4"
               />
@@ -156,7 +157,7 @@ export const Paginator = React.memo(
             disabled={!isDataInTable}
             data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map((option) => (
+            {rowsPerPageOptions.map(option => (
               <StyledMenuItem
                 key={option}
                 value={option}
@@ -171,7 +172,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={(item) => {
+            renderItem={item => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (
