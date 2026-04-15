@@ -4,6 +4,7 @@ import React, {
   Ref,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
@@ -44,31 +45,21 @@ export const FormScreenView = ({
   const [scrollOffset, setscrollOffset] = useState(0);
 
   const onContentSizeChange = useCallback(
-    (w: number, h: number) => {
+    (_w: number, h: number) => {
       setContentHeight(h);
     },
-    [contentHeight],
+    [],
   );
 
   const onLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
     setLayoutHeight(nativeEvent.layout.height);
   }, []);
 
-  // Formula to get current position related to end of the screen threshold
-  // contentSize - size of the scrollComponent
-  // offset - scroll offset so far
-  // layoutSize - size of the actual layout of the component
-  // layoutSize + 100%offsetavailable = contentSize
-  // Check if the screen content is bigger then the ScrollContainer
   useEffect(() => {
     if (contentHeight > 0 && layoutHeight > 0) {
       const contentBiggerThanScreen =
         contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
-      if (contentBiggerThanScreen) {
-        setAnimated(true);
-      } else {
-        setAnimated(false);
-      }
+      setAnimated(contentBiggerThanScreen);
     }
   }, [contentHeight, layoutHeight, scrollOffset]);
 
@@ -79,12 +70,14 @@ export const FormScreenView = ({
     [],
   );
 
-  const clock = new Clock();
-  const base = runTiming(clock, -1, 1);
-  const animatedOpacity = interpolateNode(base, {
-    inputRange: [-1, 1],
-    outputRange: [0, 1],
-  });
+  const animatedOpacity = useMemo(() => {
+    const clock = new Clock();
+    const base = runTiming(clock, -1, 1);
+    return interpolateNode(base, {
+      inputRange: [-1, 1],
+      outputRange: [0, 1],
+    });
+  }, []);
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.BACKGROUND_GREY}>

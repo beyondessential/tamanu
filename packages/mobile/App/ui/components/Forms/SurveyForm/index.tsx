@@ -77,6 +77,15 @@ export const SurveyForm = ({
   );
 
   const { encounter } = encounterResult || {};
+  const encounterProp = useMemo(
+    () => encounter ? { encounterType: encounter.encounterType } : undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [encounter?.encounterType],
+  );
+  const hasCalculations = useMemo(
+    () => components.some(c => c.calculation),
+    [components],
+  );
   const [formValues, setFormValues] = useState(initialValues);
   const visibleComponents = useMemo(
     () => components.filter(c => checkVisibilityCriteria(c, components, formValues)),
@@ -132,8 +141,9 @@ export const SurveyForm = ({
       {({ values, setValues, isSubmitting }: FormikProps<any>): ReactElement => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
-          // recalculate dynamic fields
-          const calculatedValues = runCalculations(components, values);
+          const calculatedValues = hasCalculations
+            ? runCalculations(components, values)
+            : {};
           const changes = Object.entries(calculatedValues).filter(
             ([key, value]) => values[key] !== value,
           );
@@ -149,10 +159,9 @@ export const SurveyForm = ({
             );
           }
 
-          const nextFormValues = {
-            ...values,
-            ...calculatedValues,
-          };
+          const nextFormValues = hasCalculations
+            ? { ...values, ...calculatedValues }
+            : values;
 
           setFormValues(prev => {
             const keys = Object.keys(nextFormValues);
@@ -164,12 +173,13 @@ export const SurveyForm = ({
             }
             return nextFormValues;
           });
-        }, [components, setValues, values]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [hasCalculations, setValues, values]);
         return (
           <FormFields
             components={components}
             patient={patient}
-            encounter={encounter ? { encounterType: encounter.encounterType } : undefined}
+            encounter={encounterProp}
             isSubmitting={isSubmitting}
             onCancel={onCancel}
             setCurrentScreenIndex={setCurrentScreenIndex}
