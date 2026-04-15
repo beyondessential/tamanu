@@ -8,6 +8,7 @@ import {
   PREGNANCY_MOMENTS,
   MANNER_OF_DEATHS,
   PLACE_OF_DEATHS,
+  MARITAL_STATUS_LABELS,
 } from '@tamanu/constants';
 import {
   DateField,
@@ -42,13 +43,6 @@ const Subheading = styled.div`
 const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
-
-const FSM_MARITAL_STATUS_OPTIONS = [
-  { value: 'Married', label: 'Married' },
-  { value: 'Not married', label: 'Not married' },
-  { value: 'Widowed', label: 'Widowed' },
-  { value: 'Divorced', label: 'Divorced' },
-];
 
 const DEATH_LOCATION_HIERARCHY_FIELDS = [
   {
@@ -118,8 +112,8 @@ export const FSMSpecificQuestions = () => {
             data-testid="translatedtext-fsm-marital-status"
           />
         }
-        component={SelectField}
-        options={FSM_MARITAL_STATUS_OPTIONS}
+        component={TranslatedSelectField}
+        enumValues={MARITAL_STATUS_LABELS}
         data-testid="field-fsm-marital-status"
       />
       <Field
