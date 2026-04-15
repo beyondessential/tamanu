@@ -6,7 +6,9 @@ export async function checkConfig({ settings, models }) {
   const ensureExists = async (modelName, code, facilityId) => {
     const found = await models[modelName].findOne({ where: { code, facilityId } });
     if (!found) {
-      log.error(`Default survey ${modelName} with code ${code} could not be found`);
+      log.error(
+        `Default survey ${modelName} with code ${code} for facility ${facilityId} could not be found`,
+      );
     }
   };
 

@@ -126,8 +126,12 @@ export class SurveyResponseAnswer extends Model {
 
     const record = await model.findOne({ where });
     if (!record) {
+      const facilityContext =
+        facilityId && (resource === 'location' || resource === 'department')
+          ? ` for facility '${facilityId}'`
+          : '';
       throw new Error(
-        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the settings)`,
+        `Could not find default answer for '${resource}': code '${code}'${facilityContext} not found (check survey.defaultCodes.${resource} in the settings)`,
       );
     }
     return record.id;
