@@ -47,7 +47,9 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
     additionalData?.fatherId,
   );
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
+  const { data: village, isInitialLoading: isVillageLoading } = useReferenceDataQuery(
+    patient?.villageId,
+  );
 
   const patientData = {
     ...patient,
