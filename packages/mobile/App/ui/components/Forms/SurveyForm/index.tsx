@@ -1,14 +1,16 @@
 import React, {
   Dispatch,
+  MutableRefObject,
   ReactElement,
   SetStateAction,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { FormikProps } from 'formik';
+import { useFormikContext } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
@@ -22,6 +24,87 @@ import { LoadingScreen } from '../../LoadingScreen';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+
+function computeVisibleKey(
+  components: ISurveyScreenComponent[],
+  values: Record<string, any>,
+): string {
+  return components
+    .filter(c => checkVisibilityCriteria(c, components, values))
+    .map(c => c.id)
+    .join(',');
+}
+
+interface SurveyFormInnerProps {
+  components: ISurveyScreenComponent[];
+  hasCalculations: boolean;
+  patient: any;
+  encounterProp?: { encounterType?: string };
+  formValuesRef: MutableRefObject<Record<string, any>>;
+  setVisibleComponentKey: React.Dispatch<React.SetStateAction<string>>;
+  onCancel?: () => Promise<void>;
+  onGoBack?: () => void;
+  setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
+  currentScreenIndex: number;
+}
+
+const SurveyFormInner = ({
+  components,
+  hasCalculations,
+  patient,
+  encounterProp,
+  formValuesRef,
+  setVisibleComponentKey,
+  onCancel,
+  onGoBack,
+  setCurrentScreenIndex,
+  currentScreenIndex,
+}: SurveyFormInnerProps): ReactElement => {
+  const { values, setValues, isSubmitting } = useFormikContext<any>();
+
+  const calculatedValues = useMemo(
+    () => (hasCalculations ? runCalculations(components, values) : {}),
+    [components, hasCalculations, values],
+  );
+
+  const mergedValues = useMemo(
+    () => (hasCalculations ? { ...values, ...calculatedValues } : values),
+    [values, calculatedValues, hasCalculations],
+  );
+
+  // Write calculated values back into Formik so they persist
+  useEffect(() => {
+    const changes = Object.entries(calculatedValues).filter(
+      ([key, value]) => values[key] !== value,
+    );
+    if (changes.length > 0) {
+      setValues(
+        prev => ({ ...prev, ...Object.fromEntries(changes) }),
+        false,
+      );
+    }
+  }, [calculatedValues, setValues, values]);
+
+  // Update the ref (cheap, no render) and only setState when visibility changes
+  useEffect(() => {
+    formValuesRef.current = mergedValues;
+    const nextKey = computeVisibleKey(components, mergedValues);
+    setVisibleComponentKey(prev => (prev === nextKey ? prev : nextKey));
+  }, [components, mergedValues, formValuesRef, setVisibleComponentKey]);
+
+  return (
+    <FormFields
+      components={components}
+      patient={patient}
+      encounter={encounterProp}
+      isSubmitting={isSubmitting}
+      onCancel={onCancel}
+      setCurrentScreenIndex={setCurrentScreenIndex}
+      currentScreenIndex={currentScreenIndex}
+      onGoBack={onGoBack}
+    />
+  );
+};
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -69,9 +152,7 @@ export const SurveyForm = ({
   const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
       const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
-      return {
-        encounter,
-      };
+      return { encounter };
     },
     [patient.id],
   );
@@ -86,37 +167,30 @@ export const SurveyForm = ({
     () => components.some(c => c.calculation),
     [components],
   );
-  const [formValues, setFormValues] = useState(initialValues);
-  const visibleComponents = useMemo(
-    () => components.filter(c => checkVisibilityCriteria(c, components, formValues)),
-    [components, formValues],
+
+  const formValuesRef = useRef(initialValues);
+  const [visibleComponentKey, setVisibleComponentKey] = useState(
+    () => computeVisibleKey(components, initialValues),
   );
-  const visibleComponentKey = useMemo(
-    () => visibleComponents.map(c => c.id).join(','),
-    [visibleComponents],
-  );
-  const formValidationSchema = useMemo(
-    () =>
-      getFormSchema(visibleComponents, { encounterType: encounter?.encounterType }, getTranslation),
+
+  const formValidationSchema = useMemo(() => {
+    const visible = components.filter(c =>
+      checkVisibilityCriteria(c, components, formValuesRef.current),
+    );
+    return getFormSchema(visible, { encounterType: encounter?.encounterType }, getTranslation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [visibleComponentKey, encounter?.encounterType, getTranslation],
-  );
+  }, [visibleComponentKey, encounter?.encounterType, getTranslation]);
 
   const submitVisibleValues = useCallback(
     (values: any) => {
-      // 1. get a list of visible fields
       const visibleFields = new Set(
         components
           .filter(c => checkVisibilityCriteria(c, components, values))
           .map(x => x.dataElement.code),
       );
-
-      // 2. Filter the form values to only include visible fields
       const visibleValues = Object.fromEntries(
         Object.entries(values).filter(([key]) => visibleFields.has(key)),
       );
-
-      // 3. Set visible values in form state?
       return onSubmit(visibleValues);
     },
     [components, onSubmit],
@@ -138,56 +212,20 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setValues, isSubmitting }: FormikProps<any>): ReactElement => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-          const calculatedValues = hasCalculations
-            ? runCalculations(components, values)
-            : {};
-          const changes = Object.entries(calculatedValues).filter(
-            ([key, value]) => values[key] !== value,
-          );
-
-          if (changes.length > 0) {
-            const changedCalculatedValues = Object.fromEntries(changes);
-            setValues(
-              prev => ({
-                ...prev,
-                ...changedCalculatedValues,
-              }),
-              false,
-            );
-          }
-
-          const nextFormValues = hasCalculations
-            ? { ...values, ...calculatedValues }
-            : values;
-
-          setFormValues(prev => {
-            const keys = Object.keys(nextFormValues);
-            if (
-              keys.length === Object.keys(prev).length &&
-              keys.every(k => prev[k] === nextFormValues[k])
-            ) {
-              return prev;
-            }
-            return nextFormValues;
-          });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [hasCalculations, setValues, values]);
-        return (
-          <FormFields
-            components={components}
-            patient={patient}
-            encounter={encounterProp}
-            isSubmitting={isSubmitting}
-            onCancel={onCancel}
-            setCurrentScreenIndex={setCurrentScreenIndex}
-            currentScreenIndex={currentScreenIndex}
-            onGoBack={onGoBack}
-          />
-        );
-      }}
+      {() => (
+        <SurveyFormInner
+          components={components}
+          hasCalculations={hasCalculations}
+          patient={patient}
+          encounterProp={encounterProp}
+          formValuesRef={formValuesRef}
+          setVisibleComponentKey={setVisibleComponentKey}
+          onCancel={onCancel}
+          setCurrentScreenIndex={setCurrentScreenIndex}
+          currentScreenIndex={currentScreenIndex}
+          onGoBack={onGoBack}
+        />
+      )}
     </Form>
   );
 };
