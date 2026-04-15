@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { QueryTypes } from 'sequelize';
 import type { QueryInterface } from 'sequelize';
 
 const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
@@ -18,16 +17,6 @@ export async function up(query: QueryInterface): Promise<void> {
     return;
   }
 
-  // The baseline SQL uses gen_random_uuid() which is built-in on PG >= 13
-  // but requires the pgcrypto extension on PG 12.
-  const rows: any[] = await query.sequelize.query(
-    "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
-    { type: QueryTypes.SELECT },
-  );
-  if ((rows?.[0]?.setting ?? 0) < 130000) {
-    await query.sequelize.query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
-  }
-
   // Use a pool connection directly so the multi-statement pg_dump SQL executes
   // via the simple query protocol. sequelize.query() also uses the simple
   // protocol when there are no bind params, but its result processing doesn't
@@ -38,6 +27,16 @@ export async function up(query: QueryInterface): Promise<void> {
     type: 'write',
   });
   try {
+    // The baseline SQL uses gen_random_uuid() which is built-in on PG >= 13
+    // but requires the pgcrypto extension on PG 12. Must be on the same
+    // connection that runs the baseline SQL.
+    const versionResult = await (pgClient as any).query(
+      "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
+    );
+    if ((versionResult.rows?.[0]?.setting ?? 0) < 130000) {
+      await (pgClient as any).query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
+    }
+
     const sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
     await (pgClient as any).query(sql);
     // pg_dump's set_config('search_path', '', false) clears the session search_path.
