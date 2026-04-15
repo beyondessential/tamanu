@@ -151,6 +151,21 @@ async function migrateUp(log, sequelize, upOpts = undefined) {
 async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
 
+  // Umzug fails if SequelizeMeta contains entries for files that no longer
+  // exist on disk (e.g. migrations squashed into the baseline). Remove them
+  // before reverting so only file-backed migrations are considered.
+  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+  const filesOnDisk = new Set(readdirSync(migrationsDir));
+  const [executed] = await sequelize.query('SELECT name FROM "SequelizeMeta"');
+  const orphaned = executed.map(r => r.name).filter(name => !filesOnDisk.has(name));
+  if (orphaned.length > 0) {
+    await sequelize.query(
+      `DELETE FROM "SequelizeMeta" WHERE name IN (${orphaned.map((_, i) => `$${i + 1}`).join(',')})`,
+      { bind: orphaned },
+    );
+    log.info(`Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`);
+  }
+
   log.info('Running pre-migration steps...');
   await runPreMigration(log, sequelize);
   log.info(`Applied pre-migration steps successfully.`);
