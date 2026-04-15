@@ -141,23 +141,41 @@ async function run() {
     maxBuffer: 100 * 1024 * 1024,
   }).toString();
 
-  // Post-process: Umzug creates SequelizeMeta before migrations run,
-  // so strip the CREATE TABLE for it (keep INSERTs).
+  // Post-process: strip SequelizeMeta DDL and data entirely from the dump.
+  // The baseline migration handles SequelizeMeta entries via Sequelize (in Umzug's
+  // transaction) because the dump SQL runs on a separate raw pg connection.
   const processed = sql
     .replace(
-      /--\n-- Name: SequelizeMeta; Type: TABLE[\s\S]*?;\n\n/g,
+      /--\n-- Name: SequelizeMeta; Type: TABLE[^]*?;\n\n/,
       '',
     )
     .replace(
-      /--\n-- Name: SequelizeMeta SequelizeMeta_pkey; Type: CONSTRAINT[\s\S]*?;\n\n/g,
+      /--\n-- Name: SequelizeMeta SequelizeMeta_pkey; Type: CONSTRAINT[^]*?;\n\n/,
+      '',
+    )
+    .replace(
+      /--\n-- Data for Name: SequelizeMeta;[^]*?(?=\n\n--)/,
       '',
     );
 
-  // Write the baseline SQL
+  // Extract the SequelizeMeta migration names for the baseline migration to insert
+  const metaNames = [];
+  const metaRegex = /INSERT INTO public\."SequelizeMeta" VALUES \('([^']+)'\)/g;
+  let match;
+  while ((match = metaRegex.exec(sql)) !== null) {
+    metaNames.push(match[1]);
+  }
+
+  // Write the baseline SQL (without SequelizeMeta)
   fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
   fs.writeFileSync(OUTPUT_PATH, processed);
   console.log(`Baseline SQL written to ${OUTPUT_PATH}`);
-  console.log(`Size: ${(Buffer.byteLength(sql) / 1024 / 1024).toFixed(2)} MB`);
+  console.log(`Size: ${(Buffer.byteLength(processed) / 1024 / 1024).toFixed(2)} MB`);
+
+  // Write frozen migration names list
+  const metaPath = OUTPUT_PATH.replace('.sql', '_frozen_migrations.json');
+  fs.writeFileSync(metaPath, JSON.stringify(metaNames, null, 2));
+  console.log(`Frozen migration names (${metaNames.length}) written to ${metaPath}`);
 
   await sequelize.close();
   console.log('Done.');
