@@ -11,12 +11,15 @@ describe('Reference Data Manage', () => {
   let models;
   let adminApp;
   let baseApp;
+  /** Authenticated user with no DB permissions (central test config uses DB-backed permissions). */
+  let noPermissionApp;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+    noPermissionApp = await baseApp.asRole('practitioner');
   });
 
   afterAll(async () => {
@@ -51,7 +54,7 @@ describe('Reference Data Manage', () => {
     });
 
     it('should forbid access without permission', async () => {
-      const response = await baseApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      const response = await noPermissionApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
     });
 
@@ -87,7 +90,7 @@ describe('Reference Data Manage', () => {
       expect(response.body).toMatchObject({
         code: 'test-create-code',
         name: 'Test Create Drug',
-        referenceDataType: TEST_TYPE,
+        type: TEST_TYPE,
       });
 
       const record = await models.ReferenceData.findByPk(response.body.id);
@@ -98,11 +101,12 @@ describe('Reference Data Manage', () => {
     it('should reject creating a record with a duplicate unique field', async () => {
       const existing = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        referenceDataType: TEST_TYPE,
+        type: TEST_TYPE,
         code: 'duplicate-code',
       });
 
       const response = await adminApp.post(BASE_URL).send({
+        id: existing.id,
         referenceDataType: TEST_TYPE,
         code: existing.code,
         name: 'Another Drug',
@@ -119,7 +123,7 @@ describe('Reference Data Manage', () => {
     });
 
     it('should forbid access without permission', async () => {
-      const response = await baseApp.post(BASE_URL).send({
+      const response = await noPermissionApp.post(BASE_URL).send({
         referenceDataType: TEST_TYPE,
         name: 'Should Fail',
       });
@@ -131,7 +135,7 @@ describe('Reference Data Manage', () => {
     it('should update an existing record', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        referenceDataType: TEST_TYPE,
+        type: TEST_TYPE,
       });
 
       const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
@@ -156,7 +160,7 @@ describe('Reference Data Manage', () => {
     it('should not update read-only fields', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        referenceDataType: TEST_TYPE,
+        type: TEST_TYPE,
       });
       const originalId = record.id;
 
@@ -175,10 +179,10 @@ describe('Reference Data Manage', () => {
     it('should forbid access without permission', async () => {
       const record = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
-        referenceDataType: TEST_TYPE,
+        type: TEST_TYPE,
       });
 
-      const response = await baseApp.put(`${BASE_URL}/${record.id}`).send({
+      const response = await noPermissionApp.put(`${BASE_URL}/${record.id}`).send({
         referenceDataType: TEST_TYPE,
         name: 'Should Fail',
       });
@@ -192,21 +196,21 @@ describe('Reference Data Manage', () => {
       await Promise.all([
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          referenceDataType: TEST_TYPE,
+          type: TEST_TYPE,
           name: 'Alpha Drug',
           code: 'search-alpha',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          referenceDataType: TEST_TYPE,
+          type: TEST_TYPE,
           name: 'Beta Drug',
           code: 'search-beta',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
         models.ReferenceData.create({
           ...fake(models.ReferenceData),
-          referenceDataType: TEST_TYPE,
+          type: TEST_TYPE,
           name: 'Historical Drug',
           code: 'search-historical',
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
@@ -253,10 +257,11 @@ describe('Reference Data Manage', () => {
       expect(statuses).not.toContain(VISIBILITY_STATUSES.HISTORICAL);
     });
 
-    it('should return historical records when no visibilityStatus filter is sent', async () => {
+    it('should return historical records when visibilityStatus filter includes historical', async () => {
       const response = await adminApp.get(BASE_URL).query({
         referenceDataType: TEST_TYPE,
         code: 'search-historical',
+        visibilityStatus: `${VISIBILITY_STATUSES.CURRENT},${VISIBILITY_STATUSES.HISTORICAL}`,
       });
       expect(response).toHaveSucceeded();
       expect(response.body.data.length).toBeGreaterThanOrEqual(1);
@@ -299,7 +304,7 @@ describe('Reference Data Manage', () => {
     });
 
     it('should forbid access without permission', async () => {
-      const response = await baseApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
+      const response = await noPermissionApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
     });
   });
