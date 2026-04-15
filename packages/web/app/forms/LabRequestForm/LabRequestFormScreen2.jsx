@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
@@ -97,12 +97,25 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
 
 export const LabRequestFormScreen2 = (props) => {
   const {
+    setFieldValue,
     values: { requestFormType },
     onSelectionChange,
   } = props;
 
   const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
   const { subheading, instructions, fieldName } = fieldConfig;
+
+  useEffect(() => {
+    if (requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) {
+      setFieldValue('panelIds', []);
+      return;
+    }
+
+    if (requestFormType === LAB_REQUEST_FORM_TYPES.PANEL) {
+      setFieldValue('labTestTypeIds', []);
+    }
+  }, [requestFormType, setFieldValue]);
+
   const handleSelectionChange = ({ selectedObjects }) => {
     if (!onSelectionChange) return;
     const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
