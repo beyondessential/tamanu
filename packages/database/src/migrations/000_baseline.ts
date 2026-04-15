@@ -17,30 +17,28 @@ export async function up(query: QueryInterface): Promise<void> {
     return;
   }
 
-  // Use a standalone pg connection with the simple query protocol so the
-  // multi-statement pg_dump SQL executes fully. sequelize.query() uses the
-  // extended protocol which only supports a single statement per call.
-  // This runs outside the Umzug transaction (autocommit) which is acceptable
-  // since the skip-check above provides idempotency.
-  const { Client } = require('pg');
-  const cfg = query.sequelize.config;
-  const client = new Client({
-    host: cfg.host,
-    port: cfg.port,
-    user: cfg.username,
-    password: cfg.password,
-    database: cfg.database,
+  // Use a pool connection directly so the multi-statement pg_dump SQL executes
+  // via the simple query protocol. sequelize.query() also uses the simple
+  // protocol when there are no bind params, but its result processing doesn't
+  // handle multi-result-set responses from pg_dump output well. Using a pool
+  // connection (rather than a standalone pg.Client) ensures triggers remain
+  // visible to information_schema from other pool connections.
+  const pgClient = await (query.sequelize.connectionManager as any).getConnection({
+    type: 'write',
   });
-  await client.connect();
   try {
     const sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
-    await client.query(sql);
+    await (pgClient as any).query(sql);
+    // pg_dump's set_config('search_path', '', false) clears the session search_path.
+    // Reset to the server default so the connection is usable after release.
+    await (pgClient as any).query('RESET search_path');
   } finally {
-    await client.end();
+    (query.sequelize.connectionManager as any).releaseConnection(pgClient);
   }
 
-  // Restore search_path on the Sequelize connection after pg_dump's SET search_path = ''
-  await query.sequelize.query('SET search_path = public, fhir, logs');
+  // Also reset on the Sequelize (CLS-bound) connection in case pg_dump's
+  // search_path change leaked through the transaction.
+  await query.sequelize.query('RESET search_path');
 
   const frozenMigrations: string[] = JSON.parse(readFileSync(FROZEN_MIGRATIONS_PATH, 'utf-8'));
   const values = frozenMigrations.map(n => `('${n}')`).join(',');
