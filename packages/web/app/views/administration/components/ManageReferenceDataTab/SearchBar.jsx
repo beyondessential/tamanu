@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { SEARCHABLE_COLUMN_TYPES, REFERENCE_DATA_VISIBILITY_STATUS_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SEARCHABLE_COLUMN_TYPES, NONPATIENT_VISIBILITY_STATUS_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
@@ -56,7 +56,7 @@ export const SearchBar = ({ columns, onSearch }) => {
       }
       if (hasVisibilityStatus) {
         nonEmpty[VISIBILITY_STATUS_KEY] = values[VISIBILITY_STATUS_KEY]
-          ? REFERENCE_DATA_VISIBILITY_STATUS_VALUES.join(',')
+          ? NONPATIENT_VISIBILITY_STATUS_VALUES.join(',')
           : VISIBILITY_STATUSES.CURRENT;
       }
       onSearch(nonEmpty);

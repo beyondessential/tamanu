@@ -4,7 +4,7 @@ import {
   MANAGEABLE_REFERENCE_DATA_TYPES,
   SUGGESTER_ENDPOINTS,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
@@ -143,7 +143,7 @@ export const getWritableData = (columns, data, isEditMode) => {
 
 /**
  * Creates records for multi-select FK columns by expanding array values into individual rows.
- * Restores soft-deleted records if they match instead of creating duplicates.
+ * Restores soft-deleted records if they match; throws if an active row already matches the key.
  * Returns null if no multi-select columns have array values (caller should handle normal create).
  */
 export const createMultiSelectRecords = async (model, columns, data, typeFilter) => {
@@ -154,9 +154,15 @@ export const createMultiSelectRecords = async (model, columns, data, typeFilter)
   for (const value of data[multiCol.key]) {
     const rowData = { ...typeFilter, ...data, [multiCol.key]: value };
     const existing = await model.findOne({ where: rowData, paranoid: false });
-    if (existing?.deletedAt) {
-      await existing.restore();
-      records.push(existing.forResponse());
+    if (existing) {
+      if (existing.deletedAt) {
+        await existing.restore();
+        records.push(existing.forResponse());
+      } else {
+        throw new DatabaseDuplicateError(
+          `A ${model.name} record with this combination of fields already exists`,
+        );
+      }
     } else {
       const record = await model.create(rowData);
       records.push(record.forResponse());

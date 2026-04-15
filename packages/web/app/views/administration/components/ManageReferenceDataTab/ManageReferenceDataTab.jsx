@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
+import AddIcon from '@mui/icons-material/Add';
+
 import { SelectInput, Button } from '@tamanu/ui-components';
 import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ThemedTooltip } from '../../../../components/Tooltip';
-import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { SearchBar } from './SearchBar';
@@ -196,8 +197,8 @@ export const ManageReferenceDataTab = () => {
               disabled={!selectedType}
               onClick={() => setIsAddModalOpen(true)}
               data-testid="add-refdata-button"
+              startIcon={<AddIcon />}
             >
-              <PlusIcon width={18} height={18} style={{ marginInlineEnd: '0.5em' }} />
               <TranslatedText
                 stringId="admin.referenceData.addNew"
                 fallback="Add reference data"

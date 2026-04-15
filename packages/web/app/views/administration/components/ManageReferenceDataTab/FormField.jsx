@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { startCase } from 'lodash';
 import { TextField } from '@tamanu/ui-components';
-import { REFERENCE_DATA_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
+import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
 import {
   Field,
   SelectField,
@@ -21,7 +21,7 @@ const CheckFieldWrapper = styled.div`
   padding-top: 20px;
 `;
 
-const VISIBILITY_STATUS_OPTIONS = REFERENCE_DATA_VISIBILITY_STATUS_VALUES.map(value => ({
+const VISIBILITY_STATUS_OPTIONS = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
   label: startCase(value),
 }));

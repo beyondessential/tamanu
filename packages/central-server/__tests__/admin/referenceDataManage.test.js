@@ -1,5 +1,11 @@
 import { fake } from '@tamanu/fake-data/fake';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES, MANAGEABLE_REFERENCE_DATA_TYPES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
+  SYSTEM_DATA_TYPES,
+  VISIBILITY_STATUSES,
+  MANAGEABLE_REFERENCE_DATA_TYPES,
+} from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
@@ -112,6 +118,41 @@ describe('Reference Data Manage', () => {
         name: 'Another Drug',
       });
       expect(response).toHaveRequestError();
+    });
+
+    it('should reject creating the same ReferenceDataRelation again when an active row already exists', async () => {
+      const parent = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+      });
+      const child = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+      });
+
+      const payload = {
+        referenceDataType: SYSTEM_DATA_TYPES.REFERENCE_DATA_RELATION,
+        type: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+        referenceDataParentId: parent.id,
+        referenceDataId: [child.id],
+      };
+
+      const first = await adminApp.post(BASE_URL).send(payload);
+      expect(first).toHaveSucceeded();
+      expect(Array.isArray(first.body)).toBe(true);
+      expect(first.body).toHaveLength(1);
+
+      const second = await adminApp.post(BASE_URL).send(payload);
+      expect(second).toHaveRequestError();
+
+      const count = await models.ReferenceDataRelation.count({
+        where: {
+          referenceDataParentId: parent.id,
+          referenceDataId: child.id,
+          type: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
+        },
+      });
+      expect(count).toBe(1);
     });
 
     it('should reject an invalid type', async () => {
