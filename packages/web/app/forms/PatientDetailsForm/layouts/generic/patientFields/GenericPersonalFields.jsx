@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   PATIENT_REGISTRY_TYPES,
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   BLOOD_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
@@ -46,7 +46,7 @@ export const GenericPersonalFields = ({
     },
     maritalStatus: {
       component: TranslatedSelectField,
-      enumValues: MARTIAL_STATUS_LABELS,
+      enumValues: MARITAL_STATUS_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText
