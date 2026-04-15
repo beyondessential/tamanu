@@ -1,4 +1,6 @@
 import Chance from 'chance';
+import config from 'config';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -28,6 +30,20 @@ export const randomRecords = (models, modelName, count) =>
 export const randomRecordId = async (models, modelName) => {
   const obj = await randomRecord(models, modelName);
   return (obj || {}).id || null;
+};
+
+/**
+ * Facility id for demo seed rows (departments, locations, etc.). Uses the first
+ * configured server facility when present so defaults align with facility-server
+ * tests and API facility context; otherwise a random facility (e.g. central-only).
+ */
+export const resolveSeedFacilityId = async models => {
+  const serverFacilityIds = selectFacilityIds(config);
+  const first = serverFacilityIds?.[0];
+  if (first) {
+    return first;
+  }
+  return randomRecordId(models, 'Facility');
 };
 
 const makeId = (s) =>

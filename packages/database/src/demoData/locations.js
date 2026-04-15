@@ -1,4 +1,4 @@
-import { randomRecordId, splitIds } from './utilities';
+import { resolveSeedFacilityId, splitIds } from './utilities';
 
 export const LOCATIONS = splitIds(`
   Bed 1
@@ -12,7 +12,7 @@ export const LOCATIONS = splitIds(`
 `);
 
 export const seedLocations = async (models) => {
-  const facilityId = await randomRecordId(models, 'Facility');
+  const facilityId = await resolveSeedFacilityId(models);
   const locations = LOCATIONS.map((d) => ({ ...d, code: d.name, facilityId, maxOccupancy: 1 }));
   return models.Location.bulkCreate(locations);
 };
@@ -29,7 +29,7 @@ export const LOCATIONS_GROUPS = splitIds(`
 `);
 
 export const seedLocationGroups = async (models) => {
-  const facilityId = await randomRecordId(models, 'Facility');
+  const facilityId = await resolveSeedFacilityId(models);
   const locationGroups = LOCATIONS_GROUPS.map((d) => ({ ...d, code: d.name, facilityId }));
   return models.LocationGroup.bulkCreate(locationGroups);
 };
