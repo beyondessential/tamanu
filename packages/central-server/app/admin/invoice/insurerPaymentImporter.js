@@ -101,14 +101,18 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     const {
       invoiceItemsTotal,
       insurerPaymentsTotal: allInsurerPaymentsTotal,
-      insuranceCoverageTotal: allInsurerDiscountTotal,
     } = getInvoiceSummary(invoice);
+    const plans = (invoice?.insurancePlans ?? []).map(plan => ({
+      invoiceInsurancePlanId: plan.id,
+      percentage: (plan.defaultCoverage ?? 0) / 100,
+    }));
+    const allPlansCoverageTotal = round(
+      plans.reduce((sum, plan) => sum.plus(new Decimal(invoiceItemsTotal).times(plan.percentage)), new Decimal(0)).toNumber(),
+      2,
+    );
     const { insurerDiscountTotal, insurerPaymentRemainingBalance } =
       getSpecificInsurerPaymentRemainingBalance(
-        (invoice?.insurancePlans ?? []).map(plan => ({
-          invoiceInsurancePlanId: plan.id,
-          percentage: (plan.defaultCoverage ?? 0) / 100,
-        })),
+        plans,
         invoice?.payments ?? [],
         data.invoiceInsurancePlanId,
         invoiceItemsTotal,
@@ -164,7 +168,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
                 .minus(insurerPayment.detail.amount)
                 .add(data.amount)
                 .toNumber(),
-              allInsurerDiscountTotal,
+              allPlansCoverageTotal,
             ),
           },
           { where: { id: invoice.id } },
@@ -206,7 +210,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           {
             insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
               new Decimal(allInsurerPaymentsTotal).add(data.amount).toNumber(),
-              allInsurerDiscountTotal,
+              allPlansCoverageTotal,
             ),
           },
           { where: { id: invoice.id } },
