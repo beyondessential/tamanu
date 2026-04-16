@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { getInvoiceSummary } from '@tamanu/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
+import { useSettings } from '../../contexts/Settings';
 import { Price } from './Price';
+import { InvoiceDiscountModal } from './InvoiceDiscountModal/InvoiceDiscountModal';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -24,7 +26,21 @@ const Row = styled.div`
   margin-top: ${props => (props.$total ? '5px' : 0)};
 `;
 
+const LinkText = styled.span`
+  color: ${Colors.primary};
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export const InvoiceSummaryPanel = ({ invoice }) => {
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const { getSetting } = useSettings();
+  const isSlidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
+
   const {
     invoiceItemsUndiscountedTotal,
     itemAdjustmentsTotal,
@@ -58,6 +74,16 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
         <Price price={patientSubtotal} data-testid="invoice-summary-patientSubtotal" />
       </Row>
       <Divider />
+      {isSlidingFeeScaleEnabled && (
+        <Row $indent>
+          <LinkText onClick={() => setDiscountModalOpen(true)}>
+            <TranslatedText
+              stringId="invoice.summary.slidingFeeScale"
+              fallback="Apply sliding fee scale"
+            />
+          </LinkText>
+        </Row>
+      )}
       <Row $indent>
         <TranslatedText stringId="invoice.summary.patientPayments" fallback="Patient payments" />
         <Price
@@ -71,6 +97,13 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
         <Price price={patientPaymentRemainingBalance} data-testid="invoice-summary-patientTotal" />
       </Row>
+      {isSlidingFeeScaleEnabled && (
+        <InvoiceDiscountModal
+          open={discountModalOpen}
+          onClose={() => setDiscountModalOpen(false)}
+          handleUpdateDiscount={() => {}}
+        />
+      )}
     </Container>
   );
 };
