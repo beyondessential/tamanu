@@ -115,14 +115,14 @@ export const TabDisplayDraggable = ({
                 >
                   {(provided, snapshot) => (
                     <StyledTab
-                      aria-controls={getTabPanelId(key)}
-                      aria-selected={currentTabData?.key === key}
-                      data-dragging={snapshot.isDragging}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={provided.draggableProps.style}
                       onClick={() => render && onTabSelect(key)}
+                      aria-controls={getTabPanelId(key)}
+                      aria-selected={currentTabData?.key === key}
+                      data-dragging={snapshot.isDragging}
                       data-testid={`styledtab-ccs8-${key}`}
                     >
                       {icon && (
