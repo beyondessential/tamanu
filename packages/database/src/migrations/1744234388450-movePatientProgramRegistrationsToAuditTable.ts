@@ -29,20 +29,13 @@ export async function up(query: QueryInterface): Promise<void> {
   );
   const tableOid = tableOidQuery.oid;
 
-  // Columns that may not be present — removed by 1747862710346-removeColumnsFromChangelogs
-  const hasChangesColumn = async (col: string) => {
-    const [result]: any = await query.sequelize.query(`
-      SELECT EXISTS (SELECT TRUE FROM information_schema.columns
-        WHERE table_schema = 'logs' AND table_name = 'changes' AND column_name = '${col}')
-    `);
-    return result?.[0]?.exists;
-  };
-
-  const changesHasUpdatedAtSyncTick = await hasChangesColumn('updated_at_sync_tick');
-  const changesHasRecordUpdate = await hasChangesColumn('record_update');
-  const changesHasRecordSyncTick = await hasChangesColumn('record_sync_tick');
-  const changesHasUpdatedAt = await hasChangesColumn('updated_at');
-  const changesHasDeletedAt = await hasChangesColumn('deleted_at');
+  // Check if updated_at_sync_tick exists in logs.changes
+  const [changesUpdatedAtSyncTickQuery]: any = await query.sequelize.query(`
+    SELECT EXISTS (SELECT TRUE
+    FROM information_schema.columns
+    WHERE table_schema = 'logs' AND table_name = 'changes' AND column_name = 'updated_at_sync_tick');
+  `);
+  const changesHasUpdatedAtSyncTick = changesUpdatedAtSyncTickQuery?.[0]?.exists;
   const updatedAtSyncTickSelect = `(SELECT value FROM local_system_facts WHERE key = '${FACT_CURRENT_SYNC_TICK}')::bigint,`;
 
   // Check if updated_at_sync_tick exists in patient_program_registrations
@@ -55,6 +48,7 @@ export async function up(query: QueryInterface): Promise<void> {
   const isFacilityServer = !!selectFacilityIds(config);
   const syncTickInitialValue = isFacilityServer ? '-999,' : '0,';
 
+  // Migrate historical changes to audit table
   await query.sequelize.query(`
     INSERT INTO logs.changes (
       id,
@@ -63,16 +57,16 @@ export async function up(query: QueryInterface): Promise<void> {
       table_name,
       logged_at,
       created_at,
-      ${changesHasUpdatedAt ? 'updated_at,' : ''}
-      ${changesHasDeletedAt ? 'deleted_at,' : ''}
+      updated_at,
+      deleted_at,
       ${changesHasUpdatedAtSyncTick ? 'updated_at_sync_tick,' : ''}
       updated_by_user_id,
       record_id,
-      ${changesHasRecordUpdate ? 'record_update,' : ''}
+      record_update,
       record_created_at,
       record_updated_at,
       record_deleted_at,
-      ${changesHasRecordSyncTick ? 'record_sync_tick,' : ''}
+      record_sync_tick,
       record_data
     )
     SELECT
@@ -82,16 +76,16 @@ export async function up(query: QueryInterface): Promise<void> {
       'patient_program_registrations',
       to_timestamp(ppr.date, 'yyyy-mm-dd hh24:mi:ss'),
       now(),
-      ${changesHasUpdatedAt ? 'now(),' : ''}
-      ${changesHasDeletedAt ? "CASE WHEN ppr.deleted_at IS NOT NULL THEN now() ELSE NULL END," : ''}
+      now(),
+      CASE WHEN ppr.deleted_at IS NOT NULL THEN now() ELSE NULL END,
       ${changesHasUpdatedAtSyncTick ? updatedAtSyncTickSelect : ''}
       COALESCE(ppr.clinician_id::text, '${SYSTEM_USER_UUID}'),
       latest_registrations.latest_registration_id,
-      ${changesHasRecordUpdate ? 'NOT registration_summary.is_insert,' : ''}
+      NOT registration_summary.is_insert,
       ppr.created_at,
       ppr.updated_at,
       ppr.deleted_at,
-      ${changesHasRecordSyncTick ? (pprHasUpdatedAtSyncTick ? 'ppr.updated_at_sync_tick,' : syncTickInitialValue) : ''}
+      ${pprHasUpdatedAtSyncTick ? 'ppr.updated_at_sync_tick,' : syncTickInitialValue}
       to_jsonb((
       SELECT row_to_json(ppr_with_min_date.*)
       FROM (
