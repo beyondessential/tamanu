@@ -23,9 +23,9 @@ export const Field = ({
   ...rest
 }: FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
-  const { validateOnChange, status, submitCount } = useFormikContext();
+  const { status, submitCount } = useFormikContext();
 
-  const showError = !validateOnChange || status === SUBMIT_ATTEMPTED_STATUS || submitCount > 0;
+  const showError = status === SUBMIT_ATTEMPTED_STATUS || submitCount > 0;
   const error = showError ? meta.error : null;
 
   const combinedOnChange = useCallback((newValue: any, selectedItem: any): any => {
