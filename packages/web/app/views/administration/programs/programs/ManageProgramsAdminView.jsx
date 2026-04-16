@@ -1,9 +1,17 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import styled from 'styled-components';
 
 import { TranslatedText } from '@tamanu/ui-components';
+import { ContentContainer } from '../../components/AdminViewContainer';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
 import { useProgramsQuery } from './queries';
+
+const StyledArticle = styled(Article)`
+  ${ContentContainer}:has(&) {
+    background-color: #f7f9fb;
+  }
+`;
 
 export function ManageProgramsAdminView() {
   const { programId } = useParams();
@@ -39,7 +47,7 @@ export function ManageProgramsAdminView() {
   );
 
   return (
-    <Article>
+    <StyledArticle>
       <TableScopeHeader>
         <TableScopeSelect
           aria-busy={isProgramsLoading}
@@ -53,6 +61,6 @@ export function ManageProgramsAdminView() {
           value={programId ?? ''}
         />
       </TableScopeHeader>
-    </Article>
+    </StyledArticle>
   );
 }

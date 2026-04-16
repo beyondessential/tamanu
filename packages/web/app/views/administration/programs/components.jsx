@@ -9,15 +9,11 @@ import {
 } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
-import { ContentContainer } from '../components/AdminViewContainer';
 
 export const Article = styled.article`
   overflow: auto;
   padding-block: 26px;
   padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
-  }
 `;
 
 export const TableScopeHeader = styled.header`
