@@ -41,12 +41,14 @@ export function useProgramRegistryMutation(useMutationOptions = {}) {
         visibilityStatus,
         currentlyAtType,
       }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: ['adminProgramRegistry', variables.programRegistryId],
-      });
-      queryClient.invalidateQueries({ queryKey: ['programRegistries'] });
-      useMutationOptions.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, context) => {
+      void (await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['adminProgramRegistry', variables.programRegistryId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['programRegistries'] }),
+      ]));
+      await useMutationOptions.onSuccess?.(data, variables, context);
     },
     onError: useMutationOptions.onError,
   });
