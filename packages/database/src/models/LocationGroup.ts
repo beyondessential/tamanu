@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW, LOCATION_BOOKABLE_VIEW_VALUES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -31,7 +31,7 @@ export class LocationGroup extends Model {
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
         isBookable: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM(...LOCATION_BOOKABLE_VIEW_VALUES),
           defaultValue: LOCATION_BOOKABLE_VIEW.NO,
         },
       },
