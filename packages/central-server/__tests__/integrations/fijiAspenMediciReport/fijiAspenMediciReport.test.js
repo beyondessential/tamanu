@@ -214,7 +214,6 @@ const fakeAllData = async (models, ctx) => {
       date: '2022-06-10T01:10:54.225+00:00',
       discontinuedDate: '2022-06-10T01:19:54.225+00:00',
       discontinuingReason: 'It was not enough',
-      pharmacyNotes: null,
     }),
   );
   await models.EncounterPrescription.create(
@@ -230,7 +229,6 @@ const fakeAllData = async (models, ctx) => {
       date: '2022-06-10T01:20:54.225+00:00',
       discontinuedDate: null,
       discontinuingReason: null,
-      pharmacyNotes: null,
     }),
   );
   await models.EncounterPrescription.create(
