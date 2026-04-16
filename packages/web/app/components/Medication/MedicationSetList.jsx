@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
-import CheckIcon from '@material-ui/icons/Check';
+import CheckIcon from '@mui/icons-material/Check';
 import { Box, IconButton } from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';

@@ -2,7 +2,7 @@ import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import React from 'react';
 import styled from 'styled-components';
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { Colors } from '../constants';
 import { ClearIcon as CloseDrawerIcon } from './Icons';

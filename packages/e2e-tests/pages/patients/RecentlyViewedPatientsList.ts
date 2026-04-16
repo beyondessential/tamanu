@@ -27,7 +27,7 @@ export class RecentlyViewedPatientsList {
     }
     
     // Special cases that need additional processing
-    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('tooltip-b4e8');
+    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('datedisplay-tw5s-0');
   }
 
   static formatDateForRecentlyViewed(dateOfBirth: string): string {
@@ -51,7 +51,7 @@ export class RecentlyViewedPatientsList {
       name: this.page.getByTestId(`cardtitle-qqhk-${index}`),
       nhn: this.page.getByTestId(`cardtext-iro1-${index}`),
       gender: this.page.getByTestId(`capitalizedcardtext-zu58-${index}`),
-      birthDate: this.page.getByTestId(`cardtext-i2bu-${index}`).getByTestId('tooltip-b4e8')
+      birthDate: this.page.getByTestId(`cardtext-i2bu-${index}`).getByTestId(`datedisplay-tw5s-${index}`)
     };
 
     return {

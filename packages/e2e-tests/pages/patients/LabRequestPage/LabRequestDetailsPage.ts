@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { format } from 'date-fns';
+import { fillMuiDateTimeField } from '../../../utils/testHelper';
 import { RecordSampleModal } from './modals/RecordSampleModal';
 import { StatusLogModal } from './modals/StatusLogModal';
 import { ChangeLaboratoryModal } from './modals/ChangeLaboratoryModal';
@@ -112,7 +113,7 @@ export class LabRequestDetailsPage {
     this.backButton = page.getByTestId('backbutton-1n40');
     this.testCategoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').first().getByTestId('main-vs6r');
     this.statusValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(1).getByTestId('tiletag-zdg8');
-    this.sampleCollectedValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(2).getByTestId('tooltip-b4e8');
+    this.sampleCollectedValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(2).getByTestId('datedisplay-h6el');
     this.laboratoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(3).getByTestId('main-vs6r');
     this.priorityValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(4).getByTestId('main-vs6r');
 
@@ -293,7 +294,7 @@ export class LabRequestDetailsPage {
     await this.enterResultsModal.selectLabTestMethod(labTestMethod);
     await this.enterResultsModal.verificationFirstRow.fill(verification);
     const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");
-    await this.enterResultsModal.completedDateFirstRow.fill(dateToUse);
+    await fillMuiDateTimeField(this.enterResultsModal.completedDateFirstRow, dateToUse);
     await this.enterResultsModal.confirmButton.click();
   }
 }

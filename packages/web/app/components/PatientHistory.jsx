@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';

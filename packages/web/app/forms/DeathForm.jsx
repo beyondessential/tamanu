@@ -254,6 +254,19 @@ export const DeathForm = React.memo(
                 />,
               ),
           }),
+          mannerOfDeath: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="death.mannerOfDeath.label"
+                  fallback="What was the manner of death?"
+                  data-testid="translatedtext-death-manner-of-death-validation"
+                />,
+              ),
+          }),
           clinicianId: yup
             .string()
             .required()
