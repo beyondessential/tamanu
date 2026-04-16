@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { OBJECT_ID_PERMISSION_SCHEMA } from '@tamanu/constants';
 import { useTranslation } from '@tamanu/ui-components';
-import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Colors } from '../../../constants';
@@ -154,9 +153,6 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
                 <VerbCheckCell key={role.id}>
                   <StyledCheckbox
                     checked={isChecked(verb, role.id)}
-                    icon={<CheckboxIconUnchecked width={15} height={15} />}
-                    checkedIcon={<CheckboxIconChecked width={15} height={15} />}
-                    size="small"
                     onClick={e => {
                       e.stopPropagation();
                       handleToggle(verb, role);

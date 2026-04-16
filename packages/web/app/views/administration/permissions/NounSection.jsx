@@ -101,7 +101,11 @@ export const VerbCheckCell = styled.td`
   padding: 10px 8px;
 `;
 
-export const StyledCheckbox = styled(Checkbox)`
+export const StyledCheckbox = styled(Checkbox).attrs({
+  checkedIcon: <CheckboxIconChecked width={15} height={15} />,
+  icon: <CheckboxIconUnchecked width={15} height={15} />,
+  size: 'small',
+})`
   padding: 4px;
   &.Mui-checked {
     color: ${Colors.primary};
@@ -188,9 +192,6 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
                 <VerbCheckCell key={role.id}>
                   <StyledCheckbox
                     checked={isChecked(verb, role.id)}
-                    icon={<CheckboxIconUnchecked width={15} height={15} />}
-                    checkedIcon={<CheckboxIconChecked width={15} height={15} />}
-                    size="small"
                     onClick={e => {
                       e.stopPropagation();
                       handleToggle(verb, role);
