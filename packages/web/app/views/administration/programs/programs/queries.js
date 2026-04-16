@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../../../../api/useApi';
 
-export function useProgramsQuery(options = {}) {
+export function useProgramsQuery(options) {
   const api = useApi();
 
   return useQuery({
