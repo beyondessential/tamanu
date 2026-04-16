@@ -1,8 +1,7 @@
+import { Tabs } from '@material-ui/core';
 import React from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import { Box, Tabs } from '@material-ui/core';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import cn from 'classnames';
 import { Colors } from '../constants';
 
 const TabBar = styled.div`
@@ -20,21 +19,17 @@ const TabContainer = styled(Tabs)`
   }
 `;
 
-const StyledTab = styled(Box).attrs({ role: 'tab' })`
+const StyledTab = styled.div.attrs({ role: 'tab' })`
+  color: ${props => props.theme.palette.text.tertiary};
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  text-transform: capitalize;
   min-height: 72px;
   padding: 9px 12px 6px;
   font-weight: 500;
-  opacity: 0.7;
   position: relative;
   flex-shrink: 0;
-  transition:
-    opacity,
-    background-color 0.3s;
 
   cursor: grab;
   &:active {
@@ -47,18 +42,11 @@ const StyledTab = styled(Box).attrs({ role: 'tab' })`
   }
 
   &[aria-selected='true'] {
+    color: ${props => props.theme.palette.primary.main};
     opacity: 1;
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      padding-top: 2px;
-      background-color: ${Colors.primary};
-      width: 100%;
-    }
   }
 
-  &.isDragging {
+  &[data-dragging='true'] {
     opacity: 0.5;
   }
 
@@ -129,15 +117,12 @@ export const TabDisplayDraggable = ({
                     <StyledTab
                       aria-controls={getTabPanelId(key)}
                       aria-selected={currentTabData?.key === key}
+                      data-dragging={snapshot.isDragging}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={provided.draggableProps.style}
                       onClick={() => render && onTabSelect(key)}
-                      className={cn({
-                        selected: currentTabData?.key === key,
-                        isDragging: snapshot.isDragging,
-                      })}
                       data-testid={`styledtab-ccs8-${key}`}
                     >
                       {icon && (
