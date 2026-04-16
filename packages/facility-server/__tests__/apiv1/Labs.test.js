@@ -488,8 +488,8 @@ describe('Labs', () => {
 
         // Verify the most recent changes
         expect(historyItems[0]).toMatchObject({
-          fieldType: 'secondaryResult',
-          result: 'Negative',
+          fieldType: 'result',
+          result: 'Third result',
           updatedByUserId: expect.any(String),
           loggedAt: expect.any(String),
         });
