@@ -26,13 +26,9 @@ export class CarePlanModal extends BasePatientModal {
   constructor(page: Page) {
     super(page);
 
-    this.carePlanDropdown = this.page
-      .getByTestId('field-uc7w-input')
-      .getByRole('textbox', { name: 'Search...' });
-    this.carePlanDate = this.page.getByTestId('field-764k-input').getByRole('textbox');
-    this.carePlanClinicianDropdown = this.page
-      .getByTestId('field-kb54-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.carePlanDropdown = this.page.getByTestId('field-uc7w-input').locator('input');
+    this.carePlanDate = this.page.getByTestId('field-764k').locator('input');
+    this.carePlanClinicianDropdown = this.page.getByTestId('field-kb54-input').locator('input');
     this.mainCarePlanFieldDetails = this.page.getByTestId('field-0yjf-input');
     this.submitNewCarePlanAddButton = this.page
       .getByTestId('formsubmitcancelrow-s3rl-confirmButton')
@@ -62,8 +58,8 @@ export class CarePlanModal extends BasePatientModal {
     this.additionalNoteEditButton = this.page.getByTestId('item-8ybn-0');
     this.additionalNoteSavedDate = this.page
       .getByTestId('editablenoteformcontainer-mx3i')
-      .getByTestId('field-qouz-input')
-      .getByRole('textbox');
+      .getByTestId('field-qouz')
+      .locator('input');
     this.additionalNoteDeleteButton = this.page.getByTestId('item-8ybn-1');
   }
 

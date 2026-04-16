@@ -3,7 +3,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
 } from '@tamanu/constants';
 import { log } from '../services/logging';
-import { checkJSONCriteria } from './criteria';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 export function getStringValue(type, value) {
   if (value === null) {

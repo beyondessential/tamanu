@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 
 export interface SimpleChartFormValues {
     dateTime?: string;
@@ -98,7 +99,7 @@ export class SimpleChartModal {
     let leftPupilsReaction: string | undefined;
 
     if (values.dateTime) {
-      await this.dateTimeInput.fill(values.dateTime);
+      await fillMuiDateTimeField(this.dateTimeInput, values.dateTime);
     }
     if (values.gcsEyeOpening) {
       gcsEyeOpening = await selectFieldOption(this.page, this.gcsEyeOpeningSelect, {

@@ -17,6 +17,10 @@ e2e_test_setup_setup_central() {
     cat <<- EOF > packages/central-server/config/local.json5
     {
         "port": "3000",
+        "countryTimeZone": "Pacific/Auckland",
+        "auth": {
+            "tokenDuration": "24h"
+        },
         "db": {
             "host": "localhost",
             "name": "central",
@@ -36,7 +40,7 @@ e2e_test_setup_setup_central() {
                     "alpha-2": "UT",
                     "alpha-3": "UTO"
                 },
-                "timeZone": "UTC",
+                "timeZone": "Pacific/Auckland",
                 "imagingTypes": {
                     "orthopantomography": { "label": "Orthopantomography" },
                     "xRay": { "label": "X-Ray" },
@@ -130,6 +134,10 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
+	    "countryTimeZone": "Pacific/Auckland",
+	    "auth": {
+	        "tokenDuration": "24h"
+	    },
 	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
 	        "email": "facility-1@tamanu.io",

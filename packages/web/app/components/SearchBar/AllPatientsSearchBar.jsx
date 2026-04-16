@@ -18,6 +18,7 @@ import { SearchBarCheckField } from './SearchBarCheckField';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';
+import { AdditionalSearchField } from './AdditionalSearchField';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -39,6 +40,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
+  const additionalSearchFields = getSetting('patientSearch.additionalSearchFields') ?? [];
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
@@ -109,6 +111,9 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             }
             data-testid="searchbarcheckfield-7dw8"
           />
+          {additionalSearchFields.map(fieldName => (
+            <AdditionalSearchField key={fieldName} fieldName={fieldName} />
+          ))}
         </>
       }
       data-testid="customisablesearchbarwithpermissioncheck-al75"

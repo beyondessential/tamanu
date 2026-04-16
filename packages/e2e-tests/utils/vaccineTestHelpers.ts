@@ -1,5 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
-import { formatForMuiDateTimePicker } from '@utils/testHelper';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
@@ -114,8 +114,7 @@ export async function triggerDateError(
   const dateField = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.dateField;
 
   //Attempt to submit a date that should trigger a validation error
-  await dateField.fill(formatForMuiDateTimePicker(date));
-  await dateField.blur();
+  await fillMuiDateTimeField(dateField, date);
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 

@@ -47,4 +47,44 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
       .orderBy('response.startTime', 'DESC')
       .getOne();
   }
+
+  /**
+   * Returns map of question code -> most recent answer body for a patient.
+   * Fetches all matching codes in a single query, picking the latest per code.
+   */
+  static async getLastAnswerValuesByQuestionCodes(
+    patientId: string,
+    questionCodes: string[],
+  ): Promise<Record<string, string>> {
+    if (!questionCodes.length) return {};
+
+    const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
+    const rows: { code: string; body: string }[] = await this.getRepository().query(
+      `
+      SELECT pde.code, answer.body
+      FROM survey_response_answers answer
+      INNER JOIN survey_responses response
+        ON response.id = answer.responseId
+      INNER JOIN encounters encounter
+        ON encounter.id = response.encounterId
+      INNER JOIN program_data_elements pde
+        ON pde.id = answer.dataElementId
+      WHERE encounter.patientId = $1
+        AND pde.code IN (${codePlaceholders})
+        AND answer.body IS NOT NULL
+        AND answer.body != ''
+        AND answer.deletedAt IS NULL
+      ORDER BY response.startTime DESC
+    `,
+      [patientId, ...questionCodes],
+    );
+
+    const valuesByCode: Record<string, string> = {};
+    for (const row of rows) {
+      if (valuesByCode[row.code] === undefined) {
+        valuesByCode[row.code] = row.body ?? '';
+      }
+    }
+    return valuesByCode;
+  }
 }
