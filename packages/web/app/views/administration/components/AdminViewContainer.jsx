@@ -17,6 +17,8 @@ export const ContentContainer = styled.div`
   flex-direction: column;
   min-height: 100%;
   overflow: auto;
+  transition: ${({ theme: { transitions } }) =>
+    transitions.create(['background-color'], { duration: transitions.duration.shortest })};
 `;
 
 const TitleContainer = styled.div`
