@@ -38,7 +38,7 @@ const validationSchema = yup.object().shape({
     ),
 });
 
-export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount }) => {
+export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDiscount }) => {
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
 
@@ -76,7 +76,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount })
   const handleSubmit = async () => {
     const discount = {
       percentage: (1 - percentage).toFixed(2),
-      isManual: true,
+      isManual: false,
     };
     await handleUpdateDiscount(discount);
   };
@@ -129,6 +129,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount })
             <ConfirmCancelBackRow
               onConfirm={submitForm}
               onCancel={onClose}
+              onBack={onBack}
               data-testid="confirmcancelbackrow-f5b4"
             />
           </>
