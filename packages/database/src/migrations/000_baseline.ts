@@ -12,30 +12,33 @@ export async function up(query: QueryInterface): Promise<void> {
     ) AS schema_exists
   `);
 
-  if ((results as any[])[0]?.schema_exists) {
+  const schemaExists = (results as any[])[0]?.schema_exists;
+  console.log('[baseline] schema_exists (users table):', schemaExists);
+
+  if (schemaExists) {
+    const [cols] = await query.sequelize.query(`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'logs' AND table_name = 'changes'
+      ORDER BY ordinal_position
+    `);
+    console.log('[baseline] SKIPPING baseline — logs.changes columns:', JSON.stringify((cols as any[]).map((c: any) => c.column_name)));
     return;
   }
 
-  // Use a pool connection directly so the multi-statement pg_dump SQL executes
-  // via the simple query protocol. sequelize.query() also uses the simple
-  // protocol when there are no bind params, but its result processing doesn't
-  // handle multi-result-set responses from pg_dump output well. Using a pool
-  // connection (rather than a standalone pg.Client) ensures triggers remain
-  // visible to information_schema from other pool connections.
   const pgClient = await (query.sequelize.connectionManager as any).getConnection({
     type: 'write',
   });
   try {
     let sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
+    console.log('[baseline] SQL file size:', sql.length, 'bytes');
 
-    // The baseline SQL uses gen_random_uuid() which is built-in (in pg_catalog)
-    // on PG >= 13. On PG 12 it requires the pgcrypto extension, which installs
-    // the function in the public schema. The pg_dump output clears search_path
-    // to '', so we must keep 'public' in the path for the function to resolve.
     const versionResult = await (pgClient as any).query(
       "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
     );
-    if ((versionResult.rows?.[0]?.setting ?? 0) < 130000) {
+    const pgVersionNum = versionResult.rows?.[0]?.setting ?? 0;
+    console.log('[baseline] PG version_num:', pgVersionNum);
+
+    if (pgVersionNum < 130000) {
       await (pgClient as any).query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
       sql = sql.replace(
         "SELECT pg_catalog.set_config('search_path', '', false);",
@@ -44,15 +47,31 @@ export async function up(query: QueryInterface): Promise<void> {
     }
 
     await (pgClient as any).query(sql);
-    // pg_dump's set_config('search_path', ...) changes the session search_path.
-    // Reset to the server default so the connection is usable after release.
+    console.log('[baseline] SQL executed successfully');
     await (pgClient as any).query('RESET search_path');
+
+    // Verify logs.changes columns right after baseline SQL execution (on pgClient)
+    const verifyResult = await (pgClient as any).query(`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'logs' AND table_name = 'changes'
+      ORDER BY ordinal_position
+    `);
+    console.log('[baseline] logs.changes columns after SQL (pgClient):', JSON.stringify(verifyResult.rows.map((r: any) => r.column_name)));
+  } catch (err: any) {
+    console.error('[baseline] SQL execution FAILED:', err.message);
+    throw err;
   } finally {
     (query.sequelize.connectionManager as any).releaseConnection(pgClient);
   }
 
-  // Also reset on the Sequelize (CLS-bound) connection in case pg_dump's
-  // search_path change leaked through the transaction.
+  // Also verify from the sequelize connection
+  const [seqCols] = await query.sequelize.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_schema = 'logs' AND table_name = 'changes'
+    ORDER BY ordinal_position
+  `);
+  console.log('[baseline] logs.changes columns (sequelize conn):', JSON.stringify((seqCols as any[]).map((c: any) => c.column_name)));
+
   await query.sequelize.query('RESET search_path');
 }
 

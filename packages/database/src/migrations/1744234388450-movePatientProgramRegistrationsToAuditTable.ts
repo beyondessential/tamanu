@@ -16,6 +16,20 @@ export async function up(query: QueryInterface): Promise<void> {
     throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
+  // Diagnostic: dump logs.changes column state before this migration does anything
+  const [diagCols]: any = await query.sequelize.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_schema = 'logs' AND table_name = 'changes'
+    ORDER BY ordinal_position
+  `);
+  console.log('[1744234388450] logs.changes columns:', JSON.stringify(diagCols.map((c: any) => c.column_name)));
+
+  const [diagMeta]: any = await query.sequelize.query(`SELECT name FROM "SequelizeMeta" ORDER BY name LIMIT 5`);
+  console.log('[1744234388450] first 5 SequelizeMeta entries:', JSON.stringify(diagMeta.map((r: any) => r.name)));
+
+  const [diagMetaCount]: any = await query.sequelize.query(`SELECT count(*)::int as cnt FROM "SequelizeMeta"`);
+  console.log('[1744234388450] total SequelizeMeta entries:', diagMetaCount[0]?.cnt);
+
   // Save previously set time zone
   const previousTimeZoneQuery: any = await query.sequelize.query('show timezone');
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
