@@ -3,7 +3,7 @@ import * as yup from 'yup';
 
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { CheckSharp } from '@material-ui/icons';
+import CheckSharp from '@mui/icons-material/CheckSharp';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,

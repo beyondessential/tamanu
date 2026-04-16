@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,

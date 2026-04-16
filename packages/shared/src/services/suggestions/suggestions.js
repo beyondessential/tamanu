@@ -211,7 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -223,7 +223,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = allRecordsIncludeBuilder?.(req);
+      const include = includeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -271,9 +271,9 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
+const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
-  ...VISIBILITY_CRITERIA,
+  ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
 
 const DEFAULT_MAPPER = ({ name, code, id }) => ({
@@ -628,7 +628,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             // Prioritize treatment plan at the top
             Sequelize.literal(`
               CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-            `),
+              `),
           ];
         }
       },
@@ -695,6 +695,13 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+createNameSuggester(
+  'patientFieldDefinitionCategory',
+  'PatientFieldDefinitionCategory',
+  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+);
+createNameSuggester('invoicePriceList');
+createNameSuggester('referenceData', 'ReferenceData');
 
 // Calculate the availability of the location before passing on to the front end
 createSuggester(
@@ -785,7 +792,6 @@ createSuggester(
   'InvoiceInsurancePlan',
   ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
   {
-    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },
 );

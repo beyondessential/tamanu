@@ -75,30 +75,28 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
   );
 
   return (
-    <>
-      <Form
-        onSubmit={onSubmit}
-        validationSchema={yup.object().shape({
-          programId: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="admin.export.validation.program.path"
-                fallback="Program"
-                data-testid="translatedtext-zs1m"
-              />,
-            ),
-        })}
-        formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{
-          includedDataTypes: {
-            programId: '',
-          },
-        }}
-        render={renderForm}
-        data-testid="form-c4xc"
-      />
-    </>
+    <Form
+      onSubmit={onSubmit}
+      validationSchema={yup.object().shape({
+        programId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="admin.export.validation.program.path"
+              fallback="Program"
+              data-testid="translatedtext-zs1m"
+            />,
+          ),
+      })}
+      formType={FORM_TYPES.CREATE_FORM}
+      initialValues={{
+        includedDataTypes: {
+          programId: '',
+        },
+      }}
+      render={renderForm}
+      data-testid="form-c4xc"
+    />
   );
 });

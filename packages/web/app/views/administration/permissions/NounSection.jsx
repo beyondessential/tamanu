@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import { PERMISSION_NOUN_DISPLAY_NAMES, PERMISSION_SCHEMA } from '@tamanu/constants';
 
