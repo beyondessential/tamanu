@@ -29,6 +29,13 @@ export const PREGNANCY_MOMENTS = {
   'Within 1 year': 'Not pregnant, but pregnant 43 days to 1 year before death',
 };
 
+export const FSM_MARITAL_STATUS_LABELS = {
+  Married: 'Married',
+  'Not married': 'Not married',
+  Widowed: 'Widowed',
+  Divorced: 'Divorced',
+};
+
 export const FSM_FIELDS = [
   'fsmStateOfDeathId',
   'fsmAtollOfDeathId',
