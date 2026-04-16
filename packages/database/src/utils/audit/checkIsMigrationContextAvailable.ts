@@ -1,15 +1,9 @@
-import type { Sequelize } from "sequelize";
+import type { Sequelize } from 'sequelize';
 
-// Adding migration context depends on the presence of session config functions.
-// Also, we don't need to add context to the migration that
-// creates the session config functions as it will error.
-// Uses a savepoint-protected probe to verify the function is actually callable,
-// not just present in pg_proc (which can be stale in some edge cases).
-export const checkIsMigrationContextAvailable = async (sequelize: Sequelize, migrationName: string): Promise<boolean> => {
-  if (migrationName.includes('1739969510355-sessionConfigFunctions')) {
-    return false;
-  }
-
+// Migration context requires set_session_config (defined by the baseline).
+// Probe inside a savepoint so the outer migration transaction isn't aborted
+// when the function is unavailable (e.g. pre-baseline installs).
+export const checkIsMigrationContextAvailable = async (sequelize: Sequelize): Promise<boolean> => {
   try {
     await sequelize.query('SAVEPOINT _migration_context_probe');
     await sequelize.query(
@@ -21,8 +15,8 @@ export const checkIsMigrationContextAvailable = async (sequelize: Sequelize, mig
     try {
       await sequelize.query('ROLLBACK TO SAVEPOINT _migration_context_probe');
     } catch {
-      // savepoint itself may not exist if the connection is in a bad state
+      // Savepoint may not exist if the connection is in a bad state.
     }
     return false;
   }
-}
+};

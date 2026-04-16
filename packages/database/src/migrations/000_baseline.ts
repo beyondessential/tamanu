@@ -31,7 +31,7 @@ export async function up(query: QueryInterface): Promise<void> {
     const versionResult = await (pgClient as any).query(
       "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
     );
-    if ((versionResult.rows?.[0]?.setting ?? 0) < 130000) {
+    if (Number(versionResult.rows?.[0]?.setting ?? 0) < 130000) {
       await (pgClient as any).query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
       sql = sql.replace(
         "SELECT pg_catalog.set_config('search_path', '', false);",

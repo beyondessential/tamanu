@@ -57,10 +57,7 @@ export function createMigrationInterface(log, sequelize) {
       pattern: /^\d+[\w-]+\.(js|ts)$/,
       params: [sequelize.getQueryInterface()],
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
-          sequelize,
-          wrapContext.migrationName,
-        );
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
         if (!isMigrationContextAvailable) {
           try {
             return await updown(...args);
