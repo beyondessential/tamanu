@@ -126,43 +126,6 @@ export function createMigrationInterface(log, sequelize) {
     log.info(`Reverting migration: ${name}`);
   });
 
-  // Guard against stale SequelizeMeta: when tests share a single Postgres
-  // database across multiple Vitest files the table can end up empty while the
-  // schema is already fully applied.  Detect this before computing the pending
-  // list and re-populate SequelizeMeta so migrations are not re-run.
-  const migrationPattern = /^\d+[\w-]+\.(js|ts)$/;
-  const originalUp = umzug.up.bind(umzug);
-  umzug.up = async (...args) => {
-    try {
-      const [schemaRows] = await sequelize.query(
-        `SELECT EXISTS (
-          SELECT 1 FROM information_schema.tables
-          WHERE table_schema = 'public' AND table_name = 'users'
-        ) AS schema_exists`,
-      );
-      const schemaExists = schemaRows[0]?.schema_exists;
-      if (schemaExists) {
-        const [metaRows] = await sequelize.query(
-          `SELECT name FROM "SequelizeMeta" WHERE name = '000_baseline.ts'`,
-        );
-        if (metaRows.length === 0) {
-          const filesToMark = migrationFiles.filter(f => migrationPattern.test(f));
-          if (filesToMark.length > 0) {
-            const values = filesToMark.map((_, i) => `($${i + 1})`).join(',');
-            await sequelize.query(
-              `INSERT INTO "SequelizeMeta" (name) VALUES ${values} ON CONFLICT DO NOTHING`,
-              { bind: filesToMark },
-            );
-            log.info(`Repaired SequelizeMeta: marked ${filesToMark.length} migrations as applied (schema already exists)`);
-          }
-        }
-      }
-    } catch {
-      // SequelizeMeta table may not exist yet on a truly fresh DB — that's fine
-    }
-    return originalUp(...args);
-  };
-
   return umzug;
 }
 
