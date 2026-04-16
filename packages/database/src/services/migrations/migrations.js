@@ -126,6 +126,24 @@ export function createMigrationInterface(log, sequelize) {
     log.info(`Reverting migration: ${name}`);
   });
 
+  // Umzug.down() fails with "Unable to find migration" if SequelizeMeta contains
+  // entries for files that no longer exist on disk (e.g. frozen migrations squashed
+  // into the baseline). Clean these before any revert operation.
+  const filesOnDisk = new Set(migrationFiles);
+  const originalDown = umzug.down.bind(umzug);
+  umzug.down = async (...args) => {
+    const [executed] = await sequelize.query('SELECT name FROM "SequelizeMeta"');
+    const orphaned = executed.map(r => r.name).filter(name => !filesOnDisk.has(name));
+    if (orphaned.length > 0) {
+      await sequelize.query(
+        `DELETE FROM "SequelizeMeta" WHERE name IN (${orphaned.map((_, i) => `$${i + 1}`).join(',')})`,
+        { bind: orphaned },
+      );
+      log.info(`Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`);
+    }
+    return originalDown(...args);
+  };
+
   return umzug;
 }
 

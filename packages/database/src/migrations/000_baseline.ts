@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { QueryInterface } from 'sequelize';
 
 const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
+const FROZEN_MIGRATIONS_PATH = path.join(__dirname, '000_baseline_frozen_migrations.json');
 
 export async function up(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`
@@ -54,6 +55,16 @@ export async function up(query: QueryInterface): Promise<void> {
   // Also reset on the Sequelize (CLS-bound) connection in case pg_dump's
   // search_path change leaked through the transaction.
   await query.sequelize.query('RESET search_path');
+
+  // Mark the frozen (squashed) migrations as applied so Umzug doesn't consider
+  // them pending. These are old .js migrations whose schema changes are baked
+  // into the baseline SQL. The orphaned-entry cleanup in createMigrationInterface
+  // handles the reverse case (umzug.down) where these files don't exist on disk.
+  const frozenMigrations: string[] = JSON.parse(readFileSync(FROZEN_MIGRATIONS_PATH, 'utf-8'));
+  const values = frozenMigrations.map(n => `('${n}')`).join(',');
+  await query.sequelize.query(
+    `INSERT INTO "SequelizeMeta" (name) VALUES ${values} ON CONFLICT DO NOTHING`,
+  );
 }
 
 export async function down(query: QueryInterface): Promise<void> {
