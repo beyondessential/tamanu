@@ -1,17 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Generates a SQL baseline snapshot of the database schema at v2.32.
- *
- * Uses the same test DB infrastructure as the rest of the project:
- * - initDatabase with testMode + recreateDatabase to get a fresh DB
- * - Pre-populates SequelizeMeta with post-v2.32 migration names so they're skipped
- * - Runs migrate('up') so only v2.32 migrations execute
- * - Removes the post-v2.32 SequelizeMeta entries
- * - pg_dump the result
- *
- * The output SQL contains the full v2.32 schema, migration-seeded data,
- * and SequelizeMeta entries for the squashed migrations only.
+ * Generates a SQL baseline snapshot of the database schema at a given tag.
+ * Runs only migrations present at that tag, then pg_dumps the result.
  */
 
 const { execSync } = require('child_process');
@@ -26,7 +17,6 @@ const OUTPUT_PATH = path.resolve(
 );
 
 function getPostBaselineMigrations() {
-  // Get the set of migration filenames present at the baseline tag
   const v232Files = new Set(
     execSync(
       `git ls-tree --name-only ${BASELINE_TAG} -- packages/database/src/migrations/`,
@@ -38,13 +28,11 @@ function getPostBaselineMigrations() {
       .filter(f => f && f !== '000_initial'),
   );
 
-  // Get all current migration filenames from the built dist (what Umzug sees)
   const distDir = path.resolve(__dirname, '../../database/dist/cjs/migrations');
   const currentFiles = fs
     .readdirSync(distDir)
-    .filter(f => f.endsWith('.js') && !f.endsWith('.d.ts'));
+    .filter(f => f.endsWith('.js'));
 
-  // Post-baseline = in current dist but not in v2.32 source (after .ts → .js conversion)
   const v232JsNames = new Set(
     [...v232Files].map(f => f.replace(/\.ts$/, '.js')),
   );
@@ -72,15 +60,12 @@ async function run() {
 
   const { sequelize } = db;
 
-  // Ensure SequelizeMeta table exists
   await sequelize.query(`
     CREATE TABLE IF NOT EXISTS "SequelizeMeta" (
       name VARCHAR(255) NOT NULL PRIMARY KEY
     );
   `);
 
-  // Pre-populate SequelizeMeta with post-v2.32 AND 000_baseline migration names so Umzug skips them.
-  // 000_baseline must be skipped during generation — we're generating the SQL it will contain.
   const postBaselineMigrations = [
     '000_baseline.js',
     ...getPostBaselineMigrations(),
@@ -90,21 +75,19 @@ async function run() {
   );
 
   if (postBaselineMigrations.length > 0) {
-    const values = postBaselineMigrations.map(n => `('${n}')`).join(',\n');
     await sequelize.query(
-      `INSERT INTO "SequelizeMeta" (name) VALUES ${values}`,
+      `INSERT INTO "SequelizeMeta" (name) SELECT unnest($1::text[])`,
+      { bind: [postBaselineMigrations] },
     );
   }
 
-  // Run migrations — only v2.32 ones will execute since post-v2.32 are already in SequelizeMeta
-  console.log('Running v2.32 migrations...');
+  console.log(`Running ${BASELINE_TAG} migrations...`);
   await sequelize.migrate('up');
 
-  // Remove the post-v2.32 entries — dump should only have squashed migration names
   if (postBaselineMigrations.length > 0) {
-    const names = postBaselineMigrations.map(n => `'${n}'`).join(',');
     await sequelize.query(
-      `DELETE FROM "SequelizeMeta" WHERE name IN (${names})`,
+      `DELETE FROM "SequelizeMeta" WHERE name = ANY($1::text[])`,
+      { bind: [postBaselineMigrations] },
     );
   }
 
@@ -116,15 +99,12 @@ async function run() {
     `SequelizeMeta contains ${metaCount[0].count} entries (squashed migrations only)`,
   );
 
-  // Dump the database
   console.log('Dumping database...');
   const pgDumpArgs = [
     `--dbname=${DB_NAME}`,
     '--no-owner',
     '--no-privileges',
     '--no-tablespaces',
-    // Include schema + data (migration-seeded data must be preserved)
-    // --inserts for portability and readability of data rows
     '--inserts',
   ];
 
@@ -141,9 +121,8 @@ async function run() {
     maxBuffer: 100 * 1024 * 1024,
   }).toString();
 
-  // Post-process: strip SequelizeMeta DDL and data entirely from the dump.
-  // The baseline migration handles SequelizeMeta entries via Sequelize (in Umzug's
-  // transaction) because the dump SQL runs on a separate raw pg connection.
+  // Strip SequelizeMeta DDL/data from the dump — the baseline migration
+  // handles those entries via Sequelize inside Umzug's transaction.
   const processed = sql
     .replace(
       /--\n-- Name: SequelizeMeta; Type: TABLE[^]*?;\n\n/,
@@ -158,7 +137,6 @@ async function run() {
       '',
     );
 
-  // Extract the SequelizeMeta migration names for the baseline migration to insert
   const metaNames = [];
   const metaRegex = /INSERT INTO public\."SequelizeMeta" VALUES \('([^']+)'\)/g;
   let match;
@@ -166,20 +144,17 @@ async function run() {
     metaNames.push(match[1]);
   }
 
-  // Write the baseline SQL (without SequelizeMeta)
   fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
   fs.writeFileSync(OUTPUT_PATH, processed);
   console.log(`Baseline SQL written to ${OUTPUT_PATH}`);
   console.log(`Size: ${(Buffer.byteLength(processed) / 1024 / 1024).toFixed(2)} MB`);
 
-  // Write frozen migration names list
   const metaPath = OUTPUT_PATH.replace('.sql', '_frozen_migrations.json');
   fs.writeFileSync(metaPath, JSON.stringify(metaNames, null, 2));
   console.log(`Frozen migration names (${metaNames.length}) written to ${metaPath}`);
 
   await sequelize.close();
   console.log('Done.');
-  process.exit(0);
 }
 
 run().catch(err => {

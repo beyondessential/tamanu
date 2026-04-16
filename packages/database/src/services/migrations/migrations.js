@@ -87,9 +87,7 @@ export function createMigrationInterface(log, sequelize) {
           try {
             await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
           } catch {
-            // If the transaction is already aborted (e.g. migration threw a DB error),
-            // the cleanup call will also fail. Safe to ignore since the transaction
-            // will be rolled back anyway.
+            // Transaction already aborted; rollback will clean up.
           }
         }
       }),
@@ -126,9 +124,8 @@ export function createMigrationInterface(log, sequelize) {
     log.info(`Reverting migration: ${name}`);
   });
 
-  // Umzug.down() fails with "Unable to find migration" if SequelizeMeta contains
-  // entries for files that no longer exist on disk (e.g. frozen migrations squashed
-  // into the baseline). Clean these before any revert operation.
+  // Clean SequelizeMeta entries for files no longer on disk (frozen migrations
+  // squashed into the baseline) before any revert so Umzug can find all files.
   const filesOnDisk = new Set(migrationFiles);
   const originalDown = umzug.down.bind(umzug);
   umzug.down = async (...args) => {
@@ -176,21 +173,6 @@ async function migrateUp(log, sequelize, upOpts = undefined) {
 
 async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
-
-  // Umzug fails if SequelizeMeta contains entries for files that no longer
-  // exist on disk (e.g. migrations squashed into the baseline). Remove them
-  // before reverting so only file-backed migrations are considered.
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
-  const filesOnDisk = new Set(readdirSync(migrationsDir));
-  const [executed] = await sequelize.query('SELECT name FROM "SequelizeMeta"');
-  const orphaned = executed.map(r => r.name).filter(name => !filesOnDisk.has(name));
-  if (orphaned.length > 0) {
-    await sequelize.query(
-      `DELETE FROM "SequelizeMeta" WHERE name IN (${orphaned.map((_, i) => `$${i + 1}`).join(',')})`,
-      { bind: orphaned },
-    );
-    log.info(`Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`);
-  }
 
   log.info('Running pre-migration steps...');
   await runPreMigration(log, sequelize);

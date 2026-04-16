@@ -17,22 +17,17 @@ export async function up(query: QueryInterface): Promise<void> {
     return;
   }
 
-  // Use a pool connection directly so the multi-statement pg_dump SQL executes
-  // via the simple query protocol. sequelize.query() also uses the simple
-  // protocol when there are no bind params, but its result processing doesn't
-  // handle multi-result-set responses from pg_dump output well. Using a pool
-  // connection (rather than a standalone pg.Client) ensures triggers remain
-  // visible to information_schema from other pool connections.
+  // Pool connection for multi-statement pg_dump SQL (sequelize.query can't
+  // handle multi-result-set responses). Pool connection rather than standalone
+  // pg.Client so triggers are visible to information_schema across connections.
   const pgClient = await (query.sequelize.connectionManager as any).getConnection({
     type: 'write',
   });
   try {
     let sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
 
-    // The baseline SQL uses gen_random_uuid() which is built-in (in pg_catalog)
-    // on PG >= 13. On PG 12 it requires the pgcrypto extension, which installs
-    // the function in the public schema. The pg_dump output clears search_path
-    // to '', so we must keep 'public' in the path for the function to resolve.
+    // PG 12 needs pgcrypto for gen_random_uuid(); pg_dump clears search_path
+    // so we keep 'public' in the path for the function to resolve.
     const versionResult = await (pgClient as any).query(
       "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
     );
@@ -45,25 +40,19 @@ export async function up(query: QueryInterface): Promise<void> {
     }
 
     await (pgClient as any).query(sql);
-    // pg_dump's set_config('search_path', ...) changes the session search_path.
-    // Reset to the server default so the connection is usable after release.
     await (pgClient as any).query('RESET search_path');
   } finally {
     (query.sequelize.connectionManager as any).releaseConnection(pgClient);
   }
 
-  // Also reset on the Sequelize (CLS-bound) connection in case pg_dump's
-  // search_path change leaked through the transaction.
+  // Reset on the Sequelize (CLS-bound) connection too.
   await query.sequelize.query('RESET search_path');
 
-  // Mark the frozen (squashed) migrations as applied so Umzug doesn't consider
-  // them pending. These are old .js migrations whose schema changes are baked
-  // into the baseline SQL. The orphaned-entry cleanup in createMigrationInterface
-  // handles the reverse case (umzug.down) where these files don't exist on disk.
+  // Mark frozen migrations as applied so Umzug skips them.
   const frozenMigrations: string[] = JSON.parse(readFileSync(FROZEN_MIGRATIONS_PATH, 'utf-8'));
-  const values = frozenMigrations.map(n => `('${n}')`).join(',');
   await query.sequelize.query(
-    `INSERT INTO "SequelizeMeta" (name) VALUES ${values} ON CONFLICT DO NOTHING`,
+    `INSERT INTO "SequelizeMeta" (name) SELECT unnest($1::text[]) ON CONFLICT DO NOTHING`,
+    { bind: [frozenMigrations] },
   );
 }
 
