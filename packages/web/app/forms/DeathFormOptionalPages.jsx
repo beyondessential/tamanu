@@ -8,7 +8,7 @@ import {
   PREGNANCY_MOMENTS,
   MANNER_OF_DEATHS,
   PLACE_OF_DEATHS,
-  MARITAL_STATUS_LABELS,
+  FSM_MARITAL_STATUS_LABELS,
 } from '@tamanu/constants';
 import {
   DateField,
@@ -18,7 +18,7 @@ import {
   NumberField,
   RadioField,
 } from '../components';
-import { TextField, SelectField, FormGrid, TranslatedSelectField } from '@tamanu/ui-components';
+import { TextField, FormGrid, TranslatedSelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -113,7 +113,7 @@ export const FSMSpecificQuestions = () => {
           />
         }
         component={TranslatedSelectField}
-        enumValues={MARITAL_STATUS_LABELS}
+        enumValues={FSM_MARITAL_STATUS_LABELS}
         data-testid="field-fsm-marital-status"
       />
       <Field
