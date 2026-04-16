@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { DeleteOutlined } from '@material-ui/icons';
+import DeleteOutlined from '@mui/icons-material/DeleteOutlined';
 import { toDateString, toWeekdayCode, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
@@ -36,7 +36,7 @@ import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSl
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 import { RepeatingFields } from '../RepeatingFields';
-import { add, parseISO } from 'date-fns';
+import { add, isValid, parseISO } from 'date-fns';
 import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
@@ -372,6 +372,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
   });
 
   const renderForm = ({ values, setFieldError, setStatus, setFieldValue, setFieldTouched }) => {
+    const isValidDate = isValid(parseISO(values.date));
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
       checkLeaveOverlap(values.userId, values.date, setFieldError, setStatus);
@@ -536,7 +538,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
             data-testid="field-date"
           />
           <TimeSlotPicker
-            date={values.date}
+            date={isValidDate ? values.date : null}
             disabled={(isViewing && !isEditMode) || !values.locationId || !values.date}
             label={
               <TranslatedText

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {
   ButtonGroup,
   ClickAwayListener,
@@ -11,7 +11,7 @@ import {
   Popper as MuiPopper,
   Paper,
 } from '@material-ui/core';
-import LockIcon from '@material-ui/icons/Lock';
+import LockIcon from '@mui/icons-material/Lock';
 
 import { Button, FormSubmitButton } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';

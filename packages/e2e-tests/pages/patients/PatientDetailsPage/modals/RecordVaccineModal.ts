@@ -1,6 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 
-import { formatForMuiDateTimePicker, normalizeToIsoDate } from '@utils/testHelper';
+import { fillMuiDateTimeField, normalizeToIsoDate } from '@utils/testHelper';
 import { BasePatientModal } from './BasePatientModal';
 import {
   selectFieldOption,
@@ -290,12 +290,11 @@ export class RecordVaccineModal extends BasePatientModal {
 
     // Apply custom date last: selecting vaccine/schedule/category can reset form values to defaults.
     if (specificDate) {
-      await this.dateField.fill(formatForMuiDateTimePicker(specificDate));
-      await this.dateField.blur();
+      await fillMuiDateTimeField(this.dateField, specificDate);
     }
 
     const rawDateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
-    const dateGiven = normalizeToIsoDate(rawDateGiven);
+    const dateGiven = rawDateGiven ? normalizeToIsoDate(rawDateGiven) : '';
 
     await this.confirmButton.click();
 

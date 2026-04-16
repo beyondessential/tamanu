@@ -11,6 +11,8 @@ import {
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
+import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurveysWithFormVisibility';
+
 export const program = express.Router();
 
 program.get('/:id', simpleGet('Program'));
@@ -55,12 +57,16 @@ programRelations.get(
   '/:id/surveys',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
-    const { models, params, ability } = req;
+    const { models, params, query, ability } = req;
+
     const programRecord = await models.Program.findByPk(params.id);
     if (!programRecord) {
       throw new NotFoundError('Program not found');
     }
     req.checkPermission('read', programRecord);
+
+    const { patientId } = query;
+
     const records = await models.Survey.findAll({
       where: {
         programId: params.id,
@@ -69,7 +75,11 @@ programRelations.get(
       order: [['name', 'ASC']],
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
-    const data = filteredRecords.map(x => x.forResponse());
+    const data = await getProgramSurveysWithFormVisibility(
+      models,
+      filteredRecords,
+      patientId,
+    );
 
     res.send({
       count: data.length,

@@ -27,7 +27,7 @@ export abstract class BaseNoteModal {
     
     // Special cases that need additional processing
     this.writtenByInput = page.getByTestId('field-ar9q-input').locator('input');
-    this.dateTimeInput = page.getByTestId('field-nwwl-input').locator('input');
+    this.dateTimeInput = page.getByTestId('field-nwwl').locator('input');
     this.noteContentTextarea = page.getByTestId('field-wxzr').locator('textarea').nth(0);
     this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
   }

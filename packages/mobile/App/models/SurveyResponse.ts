@@ -96,12 +96,11 @@ async function writeToPatientFields(
       throw new Error('No program registry configured for the current form');
     }
     await PatientProgramRegistration.upsertRegistration(patientId, programRegistryDetail.id, {
-      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       registeringFacilityId:
         valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    });
+    }, submittedTime);
   }
 }
 

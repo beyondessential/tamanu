@@ -32,4 +32,7 @@ export const SUGGESTER_ENDPOINTS = [
   'encounter',
   'reportDefinition',
   'timeZone',
+  'patientFieldDefinitionCategory',
+  'invoicePriceList',
+  'referenceData',
 ];

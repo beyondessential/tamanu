@@ -3,11 +3,46 @@ import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetc
 import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';
 
-const DEVICE_ID_POOL_SIZE = 5;
-const deviceIds = Array.from({ length: DEVICE_ID_POOL_SIZE }, (_, i) => `synthetic-tests-${i}`);
+/**
+ * Bounded pool of device ids: at most `SYNTHETIC_DEVICE_POOL_SIZE` logins run at once **per
+ * Artillery worker process**; others wait for a slot before `TamanuApi` is constructed. The id
+ * is returned to the pool after `login` finishes (success or failure).
+ *
+ * Note: Artillery spawns one Node.js process per worker, so this pool is not shared across
+ * workers. Under a multi-worker run, total concurrent logins can reach
+ * `SYNTHETIC_DEVICE_POOL_SIZE × workerCount`. The advisory lock in `Device.ensureRegistration`
+ * still prevents DB-level races regardless of worker count.
+ *
+ * @see packages/database Device.ensureRegistration (per-user advisory lock) for concurrent login safety.
+ */
+const SYNTHETIC_DEVICE_POOL_SIZE = 32;
 
-function pickDeviceId(): string {
-  return deviceIds[Math.floor(Math.random() * deviceIds.length)];
+const SYNTHETIC_DEVICE_IDS = Array.from(
+  { length: SYNTHETIC_DEVICE_POOL_SIZE },
+  (_, i) => `synthetic-tests-artillery-pool-${i}`,
+);
+
+const availableSyntheticDeviceIds: string[] = [...SYNTHETIC_DEVICE_IDS];
+const syntheticDeviceIdWaiters: Array<(id: string) => void> = [];
+
+function acquireSyntheticDeviceId(): Promise<string> {
+  return new Promise(resolve => {
+    const id = availableSyntheticDeviceIds.pop();
+    if (id !== undefined) {
+      resolve(id);
+    } else {
+      syntheticDeviceIdWaiters.push(resolve);
+    }
+  });
+}
+
+function releaseSyntheticDeviceId(id: string): void {
+  const waiter = syntheticDeviceIdWaiters.shift();
+  if (waiter) {
+    waiter(id);
+  } else {
+    availableSyntheticDeviceIds.push(id);
+  }
 }
 
 async function resolveToken(
@@ -29,15 +64,22 @@ async function resolveToken(
 export async function authenticate(context: any, _events: any): Promise<void> {
   const { email = 'admin@tamanu.io', password = 'admin' } = context.vars;
 
-  const api = new TamanuApi({
-    endpoint: `${context.vars.target}/api`,
-    agentName: 'Tamanu Desktop',
-    agentVersion: version,
-    deviceId: pickDeviceId(),
-    logger: console,
-  });
+  const deviceId = await acquireSyntheticDeviceId();
+  let api: TamanuApi;
+  let loginResponse: any;
+  try {
+    api = new TamanuApi({
+      endpoint: `${context.vars.target}/api`,
+      agentName: 'Tamanu Desktop',
+      agentVersion: version,
+      deviceId,
+      logger: console,
+    });
+    loginResponse = await api.login(email, password);
+  } finally {
+    releaseSyntheticDeviceId(deviceId);
+  }
 
-  const loginResponse: any = await api.login(email, password);
   const { user, availableFacilities } = loginResponse;
 
   const facilityId = availableFacilities?.[0]?.id;

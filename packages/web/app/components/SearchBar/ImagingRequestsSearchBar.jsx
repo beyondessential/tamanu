@@ -69,21 +69,19 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       hiddenFields={
         <>
           {!isCompletedTable && (
-            <>
-              <LocalisedField
-                name="requestedById"
-                label={
-                  <TranslatedText
-                    stringId="general.requestedBy.label"
-                    fallback="Requested by"
-                    data-testid="translatedtext-m18i"
-                  />
-                }
-                component={AutocompleteField}
-                suggester={requesterSuggester}
-                data-testid="localisedfield-11ir"
-              />
-            </>
+            <LocalisedField
+              name="requestedById"
+              label={
+                <TranslatedText
+                  stringId="general.requestedBy.label"
+                  fallback="Requested by"
+                  data-testid="translatedtext-m18i"
+                />
+              }
+              component={AutocompleteField}
+              suggester={requesterSuggester}
+              data-testid="localisedfield-11ir"
+            />
           )}
           <LocalisedField
             name="locationGroupId"
@@ -114,20 +112,18 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             data-testid="field-e4ux"
           />
           {isCompletedTable && (
-            <>
-              <LocalisedField
-                name="completedAt"
-                label={
-                  <TranslatedText
-                    stringId="general.localisedField.completedAt.label"
-                    fallback="Completed"
-                    data-testid="translatedtext-9d9x"
-                  />
-                }
-                component={DateField}
-                data-testid="localisedfield-uyji"
-              />
-            </>
+            <LocalisedField
+              name="completedAt"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.completedAt.label"
+                  fallback="Completed"
+                  data-testid="translatedtext-9d9x"
+                />
+              }
+              component={DateField}
+              data-testid="localisedfield-uyji"
+            />
           )}
           <FacilityCheckbox data-testid="facilitycheckbox-n935">
             <Field
@@ -201,9 +197,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           }
           component={TranslatedSelectField}
           enumValues={IMAGING_REQUEST_STATUS_LABELS}
-          transformOptions={(options) =>
+          transformOptions={options =>
             options.filter(
-              (option) =>
+              option =>
                 ![
                   IMAGING_REQUEST_STATUS_TYPES.DELETED,
                   IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,

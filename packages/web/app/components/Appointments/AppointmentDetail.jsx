@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Select from 'react-select';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
