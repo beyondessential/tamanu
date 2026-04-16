@@ -1,4 +1,6 @@
-import { resolveSeedFacilityId, splitIds } from './utilities';
+import config from 'config';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { splitIds } from './utilities';
 
 export const DEPARTMENTS = splitIds(`
   Medical
@@ -17,7 +19,7 @@ export const DEPARTMENTS = splitIds(`
 `);
 
 export const seedDepartments = async (models) => {
-  const facilityId = await resolveSeedFacilityId(models);
+  const [facilityId] = selectFacilityIds(config);
   const departments = DEPARTMENTS.map((d) => ({ ...d, code: d.name, facilityId }));
   return models.Department.bulkCreate(departments);
 };
