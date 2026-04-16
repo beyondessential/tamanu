@@ -84,7 +84,13 @@ export function createMigrationInterface(log, sequelize) {
         } catch (error) {
           throw enhancePendingTriggerError(error, wrapContext.migrationName);
         } finally {
-          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+          try {
+            await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+          } catch {
+            // If the transaction is already aborted (e.g. migration threw a DB error),
+            // the cleanup call will also fail. Safe to ignore since the transaction
+            // will be rolled back anyway.
+          }
         }
       }),
 
