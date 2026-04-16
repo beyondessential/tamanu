@@ -409,6 +409,14 @@ patientRelations.get(
       AND table_name = 'lab_tests'
       AND record_data->>'result' IS NOT NULL
       AND TRIM(record_data->>'result') != ''
+      AND record_id::uuid IN (
+        SELECT lab_tests.id
+        FROM lab_tests
+        INNER JOIN lab_requests ON lab_tests.lab_request_id = lab_requests.id
+        WHERE lab_requests.encounter_id IN (
+          SELECT id FROM encounters WHERE patient_id = :patientId
+        )
+      )
     GROUP BY record_id
   )
   SELECT
