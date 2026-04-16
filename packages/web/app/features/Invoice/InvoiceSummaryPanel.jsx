@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { getInvoiceSummary } from '@tamanu/utils/invoice';
+import { getInvoiceSummary, isInvoiceEditable } from '@tamanu/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
 import { useSettings } from '../../contexts/Settings';
@@ -106,7 +106,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
           />
         </Row>
       )}
-      {isSlidingFeeScaleEnabled && (
+      {isSlidingFeeScaleEnabled && isInvoiceEditable(invoice) && (
         <Row $indent>
           {hasDiscount ? (
             <LinkText onClick={handleRemoveDiscount}>
