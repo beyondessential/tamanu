@@ -673,8 +673,8 @@ labTest.get(
     });
 
     const distinctChanges = [];
-    let lastResult = null;
-    let lastSecondaryResult = null;
+    let lastResult = undefined;
+    let lastSecondaryResult = undefined;
 
     for (const changeLog of changeLogs) {
       const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
