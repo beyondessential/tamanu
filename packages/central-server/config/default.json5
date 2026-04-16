@@ -521,9 +521,14 @@
   },
   askAi: {
     enabled: false, // Set to true in local.json5 once API keys are configured
-    anthropicApiKey: '', // Anthropic API key for LLM calls
+    provider: 'anthropic', // 'anthropic' | 'local' — set 'local' to use a locally-running Ollama instance
+    anthropicApiKey: '', // Anthropic API key for LLM calls (required when provider is 'anthropic')
     voyageApiKey: '', // Voyage AI API key for query embedding
     ragNamespace: 'tamanu', // Namespace used when indexing with github-repo-rag
     ragDatabaseUrl: '', // PostgreSQL connection URL for the RAG database, e.g. postgresql://user:pass@localhost:5432/tamanu-rag
+    localLlm: {
+      endpoint: 'http://localhost:11434', // Ollama base URL; use 'http://ollama:11434' in Docker Compose
+      model: 'phi4-mini', // Ollama model name, e.g. phi4-mini, llama3.2, qwen2.5
+    },
   },
 }

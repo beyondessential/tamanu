@@ -129,6 +129,8 @@ export const createAskAiRouter = getAppSettings => {
         models,
         voyageApiKey: askAiConfig.voyageApiKey,
         anthropicApiKey: askAiConfig.anthropicApiKey,
+        provider: askAiConfig.provider ?? 'anthropic',
+        localLlm: askAiConfig.localLlm,
         serverConfig,
         appSettings,
       });

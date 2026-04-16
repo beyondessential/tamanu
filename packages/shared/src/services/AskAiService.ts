@@ -80,6 +80,8 @@ interface ChatParams {
   models: Record<string, any>;
   voyageApiKey: string;
   anthropicApiKey: string;
+  provider?: 'anthropic' | 'local';
+  localLlm?: { endpoint: string; model: string };
   serverConfig?: string;
   appSettings?: string;
 }
@@ -254,6 +256,99 @@ async function searchRag(
   return { chunks, sources };
 }
 
+function buildSystemPrompt(serverConfig: string, appSettings: string, ragContext: string): string {
+  const parts = [
+    `You are the Tamanu Assistant — a helpful, calm, and knowledgeable guide for clinical staff
+and administrators using the Tamanu healthcare management system.
+
+Use plain language. Be concise. Clinical staff are busy; get to the point.
+Be honest about the limits of your knowledge.
+
+Tamanu has two server types: the facility server (used at individual health facilities)
+and the central server (used for system-wide administration and reporting).
+If a feature is only available on one server type, say so clearly.`,
+  ];
+
+  if (serverConfig) {
+    parts.push(`\nThis server's current configuration (credentials removed):\n${serverConfig}`);
+  }
+  if (appSettings) {
+    parts.push(`\nThis server's current application settings:\n${appSettings}`);
+  }
+  if (ragContext) {
+    parts.push(`\nRelevant documentation found:\n${ragContext}`);
+  }
+
+  parts.push(`
+How to respond:
+1. If the question is unclear or ambiguous and you cannot give a useful answer even with the
+   documentation above, set clarifyingQuestion to ask what you need, and leave answer empty.
+2. Answer based on the documentation provided above.
+3. If the documentation does not contain enough information to answer, set cannotAnswer to true.
+Do not invent features or workflows not found in the documentation.
+
+If your answer may not fully resolve the issue, or the user appears to need hands-on
+support with their system, end your answer with:
+"If you need further support, visit https://bes-support.zendesk.com/hc/en-us/"
+
+Respond with a JSON object with exactly these fields:
+- answer (string): The answer to the user's question. Empty when cannotAnswer is true or clarifyingQuestion is non-empty.
+- cannotAnswer (boolean): True only if the provided documentation contained no useful information to answer the question.
+- clarifyingQuestion (string): A question to ask the user when their question is ambiguous or needs more context. Empty string if not needed.`);
+
+  return parts.join('\n');
+}
+
+async function chatWithLocalLlm(
+  userMessage: string,
+  conversationHistory: string,
+  chunks: string,
+  serverConfig: string,
+  appSettings: string,
+  endpoint: string,
+  model: string,
+): Promise<Omit<ChatResponse, 'sources'>> {
+  const systemPrompt = buildSystemPrompt(serverConfig, appSettings, chunks);
+  const userContent = conversationHistory
+    ? `Conversation so far:\n${conversationHistory}\n\nUser question: ${userMessage}`
+    : userMessage;
+
+  const response = await fetch(`${endpoint}/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.1,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Ollama LLM call failed: ${response.status} ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
+  const rawContent = data.choices[0].message.content;
+
+  let parsed: { answer?: string; cannotAnswer?: boolean; clarifyingQuestion?: string };
+  try {
+    parsed = JSON.parse(rawContent);
+  } catch {
+    // Model didn't return valid JSON — treat raw text as the answer
+    return { answer: rawContent, cannotAnswer: false, clarifyingQuestion: '' };
+  }
+
+  return {
+    answer: parsed.answer ?? '',
+    cannotAnswer: Boolean(parsed.cannotAnswer),
+    clarifyingQuestion: parsed.clarifyingQuestion ?? '',
+  };
+}
+
 export async function chat({
   conversationId,
   userMessage,
@@ -261,6 +356,8 @@ export async function chat({
   models,
   voyageApiKey,
   anthropicApiKey,
+  provider,
+  localLlm,
   serverConfig,
   appSettings,
 }: ChatParams): Promise<ChatResponse> {
@@ -282,27 +379,41 @@ export async function chat({
     voyageApiKey,
   );
 
-  const { b } = await import('../baml_src/baml_client/index');
-  const response = await b.AskTamanu(
-    userMessage,
-    conversationHistory,
-    serverConfig ?? '',
-    appSettings ?? '',
-    chunks,
-    { env: { ANTHROPIC_API_KEY: anthropicApiKey } },
-  );
+  let llmResponse: { answer: string; cannotAnswer: boolean; clarifyingQuestion: string };
+  if (provider === 'local') {
+    if (!localLlm) throw new Error('localLlm config is required when provider is "local"');
+    llmResponse = await chatWithLocalLlm(
+      userMessage,
+      conversationHistory,
+      chunks,
+      serverConfig ?? '',
+      appSettings ?? '',
+      localLlm.endpoint,
+      localLlm.model,
+    );
+  } else {
+    const { b } = await import('../baml_src/baml_client/index');
+    llmResponse = await b.AskTamanu(
+      userMessage,
+      conversationHistory,
+      serverConfig ?? '',
+      appSettings ?? '',
+      chunks,
+      { env: { ANTHROPIC_API_KEY: anthropicApiKey } },
+    );
+  }
 
   // Sources from the tamanu codebase namespace are file paths — not meaningful for end users
   const result: ChatResponse = {
-    answer: response.answer,
-    cannotAnswer: response.cannotAnswer,
-    clarifyingQuestion: response.clarifyingQuestion,
+    answer: llmResponse.answer,
+    cannotAnswer: llmResponse.cannotAnswer,
+    clarifyingQuestion: llmResponse.clarifyingQuestion,
     sources: collectedSources ?? [],
   };
 
   // Persist messages — always save the user message; save assistant response
   // regardless of whether it's an answer or a clarifying question
-  const assistantContent = response.clarifyingQuestion || response.answer;
+  const assistantContent = llmResponse.clarifyingQuestion || llmResponse.answer;
   await models.AskAiMessage.create({
     conversationId,
     role: 'user',
