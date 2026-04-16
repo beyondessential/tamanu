@@ -77,6 +77,10 @@ const Icon = styled.i.attrs({ 'aria-hidden': true })`
   }
 `;
 
+function getTabPanelId(key) {
+  return key ? `tabpanel-${key}` : undefined;
+}
+
 export const TabDisplayDraggable = ({
   tabs,
   currentTab,
@@ -123,6 +127,7 @@ export const TabDisplayDraggable = ({
                 >
                   {(provided, snapshot) => (
                     <StyledTab
+                      aria-controls={getTabPanelId(key)}
                       aria-selected={currentTabData?.key === key}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -147,7 +152,9 @@ export const TabDisplayDraggable = ({
             </TabContainer>
           )}
         </Droppable>
-        <div>{currentTabData?.render({ ...tabProps })}</div>
+        <div id={getTabPanelId(currentTabData?.key)} role="tabpanel">
+          {currentTabData?.render(tabProps)}
+        </div>
       </TabBar>
     </DragDropContext>
   );
