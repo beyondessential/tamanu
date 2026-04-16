@@ -1,16 +1,12 @@
 import { AUDIT_USERID_KEY } from '@tamanu/constants';
 import { QueryInterface } from 'sequelize';
 
-const TABLE = {
-  tableName: 'changes',
-  schema: 'logs',
-}
-
 export async function up(query: QueryInterface): Promise<void> {
-  await query.removeColumn(TABLE, 'record_sync_tick');
-  await query.removeColumn(TABLE, 'record_update');
-  await query.removeColumn(TABLE, 'updated_at');
-  await query.removeColumn(TABLE, 'deleted_at');
+  for (const col of ['record_sync_tick', 'record_update', 'updated_at', 'deleted_at']) {
+    await query.sequelize.query(
+      `ALTER TABLE logs.changes DROP COLUMN IF EXISTS "${col}"`,
+    );
+  }
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.record_change()
     RETURNS trigger AS $$
@@ -57,9 +53,9 @@ export async function down(query: QueryInterface): Promise<void> {
     ALTER TABLE logs.changes ALTER COLUMN updated_at SET NOT NULL;
   `)
   await query.sequelize.query(`
-    ALTER TABLE logs.changes ADD COLUMN record_updated boolean;
-    UPDATE logs.changes SET record_updated = (record_updated_at != record_created_at)::boolean;
-    ALTER TABLE logs.changes ALTER COLUMN record_updated SET NOT NULL;
+    ALTER TABLE logs.changes ADD COLUMN record_update boolean;
+    UPDATE logs.changes SET record_update = (record_updated_at != record_created_at)::boolean;
+    ALTER TABLE logs.changes ALTER COLUMN record_update SET NOT NULL;
   `)
   await query.sequelize.query(`
     ALTER TABLE logs.changes ADD COLUMN record_sync_tick bigint;
