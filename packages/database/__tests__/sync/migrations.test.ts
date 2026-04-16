@@ -34,8 +34,8 @@ describe('migrations', () => {
       const tickAtStart = await report_definition.updatedAtSyncTick;
 
       // act
-      await umzug.down({ step: 1 });
-      await umzug.up({ step: 1 });
+      await umzug.down();
+      await umzug.up();
       await report_definition.reload();
       const tickAfterMigration = await report_definition.updatedAtSyncTick;
 
@@ -48,9 +48,9 @@ describe('migrations', () => {
       const tickAtStart = await report_definition.updatedAtSyncTick;
 
       // act
-      await umzug.down({ step: 1 });
+      await umzug.down();
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
-      await umzug.up({ step: 1 });
+      await umzug.up();
 
       // make sure running migration doesn't affect normal sync tick update
       await report_definition.update({ name: 'lorem ipsum' });
