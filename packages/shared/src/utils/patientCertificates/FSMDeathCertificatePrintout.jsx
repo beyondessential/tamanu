@@ -3,7 +3,7 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getCurrentDateString, format as formatDate } from '@tamanu/utils/dateTime';
 import { differenceInYears, differenceInMonths, differenceInDays, differenceInHours } from 'date-fns';
 import {
-  MARITAL_STATUS_LABELS,
+  FSM_MARITAL_STATUS_LABELS,
   BINARY_LABELS,
   TIME_UNIT_OPTIONS,
 } from '@tamanu/constants';
@@ -257,7 +257,7 @@ export const FSMDeathCertificatePrintout = ({
           <View style={styles.row}>
             <Cell flex={1} label="State & island of birth or country:" value={additionalData?.placeOfBirth} />
             <Cell flex={1} label="Country of citizenship:" value={additionalData?.nationality?.name} />
-            <Cell width={130} label="Marital status:" value={getEnumTranslation(MARITAL_STATUS_LABELS, extraData?.fsmMaritalStatus)} />
+            <Cell width={130} label="Marital status:" value={getEnumTranslation(FSM_MARITAL_STATUS_LABELS, extraData?.fsmMaritalStatus)} />
             <Cell width={210} lastCell label="Surviving spouse (marital):" value={extraData?.fsmSurvivingSpouse} />
           </View>
 
