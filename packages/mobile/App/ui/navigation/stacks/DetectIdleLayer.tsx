@@ -50,9 +50,9 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     if (!signedIn) return;
 
     const handleStateChange = (nextAppState: AppStateStatus): void => {
-      if (appStateRef.current === 'active' && nextAppState.match(/inactive|background/)) {
+      if (appStateRef.current === 'active' && nextAppState.match(/^(inactive|background)$/)) {
         screenOffTimeRef.current = Date.now();
-      } else if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+      } else if (appStateRef.current.match(/^(inactive|background)$/) && nextAppState === 'active') {
         if (screenOffTimeRef.current) {
           screenOffTimeRef.current = null;
           if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
@@ -78,8 +78,9 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     return () => {
       clearInterval(intervalId);
       subscriptions.forEach(subscription => subscription?.remove());
+      debouncedResetIdle.cancel();
     };
-  }, [signedIn, stableHandleResetIdle]);
+  }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);
 
   const panResponder = useRef(
     PanResponder.create({
