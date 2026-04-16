@@ -32,10 +32,19 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
   const debouncedResetIdle = useCallback(debounce(resetIdle, 300), [resetIdle]);
 
-  const handleResetIdle = useCallback((): boolean => {
+  const handleResetIdleRef = useRef((): boolean => {
     debouncedResetIdle();
     return false;
-  }, [debouncedResetIdle]);
+  });
+  handleResetIdleRef.current = (): boolean => {
+    debouncedResetIdle();
+    return false;
+  };
+
+  const stableHandleResetIdle = useCallback(
+    (): boolean => handleResetIdleRef.current(),
+    [],
+  );
 
   useEffect(() => {
     if (!signedIn) return;
@@ -56,8 +65,8 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
     const subscriptions: (EmitterSubscription | NativeEventSubscription)[] = [
       AppState.addEventListener('change', handleStateChange),
-      Keyboard.addListener('keyboardDidHide', handleResetIdle),
-      Keyboard.addListener('keyboardDidShow', handleResetIdle),
+      Keyboard.addListener('keyboardDidHide', stableHandleResetIdle),
+      Keyboard.addListener('keyboardDidShow', stableHandleResetIdle),
     ];
 
     const intervalId = setInterval(() => {
@@ -70,13 +79,13 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       clearInterval(intervalId);
       subscriptions.forEach(subscription => subscription?.remove());
     };
-  }, [signedIn, handleResetIdle]);
+  }, [signedIn, stableHandleResetIdle]);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponderCapture: handleResetIdle,
-      onStartShouldSetPanResponderCapture: handleResetIdle,
-      onPanResponderTerminationRequest: handleResetIdle,
+      onMoveShouldSetPanResponderCapture: stableHandleResetIdle,
+      onStartShouldSetPanResponderCapture: stableHandleResetIdle,
+      onPanResponderTerminationRequest: stableHandleResetIdle,
     }),
   );
 
