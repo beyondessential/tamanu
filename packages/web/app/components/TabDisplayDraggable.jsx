@@ -18,15 +18,9 @@ const TabContainer = styled(Tabs)`
   .MuiTabs-indicator {
     background-color: ${Colors.primary};
   }
-  * {
-    cursor: grab;
-  }
-  *:active {
-    cursor: grabbing;
-  }
 `;
 
-const StyledTab = styled(Box)`
+const StyledTab = styled(Box).attrs({ role: 'tab' })`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,12 +36,17 @@ const StyledTab = styled(Box)`
     opacity,
     background-color 0.3s;
 
+  cursor: grab;
+  &:active {
+    cursor: grabbing;
+  }
+
   &:hover {
     opacity: 1;
     background-color: ${Colors.veryLightBlue};
   }
 
-  &.selected {
+  &[aria-selected='true'] {
     opacity: 1;
     &::after {
       content: '';
@@ -69,9 +68,13 @@ const StyledTab = styled(Box)`
   }
 `;
 
-const Icon = styled.i`
-  color: ${props => props.color};
+const Icon = styled.i.attrs({ 'aria-hidden': true })`
   margin-right: 5px;
+  color: ${Colors.softText};
+
+  [aria-selected='true'] & {
+    color: ${Colors.primary};
+  }
 `;
 
 export const TabDisplayDraggable = ({
@@ -120,6 +123,7 @@ export const TabDisplayDraggable = ({
                 >
                   {(provided, snapshot) => (
                     <StyledTab
+                      aria-selected={currentTabData?.key === key}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
@@ -132,11 +136,7 @@ export const TabDisplayDraggable = ({
                       data-testid={`styledtab-ccs8-${key}`}
                     >
                       {icon && (
-                        <Icon
-                          className={icon}
-                          color={currentTabData?.key === key ? Colors.primary : Colors.softText}
-                          data-testid={`icon-1iqd-${key}`}
-                        />
+                        <Icon aria-hidden className={icon} data-testid={`icon-1iqd-${key}`} />
                       )}
                       {label}
                     </StyledTab>
