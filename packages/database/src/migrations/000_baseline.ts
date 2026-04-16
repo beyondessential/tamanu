@@ -3,7 +3,6 @@ import path from 'node:path';
 import type { QueryInterface } from 'sequelize';
 
 const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
-const FROZEN_MIGRATIONS_PATH = path.join(__dirname, '000_baseline_frozen_migrations.json');
 
 export async function up(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`
@@ -27,19 +26,25 @@ export async function up(query: QueryInterface): Promise<void> {
     type: 'write',
   });
   try {
-    // The baseline SQL uses gen_random_uuid() which is built-in on PG >= 13
-    // but requires the pgcrypto extension on PG 12. Must be on the same
-    // connection that runs the baseline SQL.
+    let sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
+
+    // The baseline SQL uses gen_random_uuid() which is built-in (in pg_catalog)
+    // on PG >= 13. On PG 12 it requires the pgcrypto extension, which installs
+    // the function in the public schema. The pg_dump output clears search_path
+    // to '', so we must keep 'public' in the path for the function to resolve.
     const versionResult = await (pgClient as any).query(
       "SELECT setting FROM pg_settings WHERE name = 'server_version_num' LIMIT 1",
     );
     if ((versionResult.rows?.[0]?.setting ?? 0) < 130000) {
       await (pgClient as any).query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
+      sql = sql.replace(
+        "SELECT pg_catalog.set_config('search_path', '', false);",
+        "SELECT pg_catalog.set_config('search_path', 'public', false);",
+      );
     }
 
-    const sql = readFileSync(BASELINE_SQL_PATH, 'utf-8');
     await (pgClient as any).query(sql);
-    // pg_dump's set_config('search_path', '', false) clears the session search_path.
+    // pg_dump's set_config('search_path', ...) changes the session search_path.
     // Reset to the server default so the connection is usable after release.
     await (pgClient as any).query('RESET search_path');
   } finally {
@@ -49,10 +54,6 @@ export async function up(query: QueryInterface): Promise<void> {
   // Also reset on the Sequelize (CLS-bound) connection in case pg_dump's
   // search_path change leaked through the transaction.
   await query.sequelize.query('RESET search_path');
-
-  const frozenMigrations: string[] = JSON.parse(readFileSync(FROZEN_MIGRATIONS_PATH, 'utf-8'));
-  const values = frozenMigrations.map(n => `('${n}')`).join(',');
-  await query.sequelize.query(`INSERT INTO "SequelizeMeta" (name) VALUES ${values} ON CONFLICT DO NOTHING`);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
