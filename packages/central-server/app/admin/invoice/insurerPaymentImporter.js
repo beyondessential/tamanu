@@ -68,12 +68,12 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
     const countInvoices = await models.Invoice.count({ where: { displayId: data.invoiceNumber } });
     if (!countInvoices) {
-      errors.push(new ValidationError(sheetName, index, 'Invoice not found'));
+      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' not found`));
       continue;
     }
 
     if (countInvoices > 1) {
-      errors.push(new ValidationError(sheetName, index, 'Multiple invoices found'));
+      errors.push(new ValidationError(sheetName, index, `Multiple invoices found with number '${data.invoiceNumber}'`));
       continue;
     }
 
@@ -83,12 +83,18 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     });
 
     if (!invoice) {
-      errors.push(new ValidationError(sheetName, index, 'Invoice not found'));
+      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' not found`));
       continue;
     }
 
     if (invoice.status !== INVOICE_STATUSES.FINALISED) {
-      errors.push(new ValidationError(sheetName, index, 'Invoice is not finalised'));
+      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' has status '${invoice.status}' but must be finalised`));
+      continue;
+    }
+
+    const invoicePlanIds = (invoice?.insurancePlans ?? []).map(plan => plan.id);
+    if (!invoicePlanIds.includes(data.invoiceInsurancePlanId)) {
+      errors.push(new ValidationError(sheetName, index, `Insurance plan '${data.invoiceInsurancePlanId}' is not attached to invoice '${data.invoiceNumber}'. Attached plans: ${invoicePlanIds.join(', ') || 'none'}`));
       continue;
     }
 
@@ -116,17 +122,15 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       if (insurerPayment) {
         checkPermission('write', 'InvoicePayment');
         //update the payment
-        if (
-          data.amount >
-          round(
-            new Decimal(insurerPaymentRemainingBalance)
-              .add(insurerPayment.detail.amount)
-              .toNumber(),
-            2,
-          )
-        ) {
+        const maxAmount = round(
+          new Decimal(insurerPaymentRemainingBalance)
+            .add(insurerPayment.detail.amount)
+            .toNumber(),
+          2,
+        );
+        if (data.amount > maxAmount) {
           errors.push(
-            new ValidationError(sheetName, index, 'Amount is greater than the amount owing'),
+            new ValidationError(sheetName, index, `Payment amount $${data.amount} exceeds the remaining balance of $${maxAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`),
           );
           continue;
         }
@@ -169,10 +173,10 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'updated');
       } else {
         //create new payment
-        //* Block payment if the amount is greater than the amount owing of this insurer
-        if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
+        const maxNewAmount = round(insurerPaymentRemainingBalance, 2);
+        if (data.amount > maxNewAmount) {
           errors.push(
-            new ValidationError(sheetName, index, 'Amount is greater than the amount owing'),
+            new ValidationError(sheetName, index, `Payment amount $${data.amount} exceeds the remaining balance of $${maxNewAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`),
           );
           continue;
         }
@@ -188,7 +192,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         await models.InvoiceInsurerPayment.create({
           id: data.id,
           invoicePaymentId: payment.id,
-          insurerId: data.invoiceInsurancePlanId,
+          invoiceInsurancePlanId: data.invoiceInsurancePlanId,
           reason: data.reason,
           status:
             data.amount === 0
@@ -211,7 +215,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
       }
     } catch (e) {
-      errors.push(new ValidationError('', index, e));
+      errors.push(new ValidationError(sheetName, index, `Failed to process payment for invoice '${data.invoiceNumber}': ${e.message}`));
     }
 
     index++;
