@@ -117,19 +117,17 @@ export class SurveyResponseAnswer extends Model {
 
     const where: Record<string, unknown> = { code };
     const facilityId = settings.facilityId;
-    if (
-      facilityId &&
-      (resource === 'location' || resource === 'department')
-    ) {
+    const modelAttributes = model.getAttributes?.() ?? {};
+    const modelHasFacilityId = 'facilityId' in modelAttributes;
+
+    if (facilityId && modelHasFacilityId) {
       where.facilityId = facilityId;
     }
 
     const record = await model.findOne({ where });
     if (!record) {
       const facilityContext =
-        facilityId && (resource === 'location' || resource === 'department')
-          ? ` for facility '${facilityId}'`
-          : '';
+        facilityId && modelHasFacilityId ? ` for facility '${facilityId}'` : '';
       throw new Error(
         `Could not find default answer for '${resource}': code '${code}'${facilityContext} not found (check survey.defaultCodes.${resource} in the settings)`,
       );
@@ -154,11 +152,7 @@ export class SurveyResponseAnswer extends Model {
       where: {
         id: surveyResponse.surveyId,
         surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.VITALS,
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART,
-          ],
+          [Op.in]: [SURVEY_TYPES.VITALS, SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
         },
       },
     });
@@ -205,7 +199,10 @@ export class SurveyResponseAnswer extends Model {
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.updateWithReasonForChange(newCalculatedValue, reasonForChange);
+        await existingCalculatedAnswer.updateWithReasonForChange(
+          newCalculatedValue,
+          reasonForChange,
+        );
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,
