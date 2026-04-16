@@ -206,6 +206,7 @@ export const SurveyForm = ({
 
   return (
     <Form
+      validateOnChange
       validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
