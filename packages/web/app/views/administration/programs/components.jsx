@@ -7,7 +7,6 @@ import {
   TranslatedText,
   VisibilityStatusChip,
 } from '@tamanu/ui-components';
-
 import { Colors } from '../../../constants';
 import { ContentContainer } from '../components/AdminViewContainer';
 
@@ -45,5 +44,20 @@ export function VisibilityStatusCell({ visibilityStatus }) {
     <em style={{ color: TAMANU_COLORS.softText }}>
       <TranslatedText stringId="general.none" fallback="None" />
     </em>
+  );
+}
+
+export function NullableBooleanCell({ value }) {
+  if (value == null)
+    return (
+      <em style={{ color: TAMANU_COLORS.softText }}>
+        <TranslatedText stringId="general.unknown" fallback="Unknown" />
+      </em>
+    );
+
+  return value ? (
+    <TranslatedText stringId="general.boolean.true" fallback="True" />
+  ) : (
+    <TranslatedText stringId="general.boolean.false" fallback="False" />
   );
 }
