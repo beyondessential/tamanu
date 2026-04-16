@@ -17,6 +17,7 @@ import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegis
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { MarView } from '../views/patients/medication/MarView';
+import { PatientAlertsView } from '../views/patients/PatientAlertsView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
@@ -46,6 +47,11 @@ export const usePatientRoutes = () => {
       breadcrumbs: [<Breadcrumb key="new-form" title="New Form" />],
     },
     { path: 'referrals/new', component: ReferralsView, breadcrumbs: 'New Referral' },
+    {
+      path: 'alerts',
+      component: PatientAlertsView,
+      breadcrumbs: [<Breadcrumb key="alerts" title="Alerts" />],
+    },
     {
       path: 'encounter/:encounterId/:modal?',
       component: EncounterView,
