@@ -154,6 +154,7 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
+const MAX_CRITERIA_CACHE_SIZE = 500;
 const parsedCriteriaCache = new Map<string, any>();
 const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
 
@@ -176,6 +177,9 @@ export function checkJSONCriteria(
   let criteriaObject = parsedCriteriaCache.get(criteria);
   if (criteriaObject === undefined) {
     criteriaObject = JSON.parse(criteria);
+    if (parsedCriteriaCache.size >= MAX_CRITERIA_CACHE_SIZE) {
+      parsedCriteriaCache.delete(parsedCriteriaCache.keys().next().value);
+    }
     parsedCriteriaCache.set(criteria, criteriaObject);
   }
 
