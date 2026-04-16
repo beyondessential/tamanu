@@ -1,5 +1,5 @@
 import {
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   SEX_LABELS,
   BLOOD_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
@@ -46,7 +46,7 @@ import {
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS } from './deaths';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS, FSM_MARITAL_STATUS_LABELS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
@@ -56,6 +56,7 @@ import {
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
 import { DEPRECATED_PRCC_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
+import { BINARY_LABELS } from './binary';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -71,6 +72,7 @@ export const registeredEnums = {
   APPOINTMENT_STATUSES,
   ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
+  BINARY_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   BLOOD_LABELS,
@@ -81,6 +83,7 @@ export const registeredEnums = {
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
+  FSM_MARITAL_STATUS_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -91,7 +94,7 @@ export const registeredEnums = {
   LAB_REQUEST_STATUS_LABELS,
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   MEDICATION_DURATION_UNITS_LABELS,
   PATIENT_ISSUE_LABELS,
@@ -132,6 +135,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
+  BINARY_LABELS: 'binary.property.label',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
   BLOOD_LABELS: 'patient.property.blood',
@@ -142,6 +146,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   ENCOUNTER_TYPE_ABBREVIATION_LABELS: 'encounter.property.typeAbbreviation',
+  FSM_MARITAL_STATUS_LABELS: 'death.fsm.property.maritalStatus',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
@@ -152,7 +157,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   LAB_REQUEST_STATUS_LABELS: 'lab.property.status',
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
-  MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
+  MARITAL_STATUS_LABELS: 'patient.property.maritalStatus',
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS: 'medication.property.durationUnitDisplay',
   MEDICATION_DURATION_UNITS_LABELS: 'medication.property.durationUnit',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
