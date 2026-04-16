@@ -118,10 +118,19 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
   const [step, setStep] = useState('select');
   const [discountType, setDiscountType] = useState(DISCOUNT_TYPES.ASSESSMENT);
 
-  const handleClose = () => {
+  const resetState = () => {
     setStep('select');
     setDiscountType(DISCOUNT_TYPES.ASSESSMENT);
+  };
+
+  const handleClose = () => {
+    resetState();
     onClose();
+  };
+
+  const handleSubmitDiscount = async discount => {
+    await handleUpdateDiscount(discount);
+    resetState();
   };
 
   const handleBack = () => setStep('select');
@@ -150,14 +159,14 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
         <InvoiceDiscountAssessmentForm
           onClose={handleClose}
           onBack={handleBack}
-          handleUpdateDiscount={handleUpdateDiscount}
+          handleUpdateDiscount={handleSubmitDiscount}
         />
       )}
       {step === 'form' && discountType === DISCOUNT_TYPES.MANUAL && (
         <InvoiceDiscountManualForm
           onClose={handleClose}
           onBack={handleBack}
-          handleUpdateDiscount={handleUpdateDiscount}
+          handleUpdateDiscount={handleSubmitDiscount}
         />
       )}
     </Modal>
