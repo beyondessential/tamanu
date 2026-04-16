@@ -27,7 +27,10 @@ const ExportForm = ({ options = [] }) => (
       data-testid="field-mrcx"
     />
     <ButtonRow alignment="left" data-testid="buttonrow-zx6c">
-      <FormSubmitButton text="Export" data-testid="formsubmitbutton-uyje" />
+      <FormSubmitButton
+        text={<TranslatedText stringId="general.action.export" fallback="Export" />}
+        data-testid="formsubmitbutton-uyje"
+      />
     </ButtonRow>
   </FormGrid>
 );
