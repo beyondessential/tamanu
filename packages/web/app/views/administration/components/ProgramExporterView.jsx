@@ -65,7 +65,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
         setIsLoading(false);
       }
     },
-    [api, programOptions],
+    [api, getCurrentDateTime, programOptions, setIsLoading],
   );
 
   const renderForm = useCallback(
