@@ -101,11 +101,17 @@ export const LabTestResultModal = React.memo(
     const navigate = useNavigate();
     const { category = 'all' } = useParams();
 
-    // Don't show the initial empty result in the history (oldest item, since history is DESC ordered)
+    // Don't show the initial empty result(s) in the history (oldest items, since history is DESC ordered)
     const visibleHistory = React.useMemo(() => {
-      const lastItem = history.at(-1);
-      const isEmpty = lastItem?.result === '' || lastItem?.result == null;
-      return isEmpty ? history.slice(0, -1) : history;
+      let endIndex = history.length;
+      // Remove all trailing entries with empty results
+      while (endIndex > 0) {
+        const item = history[endIndex - 1];
+        const isEmpty = item?.result === '' || item?.result == null;
+        if (!isEmpty) break;
+        endIndex--;
+      }
+      return history.slice(0, endIndex);
     }, [history]);
 
     const handleViewLabRequest = async () => {
