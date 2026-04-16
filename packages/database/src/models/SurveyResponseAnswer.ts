@@ -115,8 +115,8 @@ export class SurveyResponseAnswer extends Model {
       throw new Error(`Model not found: ${modelName}`);
     }
 
-    const where: Record<string, unknown> = { code };
-    const facilityId = settings.facilityId;
+    const where: { code: string; facilityId?: string } = { code };
+    const { facilityId } = settings;
     const modelAttributes = model.getAttributes?.() ?? {};
     const modelHasFacilityId = 'facilityId' in modelAttributes;
 
