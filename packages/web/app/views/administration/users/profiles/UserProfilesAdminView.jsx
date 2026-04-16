@@ -16,10 +16,11 @@ import { LimitedLinesCell } from '../../../../components/FormattedTableCell';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { Colors } from '../../../../constants';
 import { useAuth } from '../../../../contexts/Auth';
-import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
 import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
 import { UserProfileModal } from './UserProfileModal';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -38,10 +39,12 @@ const StatusInactiveDot = styled(StatusActiveDot)`
   background-color: ${Colors.softText};
 `;
 
-const TableContainer = styled.div`
+const TableContainer = styled.article`
   padding: 24px 30px;
-  background-color: ${Colors.background};
   border-top: 1px solid ${Colors.outline};
+  ${ContentContainer}:has(&) {
+    background-color: ${TAMANU_COLORS.background2};
+  }
 `;
 
 const UserSearchTitle = styled.div`
