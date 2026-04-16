@@ -46,7 +46,7 @@ import {
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS } from './deaths';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS, FSM_MARITAL_STATUS_LABELS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
@@ -83,6 +83,7 @@ export const registeredEnums = {
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
+  FSM_MARITAL_STATUS_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -145,6 +146,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   ENCOUNTER_TYPE_ABBREVIATION_LABELS: 'encounter.property.typeAbbreviation',
+  FSM_MARITAL_STATUS_LABELS: 'death.fsm.property.maritalStatus',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
