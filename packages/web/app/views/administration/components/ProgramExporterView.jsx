@@ -1,6 +1,6 @@
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { ButtonRow, Form, FormGrid, FormSubmitButton, useDateTime } from '@tamanu/ui-components';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import * as yup from 'yup';
 
 import { useApi } from '../../../api';
