@@ -42,17 +42,15 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { getSetting } = useSettings();
   const isSlidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
-  const { mutate: updateInvoice } = useUpdateInvoice(invoice);
+  const { mutateAsync: updateInvoice } = useUpdateInvoice(invoice);
 
-  const handleUpdateDiscount = discount => {
-    updateInvoice(
-      { ...invoice, items: invoice.items ?? [], discount },
-      { onSuccess: () => setDiscountModalOpen(false) },
-    );
+  const handleUpdateDiscount = async discount => {
+    await updateInvoice({ ...invoice, items: invoice.items ?? [], discount });
+    setDiscountModalOpen(false);
   };
 
-  const handleRemoveDiscount = () => {
-    updateInvoice({ ...invoice, items: invoice.items ?? [], discount: null });
+  const handleRemoveDiscount = async () => {
+    await updateInvoice({ ...invoice, items: invoice.items ?? [], discount: null });
   };
 
   const hasDiscount = !!invoice.discount?.percentage;
