@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { JOB_PRIORITIES } from '@tamanu/constants';
 
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
@@ -9,6 +10,7 @@ import {
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
 import { allFromUpstream } from '../../dist/tasks/fhir/refresh/allFromUpstream';
+import { entireResource } from '../../dist/tasks/fhir/refresh/entireResource';
 
 describe('FHIR refresh handler', () => {
   let ctx;
@@ -125,6 +127,121 @@ describe('FHIR refresh handler', () => {
       expect(count).toEqual(0);
       expect(rows).toEqual([]);
       await encounter.destroy();
+    });
+
+    it('propagates parent job priority to child refresh jobs', async () => {
+      await allFromUpstream(
+        {
+          payload: {
+            op: 'UPDATE',
+            table: 'public.encounters',
+            id: resources.encounter.id,
+          },
+          priority: JOB_PRIORITIES.MIGRATION,
+        },
+        {
+          log,
+          sequelize: ctx.store.sequelize,
+          models: ctx.store.models,
+        },
+      );
+
+      const rows = await ctx.store.models.FhirJob.findAll({
+        where: {
+          topic: 'fhir.refresh.fromUpstream',
+          payload: {
+            resource: {
+              [Op.ne]: 'MediciReport',
+            },
+          },
+        },
+      });
+
+      expect(rows).not.toEqual([]);
+      expect(rows.every(row => row.priority === JOB_PRIORITIES.MIGRATION)).toBe(true);
+    });
+  });
+
+  describe('entireResource', () => {
+    beforeEach(async () => {
+      await ctx.store.models.FhirJob.destroy({ where: {} });
+    });
+
+    it('propagates parent job priority to child refresh jobs', async () => {
+      await entireResource(
+        {
+          payload: { resource: 'Encounter' },
+          priority: JOB_PRIORITIES.MIGRATION,
+        },
+        {
+          log,
+          sequelize: ctx.store.sequelize,
+          models: ctx.store.models,
+        },
+      );
+
+      const rows = await ctx.store.models.FhirJob.findAll({
+        where: {
+          topic: 'fhir.refresh.fromUpstream',
+          payload: { resource: 'Encounter' },
+        },
+      });
+
+      expect(rows).not.toEqual([]);
+      expect(rows.every(row => row.priority === JOB_PRIORITIES.MIGRATION)).toBe(true);
+    });
+  });
+
+  describe('refresh trigger priority', () => {
+    beforeEach(async () => {
+      await ctx.store.models.FhirJob.destroy({ where: {} });
+      await ctx.store.sequelize.query(`DROP TABLE IF EXISTS public.test_fhir_refresh_priority;`);
+      await ctx.store.sequelize.query(`
+        CREATE TABLE public.test_fhir_refresh_priority (
+          id TEXT PRIMARY KEY
+        );
+      `);
+      await ctx.store.sequelize.query(`
+        CREATE TRIGGER fhir_refresh_test_fhir_refresh_priority
+        AFTER INSERT OR UPDATE OR DELETE ON public.test_fhir_refresh_priority FOR EACH ROW
+        EXECUTE FUNCTION fhir.refresh_trigger();
+      `);
+    });
+
+    afterEach(async () => {
+      await ctx.store.sequelize.query(`DROP TABLE IF EXISTS public.test_fhir_refresh_priority;`);
+    });
+
+    it('uses lower priority when migration context is set', async () => {
+      await ctx.store.sequelize.query(
+        `SELECT set_config('tamanu.audit.migration_context', '{"test":"context"}', false)`,
+      );
+      await ctx.store.sequelize.query(
+        `INSERT INTO public.test_fhir_refresh_priority (id) VALUES ('with-context')`,
+      );
+      await ctx.store.sequelize.query(`SELECT set_config('tamanu.audit.migration_context', '', false)`);
+
+      const job = await ctx.store.models.FhirJob.findOne({
+        where: { topic: 'fhir.refresh.allFromUpstream' },
+        order: [['createdAt', 'DESC']],
+      });
+
+      expect(job).toBeTruthy();
+      expect(job.priority).toBe(JOB_PRIORITIES.MIGRATION);
+    });
+
+    it('uses default priority when migration context is not set', async () => {
+      await ctx.store.sequelize.query(`
+        INSERT INTO public.test_fhir_refresh_priority (id) VALUES ('without-context');
+      `);
+
+      const job = await ctx.store.models.FhirJob.findOne({
+        where: { topic: 'fhir.refresh.allFromUpstream' },
+        order: [['createdAt', 'DESC']],
+      });
+
+      expect(job).toBeTruthy();
+      expect(job.priority).toBe(JOB_PRIORITIES.DEFAULT);
     });
   });
 });

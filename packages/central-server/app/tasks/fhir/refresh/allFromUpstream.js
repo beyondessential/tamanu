@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { prepareQuery } from '../../../utils/prepareQuery';
 
-export async function allFromUpstream({ payload }, { log, sequelize, models }) {
+export async function allFromUpstream({ payload, priority }, { log, sequelize, models }) {
   const { table, op, id, deletedRow = null } = payload;
   const [schema, tableName] = table.toLowerCase().split('.', 2);
 
@@ -66,7 +66,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
 
       const insertSql = `
         WITH upstreams AS (${sql.replaceAll(';', '')})
-        INSERT INTO fhir.jobs (topic, discriminant, payload)
+        INSERT INTO fhir.jobs (topic, discriminant, payload, priority)
         SELECT
           $topic::text,
           concat($resource::text, ':', upstreams.id),
@@ -75,7 +75,8 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
             'upstreamId', upstreams.id,
             'table', $table::text,
             'op', $op::text
-          )
+          ),
+          COALESCE($priority::int, ${JOB_PRIORITIES.DEFAULT})
         FROM upstreams
         ON CONFLICT (discriminant) DO NOTHING
       `;
@@ -87,6 +88,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
           resource: Resource.fhirName,
           table,
           op,
+          priority,
         },
       });
       if (!results) {
