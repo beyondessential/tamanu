@@ -18,7 +18,7 @@ import {
   NumberField,
   RadioField,
 } from '../components';
-import { TextField, SelectField, FormGrid, TranslatedSelectField } from '@tamanu/ui-components';
+import { TextField, FormGrid, TranslatedSelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
