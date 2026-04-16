@@ -111,8 +111,11 @@ export class Notification extends Model {
             where: { prescriptionId: metadata.id },
             include: ['encounter'],
           });
-          patientId = encounterPrescription!.encounter!.patientId;
-          additionalMetadata.encounterId = encounterPrescription!.encounterId;
+          if (!encounterPrescription?.encounter) {
+            return;
+          }
+          patientId = encounterPrescription.encounter.patientId;
+          additionalMetadata.encounterId = encounterPrescription.encounterId;
           break;
         }
         default:

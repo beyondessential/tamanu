@@ -124,13 +124,13 @@ async function connectToDatabase(dbOptions) {
   });
 
   sequelize.setSessionVar = (key, value) =>
-    sequelize.query(`SELECT public.set_session_config($key, $value)`, {
-      bind: { key, value },
+    sequelize.query(`SELECT public.set_session_config($1::text, $2::text)`, {
+      bind: [key, value],
     });
 
   sequelize.setTransactionVar = (key, value) =>
-    sequelize.query(`SELECT public.set_session_config($key, $value, true)`, {
-      bind: { key, value },
+    sequelize.query(`SELECT public.set_session_config($1::text, $2::text, true)`, {
+      bind: [key, value],
     });
 
   if (!disableChangesAudit) {
@@ -146,7 +146,7 @@ async function connectToDatabase(dbOptions) {
             // This may be the 'START TRANSACTION' or 'SET ISOLATION LEVEL ...' queries being run by sequelize.
             // We don't want to run any queries until the transaction has been set up. So do nothing.
           } else {
-            await super.run('SELECT public.set_session_config($1, $2, $3)', [
+            await super.run('SELECT public.set_session_config($1::text, $2::text, $3::boolean)', [
               AUDIT_USERID_KEY,
               userid,
               isInsideATransaction,
@@ -161,7 +161,7 @@ async function connectToDatabase(dbOptions) {
         } finally {
           // Clear audit userid so that system user changes aren't unintentionally recorded against it
           if (userid && !isInsideATransaction) {
-            await super.run('SELECT public.set_session_config($1, $2)', [
+            await super.run('SELECT public.set_session_config($1::text, $2::text)', [
               AUDIT_USERID_KEY,
               SYSTEM_USER_UUID,
             ]);
