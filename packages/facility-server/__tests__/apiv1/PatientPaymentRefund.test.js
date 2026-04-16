@@ -52,7 +52,7 @@ describe('Patient Payment Refund', () => {
     return payment;
   };
 
-  const createInsurerPayment = async (invoiceId, insurerId, overrides = {}) => {
+  const createInsurerPayment = async (invoiceId, invoiceInsurancePlanId, overrides = {}) => {
     const payment = await models.InvoicePayment.create({
       invoiceId,
       date: '2024-01-15',
@@ -63,7 +63,7 @@ describe('Patient Payment Refund', () => {
     });
     await models.InvoiceInsurerPayment.create({
       invoicePaymentId: payment.id,
-      insurerId,
+      invoiceInsurancePlanId,
       status: INVOICE_INSURER_PAYMENT_STATUSES.PAID,
     });
     return payment;

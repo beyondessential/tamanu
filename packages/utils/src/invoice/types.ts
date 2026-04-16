@@ -49,7 +49,7 @@ export interface PatientPayment {
 
 export interface InsurerPayment {
   id: string;
-  insurerId?: string;
+  invoiceInsurancePlanId?: string;
 }
 
 export interface Payment {

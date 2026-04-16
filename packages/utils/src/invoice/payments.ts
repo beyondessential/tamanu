@@ -107,9 +107,9 @@ export const getInsurerPaymentsWithRemainingBalanceDisplay = (
 };
 
 export const getSpecificInsurerPaymentRemainingBalance = (
-  insurers: Array<{ insurerId: string; percentage?: number }>,
+  insurers: Array<{ invoiceInsurancePlanId: string; percentage?: number }>,
   payments: Payment[],
-  insurerId: string,
+  invoiceInsurancePlanId: string,
   total: number,
 ): {
   insurerDiscountTotal: number;
@@ -117,7 +117,7 @@ export const getSpecificInsurerPaymentRemainingBalance = (
   insurerPaymentRemainingBalance: number;
 } => {
   const insurersDiscountPercentage = insurers
-    .filter(insurer => insurer.insurerId === insurerId)
+    .filter(insurer => insurer.invoiceInsurancePlanId === invoiceInsurancePlanId)
     .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
     .toNumber();
 
@@ -125,7 +125,7 @@ export const getSpecificInsurerPaymentRemainingBalance = (
 
   const insurerPaymentsTotal = payments
     .filter(
-      payment => payment?.insurerPayment?.id && payment.insurerPayment.insurerId === insurerId,
+      payment => payment?.insurerPayment?.id && payment.insurerPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
     )
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();

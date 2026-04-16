@@ -648,7 +648,7 @@ describe('Sync Lookup data', () => {
     await InvoiceInsurerPayment.create(
       fake(InvoiceInsurerPayment, {
         invoicePaymentId: invoicePayment.id,
-        insurerId: contract.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     await InvoicePatientPayment.create(

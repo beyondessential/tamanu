@@ -10,7 +10,7 @@ import {
 
 export class InvoiceInsurerPayment extends Model {
   declare id: string;
-  declare insurerId: string;
+  declare invoiceInsurancePlanId: string;
   declare status: string;
   declare reason?: string;
   declare invoicePaymentId?: string;
@@ -20,7 +20,7 @@ export class InvoiceInsurerPayment extends Model {
     super.init(
       {
         id: primaryKey,
-        insurerId: {
+        invoiceInsurancePlanId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -43,7 +43,7 @@ export class InvoiceInsurerPayment extends Model {
       as: 'detail',
     });
     this.belongsTo(models.InvoiceInsurancePlan, {
-      foreignKey: 'insurerId',
+      foreignKey: 'invoiceInsurancePlanId',
       as: 'insurer',
       constraints: false,
     });

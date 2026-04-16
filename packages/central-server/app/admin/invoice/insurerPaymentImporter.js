@@ -37,7 +37,7 @@ const insurerPaymentImportSchema = z
       .min(0)
       .transform(amount => round(amount, 2)),
     invoiceNumber: z.string(),
-    insurerId: z.string(),
+    invoiceInsurancePlanId: z.string(),
     reason: z.string().optional(),
   })
   .strip()
@@ -100,11 +100,11 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     const { insurerDiscountTotal, insurerPaymentRemainingBalance } =
       getSpecificInsurerPaymentRemainingBalance(
         (invoice?.insurancePlans ?? []).map(plan => ({
-          insurerId: plan.id,
+          invoiceInsurancePlanId: plan.id,
           percentage: (plan.defaultCoverage ?? 0) / 100,
         })),
         invoice?.payments ?? [],
-        data.insurerId,
+        data.invoiceInsurancePlanId,
         invoiceItemsTotal,
       );
 
@@ -141,7 +141,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
         await models.InvoiceInsurerPayment.update(
           {
-            insurerId: data.insurerId,
+            invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
             status:
               data.amount === 0
@@ -188,7 +188,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         await models.InvoiceInsurerPayment.create({
           id: data.id,
           invoicePaymentId: payment.id,
-          insurerId: data.insurerId,
+          insurerId: data.invoiceInsurancePlanId,
           reason: data.reason,
           status:
             data.amount === 0
