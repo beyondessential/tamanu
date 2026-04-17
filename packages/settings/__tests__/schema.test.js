@@ -337,6 +337,7 @@ describe('Exposed keys', () => {
         'customisations',
         'features',
         'fields',
+        'fileChooserMbSizeLimit',
         'fsmCrvsCertificates',
         'imagingCancellationReasons',
         'imagingPriorities',
