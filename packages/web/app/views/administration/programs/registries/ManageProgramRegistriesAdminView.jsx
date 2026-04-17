@@ -83,7 +83,7 @@ export function ManageProgramRegistriesAdminView() {
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
-  const { data: registries } = useProgramRegistriesQuery({
+  const { data: registries, isLoading: isRegistriesLoading } = useProgramRegistriesQuery({
     onSuccess: function defaultToFirst(data) {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
@@ -123,6 +123,7 @@ export function ManageProgramRegistriesAdminView() {
     <Article>
       <TableScopeHeader>
         <TableScopeSelect
+          aria-busy={isRegistriesLoading}
           // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
           // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
           // by react-select to forward it to.

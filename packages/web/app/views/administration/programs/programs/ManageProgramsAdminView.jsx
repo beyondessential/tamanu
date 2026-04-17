@@ -54,6 +54,10 @@ export function ManageProgramsAdminView() {
       <TableScopeHeader>
         <TableScopeSelect
           aria-busy={isProgramsLoading}
+          // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
+          // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
+          // by react-select to forward it to.
+          aria-controls={scopedTableId}
           disabled={isProgramsLoading}
           label={
             <TranslatedText stringId="admin.programs.select.label" fallback="Select program" />
@@ -64,7 +68,11 @@ export function ManageProgramsAdminView() {
           value={programId ?? ''}
         />
       </TableScopeHeader>
-      {programId ? <ManageProgramSurveysTable id={scopedTableId} /> : null}
+      {programId ? (
+        <ManageProgramSurveysTable id={scopedTableId} programId={programId} />
+      ) : (
+        <table id={scopedTableId} /> // Empty, but ensures aria-controls points to valid target
+      )}
     </StyledArticle>
   );
 }

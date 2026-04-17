@@ -4,7 +4,6 @@
  */
 
 import React from 'react';
-import { useParams } from 'react-router';
 import styled from 'styled-components';
 
 import { ContentUnavailableView, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
@@ -62,9 +61,8 @@ const programSurveyColumns = /** @type {const} */ ([
   },
 ]);
 
-export function ManageProgramSurveysTable(props) {
-  const { programId } = useParams();
-  const endpoint = programId ? `admin/program/${encodeURIComponent(programId)}/surveys` : '';
+export function ManageProgramSurveysTable({ programId, ...props }) {
+  const endpoint = `admin/program/${encodeURIComponent(programId)}/surveys`;
 
   return (
     <StyledDataFetchingTable
