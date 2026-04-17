@@ -214,12 +214,11 @@ describe('FHIR refresh handler', () => {
 
     it('uses lower priority when migration context is set', async () => {
       await ctx.store.sequelize.query(
-        `SELECT set_config('tamanu.audit.migration_context', '{"test":"context"}', false)`,
+        `SELECT set_config('tamanu.audit.migration_context', '{"test":"context"}', true)`,
       );
       await ctx.store.sequelize.query(
         `INSERT INTO public.test_fhir_refresh_priority (id) VALUES ('with-context')`,
       );
-      await ctx.store.sequelize.query(`SELECT set_config('tamanu.audit.migration_context', '', false)`);
 
       const job = await ctx.store.models.FhirJob.findOne({
         where: { topic: 'fhir.refresh.allFromUpstream' },
