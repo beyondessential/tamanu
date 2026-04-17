@@ -797,21 +797,21 @@ describe('CentralSyncManager Sensitive Facilities', () => {
           }),
         );
 
-        const sensitiveInsurerPayment = await models.InvoiceInsurerPayment.create(
-          fake(models.InvoiceInsurerPayment, {
+        const sensitiveInsurancePlanPayment = await models.InvoiceInsurancePlanPayment.create(
+          fake(models.InvoiceInsurancePlanPayment, {
             invoicePaymentId: sensitiveInvoicePayment.id,
           }),
         );
-        const nonSensitiveInsurerPayment = await models.InvoiceInsurerPayment.create(
-          fake(models.InvoiceInsurerPayment, {
+        const nonSensitiveInsurancePlanPayment = await models.InvoiceInsurancePlanPayment.create(
+          fake(models.InvoiceInsurancePlanPayment, {
             invoicePaymentId: nonSensitiveInvoicePayment.id,
           }),
         );
 
         await checkSensitiveRecordFiltering({
-          model: models.InvoiceInsurerPayment,
-          sensitiveId: sensitiveInsurerPayment.id,
-          nonSensitiveId: nonSensitiveInsurerPayment.id,
+          model: models.InvoiceInsurancePlanPayment,
+          sensitiveId: sensitiveInsurancePlanPayment.id,
+          nonSensitiveId: nonSensitiveInsurancePlanPayment.id,
         });
       });
 

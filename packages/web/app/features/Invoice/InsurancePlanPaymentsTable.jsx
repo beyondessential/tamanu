@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
-import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
+import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
 import { Table } from '../../components/Table';
@@ -25,17 +25,17 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const getInsurerPaymentStatus = insurerPayment => {
-  if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
+const getInsurancePlanPaymentStatus = insurancePlanPayment => {
+  if (insurancePlanPayment?.status === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED) {
     return (
       <Box color={Colors.alert} data-testid="box-lbl5">
-        {`${capitalize(insurerPayment?.status)}${
-          insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
+        {`${capitalize(insurancePlanPayment?.status)}${
+          insurancePlanPayment?.reason ? ` (${insurancePlanPayment?.reason})` : ''
         }`}
       </Box>
     );
   }
-  return capitalize(insurerPayment?.status);
+  return capitalize(insurancePlanPayment?.status);
 };
 
 const COLUMNS = [
@@ -53,7 +53,7 @@ const COLUMNS = [
     accessor: ({ date }) => <DateDisplay date={date} shortYear data-testid="datedisplay-t3t2" />,
   },
   {
-    key: 'insurerName',
+    key: 'insurancePlanName',
     title: (
       <TranslatedText
         stringId="invoice.table.payment.column.payer"
@@ -63,7 +63,7 @@ const COLUMNS = [
     ),
     sortable: false,
     dontCallRowInput: true,
-    accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
+    accessor: ({ insurancePlanPayment }) => insurancePlanPayment?.insurancePlan?.name,
   },
   {
     key: 'amount',
@@ -101,21 +101,21 @@ const COLUMNS = [
     ),
     sortable: false,
     dontCallRowInput: true,
-    accessor: ({ insurerPayment }) => getInsurerPaymentStatus(insurerPayment),
+    accessor: ({ insurancePlanPayment }) => getInsurancePlanPaymentStatus(insurancePlanPayment),
   },
 ];
 
-export const InsurerPaymentsTable = ({ invoice }) => {
-  const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurerPayments = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
+export const InsurancePlanPaymentsTable = ({ invoice }) => {
+  const { insurancePlanPaymentRemainingBalance } = getInvoiceSummary(invoice);
+  const insurancePlanPayments = invoice.payments.filter(payment => !!payment?.insurancePlanPayment?.id);
 
   return (
     <TableContainer data-testid="tablecontainer-x4t9">
       <Title data-testid="title-az1x">
         <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-3aw9">
           <TranslatedText
-            stringId="invoice.modal.payment.insurerPayments"
-            fallback="Insurer payments"
+            stringId="invoice.modal.payment.insurancePlanPayments"
+            fallback="Insurance plan payments"
             data-testid="translatedtext-24np"
           />
         </Heading4>
@@ -124,7 +124,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
             replacements={{
-              remainingBalance: formatDisplayPrice(Math.max(0, insurerPaymentRemainingBalance)),
+              remainingBalance: formatDisplayPrice(Math.max(0, insurancePlanPaymentRemainingBalance)),
             }}
             data-testid="translatedtext-29kz"
           />
@@ -132,7 +132,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
       </Title>
       <Table
         columns={COLUMNS}
-        data={insurerPayments}
+        data={insurancePlanPayments}
         headerColor={Colors.white}
         page={null}
         elevated={false}

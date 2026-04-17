@@ -3,12 +3,12 @@ import { chain } from 'lodash';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import {
-  getInvoiceInsurerPaymentStatus,
+  getInvoiceInsurancePlanPaymentStatus,
   getInvoiceSummary,
   round,
-  getSpecificInsurerPaymentRemainingBalance,
+  getSpecificInsurancePlanPaymentRemainingBalance,
 } from '@tamanu/utils/invoice';
-import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
 import { statkey, updateStat } from '../stats';
@@ -28,7 +28,7 @@ export const parseExcel = filePath => {
 //* The random generator should use a format of 8 alphanumeric characters but not include 0, O or I - please check this is sufficient to guarantee uniqueness with 100 entries/day. Letters should be capitalised.
 const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ', 8);
 
-const insurerPaymentImportSchema = z
+const insurancePlanPaymentImportSchema = z
   .object({
     id: z.string().uuid(),
     date: z.string().date(),
@@ -46,7 +46,7 @@ const insurerPaymentImportSchema = z
     receiptNumber: receiptNumberGenerator(),
   }));
 
-export async function insurerPaymentImporter({ errors, models, stats, file, checkPermission }) {
+export async function insurancePlanPaymentImporter({ errors, models, stats, file, checkPermission }) {
   checkPermission('create', 'InvoicePayment');
   const workbook = parseExcel(file);
 
@@ -59,7 +59,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
   let index = 0;
   for await (const row of sheet) {
-    const { data, error } = await insurerPaymentImportSchema.safeParseAsync(row);
+    const { data, error } = await insurancePlanPaymentImportSchema.safeParseAsync(row);
 
     if (error) {
       errors.push(new ValidationError(sheetName, index, error));
@@ -100,7 +100,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
     const {
       invoiceItemsTotal,
-      insurerPaymentsTotal: allInsurerPaymentsTotal,
+      insurancePlanPaymentsTotal: allPlanPaymentsTotal,
     } = getInvoiceSummary(invoice);
     const plans = (invoice?.insurancePlans ?? []).map(plan => ({
       invoiceInsurancePlanId: plan.id,
@@ -110,8 +110,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       plans.reduce((sum, plan) => sum.plus(new Decimal(invoiceItemsTotal).times(plan.percentage)), new Decimal(0)).toNumber(),
       2,
     );
-    const { insurerDiscountTotal, insurerPaymentRemainingBalance } =
-      getSpecificInsurerPaymentRemainingBalance(
+    const { planDiscountTotal, planPaymentRemainingBalance } =
+      getSpecificInsurancePlanPaymentRemainingBalance(
         plans,
         invoice?.payments ?? [],
         data.invoiceInsurancePlanId,
@@ -119,16 +119,14 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       );
 
     try {
-      //check if the insurer payment already exists
-      const insurerPayment = await models.InvoiceInsurerPayment.findByPk(data.id, {
-        include: models.InvoiceInsurerPayment.getFullReferenceAssociations(),
+      const existingPayment = await models.InvoiceInsurancePlanPayment.findByPk(data.id, {
+        include: models.InvoiceInsurancePlanPayment.getFullReferenceAssociations(),
       });
-      if (insurerPayment) {
+      if (existingPayment) {
         checkPermission('write', 'InvoicePayment');
-        //update the payment
         const maxAmount = round(
-          new Decimal(insurerPaymentRemainingBalance)
-            .add(insurerPayment.detail.amount)
+          new Decimal(planPaymentRemainingBalance)
+            .add(existingPayment.detail.amount)
             .toNumber(),
           2,
         );
@@ -144,28 +142,27 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
             date: data.date,
             amount: data.amount,
           },
-          { where: { id: insurerPayment.invoicePaymentId } },
+          { where: { id: existingPayment.invoicePaymentId } },
         );
 
-        await models.InvoiceInsurerPayment.update(
+        await models.InvoiceInsurancePlanPayment.update(
           {
             invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
             status:
               data.amount === 0
-                ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-                : data.amount === round(insurerDiscountTotal, 2)
-                  ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-                  : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+                ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED
+                : data.amount === round(planDiscountTotal, 2)
+                  ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID
+                  : INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL,
           },
-          { where: { id: insurerPayment.id } },
+          { where: { id: existingPayment.id } },
         );
-        //Update the overall insurer payment status to invoice
         await models.Invoice.update(
           {
-            insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
-              new Decimal(allInsurerPaymentsTotal)
-                .minus(insurerPayment.detail.amount)
+            insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
+              new Decimal(allPlanPaymentsTotal)
+                .minus(existingPayment.detail.amount)
                 .add(data.amount)
                 .toNumber(),
               allPlansCoverageTotal,
@@ -174,10 +171,9 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           { where: { id: invoice.id } },
         );
 
-        updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'updated');
+        updateStat(subStat, statkey('InvoiceInsurancePlanPayment', sheetName), 'updated');
       } else {
-        //create new payment
-        const maxNewAmount = round(insurerPaymentRemainingBalance, 2);
+        const maxNewAmount = round(planPaymentRemainingBalance, 2);
         if (data.amount > maxNewAmount) {
           errors.push(
             new ValidationError(sheetName, index, `Payment amount $${data.amount} exceeds the remaining balance of $${maxNewAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`),
@@ -193,30 +189,29 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           },
           { returning: true },
         );
-        await models.InvoiceInsurerPayment.create({
+        await models.InvoiceInsurancePlanPayment.create({
           id: data.id,
           invoicePaymentId: payment.id,
           invoiceInsurancePlanId: data.invoiceInsurancePlanId,
           reason: data.reason,
           status:
             data.amount === 0
-              ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-              : data.amount === round(insurerDiscountTotal, 2)
-                ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-                : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+              ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED
+              : data.amount === round(planDiscountTotal, 2)
+                ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID
+                : INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL,
         });
-        //Update the overall insurer payment status to invoice
         await models.Invoice.update(
           {
-            insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
-              new Decimal(allInsurerPaymentsTotal).add(data.amount).toNumber(),
+            insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
+              new Decimal(allPlanPaymentsTotal).add(data.amount).toNumber(),
               allPlansCoverageTotal,
             ),
           },
           { where: { id: invoice.id } },
         );
 
-        updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
+        updateStat(subStat, statkey('InvoiceInsurancePlanPayment', sheetName), 'created');
       }
     } catch (e) {
       errors.push(new ValidationError(sheetName, index, `Failed to process payment for invoice '${data.invoiceNumber}': ${e.message}`));

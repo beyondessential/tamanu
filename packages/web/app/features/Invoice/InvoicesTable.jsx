@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUSES,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_STATUSES,
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
@@ -133,12 +133,12 @@ const getPaymentStatus = row => {
       />
       {/* The payment status refers to the patient contribution only UNLESS the insurer has rejected the payment,
       in which case the status is followed by a /Rejected */}
-      {row.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED && (
+      {row.insurancePlanPaymentStatus === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED && (
         <>
           {'/'}
           <TranslatedEnum
-            value={row.insurerPaymentStatus}
-            enumValues={INVOICE_INSURER_PAYMENT_STATUS_LABELS}
+            value={row.insurancePlanPaymentStatus}
+            enumValues={INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS}
             data-testid="translatedenum-qjeb"
           />
         </>

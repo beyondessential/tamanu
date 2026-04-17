@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   REFERENCE_TYPES,
@@ -61,10 +61,10 @@ describe('Patient Payment Refund', () => {
       updatedByUserId: user.id,
       ...overrides,
     });
-    await models.InvoiceInsurerPayment.create({
+    await models.InvoiceInsurancePlanPayment.create({
       invoicePaymentId: payment.id,
       invoiceInsurancePlanId,
-      status: INVOICE_INSURER_PAYMENT_STATUSES.PAID,
+      status: INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID,
     });
     return payment;
   };

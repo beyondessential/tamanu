@@ -1,11 +1,11 @@
 import React from 'react';
 import { ImportExportView } from './components/ImportExportView';
 
-export const InsurerPaymentsAdminView = () => (
+export const InsurancePlanPaymentsAdminView = () => (
   <ImportExportView
-    title="Insurer Payments"
-    endpoint="insurerPayments"
-    // no export required for insurer payments
+    title="Insurance Plan Payments"
+    endpoint="insurancePlanPayments"
+    // no export required for insurance plan payments
     buildTabs={(importTab) => [importTab]}
     data-testid="importexportview-n1ke"
   />

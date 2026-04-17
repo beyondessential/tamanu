@@ -206,15 +206,15 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     icon: <FeedIcon aria-hidden color="secondary" />,
   },
   {
-    key: 'Insurer payments',
+    key: 'Insurance plan payments',
     label: (
       <TranslatedText
-        stringId="adminSidebar.insurerPayments"
-        fallback="Insurer payments"
+        stringId="adminSidebar.insurancePlanPayments"
+        fallback="Insurance plan payments"
         data-testid="translatedtext-0ao3"
       />
     ),
-    path: '/admin/insurerPayments',
+    path: '/admin/insurancePlanPayments',
     icon: <AttachMoneyIcon aria-hidden color="secondary" data-testid="attachmoneyicon-w0gr" />,
   },
 ]);

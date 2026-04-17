@@ -13,7 +13,7 @@ import {
   InvoiceForm,
   InvoiceSummaryPanel,
   PatientPaymentsTable,
-  InsurerPaymentsTable,
+  InsurancePlanPaymentsTable,
 } from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
@@ -307,7 +307,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
             <InvoiceSummaryPanel invoice={invoice} />
-            {!isInProgress && <InsurerPaymentsTable invoice={invoice} />}
+            {!isInProgress && <InsurancePlanPaymentsTable invoice={invoice} />}
           </PaymentsSection>
         </InvoiceContainer>
       </TabPane>

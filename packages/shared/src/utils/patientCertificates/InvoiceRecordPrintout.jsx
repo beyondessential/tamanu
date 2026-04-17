@@ -2,7 +2,7 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { capitalize } from 'lodash';
 
-import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
+import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES } from '@tamanu/constants';
 
 import { CertificateHeader, SigningImage, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -15,7 +15,7 @@ import {
   getInvoiceItemPriceDisplay,
   getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
-  getInsurerPaymentsWithRemainingBalanceDisplay,
+  getInsurancePlanPaymentsWithRemainingBalanceDisplay,
   getInvoiceItemTotalDiscountedPrice,
   hasItemAdjustment,
   getItemAdjustmentAmount,
@@ -291,17 +291,17 @@ const SectionSpacing = ({ minPresenceAhead = 70 }) => (
   <View style={{ paddingBottom: '10px' }} minPresenceAhead={minPresenceAhead} />
 );
 
-const getInsurerPaymentStatus = insurerPayment => {
-  if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
+const getInsurancePlanPaymentStatus = insurancePlanPayment => {
+  if (insurancePlanPayment?.status === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED) {
     return (
       <P>
-        {`${capitalize(insurerPayment?.status)}${
-          insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
+        {`${capitalize(insurancePlanPayment?.status)}${
+          insurancePlanPayment?.reason ? ` (${insurancePlanPayment?.reason})` : ''
         }`}
       </P>
     );
   }
-  return capitalize(insurerPayment?.status);
+  return capitalize(insurancePlanPayment?.status);
 };
 
 const COLUMNS = {
@@ -390,7 +390,7 @@ const COLUMNS = {
       style: { width: '21%' },
     },
   ],
-  insurerPayments: [
+  insurancePlanPayments: [
     {
       key: 'date',
       title: 'Date',
@@ -398,10 +398,10 @@ const COLUMNS = {
       accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
-      key: 'insurerName',
+      key: 'insurancePlanName',
       title: 'Payer',
       style: { width: '17%' },
-      accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
+      accessor: ({ insurancePlanPayment }) => insurancePlanPayment?.insurancePlan?.name,
     },
     {
       key: 'amount',
@@ -424,7 +424,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: ({ insurerPayment }) => getInsurerPaymentStatus(insurerPayment),
+      accessor: ({ insurancePlanPayment }) => getInsurancePlanPaymentStatus(insurancePlanPayment),
       style: { width: '30%' },
     },
   ],
@@ -650,7 +650,7 @@ const InvoiceRecordPrintoutComponent = ({
   const formatters = { formatShort };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
-  const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
+  const insurancePlanPayments = getInsurancePlanPaymentsWithRemainingBalanceDisplay(invoice);
 
   return (
     <Document>
@@ -702,11 +702,11 @@ const InvoiceRecordPrintoutComponent = ({
             formatters={formatters}
           />
         )}
-        {insurerPayments?.length && (
+        {insurancePlanPayments?.length && (
           <PaymentTableSection
             title="Insurer payment"
-            data={insurerPayments}
-            columns={COLUMNS.insurerPayments}
+            data={insurancePlanPayments}
+            columns={COLUMNS.insurancePlanPayments}
             formatters={formatters}
           />
         )}

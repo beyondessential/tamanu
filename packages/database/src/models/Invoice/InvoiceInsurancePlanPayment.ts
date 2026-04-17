@@ -8,13 +8,12 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurerPayment extends Model {
+export class InvoiceInsurancePlanPayment extends Model {
   declare id: string;
   declare invoiceInsurancePlanId: string;
   declare status: string;
   declare reason?: string;
   declare invoicePaymentId?: string;
-  declare insurer?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -44,7 +43,7 @@ export class InvoiceInsurerPayment extends Model {
     });
     this.belongsTo(models.InvoiceInsurancePlan, {
       foreignKey: 'invoiceInsurancePlanId',
-      as: 'insurer',
+      as: 'insurancePlan',
       constraints: false,
     });
   }
@@ -79,7 +78,7 @@ export class InvoiceInsurerPayment extends Model {
     return [
       {
         model: models.InvoiceInsurancePlan,
-        as: 'insurer',
+        as: 'insurancePlan',
       },
     ];
   }

@@ -155,7 +155,7 @@ describe('Sync Lookup data', () => {
       AdministeredVaccine,
       Discharge,
       DocumentMetadata,
-      InvoiceInsurerPayment,
+      InvoiceInsurancePlanPayment,
       InvoicePatientPayment,
       LabRequest,
       LabRequestAttachment,
@@ -645,8 +645,8 @@ describe('Sync Lookup data', () => {
         invoiceId: invoice.id,
       }),
     );
-    await InvoiceInsurerPayment.create(
-      fake(InvoiceInsurerPayment, {
+    await InvoiceInsurancePlanPayment.create(
+      fake(InvoiceInsurancePlanPayment, {
         invoicePaymentId: invoicePayment.id,
         invoiceInsurancePlanId: contract.id,
       }),

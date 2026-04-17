@@ -47,7 +47,7 @@ export interface PatientPayment {
   id: string;
 }
 
-export interface InsurerPayment {
+export interface InsurancePlanPayment {
   id: string;
   invoiceInsurancePlanId?: string;
 }
@@ -56,9 +56,9 @@ export interface Payment {
   id?: string;
   amount: number | Decimal;
   patientPayment?: PatientPayment;
-  insurerPayment?: InsurerPayment;
-  refundPayment?: InsurerPayment;
-  originalPayment?: InsurerPayment;
+  insurancePlanPayment?: InsurancePlanPayment;
+  refundPayment?: InsurancePlanPayment;
+  originalPayment?: InsurancePlanPayment;
 }
 
 export interface Invoice {
@@ -79,8 +79,8 @@ export interface InvoiceSummary {
   itemAdjustmentsTotal: number;
   patientSubtotal: number;
   patientPaymentsTotal: number;
-  insurerPaymentsTotal: number;
+  insurancePlanPaymentsTotal: number;
   paymentsTotal: number;
   patientPaymentRemainingBalance: number;
-  insurerPaymentRemainingBalance: number;
+  insurancePlanPaymentRemainingBalance: number;
 }

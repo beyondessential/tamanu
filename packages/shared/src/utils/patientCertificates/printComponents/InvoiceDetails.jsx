@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   ENCOUNTER_TYPE_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
 import { DataSection } from './DataSection';
@@ -17,15 +17,15 @@ const getInvoicePaymentStatus = invoice => {
   const patientPaymentStatus =
     invoice?.patientPaymentStatus ?? INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
 
-  const insurerPaymentStatus =
-    invoice?.insurerPaymentStatus ?? INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+  const insurancePlanPaymentStatus =
+    invoice?.insurancePlanPaymentStatus ?? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.UNPAID;
 
   const patientLabel = INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[patientPaymentStatus];
-  const insurerLabel = INVOICE_INSURER_PAYMENT_STATUS_LABELS[insurerPaymentStatus];
+  const insurancePlanLabel = INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS[insurancePlanPaymentStatus];
 
   return (
     patientLabel +
-    (insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED ? `/${insurerLabel}` : '')
+    (insurancePlanPaymentStatus === INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED ? `/${insurancePlanLabel}` : '')
   );
 };
 
