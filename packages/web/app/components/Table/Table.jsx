@@ -574,6 +574,7 @@ class TableComponent extends React.Component {
       elevated,
       headerColor,
       hideHeader,
+      id,
       fixedHeader,
       lazyLoading,
       TableHeader,
@@ -594,6 +595,7 @@ class TableComponent extends React.Component {
         isBodyScrollable
         $containerStyle={containerStyle}
         data-testid={dataTestId}
+        id={id}
         style={{
           borderColor:
             noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
