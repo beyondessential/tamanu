@@ -84,10 +84,11 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   surveyInfo.notifiable ??= false;
-  surveyInfo.notifyEmailAddresses = (surveyInfo.notifyEmailAddresses ?? '')
-    .split(',')
-    .map(email => email.trim())
-    .filter(Boolean);
+  surveyInfo.notifyEmailAddresses = Array.from(
+    new Set((surveyInfo.notifyEmailAddresses ?? '').split(',').map(email => email.trim())),
+  )
+    .filter(Boolean)
+    .sort();
 
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
