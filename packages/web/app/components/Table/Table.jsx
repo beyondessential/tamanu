@@ -57,7 +57,7 @@ const CellError = React.memo(({ error }) => {
   );
 });
 
-const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+const DEFAULT_ROWS_PER_PAGE_OPTIONS = /** @type {const} */ ([10, 25, 50]);
 
 const CenteredLoadingIndicatorContainer = styled.div`
   width: fit-content;
@@ -94,22 +94,22 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   width: 100%;
-  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
+  border: 1px solid ${Colors.outline};
   ${props => (props.$elevated ? PaperStyles : null)};
-  ${props => (props.containerStyle ? props.containerStyle : null)}
+  ${props => (props.$containerStyle ? props.$containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
-  &.MuiTableBody-root {
-    ${props =>
-      props.$lazyLoading
-        ? `
-        overflow: auto;
-        height: 62vh;
-        display: block;
-      `
-        : ''};
-  }
+  ${props =>
+    props.$lazyLoading
+      ? css`
+          &.MuiTableBody-root {
+            block-size: 62dvb;
+            display: block;
+            overflow: auto;
+          }
+        `
+      : ''};
 `;
 
 const StyledTableCellContent = styled.div`
@@ -121,8 +121,7 @@ const StyledTableCellContent = styled.div`
 const StyledTableCell = styled(TableCell)`
   padding: 15px;
   font-size: 14px;
-  line-height: 18px;
-  background: ${props => props.background};
+  line-height: 1.3;
 
   &.MuiTableCell-body {
     padding: 20px 15px;
@@ -140,8 +139,6 @@ const StyledTableCell = styled(TableCell)`
 
 const StyledTable = styled(MaterialTable)`
   border-collapse: unset;
-  background: ${props => props.$backgroundColor};
-
   &:last-child {
     border-bottom: none;
   }
@@ -163,11 +160,11 @@ const StyledTableHead = styled(TableHead)`
           position: sticky;
           inset-block-start: 0;
         `
-      : ``}
-  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+      : ''}
+  background: ${props => props.$headerColor || Colors.background};
   white-space: nowrap;
   .MuiTableCell-head {
-    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+    background: ${props => props.$headerColor || Colors.background};
     ${props =>
       props.$fixedHeader
         ? css`
@@ -195,9 +192,9 @@ const InactiveSortIcon = styled(ActiveSortIcon)`
   color: ${Colors.midText} !important;
 `;
 
-const HeaderContainer = React.memo(({ children, numeric }) => (
-  <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
-));
+const HeaderContainer = ({ numeric, ...props }) => (
+  <StyledTableCell align={numeric ? 'right' : 'left'} {...props} />
+);
 
 const getTableRow = ({
   children,
@@ -285,11 +282,11 @@ const Row = React.memo(
           <StyledTableCell
             key={key}
             onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
-            background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${rowIndex}-${key}`}
             data-testid={`styledtablecell-2gyy-${rowIndex}-${key}`}
+            style={{ backgroundColor }}
           >
             <ErrorBoundary
               ErrorComponent={CellError}
@@ -315,12 +312,12 @@ const Row = React.memo(
     );
     return (
       <RowContainer
-        onClick={onClick && (() => onClick(data))}
-        rowStyle={rowStyle ? rowStyle(data) : ''}
+        onClick={onClick && (() => onClick?.(data))}
+        rowStyle={rowStyle?.(data)}
         lazyLoading={lazyLoading}
-        onMouseEnter={onMouseEnter && (() => onMouseEnter(data))}
-        onMouseLeave={onMouseLeave && (() => onMouseLeave(data))}
-        rowTooltip={getRowTooltip && getRowTooltip(data)}
+        onMouseEnter={onMouseEnter && (() => onMouseEnter?.(data))}
+        onMouseLeave={onMouseLeave && (() => onMouseLeave?.(data))}
+        rowTooltip={getRowTooltip?.(data)}
         data-testid="rowcontainer-42fq"
       >
         {cells}
@@ -333,7 +330,7 @@ const ErrorSpan = styled.span`
   color: #ff0000;
 `;
 
-const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
+const DisplayValue = ({ maxWidth, displayValue }) => {
   const title = typeof displayValue === 'string' ? displayValue : null;
   return maxWidth ? (
     <StyledTableCellContent
@@ -346,7 +343,7 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   ) : (
     displayValue
   );
-});
+};
 
 const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
   <RowContainer className={className} data-testid="rowcontainer-x9xp">
@@ -595,17 +592,20 @@ class TableComponent extends React.Component {
         className={className}
         $elevated={elevated}
         isBodyScrollable
-        containerStyle={containerStyle}
-        $borderColor={
-          noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
-            ? noDataBackgroundColor
-            : Colors.outline
-        }
+        $containerStyle={containerStyle}
         data-testid={dataTestId}
+        style={{
+          borderColor:
+            noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
+              ? noDataBackgroundColor
+              : undefined,
+        }}
       >
-        {TableHeader && TableHeader}
+        {TableHeader}
         <StyledTable
-          $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
+          style={{
+            backgroundColor: data?.length || isLoading ? Colors.white : noDataBackgroundColor,
+          }}
           data-testid="styledtable-1dlu"
         >
           {!hideHeader && (
