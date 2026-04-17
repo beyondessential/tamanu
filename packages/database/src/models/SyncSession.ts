@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { type InitOptions } from '../types/model';
+import { dropMarkedForSyncPatientsTable, dropSnapshotTable } from '../sync/manageSnapshotTable';
 
 export class SyncSession extends Model {
   declare id: string;
@@ -92,6 +93,18 @@ export class SyncSession extends Model {
       errors: [...errors, error],
       completedAt: new Date(),
     });
+    // Drop snapshot tables too, otherwise errored sessions leak them forever
+    // (happy-path cleanup lives in completeSyncSession, but many error paths
+    // only call markErrored and never reach that).
+    try {
+      await dropSnapshotTable(this.sequelize, this.id);
+      await dropMarkedForSyncPatientsTable(this.sequelize, this.id);
+    } catch (dropError) {
+      log.warn('Failed to drop snapshot tables for errored sync session', {
+        sessionId: this.id,
+        error: dropError instanceof Error ? dropError.message : String(dropError),
+      });
+    }
   }
 
   static async markSessionErrored(id: string, error: string) {
