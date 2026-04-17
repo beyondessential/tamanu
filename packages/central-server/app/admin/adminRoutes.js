@@ -68,6 +68,7 @@ adminRoutes.use('/export', exporterRouter);
 adminRoutes.get('/programs', simpleGetList('Program'));
 adminRoutes.get('/program/:id/surveys', simpleGetList('Survey', 'programId'));
 adminRoutes.get('/program/:id', simpleGet('Program'));
+adminRoutes.put('/survey/:id', simplePut('Survey'));
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
