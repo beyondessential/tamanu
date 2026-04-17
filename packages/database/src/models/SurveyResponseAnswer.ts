@@ -102,7 +102,10 @@ export class SurveyResponseAnswer extends Model {
   }
 
   // eslint-disable-next-line no-unused-vars
-  static getDefaultId = async (resource: string, settings: { get: (_arg0: string) => any }) => {
+  static getDefaultId = async (
+    resource: string,
+    settings: { get: (_arg0: string) => any; facilityId?: string },
+  ) => {
     const { models } = this.sequelize;
     const code = await settings.get(`survey.defaultCodes.${resource}`);
 
@@ -112,10 +115,21 @@ export class SurveyResponseAnswer extends Model {
       throw new Error(`Model not found: ${modelName}`);
     }
 
-    const record = await model.findOne({ where: { code } });
+    const where: { code: string; facilityId?: string } = { code };
+    const { facilityId } = settings;
+    const modelAttributes = model.getAttributes?.() ?? {};
+    const modelHasFacilityId = 'facilityId' in modelAttributes;
+
+    if (facilityId && modelHasFacilityId) {
+      where.facilityId = facilityId;
+    }
+
+    const record = await model.findOne({ where });
     if (!record) {
+      const facilityContext =
+        facilityId && modelHasFacilityId ? ` for facility '${facilityId}'` : '';
       throw new Error(
-        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the settings)`,
+        `Could not find default answer for '${resource}': code '${code}'${facilityContext} not found (check survey.defaultCodes.${resource} in the settings)`,
       );
     }
     return record.id;
@@ -138,11 +152,7 @@ export class SurveyResponseAnswer extends Model {
       where: {
         id: surveyResponse.surveyId,
         surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.VITALS,
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART,
-          ],
+          [Op.in]: [SURVEY_TYPES.VITALS, SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
         },
       },
     });
@@ -189,7 +199,10 @@ export class SurveyResponseAnswer extends Model {
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.updateWithReasonForChange(newCalculatedValue, reasonForChange);
+        await existingCalculatedAnswer.updateWithReasonForChange(
+          newCalculatedValue,
+          reasonForChange,
+        );
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,

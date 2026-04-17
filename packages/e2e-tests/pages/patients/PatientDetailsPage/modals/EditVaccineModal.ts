@@ -56,17 +56,11 @@ export class EditVaccineModal extends BasePatientModal {
     this.dateGiven = this.page.getByTestId('field-8sou').getByRole('textbox');
     this.injectionSite = this.page.getByTestId('field-jz48-select');
     this.area = this.page.getByTestId('field-zrlv-group-input');
-    this.areaSearch = this.page
-      .getByTestId('field-zrlv-group-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.areaSearch = this.page.getByTestId('field-zrlv-group-input').locator('input');
     this.location = this.page.getByTestId('field-zrlv-location-input');
-    this.locationSearch = this.page
-      .getByTestId('field-zrlv-location-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.locationSearch = this.page.getByTestId('field-zrlv-location-input').locator('input');
     this.department = this.page.getByTestId('field-5sfc-input');
-    this.departmentSearch = this.page
-      .getByTestId('field-5sfc-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.departmentSearch = this.page.getByTestId('field-5sfc-input').locator('input');
     this.givenBy = this.page.getByTestId('field-xycc-input');
     this.consentCheckbox = this.page.getByTestId('consentfield-rvwt-controlcheck');
     this.consentGivenBy = this.page.getByTestId('field-inc8-input');

@@ -94,7 +94,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   LabRequestStatus: [Write],
   LabTest: [List, Read, Write, Create],
   LabTestPanel: [List, Read, Write, Create],
-  LabTestResult: [Read, Write],
+  LabTestResult: [List, Read, Write],
   LabTestType: [List, Read, Write, Create],
   Location: [List, Read, Write, Create],
   LocationAssignment: [List, Read],

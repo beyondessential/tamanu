@@ -74,7 +74,9 @@ const SearchButton = styled(withPermissionTooltip(Button))`
 `;
 
 const ClearButton = styled(TextButton)`
-  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const CustomisableSearchBar = ({
