@@ -101,8 +101,6 @@ export const LabTestResultModal = React.memo(
     const navigate = useNavigate();
     const { category = 'all' } = useParams();
 
-    const visibleHistory = history;
-
     const handleViewLabRequest = async () => {
       const { labRequest } = labTest;
       const {
@@ -235,7 +233,7 @@ export const LabTestResultModal = React.memo(
             />
           </Column>
         </ModalBody>
-        {visibleHistory.length > 1 && (
+        {history.length > 1 && (
           <>
             <HistoryTitle data-testid="historytitle-hist">
               <TranslatedText
@@ -246,7 +244,7 @@ export const LabTestResultModal = React.memo(
             </HistoryTitle>
             <HistorySection data-testid="historysection-hist">
               <HistoryList data-testid="historylist-hist">
-                {visibleHistory.map(item => (
+                {history.map(item => (
                   <HistoryItem key={item.id} data-testid="historyitem-hist">
                     <HistoryItemValue data-testid="historyitemvalue-result">
                       {item.fieldType === 'secondaryResult' ? (
@@ -272,7 +270,11 @@ export const LabTestResultModal = React.memo(
                           data-testid="translatedtext-unknown"
                         />
                       )}{' '}
-                      <DateDisplay date={item.loggedAt} showTime data-testid="datedisplay-loggedat" />
+                      <DateDisplay
+                        date={item.loggedAt}
+                        showTime
+                        data-testid="datedisplay-loggedat"
+                      />
                     </HistoryItemLabel>
                   </HistoryItem>
                 ))}
@@ -293,5 +295,5 @@ export const LabTestResultModal = React.memo(
         />
       </Modal>
     );
-  }
+  },
 );
