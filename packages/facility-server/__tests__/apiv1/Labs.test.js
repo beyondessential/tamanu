@@ -461,43 +461,32 @@ describe('Labs', () => {
       it('should get lab test result history, filtering consecutive duplicates', async () => {
         const [labTest] = await labRequest.getTests();
 
-        // Update the lab test to create some history, including a consecutive duplicate
         await labTest.update({ result: 'First result' });
         await labTest.update({ result: 'Second result', secondaryResult: 'Positive' });
-        await labTest.update({ result: 'Second result' }); // Duplicate result
+        await labTest.update({ result: 'Second result' }); // Duplicate result — should be skipped
         await labTest.update({ result: 'Third result' });
-        await labTest.update({ secondaryResult: 'Negative' }); // Secondary result change
+        await labTest.update({ secondaryResult: 'Negative' });
 
         const response = await app.get(`/api/labTest/${labTest.id}/history`);
         expect(response).toHaveSucceeded();
-        expect(response.body).toBeInstanceOf(Array);
 
-        // Should have distinct results in descending order (most recent first)
-        // Including both result and secondaryResult changes
         const historyItems = response.body;
-        
-        // Verify we have the expected number of distinct changes (no duplicates)
-        expect(historyItems.length).toBeGreaterThanOrEqual(5);
-
-        // Check that we have both result and secondaryResult field types
         const resultChanges = historyItems.filter(h => h.fieldType === 'result');
-        const secondaryResultChanges = historyItems.filter(h => h.fieldType === 'secondaryResult');
-        
-        expect(resultChanges.length).toBeGreaterThanOrEqual(3);
-        expect(secondaryResultChanges.length).toBeGreaterThanOrEqual(2);
+        const secondaryChanges = historyItems.filter(h => h.fieldType === 'secondaryResult');
 
-        // Verify the most recent changes
+        // 3 distinct result values, 2 distinct secondary values, no phantom entries
+        expect(resultChanges.map(h => h.result)).toEqual([
+          'Third result',
+          'Second result',
+          'First result',
+        ]);
+        expect(secondaryChanges.map(h => h.result)).toEqual(['Negative', 'Positive']);
+
+        // Newest first
         expect(historyItems[0]).toMatchObject({
-          fieldType: 'result',
-          result: 'Third result',
-          updatedByUserId: expect.any(String),
-          loggedAt: expect.any(String),
+          fieldType: 'secondaryResult',
+          result: 'Negative',
         });
-
-        // Verify result changes are present
-        expect(resultChanges.map(h => h.result)).toContain('Third result');
-        expect(resultChanges.map(h => h.result)).toContain('Second result');
-        expect(resultChanges.map(h => h.result)).toContain('First result');
       });
 
       it('should error if lab test is sensitive', async () => {

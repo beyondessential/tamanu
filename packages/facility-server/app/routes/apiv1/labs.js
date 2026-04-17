@@ -668,22 +668,21 @@ labTest.get(
           attributes: ['id', 'displayName'],
         },
       ],
-      order: [['loggedAt', 'DESC']],
+      order: [['loggedAt', 'ASC']],
       raw: false,
     });
 
-    const distinctChanges = [];
-    let lastResult = undefined;
-    let lastSecondaryResult = undefined;
+    const changes = [];
+    let prevResult = null;
+    let prevSecondaryResult = null;
 
     for (const changeLog of changeLogs) {
       const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
-      // recordData keys match DB columns (snake_case) from the audit trigger's to_jsonb(NEW.*)
-      const { result, secondary_result: secondaryResult } = recordData;
+      const result = recordData.result ?? null;
+      const secondaryResult = recordData.secondary_result ?? null;
 
-      // Track result changes
-      if (result !== lastResult) {
-        distinctChanges.push({
+      if (result !== prevResult) {
+        changes.push({
           id: `${id}-result`,
           loggedAt,
           result,
@@ -691,12 +690,11 @@ labTest.get(
           updatedByUserId,
           updatedByDisplayName: updatedByUser?.displayName,
         });
-        lastResult = result;
+        prevResult = result;
       }
 
-      // Track secondary result changes
-      if (secondaryResult !== lastSecondaryResult) {
-        distinctChanges.push({
+      if (secondaryResult !== prevSecondaryResult) {
+        changes.push({
           id: `${id}-secondaryResult`,
           loggedAt,
           result: secondaryResult,
@@ -704,14 +702,12 @@ labTest.get(
           updatedByUserId,
           updatedByDisplayName: updatedByUser?.displayName,
         });
-        lastSecondaryResult = secondaryResult;
+        prevSecondaryResult = secondaryResult;
       }
     }
 
-    // Sort by loggedAt descending to ensure chronological order
-    distinctChanges.sort((a, b) => new Date(b.loggedAt) - new Date(a.loggedAt));
-
-    res.send(distinctChanges);
+    changes.reverse();
+    res.send(changes);
   }),
 );
 
