@@ -681,18 +681,6 @@ labTest.get(
       const result = recordData.result ?? null;
       const secondaryResult = recordData.secondary_result ?? null;
 
-      if (result !== prevResult) {
-        changes.push({
-          id: `${id}-result`,
-          loggedAt,
-          result,
-          fieldType: 'result',
-          updatedByUserId,
-          updatedByDisplayName: updatedByUser?.displayName,
-        });
-        prevResult = result;
-      }
-
       if (secondaryResult !== prevSecondaryResult) {
         changes.push({
           id: `${id}-secondaryResult`,
@@ -703,6 +691,18 @@ labTest.get(
           updatedByDisplayName: updatedByUser?.displayName,
         });
         prevSecondaryResult = secondaryResult;
+      }
+
+      if (result !== prevResult) {
+        changes.push({
+          id: `${id}-result`,
+          loggedAt,
+          result,
+          fieldType: 'result',
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
+        });
+        prevResult = result;
       }
     }
 
