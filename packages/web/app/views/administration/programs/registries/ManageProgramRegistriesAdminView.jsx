@@ -21,7 +21,6 @@ const Metadata = styled.div`
 
 const StyledTabDisplay = styled(TabDisplay)`
   background-color: unset;
-  border-bottom: unset;
   border-inline: 1px solid ${Colors.outline};
 `;
 

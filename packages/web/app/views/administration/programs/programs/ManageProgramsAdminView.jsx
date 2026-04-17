@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
+import { EditProgramButton } from './EditProgramMetadataModal';
 import { ManageProgramSurveysTable } from './ManageProgramSurveysTable';
 import { useProgramsQuery } from './queries';
 
@@ -12,6 +13,10 @@ const StyledArticle = styled(Article)`
   ${ContentContainer}:has(&) {
     background-color: ${TAMANU_COLORS.background2};
   }
+`;
+
+const StyledTableScopeHeader = styled(TableScopeHeader)`
+  border-block-end-style: none;
 `;
 
 export function ManageProgramsAdminView() {
@@ -51,7 +56,7 @@ export function ManageProgramsAdminView() {
 
   return (
     <StyledArticle>
-      <TableScopeHeader>
+      <StyledTableScopeHeader>
         <TableScopeSelect
           aria-busy={isProgramsLoading}
           // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
@@ -67,7 +72,8 @@ export function ManageProgramsAdminView() {
           options={options}
           value={programId ?? ''}
         />
-      </TableScopeHeader>
+        <EditProgramButton disabled={isProgramsLoading} style={{ marginInlineStart: 'auto' }} />
+      </StyledTableScopeHeader>
       {programId ? (
         <ManageProgramSurveysTable id={scopedTableId} programId={programId} />
       ) : (
