@@ -24,7 +24,7 @@ const TRIGGER_FUNCTION_WITH_MIGRATION_PRIORITY = `
     END IF;
 
     at_priority := CASE
-      WHEN coalesce(nullif(current_setting('tamanu.audit.migration_context', true), ''), NULL) IS NOT NULL
+      WHEN nullif(current_setting('tamanu.audit.migration_context', true), '') IS NOT NULL
         THEN ${MIGRATION_PRIORITY}
       ELSE ${JOB_PRIORITIES.DEFAULT}
     END;
