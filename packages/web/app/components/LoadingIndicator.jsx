@@ -14,7 +14,7 @@ const LoadingIconContainer = styled.div`
   place-items: center;
   transition: ${({ theme: { transitions } }) =>
     transitions.create(['backdrop-filter', 'background-color'], {
-      easing: transitions.easeOut,
+      easing: transitions.easing.easeOut,
       duration: transitions.duration.shortest,
     })};
   width: 100%;
