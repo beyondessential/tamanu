@@ -355,6 +355,16 @@ describe('fijiAspenMediciReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+     // The report SQL compares a timestamptz column against a bare timestamp
+    // (result of AT TIME ZONE), so PG implicitly casts back using the session
+    // timezone. Ensure every pool connection has it set correctly.
+    const { sequelize } = ctx.store;
+    const poolMax = sequelize.options.pool?.max || 5;
+    await Promise.all(
+      Array.from({ length: poolMax }, () =>
+        sequelize.query(`SET timezone TO '${PRIMARY_TIME_ZONE}'`),
+      ),
+    );
     models = ctx.store.models;
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     fakedata = await fakeAllData(models, ctx);
