@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useId, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
 import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
+import { ManageProgramSurveysTable } from './ManageProgramSurveysTable';
 import { useProgramsQuery } from './queries';
 
 const StyledArticle = styled(Article)`
@@ -46,6 +47,8 @@ export function ManageProgramsAdminView() {
     [programId, programs, switchToProgram],
   );
 
+  const scopedTableId = useId();
+
   return (
     <StyledArticle>
       <TableScopeHeader>
@@ -61,6 +64,7 @@ export function ManageProgramsAdminView() {
           value={programId ?? ''}
         />
       </TableScopeHeader>
+      {programId ? <ManageProgramSurveysTable id={scopedTableId} /> : null}
     </StyledArticle>
   );
 }

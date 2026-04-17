@@ -5,6 +5,7 @@ import Bowser from 'bowser';
 import 'typeface-roboto';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
+
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
