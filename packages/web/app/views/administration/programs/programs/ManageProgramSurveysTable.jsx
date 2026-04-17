@@ -11,10 +11,6 @@ import { ContentUnavailableView, TAMANU_COLORS, TranslatedText } from '@tamanu/u
 import { NullableBooleanCell, VisibilityStatusCell } from '../components';
 import { StyledDataFetchingTable } from '../registries/components';
 
-const Caps = styled.span`
-  text-transform: uppercase;
-`;
-
 /** Aligns with padding of StyledTableCell from Table.jsx */
 const UnorderedList = styled.ul`
   padding-inline-start: 15px;
@@ -46,11 +42,7 @@ const programSurveyColumns = /** @type {const} */ ([
   {
     key: 'isSensitive',
     title: 'isSensitive',
-    accessor: ({ isSensitive }) => (
-      <Caps>
-        <NullableBooleanCell value={isSensitive} />
-      </Caps>
-    ),
+    accessor: ({ isSensitive }) => <NullableBooleanCell value={isSensitive} />,
   },
   {
     accessor: VisibilityStatusCell,
@@ -60,11 +52,7 @@ const programSurveyColumns = /** @type {const} */ ([
   {
     key: 'notifiable',
     title: 'notifiable',
-    accessor: ({ notifiable }) => (
-      <Caps>
-        <NullableBooleanCell value={notifiable} />
-      </Caps>
-    ),
+    accessor: ({ notifiable }) => <NullableBooleanCell value={notifiable} />,
   },
   {
     accessor: NotifyEmailAddressesCell,
