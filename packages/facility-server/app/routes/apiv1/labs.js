@@ -678,8 +678,8 @@ labTest.get(
 
     for (const changeLog of changeLogs) {
       const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
-      const result = recordData.result ?? null;
-      const secondaryResult = recordData.secondary_result ?? null;
+      const result = recordData.result || null;
+      const secondaryResult = recordData.secondary_result || null;
 
       if (secondaryResult !== prevSecondaryResult) {
         changes.push({
