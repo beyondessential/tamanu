@@ -1,8 +1,3 @@
-/**
- * Tamanu
- * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
- */
-
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
