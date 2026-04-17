@@ -113,7 +113,6 @@ const StyledTableBody = styled(TableBody)`
 `;
 
 const StyledTableCellContent = styled.div`
-  max-width: ${props => props.maxWidth}px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -151,25 +150,31 @@ const StyledTable = styled(MaterialTable)`
 const StyledTableHead = styled(TableHead)`
   ${props =>
     props.$lazyLoading
-      ? `
-      display: table;
-      table-layout: fixed;
-      width: 100%;
-      padding-right: 15px;
-    `
+      ? css`
+          display: table;
+          table-layout: fixed;
+          width: 100%;
+          padding-right: 15px;
+        `
       : ''}
   ${props =>
     props.$isBodyScrollable
-      ? `
-      position: sticky;
-      top: 0;
-  `
+      ? css`
+          position: sticky;
+          inset-block-start: 0;
+        `
       : ``}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
     background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
-    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+    ${props =>
+      props.$fixedHeader
+        ? css`
+            inset-block-start: 0;
+            position: sticky;
+          `
+        : ''}
   }
   ${props => (props.$headStyle ? props.$headStyle : '')}
 `;
@@ -333,8 +338,8 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   return maxWidth ? (
     <StyledTableCellContent
       title={title}
-      maxWidth={maxWidth}
       data-testid="styledtablecellcontent-t9n3"
+      style={{ maxWidth }}
     >
       {displayValue}
     </StyledTableCellContent>
