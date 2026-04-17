@@ -15,7 +15,7 @@ import { flattenObject } from './flattenObject';
 
 const ErrorMessage = ({ error }) => {
   if (isValidElement(error) || !isObject(error) /* is primitive */) return error;
-  return JSON.stringify(error);
+  return error instanceof Error ? error.message : JSON.stringify(error);
 };
 
 const FormErrors = ({ errors }) => {
