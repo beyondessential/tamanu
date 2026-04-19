@@ -27,7 +27,7 @@ const Row = styled.div`
   margin-top: ${props => (props.$total ? '5px' : 0)};
 `;
 
-const LinkText = styled.span`
+const ApplyLinkText = styled.span`
   color: ${Colors.primary};
   cursor: pointer;
   font-size: 14px;
@@ -35,6 +35,19 @@ const LinkText = styled.span`
 
   &:hover {
     text-decoration: underline;
+  }
+`;
+
+const RemoveLinkText = styled.span`
+  color: ${Colors.darkestText};
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+
+  &:hover {
+    color: ${Colors.primary};
+    font-weight: 500;
   }
 `;
 
@@ -109,19 +122,19 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
       {isSlidingFeeScaleEnabled && isInvoiceEditable(invoice) && (
         <Row $indent>
           {hasDiscount ? (
-            <LinkText onClick={handleRemoveDiscount}>
+            <RemoveLinkText onClick={handleRemoveDiscount}>
               <TranslatedText
                 stringId="invoice.summary.removeSlidingFeeScale"
                 fallback="Remove sliding fee scale"
               />
-            </LinkText>
+            </RemoveLinkText>
           ) : (
-            <LinkText onClick={() => setDiscountModalOpen(true)}>
+            <ApplyLinkText onClick={() => setDiscountModalOpen(true)}>
               <TranslatedText
                 stringId="invoice.summary.applySlidingFeeScale"
                 fallback="Apply sliding fee scale"
               />
-            </LinkText>
+            </ApplyLinkText>
           )}
         </Row>
       )}
