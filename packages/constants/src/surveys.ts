@@ -4,7 +4,7 @@
 import {
   BLOOD_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   SEX_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
@@ -175,7 +175,7 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     ['bloodType', BLOOD_LABELS],
     'primaryContactNumber',
     'secondaryContactNumber',
-    ['maritalStatus', MARTIAL_STATUS_LABELS],
+    ['maritalStatus', MARITAL_STATUS_LABELS],
     'cityTown',
     'streetVillage',
     ['educationalLevel', EDUCATIONAL_ATTAINMENT_LABELS],

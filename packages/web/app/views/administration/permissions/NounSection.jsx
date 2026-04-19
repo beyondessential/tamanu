@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import { PERMISSION_NOUN_DISPLAY_NAMES, PERMISSION_SCHEMA } from '@tamanu/constants';
@@ -31,13 +30,27 @@ export const NounRow = styled.tr`
   }
 `;
 
+export const DisclosureIcon = styled(KeyboardArrowRight).attrs({
+  fontSize: 'small',
+})`
+  transition: ${({ theme: { transitions } }) =>
+    transitions.create(['rotate'], {
+      duration: transitions.duration.shortest,
+      easing: transitions.easing.easeOut,
+    })};
+
+  [aria-expanded='true'] & {
+    rotate: 90deg;
+  }
+`;
+
 export const ChevronCell = styled.td`
   width: ${CHEVRON_WIDTH}px;
   padding: 6px 4px 6px 12px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.midText};
   vertical-align: middle;
-  text-align: left;
+  text-align: start;
   ${stickyLeft(0)}
 `;
 
@@ -45,12 +58,12 @@ const NounCell = styled.td`
   padding: 10px 12px 10px 10px;
   color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
-  text-align: left;
+  text-align: start;
   ${stickyLeft(CHEVRON_WIDTH)}
 `;
 
 export const SummaryCell = styled.td`
-  text-align: left;
+  text-align: start;
   padding: 10px 12px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.darkestText};
@@ -75,7 +88,7 @@ export const VerbLabelCell = styled.td`
 `;
 
 export const VerbCheckCell = styled.td`
-  text-align: left;
+  text-align: start;
   padding: 10px 8px;
 `;
 
@@ -88,7 +101,7 @@ export const StyledCheckbox = styled(Checkbox)`
 
 export const EmptyChevronCell = styled.td`
   width: ${CHEVRON_WIDTH}px;
-  text-align: left;
+  text-align: start;
   ${stickyLeft(0, Colors.white)}
 `;
 
@@ -104,11 +117,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
     <>
       <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? (
-            <KeyboardArrowDown fontSize="small" />
-          ) : (
-            <KeyboardArrowRight fontSize="small" />
-          )}
+          <DisclosureIcon />
         </ChevronCell>
         <NounCell>
           <ThemedTooltip
