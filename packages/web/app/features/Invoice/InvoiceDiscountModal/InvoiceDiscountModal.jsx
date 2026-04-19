@@ -12,6 +12,11 @@ const DISCOUNT_TYPES = {
   MANUAL: 'manual',
 };
 
+const STEPS = {
+  SELECT: 'select',
+  FORM: 'form',
+};
+
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
   background: ${Colors.white};
@@ -121,11 +126,11 @@ const DiscountTypeSelection = ({ discountType, setDiscountType, onClose, onNext 
 );
 
 export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) => {
-  const [step, setStep] = useState('select');
+  const [step, setStep] = useState(STEPS.SELECT);
   const [discountType, setDiscountType] = useState(DISCOUNT_TYPES.ASSESSMENT);
 
   const resetState = () => {
-    setStep('select');
+    setStep(STEPS.SELECT);
     setDiscountType(DISCOUNT_TYPES.ASSESSMENT);
   };
 
@@ -139,7 +144,7 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
     resetState();
   };
 
-  const handleBack = () => setStep('select');
+  const handleBack = () => setStep(STEPS.SELECT);
 
   return (
     <Modal
@@ -153,22 +158,22 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
       open={open}
       onClose={handleClose}
     >
-      {step === 'select' && (
+      {step === STEPS.SELECT && (
         <DiscountTypeSelection
           discountType={discountType}
           setDiscountType={setDiscountType}
           onClose={handleClose}
-          onNext={() => setStep('form')}
+          onNext={() => setStep(STEPS.FORM)}
         />
       )}
-      {step === 'form' && discountType === DISCOUNT_TYPES.ASSESSMENT && (
+      {step === STEPS.FORM && discountType === DISCOUNT_TYPES.ASSESSMENT && (
         <InvoiceDiscountAssessmentForm
           onClose={handleClose}
           onBack={handleBack}
           handleUpdateDiscount={handleSubmitDiscount}
         />
       )}
-      {step === 'form' && discountType === DISCOUNT_TYPES.MANUAL && (
+      {step === STEPS.FORM && discountType === DISCOUNT_TYPES.MANUAL && (
         <InvoiceDiscountManualForm
           onClose={handleClose}
           onBack={handleBack}
