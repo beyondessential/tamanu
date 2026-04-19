@@ -1808,6 +1808,13 @@
       "facilityId": "facility-CarnationHealthCentre"
     },
     {
+      "id": "department-GeneralClinic-tamanu",
+      "code": "GeneralClinic",
+      "name": "General Clinic",
+      "visibilityStatus": "current",
+      "facilityId": "facility-1"
+    },
+    {
       "id": "department-GeneralMedicine-tamanu",
       "code": "GeneralMedicine",
       "name": "General Medicine",
@@ -1855,6 +1862,13 @@
       "name": "Public Health",
       "visibilityStatus": "current",
       "facilityId": "facility-1"
+    },
+    {
+      "id": "department-GeneralClinic-facility-2",
+      "code": "GeneralClinic",
+      "name": "General Clinic",
+      "visibilityStatus": "current",
+      "facilityId": "facility-2"
     },
     {
       "id": "department-GeneralMedicine",
