@@ -24,7 +24,7 @@ import {
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getInvoiceSummary,
 } from '@tamanu/utils/invoice';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
@@ -586,6 +586,7 @@ const PaymentTableSection = ({ title, data, columns, formatters }) => {
 };
 
 const SummaryPane = ({ invoice }) => {
+  const { getTranslation } = useLanguageContext();
   const {
     invoiceItemsUndiscountedTotal,
     patientPaymentRemainingBalance,
@@ -630,7 +631,13 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       {hasDiscount && (
         <View style={summaryPaneStyles.item}>
-          <P>{`Fee scale adjustment - ${discountPercentage}%`}</P>
+          <P>
+            {getTranslation(
+              'invoice.summary.feeScaleAdjustment',
+              'Fee scale adjustment - :percentage%',
+              { replacements: { percentage: discountPercentage } },
+            )}
+          </P>
           <P>{formatDisplayPrice(discountTotal * -1)}</P>
         </View>
       )}
