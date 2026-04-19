@@ -21,7 +21,7 @@ export const ContentContainer = styled.div`
     transitions.create(['background-color'], { duration: transitions.duration.shortest })};
 `;
 
-const TitleContainer = styled.div`
+export const TitleContainer = styled.div`
   align-items: center;
   background-color: ${Colors.white};
   display: flex;
