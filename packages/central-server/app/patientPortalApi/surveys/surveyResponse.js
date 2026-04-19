@@ -27,8 +27,6 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     throw new NotFoundError('Survey was not assigned to the patient');
   }
 
-  // dummy commit for testing
-
   const { facilityId } = assignedSurvey;
   const settingsReader = new ReadSettings(models, facilityId);
   const getDefaultId = async resource =>
