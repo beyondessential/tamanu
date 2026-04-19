@@ -57,8 +57,7 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
     throw new Error('No sheet found in workbook');
   }
 
-  let index = 0;
-  for await (const row of sheet) {
+  for await (const [index, row] of sheet.entries()) {
     const { data, error } = await insurancePlanPaymentImportSchema.safeParseAsync(row);
 
     if (error) {
@@ -216,8 +215,6 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
     } catch (e) {
       errors.push(new ValidationError(sheetName, index, `Failed to process payment for invoice '${data.invoiceNumber}': ${e.message}`));
     }
-
-    index++;
   }
 
   stats.push(subStat);
