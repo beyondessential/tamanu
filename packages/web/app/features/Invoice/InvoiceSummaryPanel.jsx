@@ -66,7 +66,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
     await updateInvoice({ ...invoice, items: invoice.items ?? [], discount: null });
   };
 
-  const hasDiscount = !!invoice.discount?.percentage;
+  const hasDiscount = Boolean(invoice.discount?.percentage);
   const discountPercentage = invoice.discount?.percentage
     ? Math.round(invoice.discount.percentage * 100)
     : 0;

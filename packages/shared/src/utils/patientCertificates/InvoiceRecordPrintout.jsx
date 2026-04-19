@@ -597,7 +597,7 @@ const SummaryPane = ({ invoice }) => {
   } = getInvoiceSummary(invoice);
   const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
   const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
-  const hasDiscount = !!invoice.discount?.percentage;
+  const hasDiscount = Boolean(invoice.discount?.percentage);
   const discountPercentage = hasDiscount
     ? Math.round(invoice.discount.percentage * 100)
     : 0;
