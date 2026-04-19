@@ -17,10 +17,16 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   background: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
-  max-width: 230px;
+  flex: 1;
   padding: 16px 15px;
   margin: 0;
+  text-wrap: auto;
   ${p => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+
+  &.MuiFormControlLabel-root {
+    justify-content: space-between;
+  }
+
   .MuiButtonBase-root {
     top: -10px;
     position: relative;
