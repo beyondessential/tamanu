@@ -172,7 +172,22 @@ e2e_test_setup_start_servers() {
     # session for the same device id, and central will close out our subcommand's
     # session with "Session marked as completed due to its device reconnecting".
     # Doing the slow first sync here in isolation avoids that race entirely.
-    npm run --workspace @tamanu/facility-server start sync
+    #
+    # On a cold central server the SyncLookupRefresher (every 20s, no runImmediately)
+    # may not have built the lookup table yet, in which case sync fails with
+    # "Sync lookup table has not yet built. Cannot initiate sync." — retry a few
+    # times to give it room to finish the first build.
+    local attempt=0
+    local max_attempts=8
+    until npm run --workspace @tamanu/facility-server start sync; do
+        attempt=$((attempt + 1))
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "facility-server sync failed after $attempt attempts" >&2
+            return 1
+        fi
+        echo "facility-server sync attempt $attempt failed; retrying in 15s" >&2
+        sleep 15
+    done
 
     nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
     curl --retry 20 --retry-all-errors --retry-delay 2 localhost:4000
