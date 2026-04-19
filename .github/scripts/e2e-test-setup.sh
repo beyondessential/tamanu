@@ -164,12 +164,18 @@ EOF
 
 e2e_test_setup_start_servers() {
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
-    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
-    # Give servers time to start before syncing
-    sleep 20
-    # Sync the servers
+    # Wait for central to accept connections before kicking off sync.
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:3000
+
+    # Run the initial sync BEFORE the facility-server is up. If the facility-server
+    # is running in parallel, its scheduled SyncTask (`*/1 * * * *`) will open a new
+    # session for the same device id, and central will close out our subcommand's
+    # session with "Session marked as completed due to its device reconnecting".
+    # Doing the slow first sync here in isolation avoids that race entirely.
     npm run --workspace @tamanu/facility-server start sync
-    sleep 20
+
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:4000
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
