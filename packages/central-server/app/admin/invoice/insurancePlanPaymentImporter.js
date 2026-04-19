@@ -17,7 +17,7 @@ import { statkey, updateStat } from '../stats';
  * Parse an excel file into a object with keys as sheet names and values as arrays of objects
  * @param {File} file
  */
-export const parseExcel = filePath => {
+const parseExcel = filePath => {
   const workbook = xlsx.readFile(filePath);
 
   return chain(workbook.Sheets)
@@ -46,7 +46,13 @@ const insurancePlanPaymentImportSchema = z
     receiptNumber: receiptNumberGenerator(),
   }));
 
-export async function insurancePlanPaymentImporter({ errors, models, stats, file, checkPermission }) {
+export async function insurancePlanPaymentImporter({
+  errors,
+  models,
+  stats,
+  file,
+  checkPermission,
+}) {
   checkPermission('create', 'InvoicePayment');
   const workbook = parseExcel(file);
 
@@ -65,48 +71,68 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
       continue;
     }
 
-    const countInvoices = await models.Invoice.count({ where: { displayId: data.invoiceNumber } });
-    if (!countInvoices) {
-      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' not found`));
-      continue;
-    }
-
-    if (countInvoices > 1) {
-      errors.push(new ValidationError(sheetName, index, `Multiple invoices found with number '${data.invoiceNumber}'`));
-      continue;
-    }
-
-    const invoice = await models.Invoice.findOne({
+    const matchingInvoices = await models.Invoice.findAll({
       where: { displayId: data.invoiceNumber },
       include: models.Invoice.getFullReferenceAssociations(),
+      limit: 2,
     });
 
-    if (!invoice) {
-      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' not found`));
+    if (matchingInvoices.length === 0) {
+      errors.push(
+        new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' not found`),
+      );
       continue;
     }
 
+    if (matchingInvoices.length > 1) {
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Multiple invoices found with number '${data.invoiceNumber}'`,
+        ),
+      );
+      continue;
+    }
+
+    const [invoice] = matchingInvoices;
+
     if (invoice.status !== INVOICE_STATUSES.FINALISED) {
-      errors.push(new ValidationError(sheetName, index, `Invoice '${data.invoiceNumber}' has status '${invoice.status}' but must be finalised`));
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Invoice '${data.invoiceNumber}' has status '${invoice.status}' but must be finalised`,
+        ),
+      );
       continue;
     }
 
     const invoicePlanIds = (invoice?.insurancePlans ?? []).map(plan => plan.id);
     if (!invoicePlanIds.includes(data.invoiceInsurancePlanId)) {
-      errors.push(new ValidationError(sheetName, index, `Insurance plan '${data.invoiceInsurancePlanId}' is not attached to invoice '${data.invoiceNumber}'. Attached plans: ${invoicePlanIds.join(', ') || 'none'}`));
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Insurance plan '${data.invoiceInsurancePlanId}' is not attached to invoice '${data.invoiceNumber}'. Attached plans: ${invoicePlanIds.join(', ') || 'none'}`,
+        ),
+      );
       continue;
     }
 
-    const {
-      invoiceItemsTotal,
-      insurancePlanPaymentsTotal: allPlanPaymentsTotal,
-    } = getInvoiceSummary(invoice);
+    const { invoiceItemsTotal, insurancePlanPaymentsTotal: allPlanPaymentsTotal } =
+      getInvoiceSummary(invoice);
     const plans = (invoice?.insurancePlans ?? []).map(plan => ({
       invoiceInsurancePlanId: plan.id,
       percentage: (plan.defaultCoverage ?? 0) / 100,
     }));
     const allPlansCoverageTotal = round(
-      plans.reduce((sum, plan) => sum.plus(new Decimal(invoiceItemsTotal).times(plan.percentage)), new Decimal(0)).toNumber(),
+      plans
+        .reduce(
+          (sum, plan) => sum.plus(new Decimal(invoiceItemsTotal).times(plan.percentage)),
+          new Decimal(0),
+        )
+        .toNumber(),
       2,
     );
     const { planDiscountTotal, planPaymentRemainingBalance } =
@@ -124,14 +150,16 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
       if (existingPayment) {
         checkPermission('write', 'InvoicePayment');
         const maxAmount = round(
-          new Decimal(planPaymentRemainingBalance)
-            .add(existingPayment.detail.amount)
-            .toNumber(),
+          new Decimal(planPaymentRemainingBalance).add(existingPayment.detail.amount).toNumber(),
           2,
         );
         if (data.amount > maxAmount) {
           errors.push(
-            new ValidationError(sheetName, index, `Payment amount $${data.amount} exceeds the remaining balance of $${maxAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`),
+            new ValidationError(
+              sheetName,
+              index,
+              `Payment amount $${data.amount} exceeds the remaining balance of $${maxAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`,
+            ),
           );
           continue;
         }
@@ -175,7 +203,11 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
         const maxNewAmount = round(planPaymentRemainingBalance, 2);
         if (data.amount > maxNewAmount) {
           errors.push(
-            new ValidationError(sheetName, index, `Payment amount $${data.amount} exceeds the remaining balance of $${maxNewAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`),
+            new ValidationError(
+              sheetName,
+              index,
+              `Payment amount $${data.amount} exceeds the remaining balance of $${maxNewAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`,
+            ),
           );
           continue;
         }
@@ -213,7 +245,13 @@ export async function insurancePlanPaymentImporter({ errors, models, stats, file
         updateStat(subStat, statkey('InvoiceInsurancePlanPayment', sheetName), 'created');
       }
     } catch (e) {
-      errors.push(new ValidationError(sheetName, index, `Failed to process payment for invoice '${data.invoiceNumber}': ${e.message}`));
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Failed to process payment for invoice '${data.invoiceNumber}': ${e.message}`,
+        ),
+      );
     }
   }
 
