@@ -56,8 +56,68 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  e2e:
+  prepare_e2e_assets:
     needs: node_modules_cache
+    name: Prepare e2e build and database assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        id: cache
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/central-server build
+      - run: npm run --workspace @tamanu/facility-server build
+
+      - name: Setup postgres dbs
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          .github/scripts/e2e-test-setup.sh setup-postgres
+      - name: Setup central server
+        run: .github/scripts/e2e-test-setup.sh setup-central
+      - name: Setup facility server
+        run: .github/scripts/e2e-test-setup.sh setup-facility
+      - name: Dump provisioned databases
+        run: .github/scripts/e2e-test-setup.sh dump-databases
+
+      - name: Package e2e build artifacts
+        run: |
+          mkdir -p .github/e2e-artifacts/build
+          tar -czf .github/e2e-artifacts/build/e2e-build-output.tgz \
+            packages/*/dist \
+            packages/central-server/config/local.json5 \
+            packages/central-server/provisioning.json5 \
+            packages/facility-server/config/local.json5
+      - name: Package database dumps
+        run: |
+          mkdir -p .github/e2e-artifacts/db
+          mv central.dump facility.dump .github/e2e-artifacts/db/
+      - name: Upload e2e build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-build-output
+          path: .github/e2e-artifacts/build/e2e-build-output.tgz
+          retention-days: 1
+      - name: Upload e2e database dumps
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-db-dumps
+          path: .github/e2e-artifacts/db/
+          retention-days: 1
+
+  e2e:
+    needs: prepare_e2e_assets
     name: E2E Tests ${{ matrix.shard }}
     runs-on: ubuntu-latest
     strategy:
@@ -82,23 +142,32 @@ jobs:
           node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
+        id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
 
-      - run: npm i
-      - run: npm run build-shared
-      - run: npm run --workspace @tamanu/central-server build
-      - run: npm run --workspace @tamanu/facility-server build
+      - name: Download e2e build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-build-output
+          path: .github/e2e-artifacts/build
+      - name: Extract e2e build artifact
+        run: tar -xzf .github/e2e-artifacts/build/e2e-build-output.tgz -C .
+      - name: Download e2e database dumps
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-db-dumps
+          path: .github/e2e-artifacts/db
 
       - name: Setup postgres dbs
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
           .github/scripts/e2e-test-setup.sh setup-postgres
-      - name: Setup central server
-        run: .github/scripts/e2e-test-setup.sh setup-central
-      - name: Setup facility server
-        run: .github/scripts/e2e-test-setup.sh setup-facility
+      - name: Restore provisioned databases
+        run: .github/scripts/e2e-test-setup.sh restore-databases .github/e2e-artifacts/db
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers
       - name: Install Playwright browsers

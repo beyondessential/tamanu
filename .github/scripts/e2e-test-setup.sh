@@ -172,4 +172,18 @@ e2e_test_setup_start_servers() {
     sleep 20
 }
 
-e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
+e2e_test_setup_dump_databases() {
+    pg_dump --format=custom --no-owner --no-privileges --file=central.dump central
+    pg_dump --format=custom --no-owner --no-privileges --file=facility.dump facility
+}
+
+e2e_test_setup_restore_databases() {
+    local dump_dir="${1:-.}"
+    pg_restore --clean --if-exists --no-owner --no-privileges --dbname=central "$dump_dir/central.dump"
+    pg_restore --clean --if-exists --no-owner --no-privileges --dbname=facility "$dump_dir/facility.dump"
+}
+
+command="$(echo "${1:?e2e-test-setup command is required}" | sed "s/-/_/g")"
+shift || true
+
+"e2e_test_setup_${command}" "$@"
