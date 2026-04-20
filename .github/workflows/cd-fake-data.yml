@@ -27,34 +27,35 @@ jobs:
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
-      - run: npm ci
-      - run: npm run build-shared
-      - run: npm run build
-        working-directory: packages/scripts
-
-      - name: Configure tamanu to connect to the database in k8s
-        run: |
-          ns="tamanu-${{ inputs.deploy-name }}"
-          pgpass=$(kubectl get -n "$ns" secrets central-db-app -o jsonpath='{.data.password}' | base64 -d)
-          echo "::add-mask::$pgpass"
-          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" | tee -a $GITHUB_ENV
-          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
-
       - name: Add fake data to the deployment
-        working-directory: packages/scripts
         run: |
           set -x
           ns="tamanu-${{ inputs.deploy-name }}"
-          kubectl port-forward -n "$ns" service/central-db-rw 4444:5432 &
-          pf_pid=$!
-          function cleanup() {
-            exitcode=$?
-            kill $pf_pid
-            exit $exitcode
-          }
-          trap cleanup EXIT
-          sleep 5
-          node dist/fake.js \
-            --database app \
-            --rounds ${{ fromJson(inputs.options).fakedata }} \
-            --from-tally ../fake-data/src/populateDb/parseTally/standard.json
+          rounds=${{ fromJson(inputs.options).fakedata }}
+
+          # Wait for central-api to be ready
+          kubectl -n "$ns" rollout status deploy/central-api --timeout=300s
+
+          # Resolve tally file path inside the container
+          tally=$(kubectl -n "$ns" exec deploy/central-api -- \
+            node -e "console.log(require.resolve('@tamanu/fake-data/populateDb').replace(/[^/]+$/, 'parseTally/standard.json'))")
+
+          # Run fake data generation inside the central-api pod using the tally file
+          kubectl -n "$ns" exec deploy/central-api -- node -e "
+            const { initDatabase } = require('@tamanu/database/services/database');
+            const { populateDbFromTallyFile } = require('@tamanu/fake-data/populateDb');
+            const config = require('config');
+
+            (async () => {
+              const db = await initDatabase(config.db);
+              const rounds = ${rounds};
+              const tally = '${tally}';
+              console.log('Generating fake data:', rounds, 'rounds using tally:', tally);
+              for (let i = 0; i < rounds; i++) {
+                console.log('Round ' + (i + 1) + '/' + rounds);
+                await populateDbFromTallyFile(db.models, tally);
+              }
+              await db.sequelize.close();
+              console.log('Done');
+            })().catch(e => { console.error(e); process.exit(1); });
+          "

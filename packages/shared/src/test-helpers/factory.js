@@ -9,7 +9,6 @@ import {
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
-  fakeStringFields,
   fakeSurvey,
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
@@ -144,7 +143,8 @@ export const buildScheduledVaccine = async (models) => {
   const vaccine = {
     id: vaccineId,
     type: REFERENCE_TYPES.VACCINE,
-    ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
+    code: `vaccine_${vaccineId}_code`,
+    name: `vaccine_${vaccineId}_name`,
   };
   await models.ReferenceData.upsert(vaccine);
   scheduledVaccine.vaccineId = vaccineId;
