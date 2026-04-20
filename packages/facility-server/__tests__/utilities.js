@@ -138,9 +138,6 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   const { models, sequelize } = context;
 
-  // do NOT time out during create context
-  jest.setTimeout(1000 * 60 * 60 * 24);
-
   await sequelize.migrate('up');
 
   await showError(deleteAllTestIds(context));
@@ -229,8 +226,6 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
     return asNewRole(baseApp, models, permissions, roleOverrides);
   };
-
-  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({
