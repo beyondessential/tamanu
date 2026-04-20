@@ -17,7 +17,7 @@ function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
     const { auth } = store.getState();
     if (auth.token) {
-      api.setToken(auth.token);
+      void api.setToken(auth.token);
     }
   });
 
