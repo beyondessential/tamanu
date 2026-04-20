@@ -93,7 +93,8 @@ jobs:
           script: |
             const fs = require('fs');
             const cwd = '${{ github.workspace }}';
-            const { version: appVersion } = JSON.parse(fs.readFileSync(`${cwd}/package.json`, 'utf8'));
+            const pkg = JSON.parse(fs.readFileSync(`${cwd}/package.json`, 'utf8'));
+            const appVersion = pkg.version || null;
             const { configMap } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const config = configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}, { appVersion });
             core.setOutput('pulumi', config);

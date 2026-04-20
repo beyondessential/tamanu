@@ -249,7 +249,7 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
       namespace: `tamanu-${deployName}`,
       externalNamespace: true,
       imageTag,
-      appVersion: appVersion ?? null,
+      appVersion: appVersion || null,
 
       architecture: options.arch,
       configTemplate: options.config,

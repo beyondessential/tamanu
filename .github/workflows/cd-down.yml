@@ -96,17 +96,6 @@ jobs:
             kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
 
-      - # VolumeSnapshotContent is cluster-scoped and created with deletionPolicy: Retain,
-        # so it survives both pulumi destroy and namespace deletion. Clean it up explicitly.
-        if: always()
-        name: Delete seed snapshot clone
-        run: |
-          CLONE_CONTENT="seed-clone-${{ inputs.deploy-name }}"
-          if kubectl get volumesnapshotcontent "$CLONE_CONTENT" 2>/dev/null; then
-            echo "Deleting orphaned VolumeSnapshotContent: $CLONE_CONTENT"
-            kubectl delete volumesnapshotcontent "$CLONE_CONTENT"
-          fi
-
       - # if the pulumi destroy had failed, then the namespace delete will have deleted the
         # actual resources, but we run pulumi destroy again to clean up the pulumi state
         if: always() && steps.down.outcome != 'success'
