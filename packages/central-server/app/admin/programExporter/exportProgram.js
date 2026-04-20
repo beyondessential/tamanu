@@ -36,11 +36,11 @@ export async function exportProgram(context, programId) {
     where: { programId: program.id },
   });
 
+  // "(Country) Program Name" → [, "Country", "Program Name"]
   const namePattern = /\((.*?)\)\s*(.*)/;
-  const match = program.name.match(namePattern);
-  const country = match?.[1] ?? '';
-  const programName = match?.[2] ?? program.name;
-  const programCode = program.id.replace('program-', '');
+  const [, country = '', programName = program.name ?? ''] = program.name?.match(namePattern) ?? [];
+
+  const programCode = program.id.replace(/^program-/, '');
 
   const metadataSheet = {
     name: 'Metadata',
