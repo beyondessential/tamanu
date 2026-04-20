@@ -453,6 +453,54 @@ describe('Labs', () => {
       });
     });
 
+    describe('GET history', () => {
+      beforeEach(async () => {
+        await models.Setting.set('audit.changes.enabled', true);
+      });
+
+      it('should get lab test result history, filtering consecutive duplicates', async () => {
+        const [labTest] = await labRequest.getTests();
+
+        await labTest.update({ result: 'First result' });
+        await labTest.update({ result: 'Second result', secondaryResult: 'Positive' });
+        await labTest.update({ result: 'Second result' }); // Duplicate result — should be skipped
+        await labTest.update({ result: 'Third result' });
+        await labTest.update({ secondaryResult: 'Negative' });
+
+        const response = await app.get(`/api/labTest/${labTest.id}/history`);
+        expect(response).toHaveSucceeded();
+
+        const historyItems = response.body;
+        const resultChanges = historyItems.filter(h => h.fieldType === 'result');
+        const secondaryChanges = historyItems.filter(h => h.fieldType === 'secondaryResult');
+
+        // 3 distinct result values, 2 distinct secondary values, no phantom entries
+        expect(resultChanges.map(h => h.result)).toEqual([
+          'Third result',
+          'Second result',
+          'First result',
+        ]);
+        expect(secondaryChanges.map(h => h.result)).toEqual(['Negative', 'Positive']);
+
+        // Newest first
+        expect(historyItems[0]).toMatchObject({
+          fieldType: 'secondaryResult',
+          result: 'Negative',
+        });
+      });
+
+      it('should error if lab test is sensitive', async () => {
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
+        const response = await app.get(`/api/labTest/${sensitiveTest.id}/history`);
+        expect(response).toBeForbidden();
+      });
+    });
+
     describe('GET list', () => {
       it('should get a list of tests included from lab request', async () => {
         const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);

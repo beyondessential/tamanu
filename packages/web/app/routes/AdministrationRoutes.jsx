@@ -27,14 +27,6 @@ export const AdministrationRoutes = React.memo(() => (
   <Routes>
     <Route path="assets" element={<AssetUploaderView />} />
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
-    <Route
-      path="locationAssignments"
-      element={
-        <LocationAssignmentsContextProvider>
-          <LocationAssignmentsAdminView />
-        </LocationAssignmentsContextProvider>
-      }
-    />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs" element={<ProgramsAdminView />} />
@@ -62,6 +54,14 @@ export const AdministrationRoutes = React.memo(() => (
           <Route path="delete/:id" element={<DesignationsAdminView />} />
         </Route>
       </Route>
+      <Route
+        path="locationAssignment"
+        element={
+          <LocationAssignmentsContextProvider>
+            <LocationAssignmentsAdminView />
+          </LocationAssignmentsContextProvider>
+        }
+      />
     </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />

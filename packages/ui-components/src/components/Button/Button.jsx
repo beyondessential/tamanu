@@ -16,6 +16,7 @@ import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { TAMANU_COLORS } from '../../constants';
+import { useTranslation } from '../../contexts';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 import { TranslatedText } from '../Translation';
@@ -147,12 +148,12 @@ export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
-export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled(StyledButton)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled(StyledButton)`
   border: 1px solid ${TAMANU_COLORS.alert};
   color: ${TAMANU_COLORS.alert};
 `;
@@ -219,21 +220,24 @@ const StyledNavButton = styled(TextButton)`
   }
 `;
 
-export const BackButton = ({ to, text = true, ...props }) => (
-  <StyledNavButton to={to} {...props}>
-    <ChevronLeft />
-    {text && (
-      <>
-        {' '}
-        <TranslatedText stringId="general.action.back" fallback="Back" />
-      </>
-    )}
-  </StyledNavButton>
-);
+export const BackButton = ({ ['aria-label']: ariaLabel, text = true, ...props }) => {
+  const { getTranslation } = useTranslation();
+  const label = ariaLabel ?? (text ? undefined : getTranslation('general.action.back', 'Back'));
+
+  return text ? (
+    <StyledNavButton aria-label={label} startIcon={<ChevronLeft />} {...props}>
+      <TranslatedText stringId="general.action.back" fallback="Back" />
+    </StyledNavButton>
+  ) : (
+    <IconButton aria-label={label} size="small" {...props}>
+      <ChevronLeft />
+    </IconButton>
+  );
+};
 
 export const FormSubmitButton = ({
   children,
-  text = 'Confirm',
+  text = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   color = 'primary',
   onSubmit,
   ...props
@@ -255,7 +259,7 @@ export const FormSubmitButton = ({
   );
 };
 
-export const FormCancelButton = ({ ...props }) => {
+export const FormCancelButton = props => {
   const { isSubmitting } = useFormikContext();
 
   return (
@@ -285,11 +289,9 @@ export const LargeSubmitButton = props => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props} data-testid="iconbutton-zsiq">
-    {children}
-  </IconButton>
-))`
+export const DefaultIconButton = styled(IconButton).attrs({
+  'data-testid': 'iconbutton-zsiq',
+})`
   border-radius: 20%;
   padding: 0px;
 `;

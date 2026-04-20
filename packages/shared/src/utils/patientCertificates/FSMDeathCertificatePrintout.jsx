@@ -3,12 +3,13 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getCurrentDateString, format as formatDate } from '@tamanu/utils/dateTime';
 import { differenceInYears, differenceInMonths, differenceInDays, differenceInHours } from 'date-fns';
 import {
-  MARITAL_STATUS_OPTIONS,
-  BINARY_UNKNOWN_OPTIONS,
+  FSM_MARITAL_STATUS_LABELS,
+  BINARY_LABELS,
   TIME_UNIT_OPTIONS,
 } from '@tamanu/constants';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const styles = StyleSheet.create({
   page: {
@@ -129,11 +130,6 @@ const Cell = ({ label, value = '', style, width, flex, lastCell = false, height 
   </View>
 );
 
-const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find(e => e.value === v);
-  return entry ? entry.label : '';
-};
-
 const SEX_ABBREVIATIONS = { male: 'M', female: 'F', other: 'O' };
 const getSexAbbreviation = (sex) => SEX_ABBREVIATIONS[sex] || '';
 
@@ -210,6 +206,7 @@ export const FSMDeathCertificatePrintout = ({
   patientData,
   printedBy,
 }) => {
+  const { getEnumTranslation } = useLanguageContext();
   const currentDateString = getCurrentDateString();
   const additionalData = patientData?.additionalData;
   const { motherData, fatherData } = patientData;
@@ -260,7 +257,7 @@ export const FSMDeathCertificatePrintout = ({
           <View style={styles.row}>
             <Cell flex={1} label="State & island of birth or country:" value={additionalData?.placeOfBirth} />
             <Cell flex={1} label="Country of citizenship:" value={additionalData?.nationality?.name} />
-            <Cell width={130} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, extraData?.fsmMaritalStatus)} />
+            <Cell width={130} label="Marital status:" value={getEnumTranslation(FSM_MARITAL_STATUS_LABELS, extraData?.fsmMaritalStatus)} />
             <Cell width={210} lastCell label="Surviving spouse (marital):" value={extraData?.fsmSurvivingSpouse} />
           </View>
 
@@ -359,7 +356,7 @@ export const FSMDeathCertificatePrintout = ({
                   {patientData?.causes?.contributing?.map(c => c?.condition?.name).join(', ')}
                </Text>
             </View>
-            <Cell width={190} lastCell label="Autopsy" value={getLabelFromValue(BINARY_UNKNOWN_OPTIONS, patientData?.autopsyRequested)} />
+            <Cell width={190} lastCell label="Autopsy" value={getEnumTranslation(BINARY_LABELS, patientData?.autopsyRequested)} />
           </View>
         </View>
 
@@ -391,7 +388,7 @@ export const FSMDeathCertificatePrintout = ({
           {/* Row 1: Maternal Details */}
           <View style={styles.row}>
             <Cell flex={1} label="Child Bearing Age (15-44):" value={getChildBearingAge(patientData?.sex, dob, dod)} />
-            <Cell flex={1} label="Now pregnant:" value={getLabelFromValue(BINARY_UNKNOWN_OPTIONS, extraData?.fsmPregnantNow)} />
+            <Cell flex={1} label="Now pregnant:" value={getEnumTranslation(BINARY_LABELS, extraData?.fsmPregnantNow)} />
             <Cell flex={1} label="Number of weeks:" value={extraData?.fsmNumberOfWeeks} />
             <Cell width={220} label="Death date within 42 days of delivery or abortion" value={getDeathWithin42Days(extraData)} />
             <Cell width={140} lastCell label="Date of Delivery/Abortion:" value={getFSMDisplayDate(extraData?.fsmDateOfDeliveryAbortion)} />
@@ -428,7 +425,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} lastCell label="How injury occurred:" value={mannerOfDeath} />
           </View>
           <View style={styles.row}>
-             <Cell width={100} label="Injury at work:" value={getLabelFromValue(BINARY_UNKNOWN_OPTIONS, extraData?.fsmInjuryAtWork)} />
+             <Cell width={100} label="Injury at work:" value={getEnumTranslation(BINARY_LABELS, extraData?.fsmInjuryAtWork)} />
              <Cell flex={1} label="Place of injury:" value={patientData?.externalCauseLocation} />
              <Cell flex={1} lastCell label="Location:" value={patientData?.externalCauseNotes} />
           </View>

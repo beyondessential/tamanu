@@ -2,7 +2,6 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import BedIcon from '@mui/icons-material/Bed';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CloudIcon from '@mui/icons-material/Cloud';
 import FeedIcon from '@mui/icons-material/Feed';
@@ -62,18 +61,6 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
   },
   {
-    key: 'locationAssignments',
-    label: (
-      <TranslatedText
-        stringId="adminSidebar.locationAssignment"
-        fallback="Location assignment"
-        data-testid="translatedtext-locationassignments"
-      />
-    ),
-    path: '/admin/locationAssignments',
-    icon: <BedIcon aria-hidden color="secondary" data-testid="bedicon-locationassignments" />,
-  },
-  {
     key: 'users',
     label: (
       <TranslatedText
@@ -106,6 +93,17 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
         ),
         path: '/admin/users/rolesAndDesignations',
         key: 'rolesAndDesignations',
+      },
+      {
+        key: 'locationAssignment',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.locationAssignment"
+            fallback="Location assignment"
+            data-testid="translatedtext-locationassignments"
+          />
+        ),
+        path: '/admin/users/locationAssignment',
       },
     ],
   },
