@@ -241,7 +241,7 @@ function parseOptions(str, context) {
   return options;
 }
 
-export function configMap(deployName, imageTag, options) {
+export function configMap(deployName, imageTag, options, { appVersion } = {}) {
   const k8sCore = process.env.K8S_CORE || 'tamanu-internal-main';
   return Object.fromEntries(
     Object.entries({
@@ -249,6 +249,7 @@ export function configMap(deployName, imageTag, options) {
       namespace: `tamanu-${deployName}`,
       externalNamespace: true,
       imageTag,
+      appVersion: appVersion ?? null,
 
       architecture: options.arch,
       configTemplate: options.config,
