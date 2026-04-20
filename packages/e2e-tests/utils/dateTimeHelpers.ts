@@ -192,6 +192,14 @@ export function formatDateTimeForDisplay(date: Date): string {
 }
 
 /**
+ * Format a `Date` to match day-first on-screen datetime copy: `dd/MM/yyyy` + 12h time with
+ * lowercase `am`/`pm` and no space before meridiem (e.g. `12/02/2026 9:31am`).
+ */
+export function formatDateTimeForDisplayDayFirst(date: Date): string {
+  return format(date, 'dd/MM/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
+}
+
+/**
  * Convert a datetime string into the **concatenated** table display form used in some grids:
  * **time** (`h:mm` + lowercase `am`/`pm`, no space) immediately followed by **date** `MM/dd/yy`
  * (e.g. `6:11am12/01/25`).

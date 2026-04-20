@@ -12,7 +12,7 @@ import {
   fillMuiDateTimeField,
   getTableItems,
   selectFirstFromDropdown,
-  formatDateTimeForDisplay,
+  formatDateTimeForDisplayDayFirst,
   normalizeToIsoDateTimeMinute,
 } from '@utils/testHelper';
 test.setTimeout(80000);
@@ -163,7 +163,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
+      const formattedDate = formatDateTimeForDisplayDayFirst(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -223,7 +223,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
+      const formattedDate = formatDateTimeForDisplayDayFirst(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -471,7 +471,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleModal.waitForModalToLoad();
       const date = new Date();
       const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
-      const expectedDateTime = formatDateTimeForDisplay(date);
+      const expectedDateTime = formatDateTimeForDisplayDayFirst(date);
       await fillMuiDateTimeField(
         labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput,
         currentDateTime,
@@ -568,7 +568,7 @@ test.describe('Lab Request Tests', () => {
       const tableVerificationItems = await getTableItems(page, 1, 'verification')
       await expect(tableVerificationItems[0]).toBe(verification);  
       const tableCompletedDateItems = await getTableItems(page, 1, 'completedDate')
-      await expect(tableCompletedDateItems[0]).toBe(format(new Date(currentDateTime), 'MM/dd/yyyy'));  
+      await expect(tableCompletedDateItems[0]).toBe(format(new Date(currentDateTime), 'dd/MM/yyyy'));
     });
   });
 });
