@@ -64,7 +64,7 @@
     "config": "^3.3.9",
     "date-fns": "^2.25.0",
     "decimal.js": "^10.4.3",
-    "express": "^4.16.2",
+    "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
