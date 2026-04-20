@@ -23,11 +23,6 @@ export class PatientTable {
   readonly villageSuggestionList!: Locator;
   readonly searchBtn!: Locator;
   readonly clearSearchBtn!: Locator;
-  readonly firstNameSortButton!: Locator;
-  readonly lastNameSortButton!: Locator;
-  readonly culturalNameSortButton!: Locator;
-  readonly villageSortButton!: Locator;
-  readonly dobSortButton!: Locator;
   readonly NHNTxt!: Locator;
   readonly firstNameTxt!: Locator;
   readonly lastNameTxt!: Locator;
@@ -60,11 +55,6 @@ export class PatientTable {
       villageSuggestionList: 'villagelocalisedfield-mcri-suggestionslist',
       searchBtn: 'searchbutton-nt24',
       clearSearchBtn: 'clearbutton-z9x3',
-      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
-      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
-      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
-      villageSortButton: 'tablesortlabel-0qxx-villageName',
-      dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
       NHNTxt: 'localisedfield-dzml-input',
       firstNameTxt: 'localisedfield-i9br-input',
       lastNameTxt: 'localisedfield-ngsn-input',
@@ -99,13 +89,6 @@ export class PatientTable {
       .getByTestId('villagelocalisedfield-mcri-suggestionslist')
       .locator('ul')
       .locator('li');
-    this.firstNameSortButton = page.getByTestId('tablesortlabel-0qxx-firstName').locator('svg');
-    this.lastNameSortButton = page.getByTestId('tablesortlabel-0qxx-lastName').locator('svg');
-    this.culturalNameSortButton = page
-      .getByTestId('tablesortlabel-0qxx-culturalName')
-      .locator('svg');
-    this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
-    this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
     this.DOBTxt = page.getByTestId('field-qk60').getByRole('textbox');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm').getByRole('textbox');
