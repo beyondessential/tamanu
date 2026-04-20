@@ -20,12 +20,11 @@ export function writeExcelFile(sheets, fileName) {
   });
 
   const basename = fileName || `export-${Date.now()}.xlsx`;
-  const filename = path.join(dirname, basename);
-
   fs.mkdirSync(dirname, { recursive: true });
-  XLSX.writeFile(workbook, filename);
+  const absolutePath = path.resolve(dirname, basename);
 
-  log.info(`Wrote file ${filename}`);
+  XLSX.writeFile(workbook, absolutePath);
+  log.info(`Wrote file ${absolutePath}`);
 
-  return filename;
+  return absolutePath;
 }
