@@ -78,6 +78,8 @@ const checkIfHasPermission = (req, action, subject) => {
   return ability.can(action, subject);
 };
 
+const listFormatter = new Intl.ListFormat('en-AU', { type: 'disjunction' });
+
 // this middleware goes at the top of the middleware stack
 export function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
@@ -87,14 +89,14 @@ export function ensurePermissionCheck(req, res, next) {
     if (!hasPermission) {
       const rule = req.ability.relevantRuleFor(action, subject);
       const reason =
-        (rule && rule.reason) ||
-        `No permission to perform action "${action}" on "${getSubjectName(subject)}"`;
+        rule?.reason ||
+        `No permission to perform action “${action}” on “${getSubjectName(subject)}”`;
       throw new ForbiddenError(reason);
     }
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map(action => {
+    const hasPermission = actions.some(action => {
       try {
         return checkIfHasPermission(req, action, subject);
       } catch (error) {
@@ -106,9 +108,9 @@ export function ensurePermissionCheck(req, res, next) {
         throw error;
       }
     });
-    const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
-      const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
+      const list = listFormatter.format(actions.map(a => `“${a}”`));
+      const reason = `No permission to perform any of actions ${list} on “${getSubjectName(subject)}”`;
       throw new ForbiddenError(reason);
     }
   };
