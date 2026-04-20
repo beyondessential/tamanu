@@ -198,25 +198,37 @@ export async function importPatientProgramRegistrations(workbook, { errors, log,
       );
 
       // Create condition records
-      for (const conditionId of conditionIds) {
-        // Look up the registration to get its generated id
+      if (conditionIds.length > 0) {
         const registration = await models.PatientProgramRegistration.findOne({
           where: { patientId: patient.id, programRegistryId },
         });
 
-        await models.PatientProgramRegistrationCondition.create({
-          patientProgramRegistrationId: registration.id,
-          programRegistryConditionId: conditionId,
-          programRegistryConditionCategoryId: conditionCategoryId,
-          date: dateString,
-          clinicianId,
-        });
+        for (const conditionId of conditionIds) {
+          try {
+            await models.PatientProgramRegistrationCondition.create({
+              patientProgramRegistrationId: registration.id,
+              programRegistryConditionId: conditionId,
+              programRegistryConditionCategoryId: conditionCategoryId,
+              date: dateString,
+              clinicianId,
+            });
 
-        updateStat(
-          stats,
-          statkey('PatientProgramRegistrationCondition', SHEET_NAME),
-          'created',
-        );
+            updateStat(
+              stats,
+              statkey('PatientProgramRegistrationCondition', SHEET_NAME),
+              'created',
+            );
+          } catch (conditionError) {
+            errors.push(
+              new ValidationError(SHEET_NAME, sheetRow, conditionError.message),
+            );
+            updateStat(
+              stats,
+              statkey('PatientProgramRegistrationCondition', SHEET_NAME),
+              'errored',
+            );
+          }
+        }
       }
     } catch (e) {
       const errs = Array.isArray(e) ? e : [e];
