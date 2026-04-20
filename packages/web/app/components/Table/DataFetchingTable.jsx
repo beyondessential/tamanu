@@ -13,14 +13,19 @@ import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
 const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
-const initialiseFetchState = (lastUpdatedAt = '') => ({
-  page: 0,
-  count: 0,
-  data: [],
-  lastUpdatedAt,
-  sorting: DEFAULT_SORT,
-  fetchOptions: {},
-});
+/**
+ * @template {string} T
+ * @param {T} lastUpdatedAt
+ */
+const initialiseFetchState = (lastUpdatedAt = '') =>
+  /** @type {const} */ ({
+    page: 0,
+    count: 0,
+    data: [],
+    lastUpdatedAt,
+    sorting: DEFAULT_SORT,
+    fetchOptions: {},
+  });
 
 export const DataFetchingTable = memo(
   ({
