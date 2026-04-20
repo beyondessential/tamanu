@@ -113,3 +113,24 @@ jobs:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
+
+  e2e-required:
+    name: E2E Required
+    if: always()
+    needs: [check-e2e-request, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce E2E checkbox and passing E2E workflow
+        run: |
+          if [ "${{ needs.check-e2e-request.outputs.should_run }}" != "true" ]; then
+            echo "E2E must be explicitly requested in the PR template before merge."
+            echo "Tick \"Run E2E Tests\" in the PR body and re-run."
+            exit 1
+          fi
+
+          if [ "${{ needs.e2e.result }}" != "success" ]; then
+            echo "E2E tests were requested but did not pass."
+            exit 1
+          fi
+
+          echo "E2E requested and passed."
