@@ -5,6 +5,7 @@ import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
 import {
+  compareDisplayDates,
   convertDateFormat,
   fillMuiDateField,
   STYLED_TABLE_CELL_PREFIX,
@@ -335,15 +336,7 @@ export class AllPatientsPage extends BasePatientListPage {
         if (cellText) dateValues.push(cellText);
       }
 
-      const sortedValues = [...dateValues].sort((a, b) => {
-        const [monthA, dayA, yearA] = a.split('/');
-        const [monthB, dayB, yearB] = b.split('/');
-        const dateA = `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`;
-        const dateB = `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`;
-        return isAscending
-          ? new Date(dateA).getTime() - new Date(dateB).getTime()
-          : new Date(dateB).getTime() - new Date(dateA).getTime();
-      });
+      const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
       expect(dateValues).toEqual(sortedValues);
     }).toPass({ timeout: 10000 });
   }

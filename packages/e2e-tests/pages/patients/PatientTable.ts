@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import {
+  compareDisplayDates,
   convertDateFormat,
   fillMuiDateField,
   SelectingFromSearchBox,
@@ -250,15 +251,7 @@ export class PatientTable {
       if (cellText) dateValues.push(cellText);
     }
 
-    const sortedValues = [...dateValues].sort((a, b) => {
-      const [month, day, year] = a.split('/');
-      const dateA = new Date(`${year}-${month}-${day}`).getTime();
-      const [monthB, dayB, yearB] = b.split('/');
-      const dateB = new Date(`${yearB}-${monthB}-${dayB}`).getTime();
-      return isAscending ? dateA - dateB : dateB - dateA;
-    });
-    console.log('result', dateValues);
-    console.log('expected', sortedValues);
+    const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
     expect(dateValues).toEqual(sortedValues);
   }
 

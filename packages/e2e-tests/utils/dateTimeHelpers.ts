@@ -218,6 +218,28 @@ export function compareByDate(order: 'asc' | 'desc') {
 }
 
 /**
+ * Comparator factory for sorting arrays of **display** short-date strings (`dd/MM/yyyy`, as rendered
+ * by the UI in tables like the patient list). Delegates to {@link parseTamanuDate} so tests never
+ * need to know the cell format — if the UI's short-date format changes, update `parseTamanuDate` and
+ * every sort comparator follows.
+ *
+ * Unparseable entries sort to the end.
+ *
+ * @param order — `'asc'` (oldest first) or `'desc'` (newest first).
+ */
+export function compareDisplayDates(order: 'asc' | 'desc') {
+  const direction = order === 'asc' ? 1 : -1;
+  return (a: string, b: string) => {
+    const ta = parseTamanuDate(a)?.getTime() ?? NaN;
+    const tb = parseTamanuDate(b)?.getTime() ?? NaN;
+    if (Number.isNaN(ta) && Number.isNaN(tb)) return 0;
+    if (Number.isNaN(ta)) return 1;
+    if (Number.isNaN(tb)) return -1;
+    return direction * (ta - tb);
+  };
+}
+
+/**
  * Shift a calendar date by a whole number of years; returns **`yyyy-MM-dd`** for fixtures and inputs.
  *
  * **Use case** — Age boundaries, eligibility windows, “same day next year” vaccine tests.
