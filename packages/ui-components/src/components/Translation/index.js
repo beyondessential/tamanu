@@ -2,10 +2,13 @@ export { TranslatedEnum, getEnumStringId } from './TranslatedEnum';
 export { TranslatedReferenceData } from './TranslatedReferenceData';
 export { TranslatedSex } from './TranslatedSex';
 export { TranslatedText } from './TranslatedText';
-export { TranslatedVisibilityStatus } from './TranslatedVisibilityStatus';
 export { isTranslatedText, extractTranslationFromComponent } from './utils';
 export { getTranslatedOptions } from './getTranslatedOptions';
 export { TranslatedEnumField } from './TranslatedEnumInput';
 export { DebugTooltip } from './DebugTooltip';
 export { TranslatedOptionSelectField, TranslatedOption } from './TranslatedOptions';
 export * from './getCurrentLanguageCode';
+export {
+  TranslatedVisibilityStatus,
+  VISIBILITY_STATUS_TRANSLATIONS,
+} from './TranslatedVisibilityStatus';
