@@ -18,7 +18,7 @@ import { statkey, updateStat } from '../stats';
  * @param {File} file
  */
 const parseExcel = filePath => {
-  const workbook = xlsx.readFile(filePath);
+  const workbook = xlsx.readFile(filePath, { cellDates: true });
 
   return chain(workbook.Sheets)
     .mapValues(sheet => xlsx.utils.sheet_to_json(sheet))
@@ -31,7 +31,7 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 const insurancePlanPaymentImportSchema = z
   .object({
     id: z.string().uuid(),
-    date: z.string().date(),
+    date: z.coerce.date().transform(d => d.toISOString().slice(0, 10)),
     amount: z.coerce
       .number()
       .min(0)
