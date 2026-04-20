@@ -1,13 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants';
 import {
+  Field,
   SelectField,
   TAMANU_COLORS,
   TranslatedText,
+  TranslatedVisibilityStatus,
   VisibilityStatusChip,
 } from '@tamanu/ui-components';
-
 import { Colors } from '../../../constants';
 import { ContentContainer } from '../components/AdminViewContainer';
 
@@ -38,12 +40,55 @@ export const TableScopeSelect = styled(SelectField).attrs({
   min-inline-size: 23rem;
 `;
 
+export const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
+  value,
+  label: <TranslatedVisibilityStatus visibilityStatus={value} />,
+}));
+
+export function VisibilityStatusSelectField({ isClearable = false, ...props }) {
+  return (
+    <Field
+      isClearable={isClearable}
+      {...props}
+      component={SelectField}
+      options={visibilityStatusSelectOptions}
+    />
+  );
+}
+
+const Empty = styled.em`
+  color: ${TAMANU_COLORS.softText};
+`;
+
+const Uppercase = styled.span`
+  text-transform: uppercase;
+`;
+
 export function VisibilityStatusCell({ visibilityStatus }) {
   return visibilityStatus ? (
     <VisibilityStatusChip visibilityStatus={visibilityStatus} />
   ) : (
-    <em style={{ color: TAMANU_COLORS.softText }}>
+    <Empty>
       <TranslatedText stringId="general.none" fallback="None" />
-    </em>
+    </Empty>
+  );
+}
+
+export function NullableBooleanCell({ value }) {
+  if (value == null)
+    return (
+      <Empty>
+        <TranslatedText stringId="general.unknown" fallback="Unknown" />
+      </Empty>
+    );
+
+  return (
+    <Uppercase>
+      {value ? (
+        <TranslatedText stringId="general.boolean.true" fallback="True" />
+      ) : (
+        <TranslatedText stringId="general.boolean.false" fallback="False" />
+      )}
+    </Uppercase>
   );
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { TranslatedText } from './TranslatedText';
 
-const translations = /** @type {const} */ ({
+export const VISIBILITY_STATUS_TRANSLATIONS = /** @type {const} */ ({
   [VISIBILITY_STATUSES.CURRENT]: (
     <TranslatedText stringId="visibilityStatus.current" fallback="Current" />
   ),
@@ -20,5 +20,5 @@ export function TranslatedVisibilityStatus({ visibilityStatus }) {
     return <TranslatedText stringId="visibilityStatus.unknown" fallback="Unknown" />;
   }
 
-  return translations[visibilityStatus] ?? visibilityStatus;
+  return VISIBILITY_STATUS_TRANSLATIONS[visibilityStatus] ?? visibilityStatus;
 }

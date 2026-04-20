@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { CURRENTLY_AT_TYPES, NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants';
+import { CURRENTLY_AT_TYPES } from '@tamanu/constants';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
@@ -14,10 +14,10 @@ import {
   SelectField,
   TextField,
   TranslatedText,
-  TranslatedVisibilityStatus,
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
+import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
 
 const Fieldset = styled.fieldset`
@@ -35,11 +35,6 @@ const Footer = styled.footer`
   margin-block-start: 24px;
   padding-block-start: 20px;
 `;
-
-const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
-  value,
-  label: <TranslatedVisibilityStatus visibilityStatus={value} />,
-}));
 
 const currentlyAtTypeText = /** @type {const} */ {
   [CURRENTLY_AT_TYPES.VILLAGE]: (
@@ -119,13 +114,10 @@ function EditProgramRegistryModal({ onClose, open }) {
             <Fieldset>
               <Field name="code" component={ReadOnlyTextField} label="code" />
               <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
-              <Field
-                name="visibilityStatus"
-                component={SelectField}
+              <VisibilityStatusSelectField
                 disabled={isSubmitting}
-                isClearable={false}
                 label="visibilityStatus"
-                options={visibilityStatusSelectOptions}
+                name="visibilityStatus"
               />
               <Field
                 name="currentlyAtType"

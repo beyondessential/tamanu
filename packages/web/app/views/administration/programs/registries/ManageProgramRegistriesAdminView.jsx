@@ -21,7 +21,6 @@ const Metadata = styled.div`
 
 const StyledTabDisplay = styled(TabDisplay)`
   background-color: unset;
-  border-bottom: unset;
   border-inline: 1px solid ${Colors.outline};
 `;
 
@@ -83,7 +82,7 @@ export function ManageProgramRegistriesAdminView() {
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
-  const { data: registries } = useProgramRegistriesQuery({
+  const { data: registries, isLoading: isRegistriesLoading } = useProgramRegistriesQuery({
     onSuccess: function defaultToFirst(data) {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
@@ -123,6 +122,7 @@ export function ManageProgramRegistriesAdminView() {
     <Article>
       <TableScopeHeader>
         <TableScopeSelect
+          aria-busy={isRegistriesLoading}
           // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
           // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
           // by react-select to forward it to.
@@ -149,7 +149,7 @@ export function ManageProgramRegistriesAdminView() {
             registry?.program && (
               <Typography variant="body1" style={{ fontSize: 'inherit' }}>
                 <Link
-                  to={`/admin/programs/programs/manage/${encodeURIComponent(registry.program.id)}`}
+                  to={`/admin/programs/forms/manage/${encodeURIComponent(registry.program.id)}`}
                 >
                   {registry.program.name}
                 </Link>
