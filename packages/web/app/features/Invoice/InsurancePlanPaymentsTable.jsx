@@ -107,7 +107,13 @@ const COLUMNS = [
 
 export const InsurancePlanPaymentsTable = ({ invoice }) => {
   const { insurancePlanPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurancePlanPayments = invoice.payments.filter(payment => !!payment?.insurancePlanPayment?.id);
+  const insurancePlanPayments = invoice.payments.filter(
+    payment => !!payment?.insurancePlanPayment?.id,
+  );
+
+  if (insurancePlanPayments.length === 0) {
+    return null;
+  }
 
   return (
     <TableContainer data-testid="tablecontainer-x4t9">
@@ -124,7 +130,9 @@ export const InsurancePlanPaymentsTable = ({ invoice }) => {
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
             replacements={{
-              remainingBalance: formatDisplayPrice(Math.max(0, insurancePlanPaymentRemainingBalance)),
+              remainingBalance: formatDisplayPrice(
+                Math.max(0, insurancePlanPaymentRemainingBalance),
+              ),
             }}
             data-testid="translatedtext-29kz"
           />
