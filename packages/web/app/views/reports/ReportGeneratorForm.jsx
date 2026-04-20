@@ -315,7 +315,6 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.message.export.success"
             fallback="Report successfully exported"
-            data-testid="translatedtext-mr0n"
           />,
         );
       }
