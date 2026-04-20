@@ -16,6 +16,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
+  readonly recordedVaccinesTablePaginator: Locator;
   readonly recordedVaccineRowCells: Locator;
   recordVaccineModal?: RecordVaccineModal;
   viewVaccineModal?: ViewVaccineModal;
@@ -45,6 +46,7 @@ export class PatientVaccinePane extends BasePatientPane {
       .filter({ hasText: 'VaccineScheduleDateGiven' });
     this.recordedVaccinesTableLoadingIndicator =
       this.recordedVaccinesTableWrapper.getByTestId('translatedtext-yvlt');
+    this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
     // One cell per row in the recorded vaccines table body, used to count rows
     // without parsing the (locale-formatted, lazily-rendered) paginator. Targets
     // the stable `data-test-class` on each cell — `table-column-{rowIndex}-{columnKey}`
