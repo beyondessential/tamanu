@@ -52,6 +52,8 @@ const DEFAULT_AUTH = { windowMs: 15 * 60 * 1000, max: 30 };
  * `config.rateLimit.enabled === false`.
  *
  * Reads limits from `config.rateLimit.{global,auth}.{windowMs,max}`.
+ * `skipSuccessfulRequests` for the auth limiter is always true and cannot be
+ * overridden by config (spread order below).
  */
 export const buildRateLimiters = () => {
   if (RATE_LIMITING_DISABLED) {
@@ -68,6 +70,11 @@ export const buildRateLimiters = () => {
 
   return {
     globalLimiter: makeLimiter({ name: 'global', ...globalConfig }),
-    authLimiter: makeLimiter({ name: 'auth', skipSuccessfulRequests: true, ...authConfig }),
+    authLimiter: makeLimiter({
+      name: 'auth',
+      ...authConfig,
+      // Must follow spread: config must not override this safety-critical flag.
+      skipSuccessfulRequests: true,
+    }),
   };
 };

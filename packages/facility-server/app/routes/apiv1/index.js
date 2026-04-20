@@ -62,24 +62,29 @@ import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
 
+const passthrough = (_req, _res, next) => next();
+
 /**
- * @param {{ authLimiter: import('express').RequestHandler }} limiters
+ * @param {{ authLimiter?: import('express').RequestHandler }} [limiters]
  *   `authLimiter` is the stricter limiter for unauthenticated endpoints that do
  *   expensive work (bcrypt, user lookup, proxy calls to central). Mitigates
- *   DoS / brute-force against /login, /refresh, /setFacility, /resetPassword,
- *   and /changePassword. Built once in createApiApp and passed in so we do not
- *   create duplicate MemoryStores. Applies to both /api and /v1 mounts.
+ *   DoS / brute-force against /login, /resetPassword, and /changePassword.
+ *   `/refresh` and `/setFacility` are registered after `authMiddleware` (already
+ *   authenticated); they rely on the global limiter only. Built once in
+ *   createApiApp and passed in so we do not create duplicate MemoryStores.
+ *   Applies to both /api and /v1 mounts.
  */
-export function createApiv1({ authLimiter }) {
+export function createApiv1({ authLimiter } = {}) {
+  const limiter = authLimiter ?? passthrough;
   const apiv1 = express.Router();
   const patientDataRoutes = express.Router();
   const referenceDataRoutes = express.Router();
   const syncRoutes = express.Router();
 
   // auth endpoints (added pre auth check)
-  apiv1.post('/login', authLimiter, loginHandler);
-  apiv1.use('/resetPassword', authLimiter, resetPassword);
-  apiv1.use('/changePassword', authLimiter, changePassword);
+  apiv1.post('/login', limiter, loginHandler);
+  apiv1.use('/resetPassword', limiter, resetPassword);
+  apiv1.use('/changePassword', limiter, changePassword);
   
   apiv1.get(
     '/public/ping',
@@ -134,8 +139,8 @@ export function createApiv1({ authLimiter }) {
     }),
   );
   
-  apiv1.post('/refresh', authLimiter, refreshHandler);
-  apiv1.post('/setFacility', authLimiter, setFacilityHandler);
+  apiv1.post('/refresh', refreshHandler);
+  apiv1.post('/setFacility', setFacilityHandler);
   apiv1.use(patientDataRoutes); // see below for specifics
   apiv1.use(referenceDataRoutes); // see below for specifics
   apiv1.use(syncRoutes); // see below for specifics
