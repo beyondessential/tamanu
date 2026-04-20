@@ -37,7 +37,7 @@ function checkMediciReportPermission(req, _res, next) {
 
 const reportQuery = `
 SELECT 
-  last_updated::timestamptz at time zone 'UTC' as last_updated,
+  last_updated,
   patient_id,
   first_name,
   last_name,
@@ -72,12 +72,12 @@ WHERE true
   AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated >= $from_date::timestamptz at time zone $timezone_string
+    THEN last_updated >= $from_date::timestamptz
   ELSE
     true
   END
   AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated <= $to_date::timestamptz at time zone $timezone_string
+    THEN last_updated <= $to_date::timestamptz
   ELSE
     true
   END
@@ -199,18 +199,18 @@ routes.get(
       }
     }
 
+    const bindParams = {
+      from_date: fromDate ? parseDateParam(fromDate) : null,
+      to_date: toDate ? parseDateParam(toDate) : null,
+      input_encounter_ids: encounters?.split(',') ?? [],
+      billing_type: null,
+      limit: parseInt(limit, 10),
+      offset, // Should still be able to offset even with no limit
+      ...dischargeDateBind,
+    };
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
-      bind: {
-        from_date: fromDate ? parseDateParam(fromDate) : null,
-        to_date: toDate ? parseDateParam(toDate) : null,
-        input_encounter_ids: encounters?.split(',') ?? [],
-        billing_type: null,
-        limit: parseInt(limit, 10),
-        offset, // Should still be able to offset even with no limit
-        timezone_string: PRIMARY_TIME_ZONE,
-        ...dischargeDateBind,
-      },
+      bind: bindParams,
     });
 
     const mapNotes = notes =>
