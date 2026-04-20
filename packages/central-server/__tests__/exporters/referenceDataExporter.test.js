@@ -110,7 +110,7 @@ describe('Reference data exporter', () => {
 
       expect(result).toBeForbidden();
       expect(result.body.error.message).toBe(
-        'No permission to perform action "list" on "ReferenceData"',
+        'No permission to perform action “list” on “ReferenceData”',
       );
     });
 

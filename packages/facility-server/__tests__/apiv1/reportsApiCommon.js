@@ -46,7 +46,7 @@ export function testReportPermissions(getCtx, makeRequest) {
       // Assert
       expect(res).toBeForbidden();
       expect(res.body.error).toMatchObject({
-        message: 'No permission to perform action "run" on "ReportDefinition"',
+        message: 'No permission to perform action “run” on “ReportDefinition”',
       });
     });
   });
