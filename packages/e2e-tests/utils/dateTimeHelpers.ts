@@ -112,7 +112,7 @@ export async function fillMuiTimeField(field: Locator, time: string): Promise<vo
  * - String → try {@link parseTamanuDate}; if that fails, a naive `yyyy-MM-dd` split → `dd/MM/yyyy`.
  *
  * @param dateInput — ISO string, picker output fragment, or `Date` from test data.
- * @returns `dd/MM/yyyy` or `''` when empty/unparseable.
+ * @returns `dd/MM/yyyy` or `''` when empty/Unparsable.
  */
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
@@ -223,7 +223,7 @@ export function compareByDate(order: 'asc' | 'desc') {
  * need to know the cell format — if the UI's short-date format changes, update `parseTamanuDate` and
  * every sort comparator follows.
  *
- * Unparseable entries sort to the end.
+ * Unparsable entries sort to the end.
  *
  * @param order — `'asc'` (oldest first) or `'desc'` (newest first).
  */
