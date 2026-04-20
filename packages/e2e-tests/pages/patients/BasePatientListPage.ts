@@ -303,14 +303,6 @@ export abstract class BasePatientListPage extends BasePage {
     await this.sortByColumn('displayId');
   }
 
-  async sortByFirstName() {
-    await this.sortByColumn('firstName');
-  }
-
-  async sortByLastName() {
-    await this.sortByColumn('lastName');
-  }
-
   async sortByDOB() {
     await this.sortByColumn('dateOfBirth');
   }
