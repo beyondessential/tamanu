@@ -324,6 +324,13 @@ describe('mSupplyMedIntegrationProcessor', () => {
       await task.run();
 
       expect(fetchWithRetryBackoff).toHaveBeenCalledTimes(2);
+      const pluginCall = fetchWithRetryBackoff.mock.calls[1];
+      const pluginBody = JSON.parse(pluginCall[1].body);
+      expect(pluginBody.variables.input.items).toEqual([
+        { itemCode: 'MED-TEST-001', numberOfUnits: 1 },
+        { itemCode: 'MED-TEST-001', numberOfUnits: 1 },
+      ]);
+
       const successLog = await models.MSupplyPushLog.findOne({
         where: { status: 'success' },
         order: [['createdAt', 'DESC']],
@@ -403,8 +410,8 @@ describe('mSupplyMedIntegrationProcessor', () => {
       });
 
       const debugItems = [
-        { code: 'MED001', description: 'Unknown medication code' },
-        { code: 'MED002', description: 'Quantity mismatch' },
+        { itemCode: 'MED001', description: 'Unknown medication code' },
+        { itemCode: 'MED002', description: 'Quantity mismatch' },
       ];
       mockAuthResponse();
       mockPostResponse(false, 'Validation failed', debugItems);
