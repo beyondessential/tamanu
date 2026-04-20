@@ -96,7 +96,7 @@ export function ManageProgramRegistriesAdminView() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const switchToProgramRegistry = id => {
+  const switchProgramRegistry = id => {
     const prev = programRegistryId ? String(programRegistryId) : '';
     const next = id ? String(id) : '';
     if (next === prev) return;
@@ -115,7 +115,7 @@ export function ManageProgramRegistriesAdminView() {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
       if (!firstRegistryId) return;
-      switchToProgramRegistry(firstRegistryId);
+      switchProgramRegistry(firstRegistryId);
     },
   });
   const options = useMemo(
@@ -154,7 +154,7 @@ export function ManageProgramRegistriesAdminView() {
             />
           }
           name="programRegistryId"
-          onChange={e => switchToProgramRegistry(e.target.value)}
+          onChange={e => switchProgramRegistry(e.target.value)}
           options={options}
           value={programRegistryId ?? ''}
         />
