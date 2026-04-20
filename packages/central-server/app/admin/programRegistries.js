@@ -46,7 +46,7 @@ programRegistryRouter.get(
 );
 
 programRegistryRouter.get('/:id', getProgramRegistryHandler);
-programRegistryRouter.put('/programRegistry/:id', simplePut('ProgramRegistry'));
+programRegistryRouter.put('/:id', simplePut('ProgramRegistry'));
 
 /** `/admin/programRegistries` endpoint for collections of program registries */
 export const programRegistriesRouter = express.Router();
