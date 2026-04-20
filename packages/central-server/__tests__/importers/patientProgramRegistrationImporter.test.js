@@ -329,4 +329,54 @@ describe('PatientProgramRegistration import', () => {
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors[0].message).toMatch(/program_registry_condition_category_id is required/);
   });
+
+  it('should not duplicate conditions on re-import', async () => {
+    const patient7 = await models.Patient.create(
+      fake(models.Patient, { displayId: 'TEST-PPR-007' }),
+    );
+
+    const row = {
+      date: TEST_EXCEL_DATE,
+      registration_status: REGISTRATION_STATUSES.ACTIVE,
+      patient_display_id: patient7.displayId,
+      program_registry_id: programRegistry.id,
+      clinician_id: clinician.id,
+      program_registry_condition_ids: condition.id,
+      program_registry_condition_category_id: conditionCategory.id,
+    };
+
+    await doImport({ buffer: buildPprBuffer([row]) });
+    await doImport({ buffer: buildPprBuffer([row]) });
+
+    const registration = await models.PatientProgramRegistration.findOne({
+      where: { patientId: patient7.id, programRegistryId: programRegistry.id },
+    });
+    const conditions = await models.PatientProgramRegistrationCondition.findAll({
+      where: { patientProgramRegistrationId: registration.id },
+    });
+    expect(conditions).toHaveLength(1);
+  });
+
+  it('should trim whitespace from cell values', async () => {
+    const patient8 = await models.Patient.create(
+      fake(models.Patient, { displayId: 'TEST-PPR-008' }),
+    );
+
+    const buffer = buildPprBuffer([
+      {
+        date: TEST_EXCEL_DATE,
+        registration_status: REGISTRATION_STATUSES.ACTIVE,
+        patient_display_id: ` ${patient8.displayId} `,
+        program_registry_id: ` ${programRegistry.id} `,
+        clinician_id: ` ${clinician.id} `,
+      },
+    ]);
+
+    const { errors, stats } = await doImport({ buffer });
+
+    expect(errors).toEqual([]);
+    expect(stats).toMatchObject({
+      PatientProgramRegistration: { created: 1, errored: 0 },
+    });
+  });
 });

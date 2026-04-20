@@ -16,7 +16,12 @@ function convertExcelDate(value) {
 }
 
 function trimRow(data) {
-  return Object.fromEntries(Object.entries(data).map(([key, value]) => [key.trim(), value]));
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key.trim(),
+      typeof value === 'string' ? value.trim() : value,
+    ]),
+  );
 }
 
 function parseCommaSeparated(value) {
@@ -201,8 +206,12 @@ export async function importPatientProgramRegistrations(workbook, { errors, log,
         existingRegistration ? 'updated' : 'created',
       );
 
-      // Create condition records
+      // Replace condition records: delete existing ones then re-create from spreadsheet
       if (conditionIds.length > 0) {
+        await models.PatientProgramRegistrationCondition.destroy({
+          where: { patientProgramRegistrationId: registration.id },
+        });
+
         for (const conditionId of conditionIds) {
           try {
             await models.PatientProgramRegistrationCondition.create({
