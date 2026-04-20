@@ -1,6 +1,8 @@
-import { QueryTypes } from 'sequelize';
-import { writeExcelFile } from '../../utils/excelUtils';
 import { groupBy } from 'lodash';
+import { QueryTypes } from 'sequelize';
+
+import { NotFoundError } from '@tamanu/errors';
+import { writeExcelFile } from '../../utils/excelUtils';
 
 export async function exportProgram(context, programId) {
   const { models, sequelize } = context;
@@ -12,7 +14,7 @@ export async function exportProgram(context, programId) {
     raw: true,
   });
   if (!program) {
-    throw new Error(`Program with id ${programId} not found`);
+    throw new NotFoundError(`No program found with ID ${programId}`);
   }
 
   const sheets = [];
