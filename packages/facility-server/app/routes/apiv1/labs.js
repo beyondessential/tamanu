@@ -623,6 +623,94 @@ labTest.get(
   }),
 );
 
+labTest.get(
+  '/:id/history',
+  asyncHandler(async (req, res) => {
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+    req.checkPermission('read', 'LabTestResult');
+
+    // First, check if this lab test exists and get its info
+    const labTest = await models.LabTest.findByPk(labTestId, {
+      include: [{ model: models.LabTestType, as: 'labTestType' }],
+    });
+
+    if (!labTest) {
+      throw new NotFoundError();
+    }
+
+    if (labTest.labTestType.isSensitive === true) {
+      req.checkPermission('read', 'SensitiveLabRequest');
+    }
+
+    await req.audit.access({
+      recordId: labTest.id,
+      frontEndContext: req.params,
+      model: models.LabTest,
+      facilityId,
+    });
+
+    const changeLogs = await models.ChangeLog.findAll({
+      where: {
+        tableName: 'lab_tests',
+        recordId: labTestId,
+      },
+      include: [
+        {
+          model: models.User,
+          as: 'updatedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'ASC']],
+      raw: false,
+    });
+
+    const changes = [];
+    let prevResult = null;
+    let prevSecondaryResult = null;
+
+    for (const changeLog of changeLogs) {
+      const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
+      const result = recordData.result || null;
+      const secondaryResult = recordData.secondary_result || null;
+
+      if (secondaryResult !== prevSecondaryResult) {
+        changes.push({
+          id: `${id}-secondaryResult`,
+          loggedAt,
+          result: secondaryResult,
+          fieldType: 'secondaryResult',
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
+        });
+        prevSecondaryResult = secondaryResult;
+      }
+
+      if (result !== prevResult) {
+        changes.push({
+          id: `${id}-result`,
+          loggedAt,
+          result,
+          fieldType: 'result',
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
+        });
+        prevResult = result;
+      }
+    }
+
+    changes.reverse();
+    res.send(changes);
+  }),
+);
+
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 labTestType.get(

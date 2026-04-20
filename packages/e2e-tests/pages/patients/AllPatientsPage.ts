@@ -58,10 +58,6 @@ export class AllPatientsPage extends BasePatientListPage {
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
   readonly patientPage2!: Locator;
-  readonly firstNameSortButton!: Locator;
-  readonly lastNameSortButton!: Locator;
-  readonly culturalNameSortButton!: Locator;
-  readonly villageSortButton!: Locator;
   readonly dobSortButton!: Locator;
 
   constructor(page: Page) {
@@ -110,10 +106,6 @@ export class AllPatientsPage extends BasePatientListPage {
       patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
       patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
       patientPage2: 'paginationitem-c5vg',
-      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
-      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
-      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
-      villageSortButton: 'tablesortlabel-0qxx-villageName',
       dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
     } as const;
 
@@ -148,12 +140,6 @@ export class AllPatientsPage extends BasePatientListPage {
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');
-    this.firstNameSortButton = page.getByTestId('tablesortlabel-0qxx-firstName').locator('svg');
-    this.lastNameSortButton = page.getByTestId('tablesortlabel-0qxx-lastName').locator('svg');
-    this.culturalNameSortButton = page
-      .getByTestId('tablesortlabel-0qxx-culturalName')
-      .locator('svg');
-    this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
   }
 

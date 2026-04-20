@@ -139,6 +139,8 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   const { models, sequelize } = context;
 
   // do NOT time out during create context
+  // TODO: remove once the slow test setup (db recreate + full migration run)
+  // is addressed at the source.
   jest.setTimeout(1000 * 60 * 60 * 24);
 
   await sequelize.migrate('up');
