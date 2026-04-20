@@ -1,9 +1,7 @@
 import { Tab, Tabs } from '@material-ui/core';
 import { svgIconClasses } from '@mui/material/SvgIcon';
-
 import React from 'react';
 import styled from 'styled-components';
-import { isNil } from 'lodash';
 
 import { Colors } from '../constants';
 
