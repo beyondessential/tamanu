@@ -34,7 +34,6 @@ const Footer = styled.footer`
 `;
 
 const metadataValidationSchema = yup.object().shape({
-  code: yup.string().trim().required('Required'),
   name: yup.string().trim().required('Required'),
 });
 
@@ -54,14 +53,7 @@ function EditProgramMetadataModal({ onClose, open }) {
     },
   });
 
-  const initialValues = useMemo(
-    () => ({
-      code: program?.code ?? '',
-      name: program?.name ?? '',
-    }),
-    [program],
-  );
-  console.log('🦺 initialValues', initialValues);
+  const initialValues = useMemo(() => ({ name: program?.name ?? '' }), [program?.name]);
 
   return (
     <FormModal
@@ -82,7 +74,12 @@ function EditProgramMetadataModal({ onClose, open }) {
         render={({ submitForm, isSubmitting }) => (
           <>
             <Fieldset disabled={isSubmitting}>
-              <Field name="code" component={ReadOnlyTextField} label="programCode" />
+              <ReadOnlyTextField
+                // Not to be confused with `program.code`
+                field={{ name: 'programCode', value: program?.programCode ?? '' }}
+                label="programCode"
+                required
+              />
               <Field name="name" component={TextField} label="programName" />
             </Fieldset>
             <Footer>
