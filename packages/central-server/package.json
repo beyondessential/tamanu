@@ -107,7 +107,7 @@
     "react-dom": "16.8.5",
     "read": "^1.0.7",
     "sequelize": "^6.21.3",
-    "socket.io": "^4.8.1",
+    "socket.io": "^4.8.3",
     "timesimp": "^1.0.2",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
