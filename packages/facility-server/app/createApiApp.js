@@ -7,7 +7,7 @@ import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
-import routes from './routes';
+import { createRoutes } from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -75,12 +75,14 @@ export async function createApiApp({
     });
   });
 
-  const { globalLimiter } = buildRateLimiters();
+  const limiters = buildRateLimiters();
   // Apply a permissive global rate limit to every API request as a
   // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
-  // endpoints are applied inside routes/apiv1 so they cover both /api and /v1.
-  express.use('/', globalLimiter);
-  express.use('/', routes);
+  // endpoints are applied inside routes/apiv1 (via createRoutes) so they cover
+  // both /api and /v1. Single buildRateLimiters() call avoids duplicate
+  // MemoryStores and cleanup intervals.
+  express.use('/', limiters.globalLimiter);
+  express.use('/', createRoutes(limiters));
 
   // Dis-allow all other routes
   express.get('*', (req, res) => {

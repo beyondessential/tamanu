@@ -11,7 +11,6 @@ import {
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
-import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
@@ -63,144 +62,150 @@ import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
 
-export const apiv1 = express.Router();
-const patientDataRoutes = express.Router();
-const referenceDataRoutes = express.Router();
-const syncRoutes = express.Router();
+/**
+ * @param {{ authLimiter: import('express').RequestHandler }} limiters
+ *   `authLimiter` is the stricter limiter for unauthenticated endpoints that do
+ *   expensive work (bcrypt, user lookup, proxy calls to central). Mitigates
+ *   DoS / brute-force against /login, /refresh, /setFacility, /resetPassword,
+ *   and /changePassword. Built once in createApiApp and passed in so we do not
+ *   create duplicate MemoryStores. Applies to both /api and /v1 mounts.
+ */
+export function createApiv1({ authLimiter }) {
+  const apiv1 = express.Router();
+  const patientDataRoutes = express.Router();
+  const referenceDataRoutes = express.Router();
+  const syncRoutes = express.Router();
 
-// Stricter rate limiter for unauthenticated endpoints that do expensive work
-// (bcrypt password hashing, user lookup, proxy calls to central). Mitigates
-// DoS / brute-force against /login, /refresh, /setFacility, /resetPassword,
-// and /changePassword. Applies to both /api and /v1 mounts.
-const { authLimiter } = buildRateLimiters();
+  // auth endpoints (added pre auth check)
+  apiv1.post('/login', authLimiter, loginHandler);
+  apiv1.use('/resetPassword', authLimiter, resetPassword);
+  apiv1.use('/changePassword', authLimiter, changePassword);
+  
+  apiv1.get(
+    '/public/ping',
+    asyncHandler((req, res) => {
+      req.flagPermissionChecked();
+      return res.send({ ok: 'ok' });
+    }),
+  );
+  
+  apiv1.get(
+    '/public/translation/languageOptions',
+    asyncHandler(async (req, res) => {
+      req.flagPermissionChecked();
+      const { TranslatedString } = req.models;
+      const response = await TranslatedString.getPossibleLanguages();
+      res.send(response);
+    }),
+  );
+  
+  apiv1.get(
+    '/public/translation/:language',
+    asyncHandler(async (req, res) => {
+      // Everyone can access translations
+      req.flagPermissionChecked();
+  
+      const {
+        models: { TranslatedString },
+        params: { language },
+      } = req;
+  
+      const translatedStringRecords = await TranslatedString.findAll({
+        where: { language },
+        attributes: ['stringId', 'text'],
+      });
+  
+      res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
+    }),
+  );
+  
+  apiv1.use(authMiddleware);
+  
+  apiv1.use(constructPermission);
+  
+  apiv1.use(attachAuditUserToDbSession);
+  
+  apiv1.delete(
+    '/admin/settings/cache',
+    asyncHandler(async (req, res) => {
+      req.checkPermission('manage', 'all');
+      settingsCache.reset();
+      res.status(204).send();
+    }),
+  );
+  
+  apiv1.post('/refresh', authLimiter, refreshHandler);
+  apiv1.post('/setFacility', authLimiter, setFacilityHandler);
+  apiv1.use(patientDataRoutes); // see below for specifics
+  apiv1.use(referenceDataRoutes); // see below for specifics
+  apiv1.use(syncRoutes); // see below for specifics
+  apiv1.use('/telegram', telegramRoutes);
+  
+  // patient data endpoints
+  patientDataRoutes.use('/allergy', allergy);
+  patientDataRoutes.use('/appointments', appointments);
+  patientDataRoutes.use('/diagnosis', diagnosis);
+  patientDataRoutes.use('/encounter', encounter);
+  patientDataRoutes.use('/familyHistory', familyHistory);
+  patientDataRoutes.use('/imagingRequest', imagingRequest);
+  patientDataRoutes.use('/invoices', invoices);
+  patientDataRoutes.use('/labRequest', labRequest);
+  patientDataRoutes.use('/labTest', labTest);
+  patientDataRoutes.use('/labTestType', labTestType);
+  patientDataRoutes.use('/labTestPanel', labTestPanel);
+  patientDataRoutes.use('/medication', medication);
+  patientDataRoutes.use('/notes', notes);
+  patientDataRoutes.use('/ongoingCondition', ongoingCondition);
+  patientDataRoutes.use('/patient', patient);
+  patientDataRoutes.use('/patientCarePlan', patientCarePlan);
+  patientDataRoutes.use('/patientIssue', patientIssue);
+  patientDataRoutes.use('/procedure', procedure);
+  patientDataRoutes.use('/referral', referral);
+  patientDataRoutes.use('/surveyResponse', surveyResponse);
+  patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);
+  patientDataRoutes.use('/triage', triage);
+  patientDataRoutes.use('/vitals', vitals);
+  patientDataRoutes.use('/tasks', tasks);
+  patientDataRoutes.use('/notifications', notifications);
+  
+  // reference data endpoints
+  referenceDataRoutes.use('/asset', asset);
+  referenceDataRoutes.use('/attachment', attachment);
+  referenceDataRoutes.use('/certificateNotification', certificateNotification);
+  referenceDataRoutes.use('/department', department);
+  referenceDataRoutes.use('/facility', facility);
+  referenceDataRoutes.use('/labRequestLog', labRequestLog);
+  referenceDataRoutes.use('/location', location);
+  referenceDataRoutes.use('/locationAssignments', locationAssignments);
+  referenceDataRoutes.use('/locationGroup', locationGroup);
+  referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
+  referenceDataRoutes.use('/template', template);
+  referenceDataRoutes.use('/program', program);
+  referenceDataRoutes.use('/programRegistry', programRegistry);
+  referenceDataRoutes.use('/referenceData', referenceData);
+  referenceDataRoutes.use('/reportRequest', reportRequest);
+  referenceDataRoutes.use('/reports', reports);
+  referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
+  referenceDataRoutes.use('/suggestions', suggestions);
+  referenceDataRoutes.use('/survey', survey);
+  referenceDataRoutes.use('/user', user);
+  referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
+  referenceDataRoutes.use('/translation', translation);
+  
+  // sync endpoints
+  syncRoutes.use('/sync', sync);
+  syncRoutes.use('/syncHealth', syncHealth);
+  syncRoutes.use('/patientFacility', patientFacility);
+  
+  // Random record picker for tests / synthetic load (see packages/synthetic-tests RandomEntityFetcher).
+  // Off by default in non-test environments; set TAMANU_ENABLE_SYNTHETIC_RANDOM_API=true to enable.
+  const enableRandomRecordApi =
+    process.env.NODE_ENV === 'test' ||
+    process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
 
-// auth endpoints (added pre auth check)
-apiv1.post('/login', authLimiter, loginHandler);
-apiv1.use('/resetPassword', authLimiter, resetPassword);
-apiv1.use('/changePassword', authLimiter, changePassword);
+  if (enableRandomRecordApi) {
+    apiv1.use('/random', random);
+  }
 
-apiv1.get(
-  '/public/ping',
-  asyncHandler((req, res) => {
-    req.flagPermissionChecked();
-    return res.send({ ok: 'ok' });
-  }),
-);
-
-apiv1.get(
-  '/public/translation/languageOptions',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const { TranslatedString } = req.models;
-    const response = await TranslatedString.getPossibleLanguages();
-    res.send(response);
-  }),
-);
-
-apiv1.get(
-  '/public/translation/:language',
-  asyncHandler(async (req, res) => {
-    // Everyone can access translations
-    req.flagPermissionChecked();
-
-    const {
-      models: { TranslatedString },
-      params: { language },
-    } = req;
-
-    const translatedStringRecords = await TranslatedString.findAll({
-      where: { language },
-      attributes: ['stringId', 'text'],
-    });
-
-    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
-  }),
-);
-
-apiv1.use(authMiddleware);
-
-apiv1.use(constructPermission);
-
-apiv1.use(attachAuditUserToDbSession);
-
-apiv1.delete(
-  '/admin/settings/cache',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('manage', 'all');
-    settingsCache.reset();
-    res.status(204).send();
-  }),
-);
-
-apiv1.post('/refresh', authLimiter, refreshHandler);
-apiv1.post('/setFacility', authLimiter, setFacilityHandler);
-apiv1.use(patientDataRoutes); // see below for specifics
-apiv1.use(referenceDataRoutes); // see below for specifics
-apiv1.use(syncRoutes); // see below for specifics
-apiv1.use('/telegram', telegramRoutes);
-
-// patient data endpoints
-patientDataRoutes.use('/allergy', allergy);
-patientDataRoutes.use('/appointments', appointments);
-patientDataRoutes.use('/diagnosis', diagnosis);
-patientDataRoutes.use('/encounter', encounter);
-patientDataRoutes.use('/familyHistory', familyHistory);
-patientDataRoutes.use('/imagingRequest', imagingRequest);
-patientDataRoutes.use('/invoices', invoices);
-patientDataRoutes.use('/labRequest', labRequest);
-patientDataRoutes.use('/labTest', labTest);
-patientDataRoutes.use('/labTestType', labTestType);
-patientDataRoutes.use('/labTestPanel', labTestPanel);
-patientDataRoutes.use('/medication', medication);
-patientDataRoutes.use('/notes', notes);
-patientDataRoutes.use('/ongoingCondition', ongoingCondition);
-patientDataRoutes.use('/patient', patient);
-patientDataRoutes.use('/patientCarePlan', patientCarePlan);
-patientDataRoutes.use('/patientIssue', patientIssue);
-patientDataRoutes.use('/procedure', procedure);
-patientDataRoutes.use('/referral', referral);
-patientDataRoutes.use('/surveyResponse', surveyResponse);
-patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);
-patientDataRoutes.use('/triage', triage);
-patientDataRoutes.use('/vitals', vitals);
-patientDataRoutes.use('/tasks', tasks);
-patientDataRoutes.use('/notifications', notifications);
-
-// reference data endpoints
-referenceDataRoutes.use('/asset', asset);
-referenceDataRoutes.use('/attachment', attachment);
-referenceDataRoutes.use('/certificateNotification', certificateNotification);
-referenceDataRoutes.use('/department', department);
-referenceDataRoutes.use('/facility', facility);
-referenceDataRoutes.use('/labRequestLog', labRequestLog);
-referenceDataRoutes.use('/location', location);
-referenceDataRoutes.use('/locationAssignments', locationAssignments);
-referenceDataRoutes.use('/locationGroup', locationGroup);
-referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
-referenceDataRoutes.use('/template', template);
-referenceDataRoutes.use('/program', program);
-referenceDataRoutes.use('/programRegistry', programRegistry);
-referenceDataRoutes.use('/referenceData', referenceData);
-referenceDataRoutes.use('/reportRequest', reportRequest);
-referenceDataRoutes.use('/reports', reports);
-referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
-referenceDataRoutes.use('/suggestions', suggestions);
-referenceDataRoutes.use('/survey', survey);
-referenceDataRoutes.use('/user', user);
-referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
-referenceDataRoutes.use('/translation', translation);
-
-// sync endpoints
-syncRoutes.use('/sync', sync);
-syncRoutes.use('/syncHealth', syncHealth);
-syncRoutes.use('/patientFacility', patientFacility);
-
-// Random record picker for tests / synthetic load (see packages/synthetic-tests RandomEntityFetcher).
-// Off by default in non-test environments; set TAMANU_ENABLE_SYNTHETIC_RANDOM_API=true to enable.
-const enableRandomRecordApi =
-  process.env.NODE_ENV === 'test' ||
-  process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
-
-if (enableRandomRecordApi) {
-  apiv1.use('/random', random);
+  return apiv1;
 }
