@@ -11,7 +11,7 @@ import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
 import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
-const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
+const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
 const initialiseFetchState = (lastUpdatedAt = '') => ({
   page: 0,
