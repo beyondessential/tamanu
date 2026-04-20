@@ -1,3 +1,15 @@
+/**
+ * @typedef {{
+ *   code: string | null;
+ *   createdAt: Date;
+ *   deletedAt: Date | null;
+ *   id: string;
+ *   name: string | null;
+ *   updatedAt: Date;
+ *   updatedAtSyncTick: string;
+ * }} Program
+ */
+
 import { groupBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
@@ -6,6 +18,7 @@ import { writeExcelFile } from '../../utils/excelUtils';
 
 export async function exportProgram(context, programId) {
   const { models, sequelize } = context;
+  /** @type {Program} */
   const program = await models.Program.findOne({
     where: {
       id: programId,
