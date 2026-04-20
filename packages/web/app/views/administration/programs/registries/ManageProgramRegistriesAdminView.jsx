@@ -149,7 +149,7 @@ export function ManageProgramRegistriesAdminView() {
           isClearable={false}
           label={
             <TranslatedText
-              stringId="admin.program-registry.select.label"
+              stringId="admin.programRegistry.select.label"
               fallback="Select program registry"
             />
           }
