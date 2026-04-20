@@ -206,27 +206,38 @@ export async function importPatientProgramRegistrations(workbook, { errors, log,
         existingRegistration ? 'updated' : 'created',
       );
 
-      // Replace condition records: delete existing ones then re-create from spreadsheet
+      // Create condition records, skipping any that already exist
       if (conditionIds.length > 0) {
-        await models.PatientProgramRegistrationCondition.destroy({
-          where: { patientProgramRegistrationId: registration.id },
-        });
-
         for (const conditionId of conditionIds) {
           try {
-            await models.PatientProgramRegistrationCondition.create({
-              patientProgramRegistrationId: registration.id,
-              programRegistryConditionId: conditionId,
-              programRegistryConditionCategoryId: conditionCategoryId,
-              date: dateString,
-              clinicianId,
+            const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
+              where: {
+                patientProgramRegistrationId: registration.id,
+                programRegistryConditionId: conditionId,
+              },
             });
 
-            updateStat(
-              stats,
-              statkey('PatientProgramRegistrationCondition', SHEET_NAME),
-              'created',
-            );
+            if (existingCondition) {
+              updateStat(
+                stats,
+                statkey('PatientProgramRegistrationCondition', SHEET_NAME),
+                'skipped',
+              );
+            } else {
+              await models.PatientProgramRegistrationCondition.create({
+                patientProgramRegistrationId: registration.id,
+                programRegistryConditionId: conditionId,
+                programRegistryConditionCategoryId: conditionCategoryId,
+                date: dateString,
+                clinicianId,
+              });
+
+              updateStat(
+                stats,
+                statkey('PatientProgramRegistrationCondition', SHEET_NAME),
+                'created',
+              );
+            }
           } catch (conditionError) {
             errors.push(
               new ValidationError(SHEET_NAME, sheetRow, conditionError.message),
