@@ -85,7 +85,7 @@
       "code": "GeneralClinic",
       "name": "Clinic",
       "visibilityStatus": "current",
-      "facilityId": "facility-ColonialWarMemorialDivisionalHospital"
+      "facilityId": "facility-1"
     },
     {
       "id": "location-DemoLan",
@@ -1775,13 +1775,6 @@
       "facilityId": "facility-Yasawa-I-RaraNursingStation"
     },
     {
-      "id": "location-GeneralClinic-facility-2",
-      "code": "GeneralClinic",
-      "name": "General Clinic",
-      "visibilityStatus": "current",
-      "facilityId": "facility-2"
-    },
-    {
       "id": "location-Outpatient",
       "code": "LHOutpatient",
       "name": "Consultation Room",
@@ -1961,13 +1954,6 @@
       "visibilityStatus": "current",
       "facilityId": "facility-2",
       "locationGroupId": "locationgroup-LilyImmunisationClinic"
-    },
-    {
-      "id": "location-GeneralClinic-tamanu",
-      "code": "GeneralClinic",
-      "name": "General Clinic",
-      "visibilityStatus": "current",
-      "facilityId": "facility-1"
     },
     {
       "id": "location-Outpatient-tamanu",
