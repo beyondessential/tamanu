@@ -1,10 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants';
 import {
+  Field,
   SelectField,
   TAMANU_COLORS,
   TranslatedText,
+  TranslatedVisibilityStatus,
   VisibilityStatusChip,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
@@ -36,6 +39,22 @@ export const TableScopeSelect = styled(SelectField).attrs({
 })`
   min-inline-size: 23rem;
 `;
+
+export const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
+  value,
+  label: <TranslatedVisibilityStatus visibilityStatus={value} />,
+}));
+
+export function VisibilityStatusSelectField({ isClearable = false, ...props }) {
+  return (
+    <Field
+      isClearable={isClearable}
+      {...props}
+      component={SelectField}
+      options={visibilityStatusSelectOptions}
+    />
+  );
+}
 
 const Empty = styled.em`
   color: ${TAMANU_COLORS.softText};
