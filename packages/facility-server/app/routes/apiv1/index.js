@@ -11,6 +11,7 @@ import {
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
+import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
@@ -67,10 +68,16 @@ const patientDataRoutes = express.Router();
 const referenceDataRoutes = express.Router();
 const syncRoutes = express.Router();
 
+// Stricter rate limiter for unauthenticated endpoints that do expensive work
+// (bcrypt password hashing, user lookup, proxy calls to central). Mitigates
+// DoS / brute-force against /login, /refresh, /setFacility, /resetPassword,
+// and /changePassword. Applies to both /api and /v1 mounts.
+const { authLimiter } = buildRateLimiters();
+
 // auth endpoints (added pre auth check)
-apiv1.post('/login', loginHandler);
-apiv1.use('/resetPassword', resetPassword);
-apiv1.use('/changePassword', changePassword);
+apiv1.post('/login', authLimiter, loginHandler);
+apiv1.use('/resetPassword', authLimiter, resetPassword);
+apiv1.use('/changePassword', authLimiter, changePassword);
 
 apiv1.get(
   '/public/ping',
@@ -125,8 +132,8 @@ apiv1.delete(
   }),
 );
 
-apiv1.post('/refresh', refreshHandler);
-apiv1.post('/setFacility', setFacilityHandler);
+apiv1.post('/refresh', authLimiter, refreshHandler);
+apiv1.post('/setFacility', authLimiter, setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics

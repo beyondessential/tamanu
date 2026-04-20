@@ -4,6 +4,7 @@ import helmet from 'helmet';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
 import routes from './routes';
@@ -74,6 +75,11 @@ export async function createApiApp({
     });
   });
 
+  const { globalLimiter } = buildRateLimiters();
+  // Apply a permissive global rate limit to every API request as a
+  // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
+  // endpoints are applied inside routes/apiv1 so they cover both /api and /v1.
+  express.use('/', globalLimiter);
   express.use('/', routes);
 
   // Dis-allow all other routes
