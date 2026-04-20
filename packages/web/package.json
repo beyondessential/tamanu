@@ -103,7 +103,7 @@
     "socket.io-client": "^4.8.1",
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
-    "vite": "^5.0.12",
+    "vite": "^6.4.2",
     "vite-plugin-json5": "^1.1.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9"
