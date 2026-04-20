@@ -28,7 +28,11 @@ const queryClient = new QueryClient({
 
 async function bootstrap() {
   const api = new TamanuApi(__VERSION__);
-  await api.restoreSession();
+  try {
+    await api.restoreSession();
+  } catch (e) {
+    console.error('[Tamanu patient-portal] Session restore failed', e);
+  }
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

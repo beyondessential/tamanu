@@ -1,7 +1,25 @@
-const ENCRYPTED_PREFIX = 'tamanuenc1.';
+/**
+ * Browser localStorage helpers that encrypt API tokens at rest using Web Crypto (AES-GCM + PBKDF2).
+ *
+ * Threat model (what this does and does **not** do):
+ * - **Addresses**: Static analysis / policy expectations that secrets not be written to storage as
+ *   cleartext; casual inspection of profile files without executing app JS; legacy cleartext tokens
+ *   are rewritten to ciphertext on first read when crypto is available.
+ * - **Does not address**: XSS — `deviceId` and the encrypted blob live in the same origin storage,
+ *   and JS can derive the same PBKDF2 inputs, so a script that can read `localStorage` can recover
+ *   the token. Stronger mitigation is HttpOnly (+ Secure, SameSite) cookies and server-side session
+ *   handling so the access token is not exposed to JavaScript.
+ */
 
-const PBKDF2_SALT = new TextEncoder().encode('tamanu-local-storage-token-v1');
+const ENCRYPTED_PREFIX_V1 = 'tamanuenc1.';
+const ENCRYPTED_PREFIX_V2 = 'tamanuenc2.';
+
+/** Fixed salt for v1 payloads only (backward compatibility). New writes use v2 with random salt. */
+const LEGACY_PBKDF2_SALT = new TextEncoder().encode('tamanu-local-storage-token-v1');
 const PBKDF2_ITERATIONS = 100_000;
+
+const SALT_LEN = 16;
+const IV_LEN = 12;
 
 export type TokenStorageNamespace = 'webapp' | 'patient-portal';
 
@@ -34,11 +52,11 @@ function fromBase64Url(s: string): Uint8Array {
   return bytes;
 }
 
-async function deriveAesKey(password: string): Promise<CryptoKey> {
+async function deriveAesKey(keyMaterial: string, salt: Uint8Array): Promise<CryptoKey> {
   const subtle = requireSubtle();
   const passwordKey = await subtle.importKey(
     'raw',
-    new TextEncoder().encode(password),
+    new TextEncoder().encode(keyMaterial),
     'PBKDF2',
     false,
     ['deriveKey'],
@@ -46,7 +64,7 @@ async function deriveAesKey(password: string): Promise<CryptoKey> {
   return subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: PBKDF2_SALT,
+      salt: salt as BufferSource,
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256',
     },
@@ -55,6 +73,63 @@ async function deriveAesKey(password: string): Promise<CryptoKey> {
     false,
     ['encrypt', 'decrypt'],
   );
+}
+
+function isEncryptedStoredValue(stored: string): boolean {
+  return stored.startsWith(ENCRYPTED_PREFIX_V1) || stored.startsWith(ENCRYPTED_PREFIX_V2);
+}
+
+async function decryptV1Payload(b64Payload: string, keyMaterial: string): Promise<string | null> {
+  let combined: Uint8Array;
+  try {
+    combined = fromBase64Url(b64Payload);
+  } catch {
+    return null;
+  }
+  if (combined.length < IV_LEN + 16) {
+    return null;
+  }
+  try {
+    const iv = combined.subarray(0, IV_LEN);
+    const ciphertext = combined.subarray(IV_LEN);
+    const aesKey = await deriveAesKey(keyMaterial, LEGACY_PBKDF2_SALT);
+    const subtle = requireSubtle();
+    const plaintext = await subtle.decrypt(
+      { name: 'AES-GCM', iv: iv as BufferSource },
+      aesKey,
+      ciphertext as BufferSource,
+    );
+    return new TextDecoder().decode(plaintext);
+  } catch {
+    return null;
+  }
+}
+
+async function decryptV2Payload(b64Payload: string, keyMaterial: string): Promise<string | null> {
+  let combined: Uint8Array;
+  try {
+    combined = fromBase64Url(b64Payload);
+  } catch {
+    return null;
+  }
+  if (combined.length < SALT_LEN + IV_LEN + 16) {
+    return null;
+  }
+  try {
+    const salt = combined.subarray(0, SALT_LEN);
+    const iv = combined.subarray(SALT_LEN, SALT_LEN + IV_LEN);
+    const ciphertext = combined.subarray(SALT_LEN + IV_LEN);
+    const aesKey = await deriveAesKey(keyMaterial, salt);
+    const subtle = requireSubtle();
+    const plaintext = await subtle.decrypt(
+      { name: 'AES-GCM', iv: iv as BufferSource },
+      aesKey,
+      ciphertext as BufferSource,
+    );
+    return new TextDecoder().decode(plaintext);
+  } catch {
+    return null;
+  }
 }
 
 export function buildTokenStorageKeyMaterial(
@@ -97,6 +172,7 @@ export async function writePersistedAuthToken(
 
 /**
  * Read and decrypt a stored token. Removes the key if ciphertext is present but invalid.
+ * Legacy cleartext values are migrated to encrypted form on first successful read when Web Crypto is available.
  */
 export async function readPersistedAuthToken(
   storageKey: string,
@@ -112,30 +188,44 @@ export async function readPersistedAuthToken(
   const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
   const token = await unpackPersistedToken(raw, keyMaterial);
   if (token == null) {
-    storage.removeItem(storageKey);
+    if (isEncryptedStoredValue(raw)) {
+      storage.removeItem(storageKey);
+    }
     return { raw, token: null };
+  }
+  if (!isEncryptedStoredValue(raw)) {
+    try {
+      await writePersistedAuthToken(storageKey, token, deviceId, namespace, storage, origin);
+    } catch (e) {
+      console.error('[Tamanu] Failed to migrate plaintext auth token to encrypted storage', e);
+    }
   }
   return { raw, token };
 }
 
+/** New writes use v2 (random PBKDF2 salt per encryption). */
 export async function packPersistedToken(token: string, keyMaterial: string): Promise<string> {
   if (!token) {
     return token;
   }
-  const aesKey = await deriveAesKey(keyMaterial);
-  const iv = new Uint8Array(12);
+  const salt = new Uint8Array(SALT_LEN);
+  globalThis.crypto.getRandomValues(salt);
+  const aesKey = await deriveAesKey(keyMaterial, salt);
+  const iv = new Uint8Array(IV_LEN);
   globalThis.crypto.getRandomValues(iv);
   const plaintext = new TextEncoder().encode(token);
-  const ciphertext = await requireSubtle().encrypt(
+  const subtle = requireSubtle();
+  const ciphertext = await subtle.encrypt(
     { name: 'AES-GCM', iv: iv as BufferSource },
     aesKey,
     plaintext,
   );
   const ct = new Uint8Array(ciphertext);
-  const combined = new Uint8Array(iv.length + ct.length);
-  combined.set(iv, 0);
-  combined.set(ct, iv.length);
-  return `${ENCRYPTED_PREFIX}${toBase64Url(combined)}`;
+  const combined = new Uint8Array(SALT_LEN + IV_LEN + ct.length);
+  combined.set(salt, 0);
+  combined.set(iv, SALT_LEN);
+  combined.set(ct, SALT_LEN + IV_LEN);
+  return `${ENCRYPTED_PREFIX_V2}${toBase64Url(combined)}`;
 }
 
 export async function unpackPersistedToken(
@@ -145,29 +235,11 @@ export async function unpackPersistedToken(
   if (stored == null || stored === '') {
     return null;
   }
-  if (!stored.startsWith(ENCRYPTED_PREFIX)) {
-    return stored;
+  if (stored.startsWith(ENCRYPTED_PREFIX_V2)) {
+    return decryptV2Payload(stored.slice(ENCRYPTED_PREFIX_V2.length), keyMaterial);
   }
-  let combined: Uint8Array;
-  try {
-    combined = fromBase64Url(stored.slice(ENCRYPTED_PREFIX.length));
-  } catch {
-    return null;
+  if (stored.startsWith(ENCRYPTED_PREFIX_V1)) {
+    return decryptV1Payload(stored.slice(ENCRYPTED_PREFIX_V1.length), keyMaterial);
   }
-  if (combined.length < 13) {
-    return null;
-  }
-  const iv = combined.subarray(0, 12);
-  const ciphertext = combined.subarray(12);
-  const aesKey = await deriveAesKey(keyMaterial);
-  try {
-    const plaintext = await requireSubtle().decrypt(
-      { name: 'AES-GCM', iv: iv as BufferSource },
-      aesKey,
-      ciphertext as BufferSource,
-    );
-    return new TextDecoder().decode(plaintext);
-  } catch {
-    return null;
-  }
+  return stored;
 }
