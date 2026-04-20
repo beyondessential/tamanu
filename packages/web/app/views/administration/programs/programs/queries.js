@@ -18,7 +18,7 @@ export function useProgramQuery(programId, useQueryOptions = {}) {
 
   return useQuery({
     ...rest,
-    queryKey: ['program', programId],
+    queryKey: ['programs', programId],
     queryFn: async () => await api.get(`admin/program/${encodeURIComponent(programId)}`),
     enabled: enabled && Boolean(programId),
   });
@@ -31,14 +31,11 @@ export function useProgramMutation(programId, useMutationOptions = {}) {
 
   return useMutation({
     ...rest,
-    mutationKey: ['program', programId],
+    mutationKey: ['programs', programId],
     mutationFn: async ({ name }) =>
       api.put(`admin/program/${encodeURIComponent(programId)}`, { name }),
     onSuccess: async (data, variables, context) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['adminProgram', programId] }),
-        queryClient.invalidateQueries({ queryKey: ['programs'] }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ['programs'] });
       await onSuccess?.(data, variables, context);
     },
   });
