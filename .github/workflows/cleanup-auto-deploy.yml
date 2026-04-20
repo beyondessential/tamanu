@@ -30,7 +30,7 @@ jobs:
       down: ${{ steps.config.outputs.down }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: setup
         uses: ./.github/actions/setup-cd
         with:

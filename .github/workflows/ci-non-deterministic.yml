@@ -32,7 +32,7 @@ jobs:
     name: on pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.base_ref }}
@@ -48,11 +48,11 @@ jobs:
           realbase=$(git merge-base ${{ github.base_ref || 'HEAD~1' }} HEAD)
           echo "realbase=$realbase" | tee -a "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
