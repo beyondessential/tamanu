@@ -84,16 +84,133 @@ jobs:
             patch configmap auto-deploy \
             -p '{"data":{"imageTag":"${{ inputs.image-tag }}"}}'
 
+      - name: Find and clone seed snapshot
+        id: snapshot
+        if: fromJson(inputs.options)['seed-snapshot']
+        run: |
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+          SEED_NS="tamanu-seed"
+
+          # Get the app version from package.json
+          APP_VERSION=$(jq -r .version package.json)
+          APP_MAJOR_MINOR=$(echo "$APP_VERSION" | cut -d. -f1,2)
+          echo "Looking for snapshot closest to v${APP_VERSION}"
+
+          # Helper: sort versions semantically by splitting into numeric parts
+          SEMVER_SORT='sort_by(.version | split(".") | map(tonumber? // 0)) | reverse'
+
+          # List all snapshots with version annotations, sorted by semver descending
+          SNAPSHOT=$(kubectl -n "$SEED_NS" get volumesnapshot \
+            -o json | jq -r --arg mm "$APP_MAJOR_MINOR." '
+            [.items[]
+              | select(.metadata.annotations["pgsnap.bes.au/for-version"] != null)
+              | select(.status.readyToUse == true)
+              | {
+                  name: .metadata.name,
+                  version: .metadata.annotations["pgsnap.bes.au/for-version"],
+                  created: .metadata.annotations["pgsnap.bes.au/created-at"]
+                }
+              | select(.version | startswith($mm))
+            ] | '"$SEMVER_SORT"' | .[0].name // empty')
+
+          if [ -z "$SNAPSHOT" ]; then
+            echo "::warning::No matching seed snapshot found for v${APP_MAJOR_MINOR}.x, trying any available snapshot"
+            SNAPSHOT=$(kubectl -n "$SEED_NS" get volumesnapshot \
+              -o json | jq -r '
+              [.items[]
+                | select(.metadata.annotations["pgsnap.bes.au/for-version"] != null)
+                | select(.status.readyToUse == true)
+                | {
+                    name: .metadata.name,
+                    version: .metadata.annotations["pgsnap.bes.au/for-version"],
+                    created: .metadata.annotations["pgsnap.bes.au/created-at"]
+                  }
+              ] | '"$SEMVER_SORT"' | .[0].name // empty')
+          fi
+
+          if [ -z "$SNAPSHOT" ]; then
+            echo "::error::No seed snapshots found at all"
+            exit 1
+          fi
+
+          echo "Using snapshot: $SNAPSHOT"
+
+          # Get the VolumeSnapshotContent (cluster-scoped) backing this snapshot
+          CONTENT=$(kubectl -n "$SEED_NS" get volumesnapshot "$SNAPSHOT" \
+            -o jsonpath='{.status.boundVolumeSnapshotContentName}')
+          if [ -z "$CONTENT" ]; then
+            echo "::error::boundVolumeSnapshotContentName is empty for snapshot $SNAPSHOT"
+            exit 1
+          fi
+
+          DRIVER=$(kubectl get volumesnapshotcontent "$CONTENT" \
+            -o jsonpath='{.spec.driver}')
+          HANDLE=$(kubectl get volumesnapshotcontent "$CONTENT" \
+            -o jsonpath='{.status.snapshotHandle}')
+
+          if [ -z "$DRIVER" ] || [ -z "$HANDLE" ]; then
+            echo "::error::driver or snapshotHandle is empty (driver=$DRIVER, content=$CONTENT)"
+            exit 1
+          fi
+
+          echo "::add-mask::${HANDLE}"
+          echo "Cloning snapshot to namespace $NS_NAME (content=$CONTENT)"
+
+          # Create a new VolumeSnapshotContent pointing to the same underlying storage snapshot
+          CLONE_CONTENT="seed-clone-${{ inputs.deploy-name }}"
+          CLONE_SNAP="seed-snapshot"
+
+          # VolumeSnapshotContent spec fields (including snapshotHandle) are immutable once bound,
+          # so delete any existing resource before re-creating with potentially different values.
+          kubectl delete volumesnapshotcontent "${CLONE_CONTENT}" --ignore-not-found
+
+          kubectl apply -f - <<EOF
+          apiVersion: snapshot.storage.k8s.io/v1
+          kind: VolumeSnapshotContent
+          metadata:
+            name: ${CLONE_CONTENT}
+          spec:
+            driver: "${DRIVER}"
+            deletionPolicy: Retain
+            source:
+              snapshotHandle: "${HANDLE}"
+            volumeSnapshotRef:
+              name: ${CLONE_SNAP}
+              namespace: ${NS_NAME}
+          EOF
+
+          kubectl apply -f - <<EOF
+          apiVersion: snapshot.storage.k8s.io/v1
+          kind: VolumeSnapshot
+          metadata:
+            name: ${CLONE_SNAP}
+            namespace: ${NS_NAME}
+          spec:
+            source:
+              volumeSnapshotContentName: ${CLONE_CONTENT}
+          EOF
+
+          # Wait for the clone to be ready
+          kubectl -n "$NS_NAME" wait volumesnapshot "$CLONE_SNAP" \
+            --for=jsonpath='{.status.readyToUse}'=true --timeout=120s
+
+          echo "snapshot_name=${CLONE_SNAP}" >> "$GITHUB_OUTPUT"
+
       - name: Generate pulumi config
         id: config
         uses: actions/github-script@v7
         env:
           K8S_CORE: ${{ vars.K8S_CORE }}
+          SEED_SNAPSHOT_NAME: ${{ steps.snapshot.outputs.snapshot_name || '' }}
         with:
           script: |
             const cwd = '${{ github.workspace }}';
             const { configMap } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
-            core.setOutput('pulumi', configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }}));
+            const config = configMap('${{ inputs.deploy-name }}', '${{ inputs.image-tag }}', ${{ inputs.options }});
+            if (process.env.SEED_SNAPSHOT_NAME) {
+              config['tamanu-on-k8s:seedSnapshotName'] = { value: process.env.SEED_SNAPSHOT_NAME, secret: false };
+            }
+            core.setOutput('pulumi', config);
 
       - name: Get full stack name
         id: stack

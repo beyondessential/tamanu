@@ -101,6 +101,7 @@ const OPTIONS = [
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },
+  { key: 'seed-snapshot', defaultValue: false, presence: true },
 
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
@@ -277,6 +278,7 @@ export function configMap(deployName, imageTag, options) {
       patientPortalReplicas: options.patientportals,
 
       syntheticTests: options.synthetic,
+      seedSnapshot: options['seed-snapshot'],
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
