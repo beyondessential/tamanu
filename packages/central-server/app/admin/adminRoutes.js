@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGet, simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
@@ -15,6 +15,7 @@ import { fhirJobStats } from './fhirJobStats';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { mergePatientHandler } from './patientMerge';
 import { permissionsRouter } from './permissions';
+import { programRouter, programsRouter } from './programs';
 import { programRegistryRouter, programRegistriesRouter } from './programRegistries';
 import { referenceDataManageRouter } from './referenceDataManage';
 import { reportsRouter } from './reports/reportRoutes';
@@ -65,11 +66,6 @@ adminRoutes.get(
 adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
 
-adminRoutes.get('/programs', simpleGetList('Program'));
-adminRoutes.get('/program/:id/surveys', simpleGetList('Survey', 'programId'));
-adminRoutes.get('/program/:id', simpleGet('Program'));
-adminRoutes.put('/survey/:id', simplePut('Survey'));
-
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
@@ -83,6 +79,8 @@ adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
+adminRoutes.use('/programs', programsRouter);
+adminRoutes.use('/program', programRouter);
 adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
 adminRoutes.put('/programRegistryClinicalStatus/:id', simplePut('ProgramRegistryClinicalStatus'));
@@ -94,6 +92,7 @@ adminRoutes.put(
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
+adminRoutes.put('/survey/:id', simplePut('Survey'));
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
