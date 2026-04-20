@@ -1,18 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
 import { extension } from 'mime-types';
+import React, { useCallback, useEffect, useState } from 'react';
 
+import { TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
-import { useTranslation } from '../contexts/Translation';
 
 const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
 
 export const useDocumentActions = () => {
   const api = useApi();
   const [dataUrl, setDataUrl] = useState('');
-  const { getTranslation } = useTranslation();
-
   // In order to make sure we cleanup any iframes we create from printing, we need to
   // trigger it in a useEffect with a cleanup function that will remove the iframe
   // when unmounted.
@@ -40,14 +38,14 @@ export const useDocumentActions = () => {
       try {
         // Give feedback to user that download is starting
         notify(
-          getTranslation(
-            'document.notification.downloadStart',
-            'Your download has started, please wait.',
-          ),
+          <TranslatedText
+            stringId="document.notification.downloadStart"
+            fallback="Your download has started, please wait"
+          />,
           { replacement: { type: 'info' } },
         );
 
-        await saveFile({
+        const saved = await saveFile({
           defaultFileName: document.name,
           getData: async () => {
             // Download attachment (*currently the API only supports base64 responses)
@@ -58,9 +56,14 @@ export const useDocumentActions = () => {
           mimetype: document.type,
         });
 
-        notifySuccess(
-          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
-        );
+        if (saved) {
+          notifySuccess(
+            <TranslatedText
+              stringId="document.notification.downloadSuccess"
+              fallback="Successfully downloaded file"
+            />,
+          );
+        }
       } catch (error) {
         notifyError(error.message);
       }

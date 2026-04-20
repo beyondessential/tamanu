@@ -109,14 +109,19 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   };
 
   const onDownloadData = async () => {
-    await saveFile({
+    const saved = await saveFile({
       defaultFileName: `${exportName}-${getCurrentDate()}`,
       getData: prepareData,
       extension: 'xlsx',
     });
-    notifySuccess(
-      getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
-    );
+    if (saved) {
+      notifySuccess(
+        <TranslatedText
+          stringId="document.notification.downloadSuccess"
+          fallback="Successfully downloaded file"
+        />,
+      );
+    }
   };
 
   return (
