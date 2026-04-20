@@ -2,7 +2,6 @@ import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
 import {
-  compareAlphabetically,
   compareDisplayDates,
   convertDateFormat,
   STYLED_TABLE_CELL_PREFIX,
@@ -209,7 +208,9 @@ export abstract class BasePatientListPage extends BasePage {
         if (cellText) Values.push(cellText);
       }
 
-      const sortedValues = [...Values].sort(compareAlphabetically(isAscending ? 'asc' : 'desc'));
+      const sortedValues = [...Values].sort((a, b) => {
+        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
+      });
 
       expect(Values).toEqual(sortedValues);
     }).toPass({ timeout: 10000 });

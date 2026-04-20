@@ -81,21 +81,13 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
 }
 
 /**
- * Comparator factory for deterministic alphabetical sort checks.
- *
- * Uses raw Unicode code point ordering (JS relational comparison), which matches
- * the app's current backend/API ordering for patient names more reliably than
- * `localeCompare` across different CI runner locales.
+ * Comparator factory for **locale-aware string sort** (e.g. vaccine names in table order assertions).
  *
  * @param order — `'asc'` or `'desc'`.
  * @returns `(a, b) => number` suitable for `Array.prototype.sort`.
  */
 export function compareAlphabetically(order: 'asc' | 'desc') {
-  return (a: string, b: string) => {
-    if (a === b) return 0;
-    const forward = a > b ? 1 : -1;
-    return order === 'asc' ? forward : -forward;
-  };
+  return (a: string, b: string) => (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
 }
 
 /**
