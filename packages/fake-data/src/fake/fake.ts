@@ -16,7 +16,7 @@ import {
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
-  MARTIAL_STATUS_VALUES,
+  MARITAL_STATUS_VALUES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
@@ -70,8 +70,6 @@ const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
-
-
 
 export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();
@@ -451,7 +449,10 @@ export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
     return decimals > 0 ? val.toFixed(decimals) : Math.round(val).toString();
   };
   const SURVEY_ANSWER_OPTIONS: Array<{ name: string; body: () => string }> = [
-    { name: 'Blood pressure', body: () => `${clampedNormal(120, 15, 80, 180)}/${clampedNormal(80, 10, 40, 110)}` },
+    {
+      name: 'Blood pressure',
+      body: () => `${clampedNormal(120, 15, 80, 180)}/${clampedNormal(80, 10, 40, 110)}`,
+    },
     { name: 'Temperature', body: () => clampedNormal(37.0, 0.5, 35.5, 41.0, 1) },
     { name: 'Weight', body: () => clampedNormal(70, 15, 30, 150, 1) },
     { name: 'Height', body: () => clampedNormal(165, 10, 140, 200) },
@@ -465,20 +466,27 @@ export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
     { name: 'Gestational age (weeks)', body: () => clampedNormal(28, 8, 4, 42) },
     { name: 'Fundal height', body: () => clampedNormal(28, 7, 12, 42) },
     { name: 'Malaria RDT', body: () => chance.pickone(['Positive', 'Negative']) },
-    { name: 'HIV test result', body: () => chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']) },
-    { name: 'Oedema', body: () => chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']) },
+    {
+      name: 'HIV test result',
+      body: () => chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']),
+    },
+    {
+      name: 'Oedema',
+      body: () => chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']),
+    },
     {
       name: 'Notes',
-      body: () => chance.pickone([
-        'Patient reports feeling better',
-        'No complaints today',
-        'Mild discomfort noted',
-        'Awaiting lab results',
-        'Referred for further investigation',
-        'Condition stable, continue treatment',
-        'Patient counselled on medication adherence',
-        'Wound healing well',
-      ]),
+      body: () =>
+        chance.pickone([
+          'Patient reports feeling better',
+          'No complaints today',
+          'Mild discomfort noted',
+          'Awaiting lab results',
+          'Referred for further investigation',
+          'Condition stable, continue treatment',
+          'Patient counselled on medication adherence',
+          'Wound healing well',
+        ]),
     },
   ];
   const answer = chance.pickone(SURVEY_ANSWER_OPTIONS);
@@ -647,7 +655,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   LabTestType: () => {
     const suffix = chance.hash({ length: 4 });
-    const { code: baseCode, name: baseName, unit } = chance.pickone([
+    const {
+      code: baseCode,
+      name: baseName,
+      unit,
+    } = chance.pickone([
       { code: 'WBC', name: 'White Blood Cell Count', unit: 'x10^9/L' },
       { code: 'RBC', name: 'Red Blood Cell Count', unit: 'x10^12/L' },
       { code: 'HGB', name: 'Haemoglobin', unit: 'g/dL' },
@@ -727,7 +739,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       bloodType: chance.pickone(Object.values(BLOOD_TYPES)),
       primaryContactNumber: chance.phone(),
       secondaryContactNumber: chance.phone(),
-      maritalStatus: chance.pickone(Object.values(MARTIAL_STATUS_VALUES)),
+      maritalStatus: chance.pickone(Object.values(MARITAL_STATUS_VALUES)),
       cityTown: chance.city(),
       streetVillage: chance.street(),
       educationalLevel: chance.pickone(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)),
@@ -859,8 +871,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
 };
 
-const fhirArray = (fakeFn: (...args: any[]) => any) =>
-  (...args: any[]) => chance.n(() => fakeFn(...args), chance.integer({ min: 0, max: 3 }));
+const fhirArray =
+  (fakeFn: (...args: any[]) => any) =>
+  (...args: any[]) =>
+    chance.n(() => fakeFn(...args), chance.integer({ min: 0, max: 3 }));
 
 const FHIR_MODELS_HANDLERS = {
   FhirPatient: {
