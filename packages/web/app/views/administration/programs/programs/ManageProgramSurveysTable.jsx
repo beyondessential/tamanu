@@ -46,10 +46,7 @@ function ActionMenu({ id, visibilityStatus, refreshTable }) {
   const { isLoading, mutateAsync } = useSurveyVisibilityStatusMutation(id);
 
   const updateVisibilityStatus = nextVisibilityStatus =>
-    mutateAsync(
-      { visibilityStatus: nextVisibilityStatus },
-      { onSuccess: () => refreshTable?.() },
-    );
+    mutateAsync({ visibilityStatus: nextVisibilityStatus }, { onSuccess: () => refreshTable?.() });
 
   const items = [
     {
@@ -141,20 +138,17 @@ export function ManageProgramSurveysTable({ programId, ...props }) {
       noDataMessage={
         <ContentUnavailableView
           heading={
-            <TranslatedText
-              stringId="admin.programs.surveys.noData.heading"
-              fallback="No surveys"
-            />
+            <TranslatedText stringId="admin.programs.forms.noData.heading" fallback="No forms" />
           }
           description={
             <TranslatedText
-              stringId="admin.programs.surveys.noData.description"
-              fallback="No surveys found for this program"
+              stringId="admin.programs.forms.noData.description"
+              fallback="No forms found for this program"
             />
           }
         />
       }
-      data-testid="program-surveys-table"
+      data-testid="program-forms-table"
       {...props}
     />
   );
