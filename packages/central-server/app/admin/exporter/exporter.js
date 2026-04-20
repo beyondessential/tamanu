@@ -35,7 +35,7 @@ export async function validateFileSize(fileName, maxSizeInMb) {
   const maxSizeInBytes = maxSizeInMb * ONE_MEGABYTE_IN_BYTES;
   if (fileSizeInBytes > maxSizeInBytes) {
     throw new Error(
-      `File exported exceeds configured maximum of ${maxSizeInMb}mb. Please try again with less data types.`,
+      `File exported exceeds configured maximum of ${maxSizeInMb} MiB. Please try again with less data types.`,
     );
   }
 }
