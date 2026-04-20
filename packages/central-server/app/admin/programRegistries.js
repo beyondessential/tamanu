@@ -34,14 +34,17 @@ programRegistryRouter.get(
   '/:id/programRegistryClinicalStatuses',
   simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
 );
+
 programRegistryRouter.get(
   '/:id/programRegistryConditions',
   simpleGetList('ProgramRegistryCondition', 'programRegistryId'),
 );
+
 programRegistryRouter.get(
   '/:id/programRegistryConditionCategories',
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
+
 programRegistryRouter.get('/:id', getProgramRegistryHandler);
 
 /** `/admin/programRegistries` endpoint for collections of program registries */
