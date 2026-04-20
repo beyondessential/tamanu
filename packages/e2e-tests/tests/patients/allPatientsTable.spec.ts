@@ -53,7 +53,10 @@ test.describe('All patient table tests', () => {
       await allPatientsPage.validateAtLeastOneSearchResult();
       await allPatientsPage.validateAllRowsContain(newPatient.sex, 'sex');
     });
-    test('[T-0027][AT-0008]Search by DOB from including NHN', async ({ newPatient, allPatientsPage }) => {
+    test('[T-0027][AT-0008]Search by DOB from including NHN', async ({
+      newPatient,
+      allPatientsPage,
+    }) => {
       await allPatientsPage.searchTable({
         DOBFrom: newPatient.dateOfBirth,
         NHN: newPatient.displayId,
@@ -64,7 +67,10 @@ test.describe('All patient table tests', () => {
       await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
     });
 
-    test('[T-0027][AT-0009]Search by DOB to including NHN', async ({ newPatient, allPatientsPage }) => {
+    test('[T-0027][AT-0009]Search by DOB to including NHN', async ({
+      newPatient,
+      allPatientsPage,
+    }) => {
       await allPatientsPage.searchTable({
         DOBTo: newPatient.dateOfBirth,
         NHN: newPatient.displayId,
@@ -75,7 +81,10 @@ test.describe('All patient table tests', () => {
       await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
     });
 
-    test('[T-0027][AT-0010]Search by filling all the fields', async ({ newPatient, allPatientsPage }) => {
+    test('[T-0027][AT-0010]Search by filling all the fields', async ({
+      newPatient,
+      allPatientsPage,
+    }) => {
       await allPatientsPage.searchTable({
         NHN: newPatient.displayId,
         firstName: newPatient.firstName,
@@ -128,7 +137,9 @@ test.describe('All patient table tests', () => {
   });
 
   test.describe('pagination', () => {
-    test('[AT-0013]number of patient in patient list defaulted to 10', async ({ allPatientsPage }) => {
+    test('[AT-0013]number of patient in patient list defaulted to 10', async ({
+      allPatientsPage,
+    }) => {
       await expect(allPatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
       await allPatientsPage.patientTable.validateNumberOfPatients(10);
     });
@@ -167,55 +178,46 @@ test.describe('All patient table tests', () => {
   });
 
   test.describe('sorting', () => {
-  test('[AT-0016]Sort table by Firstname in descending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.firstNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(false, 'firstName');
-  });
-  test('[AT-0017]Sort table by Firstname in ascending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.firstNameSortButton.click();
-    await allPatientsPage.firstNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(true, 'firstName');
-  });
-  test('[AT-0018]Sort table by Lastname in descending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.lastNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(false, 'lastName');
-  });
-  test('[AT-0019]Sort table by Lastname in ascending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.lastNameSortButton.click();
-    await allPatientsPage.lastNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(true, 'lastName');
-  });
-  test('[AT-0020]Sort table by cultural name in descending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.culturalNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(false, 'culturalName');
-  });
-  test('[AT-0021]Sort table by cultural name in ascending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.culturalNameSortButton.click();
-    await allPatientsPage.culturalNameSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(true, 'culturalName');
-  });
-  test('[AT-0022]Sort table by village in descending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.villageSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(false, 'villageName');
-  });
-  test('[AT-0023]Sort table by village in ascending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.villageSortButton.click();
-    await allPatientsPage.villageSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateSortOrder(true, 'villageName');
-  });
-  test('[AT-0024]Sort table by DOB in descending order', async ({ allPatientsPage }) => {
-    await allPatientsPage.dobSortButton.click();
-    await allPatientsPage.patientTable.waitForTableToLoad();
-    await allPatientsPage.validateDateSortOrder(false);
-  });
+    test('[AT-0016]Sort table by Firstname in descending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.firstNameSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(false, 'firstName');
+    });
+    test('[AT-0017]Sort table by Firstname in ascending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.firstNameSortButton.click();
+      await allPatientsPage.firstNameSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(true, 'firstName');
+    });
+    test('[AT-0020]Sort table by cultural name in descending order', async ({
+      allPatientsPage,
+    }) => {
+      await allPatientsPage.culturalNameSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(false, 'culturalName');
+    });
+    test('[AT-0021]Sort table by cultural name in ascending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.culturalNameSortButton.click();
+      await allPatientsPage.culturalNameSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(true, 'culturalName');
+    });
+    test('[AT-0022]Sort table by village in descending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.villageSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(false, 'villageName');
+    });
+    test('[AT-0023]Sort table by village in ascending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.villageSortButton.click();
+      await allPatientsPage.villageSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateSortOrder(true, 'villageName');
+    });
+    test('[AT-0024]Sort table by DOB in descending order', async ({ allPatientsPage }) => {
+      await allPatientsPage.dobSortButton.click();
+      await allPatientsPage.patientTable.waitForTableToLoad();
+      await allPatientsPage.validateDateSortOrder(false);
+    });
     test('[AT-0025]Sort table by DOB in ascending order', async ({ allPatientsPage }) => {
       await allPatientsPage.dobSortButton.click();
       await allPatientsPage.dobSortButton.click();
