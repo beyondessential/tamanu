@@ -15,7 +15,7 @@ import { fhirJobStats } from './fhirJobStats';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { mergePatientHandler } from './patientMerge';
 import { permissionsRouter } from './permissions';
-import { getProgramRegistryHandler } from './programRegistries';
+import { programRegistryRouter, programRegistriesRouter } from './programRegistries';
 import { referenceDataManageRouter } from './referenceDataManage';
 import { reportsRouter } from './reports/reportRoutes';
 import { roleRouter, rolesRouter } from './roles';
@@ -80,20 +80,8 @@ adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
-adminRoutes.get('/programRegistries', simpleGetList('ProgramRegistry'));
-adminRoutes.get(
-  '/programRegistry/:id/programRegistryClinicalStatuses',
-  simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId'),
-);
-adminRoutes.get(
-  '/programRegistry/:id/programRegistryConditions',
-  simpleGetList('ProgramRegistryCondition', 'programRegistryId'),
-);
-adminRoutes.get(
-  '/programRegistry/:id/programRegistryConditionCategories',
-  simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
-);
-adminRoutes.get('/programRegistry/:id', getProgramRegistryHandler);
+adminRoutes.use('/programRegistries', programRegistriesRouter);
+adminRoutes.use('/programRegistry', programRegistryRouter);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
