@@ -111,12 +111,6 @@ export class PatientVaccinePane extends BasePatientPane {
     await vaccineKebabMenu.click();
   }
 
-  async getRecordedVaccineCount(): Promise<number> {
-    await this.recordedVaccinesTable.waitFor();
-    await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
-    return this.recordedVaccineRowCells.count();
-  }
-
   /**
    * Asserts the recorded vaccines table contains exactly the expected number of rows.
    * Uses Playwright's auto-retrying `toHaveCount` so it transparently waits for the
