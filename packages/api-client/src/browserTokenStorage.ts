@@ -9,6 +9,15 @@
  *   and JS can derive the same PBKDF2 inputs, so a script that can read `localStorage` can recover
  *   the token. Stronger mitigation is HttpOnly (+ Secure, SameSite) cookies and server-side session
  *   handling so the access token is not exposed to JavaScript.
+ *
+ * **Defence in depth / reviewer note:** PR titles or SAST tickets may describe this as “sensitive
+ * cookie/storage” hardening. That wording must not be read as **token confidentiality against XSS**:
+ * this layer does **not** provide that. The recommended long-term mitigation remains server-issued
+ * **HttpOnly + Secure (+ SameSite)** session cookies (and CSRF protections where applicable), with
+ * tokens never exposed to `document`/JS — see OWASP session management guidance.
+ *
+ * @todo Migrate facility web + patient portal auth to HttpOnly cookie sessions where product/security
+ *   requirements allow, so XSS cannot exfiltrate bearer tokens via `localStorage` or this module.
  */
 
 const ENCRYPTED_PREFIX_V1 = 'tamanuenc1.';
@@ -16,7 +25,11 @@ const ENCRYPTED_PREFIX_V2 = 'tamanuenc2.';
 
 /** Fixed salt for v1 payloads only (backward compatibility). New writes use v2 with random salt. */
 const LEGACY_PBKDF2_SALT = new TextEncoder().encode('tamanu-local-storage-token-v1');
-const PBKDF2_ITERATIONS = 100_000;
+/** Used only when decrypting legacy `tamanuenc1.*` blobs (original ship used 100k). */
+const LEGACY_PBKDF2_ITERATIONS = 100_000;
+
+/** OWASP Password Storage Cheat Sheet (2023): minimum 600k for PBKDF2-HMAC-SHA256. */
+const PBKDF2_ITERATIONS = 600_000;
 
 const SALT_LEN = 16;
 const IV_LEN = 12;
@@ -52,7 +65,11 @@ function fromBase64Url(s: string): Uint8Array {
   return bytes;
 }
 
-async function deriveAesKey(keyMaterial: string, salt: Uint8Array): Promise<CryptoKey> {
+async function deriveAesKey(
+  keyMaterial: string,
+  salt: Uint8Array,
+  iterations: number = PBKDF2_ITERATIONS,
+): Promise<CryptoKey> {
   const subtle = requireSubtle();
   const passwordKey = await subtle.importKey(
     'raw',
@@ -65,7 +82,7 @@ async function deriveAesKey(keyMaterial: string, salt: Uint8Array): Promise<Cryp
     {
       name: 'PBKDF2',
       salt: salt as BufferSource,
-      iterations: PBKDF2_ITERATIONS,
+      iterations,
       hash: 'SHA-256',
     },
     passwordKey,
@@ -92,7 +109,11 @@ async function decryptV1Payload(b64Payload: string, keyMaterial: string): Promis
   try {
     const iv = combined.subarray(0, IV_LEN);
     const ciphertext = combined.subarray(IV_LEN);
-    const aesKey = await deriveAesKey(keyMaterial, LEGACY_PBKDF2_SALT);
+    const aesKey = await deriveAesKey(
+      keyMaterial,
+      LEGACY_PBKDF2_SALT,
+      LEGACY_PBKDF2_ITERATIONS,
+    );
     const subtle = requireSubtle();
     const plaintext = await subtle.decrypt(
       { name: 'AES-GCM', iv: iv as BufferSource },
@@ -173,6 +194,7 @@ export async function writePersistedAuthToken(
 /**
  * Read and decrypt a stored token. Removes the key if ciphertext is present but invalid.
  * Legacy cleartext values are migrated to encrypted form on first successful read when Web Crypto is available.
+ * Returns only `{ token }` so the pre-migration storage string is never part of the public return value.
  */
 export async function readPersistedAuthToken(
   storageKey: string,
@@ -180,10 +202,10 @@ export async function readPersistedAuthToken(
   namespace: TokenStorageNamespace,
   storage: AuthTokenStorage = localStorage,
   origin: string = defaultOrigin(),
-): Promise<{ raw: string | null; token: string | null }> {
+): Promise<{ token: string | null }> {
   const raw = storage.getItem(storageKey);
   if (raw == null || raw === '') {
-    return { raw: null, token: null };
+    return { token: null };
   }
   const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
   const token = await unpackPersistedToken(raw, keyMaterial);
@@ -191,7 +213,7 @@ export async function readPersistedAuthToken(
     if (isEncryptedStoredValue(raw)) {
       storage.removeItem(storageKey);
     }
-    return { raw, token: null };
+    return { token: null };
   }
   if (!isEncryptedStoredValue(raw)) {
     try {
@@ -200,7 +222,7 @@ export async function readPersistedAuthToken(
       console.error('[Tamanu] Failed to migrate plaintext auth token to encrypted storage', e);
     }
   }
-  return { raw, token };
+  return { token };
 }
 
 /** New writes use v2 (random PBKDF2 salt per encryption). */
@@ -208,13 +230,14 @@ export async function packPersistedToken(token: string, keyMaterial: string): Pr
   if (!token) {
     return token;
   }
+  const subtle = requireSubtle();
+  const crypto = globalThis.crypto!;
   const salt = new Uint8Array(SALT_LEN);
-  globalThis.crypto.getRandomValues(salt);
+  crypto.getRandomValues(salt);
   const aesKey = await deriveAesKey(keyMaterial, salt);
   const iv = new Uint8Array(IV_LEN);
-  globalThis.crypto.getRandomValues(iv);
+  crypto.getRandomValues(iv);
   const plaintext = new TextEncoder().encode(token);
-  const subtle = requireSubtle();
   const ciphertext = await subtle.encrypt(
     { name: 'AES-GCM', iv: iv as BufferSource },
     aesKey,
