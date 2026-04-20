@@ -140,13 +140,7 @@ export const DataFetchingTable = memo(
         updateFetchState(data, count);
 
         // Use custom function on data if provided
-        if (onDataFetched) {
-          onDataFetched({
-            data,
-            count,
-            otherData,
-          });
-        }
+        onDataFetched?.({ data, count, otherData });
       },
       [onDataFetched, updateFetchState],
     );
