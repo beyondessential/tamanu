@@ -17,6 +17,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
+  readonly recordedVaccineRowCells: Locator;
   recordVaccineModal?: RecordVaccineModal;
   viewVaccineModal?: ViewVaccineModal;
   editVaccineModal?: EditVaccineModal;
@@ -46,6 +47,14 @@ export class PatientVaccinePane extends BasePatientPane {
     this.recordedVaccinesTableLoadingIndicator =
       this.recordedVaccinesTableWrapper.getByTestId('translatedtext-yvlt');
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
+    // One cell per row in the recorded vaccines table body, used to count rows
+    // without parsing the (locale-formatted, lazily-rendered) paginator. Targets
+    // the stable `data-test-class` on each cell — `table-column-{rowIndex}-{columnKey}`
+    // in `Table.jsx` — which is keyed off real column data rather than the
+    // auto-generated `data-testid` suffix.
+    this.recordedVaccineRowCells = this.recordedVaccinesTableWrapper.locator(
+      '[data-test-class$="-vaccineDisplayName"]',
+    );
     this.scheduledVaccinesTableWrapper = this.page.getByTestId('tablewrapper-rbs7');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.vaccineTableRowPrefix = `styledtablecell-2gyy-`;
@@ -105,18 +114,18 @@ export class PatientVaccinePane extends BasePatientPane {
   async getRecordedVaccineCount(): Promise<number> {
     await this.recordedVaccinesTable.waitFor();
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
+    return this.recordedVaccineRowCells.count();
+  }
 
-    // Check if the paginator is visible and extract the number of vaccines
-    if (await this.recordedVaccinesTablePaginator.isVisible()) {
-      const paginationText = await this.recordedVaccinesTablePaginator.innerText();
-      const match = paginationText.match(/of (\d+)/);
-      if (match) {
-        return parseInt(match[1], 10);
-      }
-    }
-
-    // Pagination is not visible, so we assume 0 vaccines recorded
-    return 0;
+  /**
+   * Asserts the recorded vaccines table contains exactly the expected number of rows.
+   * Uses Playwright's auto-retrying `toHaveCount` so it transparently waits for the
+   * table to refresh after the modal closes / a delete is processed.
+   */
+  async assertRecordedVaccineCount(count: number) {
+    await this.recordedVaccinesTable.waitFor();
+    await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
+    await expect(this.recordedVaccineRowCells).toHaveCount(count);
   }
 
   async waitForRecordedVaccinesTableToLoad() {

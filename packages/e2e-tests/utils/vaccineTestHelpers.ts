@@ -80,7 +80,7 @@ export async function addVaccineAndAssert(
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
-  expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+  await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(count);
 
   if (!given) {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
