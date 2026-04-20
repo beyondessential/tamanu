@@ -9,9 +9,9 @@ export function useSurveyVisibilityStatusMutation(surveyId) {
   const api = useApi();
 
   return useMutation({
-    mutationKey: ['admin', 'survey', 'visibilityStatus', surveyId],
-    mutationFn: ({ visibilityStatus }) =>
-      api.put(`admin/survey/${encodeURIComponent(surveyId)}`, { visibilityStatus }),
+    mutationKey: ['survey', surveyId],
+    mutationFn: async ({ visibilityStatus }) =>
+      await api.put(`admin/survey/${encodeURIComponent(surveyId)}`, { visibilityStatus }),
     onSuccess: () => {
       notifySuccess(
         <TranslatedText
