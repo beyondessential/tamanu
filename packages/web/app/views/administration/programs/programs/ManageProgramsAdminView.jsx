@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
-import { EditProgramButton } from './EditProgramMetadataModal';
 import { ManageProgramSurveysTable } from './ManageProgramSurveysTable';
 import { useProgramsQuery } from './queries';
 
@@ -72,7 +71,6 @@ export function ManageProgramsAdminView() {
           options={options}
           value={programId ?? ''}
         />
-        <EditProgramButton disabled={isProgramsLoading} style={{ marginInlineStart: 'auto' }} />
       </StyledTableScopeHeader>
       {programId ? (
         <ManageProgramSurveysTable id={scopedTableId} programId={programId} />
