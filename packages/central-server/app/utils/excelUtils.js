@@ -1,4 +1,8 @@
+import os from 'node:os';
+import path from 'node:path';
 import * as XLSX from 'xlsx';
+
+import { log } from '@tamanu/shared/services/logging';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
@@ -10,7 +14,9 @@ export function writeExcelFile(sheets, fileName) {
     const worksheet = XLSX.utils.aoa_to_sheet(stringifiedData);
     XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
   });
-  const excelFileName = fileName || `./export-${Date.now()}.xlsx`;
-  XLSX.writeFile(workbook, excelFileName);
-  return excelFileName;
+  const basename = fileName || `export-${Date.now()}.xlsx`;
+  const filename = path.join(os.tmpdir(), basename);
+  XLSX.writeFile(workbook, filename);
+  log.info(`Wrote file ${filename}`);
+  return filename;
 }
