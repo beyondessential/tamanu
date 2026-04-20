@@ -10,21 +10,13 @@ const OuterContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  > div {
-    display: flex;
-    flex-direction: column;
-  }
 `;
 
 export const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   min-height: 100%;
   overflow: auto;
-`;
-
-const LoadingContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  z-index: 9999;
 `;
 
 const TitleContainer = styled.div`
@@ -58,9 +50,7 @@ export const AdminViewContainer = ({
 }) => (
   <OuterContainer className={className} data-testid="outercontainer-ueni">
     {showLoadingIndicator && (
-      <LoadingContainer data-testid="loadingcontainer-0uay">
-        <LoadingIndicator data-testid="loadingindicator-z2hl" />
-      </LoadingContainer>
+      <LoadingIndicator data-testid="loadingindicator-z2hl" style={{ position: 'absolute' }} />
     )}
     <ContentContainer data-testid="contentcontainer-andg">
       <TitleContainer>

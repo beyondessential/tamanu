@@ -509,7 +509,6 @@ class TableComponent extends React.Component {
             <CenteredLoadingIndicatorContainer data-testid="centeredloadingindicatorcontainer-38t4">
               <LoadingIndicator
                 backgroundColor="transparent"
-                opacity={1}
                 height="24px"
                 width="20px"
                 size="20px"

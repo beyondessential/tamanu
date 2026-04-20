@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.54.0",
+  "version": "2.55.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -78,6 +78,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "1.59.1",
     "@eslint/js": "^8.55.0",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
