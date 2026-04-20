@@ -149,7 +149,7 @@ export function ManageProgramRegistriesAdminView() {
             registry?.program && (
               <Typography variant="body1" style={{ fontSize: 'inherit' }}>
                 <Link
-                  to={`/admin/programs/programs/manage/${encodeURIComponent(registry.program.id)}`}
+                  to={`/admin/programs/forms/manage/${encodeURIComponent(registry.program.id)}`}
                 >
                   {registry.program.name}
                 </Link>

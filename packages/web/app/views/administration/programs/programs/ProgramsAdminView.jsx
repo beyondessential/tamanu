@@ -58,8 +58,8 @@ export const ProgramsAdminView = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const isExportRoute = Boolean(useMatch('/admin/programs/programs/export'));
-  const isImportRoute = Boolean(useMatch('/admin/programs/programs/import'));
+  const isExportRoute = Boolean(useMatch('/admin/programs/forms/export'));
+  const isImportRoute = Boolean(useMatch('/admin/programs/forms/import'));
 
   const currentTab = (() => {
     if (isImportRoute) return 'import';
@@ -91,15 +91,15 @@ export const ProgramsAdminView = () => {
   const onTabSelect = key => {
     if (key === currentTab) return;
     if (key === 'manage') {
-      navigate('/admin/programs/programs/manage');
+      navigate('/admin/programs/forms/manage');
       return;
     }
     if (key === 'import') {
-      navigate('/admin/programs/programs/import');
+      navigate('/admin/programs/forms/import');
       return;
     }
     if (key === 'export') {
-      navigate('/admin/programs/programs/export');
+      navigate('/admin/programs/forms/export');
     }
   };
 

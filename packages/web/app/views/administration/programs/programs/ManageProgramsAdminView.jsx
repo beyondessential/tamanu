@@ -28,8 +28,8 @@ export function ManageProgramsAdminView() {
       const next = id ? String(id) : '';
       if (next === prev) return;
       const to = next
-        ? `/admin/programs/programs/manage/${encodeURIComponent(next)}`
-        : '/admin/programs/programs/manage';
+        ? `/admin/programs/forms/manage/${encodeURIComponent(next)}`
+        : '/admin/programs/forms/manage';
       navigate(to);
     },
     [navigate, programId],
