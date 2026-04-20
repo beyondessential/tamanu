@@ -4,7 +4,7 @@ import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import {
   compareAlphabetically,
   compareByDate,
-  dateTableMatchStrings,
+  dateTableMatchString,
   getSidebarFacilityDisplayName,
 } from '../../../../utils/testHelper';
 import { ViewVaccineModal } from '../modals/ViewVaccineModal';
@@ -176,28 +176,20 @@ export class PatientVaccinePane extends BasePatientPane {
       );
     }
 
-    const dateCandidates = dateTableMatchStrings(dateGiven);
+    const expectedDate = dateTableMatchString(dateGiven);
 
-    let correctDateFound = false;
-    for (const dateValue of dateCandidates) {
-      if (
-        await this.searchSpecificTableRowForMatch(
-          recordedVaccinesTable,
-          dateValue,
-          'date',
-          count,
-          vaccineName,
-          scheduleOption,
-        )
-      ) {
-        correctDateFound = true;
-        break;
-      }
-    }
+    const correctDateFound = await this.searchSpecificTableRowForMatch(
+      recordedVaccinesTable,
+      expectedDate,
+      'date',
+      count,
+      vaccineName,
+      scheduleOption,
+    );
 
     if (!correctDateFound) {
       throw new Error(
-        `Date not found in the recorded vaccines table (tried: ${dateCandidates.join(', ')})`,
+        `Date "${expectedDate}" not found in the recorded vaccines table for vaccine "${vaccineName}"`,
       );
     }
 
