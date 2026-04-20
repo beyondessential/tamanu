@@ -214,9 +214,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         // use optional chaining because vitals survey might not exist
         const isVitalSurvey = surveyId === vitalsSurvey?.id;
 
+        const componentsByCode = new Map(
+          components.map((c) => [c.dataElement.code, c]),
+        );
+
         for (const a of Object.entries(finalValues)) {
           const [dataElementCode, value] = a;
-          const component = components.find((c) => c.dataElement.code === dataElementCode);
+          const component = componentsByCode.get(dataElementCode);
           if (!component) {
             // better to fail entirely than save partial data
             throw new Error(
