@@ -1,6 +1,12 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
-import { NOTE_TYPES, REFERENCE_TYPES, SETTINGS_SCOPES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  NOTE_TYPES,
+  NOTIFICATION_TYPES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import {
@@ -929,6 +935,56 @@ describe('CentralSyncManager Sensitive Facilities', () => {
           model: models.LabRequest,
           sensitiveId: sensitiveLabRequest.id,
           nonSensitiveId: nonSensitiveLabRequest.id,
+        });
+      });
+
+      it("won't sync lab notifications for sensitive encounters", async () => {
+        const sensitiveNotification = await models.Notification.create(
+          fake(models.Notification, {
+            type: NOTIFICATION_TYPES.LAB_REQUEST,
+            patientId: patient.id,
+            userId: practitioner.id,
+            metadata: { id: sensitiveLabRequest.id, encounterId: sensitiveEncounter.id },
+          }),
+        );
+        const nonSensitiveNotification = await models.Notification.create(
+          fake(models.Notification, {
+            type: NOTIFICATION_TYPES.LAB_REQUEST,
+            patientId: patient.id,
+            userId: practitioner.id,
+            metadata: { id: nonSensitiveLabRequest.id, encounterId: nonSensitiveEncounter.id },
+          }),
+        );
+
+        await checkSensitiveRecordFiltering({
+          model: models.Notification,
+          sensitiveId: sensitiveNotification.id,
+          nonSensitiveId: nonSensitiveNotification.id,
+        });
+      });
+
+      it("won't sync imaging notifications for sensitive encounters", async () => {
+        const sensitiveNotification = await models.Notification.create(
+          fake(models.Notification, {
+            type: NOTIFICATION_TYPES.IMAGING_REQUEST,
+            patientId: patient.id,
+            userId: practitioner.id,
+            metadata: { id: 'sensitive-imaging-request', encounterId: sensitiveEncounter.id },
+          }),
+        );
+        const nonSensitiveNotification = await models.Notification.create(
+          fake(models.Notification, {
+            type: NOTIFICATION_TYPES.IMAGING_REQUEST,
+            patientId: patient.id,
+            userId: practitioner.id,
+            metadata: { id: 'non-sensitive-imaging-request', encounterId: nonSensitiveEncounter.id },
+          }),
+        );
+
+        await checkSensitiveRecordFiltering({
+          model: models.Notification,
+          sensitiveId: sensitiveNotification.id,
+          nonSensitiveId: nonSensitiveNotification.id,
         });
       });
 
