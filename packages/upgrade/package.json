@@ -43,7 +43,7 @@
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
     "lodash": "^4.17.21",
-    "sequelize": "^6.21.3",
+    "sequelize": "^6.37.8",
     "toposort": "^2.0.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
