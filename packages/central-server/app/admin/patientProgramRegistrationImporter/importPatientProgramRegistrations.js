@@ -178,8 +178,12 @@ export async function importPatientProgramRegistrations(workbook, { errors, log,
       const dateString = convertExcelDate(date);
       const deactivatedDateString = deactivatedDate ? convertExcelDate(deactivatedDate) : undefined;
 
-      // Upsert the registration
-      const [, created] = await models.PatientProgramRegistration.upsert({
+      // Check existence before upsert: Postgres doesn't return created/updated info from upsert
+      const existingRegistration = await models.PatientProgramRegistration.findOne({
+        where: { patientId: patient.id, programRegistryId },
+      });
+
+      const [registration] = await models.PatientProgramRegistration.upsert({
         patientId: patient.id,
         programRegistryId,
         date: dateString,
@@ -194,15 +198,11 @@ export async function importPatientProgramRegistrations(workbook, { errors, log,
       updateStat(
         stats,
         statkey('PatientProgramRegistration', SHEET_NAME),
-        created ? 'created' : 'updated',
+        existingRegistration ? 'updated' : 'created',
       );
 
       // Create condition records
       if (conditionIds.length > 0) {
-        const registration = await models.PatientProgramRegistration.findOne({
-          where: { patientId: patient.id, programRegistryId },
-        });
-
         for (const conditionId of conditionIds) {
           try {
             await models.PatientProgramRegistrationCondition.create({
