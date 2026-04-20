@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import {
+  compareAlphabetically,
   compareDisplayDates,
   convertDateFormat,
   fillMuiDateField,
@@ -232,9 +233,7 @@ export class PatientTable {
       if (cellText) Values.push(cellText);
     }
 
-    const sortedValues = [...Values].sort((a, b) => {
-      return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-    });
+    const sortedValues = [...Values].sort(compareAlphabetically(isAscending ? 'asc' : 'desc'));
 
     expect(Values).toEqual(sortedValues);
   }
