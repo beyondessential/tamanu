@@ -56,23 +56,10 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  e2e:
+  e2e_prepare:
     needs: node_modules_cache
-    name: E2E Tests ${{ matrix.shard }}
+    name: Prepare E2E artifacts
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1/4, 2/4, 3/4, 4/4]
-    env:
-      FACILITY_FRONTEND_URL: http://localhost:5173
-      ADMIN_FRONTEND_URL: http://localhost:5174
-      LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
-      IS_PLAYWRIGHT_TEST: true
-      TEST_EMAIL: admin@tamanu.io
-      TEST_PASSWORD: admin
-      TZ: Pacific/Auckland
-
     steps:
       - uses: actions/checkout@v6
         with:
@@ -101,6 +88,81 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-facility
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers
+      - name: Snapshot prepared databases
+        run: |
+          mkdir -p e2e-prepared-db
+          pg_dump -Fc -d central -f e2e-prepared-db/central.dump
+          pg_dump -Fc -d facility -f e2e-prepared-db/facility.dump
+      - name: Upload built server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-built-artifacts
+          path: |
+            packages/*/dist
+            packages/central-server/config/local.json5
+            packages/central-server/provisioning.json5
+            packages/facility-server/config/local.json5
+          retention-days: 1
+      - name: Upload prepared database snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-db-snapshot
+          path: e2e-prepared-db
+          retention-days: 1
+
+  e2e:
+    needs: e2e_prepare
+    name: E2E Tests ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/4, 2/4, 3/4, 4/4]
+    env:
+      FACILITY_FRONTEND_URL: http://localhost:5173
+      ADMIN_FRONTEND_URL: http://localhost:5174
+      LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
+      IS_PLAYWRIGHT_TEST: true
+      TEST_EMAIL: admin@tamanu.io
+      TEST_PASSWORD: admin
+      TZ: Pacific/Auckland
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - name: Download built server artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-built-artifacts
+          path: .
+      - name: Download prepared database snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-db-snapshot
+          path: e2e-prepared-db
+
+      - run: npm i
+
+      - name: Setup postgres dbs
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+          createdb -O tamanu facility
+          pg_restore --clean --if-exists --no-owner --no-privileges -d central e2e-prepared-db/central.dump
+          pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
+      - name: Start servers
+        run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
