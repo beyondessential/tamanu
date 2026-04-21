@@ -6,7 +6,7 @@ Read `llm/project-rules/endpoint-integration-tests.md` for Tamanu's full convent
 
 ## What to check
 
-1. **Identify endpoints** in the diff: route definitions in `packages/central-server` or `packages/facility-server` — `app.get`, `router.post`, REST resource declarations, or any code registering an HTTP path.
+1. **Identify endpoints** in the diff: route definitions in `packages/central-server` or `packages/facility-server` — including routes mounted from shared modules (e.g. `@tamanu/shared/services/suggestions`) — via `app.get`, `router.post`, REST resource declarations, or any code registering an HTTP path.
 
 2. **Check for coverage**: for each new or significantly modified endpoint, look for a corresponding integration test in the server's `__tests__/` directory that:
    - Exercises the endpoint over HTTP using supertest (not just unit-tests the handler)
@@ -16,7 +16,7 @@ Read `llm/project-rules/endpoint-integration-tests.md` for Tamanu's full convent
 
 3. **Flag missing tests** when an endpoint is added or its behaviour changes (new params, auth requirements, response shape) with no accompanying integration test.
 
-4. **Cross-reference with existing tests**: check `packages/central-server/__tests__/` and `packages/facility-server/__tests__/` for the naming convention (grouped by resource/route area, e.g. `apiv1/Patient.test.js`).
+4. **Cross-reference with existing tests**: check `packages/central-server/__tests__/` and `packages/facility-server/__tests__/` for the naming convention (grouped by resource/route area, e.g. `apiv1/Patient.test.js`). For endpoints defined in shared code but mounted in a server, still expect integration coverage in the consuming server package test suite.
 
 ## What NOT to flag
 
