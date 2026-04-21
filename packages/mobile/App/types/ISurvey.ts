@@ -13,6 +13,8 @@ export interface ISurvey {
   isSensitive: boolean;
 
   visibilityStatus: VisibilityStatus;
+
+  visibilityCriteria?: string;
 }
 
 export const SurveyTypes = {

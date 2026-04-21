@@ -487,7 +487,7 @@ test.describe('Vaccines', () => {
     //Assert that the vaccine to keep remains unchanged and only the deleted vaccine is removed
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
 
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(
       vaccineCountAfterDeletion,
     );
   });
@@ -584,9 +584,7 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(uniqueNotGivenVaccine);
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(givenVaccine);
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(
-      totalVaccineCount,
-    );
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(totalVaccineCount);
   });
 
   test('[T-0448][AT-1025]Recorded vaccines table can be sorted by clicking column headers', async ({

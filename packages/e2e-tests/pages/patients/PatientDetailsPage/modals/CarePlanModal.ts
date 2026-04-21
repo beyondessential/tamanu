@@ -26,13 +26,9 @@ export class CarePlanModal extends BasePatientModal {
   constructor(page: Page) {
     super(page);
 
-    this.carePlanDropdown = this.page
-      .getByTestId('field-uc7w-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.carePlanDropdown = this.page.getByTestId('field-uc7w-input').locator('input');
     this.carePlanDate = this.page.getByTestId('field-764k').locator('input');
-    this.carePlanClinicianDropdown = this.page
-      .getByTestId('field-kb54-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.carePlanClinicianDropdown = this.page.getByTestId('field-kb54-input').locator('input');
     this.mainCarePlanFieldDetails = this.page.getByTestId('field-0yjf-input');
     this.submitNewCarePlanAddButton = this.page
       .getByTestId('formsubmitcancelrow-s3rl-confirmButton')

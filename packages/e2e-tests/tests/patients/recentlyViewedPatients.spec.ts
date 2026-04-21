@@ -31,7 +31,7 @@ async function verifyRecentlyViewedPatients(
       expect(recentlyViewedPatient.nhn).toBe(expectedPatient.nhn);
       expect(recentlyViewedPatient.gender).toBe(expectedPatient.sex || expectedPatient.gender);
 
-      // Format date to match the MM/DD/YY format shown in recently viewed
+      // Format date to match the DD/MM/YY format shown in recently viewed
       const expectedFormattedDate =
         RecentlyViewedPatientsList.formatDateForRecentlyViewed(
           expectedPatient.dateOfBirth || expectedPatient.formattedDOB || '',

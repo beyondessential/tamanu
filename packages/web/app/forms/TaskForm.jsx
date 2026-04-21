@@ -10,7 +10,7 @@ import {
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import styled from 'styled-components';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import {

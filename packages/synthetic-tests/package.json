@@ -1,9 +1,10 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.54.0",
+  "version": "2.55.0",
   "private": true,
   "dependencies": {
     "@tamanu/api-client": "*",
+    "@tamanu/constants": "*",
     "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0"
   },

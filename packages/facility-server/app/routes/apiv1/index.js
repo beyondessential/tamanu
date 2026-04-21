@@ -253,6 +253,12 @@ syncRoutes.use('/sync', sync);
 syncRoutes.use('/syncHealth', syncHealth);
 syncRoutes.use('/patientFacility', patientFacility);
 
-if (process.env.NODE_ENV === 'test') {
+// Random record picker for tests / synthetic load (see packages/synthetic-tests RandomEntityFetcher).
+// Off by default in non-test environments; set TAMANU_ENABLE_SYNTHETIC_RANDOM_API=true to enable.
+const enableRandomRecordApi =
+  process.env.NODE_ENV === 'test' ||
+  process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
+
+if (enableRandomRecordApi) {
   apiv1.use('/random', random);
 }

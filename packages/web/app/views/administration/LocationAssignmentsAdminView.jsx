@@ -1,5 +1,5 @@
 import { Box, Typography } from '@material-ui/core';
-import { AddRounded } from '@material-ui/icons';
+import AddRounded from '@mui/icons-material/AddRounded';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -108,25 +108,19 @@ export const LocationAssignmentsAdminView = () => {
 
   const { data: locations, isLoading: isLocationsLoading } = useSuggestionsQuery('location', {
     // Filter and sort locations to only show those that have a location group (bookable locations)
-    select: data => {
-      const filtered = data
+    select: data =>
+      data
         .filter(
           location =>
             location.locationGroup &&
-            location.locationGroup.isBookable !== LOCATION_BOOKABLE_VIEW.NO,
+            location.locationGroup?.isBookable !== LOCATION_BOOKABLE_VIEW.NO &&
+            (selectedFacilityId ? location.facilityId === selectedFacilityId : true),
         )
-        .filter(location =>
-          selectedFacilityId ? location.facilityId === selectedFacilityId : true,
-        )
-        .sort((a, b) => {
-          const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
-          if (locationGroupComparison !== 0) {
-            return locationGroupComparison;
-          }
-          return a.name.localeCompare(b.name);
-        });
-      return filtered;
-    },
+        .sort(
+          (a, b) =>
+            a.locationGroup.name.localeCompare(b.locationGroup.name) ||
+            a.name.localeCompare(b.name),
+        ),
   });
   const hasNoLocations = !isLocationsLoading && locations?.length === 0;
 

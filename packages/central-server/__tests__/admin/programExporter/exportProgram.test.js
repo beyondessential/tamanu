@@ -43,6 +43,7 @@ const buildExpectedMetadataSheet = (program, surveys) => [
     'visibilityStatus',
     'notifiable',
     'notifyEmailAddresses',
+    'visibilityCriteria',
   ],
   ...surveys.map((survey) => [
     survey.code,
@@ -54,6 +55,7 @@ const buildExpectedMetadataSheet = (program, surveys) => [
     false,
     'current',
     expect.any(Boolean),
+    '',
     '',
   ]),
 ];
