@@ -143,7 +143,7 @@ function fallbackParseVisibilityCriteria(
   }
   const expectedTrimmed = expectedAnswer.toLowerCase().trim();
 
-  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+  const comparisonComponent = getComponentsByCode(allComponents).get(elementCode);
 
   if (!comparisonComponent) {
     console.warn(`Comparison component ${elementCode} not found!`);
@@ -153,6 +153,17 @@ function fallbackParseVisibilityCriteria(
   const comparisonDataType = comparisonComponent.dataElement.type;
 
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
+}
+
+const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
+
+function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+  let map = componentsByCodeCache.get(allComponents);
+  if (!map) {
+    map = new Map(allComponents.map(c => [c.dataElement?.code, c]));
+    componentsByCodeCache.set(allComponents, map);
+  }
+  return map;
 }
 
 /**

@@ -51,6 +51,12 @@ class MockApplicationContext {
 }
 
 export async function createTestContext() {
+  // Matches packages/facility-server/__tests__/utilities.js
+  // do NOT time out during create context
+  // TODO: remove once the slow test setup (db recreate + full migration run)
+  // is addressed at the source.
+  jest.setTimeout(1000 * 60 * 60 * 24);
+
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
@@ -87,6 +93,8 @@ export async function createTestContext() {
       }),
   );
   ctx.baseApp = baseApp;
+
+  jest.setTimeout(45 * 1000); // matches packages/facility-server/__tests__/utilities.js
 
   return ctx;
 }
