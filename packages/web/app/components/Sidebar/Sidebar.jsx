@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
@@ -17,6 +17,7 @@ import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { KebabMenu } from './KebabMenu';
+import { ImpersonationPopover } from './ImpersonationSelector';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const Container = styled.div`
@@ -165,8 +166,10 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
+  const [impersonateOpen, setImpersonateOpen] = useState(false);
+  const avatarRef = useRef(null);
   const api = useApi();
-  const { facilityId, currentUser, onLogout, currentRole } = useAuth();
+  const { facilityId, currentUser, onLogout, currentRole, impersonatingRole } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
@@ -190,7 +193,10 @@ export const Sidebar = React.memo(({ items }) => {
   const handleExtendButtonClick = useCallback(extendSidebar, []);
 
   const initials = getInitials(currentUser.displayName);
-  const roleName = currentRole?.name ?? currentUser?.role;
+  const isAdmin = currentUser?.role === 'admin';
+  const roleName = impersonatingRole
+    ? `${impersonatingRole.name} (impersonating)`
+    : (currentRole?.name ?? currentUser?.role);
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(
     ['facility', facilityId],
@@ -335,8 +341,11 @@ export const Sidebar = React.memo(({ items }) => {
         <StyledDivider $invisible={isRetracted} data-testid="styleddivider-hx9s" />
         <UserInfo $retracted={isRetracted} data-testid="userinfo-covo">
           <StyledHiddenSyncAvatar
+            ref={avatarRef}
             $retracted={isRetracted}
             onClick={isRetracted ? extendSidebar : undefined}
+            onMetaClick={isAdmin ? () => setImpersonateOpen(true) : undefined}
+            impersonating={!!impersonatingRole}
             data-testid="styledhiddensyncavatar-0pir"
           >
             {initials}
@@ -355,6 +364,13 @@ export const Sidebar = React.memo(({ items }) => {
             </>
           )}
         </UserInfo>
+        {isAdmin && (
+          <ImpersonationPopover
+            anchorEl={avatarRef.current}
+            open={impersonateOpen}
+            onClose={() => setImpersonateOpen(false)}
+          />
+        )}
         {!isRetracted && (
           <>
             <StyledDivider $invisible={isRetracted} data-testid="styleddivider-seqb" />
