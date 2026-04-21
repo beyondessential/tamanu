@@ -24,6 +24,16 @@ const StyledTabDisplay = styled(TabDisplay)`
   border-inline: 1px solid ${Colors.outline};
 `;
 
+const StyledLink = styled(Link)`
+  &:visited {
+    color: unset;
+  }
+  &:focus-visible,
+  &:hover {
+    color: ${props => props.theme.palette.primary.main};
+  }
+`;
+
 const TabKey = /** @type {const} */ ({
   ClinicalStatuses: 'statuses',
   Conditions: 'conditions',
@@ -148,11 +158,11 @@ export function ManageProgramRegistriesAdminView() {
           ) : (
             registry?.program && (
               <Typography variant="body1" style={{ fontSize: 'inherit' }}>
-                <Link
+                <StyledLink
                   to={`/admin/programs/forms/manage/${encodeURIComponent(registry.program.id)}`}
                 >
                   {registry.program.name}
-                </Link>
+                </StyledLink>
               </Typography>
             )
           )}
