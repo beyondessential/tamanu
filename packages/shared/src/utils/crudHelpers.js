@@ -119,11 +119,12 @@ function validateAllowedFields(model, allowedFields) {
  * @param {string} modelName
  * @param {{ allowedFields: string[] }} options
  */
-export const simplePatch = (modelName, options) =>
-  asyncHandler(async (req, res) => {
-    if (!options?.allowedFields || options.allowedFields.length === 0) {
-      throw new InvalidOperationError('simplePatch requires a nonempty allowedFields option');
-    }
+export const simplePatch = (modelName, options) => {
+  if (!options?.allowedFields || options.allowedFields.length === 0) {
+    throw new InvalidOperationError('simplePatch requires a nonempty allowedFields option');
+  }
+
+  return asyncHandler(async (req, res) => {
     req.checkPermission('read', modelName);
 
     const { allowedFields } = options;
@@ -148,6 +149,7 @@ export const simplePatch = (modelName, options) =>
     await object.update(pick(req.body, allowedFields));
     res.send(object);
   });
+};
 
 export const simplePut = modelName =>
   asyncHandler(async (req, res) => {
