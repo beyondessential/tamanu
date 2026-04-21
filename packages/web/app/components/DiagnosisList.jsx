@@ -1,10 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css } from 'styled-components';
 
 import { Colors } from '../constants';
-import { hexToRgba } from '../utils';
-import { TranslatedText, TranslatedReferenceData } from './Translation';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -16,12 +15,17 @@ const DiagnosisListContainer = styled.div`
 
 const DiagnosisChip = styled.div`
   margin: 0.3rem;
-  ${(p) => (p.onClick ? `cursor: pointer;` : '')}
   display: flex;
+  ${p =>
+    typeof p.onClick === 'function'
+      ? css`
+          cursor: pointer;
+        `
+      : ''}
 `;
 
 const Category = styled.div`
-  background: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
+  background-color: ${Colors.alert};
   font-weight: 900;
   padding: 10px 5px;
   color: ${Colors.white};
@@ -29,9 +33,8 @@ const Category = styled.div`
 `;
 
 const DiagnosisName = styled.span`
-  background: ${(props) =>
-    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
-  color: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
+  background-color: oklch(from currentColor l c h / 10%);
+  color: ${Colors.alert};
   font-weight: 500;
   padding: 10px;
   border-radius: 0 3px 3px 0;
@@ -39,28 +42,26 @@ const DiagnosisName = styled.span`
 
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
   <DiagnosisChip onClick={onClick} data-testid="diagnosischip-3n28">
-    <Category isPrimary={isPrimary} data-testid="category-vwwx">
+    <Category
+      isPrimary={isPrimary}
+      data-testid="category-vwwx"
+      style={{ backgroundColor: isPrimary ? Colors.primary : undefined }}
+    >
       {isPrimary ? (
-        <TranslatedText
-          stringId="encounter.diagnosis.type.primary"
-          fallback="P"
-          data-testid="translatedtext-jz99"
-        />
+        <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
       ) : (
-        <TranslatedText
-          stringId="encounter.diagnosis.type.secondary"
-          fallback="S"
-          data-testid="translatedtext-ssu2"
-        />
+        <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
       )}
     </Category>
     {diagnosis?.name && diagnosis?.id && (
-      <DiagnosisName isPrimary={isPrimary} data-testid="diagnosisname-vvn4">
+      <DiagnosisName
+        data-testid="diagnosisname-vvn4"
+        style={{ color: isPrimary ? Colors.primary : undefined }}
+      >
         <TranslatedReferenceData
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
-          data-testid="translatedreferencedata-eww0"
         />
       </DiagnosisName>
     )}
