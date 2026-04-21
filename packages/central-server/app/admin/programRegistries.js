@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList, simplePatch, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
 
 const getProgramRegistryHandler = asyncHandler(async (req, res) => {
   req.checkPermission('read', 'ProgramRegistry');
