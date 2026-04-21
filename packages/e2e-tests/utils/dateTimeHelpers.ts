@@ -101,58 +101,49 @@ export async function fillMuiTimeField(field: Locator, time: string): Promise<vo
 }
 
 /**
- * Normalize a test or DOM date value to **US-style short date** `MM/dd/yyyy` for text assertions.
+ * Normalize a test or DOM date value to the canonical short date the app renders: `dd/MM/yyyy`.
  *
- * **Used for** `toContainText`, table cell expectations, and anywhere the UI shows month-first short dates.
+ * Playwright forces `locale: 'en-AU'` (see `playwright.config.ts`), so every `Intl`-driven short
+ * date in the UI comes out day-first. Tests assert against that single format.
  *
  * **Behaviour**
  * - `undefined` / missing → `''`.
  * - `Date` → formatted with `date-fns` if valid, else `''`.
- * - String → try {@link parseTamanuDate}; if that fails, a naive `yyyy-MM-dd` split → `MM/DD/YYYY`.
+ * - String → try {@link parseTamanuDate}; if that fails, a naive `yyyy-MM-dd` split → `dd/MM/yyyy`.
  *
  * @param dateInput — ISO string, picker output fragment, or `Date` from test data.
- * @returns `MM/dd/yyyy` or `''` when empty/unparseable.
+ * @returns `dd/MM/yyyy` or `''` when empty/Unparsable.
  */
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
 
   if (dateInput instanceof Date) {
-    return isValid(dateInput) ? format(dateInput, 'MM/dd/yyyy') : '';
+    return isValid(dateInput) ? format(dateInput, 'dd/MM/yyyy') : '';
   }
 
   const parsed = parseTamanuDate(String(dateInput));
   if (parsed) {
-    return format(parsed, 'MM/dd/yyyy');
+    return format(parsed, 'dd/MM/yyyy');
   }
 
   const s = String(dateInput).trim();
   const [year, month, day] = s.split('-');
   if (year && month && day) {
-    return `${month}/${day}/${year}`;
+    return `${day}/${month}/${year}`;
   }
   return '';
 };
 
 /**
- * Build candidate strings for **substring** matching a date in a table cell when locale may flip day/month order.
+ * Resolve the substring used to find a date row in a table cell.
  *
- * Some cells render via `DateDisplay` (or similar) so the same calendar day can appear as `MM/dd/yyyy` or
- * `dd/MM/yyyy`. Playwright checks often use `includes`; passing both strings covers either rendering.
- *
- * **Returns**
- * - No `dateGiven` → `['Unknown']` (placeholder row convention in some specs).
- * - Parse succeeds → `[ MM/dd/yyyy, dd/MM/yyyy ]`.
- * - Parse fails → single fallback from {@link convertDateFormat}.
- *
- * @param dateGiven — Test data date string; `undefined` triggers the Unknown placeholder path.
+ * Returns the placeholder `'Unknown'` when no date is supplied (matches the empty-cell render in some
+ * specs); otherwise delegates to {@link convertDateFormat}. Kept as a thin wrapper so callers can stay
+ * intent-revealing even though the locale is now fixed.
  */
-export function dateTableMatchStrings(dateGiven: string | undefined): string[] {
-  if (!dateGiven) return ['Unknown'];
-  const parsed = parseTamanuDate(dateGiven.trim());
-  if (!parsed) {
-    return [convertDateFormat(dateGiven)];
-  }
-  return [format(parsed, 'MM/dd/yyyy'), format(parsed, 'dd/MM/yyyy')];
+export function dateTableMatchString(dateGiven: string | undefined): string {
+  if (!dateGiven) return 'Unknown';
+  return convertDateFormat(dateGiven);
 }
 
 /**
@@ -182,19 +173,19 @@ export function normalizeToIsoDateTimeMinute(raw: string): string {
 }
 
 /**
- * Format a `Date` to match **on-screen datetime copy** in parts of the app: `MM/dd/yyyy` + 12h time with
- * **lowercase** `am`/`pm` and no space before meridiem (e.g. `02/12/2026 9:31am`).
+ * Format a `Date` to match **on-screen datetime copy** in parts of the app: `dd/MM/yyyy` + 12h time with
+ * **lowercase** `am`/`pm` and no space before meridiem (e.g. `12/02/2026 9:31am`).
  *
  * @param date — Instant to format (local time per `date-fns` `format`).
  */
 export function formatDateTimeForDisplay(date: Date): string {
-  return format(date, 'MM/dd/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
+  return format(date, 'dd/MM/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
 }
 
 /**
  * Convert a datetime string into the **concatenated** table display form used in some grids:
- * **time** (`h:mm` + lowercase `am`/`pm`, no space) immediately followed by **date** `MM/dd/yy`
- * (e.g. `6:11am12/01/25`).
+ * **time** (`h:mm` + lowercase `am`/`pm`, no space) immediately followed by **date** `dd/MM/yy`
+ * (e.g. `6:11am01/12/25`).
  *
  * Accepts ISO-like (`2025-12-01T06:11`) and MUI display (`dd/MM/yyyy hh:mm a`) formats.
  *
@@ -206,8 +197,8 @@ export function formatDateTimeForTable(dateTimeString: string): string {
     throw new Error(`Could not parse date for table formatting: ${dateTimeString}`);
   }
   const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
-  const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
-  return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
+  const formattedDate = format(dateFromForm, 'dd/MM/yy'); // "01/12/25"
+  return `${formattedTime}${formattedDate}`; // "6:11am01/12/25"
 }
 
 /**
@@ -223,6 +214,28 @@ export function compareByDate(order: 'asc' | 'desc') {
     const dateA = new Date(a.dateGiven).getTime();
     const dateB = new Date(b.dateGiven).getTime();
     return order === 'asc' ? dateA - dateB : dateB - dateA;
+  };
+}
+
+/**
+ * Comparator factory for sorting arrays of **display** short-date strings (`dd/MM/yyyy`, as rendered
+ * by the UI in tables like the patient list). Delegates to {@link parseTamanuDate} so tests never
+ * need to know the cell format — if the UI's short-date format changes, update `parseTamanuDate` and
+ * every sort comparator follows.
+ *
+ * Unparsable entries sort to the end.
+ *
+ * @param order — `'asc'` (oldest first) or `'desc'` (newest first).
+ */
+export function compareDisplayDates(order: 'asc' | 'desc') {
+  const direction = order === 'asc' ? 1 : -1;
+  return (a: string, b: string) => {
+    const ta = parseTamanuDate(a)?.getTime() ?? NaN;
+    const tb = parseTamanuDate(b)?.getTime() ?? NaN;
+    if (Number.isNaN(ta) && Number.isNaN(tb)) return 0;
+    if (Number.isNaN(ta)) return 1;
+    if (Number.isNaN(tb)) return -1;
+    return direction * (ta - tb);
   };
 }
 

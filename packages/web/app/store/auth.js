@@ -1,4 +1,5 @@
 import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
+import { buildAbility, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -18,6 +19,8 @@ const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
 const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 const SET_FACILITY_ID = 'SET_FACILITY_ID';
 const SET_SETTINGS = 'SET_SETTINGS';
+const IMPERSONATE_ROLE = 'IMPERSONATE_ROLE';
+const STOP_IMPERSONATION = 'STOP_IMPERSONATION';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -50,20 +53,19 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
     settings,
+    permissions,
+    impersonatedRole,
     primaryTimeZone,
   } = loginInfo;
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
   } else {
-    // if there's just one facility the user has access to, select it immediately
-    // otherwise they will be prompted to select a facility after login
     const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
     if (onlyFacilityId) {
       await dispatch(setFacilityId(onlyFacilityId));
     }
   }
 
-  // If settings are provided from central server login, dispatch them
   if (settings) {
     dispatch({
       type: SET_SETTINGS,
@@ -82,6 +84,16 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
   });
+
+  if (impersonatedRole && user.role === 'admin') {
+    // Match backend logic: when impersonating, retain ability to read/write own User record
+    const impersonateAbility = buildAbility([
+      ...permissions,
+      { verb: 'read', noun: 'User', objectId: user.id },
+      { verb: 'write', noun: 'User', objectId: user.id },
+    ]);
+    dispatch({ type: IMPERSONATE_ROLE, role: impersonatedRole, ability: impersonateAbility });
+  }
 };
 
 export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
@@ -122,6 +134,26 @@ export const idleTimeout = () => ({
   type: LOGOUT_WITH_ERROR,
   error: 'You have been logged out due to inactivity',
 });
+
+export const startImpersonation = role => async (dispatch, getState, { api }) => {
+  const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
+  const { auth } = getState();
+  const ability = buildAbility([
+    ...permissions,
+    { verb: 'read', noun: 'User', objectId: auth.user.id },
+    { verb: 'write', noun: 'User', objectId: auth.user.id },
+  ]);
+  api.setToken(token);
+  dispatch({ type: IMPERSONATE_ROLE, role, ability });
+};
+
+export const stopImpersonation = () => async (dispatch, getState, { api }) => {
+  const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
+  const { auth } = getState();
+  const ability = buildAbilityForUser(auth.user, permissions);
+  api.setToken(token);
+  dispatch({ type: STOP_IMPERSONATION, ability });
+};
 
 export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
@@ -177,6 +209,7 @@ const defaultState = {
   primaryTimeZone: null,
   availableFacilities: [],
   facilityId: null,
+  impersonatingRole: null,
   resetPassword: {
     loading: false,
     success: false,
@@ -203,6 +236,7 @@ const resetState = {
   primaryTimeZone: defaultState.primaryTimeZone,
   error: defaultState.error,
   token: null,
+  impersonatingRole: null,
 };
 
 const actionHandlers = {
@@ -298,6 +332,14 @@ const actionHandlers = {
       ...defaultState.validateResetCode,
       completed: true,
     },
+  }),
+  [IMPERSONATE_ROLE]: action => ({
+    impersonatingRole: action.role,
+    ability: action.ability,
+  }),
+  [STOP_IMPERSONATION]: action => ({
+    impersonatingRole: null,
+    ability: action.ability,
   }),
 };
 
