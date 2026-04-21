@@ -12,7 +12,7 @@ export function useSurveyVisibilityStatusMutation(surveyId) {
   return useMutation({
     mutationKey: ['survey', surveyId],
     mutationFn: async ({ visibilityStatus }) =>
-      await api.put(`admin/survey/${encodeURIComponent(surveyId)}`, { visibilityStatus }),
+      await api.patch(`admin/survey/${encodeURIComponent(surveyId)}`, { visibilityStatus }),
     onSuccess: async ({ visibilityStatus }) => {
       notifySuccess(
         <TranslatedText

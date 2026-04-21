@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simplePatch, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
@@ -83,16 +83,22 @@ adminRoutes.use('/programs', programsRouter);
 adminRoutes.use('/program', programRouter);
 adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
-adminRoutes.put('/programRegistryClinicalStatus/:id', simplePut('ProgramRegistryClinicalStatus'));
-adminRoutes.put('/programRegistryCondition/:id', simplePut('ProgramRegistryCondition'));
-adminRoutes.put(
+adminRoutes.patch(
+  '/programRegistryClinicalStatus/:id',
+  simplePatch('ProgramRegistryClinicalStatus', { allowedFields: ['visibilityStatus'] }),
+);
+adminRoutes.patch(
+  '/programRegistryCondition/:id',
+  simplePatch('ProgramRegistryCondition', { allowedFields: ['visibilityStatus'] }),
+);
+adminRoutes.patch(
   '/programRegistryConditionCategory/:id',
-  simplePut('ProgramRegistryConditionCategory'),
+  simplePatch('ProgramRegistryConditionCategory', { allowedFields: ['visibilityStatus'] }),
 );
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
-adminRoutes.put('/survey/:id', simplePut('Survey'));
+adminRoutes.patch('/survey/:id', simplePatch('Survey', { allowedFields: ['visibilityStatus'] }));
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
