@@ -33,7 +33,7 @@ export function useProgramMutation(programId, useMutationOptions = {}) {
     ...rest,
     mutationKey: ['programs', programId],
     mutationFn: async ({ name }) =>
-      api.put(`admin/program/${encodeURIComponent(programId)}`, { name }),
+      await api.patch(`admin/program/${encodeURIComponent(programId)}`, { name }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({ queryKey: ['programs'] });
       await onSuccess?.(data, variables, context);
