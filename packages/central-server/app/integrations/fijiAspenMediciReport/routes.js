@@ -35,9 +35,16 @@ function checkMediciReportPermission(req, _res, next) {
   next();
 }
 
+// All timestamp comparisons and projections below stay in `timestamptz` so the
+// query is independent of the session `TimeZone` and Node's local timezone.
+// Mixing `timestamptz` with `timestamp without time zone` (via `AT TIME ZONE`)
+// triggered implicit casts that silently shifted filter boundaries and the
+// returned `lastUpdated` by the primaryTimeZone offset whenever the DB session
+// wasn't already on primaryTimeZone (which used to happen as a side effect of
+// legacy migrations calling `SET timezone` on pooled connections).
 const reportQuery = `
-SELECT 
-  last_updated::timestamptz at time zone 'UTC' as last_updated,
+SELECT
+  last_updated,
   patient_id,
   first_name,
   last_name,
@@ -72,12 +79,12 @@ WHERE true
   AND coalesce(patient_billing_id, '-') LIKE coalesce($billing_type, '%%')
   AND encounter_end_date IS NOT NULL
   AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated >= $from_date::timestamptz at time zone $timezone_string
+    THEN last_updated >= $from_date::timestamptz
   ELSE
     true
   END
   AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
-    THEN last_updated <= $to_date::timestamptz at time zone $timezone_string
+    THEN last_updated <= $to_date::timestamptz
   ELSE
     true
   END
@@ -208,7 +215,6 @@ routes.get(
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: PRIMARY_TIME_ZONE,
         ...dischargeDateBind,
       },
     });

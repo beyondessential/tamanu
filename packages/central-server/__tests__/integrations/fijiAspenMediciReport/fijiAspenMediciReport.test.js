@@ -355,23 +355,6 @@ describe('fijiAspenMediciReport', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-
-    // HACK: the report SQL in routes.js mixes `timestamptz` with the
-    // `timestamp without time zone` values produced by `AT TIME ZONE`, so
-    // PostgreSQL resolves the implicit casts using the session `TimeZone`.
-    // The test pool defaults to UTC, which makes the filter comparisons and
-    // the returned `lastUpdated` off by the primaryTimeZone offset. Force
-    // every pool connection (current and future) onto primaryTimeZone so the
-    // query behaves the way the integration expects.
-    const { sequelize } = ctx.store;
-    sequelize.addHook('afterConnect', async connection => {
-      await connection.query(`SET TIME ZONE '${PRIMARY_TIME_ZONE}'`);
-    });
-    // Evict any connections that were established before the hook was added
-    // (e.g. during createTestContext / migrations) so they get re-created with
-    // the correct session timezone on next acquire.
-    await sequelize.connectionManager.pool.destroyAllNow();
-
     models = ctx.store.models;
     app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     fakedata = await fakeAllData(models, ctx);
