@@ -25,9 +25,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 const StyledLink = styled(Link)`
-  &:visited {
-    color: unset;
-  }
+  color: inherit;
   &:focus-visible,
   &:hover {
     color: ${props => props.theme.palette.primary.main};
