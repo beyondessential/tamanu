@@ -77,6 +77,23 @@ jobs:
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh fake
 
+      # The pre-baseline commit in this PR emits `gen_random_uuid()` (unqualified)
+      # in table defaults via the old baseline.sql. On PG < 13 that function lives
+      # in pgcrypto (public), and the dump sets search_path='' before CREATE TABLE
+      # runs, so the default expression fails to parse. Install pgcrypto into
+      # template1 and expose a pg_catalog shim so new databases (including the
+      # determinism init db) can resolve `gen_random_uuid()` regardless of
+      # session search_path. PG 13+ ships it in pg_catalog natively.
+      - name: Shim gen_random_uuid for PG < 13
+        if: steps.precheck.outputs.code != '2' && fromJSON(matrix.postgres) < 13
+        run: |
+          psql -d template1 -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE EXTENSION IF NOT EXISTS pgcrypto;
+          CREATE OR REPLACE FUNCTION pg_catalog.gen_random_uuid() RETURNS uuid
+            LANGUAGE sql VOLATILE PARALLEL SAFE
+            AS 'SELECT public.gen_random_uuid()';
+          SQL
+
       - name: Test central migrations
         if: steps.precheck.outputs.code != '2'
         env:
