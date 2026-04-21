@@ -117,7 +117,7 @@ function validateAllowedFields(model, allowedFields) {
 
 /**
  * @param {string} modelName
- * @param {{ allowedFields: string[]}} options
+ * @param {{ allowedFields: string[] }} options
  */
 export const simplePatch = (modelName, options) =>
   asyncHandler(async (req, res) => {
