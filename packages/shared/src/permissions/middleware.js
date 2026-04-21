@@ -132,7 +132,13 @@ export function ensurePermissionCheck(req, res, next) {
 // eslint-disable-next-line no-unused-vars
 export async function getPermissions(req, res, _next) {
   const { user, models } = req;
-  req.flagPermissionChecked();
+  // `flagPermissionChecked` is only set when the route is mounted under
+  // `ensurePermissionCheck` (facility-server). On central-server the
+  // `/permissions` endpoint lives in `authModule`, which is mounted before
+  // that middleware, so guard the call.
+  if (req.flagPermissionChecked) {
+    req.flagPermissionChecked();
+  }
 
   const roleString = (req.impersonateRoleId && user.role === 'admin') ? req.impersonateRoleId : user.role;
 
