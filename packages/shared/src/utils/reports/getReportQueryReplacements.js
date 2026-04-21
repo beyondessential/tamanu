@@ -1,8 +1,20 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
+import config from 'config';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '../timeZoneCheck';
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
+
+const isValidTimeZone = (tz) => {
+  if (!tz) return false;
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
 
 const getFromDate = (dateRange, { toDate, fromDate }) => {
   const defaultedToDate = toDate || getCurrentDateTimeString();
@@ -55,11 +67,16 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
+
+  const candidateTimezone = params.timezone ?? getPrimaryTimeZone(config);
+  const timezone = isValidTimeZone(candidateTimezone) ? candidateTimezone : 'UTC';
+
   return {
     ...paramDefaults,
     ...params,
     fromDate: getFromDate(dateRange, params),
     toDate: getToDate(dateRange, params),
     currentFacilityId: facilityId,
+    timezone,
   };
 };
