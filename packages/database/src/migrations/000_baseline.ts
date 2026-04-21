@@ -59,6 +59,7 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query('DROP SCHEMA IF EXISTS fhir CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS logs CASCADE');
+  await query.sequelize.query('DROP SCHEMA IF EXISTS sync_snapshots CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS public CASCADE');
   await query.sequelize.query('CREATE SCHEMA public');
 }
