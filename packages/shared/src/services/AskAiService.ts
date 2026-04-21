@@ -1,64 +1,4 @@
-import { pick } from 'lodash';
 import { Sequelize } from 'sequelize';
-
-// Explicit allowlist of config paths safe to share with the LLM.
-// Only include paths that are known to be non-sensitive.
-// Never add credentials, API keys, secrets, or database connection strings here.
-const SAFE_CONFIG_PATHS = [
-  // Server identity
-  'port',
-  'canonicalHostName',
-  'deviceId',
-  'primaryTimeZone',
-  'countryTimeZone',
-  'allowMismatchedTimeZones',
-
-  // Logging
-  'log.consoleLevel',
-  'log.color',
-  'log.timeless',
-
-  // Error reporting — enabled flag and type only, not the API key
-  'errors.enabled',
-  'errors.type',
-
-  // Admin
-  'admin.allowAdminRoutes',
-
-  // Authentication — operational settings only, not secrets
-  'auth.saltRounds',
-  'auth.tokenDuration',
-  'auth.useHardcodedPermissions',
-  'auth.reportNoUserError',
-
-  // Sync — connectivity and tuning settings, not credentials
-  'sync.schedule',
-  'sync.host',
-  'sync.enabled',
-  'sync.timeout',
-  'sync.jitterTime',
-  'sync.backoff',
-  'sync.dynamicLimiter',
-  'sync.maxConcurrentSessions',
-  'sync.lookupTable',
-  'sync.persistedCacheBatchSize',
-
-  // Feature availability
-  'askAi.enabled',
-  'patientMerge',
-  'export',
-  'cors',
-
-  // Schedules and infrastructure — cron expressions and batch sizes only
-  'schedules',
-  'loadshedder',
-  'metaServer.hosts',
-  'updateUrls',
-];
-
-export function sanitiseConfigForAi(config: Record<string, unknown>): Record<string, unknown> {
-  return pick(config, SAFE_CONFIG_PATHS);
-}
 
 const RAG_TOP_K = 10;
 const CONVERSATION_HISTORY_LIMIT = 20;
@@ -80,7 +20,6 @@ interface ChatParams {
   models: Record<string, any>;
   voyageApiKey: string;
   anthropicApiKey: string;
-  serverConfig?: string;
   appSettings?: string;
 }
 
@@ -261,7 +200,6 @@ export async function chat({
   models,
   voyageApiKey,
   anthropicApiKey,
-  serverConfig,
   appSettings,
 }: ChatParams): Promise<ChatResponse> {
   // Load recent conversation history
@@ -286,7 +224,6 @@ export async function chat({
   const response = await b.AskTamanu(
     userMessage,
     conversationHistory,
-    serverConfig ?? '',
     appSettings ?? '',
     chunks,
     { env: { ANTHROPIC_API_KEY: anthropicApiKey } },
