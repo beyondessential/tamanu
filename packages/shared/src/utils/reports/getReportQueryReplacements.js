@@ -6,6 +6,16 @@ import { getPrimaryTimeZone } from '../timeZoneCheck';
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
+const isValidTimeZone = (tz) => {
+  if (!tz) return false;
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 const getFromDate = (dateRange, { toDate, fromDate }) => {
   const defaultedToDate = toDate || getCurrentDateTimeString();
   if (fromDate) {
@@ -57,12 +67,16 @@ export const getReportQueryReplacements = async (
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
+
+  const candidateTimezone = params.timezone ?? getPrimaryTimeZone(config);
+  const timezone = isValidTimeZone(candidateTimezone) ? candidateTimezone : 'UTC';
+
   return {
     ...paramDefaults,
     ...params,
     fromDate: getFromDate(dateRange, params),
     toDate: getToDate(dateRange, params),
     currentFacilityId: facilityId,
-    timezone: params.timezone ?? getPrimaryTimeZone(config),
+    timezone,
   };
 };
