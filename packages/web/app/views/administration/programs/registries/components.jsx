@@ -25,17 +25,16 @@ export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
  */
 export function createProgramRegistryRowActionsAccessor(resourceSegment) {
   return function ProgramRegistryRowActionsCell({ id, refreshTable, visibilityStatus }) {
-    const { isLoading, mutateAsync } = useVisibilityStatusMutation();
+    const { isLoading, mutateAsync } = useVisibilityStatusMutation({
+      onSuccess: () => refreshTable?.(),
+    });
 
-    const updateVisibilityStatus = nextVisibilityStatus =>
-      mutateAsync(
-        {
-          recordId: id,
-          resourceSegment,
-          visibilityStatus: nextVisibilityStatus,
-        },
-        { onSuccess: () => refreshTable?.() },
-      );
+    const updateVisibilityStatus = next =>
+      mutateAsync({
+        recordId: id,
+        resourceSegment,
+        visibilityStatus: next,
+      });
 
     const items = [
       {
