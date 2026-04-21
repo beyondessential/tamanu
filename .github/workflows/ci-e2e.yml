@@ -163,8 +163,21 @@ jobs:
           pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/ms-playwright
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+      - name: Save Playwright browser cache
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/ms-playwright
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }}
         working-directory: packages/e2e-tests
