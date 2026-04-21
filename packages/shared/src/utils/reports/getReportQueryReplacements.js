@@ -1,6 +1,8 @@
 import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
+import config from 'config';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '../timeZoneCheck';
 
 const START_OF_EPOCH = '1970-01-01 00:00:00';
 
@@ -61,5 +63,6 @@ export const getReportQueryReplacements = async (
     fromDate: getFromDate(dateRange, params),
     toDate: getToDate(dateRange, params),
     currentFacilityId: facilityId,
+    timezone: params.timezone ?? getPrimaryTimeZone(config),
   };
 };
