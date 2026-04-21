@@ -6,8 +6,13 @@
 import React from 'react';
 import { useParams } from 'react-router';
 
-import { ContentUnavailableView, TranslatedText } from '@tamanu/ui-components';
-import { ColourCell, StyledDataFetchingTable, VisibilityStatusCell } from './components';
+import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
+import { VisibilityStatusCell } from '../components';
+import {
+  ColourCell,
+  createProgramRegistryRowActionsAccessor,
+  StyledDataFetchingTable,
+} from './components';
 
 const codeColumn = /** @type {const} */ ({ key: 'code', title: 'code' });
 
@@ -19,6 +24,34 @@ const visibilityStatusColumn = /** @type {const} */ ({
   title: 'visibilityStatus',
 });
 
+const actionsColumnBase = /** @type {const} */ ({
+  dontCallRowInput: true,
+  isExportable: false,
+  key: 'actions',
+  numeric: true, // Not really, but sets align="right"
+  sortable: false,
+  title: (
+    <VisuallyHidden>
+      <TranslatedText stringId="admin.programRegistries.table.column.actions" fallback="Actions" />
+    </VisuallyHidden>
+  ),
+});
+
+const clinicalStatusesActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus'),
+});
+
+const conditionsActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition'),
+});
+
+const conditionCategoriesActionsColumn = /** @type {const} */ ({
+  ...actionsColumnBase,
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory'),
+});
+
 const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
@@ -28,6 +61,7 @@ const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
     title: 'color',
   },
   visibilityStatusColumn,
+  clinicalStatusesActionsColumn,
 ]);
 
 function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, dataTestId }) {
@@ -73,7 +107,12 @@ export function ClinicalStatusesTable() {
   );
 }
 
-const conditionsColumns = /** @type {const} */ ([codeColumn, nameColumn, visibilityStatusColumn]);
+const conditionsColumns = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  visibilityStatusColumn,
+  conditionsActionsColumn,
+]);
 
 export function ConditionsTable() {
   return (
@@ -105,6 +144,7 @@ const relatedConditionCategoriesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
   visibilityStatusColumn,
+  conditionCategoriesActionsColumn,
 ]);
 
 export function RelatedConditionCategoriesTable() {

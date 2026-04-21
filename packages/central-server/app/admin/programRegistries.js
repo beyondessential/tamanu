@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 const getProgramRegistryHandler = asyncHandler(async (req, res) => {
   req.checkPermission('read', 'ProgramRegistry');
@@ -46,6 +46,7 @@ programRegistryRouter.get(
 );
 
 programRegistryRouter.get('/:id', getProgramRegistryHandler);
+programRegistryRouter.put('/:id', simplePut('ProgramRegistry'));
 
 /** `/admin/programRegistries` endpoint for collections of program registries */
 export const programRegistriesRouter = express.Router();

@@ -2,9 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
+import { simpleGet, simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -66,6 +66,9 @@ adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
 
 adminRoutes.get('/programs', simpleGetList('Program'));
+adminRoutes.get('/program/:id/surveys', simpleGetList('Survey', 'programId'));
+adminRoutes.get('/program/:id', simpleGet('Program'));
+adminRoutes.put('/survey/:id', simplePut('Survey'));
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
@@ -82,6 +85,12 @@ adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
 adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
+adminRoutes.put('/programRegistryClinicalStatus/:id', simplePut('ProgramRegistryClinicalStatus'));
+adminRoutes.put('/programRegistryCondition/:id', simplePut('ProgramRegistryCondition'));
+adminRoutes.put(
+  '/programRegistryConditionCategory/:id',
+  simplePut('ProgramRegistryConditionCategory'),
+);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);

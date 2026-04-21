@@ -1,39 +1,15 @@
-import React, { useMemo } from 'react';
-import { Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
+import Skeleton from '@mui/material/Skeleton';
+import Typography from '@mui/material/Typography';
+import React, { useId, useMemo } from 'react';
+import { Link, Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Typography, tabsClasses } from '@mui/material';
-import { Button, SelectField, TranslatedText } from '@tamanu/ui-components';
-import { TabContainer, TabDisplay } from '../../../../components/TabDisplay';
+import { TranslatedText, VisibilityStatusChip } from '@tamanu/ui-components';
+import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
-import { ContentContainer } from '../../components/AdminViewContainer';
-import { VisibilityStatusChip } from './components';
+import { Article, TableScopeHeader, TableScopeSelect } from '../components';
+import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
-
-export const Article = styled.article`
-  overflow: auto;
-  padding-block: 26px;
-  padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
-  }
-`;
-
-const Header = styled.header`
-  align-items: flex-end;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  border-start-end-radius: 0.3125rem;
-  border-start-start-radius: 0.3125rem;
-  display: flex;
-  gap: 10px;
-  padding-block: 16px;
-  padding-inline: 24px;
-`;
-
-const Select = styled(SelectField)`
-  min-inline-size: 23rem;
-`;
 
 const Metadata = styled.div`
   align-items: baseline;
@@ -44,16 +20,11 @@ const Metadata = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  .${tabsClasses.root} {
-    border-inline: 1px solid ${Colors.outline};
-  }
-  ${TabContainer} {
-    background-color: unset;
-    border-bottom: unset;
-  }
+  background-color: unset;
+  border-inline: 1px solid ${Colors.outline};
 `;
 
-const Tab = /** @type {const} */ ({
+const TabKey = /** @type {const} */ ({
   ClinicalStatuses: 'statuses',
   Conditions: 'conditions',
   RelatedConditionCategories: 'conditionCategories',
@@ -61,7 +32,7 @@ const Tab = /** @type {const} */ ({
 
 const tabs = /** @type {const} */ ([
   {
-    key: Tab.ClinicalStatuses,
+    key: TabKey.ClinicalStatuses,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.statuses"
@@ -71,14 +42,14 @@ const tabs = /** @type {const} */ ([
     render: Outlet,
   },
   {
-    key: Tab.Conditions,
+    key: TabKey.Conditions,
     label: (
       <TranslatedText stringId="admin.programRegistries.tab.conditions" fallback="Conditions" />
     ),
     render: Outlet,
   },
   {
-    key: Tab.RelatedConditionCategories,
+    key: TabKey.RelatedConditionCategories,
     label: (
       <TranslatedText
         stringId="admin.programRegistries.tab.conditionCategories"
@@ -89,12 +60,13 @@ const tabs = /** @type {const} */ ([
   },
 ]);
 
-const tabPathSegments = new Set(Object.values(Tab));
+const tabPathSegments = new Set(Object.values(TabKey));
 
 export function ManageProgramRegistriesAdminView() {
   const { programRegistryId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const scopedTableId = useId();
 
   const switchProgramRegistry = id => {
     const prev = programRegistryId ? String(programRegistryId) : '';
@@ -106,11 +78,11 @@ export function ManageProgramRegistriesAdminView() {
     }
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const lastSegment = pathSegments.at(-1);
-    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : Tab.ClinicalStatuses;
+    const subPath = tabPathSegments.has(lastSegment) ? lastSegment : TabKey.ClinicalStatuses;
     navigate(`/admin/programs/registries/${encodeURIComponent(next)}/${subPath}`);
   };
 
-  const { data: registries } = useProgramRegistriesQuery({
+  const { data: registries, isLoading: isRegistriesLoading } = useProgramRegistriesQuery({
     onSuccess: function defaultToFirst(data) {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
@@ -123,7 +95,11 @@ export function ManageProgramRegistriesAdminView() {
     [registries],
   );
 
-  const { data: registry } = useProgramRegistryQuery(programRegistryId);
+  const {
+    data: registry,
+    isLoading: isRegistryLoading,
+    isSuccess: isRegistrySuccess,
+  } = useProgramRegistryQuery(programRegistryId);
 
   const isConditionsRoute = Boolean(
     useMatch('/admin/programs/registries/:programRegistryId/conditions'),
@@ -132,9 +108,9 @@ export function ManageProgramRegistriesAdminView() {
     useMatch('/admin/programs/registries/:programRegistryId/conditionCategories'),
   );
   const currentTab = (() => {
-    if (isConditionsRoute) return Tab.Conditions;
-    if (isConditionCategoriesRoute) return Tab.RelatedConditionCategories;
-    return Tab.ClinicalStatuses;
+    if (isConditionsRoute) return TabKey.Conditions;
+    if (isConditionCategoriesRoute) return TabKey.RelatedConditionCategories;
+    return TabKey.ClinicalStatuses;
   })();
 
   const onTabSelect = tabKey => {
@@ -144,9 +120,13 @@ export function ManageProgramRegistriesAdminView() {
 
   return (
     <Article>
-      <Header>
-        <Select
-          isClearable={false}
+      <TableScopeHeader>
+        <TableScopeSelect
+          aria-busy={isRegistriesLoading}
+          // This aria-controls attribute gets attached to the MuiFormControl-root (default <div>),
+          // but I couldn’t find any appropriate <select> (or any `role="combobox"` node) rendered
+          // by react-select to forward it to.
+          aria-controls={scopedTableId}
           label={
             <TranslatedText
               stringId="admin.programRegistry.select.label"
@@ -158,29 +138,40 @@ export function ManageProgramRegistriesAdminView() {
           options={options}
           value={programRegistryId ?? ''}
         />
-        <Metadata>
-          <VisibilityStatusChip visibilityStatus={registry?.visibilityStatus} />
-          {registry?.program?.name && (
-            <Typography variant="body1" style={{ fontSize: 'inherit' }}>
-              {registry.program.name}
-            </Typography>
+        <Metadata aria-busy={isRegistryLoading}>
+          <VisibilityStatusChip
+            isLoading={isRegistryLoading}
+            visibilityStatus={registry?.visibilityStatus}
+          />
+          {isRegistryLoading ? (
+            <Skeleton animation="wave" variant="text" width="25ch" />
+          ) : (
+            registry?.program && (
+              <Typography variant="body1" style={{ fontSize: 'inherit' }}>
+                <Link
+                  to={`/admin/programs/forms/manage/${encodeURIComponent(registry.program.id)}`}
+                >
+                  {registry.program.name}
+                </Link>
+              </Typography>
+            )
           )}
         </Metadata>
-        <Button style={{ marginInlineStart: 'auto' }}>
-          <TranslatedText
-            stringId="admin.programRegistries.editMetadata"
-            fallback="Edit program registry metadata"
-          />
-        </Button>
-      </Header>
-      {programRegistryId && (
-        <StyledTabDisplay
-          currentTab={currentTab}
-          onTabSelect={onTabSelect}
-          scrollable={false}
-          tabs={tabs}
+        <EditProgramRegistryButton
+          disabled={!isRegistrySuccess}
+          style={{ marginInlineStart: 'auto' }}
         />
-      )}
+      </TableScopeHeader>
+      <article id={scopedTableId}>
+        {programRegistryId && (
+          <StyledTabDisplay
+            currentTab={currentTab}
+            onTabSelect={onTabSelect}
+            scrollable={false}
+            tabs={tabs}
+          />
+        )}
+      </article>
     </Article>
   );
 }

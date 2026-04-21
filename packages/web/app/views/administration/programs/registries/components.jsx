@@ -1,4 +1,3 @@
-import Chip, { chipClasses } from '@mui/material/Chip';
 import { tableCellClasses } from '@mui/material/TableCell';
 import React from 'react';
 import styled from 'styled-components';
@@ -6,6 +5,8 @@ import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { useVisibilityStatusMutation } from './useVisibilityStatusMutation';
 
 export const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
@@ -17,64 +18,63 @@ export const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const visibilityStatusText = /** @type {const} */ {
-  [VISIBILITY_STATUSES.CURRENT]: (
-    <TranslatedText
-      stringId="admin.programRegistries.visibilityStatus.current"
-      fallback="Current"
-    />
-  ),
-  [VISIBILITY_STATUSES.HISTORICAL]: (
-    <TranslatedText
-      stringId="admin.programRegistries.visibilityStatus.historical"
-      fallback="Historical"
-    />
-  ),
-  [VISIBILITY_STATUSES.MERGED]: (
-    <TranslatedText stringId="admin.programRegistries.visibilityStatus.merged" fallback="Merged" />
-  ),
-};
+/**
+ * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
+ */
+export function createProgramRegistryRowActionsAccessor(resourceSegment) {
+  return function ProgramRegistryRowActionsCell({ id, refreshTable, visibilityStatus }) {
+    const { isLoading, mutateAsync } = useVisibilityStatusMutation();
 
-const StyledChip = styled(Chip)`
-  &.${chipClasses.root} {
-    background-color: oklch(from currentColor l c h / 10%);
-  }
-`;
+    const updateVisibilityStatus = nextVisibilityStatus =>
+      mutateAsync(
+        {
+          recordId: id,
+          resourceSegment,
+          visibilityStatus: nextVisibilityStatus,
+        },
+        { onSuccess: () => refreshTable?.() },
+      );
 
-export function VisibilityStatusChip({ visibilityStatus, ...props }) {
-  if (!visibilityStatus) return null;
-  return (
-    <StyledChip
-      label={
-        visibilityStatusText[visibilityStatus] ?? (
+    const items = [
+      {
+        label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+      },
+    ];
+
+    if (visibilityStatus === VISIBILITY_STATUSES.CURRENT) {
+      items.push({
+        disabled: isLoading,
+        label: (
           <TranslatedText
-            stringId="admin.programRegistries.visibilityStatus.unknown"
-            fallback="Unknown"
+            stringId="admin.programRegistries.table.action.makeHistorical"
+            fallback="Make historical"
           />
-        )
-      }
-      style={{
-        color:
-          visibilityStatus === VISIBILITY_STATUSES.CURRENT
-            ? TAMANU_COLORS.green
-            : TAMANU_COLORS.darkestText,
-      }}
-      size="small"
-      {...props}
-    />
-  );
-}
+        ),
+        onClick: () => updateVisibilityStatus(VISIBILITY_STATUSES.HISTORICAL),
+      });
+    } else if (visibilityStatus === VISIBILITY_STATUSES.HISTORICAL) {
+      items.push({
+        disabled: isLoading,
+        label: (
+          <TranslatedText
+            stringId="admin.programRegistries.table.action.makeCurrent"
+            fallback="Make current"
+          />
+        ),
+        onClick: () => updateVisibilityStatus(VISIBILITY_STATUSES.CURRENT),
+      });
+    }
 
-const emptyCell = <em style={{ color: TAMANU_COLORS.softText }}>None</em>;
+    return <ThreeDotMenu items={items} />;
+  };
+}
 
 export function ColourCell({ color }) {
-  return color || emptyCell;
-}
-
-export function VisibilityStatusCell({ visibilityStatus }) {
-  return visibilityStatus ? (
-    <VisibilityStatusChip visibilityStatus={visibilityStatus} />
-  ) : (
-    emptyCell
+  return (
+    color || (
+      <em style={{ color: TAMANU_COLORS.softText }}>
+        <TranslatedText stringId="general.none" fallback="None" />
+      </em>
+    )
   );
 }

@@ -2,7 +2,7 @@ import { Skeleton } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 
-import { Form, TranslatedText } from '@tamanu/ui-components';
+import { Form, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, Field, TextField } from '../../../components';
 import { Colors } from '../../../constants';
@@ -73,7 +73,7 @@ export const Article = styled.article`
   padding-block: 26px;
   padding-inline: 30px;
   ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
+    background-color: ${TAMANU_COLORS.background2};
   }
 `;
 

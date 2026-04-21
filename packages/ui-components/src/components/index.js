@@ -13,3 +13,5 @@ export * from './Survey';
 export * from './Tag';
 export * from './Tooltip';
 export * from './Translation';
+export { VisibilityStatusChip } from './VisibilityStatusChip';
+export { VisuallyHidden } from './VisuallyHidden';

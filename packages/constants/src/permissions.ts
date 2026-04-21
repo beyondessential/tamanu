@@ -29,7 +29,7 @@ export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb
   Survey: [Read, Write, Submit],
   StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
-  ProgramRegistry: [Read],
+  ProgramRegistry: [Read, Write],
 };
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
@@ -127,10 +127,10 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Permission: [List, Read, Write, Create, Delete],
   Procedure: [List, Read, Write, Create],
   Program: [List, Read, Write, Create],
-  ProgramRegistry: [List, Read],
-  ProgramRegistryClinicalStatus: [List, Read],
-  ProgramRegistryCondition: [List, Read],
-  ProgramRegistryConditionCategory: [List, Read],
+  ProgramRegistry: [List, Read, Write],
+  ProgramRegistryClinicalStatus: [List, Read, Write],
+  ProgramRegistryCondition: [List, Read, Write],
+  ProgramRegistryConditionCategory: [List, Read, Write],
   ReferenceData: [List, Read, Write, Create, Delete],
   ReferenceDataRelation: [List, Read, Write, Create],
   Referral: [List, Read, Write, Create, Delete],

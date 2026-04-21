@@ -21,10 +21,8 @@ const OuterContainer = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  .MuiTabs-root {
-    padding: 0px 20px;
-    border-bottom: 1px solid ${Colors.outline};
-  }
+  padding: 0px 20px;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const TabContainer = styled.div`
