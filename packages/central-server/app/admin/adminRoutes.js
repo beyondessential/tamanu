@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/errors';
-import { simplePatch, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 
