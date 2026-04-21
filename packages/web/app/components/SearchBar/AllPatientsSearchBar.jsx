@@ -111,17 +111,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             }
             data-testid="searchbarcheckfield-7dw8"
           />
-          <SearchBarCheckField
-            name="markedForSync"
-            label={
-              <TranslatedText
-                stringId="patientList.table.onlyMarkedForSyncCheckbox.label"
-                fallback="Only marked for sync"
-                data-testid="translatedtext-synconly"
-              />
-            }
-            data-testid="searchbarcheckfield-markedforsync"
-          />
           {additionalSearchFields.map(fieldName => (
             <AdditionalSearchField key={fieldName} fieldName={fieldName} />
           ))}
