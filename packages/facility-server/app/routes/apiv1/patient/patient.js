@@ -76,6 +76,28 @@ patientRoute.post(
 );
 
 patientRoute.get(
+  '/$/markedForSyncCount',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { PatientFacility },
+      query: { facilityId },
+    } = req;
+
+    req.checkPermission('list', 'Patient');
+
+    if (!facilityId) {
+      throw new InvalidParameterError('Missing facilityId');
+    }
+
+    const count = await PatientFacility.count({
+      where: { facilityId },
+    });
+
+    res.send({ count });
+  }),
+);
+
+patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {

@@ -1,4 +1,4 @@
-export { PatientListingView, AdmittedPatientsView, OutpatientsView } from './PatientListingView';
+export { PatientListingView, SyncedPatientsView, AdmittedPatientsView, OutpatientsView } from './PatientListingView';
 export { PatientView } from './PatientView';
 export { EncounterView } from './EncounterView';
 export { LabRequestView } from './LabRequestView';

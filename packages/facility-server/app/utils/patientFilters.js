@@ -62,6 +62,10 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(filterParams.markedForSync, `patient_facilities.patient_id IS NOT NULL`),
     makeFilter(
+      filterParams.markedForSync === true || filterParams.markedForSync === 'true',
+      `patient_facilities.patient_id IS NOT NULL`,
+    ),
+    makeFilter(
       !filterParams.isAllPatientsListing && filterParams.facilityId,
       `location.facility_id = :facilityId`,
     ),

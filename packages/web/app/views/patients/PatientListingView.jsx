@@ -212,6 +212,47 @@ export const PatientListingView = ({ onViewPatient }) => {
   );
 };
 
+export const SyncedPatientsView = () => {
+  const [searchParameters, setSearchParameters] = useState({});
+  const { facilityId } = useAuth();
+
+  return (
+    <PageContainer data-testid="pagecontainer-sync">
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="patientList.syncQueue.title"
+            fallback="Sync queue"
+            data-testid="translatedtext-syncqueue-title"
+          />
+        }
+        data-testid="topbar-sync"
+      />
+      <ContentPane data-testid="contentpane-sync">
+        <SearchTableTitle data-testid="searchtabletitle-sync">
+          <TranslatedText
+            stringId="patientList.syncQueue.search.title"
+            fallback="Patients marked for sync"
+            data-testid="translatedtext-syncqueue-search"
+          />
+        </SearchTableTitle>
+        <AllPatientsSearchBar onSearch={setSearchParameters} data-testid="allpatientssearchbar-sync" />
+        <PatientTable
+          fetchOptions={{ matchSecondaryIds: true }}
+          searchParameters={{
+            isAllPatientsListing: true,
+            markedForSync: true,
+            facilityId,
+            ...searchParameters,
+          }}
+          columns={LISTING_COLUMNS}
+          data-testid="patienttable-sync"
+        />
+      </ContentPane>
+    </PageContainer>
+  );
+};
+
 export const AdmittedPatientsView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.AdmittedPatientsView,

@@ -92,6 +92,19 @@ export const FACILITY_MENU_ITEMS = [
         key: 'patientsOutpatients',
         ability: { action: 'read' },
       },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.patients.syncQueue"
+            fallback="Sync queue"
+            data-testid="translatedtext-patients-syncqueue"
+          />
+        ),
+        color: Colors.blue,
+        path: '/patients/sync',
+        key: 'patientsSyncQueue',
+        ability: { action: 'read' },
+      },
     ],
   },
   {

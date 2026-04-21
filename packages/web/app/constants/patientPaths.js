@@ -3,6 +3,7 @@ export const PATIENT_CATEGORIES = {
   EMERGENCY: 'emergency',
   INPATIENT: 'inpatient',
   OUTPATIENT: 'outpatient',
+  SYNC: 'sync',
 };
 
 export const PATIENT_CATEGORY_LABELS = {
@@ -10,6 +11,7 @@ export const PATIENT_CATEGORY_LABELS = {
   [PATIENT_CATEGORIES.EMERGENCY]: 'Emergency Patients',
   [PATIENT_CATEGORIES.OUTPATIENT]: 'Outpatients',
   [PATIENT_CATEGORIES.INPATIENT]: 'Inpatients',
+  [PATIENT_CATEGORIES.SYNC]: 'Sync Queue',
 };
 
 const CATEGORY_PATH = `/patients/:category`;

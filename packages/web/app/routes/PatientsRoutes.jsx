@@ -4,6 +4,7 @@ import {
   AdmittedPatientsView,
   OutpatientsView,
   PatientListingView,
+  SyncedPatientsView,
   TriageListingView,
 } from '../views';
 import { PatientRoutes } from './PatientRoutes';
@@ -20,6 +21,8 @@ const CategoryComponent = () => {
       return <AdmittedPatientsView />;
     case 'outpatient':
       return <OutpatientsView />;
+    case 'sync':
+      return <SyncedPatientsView />;
     default:
       return <Navigate to="/patients/all" replace />;
   }
