@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { pick } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError, UsageError } from '@tamanu/errors';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
@@ -99,7 +99,57 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     res.send(transform ? transform(object) : object);
   });
 
-export const simplePut = (modelName) =>
+function validateAllowedFields(model, allowedFields) {
+  const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
+  for (const field of ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick']) {
+    valids.delete(field);
+  }
+
+  const invalids = allowedFields.filter(field => !valids.has(field));
+  if (invalids.length > 0) {
+    const formatter = new Intl.ListFormat();
+    const unit = invalids.length === 1 ? 'field' : 'fields';
+    throw new UsageError(
+      `simplePatch allowedFields option includes invalid ${unit} for ${model.name}: ${formatter.format(invalids)}. Permitted fields: ${formatter.format(valids)}.`,
+    );
+  }
+}
+
+/**
+ * @param {string} modelName
+ * @param {{ allowedFields: string[]}} options
+ */
+export const simplePatch = (modelName, options) =>
+  asyncHandler(async (req, res) => {
+    if (!options?.allowedFields || options.allowedFields.length === 0) {
+      throw new InvalidOperationError('simplePatch requires a nonempty allowedFields option');
+    }
+    req.checkPermission('read', modelName);
+
+    const { allowedFields } = options;
+    const {
+      models: { [modelName]: model },
+      params: { id },
+    } = req;
+
+    if (process.env.NODE_ENV !== 'production') validateAllowedFields(model, allowedFields);
+
+    const object = await model.findByPk(id);
+
+    if (!object) throw new NotFoundError(`No ${modelName} found with ID ${id}`);
+    if (object.deletedAt) {
+      throw new InvalidOperationError(`Cannot update deleted ${modelName} with ID ${id}`);
+    }
+    if (Object.hasOwn(req.body, 'deletedAt')) {
+      throw new InvalidOperationError('Cannot update deletedAt field with PATCH request');
+    }
+
+    req.checkPermission('write', object);
+    await object.update(pick(req.body, allowedFields));
+    res.send(object);
+  });
+
+export const simplePut = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', modelName);
