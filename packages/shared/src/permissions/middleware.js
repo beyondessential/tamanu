@@ -43,8 +43,9 @@ function assertValidPermissionSchema(subject, action) {
 
 export async function constructPermission(req, res, next) {
   try {
+    const impersonateRoleId = req.impersonateRoleId;
     // eslint-disable-next-line require-atomic-updates
-    req.ability = await getAbilityForUser(req.models, req.user);
+    req.ability = await getAbilityForUser(req.models, req.user, { impersonateRoleId });
     next();
   } catch (e) {
     next(e);
@@ -131,8 +132,17 @@ export function ensurePermissionCheck(req, res, next) {
 // eslint-disable-next-line no-unused-vars
 export async function getPermissions(req, res, _next) {
   const { user, models } = req;
+  // `flagPermissionChecked` is only set when the route is mounted under
+  // `ensurePermissionCheck` (facility-server). On central-server the
+  // `/permissions` endpoint lives in `authModule`, which is mounted before
+  // that middleware, so guard the call.
+  if (req.flagPermissionChecked) {
+    req.flagPermissionChecked();
+  }
 
-  const permissions = await getPermissionsForRoles(models, user.role);
+  const roleString = (req.impersonateRoleId && user.role === 'admin') ? req.impersonateRoleId : user.role;
+
+  const permissions = await getPermissionsForRoles(models, roleString);
   res.send({
     permissions,
   });
