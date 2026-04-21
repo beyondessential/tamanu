@@ -21,7 +21,6 @@ class AskAiResponse {
 function AskTamanu(
   userQuestion: string,
   conversationHistory: string,
-  serverConfig: string,
   appSettings: string,
   ragContext: string,
 ) -> AskAiResponse {
@@ -36,11 +35,6 @@ function AskTamanu(
     Tamanu has two server types: the facility server (used at individual health facilities)
     and the central server (used for system-wide administration and reporting).
     If a feature is only available on one server type, say so clearly.
-
-    {% if serverConfig %}
-    This server's current configuration (credentials removed):
-    {{ serverConfig }}
-    {% endif %}
 
     {% if appSettings %}
     This server's current application settings:

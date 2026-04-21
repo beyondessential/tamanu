@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { NotFoundError } from '@tamanu/errors';
-import { chat, sanitiseConfigForAi } from './AskAiService.js';
+import { chat } from './AskAiService.js';
 
 /**
  * Creates the Ask AI Express router.
@@ -119,7 +119,6 @@ export const createAskAiRouter = getAppSettings => {
 
       const { content } = req.body;
 
-      const serverConfig = JSON.stringify(sanitiseConfigForAi(config.util.toObject()), null, 2);
       const appSettings = JSON.stringify((await getAppSettings(req)) ?? {}, null, 2);
 
       const response = await chat({
@@ -129,7 +128,6 @@ export const createAskAiRouter = getAppSettings => {
         models,
         voyageApiKey: askAiConfig.voyageApiKey,
         anthropicApiKey: askAiConfig.anthropicApiKey,
-        serverConfig,
         appSettings,
       });
 
