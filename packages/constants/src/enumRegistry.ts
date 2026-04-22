@@ -8,7 +8,7 @@ import {
 } from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
@@ -87,7 +87,7 @@ export const registeredEnums = {
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
@@ -150,7 +150,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS: 'invoice.property.insurancePlanPaymentStatus',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS: 'invoice.property.patientPaymentStatus',
   INVOICE_STATUS_LABELS: 'invoice.property.status',

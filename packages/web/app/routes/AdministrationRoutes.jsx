@@ -7,7 +7,7 @@ import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
   DesignationsAdminView,
-  InsurerPaymentsAdminView,
+  InsurancePlanPaymentsAdminView,
   LocationAssignmentsAdminView,
   PatientMergeView,
   PermissionsAdminView,
@@ -63,7 +63,7 @@ export const AdministrationRoutes = React.memo(() => (
         }
       />
     </Route>
-    <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
+    <Route path="insurancePlanPayments" element={<InsurancePlanPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>
 ));

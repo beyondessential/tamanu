@@ -1,6 +1,6 @@
 import { DataTypes, Transaction } from 'sequelize';
 import {
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   SYNC_DIRECTIONS,
@@ -35,7 +35,7 @@ export class Invoice extends Model {
   declare date: string;
   declare status: string;
   declare patientPaymentStatus: string;
-  declare insurerPaymentStatus: string;
+  declare insurancePlanPaymentStatus: string;
   declare encounterId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -58,10 +58,10 @@ export class Invoice extends Model {
           allowNull: false,
           defaultValue: INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID,
         },
-        insurerPaymentStatus: {
+        insurancePlanPaymentStatus: {
           type: DataTypes.STRING,
           allowNull: false,
-          defaultValue: INVOICE_INSURER_PAYMENT_STATUSES.UNPAID,
+          defaultValue: INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.UNPAID,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },

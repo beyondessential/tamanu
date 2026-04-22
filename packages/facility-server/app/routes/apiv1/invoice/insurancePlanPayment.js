@@ -1,18 +1,18 @@
 import asyncHandler from 'express-async-handler';
 import express from 'express';
 
-export const insurerPaymentRoute = express.Router();
+export const insurancePlanPaymentRoute = express.Router();
 
-insurerPaymentRoute.get(
-  '/:invoiceId/insurerPayments',
+insurancePlanPaymentRoute.get(
+  '/:invoiceId/insurancePlanPayments',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'InvoicePayment');
 
     const invoiceId = req.params.invoiceId;
-    const insurerPayments = await req.models.InvoiceInsurerPayment.findAll({
+    const insurancePlanPayments = await req.models.InvoiceInsurancePlanPayment.findAll({
       include: [
         { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
-        { model: req.models.ReferenceData, as: 'insurer' },
+        { model: req.models.InvoiceInsurancePlan, as: 'insurancePlan' },
       ],
     }).then(payments =>
       payments.map(payment => ({
@@ -20,11 +20,11 @@ insurerPaymentRoute.get(
         date: payment.detail.date,
         amount: payment.detail.amount,
         receiptNumber: payment.detail.receiptNumber,
-        insurerName: payment.insurer.name,
+        insurancePlanName: payment.insurancePlan.name,
         status: payment.status,
       })),
     );
 
-    res.json({ count: insurerPayments.length, data: insurerPayments });
+    res.json({ count: insurancePlanPayments.length, data: insurancePlanPayments });
   }),
 );

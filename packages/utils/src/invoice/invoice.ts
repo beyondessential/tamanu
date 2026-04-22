@@ -131,8 +131,8 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
     .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
-  const insurerPaymentsTotal = payments
-    .filter(payment => payment?.insurerPayment?.id)
+  const insurancePlanPaymentsTotal = payments
+    .filter(payment => payment?.insurancePlanPayment?.id)
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
   const paymentsTotal = payments
@@ -142,8 +142,8 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
   const patientPaymentRemainingBalance = new Decimal(patientTotal)
     .minus(patientPaymentsTotal)
     .toNumber();
-  const insurerPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
-    .minus(insurerPaymentsTotal)
+  const insurancePlanPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
+    .minus(insurancePlanPaymentsTotal)
     .toNumber();
 
   return {
@@ -155,9 +155,9 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
     itemAdjustmentsTotal: itemAdjustmentsTotal.toNumber(),
     patientSubtotal: patientSubtotal.toNumber(),
     patientPaymentsTotal,
-    insurerPaymentsTotal,
+    insurancePlanPaymentsTotal,
     paymentsTotal,
     patientPaymentRemainingBalance,
-    insurerPaymentRemainingBalance,
+    insurancePlanPaymentRemainingBalance,
   };
 };

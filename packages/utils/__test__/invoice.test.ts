@@ -336,7 +336,7 @@ describe('Invoice Utils', () => {
       expect(summary.insuranceCoverageTotal).toEqual(0);
       expect(summary.patientTotal).toEqual(0);
       expect(summary.patientPaymentsTotal).toEqual(0);
-      expect(summary.insurerPaymentsTotal).toEqual(0);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(0);
       expect(summary.paymentsTotal).toEqual(0);
     });
 
@@ -423,17 +423,17 @@ describe('Invoice Utils', () => {
         payments: [
           {
             amount: 30,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
           {
             amount: 10,
-            insurerPayment: { id: 'insurer-2' },
+            insurancePlanPayment: { id: 'insurer-2' },
           },
         ],
       };
       const summary = getInvoiceSummary(invoice);
-      expect(summary.insurerPaymentsTotal).toEqual(40);
-      expect(summary.insurerPaymentRemainingBalance).toEqual(10);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(40);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(10);
     });
 
     it('should calculate total payments', () => {
@@ -452,7 +452,7 @@ describe('Invoice Utils', () => {
           },
           {
             amount: 20,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
         ],
       };
@@ -477,7 +477,7 @@ describe('Invoice Utils', () => {
       };
       const summary = getInvoiceSummary(invoice);
       expect(summary.patientPaymentsTotal).toEqual(0);
-      expect(summary.insurerPaymentsTotal).toEqual(0);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(0);
       expect(summary.paymentsTotal).toEqual(50);
     });
 
@@ -500,7 +500,7 @@ describe('Invoice Utils', () => {
           },
           {
             amount: 30,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
         ],
       };
@@ -508,7 +508,7 @@ describe('Invoice Utils', () => {
       expect(summary.patientTotal).toEqual(40);
       expect(summary.insuranceCoverageTotal).toEqual(60);
       expect(summary.patientPaymentRemainingBalance).toEqual(20);
-      expect(summary.insurerPaymentRemainingBalance).toEqual(30);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(30);
     });
   });
 });

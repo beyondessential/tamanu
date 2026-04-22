@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   REFERENCE_TYPES,
@@ -52,7 +52,7 @@ describe('Patient Payment Refund', () => {
     return payment;
   };
 
-  const createInsurerPayment = async (invoiceId, insurerId, overrides = {}) => {
+  const createInsurerPayment = async (invoiceId, invoiceInsurancePlanId, overrides = {}) => {
     const payment = await models.InvoicePayment.create({
       invoiceId,
       date: '2024-01-15',
@@ -61,10 +61,10 @@ describe('Patient Payment Refund', () => {
       updatedByUserId: user.id,
       ...overrides,
     });
-    await models.InvoiceInsurerPayment.create({
+    await models.InvoiceInsurancePlanPayment.create({
       invoicePaymentId: payment.id,
-      insurerId,
-      status: INVOICE_INSURER_PAYMENT_STATUSES.PAID,
+      invoiceInsurancePlanId,
+      status: INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID,
     });
     return payment;
   };
@@ -92,9 +92,8 @@ describe('Patient Payment Refund', () => {
         code: 'BANK-TRANSFER',
       }),
     );
-    insurer = await models.ReferenceData.create(
-      fake(models.ReferenceData, {
-        type: REFERENCE_TYPES.INSURER,
+    insurer = await models.InvoiceInsurancePlan.create(
+      fake(models.InvoiceInsurancePlan, {
         name: 'Insurer',
         code: 'INSURER',
       }),
