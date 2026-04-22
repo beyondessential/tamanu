@@ -2,7 +2,6 @@ name: E2E Tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -16,23 +15,7 @@ env:
     !packages/mobile/node_modules
 
 jobs:
-  check-e2e-request:
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request?.body;
-            const e2eMatch = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
-            core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
-
   node_modules_cache:
-    needs: check-e2e-request
-    if: needs.check-e2e-request.outputs.should_run == 'true'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -191,3 +174,18 @@ jobs:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
+
+  e2e-required:
+    name: E2E Required
+    if: always()
+    needs: [e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce passing E2E workflow
+        run: |
+          if [ "${{ needs.e2e.result }}" != "success" ]; then
+            echo "E2E tests did not pass."
+            exit 1
+          fi
+
+          echo "E2E passed."
