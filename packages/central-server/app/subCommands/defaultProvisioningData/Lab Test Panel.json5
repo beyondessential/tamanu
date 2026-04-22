@@ -52,6 +52,22 @@
       "externalCode": "external-testPanel-Others",
       "categoryId": "labTestCategory-Other",
       "testTypesInPanel": "labTestType-Woundswab,labTestType-INR"
+    },
+    {
+      "id": "labTestPanel-Cardiacenzymes",
+      "code": "Cardiacenzymes",
+      "name": "Cardiac enzymes",
+      "visibilityStatus": "current",
+      "categoryId": "labTestCategory-Integration",
+      "testTypesInPanel": "labTestType-AST,labTestType-CK,labTestType-CKMB,labTestType-TroponinI,labTestType-LDH"
+    },
+    {
+      "id": "labTestPanel-Thyroidfunction",
+      "code": "Thyroidfunction",
+      "name": "Thyroid function",
+      "visibilityStatus": "current",
+      "categoryId": "labTestCategory-Integration",
+      "testTypesInPanel": "labTestType-TSH,labTestType-T3,labTestType-T4"
     }
   ]
 }

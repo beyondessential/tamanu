@@ -80,7 +80,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     models = context.models;
 
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
-    config.schedules.MSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
+    config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
     selectFacilityIds.mockReturnValue([FACILITY_ID]);
 
     await models.Setting.set(
@@ -98,7 +98,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     jest.clearAllMocks();
     selectFacilityIds.mockReturnValue([FACILITY_ID]);
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
-    config.schedules.MSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
+    config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
 
     await models.Setting.set(
       'integrations.mSupplyMed',
