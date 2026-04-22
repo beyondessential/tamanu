@@ -85,15 +85,19 @@ adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
 adminRoutes.patch(
   '/programRegistryClinicalStatus/:id',
-  simplePatch('ProgramRegistryClinicalStatus', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryClinicalStatus', {
+    allowedFields: ['color', 'name', 'visibilityStatus'],
+  }),
 );
 adminRoutes.patch(
   '/programRegistryCondition/:id',
-  simplePatch('ProgramRegistryCondition', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryCondition', { allowedFields: ['name', 'visibilityStatus'] }),
 );
 adminRoutes.patch(
   '/programRegistryConditionCategory/:id',
-  simplePatch('ProgramRegistryConditionCategory', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryConditionCategory', {
+    allowedFields: ['name', 'visibilityStatus'],
+  }),
 );
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
