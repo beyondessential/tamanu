@@ -43,7 +43,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
@@ -51,7 +51,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -68,7 +68,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -94,7 +94,7 @@ jobs:
           pg_dump -Fc -d central -f e2e-prepared-db/central.dump
           pg_dump -Fc -d facility -f e2e-prepared-db/facility.dump
       - name: Upload built server artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-built-artifacts
           path: |
@@ -104,7 +104,7 @@ jobs:
             packages/facility-server/config/local.json5
           retention-days: 1
       - name: Upload prepared database snapshot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-db-snapshot
           path: e2e-prepared-db
@@ -135,17 +135,17 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - name: Download built server artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: e2e-built-artifacts
           path: packages
       - name: Download prepared database snapshot
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: e2e-db-snapshot
           path: e2e-prepared-db
@@ -165,7 +165,7 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
       - name: Restore Playwright browser cache
         id: playwright-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           path: ~/.cache/ms-playwright
@@ -177,7 +177,7 @@ jobs:
         run: npx playwright install-deps chromium
       - name: Save Playwright browser cache
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           path: ~/.cache/ms-playwright
@@ -186,7 +186,7 @@ jobs:
         working-directory: packages/e2e-tests
       - name: Upload blob report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
