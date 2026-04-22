@@ -91,7 +91,7 @@ function renderFieldForDefinition(field, { disabled }) {
 }
 
 /**
- * @param {string} resourceSegment
+ * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
  * @param {string} recordId
  */
 function usePatchProgramRegistrySubResourceMutation(resourceSegment, recordId) {
