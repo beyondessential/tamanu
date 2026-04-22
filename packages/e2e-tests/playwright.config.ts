@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import type { ReporterDescription } from '@playwright/test';
 import { resolve } from 'path';
 import dotenv from 'dotenv';
 
@@ -12,6 +13,11 @@ dotenv.config({ path: resolve(__dirname, '.env') });
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const ciReporters: ReporterDescription[] = [
+  ['blob'],
+  ['json', { outputFile: 'test-results/results.json' }],
+];
+
 module.exports = defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
@@ -21,7 +27,7 @@ module.exports = defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? 'blob' : 'html',
+  reporter: process.env.CI ? ciReporters : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */

@@ -113,3 +113,40 @@ jobs:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
+      - name: Upload Playwright JSON report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-json-${{ strategy.job-index }}
+          path: packages/e2e-tests/test-results/results.json
+          retention-days: 7
+
+  e2e_report:
+    needs: e2e
+    if: always() && needs.e2e.result != 'skipped'
+    name: E2E report summary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - name: Download Playwright JSON reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: playwright-json-*
+          merge-multiple: true
+          path: .artifacts/playwright-json
+      - name: Generate E2E feature matrix summary
+        run: |
+          node scripts/e2e/generate-ci-feature-matrix-summary.mjs \
+            --matrix docs/testing/e2e-feature-matrix.md \
+            --playwright-json-dir .artifacts/playwright-json \
+            --output .artifacts/e2e-feature-matrix-summary.md
+      - name: Publish summary in GitHub Actions
+        run: cat .artifacts/e2e-feature-matrix-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload matrix summary artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-feature-matrix-summary
+          path: .artifacts/e2e-feature-matrix-summary.md
+          retention-days: 7
