@@ -80,7 +80,7 @@ export async function addVaccineAndAssert(
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
-  expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+  await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(count);
 
   if (!given) {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
@@ -258,7 +258,7 @@ export async function assertEditedVaccine(
  * @param date - The date to calculate the due date from
  * @param unit - The unit of time to add, e.g. 'weeks' or 'months'
  * @param unitsToAdd - The number of units to add to the date
- * @returns The expected due date in the format of "MM/dd/yyyy"
+ * @returns The expected due date in the format of "dd/MM/yyyy"
  */
 export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
   const dueDate = addWeeks(date, weeksToAdd);
@@ -277,7 +277,7 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
     Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
   );
 
-  const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
+  const formattedUtcWeekStart = format(utcWeekStart, 'dd/MM/yyyy');
 
   return formattedUtcWeekStart;
 }

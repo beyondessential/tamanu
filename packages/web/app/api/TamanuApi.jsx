@@ -24,6 +24,16 @@ const {
   LANGUAGE,
 } = LOCAL_STORAGE_KEYS;
 
+function getImpersonateRoleIdFromToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded.impersonateRoleId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function safeGetStoredJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key));
@@ -136,7 +146,7 @@ export class TamanuApi extends ApiClient {
 
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
-      config.headers['language'] = language;
+      config.headers.set('language', language);
       return config;
     });
   }
@@ -160,6 +170,16 @@ export class TamanuApi extends ApiClient {
     await this.setToken(token);
   }
 
+  async fetchImpersonatedRole(impersonateRoleId, config) {
+    try {
+      const roles = await this.get('admin/roles', {}, config);
+      const matched = roles.find(r => r.id === impersonateRoleId);
+      return matched ?? { id: impersonateRoleId, name: impersonateRoleId };
+    } catch {
+      return { id: impersonateRoleId, name: impersonateRoleId };
+    }
+  }
+
   async restoreSession() {
     const { token } = await readPersistedAuthToken(TOKEN, this.deviceId, 'webapp');
     const {
@@ -180,17 +200,44 @@ export class TamanuApi extends ApiClient {
     const config = { showUnknownErrorToast: false };
     const { user, ability } = await this.fetchUserData(permissions, config);
 
+    const impersonateRoleId = getImpersonateRoleIdFromToken(token);
+    const impersonatedRole =
+      impersonateRoleId && user.role === 'admin'
+        ? await this.fetchImpersonatedRole(impersonateRoleId, config)
+        : null;
+
+    let activeToken = token;
+    let activePermissions = permissions;
+    let restoredImpersonatedRole = impersonatedRole;
+    if (impersonatedRole) {
+      try {
+        const resp = await this.get('user/permissions', {}, config);
+        activePermissions = resp.permissions;
+      } catch {
+        try {
+          const { token: cleanToken } = await this.post('admin/impersonate', { roleId: null }, config);
+          this.setToken(cleanToken);
+          activeToken = cleanToken;
+        } catch {
+          // If we can't clear impersonation either, the token is stale — let it fall through to re-auth
+        }
+        restoredImpersonatedRole = null;
+      }
+    }
+
     return {
       user,
-      token,
+      token: activeToken,
       localisation,
       server,
       availableFacilities,
       facilityId,
       primaryTimeZone,
       ability,
+      permissions: activePermissions,
       role,
       settings,
+      impersonatedRole: restoredImpersonatedRole,
     };
   }
 

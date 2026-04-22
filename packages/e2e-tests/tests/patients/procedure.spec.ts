@@ -35,7 +35,7 @@ test.describe('Procedures', () => {
     await patientDetailsPage.patientProcedurePane?.waitForTableToLoad();
     await expect(patientDetailsPage.patientProcedurePane?.getRecordedProcedureCount()).resolves.toBe(1);
     await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 2)).toHaveText(procedureData?.procedure!);
-    await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'MM/dd/yyyy'));
+    await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'dd/MM/yyyy'));
   });
 
   test('[T-0197][AT-0091]Add a procedure with only required fields and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
@@ -47,7 +47,7 @@ test.describe('Procedures', () => {
     await patientDetailsPage.patientProcedurePane?.waitForTableToLoad();
     await expect(patientDetailsPage.patientProcedurePane?.getRecordedProcedureCount()).resolves.toBe(1);
     await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 2)).toHaveText(procedureData?.procedure!);
-    await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'MM/dd/yyyy'));
+    await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'dd/MM/yyyy'));
   });
 
   test('[T-0197][AT-0092]Add multiple procedures and validate the procedure table', async ({ patientDetailsPage }) => {
@@ -60,7 +60,7 @@ test.describe('Procedures', () => {
     await modal.waitForModalToClose();
     await patientDetailsPage.patientProcedurePane?.waitForTableToLoad();
       await expect(patientDetailsPage.patientProcedurePane!.getTableCell(i, 2)).toHaveText(procedureData?.procedure!);
-      await expect(patientDetailsPage.patientProcedurePane!.getTableCell(i, 0)).toHaveText(format(new Date(), 'MM/dd/yyyy'));
+      await expect(patientDetailsPage.patientProcedurePane!.getTableCell(i, 0)).toHaveText(format(new Date(), 'dd/MM/yyyy'));
     }
     await expect(patientDetailsPage.patientProcedurePane?.getRecordedProcedureCount()).resolves.toBe(numberOfProcedures);
   });
