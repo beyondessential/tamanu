@@ -1,27 +1,27 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
 
 import { useAuth, useTranslation } from '@tamanu/ui-components';
-import { ErrorMessage } from '../../../components/ErrorMessage';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { FilterField } from '../../../components/Field/FilterField';
-import { AutocompleteField } from '../../../components/Field/AutocompleteField';
-import { Colors } from '../../../constants';
-import { ThemedTooltip } from '../../../components/Tooltip';
 import { useTogglePermissionMutation } from '../../../api/mutations';
 import { useAdminPermissionRolesQuery } from '../../../api/queries/useAdminPermissionRolesQuery';
 import { useAdminPermissionsQuery } from '../../../api/queries/useAdminPermissionsQuery';
-import { NounSection, CHEVRON_WIDTH } from './NounSection';
-import { ObjectIdGroupSection } from './ObjectIdGroupSection';
-import { buildNouns } from './utils';
-import { useNounOptions } from './useNounOptions';
-import { useFilteredNouns } from './useFilteredNouns';
-import { NOUN_TYPES } from './constants';
+import { ErrorMessage } from '../../../components/ErrorMessage';
+import { AutocompleteField } from '../../../components/Field/AutocompleteField';
+import { FilterField } from '../../../components/Field/FilterField';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Colors } from '../../../constants';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
+import { NOUN_TYPES } from './constants';
+import { CHEVRON_WIDTH, NounSection } from './NounSection';
+import { ObjectIdGroupSection } from './ObjectIdGroupSection';
+import { useFilteredNouns } from './useFilteredNouns';
+import { useNounOptions } from './useNounOptions';
+import { buildNouns } from './utils';
 
-const OuterContainer = styled.div`
+const OuterContainer = styled.article`
   display: grid;
   background-color: ${Colors.background};
   min-height: 0;
@@ -35,7 +35,7 @@ const EditContainer = styled.div`
   display: grid;
 `;
 
-const FiltersRow = styled.div`
+const FiltersRow = styled('search')`
   display: flex;
   align-items: flex-end;
   width: 100%;
@@ -60,12 +60,17 @@ const FilterFieldContainer = styled.div`
 `;
 
 const MatrixTable = styled.table`
+  th {
+    font-weight: inherit;
+    text-align: start;
+  }
+
   min-width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 `;
 
-const ChevronTh = styled.th`
+const ChevronTh = styled.th.attrs({ scope: 'row' })`
   width: ${CHEVRON_WIDTH}px;
   padding: 0;
   border-bottom: 1px solid ${Colors.outline};
@@ -77,7 +82,7 @@ const ChevronTh = styled.th`
   z-index: 2;
 `;
 
-const NounTh = styled.th`
+const NounTh = styled.th.attrs({ scope: 'col' })`
   text-align: left;
   padding: 10px 12px 10px 10px;
   border-bottom: 1px solid ${Colors.outline};
@@ -92,7 +97,7 @@ const NounTh = styled.th`
   white-space: nowrap;
 `;
 
-const RoleTh = styled.th`
+const RoleTh = styled.th.attrs({ scope: 'col' })`
   text-align: left;
   padding: 10px 12px;
   border-bottom: 1px solid ${Colors.outline};
@@ -210,7 +215,7 @@ export const PermissionsEditView = () => {
           />
         </FilterFieldContainer>
       </FiltersRow>
-      <EditContainer data-testid="permissions-edit-container">
+      <EditContainer aria-busy={isActuallyLoading} data-testid="permissions-edit-container">
         {isActuallyLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
         {error && (
           <ErrorMessage
@@ -246,28 +251,27 @@ export const PermissionsEditView = () => {
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {filteredNouns.map(group =>
-                group.type === NOUN_TYPES.NOUN ? (
-                  <NounSection
-                    key={group.data.nounKey}
-                    nounGroup={group.data}
-                    selectedRoles={rolesToDisplay}
-                    onToggle={handleToggle}
-                    objectNames={objectNames}
-                  />
-                ) : (
-                  <ObjectIdGroupSection
-                    key={`objectId-${group.data.noun}`}
-                    noun={group.data.noun}
-                    entries={group.data.children}
-                    selectedRoles={rolesToDisplay}
-                    onToggle={handleToggle}
-                    objectNames={objectNames}
-                  />
-                ),
-              )}
-            </tbody>
+            {/* Rendering `<tbody>`s delegated to NounSection and ObjectIdGroupSection */}
+            {filteredNouns.map(group =>
+              group.type === NOUN_TYPES.NOUN ? (
+                <NounSection
+                  key={group.data.nounKey}
+                  nounGroup={group.data}
+                  selectedRoles={rolesToDisplay}
+                  onToggle={handleToggle}
+                  objectNames={objectNames}
+                />
+              ) : (
+                <ObjectIdGroupSection
+                  key={`objectId-${group.data.noun}`}
+                  noun={group.data.noun}
+                  entries={group.data.children}
+                  selectedRoles={rolesToDisplay}
+                  onToggle={handleToggle}
+                  objectNames={objectNames}
+                />
+              ),
+            )}
           </MatrixTable>
         )}
         {isSuccess && selectedRoles.length > 0 && filteredNouns.length === 0 && (
