@@ -16,6 +16,7 @@ import {
   MedicationRoutes,
   PatientsRoutes,
   ProgramRegistryRoutes,
+  TamanuReviewsRoutes,
 } from './routes';
 import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
@@ -48,6 +49,7 @@ export const RoutingFacilityApp = React.memo(() => {
         <Route path="/invoices/*" element={<BillingRoutes />} />
         <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
         <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
+        <Route path="/tamanu-reviews/*" element={<TamanuReviewsRoutes />} />
         <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
       </Routes>
     </App>

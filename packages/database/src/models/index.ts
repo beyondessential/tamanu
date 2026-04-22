@@ -105,6 +105,7 @@ export * from './AppointmentSchedule';
 export * from './AppointmentProcedureType';
 export * from './DocumentMetadata';
 export * from './Template';
+export * from './TamanuReview';
 
 export * from './OneTimeLogin';
 export * from './PortalOneTimeToken';

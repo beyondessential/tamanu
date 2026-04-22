@@ -28,6 +28,19 @@ export const FACILITY_MENU_ITEMS = [
     ability: { action: 'read' },
   },
   {
+    key: 'tamanuReviews',
+    label: (
+      <TranslatedText
+        stringId="sidebar.tamanuReviews"
+        fallback="Tamanu Reviews"
+        data-testid="translatedtext-sidebar-tamanu-reviews"
+      />
+    ),
+    path: '/tamanu-reviews',
+    icon: programsIcon,
+    ability: { action: 'read' },
+  },
+  {
     key: 'patients',
     label: (
       <TranslatedText

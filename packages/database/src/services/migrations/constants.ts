@@ -20,6 +20,7 @@ export const NON_SYNCING_TABLES = [
   'public.sync_lookup_ticks',
   'public.sync_queued_devices',
   'public.sync_sessions',
+  'public.tamanu_reviews',
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',
   'public.portal_one_time_tokens',

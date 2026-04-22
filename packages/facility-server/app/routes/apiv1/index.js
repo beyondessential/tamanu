@@ -53,6 +53,7 @@ import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
+import { tamanuReviews } from './tamanuReviews';
 import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
@@ -247,6 +248,7 @@ referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
 referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
+referenceDataRoutes.use('/tamanuReviews', tamanuReviews);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);
