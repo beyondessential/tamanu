@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
@@ -28,6 +29,9 @@ export async function upgrade({
     })) ?? '0.0.0';
   log.info('Upgrading Tamanu installation', { from: fromVersion, to: toVersion });
 
+  const upgradeRunId = randomUUID();
+  log.info('Upgrade run id', { upgradeRunId });
+
   const migrations = createMigrationInterface(log, sequelize);
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();
@@ -42,6 +46,7 @@ export async function upgrade({
       pending: pendingMigrations,
       migrations,
       upOpts: { to: pendingEarliestMigration.file },
+      upgradeRunId,
     });
     pendingMigrations = await migrations.pending();
     doneMigrations = await migrations.executed();
@@ -71,6 +76,7 @@ export async function upgrade({
         pending: pendingMigrations,
         migrations,
         upOpts: {},
+        upgradeRunId,
       });
       continue;
     }
@@ -91,6 +97,7 @@ export async function upgrade({
           pending: pendingMigrations,
           migrations,
           upOpts: { to: target.file },
+          upgradeRunId,
         });
       }
       continue;

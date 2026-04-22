@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
-import { createMigrationAuditLog } from '../../utils/audit';
+import { createMigrationAuditLog, gatherPreMigrationDbSnapshot } from '../../utils/audit';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
@@ -27,6 +27,22 @@ function enhancePendingTriggerError(error, migrationName) {
     return enhanced;
   }
   return error;
+}
+
+function migrationDurationsForBatch(durationStats, batchMigrations) {
+  const out = {};
+  for (const m of batchMigrations) {
+    if (!m?.file) continue;
+    const ms = durationStats[m.file];
+    if (typeof ms === 'number') {
+      out[m.file] = ms;
+    }
+  }
+  return out;
+}
+
+function sumDurationMsPerMigrationValues(durationMsPerMigration) {
+  return Object.values(durationMsPerMigration).reduce((a, b) => a + b, 0);
 }
 
 // before this, we just cut our losses and accept irreversible migrations
@@ -132,21 +148,44 @@ export function createMigrationInterface(log, sequelize) {
   return umzug;
 }
 
-export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts }) {
+export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts, upgradeRunId }) {
+  const batchStart = Date.now();
+
   log.info('Running pre-migration steps...');
   await runPreMigration(log, sequelize);
   log.info(`Applied pre-migration steps successfully.`);
 
   log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
+
+  let preSnapshot;
+  try {
+    preSnapshot = await gatherPreMigrationDbSnapshot(sequelize);
+  } catch (err) {
+    log.warn('Could not gather pre-migration DB snapshot for audit log', err);
+  }
+
   const applied = await migrations.up(upOpts);
-  console.log(migrations.options.durationStats);
-  await createMigrationAuditLog(sequelize, applied, 'up');
+  const durationStats = migrations.options.durationStats || {};
+  const durationMsPerMigration = migrationDurationsForBatch(durationStats, applied);
+  const sumDurationMsPerMigration = sumDurationMsPerMigrationValues(durationMsPerMigration);
 
   log.info('Applied migrations successfully');
 
   log.info('Running post-migration steps...');
   await runPostMigration(log, sequelize);
   log.info(`Applied post-migration steps successfully.`);
+
+  const batchDurationMs = Date.now() - batchStart;
+
+  await createMigrationAuditLog(sequelize, applied, 'up', {
+    batchDurationMs,
+    upgradeRunId,
+    stats: {
+      durationMsPerMigration,
+      sumDurationMsPerMigration,
+      ...(preSnapshot ? { preSnapshot } : {}),
+    },
+  });
 }
 
 async function migrateUp(log, sequelize, upOpts = undefined) {
@@ -163,13 +202,26 @@ async function migrateUp(log, sequelize, upOpts = undefined) {
 async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
 
+  const batchStart = Date.now();
+
   log.info('Running pre-migration steps...');
   await runPreMigration(log, sequelize);
   log.info(`Applied pre-migration steps successfully.`);
 
   log.info(`Reverting 1 migration...`);
+
+  let preSnapshot;
+  try {
+    preSnapshot = await gatherPreMigrationDbSnapshot(sequelize);
+  } catch (err) {
+    log.warn('Could not gather pre-migration DB snapshot for audit log', err);
+  }
+
   const reverted = await migrations.down(options);
-  await createMigrationAuditLog(sequelize, Array.isArray(reverted) ? reverted : [reverted], 'down');
+  const revertedList = Array.isArray(reverted) ? reverted : [reverted];
+  const durationStats = migrations.options.durationStats || {};
+  const durationMsPerMigration = migrationDurationsForBatch(durationStats, revertedList);
+  const sumDurationMsPerMigration = sumDurationMsPerMigrationValues(durationMsPerMigration);
 
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
@@ -184,6 +236,17 @@ async function migrateDown(log, sequelize, options) {
   log.info('Running post-migration steps...');
   await runPostMigration(log, sequelize);
   log.info(`Applied post-migration steps successfully.`);
+
+  const batchDurationMs = Date.now() - batchStart;
+
+  await createMigrationAuditLog(sequelize, revertedList, 'down', {
+    batchDurationMs,
+    stats: {
+      durationMsPerMigration,
+      sumDurationMsPerMigration,
+      ...(preSnapshot ? { preSnapshot } : {}),
+    },
+  });
 }
 
 export async function assertUpToDate(log, sequelize, options) {
