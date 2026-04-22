@@ -6,8 +6,8 @@ agents:
     name: "BES Requirements"
     description: "Tamanu conventions, migrations, FHIR, sync, Australian English, TranslatedText, permissions"
   endpoint-tests:
-    name: "Endpoint Integration Tests"
+    name: "Integration tests"
     description: "New or updated API endpoints in central-server or facility-server that are missing corresponding integration tests (supertest, createTestContext, auth coverage)"
   e2e-tests:
-    name: "E2E Happy-Path Tests"
+    name: "E2e tests"
     description: "New or updated user-facing features, pages, or clinical flows that are missing corresponding Playwright E2E tests covering the happy path"
