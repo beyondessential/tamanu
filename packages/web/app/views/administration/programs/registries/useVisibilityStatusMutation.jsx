@@ -15,7 +15,7 @@ export function useVisibilityStatusMutation(useMutationOptions = {}) {
 
   return useMutation({
     ...rest,
-    mutationKey: ['admin', 'programRegistrySubResource', 'visibilityStatus'],
+    mutationKey: ['programRegistrySubResource', 'visibilityStatus'],
     mutationFn: async ({ recordId, resourceSegment, visibilityStatus }) =>
       await api.patch(`admin/${resourceSegment}/${encodeURIComponent(recordId)}`, {
         visibilityStatus,
