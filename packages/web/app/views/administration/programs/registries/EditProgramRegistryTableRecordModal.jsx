@@ -13,7 +13,6 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { useMutation } from '@tanstack/react-query';
-
 import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
@@ -56,10 +55,7 @@ function buildValidationSchema(showColor) {
   const shape = {
     code: yup.string(),
     name: yup.string().trim().required('Required'),
-    visibilityStatus: yup
-      .string()
-      .required('Required')
-      .oneOf(visibilityStatusValues),
+    visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
   };
   if (showColor) {
     shape.color = yup.string().nullable();
