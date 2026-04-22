@@ -1,11 +1,12 @@
 import { tableCellClasses } from '@mui/material/TableCell';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { EditProgramRegistryTableRecordModal } from './EditProgramRegistryTableRecordModal';
 import { useVisibilityStatusMutation } from './useVisibilityStatusMutation';
 
 export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
@@ -24,13 +25,16 @@ export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
  * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
  */
 export function createProgramRegistryRowActionsAccessor(resourceSegment) {
-  return function ProgramRegistryRowActionsCell({ id, refreshTable, visibilityStatus }) {
+  return function ProgramRegistryRowActionsCell(row) {
+    const { id, refreshTable, visibilityStatus, code, name, color } = row;
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
     const { isLoading, mutateAsync } = useVisibilityStatusMutation({
       onSuccess: () => refreshTable?.(),
     });
 
-    const updateVisibilityStatus = next =>
-      mutateAsync({
+    const updateVisibilityStatus = async next =>
+      await mutateAsync({
         recordId: id,
         resourceSegment,
         visibilityStatus: next,
@@ -39,6 +43,7 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment) {
     const items = [
       {
         label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+        onClick: () => setIsEditOpen(true),
       },
     ];
 
@@ -66,7 +71,24 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment) {
       });
     }
 
-    return <ThreeDotMenu items={items} />;
+    return (
+      <>
+        <ThreeDotMenu items={items} />
+        <EditProgramRegistryTableRecordModal
+          open={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onSaved={() => refreshTable?.()}
+          record={{
+            code,
+            color, // Applies only to programRegistryClinicalStatus
+            id,
+            name,
+            visibilityStatus,
+          }}
+          resourceSegment={resourceSegment}
+        />
+      </>
+    );
   };
 }
 
