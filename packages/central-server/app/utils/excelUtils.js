@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { log } from '@tamanu/shared/services/logging';
 
 /** Arbitrary subfolder name. Reverse-DNS format not technically important, just ergonomic. */
-const dirname = path.join(os.tmpdir(), 'app.tamanu.central');
+const dirname = path.resolve(os.tmpdir(), 'app.tamanu.central');
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
@@ -21,10 +21,10 @@ export function writeExcelFile(sheets, fileName) {
 
   const basename = fileName || `export-${Date.now()}.xlsx`;
   fs.mkdirSync(dirname, { recursive: true });
-  const absolutePath = path.resolve(dirname, basename);
+  const fullPath = path.join(dirname, basename);
 
-  XLSX.writeFile(workbook, absolutePath);
-  log.info(`Wrote file ${absolutePath}`);
+  XLSX.writeFile(workbook, fullPath);
+  log.info(`Wrote file ${fullPath}`);
 
-  return absolutePath;
+  return fullPath;
 }
