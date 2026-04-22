@@ -32,7 +32,7 @@ export async function upgrade({
   const upgradeRunId = randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  const migrations = createMigrationInterface(log, sequelize);
+  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();
 
@@ -45,6 +45,7 @@ export async function upgrade({
       sequelize,
       pending: pendingMigrations,
       migrations,
+      getDurationStats,
       upOpts: { to: pendingEarliestMigration.file },
       upgradeRunId,
     });
@@ -75,6 +76,7 @@ export async function upgrade({
         sequelize,
         pending: pendingMigrations,
         migrations,
+        getDurationStats,
         upOpts: {},
         upgradeRunId,
       });
@@ -96,6 +98,7 @@ export async function upgrade({
           sequelize,
           pending: pendingMigrations,
           migrations,
+          getDurationStats,
           upOpts: { to: target.file },
           upgradeRunId,
         });

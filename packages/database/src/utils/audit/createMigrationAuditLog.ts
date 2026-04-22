@@ -5,8 +5,8 @@ import type { PreMigrationDbSnapshot } from './gatherPreMigrationDbSnapshot';
 export type MigrationLogStats = {
   /** Duration (ms) per migration file in this batch. */
   durationMsPerMigration: Record<string, number>;
-  /** Sum of all values in durationMsPerMigration. */
-  sumDurationMsPerMigration: number;
+  /** Total ms spent inside migration scripts in this batch (sum of durationMsPerMigration). */
+  totalMigrationsDurationMs: number;
   /** Snapshot of the database before the migration batch was applied. */
   preSnapshot?: PreMigrationDbSnapshot;
 };
@@ -25,9 +25,13 @@ export const createMigrationAuditLog = async (
 ) => {
   const [tableExists] = await sequelize.query(
     `
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'logs'
-      AND table_name = 'migrations';
+      SELECT 1 AS one
+      FROM pg_catalog.pg_class c
+      JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'logs'
+        AND c.relname = 'migrations'
+        AND c.relkind = 'r'
+      LIMIT 1
     `,
     {
       type: QueryTypes.SELECT,
@@ -37,13 +41,19 @@ export const createMigrationAuditLog = async (
 
   const migrationFiles = JSON.stringify(migrations.map((migration: Migration) => migration.file));
 
-  /** Ensure migrations table has the extended columns (batch_duration_ms, upgrade_run_id, stats). */
+  /** Back-compat: extended columns exist only after addMigrationBatchStatsToMigrationLogs. */
   const [hasExtendedColumns] = await sequelize.query(
     `
-      SELECT 1 FROM information_schema.columns
-      WHERE table_schema = 'logs'
-      AND table_name = 'migrations'
-      AND column_name = 'stats'
+      SELECT 1 AS one
+      FROM pg_catalog.pg_class c
+      JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      JOIN pg_catalog.pg_attribute a ON a.attrelid = c.oid
+      WHERE n.nspname = 'logs'
+        AND c.relname = 'migrations'
+        AND c.relkind = 'r'
+        AND a.attname = 'stats'
+        AND a.attnum > 0
+        AND NOT a.attisdropped
       LIMIT 1
     `,
     {

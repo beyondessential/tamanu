@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
-import { createMigrationAuditLog, gatherPreMigrationDbSnapshot } from '../../utils/audit';
+import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
@@ -41,13 +41,14 @@ function migrationDurationsForBatch(durationStats, batchMigrations) {
   return out;
 }
 
-function sumDurationMsPerMigrationValues(durationMsPerMigration) {
+function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
   return Object.values(durationMsPerMigration).reduce((a, b) => a + b, 0);
 }
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 
+/** @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }} */
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
   const migrationsDir = path.join(__dirname, '../..', 'migrations');
@@ -123,7 +124,6 @@ export function createMigrationInterface(log, sequelize) {
     storageOptions: {
       sequelize,
     },
-    durationStats,
   });
 
   umzug.on('migrating', (name) => {
@@ -145,10 +145,21 @@ export function createMigrationInterface(log, sequelize) {
     durationStats[name] = Date.now() - durationStats[name];
   });
 
-  return umzug;
+  return {
+    migrations: umzug,
+    getDurationStats: () => durationStats,
+  };
 }
 
-export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts, upgradeRunId }) {
+export async function migrateUpTo({
+  log,
+  sequelize,
+  pending,
+  migrations,
+  getDurationStats,
+  upOpts,
+  upgradeRunId,
+}) {
   const batchStart = Date.now();
 
   log.info('Running pre-migration steps...');
@@ -157,17 +168,12 @@ export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts,
 
   log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
 
-  let preSnapshot;
-  try {
-    preSnapshot = await gatherPreMigrationDbSnapshot(sequelize);
-  } catch (err) {
-    log.warn('Could not gather pre-migration DB snapshot for audit log', err);
-  }
+  const preSnapshot = await tryGatherPreMigrationDbSnapshot(log, sequelize);
 
   const applied = await migrations.up(upOpts);
-  const durationStats = migrations.options.durationStats || {};
+  const durationStats = getDurationStats();
   const durationMsPerMigration = migrationDurationsForBatch(durationStats, applied);
-  const sumDurationMsPerMigration = sumDurationMsPerMigrationValues(durationMsPerMigration);
+  const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
 
   log.info('Applied migrations successfully');
 
@@ -182,25 +188,25 @@ export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts,
     upgradeRunId,
     stats: {
       durationMsPerMigration,
-      sumDurationMsPerMigration,
+      totalMigrationsDurationMs,
       ...(preSnapshot ? { preSnapshot } : {}),
     },
   });
 }
 
 async function migrateUp(log, sequelize, upOpts = undefined) {
-  const migrations = createMigrationInterface(log, sequelize);
+  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
-    await migrateUpTo({ log, sequelize, migrations, pending, upOpts });
+    await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts });
   } else {
     log.info('Migrations already up-to-date.');
   }
 }
 
 async function migrateDown(log, sequelize, options) {
-  const migrations = createMigrationInterface(log, sequelize);
+  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
 
   const batchStart = Date.now();
 
@@ -210,18 +216,13 @@ async function migrateDown(log, sequelize, options) {
 
   log.info(`Reverting 1 migration...`);
 
-  let preSnapshot;
-  try {
-    preSnapshot = await gatherPreMigrationDbSnapshot(sequelize);
-  } catch (err) {
-    log.warn('Could not gather pre-migration DB snapshot for audit log', err);
-  }
+  const preSnapshot = await tryGatherPreMigrationDbSnapshot(log, sequelize);
 
   const reverted = await migrations.down(options);
   const revertedList = Array.isArray(reverted) ? reverted : [reverted];
-  const durationStats = migrations.options.durationStats || {};
+  const durationStats = getDurationStats();
   const durationMsPerMigration = migrationDurationsForBatch(durationStats, revertedList);
-  const sumDurationMsPerMigration = sumDurationMsPerMigrationValues(durationMsPerMigration);
+  const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
 
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
@@ -243,7 +244,7 @@ async function migrateDown(log, sequelize, options) {
     batchDurationMs,
     stats: {
       durationMsPerMigration,
-      sumDurationMsPerMigration,
+      totalMigrationsDurationMs,
       ...(preSnapshot ? { preSnapshot } : {}),
     },
   });
@@ -252,7 +253,7 @@ async function migrateDown(log, sequelize, options) {
 export async function assertUpToDate(log, sequelize, options) {
   if (options.skipMigrationCheck) return;
 
-  const migrations = createMigrationInterface(log, sequelize);
+  const { migrations } = createMigrationInterface(log, sequelize);
   const pending = await migrations.pending();
   if (pending.length > 0) {
     throw new Error(

@@ -3,9 +3,13 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 /** From pg_database_size; **-1** if the size could not be read (do not treat as a real byte count). */
 const DATABASE_SIZE_UNKNOWN = -1;
 
+/** Cap row-estimate rows so stats JSON stays bounded (ordered by reltuples desc — largest tables first). */
+const TABLE_ROW_ESTIMATE_LIMIT = 500;
+
 export type PreMigrationDbSnapshot = {
   /** From pg_database_size; **-1** if the size could not be read (do not treat as a real byte count). */
   databaseSizeBytes: number;
+  /** Approximate reltuples for the largest tables only (see TABLE_ROW_ESTIMATE_LIMIT). */
   tableRowEstimates: Record<string, number>;
 };
 
@@ -31,6 +35,7 @@ export async function gatherPreMigrationDbSnapshot(
       JOIN pg_namespace n ON n.oid = c.relnamespace
       WHERE n.nspname = 'public' AND c.relkind = 'r'
       ORDER BY c.reltuples DESC
+      LIMIT ${TABLE_ROW_ESTIMATE_LIMIT}
     `,
     { type: QueryTypes.SELECT },
   );
@@ -50,4 +55,17 @@ export async function gatherPreMigrationDbSnapshot(
     databaseSizeBytes,
     tableRowEstimates,
   };
+}
+
+/** Best-effort snapshot for audit logs; logs a warning and returns undefined on failure. */
+export async function tryGatherPreMigrationDbSnapshot(
+  log: { warn: (message: string, error: unknown) => void },
+  sequelize: Sequelize,
+): Promise<PreMigrationDbSnapshot | undefined> {
+  try {
+    return await gatherPreMigrationDbSnapshot(sequelize);
+  } catch (err) {
+    log.warn('Could not gather pre-migration DB snapshot for audit log', err);
+    return undefined;
+  }
 }
