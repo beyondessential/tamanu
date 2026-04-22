@@ -37,7 +37,7 @@ function parseFeatureMatrixRows(markdown) {
     if (!line.startsWith('| ')) continue;
     if (line.includes('| --- |')) continue;
     const cols = line.split('|').map(part => part.trim()).filter(Boolean);
-    if (cols.length !== 5) continue;
+    if (cols.length < 3) continue;
     if (cols[0] === 'Feature area') continue;
 
     const specs = [...cols[2].matchAll(/`([^`]+\.spec\.ts)`/g)].map(match => match[1]);
@@ -45,8 +45,6 @@ function parseFeatureMatrixRows(markdown) {
       featureArea: cols[0],
       journeyCovered: cols[1],
       primarySpecs: specs,
-      coverageDepth: cols[3],
-      notes: cols[4],
     });
   }
   return rows;
