@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { pick } from 'lodash';
 import { QueryTypes } from 'sequelize';
+import { z } from 'zod';
 
 import { InvalidOperationError, NotFoundError, UsageError } from '@tamanu/errors';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
@@ -99,7 +100,9 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     res.send(transform ? transform(object) : object);
   });
 
-function validateAllowedFields(model, allowedFields) {
+const conjoiner = new Intl.ListFormat();
+
+function validatePatchAllowedFields(model, allowedFields) {
   const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
   for (const field of ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick']) {
     valids.delete(field);
@@ -107,12 +110,34 @@ function validateAllowedFields(model, allowedFields) {
 
   const invalids = allowedFields.filter(field => !valids.has(field));
   if (invalids.length > 0) {
-    const formatter = new Intl.ListFormat();
     const unit = invalids.length === 1 ? 'field' : 'fields';
     throw new UsageError(
-      `simplePatch allowedFields option includes invalid ${unit} for ${model.name}: ${formatter.format(invalids)}. Permitted fields: ${formatter.format(valids)}.`,
+      `simplePatch allowedFields option includes invalid ${unit} for ${model.name}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
     );
   }
+}
+
+async function validatePatchBody(allowedFields, req) {
+  const parsed = await z
+    .object(Object.fromEntries(allowedFields.map(key => [key, z.unknown()])))
+    .partial()
+    .strict()
+    .safeParseAsync(req.body);
+
+  if (parsed.success) return;
+
+  const disallowed = parsed.error.issues
+    .filter(issue => issue.code === 'unrecognized_keys')
+    .flatMap(issue => issue.keys);
+  if (disallowed.length > 0) {
+    const unit = disallowed.length === 1 ? 'field' : 'fields';
+    throw new InvalidOperationError(
+      `PATCH body includes disallowed ${unit}: ${conjoiner.format(disallowed)}. (Allowed fields: ${conjoiner.format(allowedFields)}.)`,
+    );
+  }
+
+  const [first] = parsed.error.issues;
+  throw new InvalidOperationError(first?.message ?? 'Invalid PATCH body');
 }
 
 /**
@@ -133,7 +158,8 @@ export const simplePatch = (modelName, options) => {
       params: { id },
     } = req;
 
-    if (process.env.NODE_ENV !== 'production') validateAllowedFields(model, allowedFields);
+    if (process.env.NODE_ENV !== 'production') validatePatchAllowedFields(model, allowedFields);
+    if (req.body != null) await validatePatchBody(allowedFields, req);
 
     const object = await model.findByPk(id);
 
