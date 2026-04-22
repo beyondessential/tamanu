@@ -42,9 +42,11 @@ const textStyles = StyleSheet.create({
   tableColumnHeader: {
     fontWeight: 700,
     fontSize: 10,
+    marginBottom: 4,
   },
   tableCellContent: {
     fontSize: 10,
+    marginBottom: 6,
   },
   tableCellFooter: {
     fontSize: 8,
@@ -323,7 +325,7 @@ const NotesSection = ({ notes }) => {
                     )}
                     style={textStyles.tableColumnHeader}
                   />
-                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <Text style={textStyles.tableCellContent}>{note.content}</Text>
                   <NoteFooter note={note} />
                   <View
                     style={{
