@@ -126,8 +126,10 @@ jobs:
                       requests:
                         cpu: 250m
                         memory: 1Gi
+                        ephemeral-storage: 512Mi
                       limits:
                         cpu: "1"
                         memory: 2Gi
+                        ephemeral-storage: 2Gi
           EOF
 
