@@ -409,15 +409,7 @@ export class User extends Model {
     }
 
     const user = await this.getForAuthByEmail(email);
-    if (!user && (await settings.get('security.reportNoUserError'))) {
-      // an attacker can use this to get a list of user accounts
-      // but hiding this error entirely can make debugging a hassle
-      // so we just put it behind a flag
-      throw new InvalidCredentialError('No such user');
-    }
-
     if (!user) {
-      // Keep track of bad requests for non-existent user accounts
       log.info(`Trying to login with non-existent user account: ${email}`);
 
       // To mitigate timing attacks for discovering user accounts,
