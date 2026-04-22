@@ -55,7 +55,7 @@ export const TabDisplay = React.memo(
       <>
         <TabContainer
           className={className}
-          variant={scrollable ? 'scrollable' : 'fixed'}
+          variant={scrollable ? 'scrollable' : undefined}
           scrollButtons={Boolean(scrollable)}
           value={currentTab}
           data-testid="tabcontainer-4j73"
