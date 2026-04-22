@@ -128,7 +128,7 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
-    "MSupplyStockOnHandProcessor": {
+    "mSupplyStockOnHandProcessor": {
       "enabled": false,
       // every hour
       "schedule": "0 * * * *",

@@ -568,7 +568,7 @@ test.describe('Lab Request Tests', () => {
       const tableVerificationItems = await getTableItems(page, 1, 'verification')
       await expect(tableVerificationItems[0]).toBe(verification);  
       const tableCompletedDateItems = await getTableItems(page, 1, 'completedDate')
-      await expect(tableCompletedDateItems[0]).toBe(format(new Date(currentDateTime), 'MM/dd/yyyy'));  
+      await expect(tableCompletedDateItems[0]).toBe(format(new Date(currentDateTime), 'dd/MM/yyyy'));
     });
   });
 });
