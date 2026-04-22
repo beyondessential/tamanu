@@ -35,11 +35,7 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment, editMod
     });
 
     const updateVisibilityStatus = async next =>
-      await mutateAsync({
-        recordId: id,
-        resourceSegment,
-        visibilityStatus: next,
-      });
+      await mutateAsync({ recordId: id, resourceSegment, visibilityStatus: next });
 
     const items = [
       {
