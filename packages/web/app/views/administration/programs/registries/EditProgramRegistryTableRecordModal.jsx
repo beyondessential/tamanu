@@ -34,82 +34,130 @@ const Footer = styled.footer`
   padding-block-start: 20px;
 `;
 
-const EDIT_MODAL_CONFIG = /** @type {const} */ ({
-  programRegistryClinicalStatus: {
-    title: 'Edit status',
-    showColor: true,
-  },
-  programRegistryCondition: {
-    title: 'Edit condition',
-    showColor: false,
-  },
-  programRegistryConditionCategory: {
-    title: 'Edit condition category',
-    showColor: false,
-  },
-});
-
 const visibilityStatusValues = visibilityStatusSelectOptions.map(option => option.value);
 
-function buildValidationSchema(showColor) {
+/**
+ * @param {ReadonlyArray<{ key: string }>} fields
+ */
+function buildValidationSchema(fields) {
   const shape = {
     code: yup.string(),
     name: yup.string().trim().required('Required'),
     visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
   };
-  if (showColor) {
+  if (fields.some(({ key }) => key === 'color')) {
     shape.color = yup.string().nullable();
   }
   return yup.object().shape(shape);
 }
 
+function RegistryTableRecordCodeField({ field }) {
+  const label = field.title ?? field.key;
+  return <Field name="code" component={ReadOnlyTextField} label={label} required />;
+}
+
+function RegistryTableRecordNameField({ field, disabled }) {
+  const label = field.title ?? field.key;
+  return <Field name="name" component={TextField} label={label} disabled={disabled} required />;
+}
+
+function RegistryTableRecordColorField({ field, disabled }) {
+  const label = field.title ?? field.key;
+  return <Field name="color" component={TextField} label={label} disabled={disabled} required />;
+}
+
+function RegistryTableRecordVisibilityStatusField({ field, isPending }) {
+  const label = field.title ?? field.key;
+  return (
+    <VisibilityStatusSelectField
+      disabled={isPending}
+      label={label}
+      name="visibilityStatus"
+      required
+    />
+  );
+}
+
+const FIELD_COMPONENTS = /** @type {const} */ ({
+  code: RegistryTableRecordCodeField,
+  name: RegistryTableRecordNameField,
+  color: RegistryTableRecordColorField,
+  visibilityStatus: RegistryTableRecordVisibilityStatusField,
+});
+
+function renderFieldForDefinition(field, { disabled }) {
+  const Component = FIELD_COMPONENTS[field.key];
+  return Component ? <Component key={field.key} field={field} disabled={disabled} /> : null;
+}
+
+/**
+ * @param {string} resourceSegment
+ * @param {string} recordId
+ */
+function usePatchProgramRegistrySubResourceMutation(resourceSegment, recordId) {
+  const api = useApi();
+  return useMutation({
+    mutationKey: [resourceSegment, recordId],
+    mutationFn: async body =>
+      await api.patch(`admin/${resourceSegment}/${encodeURIComponent(recordId)}`, body),
+  });
+}
+
 /**
  * @param {{
- *   open: boolean;
+ *   fields: readonly { key: string; title?: React.ReactNode }[];
  *   onClose: () => void;
- *   onSaved?: () => void;
- *   resourceSegment: keyof typeof EDIT_MODAL_CONFIG;
+ *   onSave?: () => void;
+ *   open: boolean;
  *   record: { id: string; code: string; name: string; visibilityStatus: string; color?: string | null };
+ *   resourceSegment: string;
+ *   title: string;
  * }} props
  */
 export function EditProgramRegistryTableRecordModal({
-  open,
+  fields,
   onClose,
-  onSaved,
-  resourceSegment,
+  onSave,
+  open,
   record,
+  resourceSegment,
+  title,
 }) {
-  const api = useApi();
-  const { title, showColor } = EDIT_MODAL_CONFIG[resourceSegment];
+  const hasColor = fields.some(({ key }) => key === 'color');
+  const validationSchema = useMemo(() => buildValidationSchema(fields), [fields]);
 
-  const validationSchema = useMemo(() => buildValidationSchema(showColor), [showColor]);
-
-  const { mutateAsync, isPending } = useMutation({
-    mutationKey: ['admin', 'programRegistrySubResource', 'patch', resourceSegment],
-    mutationFn: async body =>
-      await api.patch(`admin/${resourceSegment}/${encodeURIComponent(record.id)}`, body),
-    onSuccess: () => {
-      notifySuccess(
-        <TranslatedText
-          stringId="admin.programRegistries.table.recordUpdateSuccess"
-          fallback="Record updated"
-        />,
-      );
-      onSaved?.();
-      onClose();
-    },
-    onError: err => notifyError(err?.message),
-  });
+  const { mutateAsync, isPending } = usePatchProgramRegistrySubResourceMutation(
+    resourceSegment,
+    record.id,
+  );
 
   const initialValues = useMemo(
     () => ({
       code: record.code ?? '',
       name: record.name ?? '',
       visibilityStatus: record.visibilityStatus ?? '',
-      ...(showColor ? { color: record.color ?? '' } : {}),
+      color: record.color ?? '',
     }),
-    [record.code, record.color, record.name, record.visibilityStatus, showColor],
+    [record],
   );
+
+  const onSubmit = async ({ color, name, visibilityStatus }) => {
+    const payload = { name: name?.trim(), visibilityStatus: visibilityStatus?.trim() };
+    if (hasColor) payload.color = color?.trim();
+    await mutateAsync(payload, {
+      onSuccess: () => {
+        notifySuccess(
+          <TranslatedText
+            stringId="admin.programRegistries.table.recordUpdateSuccess"
+            fallback="Record updated"
+          />,
+        );
+        onSave?.();
+        onClose();
+      },
+      onError: err => notifyError(err?.message),
+    });
+  };
 
   return (
     <FormModal onClose={onClose} open={open} title={title}>
@@ -117,29 +165,11 @@ export function EditProgramRegistryTableRecordModal({
         enableReinitialize
         formType={FORM_TYPES.EDIT_FORM}
         initialValues={initialValues}
-        onSubmit={async values => {
-          const payload = {
-            name: values.name,
-            visibilityStatus: values.visibilityStatus,
-          };
-          if (showColor) {
-            payload.color = values.color?.trim() ? values.color.trim() : null;
-          }
-          await mutateAsync(payload);
-        }}
+        onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
             <Fieldset>
-              <Field name="code" component={ReadOnlyTextField} label="code" />
-              <Field name="name" component={TextField} disabled={isPending} label="name" />
-              {showColor ? (
-                <Field name="color" component={TextField} disabled={isPending} label="color" />
-              ) : null}
-              <VisibilityStatusSelectField
-                disabled={isPending}
-                label="visibilityStatus"
-                name="visibilityStatus"
-              />
+              {fields.map(field => renderFieldForDefinition(field, { disabled: isPending }))}
             </Fieldset>
             <Footer>
               <Button isSubmitting={isPending} onClick={submitForm} type="submit">

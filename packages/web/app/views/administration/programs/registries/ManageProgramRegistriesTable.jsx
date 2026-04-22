@@ -24,6 +24,8 @@ const visibilityStatusColumn = /** @type {const} */ ({
   title: 'visibilityStatus',
 });
 
+const colorColumn = /** @type {const} */ ({ key: 'color', title: 'color' });
+
 const actionsColumnBase = /** @type {const} */ ({
   dontCallRowInput: true,
   isExportable: false,
@@ -37,29 +39,53 @@ const actionsColumnBase = /** @type {const} */ ({
   ),
 });
 
+const clinicalStatusesEditFields = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  { key: 'color', title: 'color', accessor: ColourCell },
+  visibilityStatusColumn,
+]);
+
 const clinicalStatusesActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus', {
+    fields: clinicalStatusesEditFields,
+    title: 'Edit status',
+  }),
 });
+
+const conditionsEditFields = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  visibilityStatusColumn,
+]);
 
 const conditionsActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition', {
+    fields: conditionsEditFields,
+    title: 'Edit condition',
+  }),
 });
+
+const conditionCategoriesEditFields = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  visibilityStatusColumn,
+]);
 
 const conditionCategoriesActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory', {
+    fields: conditionCategoriesEditFields,
+    title: 'Edit condition category',
+  }),
 });
 
 const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
-  {
-    accessor: ColourCell,
-    key: 'color',
-    title: 'color',
-  },
+  colorColumn,
   visibilityStatusColumn,
   clinicalStatusesActionsColumn,
 ]);

@@ -1,5 +1,5 @@
 import { tableCellClasses } from '@mui/material/TableCell';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -23,8 +23,9 @@ export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
 
 /**
  * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
+ * @param {{ fields: ReadonlyArray<{ key: string; title?: React.ReactNode }>; title: string }} editModal
  */
-export function createProgramRegistryRowActionsAccessor(resourceSegment) {
+export function createProgramRegistryRowActionsAccessor(resourceSegment, editModal) {
   return function ProgramRegistryRowActionsCell(row) {
     const { id, refreshTable, visibilityStatus, code, name, color } = row;
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -71,21 +72,23 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment) {
       });
     }
 
+    /** Color applies only to programRegistryClinicalStatus; but harmless to attach as undefined */
+    const record = useMemo(
+      () => ({ code, color, id, name, visibilityStatus }),
+      [code, color, id, name, visibilityStatus],
+    );
+
     return (
       <>
         <ThreeDotMenu items={items} />
         <EditProgramRegistryTableRecordModal
+          fields={editModal.fields}
           open={isEditOpen}
           onClose={() => setIsEditOpen(false)}
-          onSaved={() => refreshTable?.()}
-          record={{
-            code,
-            color, // Applies only to programRegistryClinicalStatus
-            id,
-            name,
-            visibilityStatus,
-          }}
+          onSave={() => refreshTable?.()}
+          record={record}
           resourceSegment={resourceSegment}
+          title={editModal.title}
         />
       </>
     );
