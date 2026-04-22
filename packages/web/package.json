@@ -87,6 +87,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
     "react-draggable": "^4.4.6",
     "react-idle-timer": "=5.4.2",
     "react-redux": "8.0.2",

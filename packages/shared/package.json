@@ -38,6 +38,14 @@
       "require": "./dist/cjs/schemas/facility/requests/*.js",
       "import": "./dist/esm/schemas/facility/requests/*.js"
     },
+    "./services/AskAiService": {
+      "require": "./dist/cjs/services/AskAiService.js",
+      "import": "./dist/esm/services/AskAiService.js"
+    },
+    "./services/askAiRouter": {
+      "require": "./dist/cjs/services/askAiRouter.js",
+      "import": "./dist/esm/services/askAiRouter.js"
+    },
     "./sync/*": {
       "require": "./dist/cjs/sync/*.js",
       "import": "./dist/esm/sync/*.js"
@@ -118,7 +126,8 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
+    "build": "npm run clean && npm run baml:generate && npm run build:esm && npm run build:cjs && npm run build:types",
+    "baml:generate": "baml-cli generate --from src/baml_src",
     "build:dev": "npm run build",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
@@ -136,6 +145,7 @@
     "rimraf": "^6.0.1"
   },
   "dependencies": {
+    "@boundaryml/baml": "^0.220.0",
     "@casl/ability": "^6.8.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
@@ -146,6 +156,8 @@
     "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.1.8",
     "config": "^3.3.9",
+    "express": "^4.16.2",
+    "express-async-handler": "^1.2.0",
     "date-fns": "^2.25.0",
     "date-fns-tz": "^1.3.6",
     "decimal.js": "^10.4.3",
@@ -158,6 +170,7 @@
     "multiparty": "^4.2.3",
     "node-schedule": "^2.0.0",
     "pg-notify": "^1.0.5",
+    "sequelize": "^6.21.3",
     "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",

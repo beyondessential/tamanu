@@ -34,6 +34,7 @@ See `llm/docs/` for project-specific documentation:
 - **Overview**: See @llm/docs/initial-overview.md for codebase architecture
 - **Authentication**: See @llm/docs/authentication.md for auth system details
 - **On-Call**: See @llm/docs/on-call-cheatsheet.md for operations and troubleshooting
+- **Ask AI RAG Ops**: See @llm/docs/ask-ai-rag-ops.md for RAG database operations, re-indexing, and rollback
 
 ## Writing Rules and Prompts
 

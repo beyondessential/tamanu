@@ -1,0 +1,43 @@
+version: 2
+sources:
+  - name: ask_ai__tamanu
+    schema: ask_ai
+    description: "{{ doc('ask_ai__generic__schema') }}"
+    tables:
+      - name: conversations
+        description: "{{ doc('ask_ai__table__conversations') }}"
+        config:
+          tags: []
+          meta:
+            triggers: []
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('ask_ai__conversations__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('ask_ai__conversations__user_id') }}"
+            data_tests:
+              - not_null
+          - name: title
+            data_type: text
+            description: "{{ doc('ask_ai__conversations__title') }}"
+            config:
+              meta:
+                masking: text
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('ask_ai__conversations__created_at') }}"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('ask_ai__conversations__updated_at') }}"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('ask_ai__conversations__deleted_at') }}"

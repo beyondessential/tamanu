@@ -20,6 +20,7 @@ import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermis
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
+import { askAi, askAiPublicRouter } from './askAi';
 import { appointments } from './appointments';
 import { asset } from './asset';
 import { attachment } from './attachment';
@@ -115,6 +116,9 @@ apiv1.get(
   }),
 );
 
+// Pre-auth Ask AI routes (e.g. /status) — must come before authMiddleware
+apiv1.use('/ask-ai', askAiPublicRouter);
+
 apiv1.use(authMiddleware);
 
 apiv1.use(constructPermission);
@@ -196,6 +200,7 @@ apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
 apiv1.use('/telegram', telegramRoutes);
+apiv1.use('/ask-ai', askAi);
 
 // patient data endpoints
 patientDataRoutes.use('/allergy', allergy);

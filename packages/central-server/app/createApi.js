@@ -11,6 +11,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
+import { askAiPublicRouter } from './askAi';
 import { publicRoutes } from './publicRoutes';
 import { patientPortalApi } from './patientPortalApi';
 
@@ -48,6 +49,8 @@ function api(ctx) {
       }
     }),
   );
+  // Pre-auth Ask AI routes (e.g. /status) — must come before authModule
+  apiRoutes.use('/ask-ai', askAiPublicRouter);
   apiRoutes.use(authModule);
   apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);

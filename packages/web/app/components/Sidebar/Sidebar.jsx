@@ -139,6 +139,7 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
+
 const getInitials = string =>
   string
     .match(/\b(\w)/g)

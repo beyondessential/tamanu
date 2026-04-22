@@ -93,7 +93,9 @@ export async function centralServerLogin({
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, allowedFacilities, primaryTimeZone } = response;
+  const { user, localisation, allowedFacilities, primaryTimeZone: centralPrimaryTimeZone } = response;
+  // Fall back to local config if central server doesn't supply a timezone
+  const primaryTimeZone = centralPrimaryTimeZone ?? getPrimaryTimeZone(config);
   const { id, ...userDetails } = user;
 
   const userModel = await models.User.sequelize.transaction(async () => {

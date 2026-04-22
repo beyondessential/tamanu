@@ -22,6 +22,7 @@ dev
 deploy
 build
 packages/*/dist
+packages/shared/src/baml_src/baml_client
 *.tsbuildinfo
 packages/*/{src,app}/**/*.d.ts
 database/docs

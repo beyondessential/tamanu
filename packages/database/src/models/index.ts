@@ -158,3 +158,5 @@ export * from './LocationAssignmentTemplate';
 export * from './LocationAssignment';
 export * from './DHIS2PushLog';
 export * from './MSupplyPushLog';
+export * from './AskAiConversation';
+export * from './AskAiMessage';

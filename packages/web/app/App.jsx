@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
+import { IconButton } from '@material-ui/core';
+import ChatBubbleOutline from '@mui/icons-material/ChatBubbleOutline';
+import { AskAiPanel } from './components/AskAi';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
@@ -18,6 +21,7 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { useAskAiStatusQuery } from './api/queries/useAskAiStatusQuery';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -33,10 +37,30 @@ const AppContentsContainer = styled.div`
   border-top: 1px solid ${Colors.softOutline};
 `;
 
+const AskAiFab = styled(IconButton)`
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  background: ${Colors.primaryDark};
+  color: white;
+  z-index: 1200;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: #4e5f71;
+  }
+`;
+
 export function App({ sidebar, children }) {
+  const [askAiOpen, setAskAiOpen] = useState(false);
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
+  const isFacilityReady = isUserLoggedIn && isFacilitySelected;
+  const { data: askAiStatus } = useAskAiStatusQuery({ enabled: isFacilityReady });
+  const isAskAiEnabled = Boolean(askAiStatus?.enabled);
   const location = useLocation();
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
@@ -76,6 +100,14 @@ export function App({ sidebar, children }) {
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
+      {isAskAiEnabled && (
+        <>
+          <AskAiFab onClick={() => setAskAiOpen(o => !o)} title="Chat">
+            <ChatBubbleOutline fontSize="small" />
+          </AskAiFab>
+          <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
+        </>
+      )}
     </AppContainer>
   );
 }
