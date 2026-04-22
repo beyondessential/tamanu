@@ -260,22 +260,70 @@ const TableSection = ({ title, data, columns, type }) => {
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime } = useDateTime();
+  const isTreatmentPlan = note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
+
+  // For non-TREATMENT_PLAN notes we want to show the original author and date;
+  // the revisedBy association points at the root note when the current record
+  // is a later revision. TREATMENT_PLAN keeps its existing "last updated" behaviour.
+  const originalAuthor =
+    !isTreatmentPlan && note.revisedBy?.author ? note.revisedBy.author : note.author;
+  const originalOnBehalf =
+    !isTreatmentPlan && note.revisedBy ? note.revisedBy.onBehalfOf : note.onBehalfOf;
+  const originalDate =
+    !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
+
+  const baseLine = [
+    isTreatmentPlan && `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
+    originalAuthor?.displayName,
+    originalOnBehalf &&
+      getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+        replacements: {
+          changeOnBehalfOfName: originalOnBehalf.displayName,
+        },
+      }),
+    formatShortDateTime(originalDate),
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const editCount = !isTreatmentPlan ? note.editCount ?? 0 : 0;
+  if (editCount <= 0) {
+    return <Text style={textStyles.tableCellFooter}>{baseLine}</Text>;
+  }
+
+  const editTimes =
+    editCount === 1
+      ? getTranslation('pdf.encounterRecord.notes.editedOnce', '1 time')
+      : getTranslation('pdf.encounterRecord.notes.editedTimes', ':count times', {
+          replacements: { count: editCount },
+        });
+  const lastEditor = [
+    note.author?.displayName,
+    note.onBehalfOf &&
+      getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+        replacements: {
+          changeOnBehalfOfName: note.onBehalfOf.displayName,
+        },
+      }),
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const editSuffix = getTranslation(
+    'pdf.encounterRecord.notes.editedSuffix',
+    ' — Edited :times, last by :editor at :date',
+    {
+      replacements: {
+        times: editTimes,
+        editor: lastEditor,
+        date: formatShortDateTime(note.date),
+      },
+    },
+  );
+
   return (
     <Text style={textStyles.tableCellFooter}>
-      {[
-        note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN &&
-          `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
-        note.author?.displayName,
-        note.onBehalfOf &&
-          getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            replacements: {
-              changeOnBehalfOfName: note.onBehalfOf.displayName,
-            },
-          }),
-        formatShortDateTime(note.date),
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      {baseLine}
+      {editSuffix}
     </Text>
   );
 };
