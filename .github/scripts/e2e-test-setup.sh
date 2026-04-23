@@ -21,6 +21,9 @@ e2e_test_setup_setup_central() {
         "auth": {
             "tokenDuration": "24h"
         },
+        "rateLimit": {
+            "enabled": false
+        },
         "db": {
             "host": "localhost",
             "name": "central",
@@ -138,6 +141,9 @@ e2e_test_setup_setup_facility() {
 	    "auth": {
 	        "tokenDuration": "24h"
 	    },
+        "rateLimit": {
+            "enabled": false
+        },
 	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
 	        "email": "facility-1@tamanu.io",
