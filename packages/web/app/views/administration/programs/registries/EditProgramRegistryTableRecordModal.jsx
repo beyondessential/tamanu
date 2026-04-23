@@ -7,6 +7,7 @@ import {
   Button,
   Field,
   Form,
+  FormGridThatFits,
   OutlinedButton,
   ReadOnlyTextField,
   TextField,
@@ -17,12 +18,6 @@ import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
 import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -168,9 +163,9 @@ export function EditProgramRegistryTableRecordModal({
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <Fieldset>
+            <FormGridThatFits>
               {fields.map(field => renderFieldForDefinition(field, { disabled: isPending }))}
-            </Fieldset>
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isPending} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

@@ -12,6 +12,7 @@ import {
   Button,
   Field,
   Form,
+  FormGridThatFits,
   OutlinedButton,
   ReadOnlyTextField,
   TextField,
@@ -20,12 +21,6 @@ import {
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
 import { useProgramMutation, useProgramQuery } from './queries';
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -77,7 +72,7 @@ function EditProgramMetadataModal({ onClose, open }) {
         }}
         render={({ submitForm, isSubmitting }) => (
           <>
-            <Fieldset disabled={isSubmitting}>
+            <FormGridThatFits disabled={isSubmitting}>
               <ReadOnlyTextField
                 // Not to be confused with `program.code`
                 field={{ name: 'programCode', value: program?.programCode ?? '' }}
@@ -91,7 +86,7 @@ function EditProgramMetadataModal({ onClose, open }) {
                 label="programName"
                 required
               />
-            </Fieldset>
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

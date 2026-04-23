@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, ModalContent } from '@tamanu/ui-components';
+import { Form, FormGridThatFits, ModalContent } from '@tamanu/ui-components';
 import { Button, FormModal, OutlinedButton, TranslatedText } from '../../../../components';
 import { RequiredTextField } from '../components';
 import { useDesignationCreateMutation } from './useDesignationCreateMutation';
@@ -32,12 +32,6 @@ const StyledFormModal = styled(FormModal)`
       padding-inline: 32px;
     }
   }
-`;
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
 `;
 
 const Footer = styled.footer`
@@ -81,7 +75,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
 
   const renderForm = ({ submitForm }) => (
     <>
-      <Fieldset disabled={isLoading}>
+      <FormGridThatFits disabled={isLoading}>
         <RequiredTextField
           inputProps={{ minLength: 1 }}
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}
@@ -97,7 +91,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
           label={<TranslatedText stringId="admin.designations.code.label" fallback="Code" />}
           name="code"
         />
-      </Fieldset>
+      </FormGridThatFits>
       <Footer>
         <Button isSubmitting={isLoading} onClick={submitForm}>
           <TranslatedText stringId="general.action.add-designation" fallback="Add designation" />

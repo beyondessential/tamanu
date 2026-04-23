@@ -23,12 +23,6 @@ import { NullableBooleanField } from '../../../../components/Field/NullableBoole
 import { notifyError, notifySuccess } from '../../../../utils';
 import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
 
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
-
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
   display: flex;
@@ -155,7 +149,7 @@ export function EditProgramSurveyFormMetadataModal({ onClose, onSave, open, surv
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <Fieldset disabled={isPending}>
+            <FormGridThatFits disabled={isPending}>
               <Field component={ReadOnlyTextField} label="code" name="code" required />
               <Field
                 autoComplete="off"
@@ -197,7 +191,7 @@ export function EditProgramSurveyFormMetadataModal({ onClose, onSave, open, surv
                 label="notifyEmailAddresses"
                 name="notifyEmailAddresses"
               />
-            </Fieldset>
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isPending} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

@@ -9,6 +9,7 @@ import {
   Button,
   Field,
   Form,
+  FormGridThatFits,
   OutlinedButton,
   ReadOnlyTextField,
   SelectField,
@@ -19,12 +20,6 @@ import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
 import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -111,7 +106,7 @@ function EditProgramRegistryModal({ onClose, open }) {
         }}
         render={({ submitForm, isSubmitting }) => (
           <>
-            <Fieldset>
+            <FormGridThatFits>
               <Field component={ReadOnlyTextField} label="code" name="code" required />
               <Field
                 component={TextField}
@@ -135,7 +130,7 @@ function EditProgramRegistryModal({ onClose, open }) {
                 options={currentlyAtTypeSelectOptions}
                 required
               />
-            </Fieldset>
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
