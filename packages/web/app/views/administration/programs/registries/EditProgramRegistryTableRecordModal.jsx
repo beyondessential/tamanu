@@ -17,7 +17,11 @@ import { useMutation } from '@tanstack/react-query';
 import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
-import { VisibilityStatusField, visibilityStatusOptions } from '../components';
+import {
+  programRegistryClinicalStatusColorOptions,
+  VisibilityStatusField,
+  visibilityStatusOptions,
+} from '../components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -41,7 +45,10 @@ function buildValidationSchema(fields) {
     visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
   };
   if (fields.some(({ key }) => key === 'color')) {
-    shape.color = yup.string().nullable();
+    shape.color = yup
+      .string()
+      .required('Required')
+      .oneOf(programRegistryClinicalStatusColorOptions.map(option => option.value));
   }
   return yup.object().shape(shape);
 }
