@@ -424,7 +424,7 @@ test.describe('Patient Side Bar', () => {
       'Edited note',
     );
     await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
-      '04/26/2025',
+      '26/04/2025',
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'This is the main care plan note which should not be edited',

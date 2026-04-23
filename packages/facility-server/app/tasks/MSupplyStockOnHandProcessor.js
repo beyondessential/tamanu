@@ -19,7 +19,7 @@ function getStockLinesQuery(storeId) {
           nodes {
             id
             item {
-              universalCode
+              code
             }
             availableNumberOfPacks
             totalNumberOfPacks
@@ -42,7 +42,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.MSupplyStockOnHandProcessor;
+    const conf = config.schedules.mSupplyStockOnHandProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
@@ -70,12 +70,12 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     const aggregated = new Map();
 
     for (const line of stockLines) {
-      const universalCode = line.item?.universalCode;
-      if (!universalCode) continue;
+      const code = line.item?.code;
+      if (!code) continue;
 
       const totalUnits = (line.availableNumberOfPacks ?? 0) * (line.packSize ?? 1);
-      const current = aggregated.get(universalCode) ?? 0;
-      aggregated.set(universalCode, current + totalUnits);
+      const current = aggregated.get(code) ?? 0;
+      aggregated.set(code, current + totalUnits);
     }
 
     return aggregated;
@@ -158,7 +158,7 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
 
     const stockByCode = this.aggregateStockByCode(stockLines);
 
-    log.info('MSupplyStockOnHandProcessor: aggregated stock by universal code', {
+    log.info('MSupplyStockOnHandProcessor: aggregated stock by item code', {
       uniqueMedications: stockByCode.size,
     });
 
