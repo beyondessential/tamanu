@@ -40,10 +40,12 @@ export const TableScopeSelect = styled(SelectField).attrs({
   min-inline-size: 23rem;
 `;
 
-export const programRegistryClinicalStatusColorOptions = Object.keys(STATUS_COLOR).map(key => ({
-  value: key,
-  label: key,
-}));
+export const programRegistryClinicalStatusColorOptions = Object.keys(STATUS_COLOR)
+  .sort()
+  .map(key => ({
+    value: key,
+    label: key,
+  }));
 
 export function ProgramRegistryClinicalStatusColorField({ isClearable = false, ...props }) {
   return (

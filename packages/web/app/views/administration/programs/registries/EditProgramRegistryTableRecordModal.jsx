@@ -19,6 +19,7 @@ import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
 import {
   programRegistryClinicalStatusColorOptions,
+  ProgramRegistryClinicalStatusColorField,
   VisibilityStatusField,
   visibilityStatusOptions,
 } from '../components';
@@ -65,7 +66,14 @@ function RegistryTableRecordNameField({ field, disabled }) {
 
 function RegistryTableRecordColorField({ field, disabled }) {
   const label = field.title ?? field.key;
-  return <Field name="color" component={TextField} label={label} disabled={disabled} required />;
+  return (
+    <ProgramRegistryClinicalStatusColorField
+      disabled={disabled}
+      label={label}
+      name="color"
+      required
+    />
+  );
 }
 
 function RegistryTableRecordVisibilityStatusField({ field, disabled }) {
