@@ -91,7 +91,7 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment, editMod
   };
 }
 
-export function ColourCell({ color }) {
+export function ColorCell({ color }) {
   return (
     color || (
       <em style={{ color: TAMANU_COLORS.softText }}>

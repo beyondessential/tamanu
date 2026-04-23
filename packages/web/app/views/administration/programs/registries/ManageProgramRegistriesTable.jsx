@@ -9,7 +9,7 @@ import { useParams } from 'react-router';
 import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { VisibilityStatusCell } from '../components';
 import {
-  ColourCell,
+  ColorCell,
   createProgramRegistryRowActionsAccessor,
   StyledDataFetchingTable,
 } from './components';
@@ -24,7 +24,7 @@ const visibilityStatusColumn = /** @type {const} */ ({
   title: 'visibilityStatus',
 });
 
-const colorColumn = /** @type {const} */ ({ key: 'color', title: 'color' });
+const colorColumn = /** @type {const} */ ({ key: 'color', title: 'color', accessor: ColorCell });
 
 const actionsColumnBase = /** @type {const} */ ({
   dontCallRowInput: true,
@@ -42,7 +42,7 @@ const actionsColumnBase = /** @type {const} */ ({
 const clinicalStatusesEditFields = /** @type {const} */ ([
   codeColumn,
   nameColumn,
-  { key: 'color', title: 'color', accessor: ColourCell },
+  colorColumn,
   visibilityStatusColumn,
 ]);
 
