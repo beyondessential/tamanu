@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
-import PrintIcon from '@material-ui/icons/Print';
-import CloseIcon from '@material-ui/icons/Close';
+import PrintIcon from '@mui/icons-material/Print';
+import CloseIcon from '@mui/icons-material/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { Button } from './Button';
 import { TranslatedText } from './Translation';
@@ -37,7 +37,7 @@ const Dialog = styled(MuiDialog)`
   }
 `;
 
-const ModalContent = styled.div`
+export const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
     ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
@@ -175,7 +175,7 @@ export const BaseModal = memo(
           >
             {children}
           </ModalContent>
-          <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>
+          {actions && <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>}
         </ModalContainer>
         {fixedBottomRow && bottomRowContent}
       </Dialog>

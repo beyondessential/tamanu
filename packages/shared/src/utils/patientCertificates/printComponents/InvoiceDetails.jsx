@@ -32,9 +32,19 @@ const getInvoicePaymentStatus = invoice => {
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
+
+  const invoiceInsurancePlans = invoice?.insurancePlans || [];
+  const hasInvoicePlans = invoiceInsurancePlans.length > 0;
+  const insurancePlanNames = invoiceInsurancePlans.map(p => p.name || p.code).join(', ');
+
+  // Fall back to legacy patient-level insurer when no invoice plans are present
   const {
     additionalData: { insurer, insurerPolicyNumber },
   } = patient;
+
+  const showInsurer = hasInvoicePlans || enablePatientInsurer;
+  const insurerDisplayValue = hasInvoicePlans ? insurancePlanNames : insurer?.name;
+
   return (
     <>
       <DataSection
@@ -46,10 +56,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('general.date.label', 'Date')}
             value={formatShort(invoice.date)}
           />
-          {enablePatientInsurer && (
+          {showInsurer && (
             <DataItem
               label={getTranslation('invoice.insurer.label', 'Insurer')}
-              value={insurer?.name}
+              value={insurerDisplayValue}
             />
           )}
           <DataItem

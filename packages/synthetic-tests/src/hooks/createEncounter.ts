@@ -1,31 +1,25 @@
-import { getRandomPatient } from '../utils/getRandomPatient';
 import { fakeCreateEncounterRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createEncounter';
-import { getRandomLocation } from '../utils/getRandomLocation';
-import { getRandomDepartment } from '../utils/getRandomDepartment';
+
+import { RANDOM_PATIENT_NO_OPEN_ENCOUNTER_QUERY } from './randomPatientQuery';
 
 /**
- * Generates an encounter payload with a random patient, location, and department.
+ * Generates an encounter payload with a random patient (with no active encounter), location, and department.
  * Stores the payload and selected patient in context.vars.
  */
 export async function generateEncounterPayload(context: any, _events: any): Promise<void> {
-  const { target, token, facilityId } = context.vars;
-  // Get a random patient
-  const randomPatient = await getRandomPatient(target, token, facilityId);
+  const { entityFetcher } = context.vars;
 
-  const randomLocation = await getRandomLocation(target, token, facilityId);
-  const randomDepartment = await getRandomDepartment(target, token, facilityId);
+  const [randomPatient, randomLocation, randomDepartment] = await Promise.all([
+    entityFetcher.getRandom('patient', { ...RANDOM_PATIENT_NO_OPEN_ENCOUNTER_QUERY }),
+    entityFetcher.getRandom('location'),
+    entityFetcher.getRandom('department'),
+  ]);
 
-  // Create encounter payload using fake data
   const encounterPayload = fakeCreateEncounterRequestBody({
-    required: {
-      patientId: randomPatient.id,
-      examinerId: context.vars.userId,
-      locationId: context.vars.locationId || randomLocation.id,
-      departmentId: context.vars.departmentId || randomDepartment.id,
-    },
-    overrides: {
-      reasonForEncounter: 'Synthetic test encounter',
-    },
+    patientId: randomPatient.id,
+    examinerId: context.vars.userId,
+    locationId: randomLocation.id,
+    departmentId: randomDepartment.id,
   });
 
   context.vars.encounterPayload = encounterPayload;

@@ -4,7 +4,7 @@ import { TableCellTag, TranslatedText, TranslatedReferenceData } from '../../com
 import { ThemedTooltip } from '../../components/Tooltip';
 
 export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
-  if (!clinicalStatus) return <></>;
+  if (!clinicalStatus) return null;
   const color = STATUS_COLOR[clinicalStatus.color];
   return (
     <ThemedTooltip

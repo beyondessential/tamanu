@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton } from '@material-ui/core';
 import { subject } from '@casl/ability';
 import { getAnswersFromData } from '@tamanu/ui-components';

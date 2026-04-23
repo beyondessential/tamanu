@@ -3,7 +3,7 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 

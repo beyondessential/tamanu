@@ -29,8 +29,10 @@ function enhancePendingTriggerError(error, migrationName) {
   return error;
 }
 
-// before this, we just cut our losses and accept irreversible migrations
-const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
+// Umzug's down({ to }) INCLUDES the target in the revert. The baseline's down
+// drops all schemas, so we must not include it. Use the first post-baseline
+// migration as the revert boundary instead.
+const LAST_REVERSIBLE_MIGRATION = '1739240737046-addPatientprogramregistrationconditioncategorycolumn.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
@@ -52,12 +54,10 @@ export function createMigrationInterface(log, sequelize) {
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
+      pattern: /^\d+[\w-]+\.(js|ts)$/,
       params: [sequelize.getQueryInterface()],
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
-          sequelize,
-          wrapContext.migrationName,
-        );
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
         if (!isMigrationContextAvailable) {
           try {
             return await updown(...args);
@@ -81,7 +81,11 @@ export function createMigrationInterface(log, sequelize) {
         } catch (error) {
           throw enhancePendingTriggerError(error, wrapContext.migrationName);
         } finally {
-          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+          try {
+            await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+          } catch {
+            // Transaction already aborted; rollback will clean up.
+          }
         }
       }),
 
@@ -116,6 +120,23 @@ export function createMigrationInterface(log, sequelize) {
     wrapContext.migrationName = name;
     log.info(`Reverting migration: ${name}`);
   });
+
+  // Clean SequelizeMeta entries for files no longer on disk (frozen migrations
+  // squashed into the baseline) before any revert so Umzug can find all files.
+  const filesOnDisk = new Set(migrationFiles);
+  const originalDown = umzug.down.bind(umzug);
+  umzug.down = async (...args) => {
+    const [executed] = await sequelize.query('SELECT name FROM "SequelizeMeta"');
+    const orphaned = executed.map(r => r.name).filter(name => !filesOnDisk.has(name));
+    if (orphaned.length > 0) {
+      await sequelize.query(
+        `DELETE FROM "SequelizeMeta" WHERE name IN (${orphaned.map((_, i) => `$${i + 1}`).join(',')})`,
+        { bind: orphaned },
+      );
+      log.info(`Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`);
+    }
+    return originalDown(...args);
+  };
 
   return umzug;
 }

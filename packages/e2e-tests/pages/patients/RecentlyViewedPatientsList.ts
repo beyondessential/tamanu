@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
-import { convertDateFormat } from '../../utils/testHelper';
+import { parseTamanuDate } from '../../utils/testHelper';
 import { RecentlyViewedPatient } from '../../types/Patient';
+import { format } from 'date-fns';
 
 export class RecentlyViewedPatientsList {
   readonly firstRecentlyViewedName!: Locator;
@@ -27,15 +28,13 @@ export class RecentlyViewedPatientsList {
     }
     
     // Special cases that need additional processing
-    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('tooltip-b4e8');
+    this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('datedisplay-tw5s-0');
   }
 
   static formatDateForRecentlyViewed(dateOfBirth: string): string {
-    const formatted = dateOfBirth.includes('/') ? dateOfBirth : convertDateFormat(dateOfBirth);
-
-    const [month, day, year] = formatted.split('/');
-    const shortYear = year.slice(-2);
-    return `${month}/${day}/${shortYear}`;
+    const parsed = parseTamanuDate(dateOfBirth);
+    if (!parsed) return '';
+    return format(parsed, 'dd/MM/yy');
   }
 
   async getRecentlyViewedPatientNameColor(): Promise<string> {
@@ -51,7 +50,7 @@ export class RecentlyViewedPatientsList {
       name: this.page.getByTestId(`cardtitle-qqhk-${index}`),
       nhn: this.page.getByTestId(`cardtext-iro1-${index}`),
       gender: this.page.getByTestId(`capitalizedcardtext-zu58-${index}`),
-      birthDate: this.page.getByTestId(`cardtext-i2bu-${index}`).getByTestId('tooltip-b4e8')
+      birthDate: this.page.getByTestId(`cardtext-i2bu-${index}`).getByTestId(`datedisplay-tw5s-${index}`)
     };
 
     return {

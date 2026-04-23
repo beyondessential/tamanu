@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
@@ -98,12 +98,17 @@ export const StyledTextField = styled(MuiTextField)`
 `;
 
 export const TextInput = ({
-  value = '',
-  label,
   enablePasting = false,
+  id,
+  label,
+  value = '',
   ['data-testid']: dataTestId,
+  inputProps,
   ...props
 }) => {
+  const generatedId = useId();
+  const ensuredId = id ?? generatedId;
+
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
   const onPaste = e => {
@@ -135,8 +140,9 @@ export const TextInput = ({
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} data-testid={dataTestId} {...props}>
+    <OuterLabelFieldWrapper label={label} htmlFor={ensuredId} data-testid={dataTestId} {...props}>
       <StyledTextField
+        id={ensuredId}
         value={value}
         variant="outlined"
         onPaste={onPaste}
@@ -144,7 +150,7 @@ export const TextInput = ({
         onDragOver={onDragOver}
         onDragEnter={onDragEnter}
         inputProps={{
-          ...props.inputProps,
+          ...inputProps,
           'data-testid': `${dataTestId}-input`,
         }}
         {...props}

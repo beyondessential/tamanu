@@ -6,9 +6,8 @@ import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker'
 export const ConfiguredMandatoryPatientFields = props => {
   const { fieldsToShow } = useFilterPatientFields(props);
 
-  return fieldsToShow.length ? (
-    <>
-      {fieldsToShow.map(field => (
+  return fieldsToShow.length
+    ? fieldsToShow.map(field => (
         <NoteModalActionBlocker key={field.name}>
           <LocalisedField
             key={field.name}
@@ -17,7 +16,6 @@ export const ConfiguredMandatoryPatientFields = props => {
             data-testid={`localisedfield-0jtf-${field.name}`}
           />
         </NoteModalActionBlocker>
-      ))}
-    </>
-  ) : null;
+      ))
+    : null;
 };

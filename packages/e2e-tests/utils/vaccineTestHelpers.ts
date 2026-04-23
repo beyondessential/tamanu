@@ -1,4 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
@@ -79,7 +80,7 @@ export async function addVaccineAndAssert(
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
-  expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+  await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(count);
 
   if (!given) {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
@@ -109,14 +110,20 @@ export async function triggerDateError(
 
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
+  const page = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.page;
+  const dateField = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.dateField;
+
   //Attempt to submit a date that should trigger a validation error
-  await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField.fill(date);
+  await fillMuiDateTimeField(dateField, date);
+
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
-  //Assert the validation error appears
-  await expect(
-    patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!,
-  ).toContainText(expectedErrorMessage);
+  const recordVaccineDialog = page
+    .getByTestId('dialog-g9qi')
+    .filter({ visible: true })
+    .filter({ hasText: /Record vaccine/i });
+
+  await expect(recordVaccineDialog.getByText(expectedErrorMessage, { exact: true })).toBeVisible();
 }
 
 /**
@@ -251,7 +258,7 @@ export async function assertEditedVaccine(
  * @param date - The date to calculate the due date from
  * @param unit - The unit of time to add, e.g. 'weeks' or 'months'
  * @param unitsToAdd - The number of units to add to the date
- * @returns The expected due date in the format of "MM/dd/yyyy"
+ * @returns The expected due date in the format of "dd/MM/yyyy"
  */
 export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
   const dueDate = addWeeks(date, weeksToAdd);
@@ -270,7 +277,7 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
     Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
   );
 
-  const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
+  const formattedUtcWeekStart = format(utcWeekStart, 'dd/MM/yyyy');
 
   return formattedUtcWeekStart;
 }

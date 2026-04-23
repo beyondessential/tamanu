@@ -42,8 +42,12 @@ export const QRCodeSearchField = props => {
     <Container>
       <SearchInput {...props} onChange={onChange} name={name} value={value} onClear={onClear} />
       <ThemedTooltip title={getTranslation('general.action.scanQRCode', 'Scan QR code')}>
-        <StyledIconButton onClick={() => setQrModalOpen(true)} data-testid="qr-scanner-button">
-          <QRCodeIcon />
+        <StyledIconButton
+          aria-label={getTranslation('general.action.scanQRCode', 'Scan QR code')}
+          onClick={() => setQrModalOpen(true)}
+          data-testid="qr-scanner-button"
+        >
+          <QRCodeIcon aria-hidden />
         </StyledIconButton>
       </ThemedTooltip>
       <QRCodeScannerModal

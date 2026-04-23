@@ -2,9 +2,10 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import {
-  convertDateFormat,
   compareAlphabetically,
   compareByDate,
+  dateTableMatchString,
+  getSidebarFacilityDisplayName,
 } from '../../../../utils/testHelper';
 import { ViewVaccineModal } from '../modals/ViewVaccineModal';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
@@ -16,6 +17,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
+  readonly recordedVaccineRowCells: Locator;
   recordVaccineModal?: RecordVaccineModal;
   viewVaccineModal?: ViewVaccineModal;
   editVaccineModal?: EditVaccineModal;
@@ -38,14 +40,21 @@ export class PatientVaccinePane extends BasePatientPane {
     super(page);
 
     this.recordVaccineButton = this.page.getByTestId('component-enxe');
+    this.recordedVaccinesTableWrapper = this.page.getByTestId('immunisationstable-q9jd');
     this.recordedVaccinesTable = this.page
       .getByRole('table')
       .filter({ hasText: 'VaccineScheduleDateGiven' });
-    this.recordedVaccinesTableLoadingIndicator = this.recordedVaccinesTable.getByRole('cell', {
-      name: 'Loading...',
-    });
+    this.recordedVaccinesTableLoadingIndicator =
+      this.recordedVaccinesTableWrapper.getByTestId('translatedtext-yvlt');
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
-    this.recordedVaccinesTableWrapper = this.page.getByTestId('immunisationstable-q9jd');
+    // One cell per row in the recorded vaccines table body, used to count rows
+    // without parsing the (locale-formatted, lazily-rendered) paginator. Targets
+    // the stable `data-test-class` on each cell — `table-column-{rowIndex}-{columnKey}`
+    // in `Table.jsx` — which is keyed off real column data rather than the
+    // auto-generated `data-testid` suffix.
+    this.recordedVaccineRowCells = this.recordedVaccinesTableWrapper.locator(
+      '[data-test-class$="-vaccineDisplayName"]',
+    );
     this.scheduledVaccinesTableWrapper = this.page.getByTestId('tablewrapper-rbs7');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.vaccineTableRowPrefix = `styledtablecell-2gyy-`;
@@ -102,21 +111,15 @@ export class PatientVaccinePane extends BasePatientPane {
     await vaccineKebabMenu.click();
   }
 
-  async getRecordedVaccineCount(): Promise<number> {
+  /**
+   * Asserts the recorded vaccines table contains exactly the expected number of rows.
+   * Uses Playwright's auto-retrying `toHaveCount` so it transparently waits for the
+   * table to refresh after the modal closes / a delete is processed.
+   */
+  async assertRecordedVaccineCount(count: number) {
     await this.recordedVaccinesTable.waitFor();
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
-
-    // Check if the paginator is visible and extract the number of vaccines
-    if (await this.recordedVaccinesTablePaginator.isVisible()) {
-      const paginationText = await this.recordedVaccinesTablePaginator.innerText();
-      const match = paginationText.match(/of (\d+)/);
-      if (match) {
-        return parseInt(match[1], 10);
-      }
-    }
-
-    // Pagination is not visible, so we assume 0 vaccines recorded
-    return 0;
+    await expect(this.recordedVaccineRowCells).toHaveCount(count);
   }
 
   async waitForRecordedVaccinesTableToLoad() {
@@ -173,11 +176,11 @@ export class PatientVaccinePane extends BasePatientPane {
       );
     }
 
-    const dateValue = dateGiven ? convertDateFormat(dateGiven) : 'Unknown';
+    const expectedDate = dateTableMatchString(dateGiven);
 
     const correctDateFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      dateValue,
+      expectedDate,
       'date',
       count,
       vaccineName,
@@ -185,43 +188,62 @@ export class PatientVaccinePane extends BasePatientPane {
     );
 
     if (!correctDateFound) {
-      throw new Error(`Date "${dateValue}" not found in the recorded vaccines table`);
+      throw new Error(
+        `Date "${expectedDate}" not found in the recorded vaccines table for vaccine "${vaccineName}"`,
+      );
     }
 
-    const givenByValue = givenElsewhereReason ? 'Given elsewhere' : 'Unknown';
-
+    const expectedGivenBy = given
+      ? givenBy || (givenElsewhereReason ? 'Given elsewhere' : 'Unknown')
+      : 'Not given';
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      given ? givenBy || givenByValue : 'Not given',
+      expectedGivenBy,
       'givenBy',
       count,
       vaccineName,
       scheduleOption,
     );
     if (!correctGivenByFound) {
-      const expectedValue = given ? givenBy || givenByValue : 'Not given';
-      throw new Error(`Given by "${expectedValue}" not found in the recorded vaccines table`);
+      throw new Error(`Given by "${expectedGivenBy}" not found in the recorded vaccines table`);
     }
 
-    const displayLocationValue = givenElsewhereReason ? givenElsewhereCountry : 'facility-1';
-    if (!displayLocationValue) {
-      throw new Error(
-        'Display location value is not defined - likely the country was not selected',
+    if (givenElsewhereReason) {
+      if (!givenElsewhereCountry) {
+        throw new Error('givenElsewhereCountry is required when givenElsewhereReason is set');
+      }
+      const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+        recordedVaccinesTable,
+        givenElsewhereCountry,
+        'displayLocation',
+        count,
+        vaccineName,
+        scheduleOption,
       );
-    }
+      if (!correctDisplayLocationFound) {
+        throw new Error(
+          `Display location did not contain country "${givenElsewhereCountry}" in the recorded vaccines table`,
+        );
+      }
+    } else {
+      const displayLocationValue = await getSidebarFacilityDisplayName(this.page);
+      if (!displayLocationValue) {
+        throw new Error('Could not retrieve facility name from sidebar for display location check');
+      }
 
-    const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
-      recordedVaccinesTable,
-      displayLocationValue,
-      'displayLocation',
-      count,
-      vaccineName,
-      scheduleOption,
-    );
-    if (!correctDisplayLocationFound) {
-      throw new Error(
-        `Display location "${displayLocationValue}" not found in the recorded vaccines table`,
+      const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+        recordedVaccinesTable,
+        displayLocationValue,
+        'displayLocation',
+        count,
+        vaccineName,
+        scheduleOption,
       );
+      if (!correctDisplayLocationFound) {
+        throw new Error(
+          `Display location "${displayLocationValue}" not found in the recorded vaccines table`,
+        );
+      }
     }
   }
 

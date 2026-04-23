@@ -1,33 +1,42 @@
-import { Locator, Page, expect } from '@playwright/test';
-import { subYears, addYears, format, parse } from 'date-fns';
+import { Locator, Page } from '@playwright/test';
 
-export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
+import { SidebarPage } from '../pages/SidebarPage';
 
-// Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
-export const convertDateFormat = (dateInput: string | Date | undefined): string => {
-  if (!dateInput) return '';
-  
-  let dateString: string;
-  
-  if (dateInput instanceof Date) {
-    dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  } else {
-    dateString = dateInput;
-  }
-  
-  if (!dateString) return '';
-  
-  const [year, month, day] = dateString.split('-');
-  return `${month}/${day}/${year}`;
-};
+export * from './dateTimeHelpers';
 
 /**
- * Utility method to handle search box suggestions
- * @param searchBox The search box locator
- * @param suggestionList The suggestion list locator
- * @param searchText The text to search for
- * @param timeout Optional timeout in milliseconds (default: 5000)
- * @throws Error if the suggestion is not found in the list
+ * Prefix for `data-testid` on cells in the app’s styled data tables (e.g. patient lists).
+ *
+ * Row `i`, column semantic id `columnName` → `getByTestId(\`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}\`)`.
+ * Keep this in sync with the table implementation if testids change.
+ */
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
+
+/**
+ * Returns the facility name as shown in the sidebar (current facility context).
+ *
+ * Use when a table column or modal shows “facility” and it must match the same string as the app chrome
+ * (e.g. immunisation display location for vaccines given at the current facility).
+ *
+ * @param page — Playwright page (must be on a layout that renders {@link SidebarPage}).
+ * @returns Display name string from the sidebar; may be empty if the facility control is missing or not loaded.
+ */
+export async function getSidebarFacilityDisplayName(page: Page): Promise<string> {
+  const sidebar = new SidebarPage(page);
+  return sidebar.getFacilityName();
+}
+
+/**
+ * Fill a search field and click a suggestion whose visible text equals `searchText`.
+ *
+ * **Flow** — `fill` → wait for search box visible → `getByText(searchText)` on the suggestion list → click.
+ * **Note** — `getByText` matches by substring; `searchText` should be unique within the suggestion list for the scenario.
+ *
+ * @param searchBox — Input or combobox locator.
+ * @param suggestionList — Popover/list locator containing clickable suggestions.
+ * @param searchText — Label to click (must appear in the list).
+ * @param timeout — Per-step wait budget in ms (default 10000).
+ * @throws Error wrapping the underlying failure if the suggestion never becomes visible or click fails.
  */
 export async function SelectingFromSearchBox(
   searchBox: Locator,
@@ -42,15 +51,22 @@ export async function SelectingFromSearchBox(
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
   } catch (error) {
-    throw new Error(`Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
+
 /**
- * Utility method to get table items
- * @param page 
- * @param tableRowCount 
- * @param columnName 
- * @returns An array of table items
+ * Read text from a column across the first `tableRowCount` rows of a styled table.
+ *
+ * Uses {@link STYLED_TABLE_CELL_PREFIX} + row index + `columnName` as the `data-testid` suffix pattern.
+ * Skips empty `textContent` (row may not render a cell or may be loading).
+ *
+ * @param page — Current page.
+ * @param tableRowCount — Number of rows to read (0-based indices `0 .. tableRowCount-1`).
+ * @param columnName — Test id suffix for the column (e.g. `dateOfBirth`).
+ * @returns Array of strings in row order; length may be less than `tableRowCount` if some cells are empty.
  */
 export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
   const items: string[] = [];
@@ -65,94 +81,28 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
 }
 
 /**
- * Formats a date to 'MM/dd/yyyy h:mmam' style (lowercase am/pm, no space) to match the app's display format.
- * @param date - The Date object to format
- * @returns Formatted string (e.g., "02/12/2026 9:31am")
- */
-export function formatDateTimeForDisplay(date: Date): string {
-  return format(date, 'MM/dd/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
-}
-
-/**
- * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11am12/01/25")
- * @param dateTimeString - ISO format dateTime string (e.g., "2025-12-01T06:11")
- * @returns Formatted string matching table display format (e.g., "6:11am12/01/25")
- */
-export function formatDateTimeForTable(dateTimeString: string): string {
-  const dateFromForm = new Date(dateTimeString);
-  const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
-  const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
-  return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
-}
-
-/**
- * Utility function for sorting alphabetically
- * @param order - The order to sort by, e.g. "asc" or "desc"
- * @returns A function that compares two strings alphabetically
+ * Comparator factory for **locale-aware string sort** (e.g. vaccine names in table order assertions).
+ *
+ * @param order — `'asc'` or `'desc'`.
+ * @returns `(a, b) => number` suitable for `Array.prototype.sort`.
  */
 export function compareAlphabetically(order: 'asc' | 'desc') {
-  return (a: string, b: string) =>
-    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+  return (a: string, b: string) => (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
 }
 
 /**
- * Utility function for sorting by date
- * @param order - The order to sort by, e.g. "asc" or "desc"
- * @returns A function that compares two dates
+ * Open a generic **MUI listbox** dropdown and select the first `li` option.
+ *
+ * **Assumptions** — `[role="listbox"] li` exists after `input.click()`; not tied to app-specific testids.
+ * Prefer {@link ./fieldHelpers.ts} `selectFieldOption` / `selectAutocompleteFieldOption` for Tamanu fields.
+ *
+ * @param page — Used to scope the listbox query.
+ * @param input — Locator that opens the list on click.
+ * @returns `textContent` of the first option, or `''` if missing.
  */
-export function compareByDate(order: 'asc' | 'desc') {
-  return (a: { dateGiven: string }, b: { dateGiven: string }) => {
-    const dateA = new Date(a.dateGiven).getTime();
-    const dateB = new Date(b.dateGiven).getTime();
-    return order === 'asc' ? dateA - dateB : dateB - dateA;
-  };
-}
-
-/**
- * Utility method to offset a date by a given amount of years and return in YYYY-MM-DD format
- * @param dateToOffset - The date to offset
- * @param offset - The offset to apply ('increase' or 'decrease')
- * @param amountToOffset - The amount of years to offset
- * @returns The date with the offset applied in YYYY-MM-DD format
- */
-export function offsetYear(
-  dateToOffset: string,
-  offset: 'increase' | 'decrease',
-  amountToOffset: number
-): string {
-  //Convert to date format so utility functions can be used
-  const formattedDateToOffset = new Date(dateToOffset);
-  let newDate = undefined;
-
-  if (offset === 'increase') newDate = addYears(formattedDateToOffset, amountToOffset);
-  else if (offset === 'decrease') newDate = subYears(formattedDateToOffset, amountToOffset);
-  else throw new Error('Invalid offset');
-
-  return format(newDate, 'yyyy-MM-dd');
-}
-
-// Reusable function to select first option from any dropdown
 export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
   await input.click();
   const firstOption = page.locator('[role="listbox"] li').first();
   await firstOption.click();
-  return await firstOption.textContent() || '';
+  return (await firstOption.textContent()) || '';
 };
-
-/**
- * Asserts that a datetime input field contains a recent datetime value
- * @param inputLocator - The locator for the datetime input field
- * @param dateFormat - The format string for parsing the date (e.g., 'yyyy-MM-dd\'T\'HH:mm')
- * @param thresholdMinutes - Optional threshold in minutes for what is considered "recent" (default: 2)
- */
-export async function assertRecentDateTime(
-  inputLocator: Locator,
-  dateFormat: string,
-  thresholdMinutes: number = 2,
-): Promise<void> {
-  const inputDateTimeValue = await inputLocator.inputValue();
-  const parsedInputDate = parse(inputDateTimeValue, dateFormat, new Date());
-  const now = new Date();
-  const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
-  expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
-}

@@ -7,11 +7,16 @@ import { suggestions } from '@tamanu/shared/services/suggestions';
 
 import {
   authMiddleware,
+  buildToken,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
+import * as z from 'zod';
+import { ForbiddenError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
@@ -60,6 +65,7 @@ import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
+import { random } from './random';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -121,6 +127,66 @@ apiv1.delete(
     req.checkPermission('manage', 'all');
     settingsCache.reset();
     res.status(204).send();
+  }),
+);
+
+apiv1.get(
+  '/admin/roles',
+  asyncHandler(async (req, res) => {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenError('Only admins can list roles');
+    }
+    req.flagPermissionChecked();
+    const { Role } = req.models;
+    const roles = await Role.findAll({ attributes: ['id', 'name'], order: [['name', 'ASC']] });
+    res.send(roles);
+  }),
+);
+
+apiv1.post(
+  '/admin/impersonate',
+  asyncHandler(async (req, res) => {
+    const { user, userDevice: device, facilityId, models } = req;
+
+    if (user.role !== 'admin') {
+      throw new ForbiddenError('Only admins can impersonate roles');
+    }
+    req.flagPermissionChecked();
+
+    const { roleId } = z
+      .object({ roleId: z.string().min(1).nullable().default(null) })
+      .parse(req.body);
+
+    if (roleId === user.role) {
+      throw new ForbiddenError('Cannot impersonate your own role');
+    }
+
+    const role = roleId ? await models.Role.findByPk(roleId) : null;
+    if (roleId && !role) {
+      throw new ForbiddenError('Impersonation role does not exist');
+    }
+
+    log.info('Role impersonation', {
+      userId: user.id,
+      action: roleId ? 'start' : 'stop',
+      impersonateRoleId: roleId,
+    });
+
+    const token = await buildToken({
+      user,
+      deviceId: device?.id,
+      facilityId,
+      impersonateRoleId: roleId ?? undefined,
+    });
+
+    const roleString = roleId || user.role;
+    const permissions = await getPermissionsForRoles(models, roleString);
+
+    res.send({
+      token,
+      role: role?.forResponse() ?? null,
+      permissions,
+    });
   }),
 );
 
@@ -186,3 +252,13 @@ referenceDataRoutes.use('/translation', translation);
 syncRoutes.use('/sync', sync);
 syncRoutes.use('/syncHealth', syncHealth);
 syncRoutes.use('/patientFacility', patientFacility);
+
+// Random record picker for tests / synthetic load (see packages/synthetic-tests RandomEntityFetcher).
+// Off by default in non-test environments; set TAMANU_ENABLE_SYNTHETIC_RANDOM_API=true to enable.
+const enableRandomRecordApi =
+  process.env.NODE_ENV === 'test' ||
+  process.env.TAMANU_ENABLE_SYNTHETIC_RANDOM_API === 'true';
+
+if (enableRandomRecordApi) {
+  apiv1.use('/random', random);
+}

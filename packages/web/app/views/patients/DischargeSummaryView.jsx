@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 
 import { Button, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import { Typography } from '@material-ui/core';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { Button, Modal, TranslatedText } from '@tamanu/ui-components';

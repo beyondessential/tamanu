@@ -51,6 +51,7 @@ export class Department extends Model {
 
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
+      as: 'facility',
     });
   }
 

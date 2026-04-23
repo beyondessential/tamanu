@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   PATIENT_REGISTRY_TYPES,
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   BLOOD_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
@@ -19,7 +19,11 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, isEdit }) => {
+export const GenericPersonalFields = ({
+  patientRegistryType,
+  filterByMandatory,
+  isEdit,
+}) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
   const nationalitySuggester = useSuggester('nationality');
@@ -42,7 +46,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
     },
     maritalStatus: {
       component: TranslatedSelectField,
-      enumValues: MARTIAL_STATUS_LABELS,
+      enumValues: MARITAL_STATUS_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText

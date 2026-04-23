@@ -18,11 +18,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 const Fieldset = styled.fieldset`
-  // Reset
-  border: none;
-  margin: 0;
-  padding: 0;
-
   display: grid;
   gap: 0.625rem;
   grid-template-columns: minmax(auto, 18rem) repeat(2, minmax(5.75rem, max-content)) auto;

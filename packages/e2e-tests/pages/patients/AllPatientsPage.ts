@@ -4,7 +4,12 @@ import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import {
+  compareDisplayDates,
+  convertDateFormat,
+  fillMuiDateField,
+  STYLED_TABLE_CELL_PREFIX,
+} from '../../utils/testHelper';
 import { ERROR_RED_RGB } from '@utils/testColors';
 
 export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
@@ -53,16 +58,12 @@ export class AllPatientsPage extends BasePatientListPage {
   readonly patientPageRecordCount25!: Locator;
   readonly patientPageRecordCount50!: Locator;
   readonly patientPage2!: Locator;
-  readonly firstNameSortButton!: Locator;
-  readonly lastNameSortButton!: Locator;
-  readonly culturalNameSortButton!: Locator;
-  readonly villageSortButton!: Locator;
   readonly dobSortButton!: Locator;
 
   constructor(page: Page) {
     super(page, routes.patients.all);
     this.recentlyViewedPatientsList = new RecentlyViewedPatientsList(page);
-    
+
     // TestId mapping for AllPatients page elements
     const testIds = {
       // Override base locators with AllPatients-specific test IDs
@@ -75,7 +76,7 @@ export class AllPatientsPage extends BasePatientListPage {
       nhnInput: 'localisedfield-dzml-input',
       firstNameInput: 'localisedfield-i9br-input',
       lastNameInput: 'localisedfield-ngsn-input',
-      
+
       // AllPatients-specific locators
       addNewPatientBtn: 'component-enxe',
       NewPatientFirstName: 'localisedfield-cqua-input',
@@ -89,7 +90,7 @@ export class AllPatientsPage extends BasePatientListPage {
       nhnResultCell: 'styledtablecell-2gyy-0-displayId',
       secondNHNResultCell: 'styledtablecell-2gyy-1-displayId',
       NHNInput: 'localisedfield-dzml-input',
-      DOBInput: 'field-qk60-input',
+      DOBInput: 'field-qk60',
       culturalNameInput: 'localisedfield-epbq-input',
       villageSearchBox: 'villagelocalisedfield-mcri-input',
       newPatientVillageSearchBox: 'localisedfield-rpma-input',
@@ -99,16 +100,12 @@ export class AllPatientsPage extends BasePatientListPage {
       villageSuggestionList: 'villagelocalisedfield-mcri-suggestionslist',
       sexDropDownIcon: 'sexlocalisedfield-7lm9-expandmoreicon-h115',
       sexDropDownCrossIcon: 'stylediconbutton-6vh3',
-      DOBFromTxt: 'joinedfield-swzm-input',
-      DOBToTxt: 'field-aax5-input',
+      DOBFromTxt: 'joinedfield-swzm',
+      DOBToTxt: 'field-aax5',
       clearSearchBtn: 'clearbutton-z9x3',
       patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
       patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
       patientPage2: 'paginationitem-c5vg',
-      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
-      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
-      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
-      villageSortButton: 'tablesortlabel-0qxx-villageName',
       dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
     } as const;
 
@@ -116,7 +113,7 @@ export class AllPatientsPage extends BasePatientListPage {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
-    
+
     // Override specific locators that need additional processing
     this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
@@ -126,18 +123,23 @@ export class AllPatientsPage extends BasePatientListPage {
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.DOBInput = page.getByTestId('field-qk60-input').locator('input[type="date"]');
-    this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
-    this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
-    this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
-    this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
-    this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
+    this.DOBInput = page.getByTestId('field-qk60').getByRole('textbox');
+    this.newPatientVillageSearchBox = page
+      .getByTestId('localisedfield-rpma-input')
+      .locator('input');
+    this.villageSuggestionList = page
+      .getByTestId('villagelocalisedfield-mcri-suggestionslist')
+      .locator('ul')
+      .locator('li');
+    this.DOBFromTxt = page.getByTestId('joinedfield-swzm').getByRole('textbox');
+    this.DOBToTxt = page.getByTestId('field-aax5').getByRole('textbox');
+    this.patientPageRecordCount25 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('25');
+    this.patientPageRecordCount50 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');
-    this.firstNameSortButton = page.getByTestId('tablesortlabel-0qxx-firstName').locator('svg');
-    this.lastNameSortButton = page.getByTestId('tablesortlabel-0qxx-lastName').locator('svg');
-    this.culturalNameSortButton = page.getByTestId('tablesortlabel-0qxx-culturalName').locator('svg');
-    this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
   }
 
@@ -164,7 +166,7 @@ export class AllPatientsPage extends BasePatientListPage {
     await this.NewPatientLastName.fill(lastName);
 
     await this.NewPatientDOBtxt.click();
-    await this.NewPatientDOBtxt.fill(dob);
+    await fillMuiDateField(this.NewPatientDOBtxt, dob);
 
     if (gender === 'female') {
       await this.NewPatientFemaleChk.check();
@@ -189,32 +191,33 @@ export class AllPatientsPage extends BasePatientListPage {
       await this.lastNameInput.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBInput.fill(searchCriteria.DOB);
+      await fillMuiDateField(this.DOBInput, searchCriteria.DOB);
     }
     if (searchCriteria.culturalName) {
       await this.culturalNameInput.fill(searchCriteria.culturalName);
     }
     if (searchCriteria.village) {
-      await selectAutocompleteFieldOption(
-        this.page,
-        this.villageSearchBox,
-        { optionToSelect: searchCriteria.village }
-      );
+      await selectAutocompleteFieldOption(this.page, this.villageSearchBox, {
+        optionToSelect: searchCriteria.village,
+      });
     }
-    if (searchCriteria.sex){
+    if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
-      await this.page.getByTestId(TWO_COLUMNS_FIELD_TEST_ID).getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
+      await this.page
+        .getByTestId(TWO_COLUMNS_FIELD_TEST_ID)
+        .getByText(new RegExp(`^${searchCriteria.sex}$`, 'i'))
+        .click();
     }
     if (searchCriteria.deceased) {
       await this.includeDeceasedChk.check();
     }
     if (searchCriteria.DOBFrom) {
-      await this.DOBFromTxt.fill(searchCriteria.DOBFrom);
+      await fillMuiDateField(this.DOBFromTxt, searchCriteria.DOBFrom);
     }
     if (searchCriteria.DOBTo) {
-      await this.DOBToTxt.fill(searchCriteria.DOBTo);
+      await fillMuiDateField(this.DOBToTxt, searchCriteria.DOBTo);
     }
-    
+
     await this.searchBtn.click();
   }
 
@@ -236,7 +239,7 @@ export class AllPatientsPage extends BasePatientListPage {
     const lowerExpectedText = expectedText.toLowerCase();
     for (let i = 0; i < rowCount; i++) {
       const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-" + columnName;
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       const actualText = cellText || '';
@@ -253,7 +256,7 @@ export class AllPatientsPage extends BasePatientListPage {
     const row = this.tableRows.nth(rowIndex);
     const cells = row.locator('td');
     const cellCount = await cells.count();
-    
+
     for (let i = 1; i < cellCount; i++) {
       const cell = cells.nth(i);
       await expect(cell).toHaveCSS('color', ERROR_RED_RGB);
@@ -263,11 +266,11 @@ export class AllPatientsPage extends BasePatientListPage {
   // Validate date in all rows for a specific column
   async validateAllRowsDateMatches(expectedDate: string) {
     const rowCount = await this.tableRows.count();
-    const convertedExpectedDate = await convertDateFormat(expectedDate);  
-    
+    const convertedExpectedDate = await convertDateFormat(expectedDate);
+
     for (let i = 0; i < rowCount; i++) {
       const row = await this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-dateOfBirth";
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       await expect(cellLocator).toHaveText(convertedExpectedDate);
     }
@@ -286,47 +289,42 @@ export class AllPatientsPage extends BasePatientListPage {
   }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {
-    const rowCount = await this.tableRows.count();
-    const Values: string[] = [];
-    
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-"+columnName;
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) Values.push(cellText);
-    }
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const Values: string[] = [];
 
-    const sortedValues = [...Values].sort((a, b) => {
-      return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-    });
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) Values.push(cellText);
+      }
 
-    expect(Values).toEqual(sortedValues);
+      const sortedValues = [...Values].sort((a, b) => {
+        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
+      });
+
+      expect(Values).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
 
   async validateDateSortOrder(isAscending: boolean) {
-    const rowCount = await this.tableRows.count();
-    const dateValues: string[] = [];
-    
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-dateOfBirth";
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) dateValues.push(cellText);
-    }
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const dateValues: string[] = [];
 
-    const sortedValues = [...dateValues].sort((a, b) => {
-      // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const [monthA, dayA, yearA] = a.split('/');
-      const [monthB, dayB, yearB] = b.split('/');
-      const dateA = `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`;
-      const dateB = `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`;
-      return isAscending 
-        ? new Date(dateA).getTime() - new Date(dateB).getTime()
-        : new Date(dateB).getTime() - new Date(dateA).getTime();
-    });
-    expect(dateValues).toEqual(sortedValues);
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) dateValues.push(cellText);
+      }
+
+      const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
+      expect(dateValues).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
     let attempts = 0;

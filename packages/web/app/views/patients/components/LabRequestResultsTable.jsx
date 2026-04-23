@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { getReferenceRange } from '@tamanu/utils/labTests';
@@ -9,9 +9,10 @@ import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 import { ConditionalTooltip } from '../../../components/Tooltip';
+import { LabTestResultModal } from '../LabTestResultModal';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
-  cursor: default;
+  cursor: pointer;
   table tbody tr:last-child td {
     border-bottom: none;
   }
@@ -28,6 +29,14 @@ const ResultCell = styled.span`
 
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
+  const [modalLabTestId, setModalLabTestId] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleRowClick = row => {
+    setModalLabTestId(row.id);
+    setModalOpen(true);
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -167,15 +176,25 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
   );
 
   return (
-    <StyledDataFetchingTable
-      columns={columns}
-      endpoint={`labRequest/${labRequest.id}/tests`}
-      initialSort={{ order: 'asc', orderBy: 'id' }}
-      disablePagination
-      elevated={false}
-      refreshCount={refreshCount}
-      data-testid="styleddatafetchingtable-brdm"
-      allowExport={false}
-    />
+    <>
+      <StyledDataFetchingTable
+        columns={columns}
+        endpoint={`labRequest/${labRequest.id}/tests`}
+        initialSort={{ order: 'asc', orderBy: 'id' }}
+        disablePagination
+        elevated={false}
+        refreshCount={refreshCount}
+        onRowClick={handleRowClick}
+        data-testid="styleddatafetchingtable-brdm"
+        allowExport={false}
+      />
+      <LabTestResultModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        labTestId={modalLabTestId}
+        includeRequestLink={false}
+        data-testid="labtestresultmodal-labrequest"
+      />
+    </>
   );
 });
