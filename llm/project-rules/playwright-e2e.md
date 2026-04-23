@@ -20,7 +20,6 @@ Before debugging a feature spec, verify environment and auth first:
 - Confirm the facility frontend is reachable at `FACILITY_FRONTEND_URL`.
 - Run auth setup in isolation first: `npx playwright test tests/setup/auth.setup.ts --project=setup`.
 - If setup fails on `waitForURL(.../dashboard)`, treat it as environment/auth/login-flow setup, not a feature regression.
-- Run feature specs only after setup passes, since the `chromium` project depends on `setup`.
 
 ## Package layout (target)
 
