@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { NONPATIENT_VISIBILITY_STATUS_VALUES, STATUS_COLOR } from '@tamanu/constants';
+import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants';
 import {
   Field,
   SelectField,
@@ -39,24 +39,6 @@ export const TableScopeSelect = styled(SelectField).attrs({
 })`
   min-inline-size: 23rem;
 `;
-
-export const programRegistryClinicalStatusColorOptions = Object.keys(STATUS_COLOR)
-  .sort()
-  .map(key => ({
-    value: key,
-    label: key,
-  }));
-
-export function ProgramRegistryClinicalStatusColorField({ isClearable = false, ...props }) {
-  return (
-    <Field
-      isClearable={isClearable}
-      {...props}
-      component={SelectField}
-      options={programRegistryClinicalStatusColorOptions}
-    />
-  );
-}
 
 export const visibilityStatusOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,

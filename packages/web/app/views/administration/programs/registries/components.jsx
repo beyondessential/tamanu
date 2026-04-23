@@ -2,8 +2,8 @@ import { tableCellClasses } from '@mui/material/TableCell';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { STATUS_COLOR, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Field, SelectField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../../components';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { EditProgramRegistryTableRecordModal } from './EditProgramRegistryTableRecordModal';
@@ -20,6 +20,25 @@ export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
     padding-block: 16px;
   }
 `;
+
+/** @type {{ value: keyof typeof STATUS_COLOR, label: keyof typeof STATUS_COLOR }[]} */
+export const programRegistryClinicalStatusColorOptions = Object.keys(STATUS_COLOR)
+  .sort()
+  .map(key => ({
+    value: key,
+    label: key,
+  }));
+
+export function ProgramRegistryClinicalStatusColorField({ isClearable = false, ...props }) {
+  return (
+    <Field
+      isClearable={isClearable}
+      {...props}
+      component={SelectField}
+      options={programRegistryClinicalStatusColorOptions}
+    />
+  );
+}
 
 /**
  * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
