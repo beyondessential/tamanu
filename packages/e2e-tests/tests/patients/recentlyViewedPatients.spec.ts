@@ -12,6 +12,10 @@ const PATIENT_COLORS = {
   NO_ADMISSION: 'rgb(17, 114, 209)', // Blue
 } as const;
 
+// Configure all tests in this file to run serially to avoid interference
+// with shared "recently viewed patients" state in the database
+test.describe.configure({ mode: 'serial' });
+
 
 async function verifyRecentlyViewedPatients(
   allPatientsPage: any,
