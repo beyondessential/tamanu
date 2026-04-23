@@ -102,7 +102,19 @@ adminRoutes.patch(
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
-adminRoutes.patch('/survey/:id', simplePatch('Survey', { allowedFields: ['visibilityStatus'] }));
+adminRoutes.patch(
+  '/survey/:id',
+  simplePatch('Survey', {
+    allowedFields: [
+      'isSensitive',
+      'name',
+      'notifiable',
+      'notifyEmailAddresses',
+      'surveyType',
+      'visibilityStatus',
+    ],
+  }),
+);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
