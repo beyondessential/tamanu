@@ -31,6 +31,22 @@ export class InvoicePriceList extends Model {
         rules: {
           type: DataTypes.JSONB,
           allowNull: true,
+          // Older deployments stored rules as a JSON-encoded string (not an object) because
+          // the importer handed Sequelize raw text and JSONB serialisation wrapped it in
+          // quotes. Unwrap that on read so the matching logic sees an object either way.
+          get() {
+            const value = (this as InvoicePriceList).getDataValue('rules');
+            if (typeof value !== 'string') return value;
+            try {
+              const parsed = JSON.parse(value);
+              return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+            } catch {
+              log.warn(
+                `InvoicePriceList ${(this as InvoicePriceList).code}: rules stored as non-JSON string, ignoring. Fix by re-importing the reference data.`,
+              );
+              return null;
+            }
+          },
         },
         visibilityStatus: {
           type: DataTypes.TEXT,

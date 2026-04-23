@@ -17,6 +17,7 @@ import {
 } from './loaders';
 import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
 import { invoiceInsurancePlanItemLoaderFactory } from './invoiceInsurancePlanItemLoaderFactory';
+import { invoicePriceListLoader } from './invoicePriceListLoader';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -72,7 +73,9 @@ export default {
     needs: [OTHER_REFERENCE_TYPES.LAB_TEST_TYPE, OTHER_REFERENCE_TYPES.LAB_TEST_PANEL],
   },
 
-  invoicePriceList: {},
+  invoicePriceList: {
+    loader: invoicePriceListLoader,
+  },
   invoicePriceListItem: {
     get loader() {
       // Use a getter to create a fresh loader instance on each access
