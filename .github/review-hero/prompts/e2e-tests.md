@@ -1,4 +1,4 @@
-# Agent: E2E Happy-Path Tests
+# Agent: E2e tests
 
 Focus: ensure new or updated user-facing features have corresponding end-to-end tests covering the happy path.
 

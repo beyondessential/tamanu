@@ -1,4 +1,4 @@
-# Agent: Endpoint Integration Tests
+# Agent: Integration tests
 
 Focus: ensure new or updated API endpoints have corresponding integration tests.
 

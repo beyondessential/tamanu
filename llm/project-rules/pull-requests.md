@@ -68,7 +68,6 @@ The PR template contains important elements:
 
 - **Changes section**: Brief description of the PR for reviewer context
 - **Deploy checkbox**: `<!-- #deploy -->` triggers deployment to Tamanu Internal
-- **E2E checkbox**: `<!-- #e2e -->` triggers end-to-end tests
 - **Reminder checklist**: Important steps like updating docs, adding tests, etc.
 
 ## Always Fix Linting Issues Before Pushing
