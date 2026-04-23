@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'path';
 import dotenv from 'dotenv';
 
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -25,7 +24,7 @@ module.exports = defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     // Enable heavier debugging artifacts only for local runs.
-    trace: process.env.CI ? 'off' : 'retain-on-failure',
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     video: process.env.CI ? 'off' : 'retain-on-failure',
     screenshot: process.env.CI ? 'off' : 'only-on-failure',
     // Slow down each browser action to make local debugging easier.
