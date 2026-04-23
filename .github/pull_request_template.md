@@ -9,7 +9,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 <details>
 <summary>Options</summary>
 
-- [ ] Synthetic test <!-- #deployopt %synthetic -->
+- [ ] Artillery load test <!-- #deployopt %synthetic -->
 - [ ] Seed from closest snapshot <!-- #deployopt %seed-snapshot -->
 
 </details>
