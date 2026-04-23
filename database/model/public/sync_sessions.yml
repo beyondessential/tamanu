@@ -73,3 +73,6 @@ sources:
           - name: errors
             data_type: array
             description: "{{ doc('sync_sessions__errors') }}"
+          - name: snapshot_dropped_at
+            data_type: timestamp with time zone
+            description: "{{ doc('sync_sessions__snapshot_dropped_at') }}"
