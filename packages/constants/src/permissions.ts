@@ -57,7 +57,7 @@ const FHIR_INTEGRATION_NOUN_SCHEMA: Record<string, PermissionVerb[]> = Object.fr
 // Display names for nouns that should appear differently in the UI.
 // The noun itself (the key) is what gets stored in the database.
 export const PERMISSION_NOUN_DISPLAY_NAMES: Partial<Record<string, string>> = Object.fromEntries(
-  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration — ${k}`]),
+  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration – ${k}`]), // en dash
 );
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -94,7 +94,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   LabRequestStatus: [Write],
   LabTest: [List, Read, Write, Create],
   LabTestPanel: [List, Read, Write, Create],
-  LabTestResult: [Read, Write],
+  LabTestResult: [List, Read, Write],
   LabTestType: [List, Read, Write, Create],
   Location: [List, Read, Write, Create],
   LocationAssignment: [List, Read],

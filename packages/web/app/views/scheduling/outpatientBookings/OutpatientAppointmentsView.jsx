@@ -212,8 +212,11 @@ export const OutpatientAppointmentsView = () => {
           <GroupByToggle data-testid="groupbytoggle-ps0g" />
           <OutpatientAppointmentsFilter data-testid="outpatientappointmentsfilter-j00q" />
           {canCreateAppointment && (
-            <Button onClick={handleCreateAppointment} data-testid="button-3btn">
-              <AddIcon aria-hidden data-testid="addicon-iv7z" />{' '}
+            <Button
+              data-testid="button-3btn"
+              onClick={handleCreateAppointment}
+              startIcon={<AddIcon data-testid="addicon-iv7z" />}
+            >
               <TranslatedText
                 stringId="scheduling.action.bookAppointment"
                 fallback="Book appointment"

@@ -33,7 +33,6 @@
     "refreshToken": {
       "secret": "refreshSecret"
     },
-    "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
   "log": {

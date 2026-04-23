@@ -1,0 +1,1 @@
+export { ManageReferenceDataTab } from './ManageReferenceDataTab';

@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from '@mui/icons-material/Search';
 import { TextField, Form, FormSubmitButton } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { Field } from './Field';

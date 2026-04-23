@@ -5,8 +5,10 @@ import {
   assertRecentDateTime,
   convertDateFormat,
   formatDateTimeForTable,
+  formatForMuiDatePicker,
   getTableItems,
   normalizeToIsoDate,
+  STYLED_TABLE_CELL_PREFIX,
 } from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
@@ -286,7 +288,7 @@ test.describe('Basic tests', () => {
     const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
     expect(requestId[0]).toBe(imagingRequestCode);
     const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-    expect(requestedAtTime[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+    expect(requestedAtTime[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
     const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
     expect(requestedBy[0]).toBe(formValues.requestingClinician);
     const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
@@ -321,7 +323,7 @@ test.describe('Basic tests', () => {
     const department = await getTableItems(documentsPane.page, 1, 'department.name');
     expect(department[0]).toBe(formValues.department);
     const dateUploaded = await getTableItems(documentsPane.page, 1, 'documentUploadedAt');
-    expect(dateUploaded[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+    expect(dateUploaded[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
   });
   test.skip('[BT-0010][AT-2008]add a document and download it', async () => {
     // we can't inspect the download document modal, a blocker to write this test
@@ -340,7 +342,7 @@ test.describe('Basic tests', () => {
     const sidebarPage = new SidebarPage(patientDetailsPage.page);
     expect(encounterValues.facilityName).toBe(await sidebarPage.getFacilityName());
     expect(encounterValues.area).toBe(formValues.area);
-    expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
+    expect(encounterValues.startDate).toBe(`${format(new Date(), 'dd/MM/yyyy')} – Current`);
   });
   test.skip('[BT-0019][AT-2013]Change diet', async ({
     newPatientWithHospitalAdmission,
@@ -677,11 +679,14 @@ test.describe('Basic tests', () => {
     await addReferralModal.completeReferralButton.click();
     await referralPane.waitForPageToLoad();
     const referralDate = await getTableItems(referralPane.page, 1, 'date');
-    expect(referralDate[0]).toBe(format(new Date(formValues.referralDate), 'MM/dd/yyyy'));
+    expect(referralDate[0]).toBe(formatForMuiDatePicker(formValues.referralDate));
     const referralTypeValue = await getTableItems(referralPane.page, 1, 'referralType');
     expect(referralTypeValue[0]).toBe(referralType);
-    const referralCompletedBy = await getTableItems(referralPane.page, 1, 'referredBy');
-    expect(referralCompletedBy[0]).toBe(formValues.referralCompletedBy);
+    // ReferralTable resolves "Referral completed by" via a follow-up user API call after first paint (placeholder N/A).
+    expect(formValues.referralCompletedBy).toBeDefined();
+    await expect(
+      referralPane.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-referredBy`),
+    ).toHaveText(formValues.referralCompletedBy!, { timeout: 20_000 });
     const referralStatus = await getTableItems(referralPane.page, 1, 'status');
     expect(referralStatus[0]).toBe('Pending');
   });

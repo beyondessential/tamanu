@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 
+import { DEFAULT_PATIENT_DISPLAY_ID_PATTERN } from '@tamanu/constants';
 import { extractDefaults } from './utils';
 import {
   emailSchema,
@@ -149,7 +150,7 @@ export const facilitySettings = {
         Wrapping characters in [] will allow static characters to be used. For example,
         '[B]AAAA000000' will generate an 11 character ID with a static B followed by 4 letter and 6 numbers.`,
       type: yup.string().matches(/^(?:(?:\[.+?\])(?=\[|[A0]|$)|[A0])+$/, 'Invalid pattern'),
-      defaultValue: 'AAAA000000',
+      defaultValue: DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
     },
     questionCodeIds: {
       deprecated: true,

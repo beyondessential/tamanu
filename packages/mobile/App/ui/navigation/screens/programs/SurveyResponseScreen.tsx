@@ -41,7 +41,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
 
-  const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
@@ -101,7 +100,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           encounterReason: 'Form response',
         },
         values,
-        setNote,
       );
 
       if (!response) return;
@@ -173,7 +171,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
           patientProgramRegistration={patientProgramRegistration}
-          note={note}
           components={components}
           onSubmit={onSubmit}
           onCancel={openExitModal}

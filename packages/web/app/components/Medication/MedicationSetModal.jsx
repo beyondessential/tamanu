@@ -1,15 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  ConfirmCancelBackRow,
-  TranslatedText,
-  Modal,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { ConfirmCancelBackRow, TranslatedText, Modal, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 import styled from 'styled-components';
-import { Print } from '@material-ui/icons';
+import Print from '@mui/icons-material/Print';
 import { BodyText, Heading5 } from '..';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -148,63 +143,58 @@ const SelectScreen = ({
   }, [medicationSets, medicationSetsLoading]);
 
   return (
-    <>
-      <SetContainer>
-        <Box flex={1} display="flex" flexDirection="column" height="100%">
-          {allergies?.data && allergies.data.length > 0 && (
-            <AllergiesWarningBox>
-              <AllergiesWarningHeader>
-                <WarningOutlineIcon />
-                <AllergiesWarningTitle>
-                  <TranslatedText
-                    stringId="medication.allergies.title"
-                    fallback="Patient allergies"
-                  />
-                </AllergiesWarningTitle>
-              </AllergiesWarningHeader>
-              <AllergiesList>
-                {allergies.data.map((allergyDetail, index) => (
-                  <AllergyItem key={index}>{allergyDetail.allergy.name}</AllergyItem>
-                ))}
-              </AllergiesList>
-            </AllergiesWarningBox>
-          )}
-          <BodyText color={Colors.darkText}>
-            <TranslatedText
-              stringId="medication.modal.medicationSet.question"
-              fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
-            />
-          </BodyText>
+    <SetContainer>
+      <Box flex={1} display="flex" flexDirection="column" height="100%">
+        {allergies?.data && allergies.data.length > 0 && (
+          <AllergiesWarningBox>
+            <AllergiesWarningHeader>
+              <WarningOutlineIcon />
+              <AllergiesWarningTitle>
+                <TranslatedText
+                  stringId="medication.allergies.title"
+                  fallback="Patient allergies"
+                />
+              </AllergiesWarningTitle>
+            </AllergiesWarningHeader>
+            <AllergiesList>
+              {allergies.data.map((allergyDetail, index) => (
+                <AllergyItem key={index}>{allergyDetail.allergy.name}</AllergyItem>
+              ))}
+            </AllergiesList>
+          </AllergiesWarningBox>
+        )}
+        <BodyText color={Colors.darkText}>
+          <TranslatedText
+            stringId="medication.modal.medicationSet.question"
+            fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
+          />
+        </BodyText>
+        <Heading5 color={Colors.darkText} mt="25px" mb={0}>
+          <TranslatedText
+            stringId="medication.modal.medicationSet.label"
+            fallback="Medication set"
+          />
+        </Heading5>
+        <MedicationSetList
+          ref={medicationSetListRef}
+          medicationSets={medicationSets}
+          isLoading={medicationSetsLoading}
+          onSelect={onSelect}
+          selectedMedicationSet={selectedMedicationSet}
+        />
+      </Box>
+      {selectedMedicationSet && (
+        <Box>
           <Heading5 color={Colors.darkText} mt="25px" mb={0}>
             <TranslatedText
-              stringId="medication.modal.medicationSet.label"
-              fallback="Medication set"
+              stringId="medication.modal.medicationSetMedications.label"
+              fallback="Medication set medications"
             />
           </Heading5>
-          <MedicationSetList
-            ref={medicationSetListRef}
-            medicationSets={medicationSets}
-            isLoading={medicationSetsLoading}
-            onSelect={onSelect}
-            selectedMedicationSet={selectedMedicationSet}
-          />
+          <MedicationSetMedicationsList medicationSet={selectedMedicationSet} height={listHeight} />
         </Box>
-        {selectedMedicationSet && (
-          <Box>
-            <Heading5 color={Colors.darkText} mt="25px" mb={0}>
-              <TranslatedText
-                stringId="medication.modal.medicationSetMedications.label"
-                fallback="Medication set medications"
-              />
-            </Heading5>
-            <MedicationSetMedicationsList
-              medicationSet={selectedMedicationSet}
-              height={listHeight}
-            />
-          </Box>
-        )}
-      </SetContainer>
-    </>
+      )}
+    </SetContainer>
   );
 };
 
@@ -245,12 +235,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
-  const {
-    mutateAsync: createMedicationSet,
-    isLoading: isCreatingMedicationSet,
-  } = useCreateMedicationSetMutation({
-    onSuccess: () => onReloadTable(),
-  });
+  const { mutateAsync: createMedicationSet, isLoading: isCreatingMedicationSet } =
+    useCreateMedicationSetMutation({
+      onSuccess: () => onReloadTable(),
+    });
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);

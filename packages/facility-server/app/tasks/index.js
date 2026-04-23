@@ -5,6 +5,7 @@ import {
 } from '@tamanu/shared/tasks';
 
 import { mSupplyMedIntegrationProcessor } from './mSupplyMedIntegrationProcessor';
+import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 
@@ -16,6 +17,7 @@ const DEFAULT_TASK_CLASSES = [
   TimeSyncTask,
   FhirMissingResources,
   mSupplyMedIntegrationProcessor,
+  MSupplyStockOnHandProcessor,
 ];
 
 export function startScheduledTasks(context, taskClasses) {

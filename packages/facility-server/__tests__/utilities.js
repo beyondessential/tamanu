@@ -247,7 +247,9 @@ export async function createTestContext({
     enableReportInstances,
   });
 
-  const { models } = context;
+  const { models, sequelize } = context;
+
+  await sequelize.migrate('up');
 
   const facilityIds = selectFacilityIds(config);
   context.syncManager = new FacilitySyncManager(context);
@@ -283,8 +285,6 @@ export async function createTestContext({
   baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
     return asNewRole(baseApp, models, permissions, roleOverrides);
   };
-
-  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({

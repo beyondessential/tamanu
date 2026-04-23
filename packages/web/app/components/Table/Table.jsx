@@ -15,7 +15,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@material-ui/core';
-import { ExpandMore } from '@material-ui/icons';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
@@ -509,7 +509,6 @@ class TableComponent extends React.Component {
             <CenteredLoadingIndicatorContainer data-testid="centeredloadingindicatorcontainer-38t4">
               <LoadingIndicator
                 backgroundColor="transparent"
-                opacity={1}
                 height="24px"
                 width="20px"
                 size="20px"
