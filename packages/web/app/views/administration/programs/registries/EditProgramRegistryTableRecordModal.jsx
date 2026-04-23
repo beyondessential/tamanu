@@ -95,15 +95,38 @@ function renderFieldForDefinition(field, { disabled }) {
 }
 
 /**
- * @param {'programRegistryClinicalStatus' | 'programRegistryCondition' | 'programRegistryConditionCategory'} resourceSegment
- * @param {string} recordId
+ * @param {{
+ *   recordId: string;
+ *   resourceSegment:
+ *     | 'programRegistryClinicalStatus'
+ *     | 'programRegistryCondition'
+ *     | 'programRegistryConditionCategory';
+ * }} params
+ * @param {Omit<import('@tanstack/react-query').UseMutationOptions, 'mutationKey' | 'mutationFn'>} options
  */
-function usePatchProgramRegistrySubResourceMutation(resourceSegment, recordId) {
+function usePatchProgramRegistrySubResourceMutation(
+  { recordId, resourceSegment },
+  { onError, onSuccess, ...rest } = {},
+) {
   const api = useApi();
   return useMutation({
     mutationKey: [resourceSegment, recordId],
     mutationFn: async body =>
       await api.patch(`admin/${resourceSegment}/${encodeURIComponent(recordId)}`, body),
+    onSuccess: (data, variables, context) => {
+      notifySuccess(
+        <TranslatedText
+          stringId="admin.programRegistries.table.recordUpdateSuccess"
+          fallback="Record updated"
+        />,
+      );
+      onSuccess?.(data, variables, context);
+    },
+    onError: (err, variables, context) => {
+      notifyError(err?.message);
+      onError?.(err, variables, context);
+    },
+    ...rest,
   });
 }
 
@@ -131,8 +154,13 @@ export function EditProgramRegistryTableRecordModal({
   const validationSchema = useMemo(() => buildValidationSchema(fields), [fields]);
 
   const { mutateAsync, isPending } = usePatchProgramRegistrySubResourceMutation(
-    resourceSegment,
-    record.id,
+    { recordId: record.id, resourceSegment },
+    {
+      onSuccess: () => {
+        onClose();
+        onSave?.();
+      },
+    },
   );
 
   const initialValues = useMemo(
@@ -148,19 +176,7 @@ export function EditProgramRegistryTableRecordModal({
   const onSubmit = async ({ color, name, visibilityStatus }) => {
     const payload = { name: name?.trim(), visibilityStatus: visibilityStatus?.trim() };
     if (hasColor) payload.color = color?.trim();
-    await mutateAsync(payload, {
-      onSuccess: () => {
-        notifySuccess(
-          <TranslatedText
-            stringId="admin.programRegistries.table.recordUpdateSuccess"
-            fallback="Record updated"
-          />,
-        );
-        onSave?.();
-        onClose();
-      },
-      onError: err => notifyError(err?.message),
-    });
+    await mutateAsync(payload);
   };
 
   return (
