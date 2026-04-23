@@ -453,7 +453,7 @@ export const DateInput = ({
     return (
       <Box display="flex" alignContent="center" data-testid="box-13xp">
         <DefaultIconButton
-          aria-label={getTranslation('date.prev', 'Previous day')}
+          aria-label={getTranslation('general.date.previousDay', 'Previous day')}
           onClick={() => handleChange(addDays(dateValue || todayDate, -1))}
           disabled={disabled}
           data-testid="defaulticonbutton-1fiy"
@@ -462,7 +462,7 @@ export const DateInput = ({
         </DefaultIconButton>
         {picker}
         <DefaultIconButton
-          aria-label={getTranslation('date.next', 'Next day')}
+          aria-label={getTranslation('general.date.nextDay', 'Next day')}
           onClick={() => handleChange(addDays(dateValue || todayDate, 1))}
           disabled={disabled}
           data-testid="defaulticonbutton-rmeh"
