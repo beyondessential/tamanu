@@ -92,13 +92,15 @@ jobs:
               pgsnap.bes.au/create: "true"
             annotations:
               pgsnap.bes.au/size: "20Gi"
+              pgsnap.bes.au/cpu: "2"
+              pgsnap.bes.au/memory: "4Gi"
               pgsnap.bes.au/for-version: "${VERSION}"
               pgsnap.bes.au/source-branch: "${BRANCH}"
               pgsnap.bes.au/git-sha: "${GIT_SHA}"
           spec:
             suspend: true
             backoffLimit: 0
-            activeDeadlineSeconds: 3600
+            activeDeadlineSeconds: 21600
             ttlSecondsAfterFinished: 3600
             template:
               spec:
