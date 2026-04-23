@@ -1,3 +1,7 @@
+/*
+ * Input labels in this component deliberately untranslated to match those in program import/export.
+ */
+
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
@@ -80,7 +84,13 @@ function EditProgramMetadataModal({ onClose, open }) {
                 label="programCode"
                 required
               />
-              <Field name="name" component={TextField} label="programName" />
+              <Field
+                autoComplete="off"
+                name="name"
+                component={TextField}
+                label="programName"
+                required
+              />
             </Fieldset>
             <Footer>
               <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
