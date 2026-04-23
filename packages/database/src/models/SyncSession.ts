@@ -12,6 +12,7 @@ export class SyncSession extends Model {
   declare snapshotCompletedAt?: Date;
   declare persistCompletedAt?: Date;
   declare completedAt?: Date;
+  declare snapshotDroppedAt?: Date;
   declare startedAtTick?: number;
   declare pullSince?: number;
   declare pullUntil?: number;
@@ -29,6 +30,7 @@ export class SyncSession extends Model {
         snapshotCompletedAt: { type: DataTypes.DATE },
         persistCompletedAt: { type: DataTypes.DATE },
         completedAt: { type: DataTypes.DATE },
+        snapshotDroppedAt: { type: DataTypes.DATE },
         startedAtTick: { type: DataTypes.BIGINT },
         pullSince: { type: DataTypes.BIGINT },
         pullUntil: { type: DataTypes.BIGINT },
