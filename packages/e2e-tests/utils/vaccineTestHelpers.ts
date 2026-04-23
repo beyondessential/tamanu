@@ -290,13 +290,10 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
  */
 export async function testGivenElsewhereForCategory(
   patientDetailsPage: PatientDetailsPage,
-  newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>,
   category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
 ) {
   const givenElsewhereReason = 'Given overseas';
   const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
-  await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-  await patientDetailsPage.navigateToVaccineTab();
 
   await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
     vaccineGivenElsewhere: givenElsewhereReason,
