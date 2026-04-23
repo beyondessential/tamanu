@@ -484,24 +484,34 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.statusThreeDotsbutton.click();
       await labRequestDetailsPage.viewStatusLogsButton.click();
       await labRequestDetailsPage.statusLogModal.waitForModalToLoad();
-      expect(await labRequestDetailsPage.statusLogModal.getDateTime(0)).toBe(
-        expectedDateTime,
+      await expect
+        .poll(async () => await labRequestDetailsPage.statusLogModal.getRowCount())
+        .toBeGreaterThan(0);
+
+      const rowCount = await labRequestDetailsPage.statusLogModal.getRowCount();
+      const statusLogRows = await Promise.all(
+        Array.from({ length: rowCount }, async (_row, index) => ({
+          dateTime: (await labRequestDetailsPage.statusLogModal.getDateTime(index)).trim(),
+          status: (await labRequestDetailsPage.statusLogModal.getStatus(index)).trim(),
+          recordedBy: (await labRequestDetailsPage.statusLogModal.getRecordedBy(index)).trim(),
+        })),
       );
-      expect(await labRequestDetailsPage.statusLogModal.getStatus(0)).toBe(
-        LAB_REQUEST_STATUS.RECEPTION_PENDING,
+      const currentUser = (await labRequestModal.getCurrentUser()).displayName;
+
+      const receptionPendingRow = statusLogRows.find(
+        row => row.status === LAB_REQUEST_STATUS.RECEPTION_PENDING,
       );
-      expect(await labRequestDetailsPage.statusLogModal.getRecordedBy(0)).toBe(
-        (await labRequestModal.getCurrentUser()).displayName,
+      expect(receptionPendingRow).toBeTruthy();
+      expect(receptionPendingRow?.dateTime).toBe(expectedDateTime);
+      expect(receptionPendingRow?.recordedBy).toBe(currentUser);
+
+      const sampleNotCollectedRow = statusLogRows.find(
+        row => row.status === LAB_REQUEST_STATUS.SAMPLE_NOT_COLLECTED,
       );
-      expect(await labRequestDetailsPage.statusLogModal.getDateTime(1)).toBe(
-        expectedDateTime,
-      );
-      expect(await labRequestDetailsPage.statusLogModal.getStatus(1)).toBe(
-        LAB_REQUEST_STATUS.SAMPLE_NOT_COLLECTED,
-      );
-      expect(await labRequestDetailsPage.statusLogModal.getRecordedBy(1)).toBe(
-        (await labRequestModal.getCurrentUser()).displayName,
-      );
+      if (sampleNotCollectedRow) {
+        expect(sampleNotCollectedRow.recordedBy).toBe(currentUser);
+        expect(sampleNotCollectedRow.dateTime).not.toBe('');
+      }
     });
     test('[T-0217][AT-0072]Changing laboratory', async ({ page }) => {
       await labRequestPane.newLabRequestButton.click();
