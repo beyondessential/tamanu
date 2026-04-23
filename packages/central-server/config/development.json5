@@ -1,7 +1,4 @@
 {
-  "auth": {
-    "reportNoUserError": true
-  },
   "db": {
     "name": "tamanu-central-generate",
     "migrateOnStartup": true,

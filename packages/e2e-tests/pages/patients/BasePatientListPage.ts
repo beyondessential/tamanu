@@ -1,7 +1,11 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import {
+  compareDisplayDates,
+  convertDateFormat,
+  STYLED_TABLE_CELL_PREFIX,
+} from '../../utils/testHelper';
 import { PatientTable } from './PatientTable';
 import { Patient } from '../../types/Patient';
 import { ERROR_RED_RGB } from '../../utils/testColors';
@@ -225,17 +229,7 @@ export abstract class BasePatientListPage extends BasePage {
         if (cellText) dateValues.push(cellText);
       }
 
-      const sortedValues = [...dateValues].sort((a, b) => {
-        const [monthA, dayA, yearA] = a.split('/');
-        const [monthB, dayB, yearB] = b.split('/');
-        const dateA = new Date(
-          `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
-        ).getTime();
-        const dateB = new Date(
-          `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`,
-        ).getTime();
-        return isAscending ? dateA - dateB : dateB - dateA;
-      });
+      const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
       expect(dateValues).toEqual(sortedValues);
     }).toPass({ timeout: 10000 });
   }
@@ -301,14 +295,6 @@ export abstract class BasePatientListPage extends BasePage {
 
   async sortByNHN() {
     await this.sortByColumn('displayId');
-  }
-
-  async sortByFirstName() {
-    await this.sortByColumn('firstName');
-  }
-
-  async sortByLastName() {
-    await this.sortByColumn('lastName');
   }
 
   async sortByDOB() {
