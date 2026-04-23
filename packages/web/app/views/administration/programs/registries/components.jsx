@@ -77,15 +77,17 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment, editMod
     return (
       <>
         <ThreeDotMenu items={items} />
-        <EditProgramRegistryTableRecordModal
-          fields={editModal.fields}
-          open={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          onSave={() => refreshTable?.()}
-          record={record}
-          resourceSegment={resourceSegment}
-          title={editModal.title}
-        />
+        {isEditOpen && (
+          <EditProgramRegistryTableRecordModal
+            fields={editModal.fields}
+            onClose={() => setIsEditOpen(false)}
+            onSave={() => refreshTable?.()}
+            open
+            record={record}
+            resourceSegment={resourceSegment}
+            title={editModal.title}
+          />
+        )}
       </>
     );
   };
