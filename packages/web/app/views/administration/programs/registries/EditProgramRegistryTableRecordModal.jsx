@@ -68,10 +68,10 @@ function RegistryTableRecordColorField({ field, disabled }) {
   return <Field name="color" component={TextField} label={label} disabled={disabled} required />;
 }
 
-function RegistryTableRecordVisibilityStatusField({ field, isPending }) {
+function RegistryTableRecordVisibilityStatusField({ field, disabled }) {
   const label = field.title ?? field.key;
   return (
-    <VisibilityStatusField disabled={isPending} label={label} name="visibilityStatus" required />
+    <VisibilityStatusField disabled={disabled} label={label} name="visibilityStatus" required />
   );
 }
 
