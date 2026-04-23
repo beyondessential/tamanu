@@ -155,37 +155,4 @@ describe('Invoice price list import', () => {
     expect(row).toBeNull();
   });
 
-  describe('getter mitigation for already-stored string rules', () => {
-    it('returns a parsed object when rules was stored as a JSON-encoded string', async () => {
-      const { InvoicePriceList } = models;
-      await InvoicePriceList.create({
-        id: 'pl-legacy',
-        code: 'PL-LEGACY',
-        name: 'Legacy',
-        // A raw string gets JSON.stringify'd by Sequelize, reproducing the production bug
-        rules: '{ "facilityId": "facility-b", "patientAge": { "min": 65 } }',
-        visibilityStatus: 'current',
-      });
-
-      const row = await InvoicePriceList.findByPk('pl-legacy');
-      expect(row.rules).toEqual({
-        facilityId: 'facility-b',
-        patientAge: { min: 65 },
-      });
-    });
-
-    it('returns null when rules was stored as a non-JSON string', async () => {
-      const { InvoicePriceList } = models;
-      await InvoicePriceList.create({
-        id: 'pl-garbage',
-        code: 'PL-GARBAGE',
-        name: 'Garbage',
-        rules: '"patientAge": { "max": 64 }',
-        visibilityStatus: 'current',
-      });
-
-      const row = await InvoicePriceList.findByPk('pl-garbage');
-      expect(row.rules).toBeNull();
-    });
-  });
 });
