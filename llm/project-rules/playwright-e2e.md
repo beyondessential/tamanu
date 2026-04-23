@@ -12,6 +12,16 @@ Also see `llm/project-rules/coding-rules.md` (readability, healthcare boundaries
 
 Prefer **fewer, higher-value E2E tests** and push granular logic to unit/integration tests where possible.
 
+## Local run prerequisites
+
+Before debugging a feature spec, verify environment and auth first:
+
+- Confirm `packages/e2e-tests/.env` has valid `FACILITY_FRONTEND_URL`, `TEST_EMAIL`, and `TEST_PASSWORD`.
+- Confirm the facility frontend is reachable at `FACILITY_FRONTEND_URL`.
+- Run auth setup in isolation first: `npx playwright test tests/setup/auth.setup.ts --project=setup`.
+- If setup fails on `waitForURL(.../dashboard)`, treat it as environment/auth/login-flow setup, not a feature regression.
+- Run feature specs only after setup passes, since the `chromium` project depends on `setup`.
+
 ## Package layout (target)
 
 Everything below lives under **`packages/e2e-tests`**. The goal is obvious placement: if you add a file, it should be clear which folder it belongs in.
