@@ -1,6 +1,6 @@
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake/index.js';
+import { fake, chance, fakeDate } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateProcedureParams extends CommonParams {
@@ -21,7 +21,7 @@ export const createProcedure = async ({
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
       locationId: locationId || (await randomRecordId(models, 'Location')),
       physicianId: physicianId || (await randomRecordId(models, 'User')),
-      date: (chance.date({ year: 2024 }) as Date).toISOString(),
+      date: fakeDate().toISOString(),
       completed: chance.bool(),
     }),
   );
