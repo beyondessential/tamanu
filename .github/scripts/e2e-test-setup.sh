@@ -21,6 +21,9 @@ e2e_test_setup_setup_central() {
         "auth": {
             "tokenDuration": "24h"
         },
+        "rateLimit": {
+            "enabled": false
+        },
         "db": {
             "host": "localhost",
             "name": "central",
@@ -138,6 +141,9 @@ e2e_test_setup_setup_facility() {
 	    "auth": {
 	        "tokenDuration": "24h"
 	    },
+        "rateLimit": {
+            "enabled": false
+        },
 	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
 	        "email": "facility-1@tamanu.io",
@@ -160,6 +166,15 @@ e2e_test_setup_setup_facility() {
 EOF
 
     npm run --workspace @tamanu/facility-server start upgrade
+}
+
+e2e_test_setup_start_servers_no_sync() {
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    # Wait for central to accept connections before kicking off facility.
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:3000
+
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:4000
 }
 
 e2e_test_setup_start_servers() {
