@@ -1,5 +1,5 @@
-import { promises as asyncFs } from 'fs';
 import config from 'config';
+import { promises as asyncFs } from 'node:fs';
 import { writeExcelFile } from '../../utils/excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
