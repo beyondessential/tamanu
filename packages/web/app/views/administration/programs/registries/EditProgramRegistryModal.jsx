@@ -18,7 +18,7 @@ import {
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
-import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusSelectOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
 
 const Footer = styled.footer`
@@ -116,7 +116,7 @@ function EditProgramRegistryModal({ onClose, open }) {
                 name="name"
                 required
               />
-              <VisibilityStatusSelectField
+              <VisibilityStatusField
                 disabled={isSubmitting}
                 label="visibilityStatus"
                 name="visibilityStatus"

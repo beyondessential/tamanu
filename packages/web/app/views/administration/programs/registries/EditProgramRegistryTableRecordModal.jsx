@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
-import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusSelectOptions } from '../components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -64,12 +64,7 @@ function RegistryTableRecordColorField({ field, disabled }) {
 function RegistryTableRecordVisibilityStatusField({ field, isPending }) {
   const label = field.title ?? field.key;
   return (
-    <VisibilityStatusSelectField
-      disabled={isPending}
-      label={label}
-      name="visibilityStatus"
-      required
-    />
+    <VisibilityStatusField disabled={isPending} label={label} name="visibilityStatus" required />
   );
 }
 

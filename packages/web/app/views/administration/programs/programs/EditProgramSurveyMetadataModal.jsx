@@ -22,7 +22,7 @@ import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { NullableBooleanField } from '../../../../components/Field/NullableBooleanField';
 import { notifyError, notifySuccess } from '../../../../utils';
-import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusSelectOptions } from '../components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -181,7 +181,7 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
                 name="isSensitive"
                 required
               />
-              <VisibilityStatusSelectField
+              <VisibilityStatusField
                 disabled={isPending}
                 label="visibilityStatus"
                 name="visibilityStatus"

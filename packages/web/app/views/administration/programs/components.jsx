@@ -45,7 +45,7 @@ export const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES
   label: <TranslatedVisibilityStatus visibilityStatus={value} />,
 }));
 
-export function VisibilityStatusSelectField({ isClearable = false, ...props }) {
+export function VisibilityStatusField({ isClearable = false, ...props }) {
   return (
     <Field
       isClearable={isClearable}
