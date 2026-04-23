@@ -112,20 +112,28 @@ function EditProgramRegistryModal({ onClose, open }) {
         render={({ submitForm, isSubmitting }) => (
           <>
             <Fieldset>
-              <Field name="code" component={ReadOnlyTextField} label="code" />
-              <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
+              <Field component={ReadOnlyTextField} label="code" name="code" required />
+              <Field
+                component={TextField}
+                disabled={isSubmitting}
+                label="name"
+                name="name"
+                required
+              />
               <VisibilityStatusSelectField
                 disabled={isSubmitting}
                 label="visibilityStatus"
                 name="visibilityStatus"
+                required
               />
               <Field
-                name="currentlyAtType"
                 component={SelectField}
                 disabled={isSubmitting}
                 isClearable={false}
                 label="currentlyAtType"
+                name="currentlyAtType"
                 options={currentlyAtTypeSelectOptions}
+                required
               />
             </Fieldset>
             <Footer>
