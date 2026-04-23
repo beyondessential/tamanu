@@ -148,12 +148,12 @@ describe('Reference data exporter', () => {
 
   it('Should export empty data if no data type selected', async () => {
     await exporter(store);
-    expect(writeExcelFile).toBeCalledWith([], '');
+    expect(writeExcelFile).toHaveBeenCalledWith([], '');
   });
 
   it('Should export a file with no data if there is no reference data for the selected type', async () => {
     await exporter(store, { 1: REFERENCE_TYPES.DIAGNOSIS, 2: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [],
@@ -171,7 +171,7 @@ describe('Reference data exporter', () => {
   it('Should export a tab with name "Patient Field Def Category" for "patientFieldDefinitionCategory"', async () => {
     await createPatientFieldDefCategory(models);
     await exporter(store, { 1: 'patientFieldDefinitionCategory' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -221,7 +221,7 @@ describe('Reference data exporter', () => {
     await createPatientFieldDefinitions(models);
 
     await exporter(store, { 1: 'patientFieldDefinition' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -246,7 +246,7 @@ describe('Reference data exporter', () => {
   it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "diagnosis"', async () => {
     await createDiagnosis(models);
     await exporter(store, { 1: 'diagnosis' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -264,7 +264,7 @@ describe('Reference data exporter', () => {
   it('Should not export reference data types that are not included in the whitelist', async () => {
     await createDiagnosis(models);
     await exporter(store, { 1: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [],
@@ -279,7 +279,7 @@ describe('Reference data exporter', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     await exporter(store, { 1: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -321,7 +321,7 @@ describe('Reference data exporter', () => {
     });
     await exporter(store, { 1: 'labTestPanel' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -357,7 +357,7 @@ describe('Reference data exporter', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     await exporter(store, { 1: REFERENCE_TYPES.ALLERGY, 2: 'diagnosis' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -384,7 +384,7 @@ describe('Reference data exporter', () => {
     const patientData = createDummyPatient(models);
     const patient = await models.Patient.create(patientData);
     await exporter(store, { 1: 'patient' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -436,7 +436,7 @@ describe('Reference data exporter', () => {
       2: REFERENCE_TYPES.ALLERGY,
       3: 'diagnosis',
     });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -504,7 +504,7 @@ describe('Reference data exporter', () => {
     await exporter(store, {
       1: 'administeredVaccine',
     });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -607,7 +607,7 @@ describe('Reference data exporter', () => {
 
     await exporter(store, { 1: 'translatedString' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -636,7 +636,7 @@ describe('Reference data exporter', () => {
 
     await exporter(store, { 1: 'translatedString' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -674,7 +674,7 @@ describe('Reference data exporter', () => {
 
     await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'true' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -717,7 +717,7 @@ describe('Reference data exporter', () => {
 
     await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'false' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -779,7 +779,7 @@ describe('Reference data exporter', () => {
 
     await exporter(store, { 1: 'invoicePriceList', 2: 'invoicePriceListItem' });
 
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -965,7 +965,7 @@ describe('Reference data exporter', () => {
         sourceRecordId: imagingArea.id,
       });
       await exporter(store, { 1: 'invoiceProduct' });
-      expect(writeExcelFile).toBeCalledWith(
+      expect(writeExcelFile).toHaveBeenCalledWith(
         [
           {
             data: [
@@ -1044,7 +1044,7 @@ describe('Permission and Roles exporter', () => {
 
   it('Should export a file with no data if there is no permission and roles', async () => {
     await exporter(store, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [],
@@ -1083,7 +1083,7 @@ describe('Permission and Roles exporter', () => {
     await destroyPermission(models, testForSoftDeletion);
 
     await exporter(store, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -1119,7 +1119,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(store, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -1171,7 +1171,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(store, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
@@ -1208,7 +1208,7 @@ describe('Permission and Roles exporter', () => {
     await Role.destroy({ where: { id: 'deletedRole' } });
 
     await exporter(store, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFile).toBeCalledWith(
+    expect(writeExcelFile).toHaveBeenCalledWith(
       [
         {
           data: [
