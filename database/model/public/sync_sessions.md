@@ -55,5 +55,8 @@ If a sync fails, the error(s).
 {% enddocs %}
 
 {% docs sync_sessions__snapshot_dropped_at %}
-TODO
+Timestamp the sync session snapshot was dropped.
+
+Successful snapshots are dropped immediately on completion,
+but ones from errored sync sessions are retained for 24 hours to allow for debugging.
 {% enddocs %}
