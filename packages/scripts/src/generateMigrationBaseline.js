@@ -10,14 +10,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DB_NAME = 'tamanu-baseline-generator';
-const BASELINE_TAG = 'v2.32.9';
+const BASELINE_TAG = 'v2.41.5';
 const OUTPUT_PATH = path.resolve(
   __dirname,
   '../../database/src/migrations/000_baseline.sql',
 );
 
 function getPostBaselineMigrations() {
-  const v232Files = new Set(
+  const baselineFiles = new Set(
     execSync(
       `git ls-tree --name-only ${BASELINE_TAG} -- packages/database/src/migrations/`,
     )
@@ -33,11 +33,11 @@ function getPostBaselineMigrations() {
     .readdirSync(distDir)
     .filter(f => f.endsWith('.js'));
 
-  const v232JsNames = new Set(
-    [...v232Files].map(f => f.replace(/\.ts$/, '.js')),
+  const baselineJsNames = new Set(
+    [...baselineFiles].map(f => f.replace(/\.ts$/, '.js')),
   );
 
-  return currentFiles.filter(f => !v232JsNames.has(f) && !f.startsWith('000_baseline'));
+  return currentFiles.filter(f => !baselineJsNames.has(f) && !f.startsWith('000_baseline'));
 }
 
 async function run() {
@@ -66,10 +66,10 @@ async function run() {
     );
   `);
 
-  const postBaselineMigrations = [
-    '000_baseline.js',
-    ...getPostBaselineMigrations(),
-  ];
+  // Skip only migrations that come AFTER BASELINE_TAG. The existing
+  // 000_baseline.js in the working tree must still run so its frozen schema
+  // (e.g. the v2.32.9 snapshot) is applied before the intermediate migrations.
+  const postBaselineMigrations = getPostBaselineMigrations();
   console.log(
     `Pre-populating SequelizeMeta with ${postBaselineMigrations.length} migration names to skip`,
   );
@@ -141,6 +141,9 @@ async function run() {
   const metaRegex = /INSERT INTO public\."SequelizeMeta" VALUES \('([^']+)'\)/g;
   let match;
   while ((match = metaRegex.exec(sql)) !== null) {
+    // Skip the baseline itself — Umzug records it when it runs, so including
+    // it in the frozen list would cause a duplicate-key error on fresh installs.
+    if (match[1].startsWith('000_baseline')) continue;
     metaNames.push(match[1]);
   }
 
