@@ -293,6 +293,10 @@ jobs:
       - run: npm i
       - run: git diff --exit-code
 
+  e2e:
+    name: E2E
+    uses: ./.github/workflows/ci-e2e.yml
+
   dbt-model:
     needs: node_modules_cache
     name: DBT model up to date
@@ -390,6 +394,7 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-package-lock
+      - e2e
       - dbt-model
       - dbt-todos
       - typos
