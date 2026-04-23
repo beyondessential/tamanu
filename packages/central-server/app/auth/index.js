@@ -11,21 +11,34 @@ import { refresh } from './refresh';
 import { setFacility } from './setFacility';
 import { userInfo, userMiddleware } from './userMiddleware';
 
-export const authModule = express.Router();
+const passthrough = (_req, _res, next) => next();
 
-authModule.use('/resetPassword', resetPassword);
-authModule.use('/changePassword', changePassword);
-authModule.post('/login', login);
-authModule.post('/refresh', refresh);
+// Exported as a factory so that the central createApi can inject a shared
+// rate-limiter instance. Unauthenticated / pre-auth endpoints below (login,
+// refresh, password reset) do expensive work (bcrypt, DB lookups) and use the
+// strict `authLimiter`. `/setFacility` runs after `userMiddleware` (already
+// authenticated); it relies on the global limiter only — the auth limiter
+// would mostly affect failed responses when `skipSuccessfulRequests` is true.
+export const authModule = ({ authLimiter } = {}) => {
+  const limiter = authLimiter ?? passthrough;
+  const router = express.Router();
 
-authModule.use(userMiddleware);
-authModule.get('/user/me', userInfo);
-authModule.post('/setFacility', setFacility);
+  router.use('/resetPassword', limiter, resetPassword);
+  router.use('/changePassword', limiter, changePassword);
+  router.post('/login', limiter, login);
+  router.post('/refresh', limiter, refresh);
 
-authModule.get('/permissions', asyncHandler(getPermissions));
-authModule.get(
-  '/whoami',
-  asyncHandler((req, res) => {
-    res.send(convertFromDbRecord(req.user).data);
-  }),
-);
+  router.use(userMiddleware);
+  router.post('/setFacility', setFacility);
+  router.get('/user/me', userInfo);
+
+  router.get('/permissions', asyncHandler(getPermissions));
+  router.get(
+    '/whoami',
+    asyncHandler((req, res) => {
+      res.send(convertFromDbRecord(req.user).data);
+    }),
+  );
+
+  return router;
+};
