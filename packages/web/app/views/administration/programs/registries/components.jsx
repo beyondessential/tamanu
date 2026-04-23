@@ -8,7 +8,9 @@ import { DataFetchingTable, TranslatedText } from '../../../../components';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { useVisibilityStatusMutation } from './useVisibilityStatusMutation';
 
-export const StyledDataFetchingTable = styled(DataFetchingTable)`
+export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
+  allowExport: false,
+})`
   border-start-end-radius: 0;
   border-start-start-radius: 0;
   box-shadow: unset;

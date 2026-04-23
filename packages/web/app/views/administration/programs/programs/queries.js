@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useApi } from '../../../../api/useApi';
 
@@ -12,14 +12,31 @@ export function useProgramsQuery(options) {
   });
 }
 
-export function useProgramQuery(programId, options = {}) {
-  const { enabled = true } = options;
+export function useProgramQuery(programId, useQueryOptions = {}) {
+  const { enabled = true, ...rest } = useQueryOptions;
   const api = useApi();
 
   return useQuery({
+    ...rest,
     queryKey: ['programs', programId],
     queryFn: async () => await api.get(`admin/program/${encodeURIComponent(programId)}`),
-    ...options,
     enabled: enabled && Boolean(programId),
+  });
+}
+
+export function useProgramMutation(programId, useMutationOptions = {}) {
+  const { onSuccess, ...rest } = useMutationOptions;
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...rest,
+    mutationKey: ['programs', programId],
+    mutationFn: async ({ name }) =>
+      api.put(`admin/program/${encodeURIComponent(programId)}`, { name }),
+    onSuccess: async (data, variables, context) => {
+      await queryClient.invalidateQueries({ queryKey: ['programs'] });
+      await onSuccess?.(data, variables, context);
+    },
   });
 }
