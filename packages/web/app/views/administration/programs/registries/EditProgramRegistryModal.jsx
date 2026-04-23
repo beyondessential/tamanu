@@ -18,7 +18,7 @@ import {
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
-import { VisibilityStatusField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
 
 const Footer = styled.footer`
@@ -50,7 +50,7 @@ const metadataValidationSchema = yup.object().shape({
   visibilityStatus: yup
     .string()
     .required('Required')
-    .oneOf(visibilityStatusSelectOptions.map(option => option.value)),
+    .oneOf(visibilityStatusOptions.map(option => option.value)),
   currentlyAtType: yup.string().required('Required'),
 });
 

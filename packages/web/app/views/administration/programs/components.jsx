@@ -56,7 +56,7 @@ export function ProgramRegistryClinicalStatusColorField({ isClearable = false, .
   );
 }
 
-export const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
+export const visibilityStatusOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
   label: <TranslatedVisibilityStatus visibilityStatus={value} />,
 }));
@@ -67,7 +67,7 @@ export function VisibilityStatusField({ isClearable = false, ...props }) {
       isClearable={isClearable}
       {...props}
       component={SelectField}
-      options={visibilityStatusSelectOptions}
+      options={visibilityStatusOptions}
     />
   );
 }

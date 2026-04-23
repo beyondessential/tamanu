@@ -22,7 +22,7 @@ import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { NullableBooleanField } from '../../../../components/Field/NullableBooleanField';
 import { notifyError, notifySuccess } from '../../../../utils';
-import { VisibilityStatusField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusOptions } from '../components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -34,7 +34,7 @@ const Footer = styled.footer`
   padding-block-start: 20px;
 `;
 
-const visibilityStatusValues = visibilityStatusSelectOptions.map(option => option.value);
+const visibilityStatusValues = visibilityStatusOptions.map(option => option.value);
 
 function parseNotifyEmailAddresses(csv) {
   if (csv == null || typeof csv !== 'string') return [];
