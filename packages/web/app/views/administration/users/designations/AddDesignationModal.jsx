@@ -73,9 +73,9 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
     });
   };
 
-  const renderForm = ({ submitForm }) => (
+  const renderForm = ({ submitForm, isSubmitting }) => (
     <>
-      <FormGridThatFits disabled={isLoading}>
+      <FormGridThatFits disabled={isSubmitting}>
         <RequiredTextField
           inputProps={{ minLength: 1 }}
           label={<TranslatedText stringId="admin.designations.name.label" fallback="Name" />}

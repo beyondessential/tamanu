@@ -56,9 +56,9 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     },
   });
 
-  const renderForm = ({ submitForm }) => (
+  const renderForm = ({ submitForm, isSubmitting }) => (
     <>
-      <FormGridThatFits disabled={isLoading}>
+      <FormGridThatFits disabled={isSubmitting}>
         <RequiredTextField
           inputProps={{ minLength: 1, maxLength: 255 }}
           label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}

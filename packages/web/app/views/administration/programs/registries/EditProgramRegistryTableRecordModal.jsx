@@ -170,9 +170,9 @@ export function EditProgramRegistryTableRecordModal({
         formType={FORM_TYPES.EDIT_FORM}
         initialValues={initialValues}
         onSubmit={onSubmit}
-        render={({ submitForm }) => (
+        render={({ submitForm, isSubmitting }) => (
           <>
-            <FormGridThatFits>
+            <FormGridThatFits disabled={isSubmitting}>
               {fields.map(field => renderFieldForDefinition(field, { disabled: isPending }))}
             </FormGridThatFits>
             <Footer>

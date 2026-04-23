@@ -107,7 +107,7 @@ function EditProgramRegistryModal({ onClose, open }) {
         }}
         render={({ submitForm, isSubmitting }) => (
           <>
-            <FormGridThatFits>
+            <FormGridThatFits disabled={isSubmitting}>
               <Field component={ReadOnlyTextField} label="code" name="code" required />
               <Field
                 component={TextField}

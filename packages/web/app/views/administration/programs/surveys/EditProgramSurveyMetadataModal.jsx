@@ -155,9 +155,9 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
         formType={FORM_TYPES.EDIT_FORM}
         initialValues={initialValues}
         onSubmit={onSubmit}
-        render={({ submitForm }) => (
+        render={({ submitForm, isSubmitting }) => (
           <>
-            <FormGridThatFits disabled={isPending}>
+            <FormGridThatFits disabled={isSubmitting}>
               <Field component={ReadOnlyTextField} label="code" name="code" required />
               <Field
                 autoComplete="off"
