@@ -734,11 +734,12 @@ CREATE FUNCTION logs.record_change() RETURNS trigger
         table_name,
         updated_by_user_id,
         record_id,
-        record_update,
+        device_id,
+        version,
+        reason,
         record_created_at,
         record_updated_at,
         record_deleted_at,
-        record_sync_tick,
         record_data
       ) VALUES (
         TG_RELID,                 -- table_oid
@@ -746,11 +747,12 @@ CREATE FUNCTION logs.record_change() RETURNS trigger
         TG_TABLE_NAME,            -- table_name
         get_session_config('audit.userid', uuid_nil()::text), -- updated_by_user_id
         NEW.id,                   -- record_id
-        TG_OP = 'UPDATE',         -- record_update
+        local_system_fact('deviceId', 'unknown'), -- device_id,
+        local_system_fact('currentVersion', 'unknown'), -- version,
+        get_session_config('audit.reason', NULL), -- reason,
         NEW.created_at,           -- created_at
         NEW.updated_at,           -- updated_at
         NEW.deleted_at,           -- deleted_at
-        NEW.updated_at_sync_tick, -- updated_at_sync_tick
         to_jsonb(NEW.*)           -- record_data
       );
       RETURN NEW;
@@ -784,6 +786,58 @@ CREATE FUNCTION public.adjusted_timestamp() RETURNS timestamp with time zone
     $$;
 
 
+SET default_table_access_method = heap;
+
+--
+-- Name: patients; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.patients (
+    id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp with time zone,
+    display_id character varying(255) NOT NULL,
+    first_name character varying(255),
+    middle_name character varying(255),
+    last_name character varying(255),
+    cultural_name character varying(255),
+    email character varying(255),
+    date_of_birth public.date_string,
+    sex public.enum_patients_sex NOT NULL,
+    village_id character varying(255),
+    additional_details text,
+    date_of_death public.date_time_string,
+    merged_into_id character varying(255),
+    visibility_status character varying(255) DEFAULT 'current'::character varying,
+    date_of_birth_legacy timestamp with time zone,
+    date_of_death_legacy timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: find_potential_patient_duplicates(json); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.find_potential_patient_duplicates(patient_data json) RETURNS SETOF public.patients
+    LANGUAGE plpgsql STABLE PARALLEL SAFE
+    AS $$
+    BEGIN      
+      RETURN QUERY
+      SELECT 
+        p.*
+      FROM 
+        patients p
+      WHERE 
+        lower(p.first_name) = lower(patient_data->>'firstName') 
+        AND lower(p.last_name) = lower(patient_data->>'lastName') 
+        AND p.date_of_birth = patient_data->>'dateOfBirth'
+        AND p.deleted_at IS NULL;
+    END;
+    $$;
+
+
 --
 -- Name: first_agg(anyelement, anyelement); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -791,6 +845,69 @@ CREATE FUNCTION public.adjusted_timestamp() RETURNS timestamp with time zone
 CREATE FUNCTION public.first_agg(anyelement, anyelement) RETURNS anyelement
     LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
     AS $_$SELECT $1$_$;
+
+
+--
+-- Name: flag_lookup_model_to_rebuild(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.flag_lookup_model_to_rebuild(model_name text) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      INSERT INTO local_system_facts (key, value)
+      VALUES ('lookupModelsToRebuild', model_name)
+      ON CONFLICT (key) DO UPDATE SET value = 
+        CASE 
+        WHEN local_system_facts.value IS NULL OR local_system_facts.value = '' THEN
+	          -- If the value is null or empty, set it to the model name
+          model_name
+        WHEN model_name = ANY(string_to_array(local_system_facts.value, ',')) THEN
+          -- If the model name is already in the array, do nothing
+          local_system_facts.value
+        ELSE
+          -- If the model name is not in the array, add it
+          local_system_facts.value || ',' || model_name
+        END;
+    END;
+    $$;
+
+
+--
+-- Name: get_medication_time_slot(timestamp without time zone); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.get_medication_time_slot(input_datetime timestamp without time zone) RETURNS TABLE(start_time timestamp without time zone, end_time timestamp without time zone)
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+        input_hour INTEGER;
+        slot_start_hour INTEGER;
+        slot_end_hour INTEGER;
+        base_date DATE;
+    BEGIN
+        -- Extract hour and minute from input
+        input_hour := EXTRACT(HOUR FROM input_datetime);
+        base_date := DATE(input_datetime);
+
+        -- Calculate which 2-hour slot this time falls into
+        -- Time slots: 00:00-02:00, 02:00-04:00, 04:00-06:00, 06:00-08:00, etc.
+        slot_start_hour := (input_hour / 2) * 2;  -- Integer division, then multiply by 2
+        slot_end_hour := slot_start_hour + 2;
+
+        -- Handle the edge case where slot_end_hour is 24 (should be 00:00 next day)
+        IF slot_end_hour = 24 THEN
+            slot_end_hour := 0;
+            RETURN QUERY SELECT
+                (base_date + (slot_start_hour || ' hours')::INTERVAL)::TIMESTAMP as start_time,
+                ((base_date + INTERVAL '1 day') + (slot_end_hour || ' hours')::INTERVAL)::TIMESTAMP as end_time;
+        ELSE
+            RETURN QUERY SELECT
+                (base_date + (slot_start_hour || ' hours')::INTERVAL)::TIMESTAMP as start_time,
+                (base_date + (slot_end_hour || ' hours')::INTERVAL)::TIMESTAMP as end_time;
+        END IF;
+    END;
+    $$;
 
 
 --
@@ -963,6 +1080,28 @@ CREATE FUNCTION public.set_session_config(key text, value text, is_local boolean
       full_key TEXT = 'tamanu.' || key;
     BEGIN
       PERFORM set_config(full_key, value, is_local);
+    END;
+    $$;
+
+
+--
+-- Name: set_updated_at(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+        IF (to_jsonb(NEW) ? 'updated_at') THEN
+            IF (
+                (to_jsonb(NEW) - 'updated_at') IS DISTINCT FROM (to_jsonb(OLD) - 'updated_at')
+                AND
+                (to_jsonb(NEW)->'updated_at') IS NOT DISTINCT FROM (to_jsonb(OLD)->'updated_at')
+            ) THEN
+                NEW.updated_at := current_timestamp;
+            END IF;
+        END IF;
+        RETURN NEW;
     END;
     $$;
 
@@ -1219,8 +1358,6 @@ CREATE OPERATOR public.= (
 );
 
 
-SET default_table_access_method = heap;
-
 --
 -- Name: encounters; Type: TABLE; Schema: fhir; Owner: -
 --
@@ -1296,6 +1433,34 @@ CREATE TABLE fhir.jobs (
     topic text NOT NULL,
     discriminant text DEFAULT gen_random_uuid() NOT NULL,
     payload jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+--
+-- Name: medication_requests; Type: TABLE; Schema: fhir; Owner: -
+--
+
+CREATE TABLE fhir.medication_requests (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    version_id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    upstream_id uuid NOT NULL,
+    last_updated timestamp with time zone NOT NULL,
+    identifier jsonb,
+    status text NOT NULL,
+    intent text NOT NULL,
+    group_identifier jsonb,
+    subject jsonb,
+    encounter jsonb,
+    medication jsonb,
+    authored_on timestamp with time zone,
+    requester jsonb,
+    recorder jsonb,
+    note jsonb,
+    dosage_instruction jsonb,
+    dispense_request jsonb,
+    resolved boolean DEFAULT false NOT NULL,
+    is_live boolean DEFAULT true NOT NULL,
+    category jsonb
 );
 
 
@@ -1480,19 +1645,16 @@ CREATE TABLE logs.changes (
     table_name text NOT NULL,
     logged_at timestamp with time zone DEFAULT public.adjusted_timestamp() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp with time zone,
     updated_by_user_id text NOT NULL,
     device_id text DEFAULT public.local_system_fact('deviceId'::text, 'unknown'::text) NOT NULL,
     version text DEFAULT public.local_system_fact('currentVersion'::text, 'unknown'::text) NOT NULL,
     record_id text NOT NULL,
-    record_update boolean NOT NULL,
     record_created_at timestamp with time zone NOT NULL,
     record_updated_at timestamp with time zone NOT NULL,
     record_deleted_at timestamp with time zone,
-    record_sync_tick bigint NOT NULL,
     record_data jsonb NOT NULL,
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    reason text
 );
 
 
@@ -1751,6 +1913,22 @@ CREATE TABLE public.departments (
 
 
 --
+-- Name: devices; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.devices (
+    id text DEFAULT gen_random_uuid() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    last_seen_at timestamp with time zone DEFAULT now() NOT NULL,
+    registered_by_id character varying(255) NOT NULL,
+    name text,
+    scopes jsonb DEFAULT '[]'::jsonb NOT NULL
+);
+
+
+--
 -- Name: discharges; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1853,36 +2031,59 @@ CREATE TABLE public.encounter_history (
 
 
 --
--- Name: encounter_medications; Type: TABLE; Schema: public; Owner: -
+-- Name: encounter_pause_prescription_histories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.encounter_medications (
+CREATE TABLE public.encounter_pause_prescription_histories (
     id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    encounter_prescription_id uuid NOT NULL,
+    action character varying(255) NOT NULL,
+    action_date public.date_time_string NOT NULL,
+    action_user_id character varying(255),
+    notes text,
+    pause_duration numeric,
+    pause_time_unit character varying(255),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp with time zone,
-    date public.date_time_string NOT NULL,
-    end_date public.date_time_string,
-    prescription character varying(255),
-    note character varying(255),
-    indication character varying(255),
-    route character varying(255),
-    qty_morning integer,
-    qty_lunch integer,
-    qty_evening integer,
-    qty_night integer,
-    encounter_id character varying(255),
-    medication_id character varying(255),
-    prescriber_id character varying(255),
-    quantity integer DEFAULT 0 NOT NULL,
-    discontinued boolean,
-    discontinuing_clinician_id character varying(255),
-    discontinuing_reason character varying(255),
-    repeats integer,
-    is_discharge boolean DEFAULT false NOT NULL,
-    discontinued_date character varying(255),
-    date_legacy timestamp with time zone,
-    end_date_legacy timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: encounter_pause_prescriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.encounter_pause_prescriptions (
+    id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
+    encounter_prescription_id uuid NOT NULL,
+    pause_duration numeric NOT NULL,
+    pause_time_unit character varying(255) NOT NULL,
+    pause_start_date public.date_time_string NOT NULL,
+    pause_end_date public.date_time_string NOT NULL,
+    notes text,
+    pausing_clinician_id character varying(255),
+    created_by character varying(255),
+    updated_by character varying(255),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: encounter_prescriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.encounter_prescriptions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    encounter_id character varying(255) NOT NULL,
+    prescription_id character varying(255) NOT NULL,
+    is_selected_for_discharge boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
     updated_at_sync_tick bigint DEFAULT 0 NOT NULL
 );
 
@@ -1935,7 +2136,8 @@ CREATE TABLE public.facilities (
     street_address character varying(255),
     visibility_status text DEFAULT 'current'::text,
     catchment_id text,
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    is_sensitive boolean DEFAULT false NOT NULL
 );
 
 
@@ -2417,34 +2619,6 @@ CREATE TABLE public.locations (
 
 
 --
--- Name: patients; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.patients (
-    id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp with time zone,
-    display_id character varying(255) NOT NULL,
-    first_name character varying(255),
-    middle_name character varying(255),
-    last_name character varying(255),
-    cultural_name character varying(255),
-    email character varying(255),
-    date_of_birth public.date_string,
-    sex public.enum_patients_sex NOT NULL,
-    village_id character varying(255),
-    additional_details text,
-    date_of_death public.date_time_string,
-    merged_into_id character varying(255),
-    visibility_status character varying(255) DEFAULT 'current'::character varying,
-    date_of_birth_legacy timestamp with time zone,
-    date_of_death_legacy timestamp with time zone,
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
-);
-
-
---
 -- Name: scheduled_vaccines; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2495,7 +2669,7 @@ CREATE VIEW public.upcoming_vaccinations AS
            FROM public.settings s
           WHERE ((s.deleted_at IS NULL) AND (s.key = 'upcomingVaccinations.thresholds'::text))
         UNION
-         SELECT '[{"status": "SCHEDULED", "threshold": 28}, {"status": "UPCOMING", "threshold": 7}, {"status": "DUE", "threshold": -7}, {"status": "OVERDUE", "threshold": -55}, {"status": "MISSED", "threshold": "-Infinity"}]'::jsonb,
+         SELECT '[{"status": "SCHEDULED", "threshold": 28}, {"status": "UPCOMING", "threshold": 7}, {"status": "DUE", "threshold": -7}, {"status": "OVERDUE", "threshold": -55}, {"status": "MISSED", "threshold": "-Infinity"}]'::jsonb AS jsonb,
             0
   ORDER BY 2 DESC
  LIMIT 1
@@ -2509,7 +2683,7 @@ CREATE VIEW public.upcoming_vaccinations AS
            FROM public.settings s
           WHERE ((s.deleted_at IS NULL) AND (s.key = 'upcomingVaccinations.ageLimit'::text))
         UNION
-         SELECT '15'::jsonb,
+         SELECT '15'::jsonb AS jsonb,
             0
   ORDER BY 2 DESC
  LIMIT 1
@@ -2619,6 +2793,53 @@ CREATE MATERIALIZED VIEW public.materialized_upcoming_vaccinations AS
     upcoming_vaccinations.status
    FROM public.upcoming_vaccinations
   WITH NO DATA;
+
+
+--
+-- Name: medication_administration_record_doses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.medication_administration_record_doses (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    dose_amount numeric NOT NULL,
+    given_time public.date_time_string NOT NULL,
+    given_by_user_id character varying(255) NOT NULL,
+    recorded_by_user_id character varying(255) NOT NULL,
+    mar_id character varying(255) NOT NULL,
+    dose_index integer NOT NULL,
+    is_removed boolean,
+    reason_for_removal character varying(255),
+    reason_for_change character varying(255),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: medication_administration_records; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.medication_administration_records (
+    id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
+    status character varying(255),
+    due_at public.date_time_string NOT NULL,
+    recorded_at public.date_time_string,
+    recorded_by_user_id character varying(255),
+    prescription_id character varying(255),
+    is_auto_generated boolean DEFAULT false NOT NULL,
+    changing_status_reason text,
+    changing_not_given_info_reason character varying(255),
+    reason_not_given_id character varying(255),
+    is_error boolean,
+    error_notes text,
+    is_edited boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -3066,6 +3287,21 @@ CREATE TABLE public.patient_issues (
 
 
 --
+-- Name: patient_ongoing_prescriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.patient_ongoing_prescriptions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    patient_id character varying(255) NOT NULL,
+    prescription_id character varying(255) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
 -- Name: patient_program_registration_conditions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3076,12 +3312,13 @@ CREATE TABLE public.patient_program_registration_conditions (
     deleted_at timestamp with time zone,
     date public.date_time_string NOT NULL,
     deletion_date public.date_time_string,
-    patient_id character varying(255) NOT NULL,
-    program_registry_id character varying(255) NOT NULL,
     program_registry_condition_id character varying(255),
     clinician_id character varying(255),
     deletion_clinician_id character varying(255),
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    reason_for_change character varying(255),
+    patient_program_registration_id text,
+    program_registry_condition_category_id text NOT NULL
 );
 
 
@@ -3090,7 +3327,6 @@ CREATE TABLE public.patient_program_registration_conditions (
 --
 
 CREATE TABLE public.patient_program_registrations (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP(3) NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP(3) NOT NULL,
     deleted_at timestamp with time zone,
@@ -3103,8 +3339,10 @@ CREATE TABLE public.patient_program_registrations (
     registering_facility_id character varying(255),
     facility_id character varying(255),
     village_id character varying(255),
-    is_most_recent boolean DEFAULT false NOT NULL,
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    deactivated_clinician_id character varying(255),
+    deactivated_date character varying(255),
+    id text GENERATED ALWAYS AS (((replace((patient_id)::text, ';'::text, ':'::text) || ';'::text) || replace((program_registry_id)::text, ';'::text, ':'::text))) STORED NOT NULL
 );
 
 
@@ -3160,6 +3398,126 @@ CREATE TABLE public.permissions (
 
 
 --
+-- Name: pharmacy_order_prescriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pharmacy_order_prescriptions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    pharmacy_order_id uuid NOT NULL,
+    prescription_id text NOT NULL,
+    quantity integer NOT NULL,
+    repeats integer,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: pharmacy_orders; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pharmacy_orders (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    ordering_clinician_id text NOT NULL,
+    encounter_id text NOT NULL,
+    comments text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    is_discharge_prescription boolean DEFAULT false NOT NULL,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: prescriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.prescriptions (
+    id character varying(255) DEFAULT gen_random_uuid() NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp with time zone,
+    date public.date_time_string NOT NULL,
+    end_date public.date_time_string,
+    notes character varying(255),
+    indication character varying(255),
+    route character varying(255),
+    medication_id character varying(255),
+    prescriber_id character varying(255),
+    quantity integer,
+    discontinued boolean,
+    discontinuing_clinician_id character varying(255),
+    discontinuing_reason character varying(255),
+    repeats integer,
+    discontinued_date character varying(255),
+    date_legacy timestamp with time zone,
+    end_date_legacy timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    is_ongoing boolean,
+    is_prn boolean,
+    is_variable_dose boolean,
+    dose_amount numeric,
+    units character varying(255) DEFAULT ''::character varying NOT NULL,
+    frequency character varying(255) DEFAULT ''::character varying NOT NULL,
+    start_date public.date_time_string NOT NULL,
+    duration_value numeric,
+    duration_unit character varying(255),
+    is_phone_order boolean,
+    ideal_times character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[],
+    pharmacy_notes character varying(255),
+    display_pharmacy_notes_in_mar boolean
+);
+
+
+--
+-- Name: procedure_assistant_clinicians; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.procedure_assistant_clinicians (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    procedure_id character varying(255) NOT NULL,
+    user_id character varying(255) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: procedure_survey_responses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.procedure_survey_responses (
+    id uuid NOT NULL,
+    procedure_id character varying(255) NOT NULL,
+    survey_response_id character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: procedure_type_surveys; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.procedure_type_surveys (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    procedure_type_id character varying(255) NOT NULL,
+    survey_id character varying(255) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
 -- Name: procedures; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3178,13 +3536,16 @@ CREATE TABLE public.procedures (
     procedure_type_id character varying(255),
     anaesthetic_id character varying(255),
     physician_id character varying(255),
-    assistant_id character varying(255),
     anaesthetist_id character varying(255),
     start_time public.date_time_string,
     date_legacy timestamp with time zone,
     start_time_legacy character varying(255),
     end_time_legacy timestamp with time zone,
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    department_id character varying(255),
+    assistant_anaesthetist_id character varying(255),
+    time_in public.date_time_string,
+    time_out public.date_time_string
 );
 
 
@@ -3238,6 +3599,23 @@ CREATE TABLE public.program_registry_clinical_statuses (
     code text NOT NULL,
     name text NOT NULL,
     color text,
+    visibility_status text DEFAULT 'current'::text,
+    program_registry_id character varying(255) NOT NULL,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: program_registry_condition_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.program_registry_condition_categories (
+    id text DEFAULT public.uuid_generate_v4() NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP(6) NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP(6) NOT NULL,
+    deleted_at timestamp with time zone,
+    code text NOT NULL,
+    name text NOT NULL,
     visibility_status text DEFAULT 'current'::text,
     program_registry_id character varying(255) NOT NULL,
     updated_at_sync_tick bigint DEFAULT 0 NOT NULL
@@ -3305,6 +3683,50 @@ CREATE TABLE public.reference_data_relations (
     reference_data_id text,
     reference_data_parent_id text,
     type character varying(255) NOT NULL,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: reference_drugs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.reference_drugs (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    reference_data_id character varying(255) NOT NULL,
+    route character varying(255),
+    units character varying(255),
+    notes character varying(255),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    is_sensitive boolean DEFAULT false NOT NULL,
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: reference_medication_templates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.reference_medication_templates (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    reference_data_id character varying(255) NOT NULL,
+    medication_id character varying(255) NOT NULL,
+    is_variable_dose boolean DEFAULT false NOT NULL,
+    is_prn boolean DEFAULT false NOT NULL,
+    dose_amount numeric,
+    units character varying(255) NOT NULL,
+    frequency character varying(255) NOT NULL,
+    route character varying(255) NOT NULL,
+    duration_value numeric,
+    duration_unit character varying(255),
+    notes text,
+    discharge_quantity integer,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    is_ongoing boolean DEFAULT false NOT NULL,
     updated_at_sync_tick bigint DEFAULT 0 NOT NULL
 );
 
@@ -3590,6 +4012,17 @@ ALTER SEQUENCE public.sync_lookup_id_seq OWNED BY public.sync_lookup.id;
 
 
 --
+-- Name: sync_lookup_ticks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sync_lookup_ticks (
+    id bigint GENERATED ALWAYS AS (lookup_end_tick) STORED,
+    source_start_tick bigint NOT NULL,
+    lookup_end_tick bigint NOT NULL
+);
+
+
+--
 -- Name: sync_queued_devices; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3625,7 +4058,8 @@ CREATE TABLE public.sync_sessions (
     pull_until bigint,
     started_at_tick bigint,
     snapshot_started_at timestamp with time zone,
-    errors text[]
+    errors text[],
+    parameters jsonb DEFAULT '"{}"'::jsonb NOT NULL
 );
 
 
@@ -3712,7 +4146,8 @@ CREATE TABLE public.tasks (
     deleted_reason_for_sync_id character varying(255),
     duration_value numeric,
     duration_unit character varying(255),
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    task_type character varying(255) DEFAULT 'normal_task'::character varying NOT NULL
 );
 
 
@@ -3868,7 +4303,8 @@ CREATE TABLE public.users (
     display_id character varying(255),
     visibility_status character varying(255) DEFAULT 'current'::character varying NOT NULL,
     phone_number character varying(255),
-    updated_at_sync_tick bigint DEFAULT 0 NOT NULL
+    updated_at_sync_tick bigint DEFAULT 0 NOT NULL,
+    device_registration_quota integer DEFAULT 0 NOT NULL
 );
 
 
@@ -3963,6 +4399,12 @@ INSERT INTO fhir.jobs VALUES ('8f47a935-3f39-4b30-8113-b02808573606', '2026-04-1
 
 
 --
+-- Data for Name: medication_requests; Type: TABLE DATA; Schema: fhir; Owner: -
+--
+
+
+
+--
 -- Data for Name: non_fhir_medici_report; Type: TABLE DATA; Schema: fhir; Owner: -
 --
 
@@ -4027,6 +4469,7 @@ INSERT INTO fhir.jobs VALUES ('8f47a935-3f39-4b30-8113-b02808573606', '2026-04-1
 --
 
 INSERT INTO logs.migrations VALUES ('cd15e7fc-f7e3-4cf3-a17e-e38ef134c9e8', '2026-04-16 08:34:08.683685+12', 1, 'unknown', 'unknown', 'up', '["000_initial.js", "001_additionalFields.js", "002_missedNullConstraints.js", "003_missedDefaults.js", "004_missedColumns.js", "005_markedForPush.js", "006_markedForSync.js", "006_problematicEnums.js", "006_referralFields.js", "007_pushedAt.js", "007_uniqueSyncMetadataChannel.js", "008_referredFacilityField.js", "009_removeReportRequestEnum.js", "010_lastSyncedToPullCursor.js", "010_renameSvO2toSpO2.js", "011_reportRequestMarkedForPush.js", "011_reportRequestPushedAt.js", "012_changeProgramDataElementDefaultOptionsType.js", "012_patientAdditionalData.js", "013_addInjectionSiteColumn.js", "013_addLocationsTable.js", "014_addUserFacilitiesTable.js", "015_addUserFeatureFlagsCacheTable.js", "015_additionalDataMarkedForPush.js", "016_addAttachmentTable.js", "016_addNoteInImagingRequest.js", "017_addPushedAtInPatientAdditionalData.js", "018_createDischargesTable.js", "019_pluraliseUserFeatureFlagsCaches.js", "020_userFeatureFlagsCachesUnlimitedLength.js", "021_renameFeatureFlagsToLocalisation.js", "022_addNewPatientFieldsForNauru.js", "023_addAssetTable.js", "023_addOneTimeLoginsTable.js", "024_addCountryOfBirth.js", "025_changedNoteTypeColumn.js", "026_addMedicationQuantityColumn.js", "027_addweeksFromLastVaccinationDueColumn.js", "028_addLabRequestDisplayIdColumn.js", "028_changeUrgentColumnType.js", "029_fix_priority_column.js", "030_labTestLaboratory.js", "031_addLabTestMethod.js", "032_addLabRequestLogTable.js", "032_encounterDiagnosisCertaintyToString.js", "033_addLabRequestNoteRecordType.js", "035_migrateLabRequestNotesColumn.js", "036_labRequestStatusToText.js", "037_addLabTestVerificationField.js", "038_addRegisteredByPatientAdditionalData.js", "039_addAppointmentsTable.js", "039_addSyncColumnsToLabRequestLog.js", "040_addLocalSystemFact.js", "041_renameSyncMetadataToChannelSyncPullCursor.js", "042_addFacilitiesTable.js", "042_addIndexesForUpdatedAt.js", "042_addLabRequestLogStatusDeleted.js", "043-addErrorColumnInReportRequest.js", "043_addDepartmentsTable.js", "043_renameAppointmentColumns.js", "044-addProcessStartedColumnInReportRequest.js", "044_removeSyncColumnsFromLocations.js", "045_0_populateFacilityTables.js", "045_1_updateFacilityReferenceColumns.js", "046_removeSurveyAnswerLimit.js", "047_addImagingRequestsUrgentField.js", "047_imagingRequestAddFields.js", "048_changeNoteRecordTypeColumn.js", "048_invoice_0_addInvoiceTable.js", "048_invoice_1_addInvoiceLineTypeTable.js", "048_invoice_2_addInvoiceLineItemTable.js", "048_invoice_3_addInvoicePriceChangeTypeTable.js", "048_invoice_4_addInvoicePriceChangeItemTable.js", "048_isSyncing.js", "049_addPatientVRSDataTable.js", "049_additionalPatientFields.js", "049_location_facility_fk.js", "049_removeImagingRequestNoteColumn.js", "050_changeReferenceDataNameFieldType.js", "051_addDocumentMetadataTable.js", "051_addNewColumnsToImagingRequests.js", "052_addDiscontinueToEncounterMed.js", "052_addNewColumnsToEncounterMedication.js", "052_addSurveyResponseResultTextColumn.js", "053_addStatusColumnToReferral.js", "053_editDocumentMetadataFields.js", "054_dropDocumentMetadataConstraint.js", "055_changeTypeColumnToAttachmentAndDocumentMetadata.js", "056_addContactInfoToFacility.js", "056_dropAnotherDocumentMetadataConstraint.js", "057_addPermissionsModels.js", "057_addVdsNcSignersTable.js", "057_changeDepartmentColumnToReferenceDepartments.js", "058_addIsDeletedByRemoteToPatientVRSData.js", "058_addIsSensitiveFieldsToSurveys.js", "058_addVdsNcDocumentsTable.js", "059_addCertificateNotificationTable.js", "059_addCertificateToCommunicationTypes.js", "059_additionalPatientCommunicationFields.js", "060_addDeathToPatient.js", "060_addRequestSentAtToVdsSigner.js", "061_addPatientDeathDataTable.js", "062_addDeathCausesTable.js", "063_addLabTestToCertificateNotification.js", "063_addPatientDeathDataCausesFields.js", "064_fixDeletedAtColumnForVdsNcSigner.js", "065_addInvoiceItemsStatusColumn.js", "066_addCertificateNotifStatusColumn.js", "066_dropVdsNcDocumentsTable.js", "067_addCertificateNotificationCreatedBy.js", "068_addVaccineConsentField.js", "068_addVdsNcSignersPeriods.js", "069_renameVdsNcSignersToSigners.js", "070_addPatientBillingTypeToEncounter.js", "071_addBadFormatToCommunicationTypes.js", "072_linkLabRequestsToCertificateNotifications.js", "073_addAntecedentCausesToPatientDeath.js", "073_addPADMergedIntoField.js", "074_addOutsideFacilityToPatientDeath.js", "075_addAdministeredVaccineMetadataFields.js", "075_createPatientSecondaryIdsTable.js", "076_addCertifiableVaccinesTable.js", "077_changeCertifiableVaccinesCodeColumns.js", "077_changeLabTestStatusToString.js", "078_changeRolesAndPermissionsColumns.js", "079_addVisibilityStatus.js", "079_changeAdministeredVaccineGiverToGivenBy.js", "080_addPermissionsIndexes.js", "081_addColumnsVitals.js", "081_addImagingRequestAreaTable.js", "081_changeMainDeathCausesToBeInternalToPatientDeathDataTable.js", "081_renameVitalsColumns.js", "081_updateLabRequestDateTimeColumns.js", "082_addEncounterMedicationDiscontinuedDate.js", "082_addStartTimeProcedureColumn.js", "083_renameLabTestTypeQuestionType.js", "084_changeImagingTypeToString.js", "085_renameImagingRequestAreaTableName.js", "086_changeInvoiceLineItemImagingTypeToString.js", "087_addDatabaseReportsModels.js", "087_addPatientBirthDataTable.js", "087_addPatientMergeFields.js", "087_customDateTypes.js", "088_addNewPatientAdditionalDataColumns.js", "088_alterLabRequestDateFields.js", "089_alterPatientDeathDataDateFields.js", "089_updatePatientBirthDataColumns.js", "089_updateTriageTimeFields.js", "090_addNotePagesTable.js", "090_alterAppointmentDateFields.js", "090_updateDateOfBirthField.js", "091_addNoteItemsTable.js", "091_alterPatientDateOfDeathDateField.js", "092_alterLabTestDateFields.js", "092_migrateOldNotesToNewNotesSchema.js", "092_updateInvoiceDateFields.js", "093_alterDateStringFormat.js", "093_changeImagingRequestResultsToText.js", "094_alterAppointmentDateFieldTypes.js", "095_alterLastSurgeryDateType.js", "096_addDispositionToDischarge.js", "096_addPatientBirthDataPushMetadataColumns.js", "096_reMigrateDateStringFieldsWithTimezoneOffset.js", "097_addSyncColumnsImagingRequestAreas.js", "097_removePatientBirthDataUniqueConstraint.js", "098_addSyncColumnsAdministeredVaccine.js", "098_addUserIdToSurveyResponse.js", "098_reMigrateDatesUsingCountryTimezone.js", "099_updatePatientEncounterDateFields.js", "099_user_facility_fk.js", "099_uuidOsspExtension.js", "100_fhirTypes.js", "100_removeUnnecessarySyncColumns.js", "100_update_patient_info_date_fields.js", "101_fhirPatientTable.js", "101_fhirPractitionerTable.js", "101_reMigratePatientEncounterDateFieldsWIthTimezoneOffset.js", "101_updateSurveyResponseDateFields.js", "102_fhirServiceRequestTable.js", "103_reMigrateDateFieldsWithCountryTimeZone.js", "110_fhirVersioning.js", "111_updatePatientBirthDataDateField.js", "111_updateProceduresStartAndEndTimeFields.js", "112_updateSurveyResponseAnswerDates.js", "113_updateSurveyResponseAnswerDatesRevision.js", "114_dropSelfReferencingConstraints.js", "115_fhirReferences.js", "116_fhirPatientLinks.js", "117_addPatientFieldsTables.js", "117_fhirInverseRegexOperators.js", "117_migrateImagingUrgentColumnToPriorityColumn.js", "118_addArrivalModeIdColumnToTriageTable.js", "118_addReferralSourceIdColumnForEncounterTable.js", "119_changeDischargeNoteColumnTypeToText.js", "120_encountersAddPlannedLocation.js", "120_removeSyncCursorTable.js", "121_addLocationGroupsTable.js", "121_addMaxOccupancyToLocationsTable.js", "121_deleteOldSyncMetadataColumns.js", "121_patientsMergeIndex.js", "122_initialiseSyncClock.js", "122_migrateAspenReportId.js", "123_addLocationGroupToAppointments.js", "123_createTriggerFunctionForUpdatedAtSyncTick.js", "125_createFacilityPatientSyncTable.js", "126_migrateExistingFacilityPatientSyncData.js", "127_setupNewSettingsTable.js", "130_hardDeleteSoftDeletedPADs.js", "130_usePatientIdPrimaryKeyPAD.js", "131_createFieldWiseUpdatedAtTrigger.js", "132_addFieldUpdateTicksToPAD.js", "133_addSyncSessionsTable.js", "134_addSyncSessionRecordsTable.js", "135_createSyncSessionRecordsIndex.js", "136_addSnapshotCompleteColumn.js", "137_addSessionErrorColumn.js", "138_addSavedAtSyncTickColumn.js", "139_addDebugInfoToSyncSession.js", "141_addIndexToEncounterId.js", "142_addIndexScheduledVaccineId.js", "143_onDeleteSyncSessionCascade.js", "146_addCompletedAtColumn.js", "147_addUpdatedAtByFieldSumColumn.js", "148_moreFhirTypes.js", "149_fhirDiagnosticReportTable.js", "150_fhirImmunizationTable.js", "151_changeProcedureNoteColumnTypeToText.js", "152_changeProcedureCompletedNoteColumnTypeToText.js", "153_addUserRecentlyViewedPatientsTable.js", "154_changePatientBirthDataGestationalAgeEstimateColumnTypeToFloat.js", "1668567358308-fhirServiceRequestExtraFields.js", "1668567529508-fhirGenericUpstreamLinks.js", "1668567880824-fhirDropPractitioners.js", "1668649042720-imagingAreaExternalCodesTable.js", "1669158892937-addDefaultLastSuccessfulSyncPull.js", "1669241407944-fhirDatatypeAnnotation.js", "1669259768410-AddLocationGroupsToImagingRequests.js", "1669589923823-createImagingResultsTable.js", "1669607595368-addMigratedRecordFieldToVitals.js", "1669669857067-renameSyncClockFact.js", "1669675313161-renameTriggerFunctionForUpdatedAtSyncTick.js", "1669675606106-renameFieldWiseUpdatedAtTrigger.js", "1669679414865-updateLegacyDepartmentReferencesSurveyScreenComponents.js", "1669681120240-indexCompletedDateOnSyncSessions.js", "1670204333502-createSyncSnapshotSchema.js", "1670204471563-dropSyncSessionRecords.js", "1670295248635-addFhirMaterialiseJobTable.js", "1670446124209-useGeneratedPatientFieldValueId.js", "1670468868778-dontOverwriteUpdatedAtByFieldOnFirstSync.js", "1672792163664-modifyPatientDeathDataColumns.js", "1673295206628-createDeathRevertLogsTable.js", "1673478470978-addRefreshTokenTable.js", "1673584098057-imagingResultsUseSeparateDateField.js", "1673818192731-settingsJsonbValue.js", "1673818203830-settingsAccessFunctions.js", "1673818327269-firstLastAggregates.js", "1673818409597-settingsKeyConstraint.js", "1673818589231-settingsDefaultValues.js", "1673867012625-settingsDefaultsJobs.js", "1673867248635-addJobTable.js", "1673867394666-addJobWorkerTable.js", "1673867441919-jobFunctions.js", "1674517247633-addExtensionToFhirPatients.js", "1675113624157-updateLabRequestLogStatus.js", "1675214968409-addPushTimestampsToSyncSession.js", "1675378800220-addEncounterIndexes.js", "1675735054280-addPullSinceAndPullUntil.js", "1675813034942-addStartedAtTickColumn.js", "1675977666007-imagingAndLabCancellationReasons.js", "1676253286134-takeLockWhenUpdatingSyncTick.js", "1676414365356-addUserIdIndexToUserLocalisationCache.js", "1676512990454-addResolvedOngoingConditionsColumns.js", "1676591314361-addVisibilityStatusToNotesAndDeathData.js", "1676619492367-AddLabPanelsTable.js", "167662077668-AddLabTestPanelLabTestTypesTable.js", "1676849325012-refactorFhirTablesAndComposites.js", "1676853689734-addDepartmentIdToLabRequests.js", "1677158549224-AddLabPanelRequestsTable.js", "1677158980942-AddPanelRequestColumnToLabRequests.js", "1677185844266-addSnapshotStartedAt.js", "1677203077682-imagingRequestsMoveIdToDisplayId.js", "1677536389589-AddLabRequestTestSiteToLabRequest.js", "1677708145887-uuidCompareOperators.js", "1677790964218-epi310PartialRevert.js", "1677797056646-changeFhirTableDatesToStrings.js", "1678003211217-addNotGivenReasonIdColumnToAdministeredVaccineTable.js", "1678163198974-addGivenOverseasColumnForAdministeredVaccineTable.js", "1678237613551-addNewColumnsForOtherCategoryForAdministeredVaccineTable.js", "1678401945862-settingsFacilityIndex.js", "1678747519206-fhirIndexes.js", "1678836964160-encountersPlannedMoveIndex.js", "1678856148635-dropFhirMaterialiseJobTable.js", "1678856815764-fhirRefreshTriggers.js", "1678918010271-removeNotNullConstraintFromDischarges.js", "1679271355192-addPatientLetterTemplateTable.js", "1679350403608-labTestPanelsExternalCodesTable.js", "1679533922049-updateDocumentMetadataDateFields.js", "1679627805922-uniqueLocationCodes.js", "1679884257020-renameGivenOverseasToGivenElsewhereInVaccineTable.js", "1679999671335-fhirLogging.js", "1680147932505-useGeneratedIdForPanelRelations.js", "1680504978597-dropImagingResultNotNullConstraint.js", "1681198171160-addCircumstancesColumnToAdministeredVaccinesTable.js", "1681331866447-addMoreFieldsToFhirServiceRequest.js", "1681416693163-removeLabTestPanelExternalCodesTable.js", "1681417141270-addExternalCodeToTestsAndPanels.js", "1681778266883-addConsentGivenByColumnToAdministeredVaccineTable.js", "1682409691120-addPublishedDateLabRequest.js", "1682563475794-fhirEncounter.js", "1682563913275-fhirResolveUpstreamForEncounter.js", "1682638735334-removeConstraintFromServiceRequests.js", "1683091064150-removeNotNullConstraintForDateInAdministeredVaccines.js", "1683171222913-addPrintedDateColumnCertificates.js", "1683172236844-addSpecimenTypeAndCollectedByToLabRequest.js", "1683602526329-addMissingFhirTriggersPartOne.js", "1683620093808-fhirLastUpdatedToTimestampWithoutTimeZone.js", "1683862180629-addMissingFhirTriggersPartTwo.js", "1684721287817-updateDocumentMetadataTypeField.js", "1684808590868-addCategoryToLabTestPanel.js", "1685403132663-systemUser.js", "1685405020041-addVitalLogTable.js", "1686114022270-migrateNotesV2.js", "1686114022271-changeNotesRevisedByIdToUuid.js", "1687223760674-addVisualisationConfigColumnToProgramDataElement.js", "1687394610394-addEncounterHistoryTable.js", "1688259204459-addFhirTriggersForNotesTable.js", "1688428149965-addDisplayIdToUsers.js", "1688522068921-changeValidationCriteriaToText.js", "1689907434315-removeMarkedForSyncFromLabRequestLog.js", "1690516753539-fhirResolveUpstreamForEncounterReference.js", "1690523103281-addIndicesToVitalLogsAndSurveyResponseAnswers.js", "1690846541387-addScopeToSettingsTable.js", "1690847027746-addImagingResultImagingRequestIdIndex.js", "1691037875375-addUserPreferencesTable.js", "1692245527896-uniqueReportDefinitionNames.js", "1692581476861-addProgramRegistryTable.js", "1692588240799-addProgramRegistryClinicalStatusTable.js", "1692661714450-fhirPractitioner.js", "1692710205000-allowDisablingSyncTrigger.js", "1692827975392-addDbUserToReportDefinitions.js", "1693040825684-addExtraEncounterHistoryColumns.js", "1693279401767-addPatientProgramRegistryTable.js", "1693352192048-fhirResolveUpstreamForPractitionerReference.js", "1694130891220-removeRevisedByIdFKInNotes.js", "1694266559195-usePatientIdAsPrimaryKeyForPatientBirthData.js", "1694665006666-addVisibilityStatusToSurveyScreenComponents.js", "1696304248060-addProgramRegistryConditionTable.js", "1696304248061-addPatientProgramRegistrationConditionTable.js", "1696373053623-modifyFhirJobGrabToReduceContention.js", "1696798364118-addTranslatedStringsTable.js", "1696818363249-addSyncQueuedDevice.js", "1697432847968-addVisibilityStatusForUsers.js", "1699831661035_addIPSRequestTable.js", "1701134262153-removeCharacterLimitOnReportNotes.js", "1701347625153-addIpsRequestErrorColumn.js", "1701920297341-dropFhirJobsGrabSortIndex.js", "1702610019362-addStatusFilterToFhirJobBacklogUntilLimit.js", "1702610467280-updateRecordIdIndexFromBTreeToHashInNotes.js", "1705263873331-addHideFromCertificateToScheduledVaccines.js", "1705975889388-addPatientContactTable.js", "1706778180301-fhirSpecimen.js", "1707393711046-fhirResolveUpstreamForSpecimen.js", "1707459528411-fhirRemoveContainedFromServiceRequest.js", "1707469840636-fhirResolveServiceRequestSpecimenRelation.js", "1707804423068-addFijiMediciReportTable.js", "1707983584912-addTriggerForUpstreamTablesOfMediciReport.js", "1708090724699-fhirOrganizationFacility.js", "1708333447217-resolveUpstreamForOrganization.js", "1708482392584-collateLocationsNaturally.js", "1708549755597-modifyProgramRegistriesTables.js", "1708556952893-addColumnIsMostRecentForTablePatientProgramRegistration.js", "1708567454083-addFacilityNameToCertificateNotifications.js", "1708907759857-addMissingTriggersForUpstreamTablesOfMediciReport.js", "1709161471775-updateSurveyResponseAnswersInvalidBody.js", "1709164796157-dropCheckValidResourceType.js", "1709588580194-addReferenceDataRelationTable.js", "1709719785865-dropDiagnosticReport.js", "1710222133571-createUpcomingVaccinationView.js", "1710357835433-addLanguageToCertificateNotifications.js", "1710374155691-addCatchmentIdToFacility.js", "1711014042261-addReactionIdForPatientAllergies.js", "1711683337804-updatePatientCommunicationFields.js", "1712274676172-addHealthCenterIdToPatientAdditionalData.js", "1712623959724-createLabRequestAttachments.js", "1712707732465-removeDeletionStatusColumn.js", "1712735425293-addFeatureFlagForReminderContactModule.js", "1712995058569-addVaccinationReminderDueSetting.js", "1712995147342-addHashColumnForPatientCommunication.js", "1712995147343-createStringTranslateFunction.js", "1713611031619-addDietIdForEncounter.js", "1713695835917-addVisibilityStatusForSurvey.js", "1713777929517-add4thCauseOfDeath.js", "1713938838262-userPhoneNumber.js", "1714206523636-updatePatientLetterTemplateTableName.js", "1714206525997-addTypeToTemplate.js", "1714984691719-addInsurerIdAndPolicyToPatientAdditionalData.js", "1714987069557-createSocketIoAttachmentsTable.js", "1715068426127-addDefaultInsurerContributionConfigSetting.js", "1715069649383-addAddDiscountColumnsToInvoice.js", "1715070274549-addAddDiscountMarkupReasonToInvoiceLineItemTable.js", "1715647464854-renameScheduledVaccineScheduleColumn.js", "1715658183462-addSortColumnToScheduledVaccines.js", "1715825323638-addMaterializedUpcomingVaccinations.js", "1716950730722-addSecondaryVillageToPatientAdditionalData.js", "1717088025227-addInvoiceSlidingFeeScaleConfigSetting.js", "1717995742385-updateInvoicingTables.js", "1718333204958-expandImagingRequestCancellationReason.js", "1718677582896-addFacilityDetailsToDischarge.js", "1719029935768-addNoteToInvoiceItem.js", "1719225348709-addInvoicePaymentsTable.js", "1719478189255-addPatientPaymentStatusToInvoice.js", "1719478189569-addVisibilityStatusToInvoiceProduct.js", "1719478189570-updateInvoiceItemTable.js", "1720085788151-addInsurerPaymentStatusToInvoice.js", "1720091988656-addInvoiceInsurerPaymentTable.js", "1720675644781-addSyncLookupTable.js", "1721385707687-addClinicianToEncounterDiagnosis.js", "1721609043697-addIndexesToSyncLookupTable.js", "1721791220826-addEncounterDietTable.js", "1722471657455-updateColumnFacilityIdsInSyncQueuedDevices.js", "1723098124005-addTaskingTables.js", "1723105504782-alterSyncSessionErrorColumnToBeArray.js", "1723695765182-addDebugLogsTable.js", "1723950769439-addNotificationFeatureForSurvey.js", "1724653055313-updateReferenceDataRelationUniqueIndex.js", "1724662141918-addNotCompleteReasonIdToTaskTable.js", "1725922007676-addBookableColumnToLocationGroups.js", "1727167335721-addUpdatedByUserIdColumnToInvoicePayment.js", "1727675328212-addPatientIdIndexToSyncLookup.js", "1727736021166-addPushedByDeviceIdToSyncLookupTable.js", "1727736021190-addSyncDeviceTicksTable.js", "1728280018943-addDeletedReasonForSyncIdToTaskTable.js", "1728511949669-AddIsLiveColumnToFhirResources.js", "1728609178353-updateSettingsUniqueIndex.js", "1729413624614-addNotificationsTable.js", "1729475364868-addBookingTypeColumn.js", "1729475962495-addAppointmentTypeIdtoAppointments.js", "1729500502718-createNotifyTableChangsFunction.js", "1729737377076-removeDeletionStatusColumnOfPatientContact.js", "1730089703216-AddResultImageUrlColumnToImagingResultsTable.js", "1730774692844-addEncounterTabOrdersToUserPreferencesTable.js", "1731021295618-AddResolvedColumnToFhirResources.js", "1731539173476-RemoveFhirResolveUpstreamsDbFunctions.js", "1731543287162-addHighPriorityColumnToAppointments.js", "1731638072344-addEncounterReferenceToAppointment.js", "1732056041187-addMetadataColumnToSurveyResponseTable.js", "1732160243330-addLocationGroupIsBookableIndex.js", "1733217291655-addDiscountAmountToInvoiceItemDiscountTable.js", "1733267329358-modifyUserPreferencesTable.js", "1733366147317-addChequeNumberToInvoicePatientPayment.js", "1733444238689-createAppointmentSchedulesTable.js", "1734072316483-removeLabTestStatus.js", "1736134913660-addFacilityIdToUserPreferences.js", "1736324658426_addPatientIdForNotificationTable.js", "1736807540879-addIsFullyGeneratedToAppointmentSchedule.js", "1736984488579-markMergedPatientsAsDeleted.js", "1736992022769-updateUpcomingVaccinationView.js", "1737439073187-addGenerateAppointmentTaskIndexes.js", "1738620644073-addIsSensitiveColumnToLabTestTypes.js", "1738915273458-addDischargeDraftColumnToEncountersTable.js", "1739155441816-addExtraDatesToAppointmentSchedule.js", "1739168538058-pgcryptoExtension.js", "1739170944565-changeDefaultsToPgcrypto.js", "1739178461591-addDefaultsToCreatedAndUpdated.js", "1739968205100-addLSFFunction.js", "1739968205110-addAdjustedTimestampFunction.js", "1739968205114-createChangelogsTable.js", "1739969510355-sessionConfigFunctions.js", "1739970132204-ensureSystemUserPresent.js", "1739970132205-addAuditTrigger.js", "1740977723841-allowNullPriceInInvoiceProducts.js", "1741215641836-createMigrationLogsTable.js", "1741225665058-createAccessLog.js", "1742619004115-addDurationFieldsToTaskTable.js", "1744261686398-addEnabledCheckToAuditTrigger.js", "1745987213057-OptimiseFhirJobGrabFunction.js"]', 0);
+INSERT INTO logs.migrations VALUES ('33f16989-e1d9-4148-824d-b1f7edb6af0c', '2026-04-23 14:22:58.924598+12', 1, 'unknown', 'unknown', 'up', '["000_baseline.js", "1739240737046-addPatientprogramregistrationconditioncategorycolumn.js", "1739750741784-addReferenceDrugsTable.js", "1739945270500-changeMedicationsDBSchema.js", "1739945393520-updatePrescriptionsTable.js", "1740108439648-addPatientProgramRegistrationReasonForChangeColumn.js", "1741340974971-addMedicationAdministrationRecordTable.js", "1741597792321-addPrescriptionPauseTables.js", "1742866911418-removeDuplicatePatientProgramRegistrations.js", "1742866911419-addPatientProgramRegistrationId.js", "1742897789276-addMedicationAdministrationRecordDoseTable.js", "1744234388448-addPatientProgramRegistrationDeletedAt.js", "1744234388449-addPatientProgramRegistrationInactiveFields.js", "1744234388450-movePatientProgramRegistrationsToAuditTable.js", "1744249774546-setIsLiveForFhirServiceRequests.js", "1744602896344-addLookupTicksTable.js", "1746692718717-addReferenceMedicationTemplateTable.js", "1747692302917-addFindPotentialPatientDuplicatesFunction.js", "1747862710346-removeColumnsFromChangelogs.js", "1748216223615-separateSyncSessionParametersFromDebugInfo.js", "1748510566510-adjustColumnNameOfEncounterPrescriptionTable.js", "1748555633925-fullyResyncPatientProgramRegistrations.js", "1748555633926-createPharmacyOrdersTables.js", "1749080866176-changePatientProgramRegistrationIdColumn.js", "1749085069144-addProgramRegistryConditionCategoriesTable.js", "1749653844719-renameEncounterMedicationPermission.js", "1749698834861-populateFactBasedColumnsForChangelogs.js", "1750646475712-automaticUpdatedAt.js", "1750647407279-addProcedureTypeSurveysTable.js", "1750719607520-backfillInitialSyncLookupTick.js", "1751969020937-addIsSensitiveColumnToReferenceDrugsTable.js", "1752121302957-addFacilityIsSensitiveColumn.js", "1752563741574-CreateFhirMedicationRequestTable.js", "1752615789878-addNewReasonColumnForChangelogs.js", "1752722269000-addTaskTypeColumnToTasksTable.js", "1753315553170-procedure-enhancements.js", "1753327372-procedure-assistant-clinicians.js", "1753393877000-correctPrescriptionStartDates.js", "1753425857000-addOngoingMedicationToReferenceMedicationTemplate.js", "1753999599109-betterIndexesForLogsChanges.js", "1754028251662-AddIsDischargePrescriptionColumnToPharmacyOrderTable.js", "1754033544110-AddMedicationRequestFhirTriggers.js", "1754351568045-fullyResyncPatientProgramRegistrationsAndConditions.js", "1754352456587-AddCategoryColumnToFhirMedicationRequestTable.js", "1754505492000-addMedicationTimeSlotFunction.js", "1754523298680-updateMedicationPermissionIds.js", "1755227673457-AddLookupModelsToRebuildFact.js", "1755237235317-RebuildLookupTableForPrescriptionsChanges.js", "1755562640175-createDevicesTable.js", "1755564095304-addDeviceRegistrationQuotaToUsersTable.js", "1756082903216-scopesForDevices.js", "1756167650873-populateDevicesTable.js", "1756948183158-CorrectDiscontinuedDateForHistoricallyDiscontinuedPrescriptions.js", "1757037439987-addIndexesForMedicationAdministrationRecordsQuery.js"]', 1);
 
 
 
@@ -4092,6 +4535,12 @@ INSERT INTO logs.migrations VALUES ('cd15e7fc-f7e3-4cf3-a17e-e38ef134c9e8', '202
 
 
 --
+-- Data for Name: devices; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: discharges; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -4122,7 +4571,19 @@ INSERT INTO logs.migrations VALUES ('cd15e7fc-f7e3-4cf3-a17e-e38ef134c9e8', '202
 
 
 --
--- Data for Name: encounter_medications; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: encounter_pause_prescription_histories; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: encounter_pause_prescriptions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: encounter_prescriptions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
@@ -4276,6 +4737,7 @@ INSERT INTO logs.migrations VALUES ('cd15e7fc-f7e3-4cf3-a17e-e38ef134c9e8', '202
 --
 
 INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388cd30', '2026-04-16 08:34:04.082+12', '2026-04-16 08:34:04.082+12', NULL, 'currentSyncTick', '1');
+INSERT INTO public.local_system_facts VALUES ('be9c89c8-715f-4de0-bdbe-b2883bc803de', NULL, NULL, NULL, 'lookupModelsToRebuild', 'prescriptions,encounter_prescriptions');
 
 
 --
@@ -4286,6 +4748,18 @@ INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388c
 
 --
 -- Data for Name: locations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: medication_administration_record_doses; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: medication_administration_records; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
@@ -4411,6 +4885,12 @@ INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388c
 
 
 --
+-- Data for Name: patient_ongoing_prescriptions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: patient_program_registration_conditions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -4447,6 +4927,42 @@ INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388c
 
 
 --
+-- Data for Name: pharmacy_order_prescriptions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: pharmacy_orders; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: prescriptions; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: procedure_assistant_clinicians; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: procedure_survey_responses; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: procedure_type_surveys; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: procedures; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -4471,6 +4987,12 @@ INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388c
 
 
 --
+-- Data for Name: program_registry_condition_categories; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: program_registry_conditions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -4490,6 +5012,18 @@ INSERT INTO public.local_system_facts VALUES ('c7abef05-18e8-436b-bab4-6e1e8388c
 
 --
 -- Data for Name: reference_data_relations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: reference_drugs; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
+-- Data for Name: reference_medication_templates; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
@@ -4597,6 +5131,12 @@ INSERT INTO public.settings VALUES ('0ee5dee7-6c30-4fb8-88ac-80d1833d8e34', '202
 
 
 --
+-- Data for Name: sync_lookup_ticks; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: sync_queued_devices; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -4684,7 +5224,7 @@ INSERT INTO public.settings VALUES ('0ee5dee7-6c30-4fb8-88ac-80d1833d8e34', '202
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.users VALUES ('00000000-0000-0000-0000-000000000000', '2026-04-16 08:34:08.628213+12', '2026-04-16 08:34:08.628213+12', NULL, 'system', NULL, 'System', 'system', NULL, 'current', NULL, 0);
+INSERT INTO public.users VALUES ('00000000-0000-0000-0000-000000000000', '2026-04-16 08:34:08.628213+12', '2026-04-16 08:34:08.628213+12', NULL, 'system', NULL, 'System', 'system', NULL, 'current', NULL, 0, 0);
 
 
 --
@@ -4744,6 +5284,22 @@ ALTER TABLE ONLY fhir.jobs
 
 ALTER TABLE ONLY fhir.jobs
     ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: medication_requests medication_requests_pkey; Type: CONSTRAINT; Schema: fhir; Owner: -
+--
+
+ALTER TABLE ONLY fhir.medication_requests
+    ADD CONSTRAINT medication_requests_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: medication_requests medication_requests_upstream_id_key; Type: CONSTRAINT; Schema: fhir; Owner: -
+--
+
+ALTER TABLE ONLY fhir.medication_requests
+    ADD CONSTRAINT medication_requests_upstream_id_key UNIQUE (upstream_id);
 
 
 --
@@ -4924,6 +5480,14 @@ ALTER TABLE ONLY public.departments
 
 
 --
+-- Name: devices devices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT devices_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: discharges discharges_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4964,11 +5528,35 @@ ALTER TABLE ONLY public.encounter_history
 
 
 --
--- Name: encounter_medications encounter_medications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions encounter_medications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.encounter_medications
+ALTER TABLE ONLY public.prescriptions
     ADD CONSTRAINT encounter_medications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: encounter_pause_prescription_histories encounter_pause_prescription_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescription_histories
+    ADD CONSTRAINT encounter_pause_prescription_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: encounter_pause_prescriptions encounter_pause_prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescriptions
+    ADD CONSTRAINT encounter_pause_prescriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: encounter_prescriptions encounter_prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_prescriptions
+    ADD CONSTRAINT encounter_prescriptions_pkey PRIMARY KEY (id);
 
 
 --
@@ -5220,6 +5808,22 @@ ALTER TABLE ONLY public.locations
 
 
 --
+-- Name: medication_administration_record_doses medication_administration_record_doses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_record_doses
+    ADD CONSTRAINT medication_administration_record_doses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: medication_administration_records medication_administration_records_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_records
+    ADD CONSTRAINT medication_administration_records_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: note_items note_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5396,6 +6000,14 @@ ALTER TABLE ONLY public.templates
 
 
 --
+-- Name: patient_ongoing_prescriptions patient_ongoing_prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_ongoing_prescriptions
+    ADD CONSTRAINT patient_ongoing_prescriptions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: patient_program_registration_conditions patient_program_registration_conditions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5404,11 +6016,19 @@ ALTER TABLE ONLY public.patient_program_registration_conditions
 
 
 --
+-- Name: patient_program_registrations patient_program_registrations_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_program_registrations
+    ADD CONSTRAINT patient_program_registrations_id_key UNIQUE (id);
+
+
+--
 -- Name: patient_program_registrations patient_program_registrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.patient_program_registrations
-    ADD CONSTRAINT patient_program_registrations_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT patient_program_registrations_pkey PRIMARY KEY (patient_id, program_registry_id);
 
 
 --
@@ -5449,6 +6069,54 @@ ALTER TABLE ONLY public.patients
 
 ALTER TABLE ONLY public.permissions
     ADD CONSTRAINT permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pharmacy_order_prescriptions pharmacy_order_prescriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_order_prescriptions
+    ADD CONSTRAINT pharmacy_order_prescriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pharmacy_orders pharmacy_orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_orders
+    ADD CONSTRAINT pharmacy_orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procedure_assistant_clinicians procedure_assistant_clinicians_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_assistant_clinicians
+    ADD CONSTRAINT procedure_assistant_clinicians_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procedure_survey_responses procedure_survey_responses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_survey_responses
+    ADD CONSTRAINT procedure_survey_responses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procedure_type_surveys procedure_type_survey_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_type_surveys
+    ADD CONSTRAINT procedure_type_survey_unique UNIQUE (procedure_type_id, survey_id);
+
+
+--
+-- Name: procedure_type_surveys procedure_type_surveys_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_type_surveys
+    ADD CONSTRAINT procedure_type_surveys_pkey PRIMARY KEY (id);
 
 
 --
@@ -5500,6 +6168,14 @@ ALTER TABLE ONLY public.program_registry_clinical_statuses
 
 
 --
+-- Name: program_registry_condition_categories program_registry_condition_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.program_registry_condition_categories
+    ADD CONSTRAINT program_registry_condition_categories_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: program_registry_conditions program_registry_conditions_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5545,6 +6221,30 @@ ALTER TABLE ONLY public.reference_data_relations
 
 ALTER TABLE ONLY public.reference_data_relations
     ADD CONSTRAINT reference_data_relations_unique_index UNIQUE (reference_data_id, reference_data_parent_id, type);
+
+
+--
+-- Name: reference_drugs reference_drugs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_drugs
+    ADD CONSTRAINT reference_drugs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reference_drugs reference_drugs_reference_data_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_drugs
+    ADD CONSTRAINT reference_drugs_reference_data_id_key UNIQUE (reference_data_id);
+
+
+--
+-- Name: reference_medication_templates reference_medication_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_medication_templates
+    ADD CONSTRAINT reference_medication_templates_pkey PRIMARY KEY (id);
 
 
 --
@@ -5692,6 +6392,14 @@ ALTER TABLE ONLY public.sync_lookup
 
 
 --
+-- Name: sync_lookup_ticks sync_lookup_ticks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sync_lookup_ticks
+    ADD CONSTRAINT sync_lookup_ticks_pkey PRIMARY KEY (lookup_end_tick);
+
+
+--
 -- Name: sync_queued_devices sync_queued_devices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5761,6 +6469,14 @@ ALTER TABLE ONLY public.translated_strings
 
 ALTER TABLE ONLY public.triages
     ADD CONSTRAINT triages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procedure_survey_responses unique_procedure_survey_response; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_survey_responses
+    ADD CONSTRAINT unique_procedure_survey_response UNIQUE (procedure_id, survey_response_id);
 
 
 --
@@ -5976,6 +6692,20 @@ CREATE INDEX job_status_idx ON fhir.jobs USING btree (status);
 --
 
 CREATE INDEX job_topic_idx ON fhir.jobs USING btree (topic);
+
+
+--
+-- Name: medication_requests_id_version_id; Type: INDEX; Schema: fhir; Owner: -
+--
+
+CREATE INDEX medication_requests_id_version_id ON fhir.medication_requests USING btree (id, version_id);
+
+
+--
+-- Name: medication_requests_upstream_id; Type: INDEX; Schema: fhir; Owner: -
+--
+
+CREATE INDEX medication_requests_upstream_id ON fhir.medication_requests USING btree (upstream_id);
 
 
 --
@@ -6227,21 +6957,21 @@ CREATE INDEX accesses_updated_at_sync_tick_index ON logs.accesses USING btree (u
 -- Name: changes_device_id; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_device_id ON logs.changes USING hash (device_id);
+CREATE INDEX changes_device_id ON logs.changes USING btree (device_id);
 
 
 --
 -- Name: changes_logged_at; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_logged_at ON logs.changes USING btree (logged_at);
+CREATE INDEX changes_logged_at ON logs.changes USING brin (logged_at);
 
 
 --
 -- Name: changes_record_created_at; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_record_created_at ON logs.changes USING btree (record_created_at);
+CREATE INDEX changes_record_created_at ON logs.changes USING brin (record_created_at);
 
 
 --
@@ -6266,31 +6996,24 @@ CREATE INDEX changes_record_id ON logs.changes USING hash (record_id);
 
 
 --
--- Name: changes_record_sync_tick; Type: INDEX; Schema: logs; Owner: -
---
-
-CREATE INDEX changes_record_sync_tick ON logs.changes USING btree (record_sync_tick);
-
-
---
 -- Name: changes_record_updated_at; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_record_updated_at ON logs.changes USING btree (record_updated_at);
+CREATE INDEX changes_record_updated_at ON logs.changes USING brin (record_updated_at);
 
 
 --
 -- Name: changes_table_name; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_table_name ON logs.changes USING hash ((((table_schema || '.'::text) || table_name)));
+CREATE INDEX changes_table_name ON logs.changes USING btree ((((table_schema || '.'::text) || table_name)));
 
 
 --
 -- Name: changes_table_oid; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_table_oid ON logs.changes USING hash (table_oid);
+CREATE INDEX changes_table_oid ON logs.changes USING btree (table_oid);
 
 
 --
@@ -6304,7 +7027,7 @@ CREATE INDEX changes_updated_at_sync_tick_index ON logs.changes USING btree (upd
 -- Name: changes_updated_by_user_id; Type: INDEX; Schema: logs; Owner: -
 --
 
-CREATE INDEX changes_updated_by_user_id ON logs.changes USING hash (updated_by_user_id);
+CREATE INDEX changes_updated_by_user_id ON logs.changes USING btree (updated_by_user_id);
 
 
 --
@@ -6560,24 +7283,66 @@ CREATE INDEX encounter_history_updated_at_sync_tick_index ON public.encounter_hi
 
 
 --
--- Name: encounter_medications_encounter_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX encounter_medications_encounter_id ON public.encounter_medications USING btree (encounter_id);
-
-
---
 -- Name: encounter_medications_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX encounter_medications_updated_at ON public.encounter_medications USING btree (updated_at);
+CREATE INDEX encounter_medications_updated_at ON public.prescriptions USING btree (updated_at);
 
 
 --
 -- Name: encounter_medications_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX encounter_medications_updated_at_sync_tick_index ON public.encounter_medications USING btree (updated_at_sync_tick);
+CREATE INDEX encounter_medications_updated_at_sync_tick_index ON public.prescriptions USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: encounter_pause_prescription_histories_action_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescription_histories_action_date ON public.encounter_pause_prescription_histories USING btree (action_date);
+
+
+--
+-- Name: encounter_pause_prescription_histories_encounter_prescription_i; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescription_histories_encounter_prescription_i ON public.encounter_pause_prescription_histories USING btree (encounter_prescription_id);
+
+
+--
+-- Name: encounter_pause_prescription_histories_updated_at_sync_tick_ind; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescription_histories_updated_at_sync_tick_ind ON public.encounter_pause_prescription_histories USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: encounter_pause_prescriptions_encounter_prescription_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescriptions_encounter_prescription_id ON public.encounter_pause_prescriptions USING btree (encounter_prescription_id);
+
+
+--
+-- Name: encounter_pause_prescriptions_pause_end_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescriptions_pause_end_date ON public.encounter_pause_prescriptions USING btree (pause_end_date);
+
+
+--
+-- Name: encounter_pause_prescriptions_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_pause_prescriptions_updated_at_sync_tick_index ON public.encounter_pause_prescriptions USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: encounter_prescriptions_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX encounter_prescriptions_updated_at_sync_tick_index ON public.encounter_prescriptions USING btree (updated_at_sync_tick);
 
 
 --
@@ -6662,6 +7427,27 @@ CREATE INDEX idx_appointment_schedules_is_fully_generated ON public.appointment_
 --
 
 CREATE INDEX idx_appointments_schedule_id_start_time_desc ON public.appointments USING btree (schedule_id, start_time DESC);
+
+
+--
+-- Name: idx_ep_prescription_encounter; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_ep_prescription_encounter ON public.encounter_prescriptions USING btree (prescription_id, encounter_id);
+
+
+--
+-- Name: idx_epp_encounter_prescription_dates; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_epp_encounter_prescription_dates ON public.encounter_pause_prescriptions USING btree (encounter_prescription_id, pause_start_date, pause_end_date) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: idx_mar_prescription_due_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_mar_prescription_due_status ON public.medication_administration_records USING btree (prescription_id, due_at, status) WHERE (deleted_at IS NULL);
 
 
 --
@@ -6928,6 +7714,34 @@ CREATE INDEX locations_updated_at_sync_tick_index ON public.locations USING btre
 --
 
 CREATE UNIQUE INDEX materialized_upcoming_vaccinations_unique_index ON public.materialized_upcoming_vaccinations USING btree (patient_id, scheduled_vaccine_id);
+
+
+--
+-- Name: medication_administration_record_doses_dose_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX medication_administration_record_doses_dose_index ON public.medication_administration_record_doses USING btree (dose_index);
+
+
+--
+-- Name: medication_administration_record_doses_mar_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX medication_administration_record_doses_mar_id ON public.medication_administration_record_doses USING btree (mar_id);
+
+
+--
+-- Name: medication_administration_record_doses_updated_at_sync_tick_ind; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX medication_administration_record_doses_updated_at_sync_tick_ind ON public.medication_administration_record_doses USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: medication_administration_records_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX medication_administration_records_updated_at_sync_tick_index ON public.medication_administration_records USING btree (updated_at_sync_tick);
 
 
 --
@@ -7239,6 +8053,13 @@ CREATE INDEX patient_issues_updated_at_sync_tick_index ON public.patient_issues 
 
 
 --
+-- Name: patient_ongoing_prescriptions_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX patient_ongoing_prescriptions_updated_at_sync_tick_index ON public.patient_ongoing_prescriptions USING btree (updated_at_sync_tick);
+
+
+--
 -- Name: patient_program_registration_conditions_updated_at_sync_tick_in; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7309,6 +8130,55 @@ CREATE INDEX permissions_updated_at_sync_tick_index ON public.permissions USING 
 
 
 --
+-- Name: pharmacy_order_prescriptions_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX pharmacy_order_prescriptions_updated_at_sync_tick_index ON public.pharmacy_order_prescriptions USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: pharmacy_orders_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX pharmacy_orders_updated_at_sync_tick_index ON public.pharmacy_orders USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: procedure_assistant_clinicians_procedure_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX procedure_assistant_clinicians_procedure_id ON public.procedure_assistant_clinicians USING btree (procedure_id);
+
+
+--
+-- Name: procedure_assistant_clinicians_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX procedure_assistant_clinicians_updated_at_sync_tick_index ON public.procedure_assistant_clinicians USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: procedure_assistant_clinicians_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX procedure_assistant_clinicians_user_id ON public.procedure_assistant_clinicians USING btree (user_id);
+
+
+--
+-- Name: procedure_survey_responses_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX procedure_survey_responses_updated_at_sync_tick_index ON public.procedure_survey_responses USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: procedure_type_surveys_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX procedure_type_surveys_updated_at_sync_tick_index ON public.procedure_type_surveys USING btree (updated_at_sync_tick);
+
+
+--
 -- Name: procedures_encounter_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7358,6 +8228,20 @@ CREATE INDEX program_registry_clinical_statuses_updated_at_sync_tick_index ON pu
 
 
 --
+-- Name: program_registry_condition_categories_program_registry_id_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX program_registry_condition_categories_program_registry_id_code ON public.program_registry_condition_categories USING btree (program_registry_id, code);
+
+
+--
+-- Name: program_registry_condition_categories_updated_at_sync_tick_inde; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX program_registry_condition_categories_updated_at_sync_tick_inde ON public.program_registry_condition_categories USING btree (updated_at_sync_tick);
+
+
+--
 -- Name: program_registry_conditions_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -7397,6 +8281,20 @@ CREATE INDEX reference_data_updated_at ON public.reference_data USING btree (upd
 --
 
 CREATE INDEX reference_data_updated_at_sync_tick_index ON public.reference_data USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: reference_drugs_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reference_drugs_updated_at_sync_tick_index ON public.reference_drugs USING btree (updated_at_sync_tick);
+
+
+--
+-- Name: reference_medication_templates_updated_at_sync_tick_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reference_medication_templates_updated_at_sync_tick_index ON public.reference_medication_templates USING btree (updated_at_sync_tick);
 
 
 --
@@ -7883,6 +8781,13 @@ CREATE TRIGGER versioning BEFORE UPDATE ON fhir.immunizations FOR EACH ROW EXECU
 
 
 --
+-- Name: medication_requests versioning; Type: TRIGGER; Schema: fhir; Owner: -
+--
+
+CREATE TRIGGER versioning BEFORE UPDATE ON fhir.medication_requests FOR EACH ROW EXECUTE FUNCTION fhir.trigger_versioning();
+
+
+--
 -- Name: organizations versioning; Type: TRIGGER; Schema: fhir; Owner: -
 --
 
@@ -7939,6 +8844,13 @@ CREATE TRIGGER notify_migrations_changed AFTER INSERT OR DELETE OR UPDATE ON log
 
 
 --
+-- Name: accesses set_accesses_updated_at; Type: TRIGGER; Schema: logs; Owner: -
+--
+
+CREATE TRIGGER set_accesses_updated_at BEFORE INSERT OR UPDATE ON logs.accesses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: accesses set_accesses_updated_at_sync_tick; Type: TRIGGER; Schema: logs; Owner: -
 --
 
@@ -7946,10 +8858,24 @@ CREATE TRIGGER set_accesses_updated_at_sync_tick BEFORE INSERT OR UPDATE ON logs
 
 
 --
+-- Name: changes set_changes_updated_at; Type: TRIGGER; Schema: logs; Owner: -
+--
+
+CREATE TRIGGER set_changes_updated_at BEFORE INSERT OR UPDATE ON logs.changes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: changes set_changes_updated_at_sync_tick; Type: TRIGGER; Schema: logs; Owner: -
 --
 
 CREATE TRIGGER set_changes_updated_at_sync_tick BEFORE INSERT OR UPDATE ON logs.changes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: migrations set_migrations_updated_at; Type: TRIGGER; Schema: logs; Owner: -
+--
+
+CREATE TRIGGER set_migrations_updated_at BEFORE INSERT OR UPDATE ON logs.migrations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -7992,13 +8918,6 @@ CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.encounter
 --
 
 CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.encounter_history FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
-
-
---
--- Name: encounter_medications fhir_refresh; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.encounter_medications FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
 
 
 --
@@ -8125,6 +9044,27 @@ CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.patient_b
 --
 
 CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.patients FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
+
+
+--
+-- Name: pharmacy_order_prescriptions fhir_refresh; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.pharmacy_order_prescriptions FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
+
+
+--
+-- Name: pharmacy_orders fhir_refresh; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.pharmacy_orders FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
+
+
+--
+-- Name: prescriptions fhir_refresh; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER fhir_refresh AFTER INSERT OR DELETE OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION fhir.refresh_trigger();
 
 
 --
@@ -8268,10 +9208,31 @@ CREATE TRIGGER notify_encounter_history_changed AFTER INSERT OR DELETE OR UPDATE
 
 
 --
--- Name: encounter_medications notify_encounter_medications_changed; Type: TRIGGER; Schema: public; Owner: -
+-- Name: prescriptions notify_encounter_medications_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER notify_encounter_medications_changed AFTER INSERT OR DELETE OR UPDATE ON public.encounter_medications FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+CREATE TRIGGER notify_encounter_medications_changed AFTER INSERT OR DELETE OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: encounter_pause_prescription_histories notify_encounter_pause_prescription_histories_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_encounter_pause_prescription_histories_changed AFTER INSERT OR DELETE OR UPDATE ON public.encounter_pause_prescription_histories FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: encounter_pause_prescriptions notify_encounter_pause_prescriptions_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_encounter_pause_prescriptions_changed AFTER INSERT OR DELETE OR UPDATE ON public.encounter_pause_prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: encounter_prescriptions notify_encounter_prescriptions_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_encounter_prescriptions_changed AFTER INSERT OR DELETE OR UPDATE ON public.encounter_prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
 
 
 --
@@ -8457,6 +9418,20 @@ CREATE TRIGGER notify_locations_changed AFTER INSERT OR DELETE OR UPDATE ON publ
 
 
 --
+-- Name: medication_administration_record_doses notify_medication_administration_record_doses_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_medication_administration_record_doses_changed AFTER INSERT OR DELETE OR UPDATE ON public.medication_administration_record_doses FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: medication_administration_records notify_medication_administration_records_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_medication_administration_records_changed AFTER INSERT OR DELETE OR UPDATE ON public.medication_administration_records FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
 -- Name: note_items notify_note_items_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -8590,6 +9565,13 @@ CREATE TRIGGER notify_patient_issues_changed AFTER INSERT OR DELETE OR UPDATE ON
 
 
 --
+-- Name: patient_ongoing_prescriptions notify_patient_ongoing_prescriptions_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_patient_ongoing_prescriptions_changed AFTER INSERT OR DELETE OR UPDATE ON public.patient_ongoing_prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
 -- Name: patient_program_registration_conditions notify_patient_program_registration_conditions_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -8625,6 +9607,48 @@ CREATE TRIGGER notify_permissions_changed AFTER INSERT OR DELETE OR UPDATE ON pu
 
 
 --
+-- Name: pharmacy_order_prescriptions notify_pharmacy_order_prescriptions_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_pharmacy_order_prescriptions_changed AFTER INSERT OR DELETE OR UPDATE ON public.pharmacy_order_prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: pharmacy_orders notify_pharmacy_orders_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_pharmacy_orders_changed AFTER INSERT OR DELETE OR UPDATE ON public.pharmacy_orders FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: prescriptions notify_prescriptions_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_prescriptions_changed AFTER INSERT OR DELETE OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: procedure_assistant_clinicians notify_procedure_assistant_clinicians_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_procedure_assistant_clinicians_changed AFTER INSERT OR DELETE OR UPDATE ON public.procedure_assistant_clinicians FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: procedure_survey_responses notify_procedure_survey_responses_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_procedure_survey_responses_changed AFTER INSERT OR DELETE OR UPDATE ON public.procedure_survey_responses FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: procedure_type_surveys notify_procedure_type_surveys_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_procedure_type_surveys_changed AFTER INSERT OR DELETE OR UPDATE ON public.procedure_type_surveys FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
 -- Name: procedures notify_procedures_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -8653,6 +9677,13 @@ CREATE TRIGGER notify_program_registry_clinical_statuses_changed AFTER INSERT OR
 
 
 --
+-- Name: program_registry_condition_categories notify_program_registry_condition_categories_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_program_registry_condition_categories_changed AFTER INSERT OR DELETE OR UPDATE ON public.program_registry_condition_categories FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
 -- Name: program_registry_conditions notify_program_registry_conditions_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -8678,6 +9709,20 @@ CREATE TRIGGER notify_reference_data_changed AFTER INSERT OR DELETE OR UPDATE ON
 --
 
 CREATE TRIGGER notify_reference_data_relations_changed AFTER INSERT OR DELETE OR UPDATE ON public.reference_data_relations FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: reference_drugs notify_reference_drugs_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_reference_drugs_changed AFTER INSERT OR DELETE OR UPDATE ON public.reference_drugs FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
+
+
+--
+-- Name: reference_medication_templates notify_reference_medication_templates_changed; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notify_reference_medication_templates_changed AFTER INSERT OR DELETE OR UPDATE ON public.reference_medication_templates FOR EACH ROW EXECUTE FUNCTION public.notify_table_changed();
 
 
 --
@@ -8933,6 +9978,13 @@ CREATE CONSTRAINT TRIGGER record_departments_changelog AFTER INSERT OR UPDATE ON
 
 
 --
+-- Name: devices record_devices_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_devices_changelog AFTER INSERT OR UPDATE ON public.devices DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
 -- Name: discharges record_discharges_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -8968,10 +10020,31 @@ CREATE CONSTRAINT TRIGGER record_encounter_history_changelog AFTER INSERT OR UPD
 
 
 --
--- Name: encounter_medications record_encounter_medications_changelog; Type: TRIGGER; Schema: public; Owner: -
+-- Name: prescriptions record_encounter_medications_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE CONSTRAINT TRIGGER record_encounter_medications_changelog AFTER INSERT OR UPDATE ON public.encounter_medications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+CREATE CONSTRAINT TRIGGER record_encounter_medications_changelog AFTER INSERT OR UPDATE ON public.prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: encounter_pause_prescription_histories record_encounter_pause_prescription_histories_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_encounter_pause_prescription_histories_changelog AFTER INSERT OR UPDATE ON public.encounter_pause_prescription_histories DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: encounter_pause_prescriptions record_encounter_pause_prescriptions_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_encounter_pause_prescriptions_changelog AFTER INSERT OR UPDATE ON public.encounter_pause_prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: encounter_prescriptions record_encounter_prescriptions_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_encounter_prescriptions_changelog AFTER INSERT OR UPDATE ON public.encounter_prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
 
 
 --
@@ -9157,6 +10230,20 @@ CREATE CONSTRAINT TRIGGER record_locations_changelog AFTER INSERT OR UPDATE ON p
 
 
 --
+-- Name: medication_administration_record_doses record_medication_administration_record_doses_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_medication_administration_record_doses_changelog AFTER INSERT OR UPDATE ON public.medication_administration_record_doses DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: medication_administration_records record_medication_administration_records_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_medication_administration_records_changelog AFTER INSERT OR UPDATE ON public.medication_administration_records DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
 -- Name: note_items record_note_items_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9290,6 +10377,13 @@ CREATE CONSTRAINT TRIGGER record_patient_issues_changelog AFTER INSERT OR UPDATE
 
 
 --
+-- Name: patient_ongoing_prescriptions record_patient_ongoing_prescriptions_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_patient_ongoing_prescriptions_changelog AFTER INSERT OR UPDATE ON public.patient_ongoing_prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
 -- Name: patient_program_registration_conditions record_patient_program_registration_conditions_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9325,6 +10419,48 @@ CREATE CONSTRAINT TRIGGER record_permissions_changelog AFTER INSERT OR UPDATE ON
 
 
 --
+-- Name: pharmacy_order_prescriptions record_pharmacy_order_prescriptions_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_pharmacy_order_prescriptions_changelog AFTER INSERT OR UPDATE ON public.pharmacy_order_prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: pharmacy_orders record_pharmacy_orders_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_pharmacy_orders_changelog AFTER INSERT OR UPDATE ON public.pharmacy_orders DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: prescriptions record_prescriptions_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_prescriptions_changelog AFTER INSERT OR UPDATE ON public.prescriptions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: procedure_assistant_clinicians record_procedure_assistant_clinicians_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_procedure_assistant_clinicians_changelog AFTER INSERT OR UPDATE ON public.procedure_assistant_clinicians DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: procedure_survey_responses record_procedure_survey_responses_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_procedure_survey_responses_changelog AFTER INSERT OR UPDATE ON public.procedure_survey_responses DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: procedure_type_surveys record_procedure_type_surveys_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_procedure_type_surveys_changelog AFTER INSERT OR UPDATE ON public.procedure_type_surveys DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
 -- Name: procedures record_procedures_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9353,6 +10489,13 @@ CREATE CONSTRAINT TRIGGER record_program_registry_clinical_statuses_changelog AF
 
 
 --
+-- Name: program_registry_condition_categories record_program_registry_condition_categories_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_program_registry_condition_categories_changelog AFTER INSERT OR UPDATE ON public.program_registry_condition_categories DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
 -- Name: program_registry_conditions record_program_registry_conditions_changelog; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9378,6 +10521,20 @@ CREATE CONSTRAINT TRIGGER record_reference_data_changelog AFTER INSERT OR UPDATE
 --
 
 CREATE CONSTRAINT TRIGGER record_reference_data_relations_changelog AFTER INSERT OR UPDATE ON public.reference_data_relations DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: reference_drugs record_reference_drugs_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_reference_drugs_changelog AFTER INSERT OR UPDATE ON public.reference_drugs DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
+
+
+--
+-- Name: reference_medication_templates record_reference_medication_templates_changelog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE CONSTRAINT TRIGGER record_reference_medication_templates_changelog AFTER INSERT OR UPDATE ON public.reference_medication_templates DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION logs.record_change();
 
 
 --
@@ -9563,10 +10720,24 @@ CREATE CONSTRAINT TRIGGER record_vitals_changelog AFTER INSERT OR UPDATE ON publ
 
 
 --
+-- Name: administered_vaccines set_administered_vaccines_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_administered_vaccines_updated_at BEFORE INSERT OR UPDATE ON public.administered_vaccines FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: administered_vaccines set_administered_vaccines_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_administered_vaccines_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.administered_vaccines FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: appointment_schedules set_appointment_schedules_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_appointment_schedules_updated_at BEFORE INSERT OR UPDATE ON public.appointment_schedules FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9577,10 +10748,24 @@ CREATE TRIGGER set_appointment_schedules_updated_at_sync_tick BEFORE INSERT OR U
 
 
 --
+-- Name: appointments set_appointments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_appointments_updated_at BEFORE INSERT OR UPDATE ON public.appointments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: appointments set_appointments_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_appointments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.appointments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: assets set_assets_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_assets_updated_at BEFORE INSERT OR UPDATE ON public.assets FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9591,10 +10776,24 @@ CREATE TRIGGER set_assets_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public
 
 
 --
+-- Name: attachments set_attachments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_attachments_updated_at BEFORE INSERT OR UPDATE ON public.attachments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: attachments set_attachments_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_attachments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.attachments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: certifiable_vaccines set_certifiable_vaccines_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_certifiable_vaccines_updated_at BEFORE INSERT OR UPDATE ON public.certifiable_vaccines FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9605,10 +10804,24 @@ CREATE TRIGGER set_certifiable_vaccines_updated_at_sync_tick BEFORE INSERT OR UP
 
 
 --
+-- Name: certificate_notifications set_certificate_notifications_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_certificate_notifications_updated_at BEFORE INSERT OR UPDATE ON public.certificate_notifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: certificate_notifications set_certificate_notifications_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_certificate_notifications_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.certificate_notifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: contributing_death_causes set_contributing_death_causes_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_contributing_death_causes_updated_at BEFORE INSERT OR UPDATE ON public.contributing_death_causes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9619,10 +10832,24 @@ CREATE TRIGGER set_contributing_death_causes_updated_at_sync_tick BEFORE INSERT 
 
 
 --
+-- Name: death_revert_logs set_death_revert_logs_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_death_revert_logs_updated_at BEFORE INSERT OR UPDATE ON public.death_revert_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: death_revert_logs set_death_revert_logs_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_death_revert_logs_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.death_revert_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: departments set_departments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_departments_updated_at BEFORE INSERT OR UPDATE ON public.departments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9633,10 +10860,24 @@ CREATE TRIGGER set_departments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON p
 
 
 --
+-- Name: discharges set_discharges_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_discharges_updated_at BEFORE INSERT OR UPDATE ON public.discharges FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: discharges set_discharges_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_discharges_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.discharges FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: document_metadata set_document_metadata_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_document_metadata_updated_at BEFORE INSERT OR UPDATE ON public.document_metadata FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9647,10 +10888,24 @@ CREATE TRIGGER set_document_metadata_updated_at_sync_tick BEFORE INSERT OR UPDAT
 
 
 --
+-- Name: encounter_diagnoses set_encounter_diagnoses_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_diagnoses_updated_at BEFORE INSERT OR UPDATE ON public.encounter_diagnoses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: encounter_diagnoses set_encounter_diagnoses_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_encounter_diagnoses_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.encounter_diagnoses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: encounter_diets set_encounter_diets_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_diets_updated_at BEFORE INSERT OR UPDATE ON public.encounter_diets FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9661,6 +10916,13 @@ CREATE TRIGGER set_encounter_diets_updated_at_sync_tick BEFORE INSERT OR UPDATE 
 
 
 --
+-- Name: encounter_history set_encounter_history_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_history_updated_at BEFORE INSERT OR UPDATE ON public.encounter_history FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: encounter_history set_encounter_history_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9668,10 +10930,59 @@ CREATE TRIGGER set_encounter_history_updated_at_sync_tick BEFORE INSERT OR UPDAT
 
 
 --
--- Name: encounter_medications set_encounter_medications_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+-- Name: prescriptions set_encounter_medications_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER set_encounter_medications_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.encounter_medications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+CREATE TRIGGER set_encounter_medications_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: encounter_pause_prescription_histories set_encounter_pause_prescription_histories_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_pause_prescription_histories_updated_at BEFORE INSERT OR UPDATE ON public.encounter_pause_prescription_histories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: encounter_pause_prescription_histories set_encounter_pause_prescription_histories_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_pause_prescription_histories_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.encounter_pause_prescription_histories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: encounter_pause_prescriptions set_encounter_pause_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_pause_prescriptions_updated_at BEFORE INSERT OR UPDATE ON public.encounter_pause_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: encounter_pause_prescriptions set_encounter_pause_prescriptions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_pause_prescriptions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.encounter_pause_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: encounter_prescriptions set_encounter_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_prescriptions_updated_at BEFORE INSERT OR UPDATE ON public.encounter_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: encounter_prescriptions set_encounter_prescriptions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounter_prescriptions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.encounter_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: encounters set_encounters_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_encounters_updated_at BEFORE INSERT OR UPDATE ON public.encounters FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9682,10 +10993,24 @@ CREATE TRIGGER set_encounters_updated_at_sync_tick BEFORE INSERT OR UPDATE ON pu
 
 
 --
+-- Name: facilities set_facilities_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_facilities_updated_at BEFORE INSERT OR UPDATE ON public.facilities FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: facilities set_facilities_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_facilities_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.facilities FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: imaging_area_external_codes set_imaging_area_external_codes_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_imaging_area_external_codes_updated_at BEFORE INSERT OR UPDATE ON public.imaging_area_external_codes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9696,10 +11021,24 @@ CREATE TRIGGER set_imaging_area_external_codes_updated_at_sync_tick BEFORE INSER
 
 
 --
+-- Name: imaging_request_areas set_imaging_request_areas_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_imaging_request_areas_updated_at BEFORE INSERT OR UPDATE ON public.imaging_request_areas FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: imaging_request_areas set_imaging_request_areas_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_imaging_request_areas_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.imaging_request_areas FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: imaging_requests set_imaging_requests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_imaging_requests_updated_at BEFORE INSERT OR UPDATE ON public.imaging_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9710,10 +11049,24 @@ CREATE TRIGGER set_imaging_requests_updated_at_sync_tick BEFORE INSERT OR UPDATE
 
 
 --
+-- Name: imaging_results set_imaging_results_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_imaging_results_updated_at BEFORE INSERT OR UPDATE ON public.imaging_results FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: imaging_results set_imaging_results_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_imaging_results_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.imaging_results FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: invoice_discounts set_invoice_discounts_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_discounts_updated_at BEFORE INSERT OR UPDATE ON public.invoice_discounts FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9724,10 +11077,24 @@ CREATE TRIGGER set_invoice_discounts_updated_at_sync_tick BEFORE INSERT OR UPDAT
 
 
 --
+-- Name: invoice_insurer_payments set_invoice_insurer_payments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_insurer_payments_updated_at BEFORE INSERT OR UPDATE ON public.invoice_insurer_payments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: invoice_insurer_payments set_invoice_insurer_payments_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_invoice_insurer_payments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.invoice_insurer_payments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: invoice_insurers set_invoice_insurers_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_insurers_updated_at BEFORE INSERT OR UPDATE ON public.invoice_insurers FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9738,10 +11105,24 @@ CREATE TRIGGER set_invoice_insurers_updated_at_sync_tick BEFORE INSERT OR UPDATE
 
 
 --
+-- Name: invoice_item_discounts set_invoice_item_discounts_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_item_discounts_updated_at BEFORE INSERT OR UPDATE ON public.invoice_item_discounts FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: invoice_item_discounts set_invoice_item_discounts_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_invoice_item_discounts_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.invoice_item_discounts FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: invoice_items set_invoice_items_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_items_updated_at BEFORE INSERT OR UPDATE ON public.invoice_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9752,10 +11133,24 @@ CREATE TRIGGER set_invoice_items_updated_at_sync_tick BEFORE INSERT OR UPDATE ON
 
 
 --
+-- Name: invoice_patient_payments set_invoice_patient_payments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_patient_payments_updated_at BEFORE INSERT OR UPDATE ON public.invoice_patient_payments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: invoice_patient_payments set_invoice_patient_payments_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_invoice_patient_payments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.invoice_patient_payments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: invoice_payments set_invoice_payments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_payments_updated_at BEFORE INSERT OR UPDATE ON public.invoice_payments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9766,10 +11161,24 @@ CREATE TRIGGER set_invoice_payments_updated_at_sync_tick BEFORE INSERT OR UPDATE
 
 
 --
+-- Name: invoice_products set_invoice_products_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoice_products_updated_at BEFORE INSERT OR UPDATE ON public.invoice_products FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: invoice_products set_invoice_products_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_invoice_products_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.invoice_products FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: invoices set_invoices_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_invoices_updated_at BEFORE INSERT OR UPDATE ON public.invoices FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9780,10 +11189,24 @@ CREATE TRIGGER set_invoices_updated_at_sync_tick BEFORE INSERT OR UPDATE ON publ
 
 
 --
+-- Name: ips_requests set_ips_requests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_ips_requests_updated_at BEFORE INSERT OR UPDATE ON public.ips_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: ips_requests set_ips_requests_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_ips_requests_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.ips_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: lab_request_attachments set_lab_request_attachments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_request_attachments_updated_at BEFORE INSERT OR UPDATE ON public.lab_request_attachments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9794,10 +11217,24 @@ CREATE TRIGGER set_lab_request_attachments_updated_at_sync_tick BEFORE INSERT OR
 
 
 --
+-- Name: lab_request_logs set_lab_request_logs_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_request_logs_updated_at BEFORE INSERT OR UPDATE ON public.lab_request_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: lab_request_logs set_lab_request_logs_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_lab_request_logs_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.lab_request_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: lab_requests set_lab_requests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_requests_updated_at BEFORE INSERT OR UPDATE ON public.lab_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9808,10 +11245,24 @@ CREATE TRIGGER set_lab_requests_updated_at_sync_tick BEFORE INSERT OR UPDATE ON 
 
 
 --
+-- Name: lab_test_panel_lab_test_types set_lab_test_panel_lab_test_types_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_test_panel_lab_test_types_updated_at BEFORE INSERT OR UPDATE ON public.lab_test_panel_lab_test_types FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: lab_test_panel_lab_test_types set_lab_test_panel_lab_test_types_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_lab_test_panel_lab_test_types_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.lab_test_panel_lab_test_types FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: lab_test_panel_requests set_lab_test_panel_requests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_test_panel_requests_updated_at BEFORE INSERT OR UPDATE ON public.lab_test_panel_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9822,10 +11273,24 @@ CREATE TRIGGER set_lab_test_panel_requests_updated_at_sync_tick BEFORE INSERT OR
 
 
 --
+-- Name: lab_test_panels set_lab_test_panels_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_test_panels_updated_at BEFORE INSERT OR UPDATE ON public.lab_test_panels FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: lab_test_panels set_lab_test_panels_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_lab_test_panels_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.lab_test_panels FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: lab_test_types set_lab_test_types_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_test_types_updated_at BEFORE INSERT OR UPDATE ON public.lab_test_types FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9836,10 +11301,24 @@ CREATE TRIGGER set_lab_test_types_updated_at_sync_tick BEFORE INSERT OR UPDATE O
 
 
 --
+-- Name: lab_tests set_lab_tests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_lab_tests_updated_at BEFORE INSERT OR UPDATE ON public.lab_tests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: lab_tests set_lab_tests_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_lab_tests_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.lab_tests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: location_groups set_location_groups_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_location_groups_updated_at BEFORE INSERT OR UPDATE ON public.location_groups FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9850,10 +11329,52 @@ CREATE TRIGGER set_location_groups_updated_at_sync_tick BEFORE INSERT OR UPDATE 
 
 
 --
+-- Name: locations set_locations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_locations_updated_at BEFORE INSERT OR UPDATE ON public.locations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: locations set_locations_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_locations_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.locations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: medication_administration_record_doses set_medication_administration_record_doses_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_medication_administration_record_doses_updated_at BEFORE INSERT OR UPDATE ON public.medication_administration_record_doses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: medication_administration_record_doses set_medication_administration_record_doses_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_medication_administration_record_doses_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.medication_administration_record_doses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: medication_administration_records set_medication_administration_records_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_medication_administration_records_updated_at BEFORE INSERT OR UPDATE ON public.medication_administration_records FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: medication_administration_records set_medication_administration_records_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_medication_administration_records_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.medication_administration_records FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: note_items set_note_items_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_note_items_updated_at BEFORE INSERT OR UPDATE ON public.note_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9864,10 +11385,24 @@ CREATE TRIGGER set_note_items_updated_at_sync_tick BEFORE INSERT OR UPDATE ON pu
 
 
 --
+-- Name: note_pages set_note_pages_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_note_pages_updated_at BEFORE INSERT OR UPDATE ON public.note_pages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: note_pages set_note_pages_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_note_pages_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.note_pages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: notes_legacy set_notes_legacy_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_notes_legacy_updated_at BEFORE INSERT OR UPDATE ON public.notes_legacy FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9878,6 +11413,13 @@ CREATE TRIGGER set_notes_legacy_updated_at_sync_tick BEFORE INSERT OR UPDATE ON 
 
 
 --
+-- Name: notes set_notes_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_notes_updated_at BEFORE INSERT OR UPDATE ON public.notes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: notes set_notes_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -9885,10 +11427,24 @@ CREATE TRIGGER set_notes_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.
 
 
 --
+-- Name: notifications set_notifications_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_notifications_updated_at BEFORE INSERT OR UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: notifications set_notifications_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_notifications_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_additional_data set_patient_additional_data_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_additional_data_updated_at BEFORE INSERT OR UPDATE ON public.patient_additional_data FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9906,10 +11462,24 @@ CREATE TRIGGER set_patient_additional_data_updated_at_sync_tick BEFORE INSERT OR
 
 
 --
+-- Name: patient_allergies set_patient_allergies_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_allergies_updated_at BEFORE INSERT OR UPDATE ON public.patient_allergies FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_allergies set_patient_allergies_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_allergies_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_allergies FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_birth_data set_patient_birth_data_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_birth_data_updated_at BEFORE INSERT OR UPDATE ON public.patient_birth_data FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9920,10 +11490,24 @@ CREATE TRIGGER set_patient_birth_data_updated_at_sync_tick BEFORE INSERT OR UPDA
 
 
 --
+-- Name: patient_care_plans set_patient_care_plans_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_care_plans_updated_at BEFORE INSERT OR UPDATE ON public.patient_care_plans FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_care_plans set_patient_care_plans_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_care_plans_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_care_plans FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_communications set_patient_communications_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_communications_updated_at BEFORE INSERT OR UPDATE ON public.patient_communications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9934,10 +11518,24 @@ CREATE TRIGGER set_patient_communications_updated_at_sync_tick BEFORE INSERT OR 
 
 
 --
+-- Name: patient_conditions set_patient_conditions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_conditions_updated_at BEFORE INSERT OR UPDATE ON public.patient_conditions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_conditions set_patient_conditions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_conditions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_conditions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_contacts set_patient_contacts_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_contacts_updated_at BEFORE INSERT OR UPDATE ON public.patient_contacts FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9948,10 +11546,24 @@ CREATE TRIGGER set_patient_contacts_updated_at_sync_tick BEFORE INSERT OR UPDATE
 
 
 --
+-- Name: patient_death_data set_patient_death_data_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_death_data_updated_at BEFORE INSERT OR UPDATE ON public.patient_death_data FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_death_data set_patient_death_data_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_death_data_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_death_data FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_facilities set_patient_facilities_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_facilities_updated_at BEFORE INSERT OR UPDATE ON public.patient_facilities FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9962,10 +11574,24 @@ CREATE TRIGGER set_patient_facilities_updated_at_sync_tick BEFORE INSERT OR UPDA
 
 
 --
+-- Name: patient_family_histories set_patient_family_histories_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_family_histories_updated_at BEFORE INSERT OR UPDATE ON public.patient_family_histories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_family_histories set_patient_family_histories_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_family_histories_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_family_histories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_field_definition_categories set_patient_field_definition_categories_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_field_definition_categories_updated_at BEFORE INSERT OR UPDATE ON public.patient_field_definition_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9976,10 +11602,24 @@ CREATE TRIGGER set_patient_field_definition_categories_updated_at_sync_tick BEFO
 
 
 --
+-- Name: patient_field_definitions set_patient_field_definitions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_field_definitions_updated_at BEFORE INSERT OR UPDATE ON public.patient_field_definitions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_field_definitions set_patient_field_definitions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_field_definitions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_field_definitions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_field_values set_patient_field_values_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_field_values_updated_at BEFORE INSERT OR UPDATE ON public.patient_field_values FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -9990,10 +11630,38 @@ CREATE TRIGGER set_patient_field_values_updated_at_sync_tick BEFORE INSERT OR UP
 
 
 --
+-- Name: patient_issues set_patient_issues_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_issues_updated_at BEFORE INSERT OR UPDATE ON public.patient_issues FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_issues set_patient_issues_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_issues_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_issues FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_ongoing_prescriptions set_patient_ongoing_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_ongoing_prescriptions_updated_at BEFORE INSERT OR UPDATE ON public.patient_ongoing_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: patient_ongoing_prescriptions set_patient_ongoing_prescriptions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_ongoing_prescriptions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_ongoing_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_program_registration_conditions set_patient_program_registration_conditions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_program_registration_conditions_updated_at BEFORE INSERT OR UPDATE ON public.patient_program_registration_conditions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10004,10 +11672,24 @@ CREATE TRIGGER set_patient_program_registration_conditions_updated_at_sync_tic B
 
 
 --
+-- Name: patient_program_registrations set_patient_program_registrations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_program_registrations_updated_at BEFORE INSERT OR UPDATE ON public.patient_program_registrations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patient_program_registrations set_patient_program_registrations_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patient_program_registrations_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patient_program_registrations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: patient_secondary_ids set_patient_secondary_ids_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patient_secondary_ids_updated_at BEFORE INSERT OR UPDATE ON public.patient_secondary_ids FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10018,10 +11700,24 @@ CREATE TRIGGER set_patient_secondary_ids_updated_at_sync_tick BEFORE INSERT OR U
 
 
 --
+-- Name: patients set_patients_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_patients_updated_at BEFORE INSERT OR UPDATE ON public.patients FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: patients set_patients_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_patients_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.patients FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: permissions set_permissions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_permissions_updated_at BEFORE INSERT OR UPDATE ON public.permissions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10032,10 +11728,108 @@ CREATE TRIGGER set_permissions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON p
 
 
 --
+-- Name: pharmacy_order_prescriptions set_pharmacy_order_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_pharmacy_order_prescriptions_updated_at BEFORE INSERT OR UPDATE ON public.pharmacy_order_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: pharmacy_order_prescriptions set_pharmacy_order_prescriptions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_pharmacy_order_prescriptions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.pharmacy_order_prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: pharmacy_orders set_pharmacy_orders_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_pharmacy_orders_updated_at BEFORE INSERT OR UPDATE ON public.pharmacy_orders FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: pharmacy_orders set_pharmacy_orders_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_pharmacy_orders_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.pharmacy_orders FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: prescriptions set_prescriptions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_prescriptions_updated_at BEFORE INSERT OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: prescriptions set_prescriptions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_prescriptions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.prescriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: procedure_assistant_clinicians set_procedure_assistant_clinicians_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_assistant_clinicians_updated_at BEFORE INSERT OR UPDATE ON public.procedure_assistant_clinicians FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: procedure_assistant_clinicians set_procedure_assistant_clinicians_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_assistant_clinicians_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.procedure_assistant_clinicians FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: procedure_survey_responses set_procedure_survey_responses_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_survey_responses_updated_at BEFORE INSERT OR UPDATE ON public.procedure_survey_responses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: procedure_survey_responses set_procedure_survey_responses_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_survey_responses_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.procedure_survey_responses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: procedure_type_surveys set_procedure_type_surveys_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_type_surveys_updated_at BEFORE INSERT OR UPDATE ON public.procedure_type_surveys FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: procedure_type_surveys set_procedure_type_surveys_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedure_type_surveys_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.procedure_type_surveys FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: procedures set_procedures_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_procedures_updated_at BEFORE INSERT OR UPDATE ON public.procedures FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: procedures set_procedures_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_procedures_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.procedures FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: program_data_elements set_program_data_elements_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_data_elements_updated_at BEFORE INSERT OR UPDATE ON public.program_data_elements FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10046,10 +11840,24 @@ CREATE TRIGGER set_program_data_elements_updated_at_sync_tick BEFORE INSERT OR U
 
 
 --
+-- Name: program_registries set_program_registries_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_registries_updated_at BEFORE INSERT OR UPDATE ON public.program_registries FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: program_registries set_program_registries_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_program_registries_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.program_registries FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: program_registry_clinical_statuses set_program_registry_clinical_statuses_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_registry_clinical_statuses_updated_at BEFORE INSERT OR UPDATE ON public.program_registry_clinical_statuses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10060,10 +11868,38 @@ CREATE TRIGGER set_program_registry_clinical_statuses_updated_at_sync_tick BEFOR
 
 
 --
+-- Name: program_registry_condition_categories set_program_registry_condition_categories_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_registry_condition_categories_updated_at BEFORE INSERT OR UPDATE ON public.program_registry_condition_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: program_registry_condition_categories set_program_registry_condition_categories_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_registry_condition_categories_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.program_registry_condition_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: program_registry_conditions set_program_registry_conditions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_program_registry_conditions_updated_at BEFORE INSERT OR UPDATE ON public.program_registry_conditions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: program_registry_conditions set_program_registry_conditions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_program_registry_conditions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.program_registry_conditions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: programs set_programs_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_programs_updated_at BEFORE INSERT OR UPDATE ON public.programs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10074,10 +11910,24 @@ CREATE TRIGGER set_programs_updated_at_sync_tick BEFORE INSERT OR UPDATE ON publ
 
 
 --
+-- Name: reference_data_relations set_reference_data_relations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_data_relations_updated_at BEFORE INSERT OR UPDATE ON public.reference_data_relations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: reference_data_relations set_reference_data_relations_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_reference_data_relations_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.reference_data_relations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: reference_data set_reference_data_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_data_updated_at BEFORE INSERT OR UPDATE ON public.reference_data FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10088,10 +11938,52 @@ CREATE TRIGGER set_reference_data_updated_at_sync_tick BEFORE INSERT OR UPDATE O
 
 
 --
+-- Name: reference_drugs set_reference_drugs_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_drugs_updated_at BEFORE INSERT OR UPDATE ON public.reference_drugs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: reference_drugs set_reference_drugs_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_drugs_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.reference_drugs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: reference_medication_templates set_reference_medication_templates_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_medication_templates_updated_at BEFORE INSERT OR UPDATE ON public.reference_medication_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: reference_medication_templates set_reference_medication_templates_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_reference_medication_templates_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.reference_medication_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: referrals set_referrals_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_referrals_updated_at BEFORE INSERT OR UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: referrals set_referrals_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_referrals_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: report_definition_versions set_report_definition_versions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_report_definition_versions_updated_at BEFORE INSERT OR UPDATE ON public.report_definition_versions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10102,10 +11994,24 @@ CREATE TRIGGER set_report_definition_versions_updated_at_sync_tick BEFORE INSERT
 
 
 --
+-- Name: report_definitions set_report_definitions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_report_definitions_updated_at BEFORE INSERT OR UPDATE ON public.report_definitions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: report_definitions set_report_definitions_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_report_definitions_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.report_definitions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: report_requests set_report_requests_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_report_requests_updated_at BEFORE INSERT OR UPDATE ON public.report_requests FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10116,10 +12022,24 @@ CREATE TRIGGER set_report_requests_updated_at_sync_tick BEFORE INSERT OR UPDATE 
 
 
 --
+-- Name: roles set_roles_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_roles_updated_at BEFORE INSERT OR UPDATE ON public.roles FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: roles set_roles_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_roles_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.roles FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: scheduled_vaccines set_scheduled_vaccines_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_scheduled_vaccines_updated_at BEFORE INSERT OR UPDATE ON public.scheduled_vaccines FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10130,10 +12050,24 @@ CREATE TRIGGER set_scheduled_vaccines_updated_at_sync_tick BEFORE INSERT OR UPDA
 
 
 --
+-- Name: settings set_settings_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_settings_updated_at BEFORE INSERT OR UPDATE ON public.settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: settings set_settings_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_settings_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: signers set_signers_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_signers_updated_at BEFORE INSERT OR UPDATE ON public.signers FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10144,10 +12078,24 @@ CREATE TRIGGER set_signers_updated_at_sync_tick BEFORE INSERT OR UPDATE ON publi
 
 
 --
+-- Name: socket_io_attachments set_socket_io_attachments_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_socket_io_attachments_updated_at BEFORE INSERT OR UPDATE ON public.socket_io_attachments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: socket_io_attachments set_socket_io_attachments_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_socket_io_attachments_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.socket_io_attachments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: survey_response_answers set_survey_response_answers_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_survey_response_answers_updated_at BEFORE INSERT OR UPDATE ON public.survey_response_answers FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10158,10 +12106,24 @@ CREATE TRIGGER set_survey_response_answers_updated_at_sync_tick BEFORE INSERT OR
 
 
 --
+-- Name: survey_responses set_survey_responses_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_survey_responses_updated_at BEFORE INSERT OR UPDATE ON public.survey_responses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: survey_responses set_survey_responses_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_survey_responses_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.survey_responses FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: survey_screen_components set_survey_screen_components_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_survey_screen_components_updated_at BEFORE INSERT OR UPDATE ON public.survey_screen_components FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10172,10 +12134,24 @@ CREATE TRIGGER set_survey_screen_components_updated_at_sync_tick BEFORE INSERT O
 
 
 --
+-- Name: surveys set_surveys_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_surveys_updated_at BEFORE INSERT OR UPDATE ON public.surveys FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: surveys set_surveys_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_surveys_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.surveys FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: task_designations set_task_designations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_task_designations_updated_at BEFORE INSERT OR UPDATE ON public.task_designations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10186,10 +12162,24 @@ CREATE TRIGGER set_task_designations_updated_at_sync_tick BEFORE INSERT OR UPDAT
 
 
 --
+-- Name: task_template_designations set_task_template_designations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_task_template_designations_updated_at BEFORE INSERT OR UPDATE ON public.task_template_designations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: task_template_designations set_task_template_designations_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_task_template_designations_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.task_template_designations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: task_templates set_task_templates_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_task_templates_updated_at BEFORE INSERT OR UPDATE ON public.task_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10200,10 +12190,24 @@ CREATE TRIGGER set_task_templates_updated_at_sync_tick BEFORE INSERT OR UPDATE O
 
 
 --
+-- Name: tasks set_tasks_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_tasks_updated_at BEFORE INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: tasks set_tasks_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_tasks_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: templates set_templates_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_templates_updated_at BEFORE INSERT OR UPDATE ON public.templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10214,10 +12218,24 @@ CREATE TRIGGER set_templates_updated_at_sync_tick BEFORE INSERT OR UPDATE ON pub
 
 
 --
+-- Name: translated_strings set_translated_strings_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_translated_strings_updated_at BEFORE INSERT OR UPDATE ON public.translated_strings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: translated_strings set_translated_strings_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_translated_strings_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.translated_strings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: triages set_triages_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_triages_updated_at BEFORE INSERT OR UPDATE ON public.triages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10228,10 +12246,24 @@ CREATE TRIGGER set_triages_updated_at_sync_tick BEFORE INSERT OR UPDATE ON publi
 
 
 --
+-- Name: user_designations set_user_designations_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_user_designations_updated_at BEFORE INSERT OR UPDATE ON public.user_designations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: user_designations set_user_designations_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_user_designations_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.user_designations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: user_facilities set_user_facilities_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_user_facilities_updated_at BEFORE INSERT OR UPDATE ON public.user_facilities FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10242,10 +12274,24 @@ CREATE TRIGGER set_user_facilities_updated_at_sync_tick BEFORE INSERT OR UPDATE 
 
 
 --
+-- Name: user_preferences set_user_preferences_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_user_preferences_updated_at BEFORE INSERT OR UPDATE ON public.user_preferences FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: user_preferences set_user_preferences_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_user_preferences_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.user_preferences FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: users set_users_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_users_updated_at BEFORE INSERT OR UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10256,10 +12302,24 @@ CREATE TRIGGER set_users_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.
 
 
 --
+-- Name: vital_logs set_vital_logs_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_vital_logs_updated_at BEFORE INSERT OR UPDATE ON public.vital_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
 -- Name: vital_logs set_vital_logs_updated_at_sync_tick; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_vital_logs_updated_at_sync_tick BEFORE INSERT OR UPDATE ON public.vital_logs FOR EACH ROW EXECUTE FUNCTION public.set_updated_at_sync_tick();
+
+
+--
+-- Name: vitals set_vitals_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_vitals_updated_at BEFORE INSERT OR UPDATE ON public.vitals FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -10494,6 +12554,14 @@ ALTER TABLE ONLY public.departments
 
 
 --
+-- Name: devices devices_registered_by_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT devices_registered_by_id_fkey FOREIGN KEY (registered_by_id) REFERENCES public.users(id);
+
+
+--
 -- Name: discharges discharges_discharger_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -10622,35 +12690,91 @@ ALTER TABLE ONLY public.encounter_history
 
 
 --
--- Name: encounter_medications encounter_medications_discontinuing_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions encounter_medications_discontinuing_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.encounter_medications
+ALTER TABLE ONLY public.prescriptions
     ADD CONSTRAINT encounter_medications_discontinuing_clinician_id_fkey FOREIGN KEY (discontinuing_clinician_id) REFERENCES public.users(id);
 
 
 --
--- Name: encounter_medications encounter_medications_encounter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions encounter_medications_medication_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.encounter_medications
-    ADD CONSTRAINT encounter_medications_encounter_id_fkey FOREIGN KEY (encounter_id) REFERENCES public.encounters(id);
-
-
---
--- Name: encounter_medications encounter_medications_medication_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.encounter_medications
+ALTER TABLE ONLY public.prescriptions
     ADD CONSTRAINT encounter_medications_medication_id_fkey FOREIGN KEY (medication_id) REFERENCES public.reference_data(id);
 
 
 --
--- Name: encounter_medications encounter_medications_prescriber_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: prescriptions encounter_medications_prescriber_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.encounter_medications
+ALTER TABLE ONLY public.prescriptions
     ADD CONSTRAINT encounter_medications_prescriber_id_fkey FOREIGN KEY (prescriber_id) REFERENCES public.users(id);
+
+
+--
+-- Name: encounter_pause_prescription_histories encounter_pause_prescription_his_encounter_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescription_histories
+    ADD CONSTRAINT encounter_pause_prescription_his_encounter_prescription_id_fkey FOREIGN KEY (encounter_prescription_id) REFERENCES public.encounter_prescriptions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: encounter_pause_prescription_histories encounter_pause_prescription_histories_action_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescription_histories
+    ADD CONSTRAINT encounter_pause_prescription_histories_action_user_id_fkey FOREIGN KEY (action_user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: encounter_pause_prescriptions encounter_pause_prescriptions_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescriptions
+    ADD CONSTRAINT encounter_pause_prescriptions_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: encounter_pause_prescriptions encounter_pause_prescriptions_encounter_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescriptions
+    ADD CONSTRAINT encounter_pause_prescriptions_encounter_prescription_id_fkey FOREIGN KEY (encounter_prescription_id) REFERENCES public.encounter_prescriptions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: encounter_pause_prescriptions encounter_pause_prescriptions_pausing_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescriptions
+    ADD CONSTRAINT encounter_pause_prescriptions_pausing_clinician_id_fkey FOREIGN KEY (pausing_clinician_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: encounter_pause_prescriptions encounter_pause_prescriptions_updated_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_pause_prescriptions
+    ADD CONSTRAINT encounter_pause_prescriptions_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: encounter_prescriptions encounter_prescriptions_encounter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_prescriptions
+    ADD CONSTRAINT encounter_prescriptions_encounter_id_fkey FOREIGN KEY (encounter_id) REFERENCES public.encounters(id);
+
+
+--
+-- Name: encounter_prescriptions encounter_prescriptions_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.encounter_prescriptions
+    ADD CONSTRAINT encounter_prescriptions_prescription_id_fkey FOREIGN KEY (prescription_id) REFERENCES public.prescriptions(id);
 
 
 --
@@ -11123,6 +13247,54 @@ ALTER TABLE ONLY public.locations
 
 ALTER TABLE ONLY public.locations
     ADD CONSTRAINT locations_location_group_id_fkey FOREIGN KEY (location_group_id) REFERENCES public.location_groups(id);
+
+
+--
+-- Name: medication_administration_record_doses medication_administration_record_doses_given_by_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_record_doses
+    ADD CONSTRAINT medication_administration_record_doses_given_by_user_id_fkey FOREIGN KEY (given_by_user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: medication_administration_record_doses medication_administration_record_doses_mar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_record_doses
+    ADD CONSTRAINT medication_administration_record_doses_mar_id_fkey FOREIGN KEY (mar_id) REFERENCES public.medication_administration_records(id);
+
+
+--
+-- Name: medication_administration_record_doses medication_administration_record_doses_recorded_by_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_record_doses
+    ADD CONSTRAINT medication_administration_record_doses_recorded_by_user_id_fkey FOREIGN KEY (recorded_by_user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: medication_administration_records medication_administration_records_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_records
+    ADD CONSTRAINT medication_administration_records_prescription_id_fkey FOREIGN KEY (prescription_id) REFERENCES public.prescriptions(id);
+
+
+--
+-- Name: medication_administration_records medication_administration_records_reason_not_given_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_records
+    ADD CONSTRAINT medication_administration_records_reason_not_given_id_fkey FOREIGN KEY (reason_not_given_id) REFERENCES public.reference_data(id);
+
+
+--
+-- Name: medication_administration_records medication_administration_records_recorded_by_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.medication_administration_records
+    ADD CONSTRAINT medication_administration_records_recorded_by_user_id_fkey FOREIGN KEY (recorded_by_user_id) REFERENCES public.users(id);
 
 
 --
@@ -11638,6 +13810,38 @@ ALTER TABLE ONLY public.templates
 
 
 --
+-- Name: patient_ongoing_prescriptions patient_ongoing_prescriptions_patient_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_ongoing_prescriptions
+    ADD CONSTRAINT patient_ongoing_prescriptions_patient_id_fkey FOREIGN KEY (patient_id) REFERENCES public.patients(id);
+
+
+--
+-- Name: patient_ongoing_prescriptions patient_ongoing_prescriptions_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_ongoing_prescriptions
+    ADD CONSTRAINT patient_ongoing_prescriptions_prescription_id_fkey FOREIGN KEY (prescription_id) REFERENCES public.prescriptions(id);
+
+
+--
+-- Name: patient_program_registration_conditions patient_program_registration__patient_program_registration_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_program_registration_conditions
+    ADD CONSTRAINT patient_program_registration__patient_program_registration_fkey FOREIGN KEY (patient_program_registration_id) REFERENCES public.patient_program_registrations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: patient_program_registration_conditions patient_program_registration__program_registry_condition_c_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_program_registration_conditions
+    ADD CONSTRAINT patient_program_registration__program_registry_condition_c_fkey FOREIGN KEY (program_registry_condition_category_id) REFERENCES public.program_registry_condition_categories(id);
+
+
+--
 -- Name: patient_program_registration_conditions patient_program_registration_conditions_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11654,27 +13858,11 @@ ALTER TABLE ONLY public.patient_program_registration_conditions
 
 
 --
--- Name: patient_program_registration_conditions patient_program_registration_conditions_patient_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.patient_program_registration_conditions
-    ADD CONSTRAINT patient_program_registration_conditions_patient_id_fkey FOREIGN KEY (patient_id) REFERENCES public.patients(id);
-
-
---
 -- Name: patient_program_registration_conditions patient_program_registration_conditions_program_registry_condit; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.patient_program_registration_conditions
     ADD CONSTRAINT patient_program_registration_conditions_program_registry_condit FOREIGN KEY (program_registry_condition_id) REFERENCES public.program_registry_conditions(id);
-
-
---
--- Name: patient_program_registration_conditions patient_program_registration_conditions_program_registry_id_fke; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.patient_program_registration_conditions
-    ADD CONSTRAINT patient_program_registration_conditions_program_registry_id_fke FOREIGN KEY (program_registry_id) REFERENCES public.program_registries(id);
 
 
 --
@@ -11691,6 +13879,14 @@ ALTER TABLE ONLY public.patient_program_registrations
 
 ALTER TABLE ONLY public.patient_program_registrations
     ADD CONSTRAINT patient_program_registrations_clinician_id_fkey FOREIGN KEY (clinician_id) REFERENCES public.users(id);
+
+
+--
+-- Name: patient_program_registrations patient_program_registrations_deactivated_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.patient_program_registrations
+    ADD CONSTRAINT patient_program_registrations_deactivated_clinician_id_fkey FOREIGN KEY (deactivated_clinician_id) REFERENCES public.users(id);
 
 
 --
@@ -11774,6 +13970,86 @@ ALTER TABLE ONLY public.permissions
 
 
 --
+-- Name: pharmacy_order_prescriptions pharmacy_order_prescriptions_pharmacy_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_order_prescriptions
+    ADD CONSTRAINT pharmacy_order_prescriptions_pharmacy_order_id_fkey FOREIGN KEY (pharmacy_order_id) REFERENCES public.pharmacy_orders(id);
+
+
+--
+-- Name: pharmacy_order_prescriptions pharmacy_order_prescriptions_prescription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_order_prescriptions
+    ADD CONSTRAINT pharmacy_order_prescriptions_prescription_id_fkey FOREIGN KEY (prescription_id) REFERENCES public.prescriptions(id);
+
+
+--
+-- Name: pharmacy_orders pharmacy_orders_encounter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_orders
+    ADD CONSTRAINT pharmacy_orders_encounter_id_fkey FOREIGN KEY (encounter_id) REFERENCES public.encounters(id);
+
+
+--
+-- Name: pharmacy_orders pharmacy_orders_ordering_clinician_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pharmacy_orders
+    ADD CONSTRAINT pharmacy_orders_ordering_clinician_id_fkey FOREIGN KEY (ordering_clinician_id) REFERENCES public.users(id);
+
+
+--
+-- Name: procedure_assistant_clinicians procedure_assistant_clinicians_procedure_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_assistant_clinicians
+    ADD CONSTRAINT procedure_assistant_clinicians_procedure_id_fkey FOREIGN KEY (procedure_id) REFERENCES public.procedures(id);
+
+
+--
+-- Name: procedure_assistant_clinicians procedure_assistant_clinicians_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_assistant_clinicians
+    ADD CONSTRAINT procedure_assistant_clinicians_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: procedure_survey_responses procedure_survey_responses_procedure_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_survey_responses
+    ADD CONSTRAINT procedure_survey_responses_procedure_id_fkey FOREIGN KEY (procedure_id) REFERENCES public.procedures(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procedure_survey_responses procedure_survey_responses_survey_response_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_survey_responses
+    ADD CONSTRAINT procedure_survey_responses_survey_response_id_fkey FOREIGN KEY (survey_response_id) REFERENCES public.survey_responses(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procedure_type_surveys procedure_type_surveys_procedure_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_type_surveys
+    ADD CONSTRAINT procedure_type_surveys_procedure_type_id_fkey FOREIGN KEY (procedure_type_id) REFERENCES public.reference_data(id);
+
+
+--
+-- Name: procedure_type_surveys procedure_type_surveys_survey_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedure_type_surveys
+    ADD CONSTRAINT procedure_type_surveys_survey_id_fkey FOREIGN KEY (survey_id) REFERENCES public.surveys(id);
+
+
+--
 -- Name: procedures procedures_anaesthetic_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11790,11 +14066,19 @@ ALTER TABLE ONLY public.procedures
 
 
 --
--- Name: procedures procedures_assistant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: procedures procedures_assistant_anaesthetist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.procedures
-    ADD CONSTRAINT procedures_assistant_id_fkey FOREIGN KEY (assistant_id) REFERENCES public.users(id);
+    ADD CONSTRAINT procedures_assistant_anaesthetist_id_fkey FOREIGN KEY (assistant_anaesthetist_id) REFERENCES public.users(id);
+
+
+--
+-- Name: procedures procedures_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.procedures
+    ADD CONSTRAINT procedures_department_id_fkey FOREIGN KEY (department_id) REFERENCES public.departments(id);
 
 
 --
@@ -11846,6 +14130,14 @@ ALTER TABLE ONLY public.program_registry_clinical_statuses
 
 
 --
+-- Name: program_registry_condition_categories program_registry_condition_categories_program_registry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.program_registry_condition_categories
+    ADD CONSTRAINT program_registry_condition_categories_program_registry_id_fkey FOREIGN KEY (program_registry_id) REFERENCES public.program_registries(id);
+
+
+--
 -- Name: program_registry_conditions program_registry_conditions_program_registry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -11867,6 +14159,30 @@ ALTER TABLE ONLY public.reference_data_relations
 
 ALTER TABLE ONLY public.reference_data_relations
     ADD CONSTRAINT reference_data_relations_reference_data_parent_id_fkey FOREIGN KEY (reference_data_parent_id) REFERENCES public.reference_data(id);
+
+
+--
+-- Name: reference_drugs reference_drugs_reference_data_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_drugs
+    ADD CONSTRAINT reference_drugs_reference_data_id_fkey FOREIGN KEY (reference_data_id) REFERENCES public.reference_data(id);
+
+
+--
+-- Name: reference_medication_templates reference_medication_templates_medication_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_medication_templates
+    ADD CONSTRAINT reference_medication_templates_medication_id_fkey FOREIGN KEY (medication_id) REFERENCES public.reference_data(id);
+
+
+--
+-- Name: reference_medication_templates reference_medication_templates_reference_data_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reference_medication_templates
+    ADD CONSTRAINT reference_medication_templates_reference_data_id_fkey FOREIGN KEY (reference_data_id) REFERENCES public.reference_data(id);
 
 
 --
