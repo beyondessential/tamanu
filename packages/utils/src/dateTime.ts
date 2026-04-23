@@ -29,6 +29,7 @@ import { z } from 'zod';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export type DateInput = string | Date | null | undefined;
+export type LocaleInput = string | null | undefined;
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -200,6 +201,15 @@ export const differenceInMilliseconds = (a: number | string | Date, b: number | 
 
 export const locale = globalThis.navigator?.language ?? 'default';
 
+let dateTimeLocaleGetter: (() => LocaleInput) | null = null;
+
+export const setDateTimeLocaleGetter = (getter: (() => LocaleInput) | null) => {
+  dateTimeLocaleGetter = getter;
+};
+
+export const resolveDateTimeLocale = (inputLocale?: LocaleInput): string =>
+  inputLocale || dateTimeLocaleGetter?.() || locale;
+
 export const isStartOfThisWeek = (date: Date | number) =>
   isSameDay(date, startOfWeek(new Date(), { weekStartsOn: 1 }));
 
@@ -305,13 +315,15 @@ export const intlFormatDate = (
   fallback = 'Unknown',
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  localeInput?: LocaleInput,
 ) => {
   if (!date) return fallback;
+  const resolvedLocale = resolveDateTimeLocale(localeInput);
 
   try {
     if (date instanceof Date) {
       if (!isValid(date)) return fallback;
-      return date.toLocaleString(locale, formatOptions);
+      return date.toLocaleString(resolvedLocale, formatOptions);
     }
 
     if (isISO9075DateString(date)) {
@@ -319,9 +331,9 @@ export const intlFormatDate = (
       const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
       const hasTimeOptions = timeKeys.some(key => key in formatOptions);
       if (hasTimeOptions) {
-        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+        return plainDate.toPlainDateTime().toLocaleString(resolvedLocale, formatOptions);
       }
-      return plainDate.toLocaleString(locale, formatOptions);
+      return plainDate.toLocaleString(resolvedLocale, formatOptions);
     }
 
     const displayTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
@@ -331,10 +343,10 @@ export const intlFormatDate = (
       return plain
         .toZonedDateTime(primaryTimeZone)
         .withTimeZone(displayTz)
-        .toLocaleString(locale, formatOptions);
+        .toLocaleString(resolvedLocale, formatOptions);
     }
 
-    return plain.toLocaleString(locale, formatOptions);
+    return plain.toLocaleString(resolvedLocale, formatOptions);
   } catch (error) {
     logDateError('intlFormatDate', error, date, primaryTimeZone, facilityTimeZone);
     return fallback;

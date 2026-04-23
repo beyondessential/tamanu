@@ -141,6 +141,13 @@ export const facilitySettings = {
       defaultValue: null,
       suggesterEndpoint: 'timeZone',
     },
+    locale: {
+      exposedToWeb: true,
+      description: 'Locale used for date and time formatting',
+      type: yup.string().nullable(),
+      defaultValue: null,
+      suggesterEndpoint: 'locale',
+    },
     patientDisplayIdPattern: {
       exposedToWeb: true,
       highRisk: true,

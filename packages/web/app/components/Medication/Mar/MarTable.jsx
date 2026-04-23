@@ -6,7 +6,7 @@ import {
   getDateFromTimeString,
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
-import { toDateString, locale } from '@tamanu/utils/dateTime';
+import { toDateString, resolveDateTimeLocale } from '@tamanu/utils/dateTime';
 import { useDateTime } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
@@ -153,12 +153,12 @@ const LoadingContainer = styled.div`
 `;
 
 // Convert time string to locale-specific time string no timezone conversion is applied
-const formatSlotTime = timeStr =>
-  Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: true }).format(
+const formatSlotTime = (timeStr, locale) =>
+  Intl.DateTimeFormat(resolveDateTimeLocale(locale), { hour: 'numeric', hour12: true }).format(
     new Date(`2000-01-01T${timeStr === '24:00' ? '00:00' : timeStr}:00`),
   );
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow, locale }) => {
   const now = facilityNow.getTime();
   const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
   const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
@@ -170,7 +170,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          {formatSlotTime(startTime)} - {formatSlotTime(endTime)}
+          {formatSlotTime(startTime, locale)} - {formatSlotTime(endTime, locale)}
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
@@ -179,7 +179,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getFacilityNowDate } = useDateTime();
+  const { getFacilityNowDate, locale } = useDateTime();
   const facilityNow = getFacilityNowDate();
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
@@ -324,6 +324,7 @@ export const MarTable = ({ selectedDate }) => {
             index={index}
             selectedDate={selectedDate}
             facilityNow={facilityNow}
+            locale={locale}
           />
         ))}
       </HeaderRow>

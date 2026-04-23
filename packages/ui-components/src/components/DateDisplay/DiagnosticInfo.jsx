@@ -1,7 +1,7 @@
 import React from 'react';
 import { getTimezoneOffset } from 'date-fns-tz';
 
-import { locale } from '@tamanu/utils/dateTime';
+import { resolveDateTimeLocale } from '@tamanu/utils/dateTime';
 
 /**
  * Get the formatted offset for a given timezone.
@@ -18,7 +18,13 @@ const getFormattedOffset = (tz) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, primaryTimeZone }) => {
+export const DiagnosticInfo = ({
+  rawDate,
+  displayDate,
+  facilityTimeZone,
+  primaryTimeZone,
+  locale,
+}) => {
   const displayTimeZone = facilityTimeZone || primaryTimeZone;
   const displayOffset = getFormattedOffset(displayTimeZone);
   const parsedRawDate = typeof rawDate === 'string' ? rawDate : rawDate.toISOString();
@@ -29,7 +35,7 @@ export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, primary
       <strong>Displayed timezone:</strong> {displayTimeZone} <br />
       <strong>Displayed offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />
-      <strong>Locale:</strong> {locale}
+      <strong>Locale:</strong> {resolveDateTimeLocale(locale)}
     </div>
   );
 };

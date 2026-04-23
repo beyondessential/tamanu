@@ -1289,6 +1289,10 @@ const timeZoneValues =
 const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
 const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
+const DEFAULT_LOCALE = 'en';
+const mapLanguageToLocale = language =>
+  language === DEFAULT_LANGUAGE_CODE ? DEFAULT_LOCALE : language;
+
 suggestions.get(
   '/timeZone$',
   asyncHandler(async (req, res) => {
@@ -1308,6 +1312,38 @@ suggestions.get(
     const tz = TIME_ZONES.find(t => t.id === req.params.id);
     if (!tz) throw new NotFoundError();
     res.send(tz);
+  }),
+);
+
+suggestions.get(
+  '/locale$',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const searchQuery = (req.query.q || '').trim().toLowerCase();
+    const { languagesInDb } = await req.models.TranslatedString.getPossibleLanguages();
+
+    const locales = [...new Set(languagesInDb.map(({ language }) => mapLanguageToLocale(language)))];
+    const localeOptions = locales.map(locale => ({ id: locale, name: locale }));
+    const filteredOptions = searchQuery
+      ? localeOptions.filter(({ id, name }) => {
+          const lowerId = id.toLowerCase();
+          const lowerName = name.toLowerCase();
+          return lowerId.includes(searchQuery) || lowerName.includes(searchQuery);
+        })
+      : localeOptions;
+
+    res.send(filteredOptions.slice(0, DEFAULT_LIMIT));
+  }),
+);
+
+suggestions.get(
+  '/locale/:id',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { languagesInDb } = await req.models.TranslatedString.getPossibleLanguages();
+    const locales = new Set(languagesInDb.map(({ language }) => mapLanguageToLocale(language)));
+    if (!locales.has(req.params.id)) throw new NotFoundError();
+    res.send({ id: req.params.id, name: req.params.id });
   }),
 );
 

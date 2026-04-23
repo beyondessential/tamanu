@@ -1,13 +1,15 @@
-import { describe, test, expect, it } from 'vitest';
+import { afterEach, describe, test, expect, it } from 'vitest';
 import {
   datetimeCustomValidation,
   doAgeRangesHaveGaps,
   doAgeRangesOverlap,
   endpointsOfDay,
+  intlFormatDate,
   isIntervalWithinInterval,
   isWithinIntervalExcludingEnd,
   maxValidDate,
   minValidDate,
+  setDateTimeLocaleGetter,
   type AgeRange,
 } from '../src/dateTime';
 import { startOfDay, endOfDay } from 'date-fns';
@@ -70,6 +72,33 @@ describe('dateTime utilities', () => {
 
     expect(minValidDate(dates)).toEqual(new Date('2023-10-09'));
     expect(minValidDate(invalidDates)).toBeNull();
+  });
+});
+
+describe('date locale resolution', () => {
+  afterEach(() => {
+    setDateTimeLocaleGetter(null);
+  });
+
+  it('should use locale passed directly to intlFormatDate', () => {
+    setDateTimeLocaleGetter(() => 'fr');
+    const result = intlFormatDate(
+      '2024-03-18',
+      { weekday: 'long' },
+      'Unknown',
+      'UTC',
+      undefined,
+      'en',
+    );
+
+    expect(result.toLowerCase()).toContain('monday');
+  });
+
+  it('should use request-bound locale when no explicit locale is passed', () => {
+    setDateTimeLocaleGetter(() => 'fr');
+    const result = intlFormatDate('2024-03-18', { weekday: 'long' }, 'Unknown', 'UTC');
+
+    expect(result.toLowerCase()).toContain('lundi');
   });
 });
 

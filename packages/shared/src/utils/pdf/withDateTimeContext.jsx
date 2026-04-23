@@ -21,17 +21,22 @@ export const withDateTimeContext = Component => props => {
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const facilityTimeZone = getSetting('facilityTimeZone');
+  const locale = getSetting('locale');
   const effectiveTimeZone = facilityTimeZone ?? primaryTimeZone;
 
   const value = useMemo(
     () => ({
       primaryTimeZone,
       facilityTimeZone,
+      locale,
       getCurrentDate: () => getCurrentDateStringInTimezone(effectiveTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      ...mapValues(dateTimeFormatters, fn => date => fn(date, primaryTimeZone, facilityTimeZone)),
+      ...mapValues(
+        dateTimeFormatters,
+        fn => date => fn(date, primaryTimeZone, facilityTimeZone, locale),
+      ),
     }),
-    [primaryTimeZone, facilityTimeZone, effectiveTimeZone],
+    [primaryTimeZone, facilityTimeZone, effectiveTimeZone, locale],
   );
 
   return (

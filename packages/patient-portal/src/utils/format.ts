@@ -1,5 +1,6 @@
 import { SEX_LABELS } from '@tamanu/constants';
 import { startOfWeek, parseISO } from 'date-fns';
+import { resolveDateTimeLocale } from '@tamanu/utils/dateTime';
 import type {
   Location,
   Appointment,
@@ -8,7 +9,7 @@ import type {
   AdministeredVaccine,
 } from '@tamanu/shared/schemas/patientPortal';
 
-const locale = globalThis.navigator?.language ?? 'default';
+const locale = resolveDateTimeLocale();
 
 const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'short' });
 const dateTimeFormatter = new Intl.DateTimeFormat(locale, {

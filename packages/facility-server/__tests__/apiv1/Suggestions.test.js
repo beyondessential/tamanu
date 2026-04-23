@@ -1247,4 +1247,45 @@ describe('Suggestions', () => {
     expect(body.length).toBeGreaterThan(0);
     expect(body[0]).toHaveProperty('id', childSubdivision.id);
   });
+
+  describe('Locales', () => {
+    beforeAll(async () => {
+      await findOneOrCreate(
+        models,
+        models.TranslatedString,
+        {
+          stringId: 'test.locale.en',
+          language: 'en',
+        },
+        {
+          text: 'English',
+        },
+      );
+
+      await findOneOrCreate(
+        models,
+        models.TranslatedString,
+        {
+          stringId: 'test.locale.fr',
+          language: 'fr',
+        },
+        {
+          text: 'French',
+        },
+      );
+    });
+
+    it('should return locale suggestions from available language codes', async () => {
+      const result = await userApp.get('/api/suggestions/locale');
+      expect(result).toHaveSucceeded();
+      expect(result.body).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'en' })]));
+      expect(result.body).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'fr' })]));
+    });
+
+    it('should return a specific locale by id', async () => {
+      const result = await userApp.get('/api/suggestions/locale/fr');
+      expect(result).toHaveSucceeded();
+      expect(result.body).toEqual({ id: 'fr', name: 'fr' });
+    });
+  });
 });

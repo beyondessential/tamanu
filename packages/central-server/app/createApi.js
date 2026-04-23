@@ -4,10 +4,12 @@ import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
+import { AsyncLocalStorage } from 'async_hooks';
 
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
+import { setDateTimeLocaleGetter } from '@tamanu/utils/dateTime';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -24,6 +26,23 @@ import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+
+const dateTimeLocaleStorage = new AsyncLocalStorage();
+setDateTimeLocaleGetter(() => dateTimeLocaleStorage.getStore()?.locale);
+
+const bindRequestDateTimeLocale = (req, _res, next) => {
+  dateTimeLocaleStorage.run({ locale: null }, async () => {
+    try {
+      const store = dateTimeLocaleStorage.getStore();
+      if (store && req.settings?.get) {
+        store.locale = await req.settings.get('locale');
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+};
 
 const rawBodySaver = function (req, res, buf) {
   if (buf && buf.length) {
@@ -108,6 +127,7 @@ export async function createApi(ctx) {
   });
 
   express.use(settingsReaderMiddleware);
+  express.use(bindRequestDateTimeLocale);
 
   express.get('/$', (req, res) => {
     res.send({

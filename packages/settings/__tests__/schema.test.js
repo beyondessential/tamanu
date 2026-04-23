@@ -88,6 +88,10 @@ describe('Schemas', () => {
   });
 
   describe('Global settings', () => {
+    it('Should default locale to en', () => {
+      expect(globalDefaults.locale).toBe('en');
+    });
+
     it('Should validate valid settings', async () => {
       const validSettings = {
         customisations: {
@@ -209,6 +213,10 @@ describe('Schemas', () => {
   });
 
   describe('Facility settings', () => {
+    it('Should default locale to null', () => {
+      expect(facilityDefaults.locale).toBeNull();
+    });
+
     it('Should validate valid settings', async () => {
       const validSettings = {
         vaccinations: {},
@@ -344,6 +352,7 @@ describe('Exposed keys', () => {
         'invoice',
         'labsCancellationReasons',
         'layouts',
+        'locale',
         'locationAssignments',
         'medications',
         'printMeasures',

@@ -1,10 +1,12 @@
 import config from 'config';
 import defineExpress from 'express';
 import helmet from 'helmet';
+import { AsyncLocalStorage } from 'async_hooks';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { setDateTimeLocaleGetter } from '@tamanu/utils/dateTime';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -14,6 +16,38 @@ import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
+
+const dateTimeLocaleStorage = new AsyncLocalStorage();
+setDateTimeLocaleGetter(() => dateTimeLocaleStorage.getStore()?.locale);
+
+const getFacilityRequestLocale = async req => {
+  if (!req.settings || typeof req.settings.get === 'function') {
+    return req.settings?.get ? req.settings.get('locale') : null;
+  }
+
+  const requestedFacilityId =
+    req.facilityId || req.params?.facilityId || req.query?.facilityId || req.body?.facilityId;
+  const configuredFacilityIds = Object.keys(req.settings);
+  const facilityId =
+    requestedFacilityId || (configuredFacilityIds.length === 1 ? configuredFacilityIds[0] : null);
+  if (!facilityId) return null;
+
+  return req.settings[facilityId]?.get('locale') ?? null;
+};
+
+const bindRequestDateTimeLocale = (req, _res, next) => {
+  dateTimeLocaleStorage.run({ locale: null }, async () => {
+    try {
+      const store = dateTimeLocaleStorage.getStore();
+      if (store) {
+        store.locale = await getFacilityRequestLocale(req);
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+};
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -66,6 +100,7 @@ export async function createApiApp({
   express.use(versionCompatibility);
 
   express.use(settingsReaderMiddleware);
+  express.use(bindRequestDateTimeLocale);
 
   // index route for debugging connectivity
   express.get('/$', (req, res) => {

@@ -25,6 +25,7 @@ const DateTooltip = ({
   timeOnlyTooltip,
   facilityTimeZone,
   primaryTimeZone,
+  locale,
   children,
 }) => {
   const isDateOnly = typeof rawDate === 'string' && isISO9075DateString(rawDate);
@@ -61,6 +62,7 @@ const DateTooltip = ({
       displayDate={displayDate}
       primaryTimeZone={primaryTimeZone}
       facilityTimeZone={facilityTimeZone}
+      locale={locale}
     />
   ) : (
     dateTooltip
@@ -139,7 +141,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
-    const { primaryTimeZone, facilityTimeZone } = useDateTime();
+    const { primaryTimeZone, facilityTimeZone, locale } = useDateTime();
     const displayTime = useFormattedDate(dateValue, { timeFormat });
 
     const content = (
@@ -157,6 +159,7 @@ export const TimeDisplay = React.memo(
         timeOnlyTooltip
         facilityTimeZone={facilityTimeZone}
         primaryTimeZone={primaryTimeZone}
+        locale={locale}
       >
         {content}
       </DateTooltip>
@@ -217,7 +220,7 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
-    const { primaryTimeZone, facilityTimeZone } = useDateTime();
+    const { primaryTimeZone, facilityTimeZone, locale } = useDateTime();
 
     const displayDate = useFormattedDate(dateValue, {
       dateFormat,
@@ -240,6 +243,7 @@ export const DateDisplay = React.memo(
         timeOnlyTooltip={timeOnlyTooltip}
         facilityTimeZone={facilityTimeZone}
         primaryTimeZone={primaryTimeZone}
+        locale={locale}
       >
         {content}
       </DateTooltip>

@@ -1,4 +1,4 @@
-import { intlFormatDate, type DateInput } from './dateTime';
+import { intlFormatDate, type DateInput, type LocaleInput } from './dateTime';
 
 const createFormatter =
   (
@@ -6,8 +6,20 @@ const createFormatter =
     fallback: string,
     transform?: (result: string) => string,
   ) =>
-  (date: DateInput, primaryTimeZone: string, facilityTimeZone?: string | null): string => {
-    const result = intlFormatDate(date, formatOptions, fallback, primaryTimeZone, facilityTimeZone);
+  (
+    date: DateInput,
+    primaryTimeZone: string,
+    facilityTimeZone?: string | null,
+    locale?: LocaleInput,
+  ): string => {
+    const result = intlFormatDate(
+      date,
+      formatOptions,
+      fallback,
+      primaryTimeZone,
+      facilityTimeZone,
+      locale,
+    );
     return transform ? transform(result) : result;
   };
 
@@ -70,13 +82,15 @@ export const formatShortDateTime = (
   date: DateInput,
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  locale?: LocaleInput,
 ) =>
-  `${formatShort(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;
+  `${formatShort(date, primaryTimeZone, facilityTimeZone, locale)} ${formatTime(date, primaryTimeZone, facilityTimeZone, locale)}`;
 
 /** "12/04/24 12:30am" */
 export const formatShortestDateTime = (
   date: DateInput,
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  locale?: LocaleInput,
 ) =>
-  `${formatShortest(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;
+  `${formatShortest(date, primaryTimeZone, facilityTimeZone, locale)} ${formatTime(date, primaryTimeZone, facilityTimeZone, locale)}`;

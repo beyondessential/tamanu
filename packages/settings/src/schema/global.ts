@@ -97,6 +97,13 @@ export const globalSettings = {
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
+    locale: {
+      exposedToWeb: true,
+      description: 'Locale used for date and time formatting',
+      type: yup.string(),
+      defaultValue: 'en',
+      suggesterEndpoint: 'locale',
+    },
     appointments: {
       description: 'Appointment settings',
       exposedToWeb: true,

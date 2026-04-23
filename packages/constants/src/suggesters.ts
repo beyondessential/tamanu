@@ -31,6 +31,7 @@ export const SUGGESTER_ENDPOINTS = [
   'role',
   'encounter',
   'reportDefinition',
+  'locale',
   'timeZone',
   'patientFieldDefinitionCategory',
   'invoicePriceList',
