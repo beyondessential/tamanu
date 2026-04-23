@@ -46,7 +46,6 @@ const textStyles = StyleSheet.create({
   },
   tableCellContent: {
     fontSize: 10,
-    marginBottom: 6,
   },
   tableCellFooter: {
     fontSize: 8,
@@ -319,12 +318,7 @@ const NoteFooter = ({ note }) => {
     },
   );
 
-  return (
-    <Text style={textStyles.tableCellFooter}>
-      {baseLine}
-      {editSuffix}
-    </Text>
-  );
+  return <Text style={textStyles.tableCellFooter}>{`${baseLine}${editSuffix}`}</Text>;
 };
 const NotesMultipageCellPadding = () => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
@@ -372,7 +366,9 @@ const NotesSection = ({ notes }) => {
                     )}
                     style={textStyles.tableColumnHeader}
                   />
-                  <Text style={textStyles.tableCellContent}>{note.content}</Text>
+                  <View style={{ width: '100%', marginBottom: 10 }}>
+                    <Text style={textStyles.tableCellContent}>{note.content}</Text>
+                  </View>
                   <NoteFooter note={note} />
                   <View
                     style={{
