@@ -90,6 +90,7 @@ function EditProgramRegistryModal({ onClose, open }) {
           fallback="Edit program registry metadata"
         />
       }
+      width="md"
     >
       <Form
         enableReinitialize

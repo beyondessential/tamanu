@@ -142,6 +142,7 @@ export function EditProgramSurveyFormMetadataModal({ onClose, onSave, open, surv
           fallback="Edit form metadata"
         />
       }
+      width="md"
     >
       <Form
         enableReinitialize

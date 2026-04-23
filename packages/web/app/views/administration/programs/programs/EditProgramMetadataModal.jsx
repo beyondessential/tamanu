@@ -61,6 +61,7 @@ function EditProgramMetadataModal({ onClose, open }) {
       title={
         <TranslatedText stringId="admin.programs.editMetadata" fallback="Edit program metadata" />
       }
+      width="md"
     >
       <Form
         enableReinitialize

@@ -155,7 +155,7 @@ export function EditProgramRegistryTableRecordModal({
   };
 
   return (
-    <FormModal onClose={onClose} open={open} title={title}>
+    <FormModal onClose={onClose} open={open} title={title} width="md">
       <Form
         enableReinitialize
         formType={FORM_TYPES.EDIT_FORM}

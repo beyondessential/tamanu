@@ -24,7 +24,7 @@ const CREATE_DESIGNATION_VALIDATION = yup.object().shape({
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
 
-const StyledFormModal = styled(FormModal)`
+const StyledFormModal = styled(FormModal).attrs({ width: 'md' })`
   ${ModalContent} {
     padding-block: 32px 0;
     padding-inline: 0;
@@ -108,6 +108,7 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
       title={<TranslatedText stringId="admin.designations.add.title" fallback="Add designation" />}
       open={open}
       onClose={onClose}
+      width="md"
     >
       <Form
         formType={FORM_TYPES.CREATE_FORM}
