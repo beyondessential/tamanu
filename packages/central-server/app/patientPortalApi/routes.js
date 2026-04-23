@@ -14,29 +14,40 @@ import {
 } from './patientData';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
 
-export const patientPortalApi = express.Router();
+const passthrough = (_req, _res, next) => next();
 
-// Auth routes
-patientPortalApi.post('/login', login({ secret: config.auth.secret }));
-patientPortalApi.post('/request-login-token', requestLoginToken);
-patientPortalApi.post('/verify-registration', register);
+// Exported as a factory so createApi can inject shared rate-limiter instances.
+// The pre-auth endpoints (login, request-login-token, verify-registration)
+// send emails and perform DB/bcrypt lookups, so must be rate-limited to
+// mitigate brute-force and email-spam-via-token-request abuse.
+export const patientPortalApi = ({ authLimiter } = {}) => {
+  const limiter = authLimiter ?? passthrough;
+  const router = express.Router();
 
-// Portal auth middleware
-patientPortalApi.use(patientPortalMiddleware({ secret: config.auth.secret }));
+  // Auth routes
+  router.post('/login', limiter, login({ secret: config.auth.secret }));
+  router.post('/request-login-token', limiter, requestLoginToken);
+  router.post('/verify-registration', limiter, register);
 
-// Patient data routes
-patientPortalApi.get('/me', getPatient);
-patientPortalApi.get('/me/ongoing-conditions', getOngoingConditions);
-patientPortalApi.get('/me/allergies', getAllergies);
-patientPortalApi.get('/me/ongoing-prescriptions', getOngoingPrescriptions);
-patientPortalApi.get('/me/vaccinations/upcoming', getUpcomingVaccinations);
-patientPortalApi.get('/me/vaccinations/administered', getAdministeredVaccines);
-patientPortalApi.get('/me/appointments/upcoming', getUpcomingAppointments);
-patientPortalApi.get('/me/procedures', getProcedures);
-patientPortalApi.get('/me/surveys/outstanding', getOutstandingSurveys);
+  // Portal auth middleware
+  router.use(patientPortalMiddleware({ secret: config.auth.secret }));
 
-// Survey routes
-patientPortalApi.get('/settings/:facilityId', getSettings);
-patientPortalApi.get('/survey/:surveyId', getSurvey);
-patientPortalApi.post('/surveyResponse', createSurveyResponse);
-patientPortalApi.use('/suggestions', suggestionRoutes);
+  // Patient data routes
+  router.get('/me', getPatient);
+  router.get('/me/ongoing-conditions', getOngoingConditions);
+  router.get('/me/allergies', getAllergies);
+  router.get('/me/ongoing-prescriptions', getOngoingPrescriptions);
+  router.get('/me/vaccinations/upcoming', getUpcomingVaccinations);
+  router.get('/me/vaccinations/administered', getAdministeredVaccines);
+  router.get('/me/appointments/upcoming', getUpcomingAppointments);
+  router.get('/me/procedures', getProcedures);
+  router.get('/me/surveys/outstanding', getOutstandingSurveys);
+
+  // Survey routes
+  router.get('/settings/:facilityId', getSettings);
+  router.get('/survey/:surveyId', getSurvey);
+  router.post('/surveyResponse', createSurveyResponse);
+  router.use('/suggestions', suggestionRoutes);
+
+  return router;
+};

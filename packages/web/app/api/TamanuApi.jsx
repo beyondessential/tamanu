@@ -1,5 +1,9 @@
 import React from 'react';
-import { TamanuApi as ApiClient } from '@tamanu/api-client';
+import {
+  TamanuApi as ApiClient,
+  readPersistedAuthToken,
+  writePersistedAuthToken,
+} from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -38,8 +42,7 @@ function safeGetStoredJSON(key) {
   }
 }
 
-function restoreFromLocalStorage() {
-  const token = localStorage.getItem(TOKEN);
+function restoreNonTokenFieldsFromLocalStorage() {
   const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
@@ -50,7 +53,6 @@ function restoreFromLocalStorage() {
   const settings = safeGetStoredJSON(SETTINGS);
 
   return {
-    token,
     localisation,
     server,
     availableFacilities,
@@ -149,13 +151,9 @@ export class TamanuApi extends ApiClient {
     });
   }
 
-  setToken(token) {
-    if (token) {
-      localStorage.setItem(TOKEN, token);
-    } else {
-      localStorage.removeItem(TOKEN);
-    }
-    return super.setToken(token);
+  async setToken(token, refreshToken = null) {
+    super.setToken(token, refreshToken);
+    await writePersistedAuthToken(TOKEN, token, this.deviceId, 'webapp');
   }
 
   // Overwrite base method to integrate with the facility-server refresh endpoint which just
@@ -169,7 +167,7 @@ export class TamanuApi extends ApiClient {
       config,
     );
     const { token } = response;
-    this.setToken(token);
+    await this.setToken(token);
   }
 
   async fetchImpersonatedRole(impersonateRoleId, config) {
@@ -183,8 +181,8 @@ export class TamanuApi extends ApiClient {
   }
 
   async restoreSession() {
+    const { token } = await readPersistedAuthToken(TOKEN, this.deviceId, 'webapp');
     const {
-      token,
       localisation,
       server,
       availableFacilities,
@@ -193,13 +191,12 @@ export class TamanuApi extends ApiClient {
       permissions,
       role,
       settings,
-    } = restoreFromLocalStorage();
+    } = restoreNonTokenFieldsFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
 
-    this.setToken(token);
-
+    await this.setToken(token);
     const config = { showUnknownErrorToast: false };
     const { user, ability } = await this.fetchUserData(permissions, config);
 
@@ -272,7 +269,7 @@ export class TamanuApi extends ApiClient {
     // This new token is stored and used for subsequent authenticated requests to facility-scoped endpoints.
     const { settings, token } = await this.post('setFacility', { facilityId });
 
-    this.setToken(token);
+    await this.setToken(token);
 
     saveToLocalStorage({
       facilityId,
