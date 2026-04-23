@@ -14,4 +14,5 @@ export const completeSyncSession = async (store: Store, sessionId: string, error
   await session?.save();
   await dropSnapshotTable(store.sequelize, sessionId);
   await dropMarkedForSyncPatientsTable(store.sequelize, sessionId);
+  await session?.update({ snapshotDroppedAt: new Date() });
 };
