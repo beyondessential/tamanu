@@ -68,11 +68,7 @@ const conditionsActionsColumn = /** @type {const} */ ({
   }),
 });
 
-const conditionCategoriesEditFields = /** @type {const} */ ([
-  codeColumn,
-  nameColumn,
-  visibilityStatusColumn,
-]);
+const conditionCategoriesEditFields = conditionsEditFields;
 
 const conditionCategoriesActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
