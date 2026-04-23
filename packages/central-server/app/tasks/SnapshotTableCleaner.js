@@ -63,21 +63,29 @@ export class SnapshotTableCleaner extends ScheduledTask {
 
     log.info('SnapshotTableCleaner.startBatch', { batchSize: sessions.length });
 
-    for (const { id } of sessions) {
+    const droppedIds = [];
+    for (let i = 0; i < sessions.length; i++) {
+      const { id } = sessions[i];
       try {
         await dropSnapshotTable(this.store.sequelize, id);
         await dropMarkedForSyncPatientsTable(this.store.sequelize, id);
-        await SyncSession.update(
-          { snapshotDroppedAt: new Date() },
-          { where: { id } },
-        );
+        droppedIds.push(id);
       } catch (error) {
         log.warn('SnapshotTableCleaner.dropFailed', {
           sessionId: id,
           error: error instanceof Error ? error.message : String(error),
         });
       }
-      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      if (i < sessions.length - 1) {
+        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      }
+    }
+
+    if (droppedIds.length > 0) {
+      await SyncSession.update(
+        { snapshotDroppedAt: new Date() },
+        { where: { id: { [Op.in]: droppedIds } } },
+      );
     }
   }
 }
