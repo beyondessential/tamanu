@@ -98,7 +98,6 @@ function useSurveyMetadataMutation(surveyId, { onError, onSuccess, ...rest }) {
  */
 export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }) {
   const { mutateAsync, isPending } = useSurveyMetadataMutation(survey.id, {
-    onError: err => notifyError(err?.message),
     onSuccess: () => {
       onClose();
       onSave?.();
