@@ -57,10 +57,10 @@ const validationSchema = yup.object().shape({
  * @param {string} surveyId
  * @param {Omit<import('@tanstack/react-query').UseMutationOptions, 'mutationKey' | 'mutationFn'>} options
  */
-function useSurveyFormMetadataMutation(surveyId, { onError, onSuccess, ...rest }) {
+function useSurveyMetadataMutation(surveyId, { onError, onSuccess, ...rest }) {
   const api = useApi();
   return useMutation({
-    mutationKey: ['survey', surveyId, 'formMetadata'],
+    mutationKey: ['survey', surveyId, 'metadata'],
     mutationFn: async body => await api.patch(`admin/survey/${encodeURIComponent(surveyId)}`, body),
     onSuccess: (data, variables, context) => {
       notifySuccess(
@@ -96,8 +96,14 @@ function useSurveyFormMetadataMutation(surveyId, { onError, onSuccess, ...rest }
  *   };
  * }} props
  */
-export function EditProgramSurveyFormMetadataModal({ onClose, onSave, open, survey }) {
-  const { mutateAsync, isPending } = useSurveyFormMetadataMutation(survey.id, { onClose, onSave });
+export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }) {
+  const { mutateAsync, isPending } = useSurveyMetadataMutation(survey.id, {
+    onError: err => notifyError(err?.message),
+    onSuccess: () => {
+      onClose();
+      onSave?.();
+    },
+  });
 
   const initialValues = useMemo(
     () => ({

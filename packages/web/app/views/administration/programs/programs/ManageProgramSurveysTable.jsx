@@ -16,7 +16,7 @@ import {
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { NullableBooleanCell, VisibilityStatusCell } from '../components';
 import { StyledDataFetchingTable } from '../registries/components';
-import { EditProgramSurveyFormMetadataModal } from './EditProgramSurveyFormMetadataModal';
+import { EditProgramSurveyMetadataModal } from './EditProgramSurveyMetadataModal';
 import { useSurveyVisibilityStatusMutation } from './useSurveyVisibilityStatusMutation';
 
 /** Aligns with padding of StyledTableCell from Table.jsx */
@@ -112,7 +112,7 @@ function ActionMenu({
   return (
     <>
       <ThreeDotMenu items={items} />
-      <EditProgramSurveyFormMetadataModal
+      <EditProgramSurveyMetadataModal
         onClose={() => setIsEditMetadataOpen(false)}
         onSave={() => refreshTable?.()}
         open={isEditMetadataOpen}
