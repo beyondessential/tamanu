@@ -24,10 +24,12 @@ describe('SnapshotTableCleaner', () => {
 
   const createErroredSession = async ({ completedAt, snapshotDroppedAt = null } = {}) => {
     const id = fakeUUID();
+    const when = completedAt ?? new Date();
     await models.SyncSession.create({
       id,
-      startTime: completedAt ?? new Date(),
-      completedAt: completedAt ?? new Date(),
+      startTime: when,
+      lastConnectionTime: when,
+      completedAt: when,
       errors: ['simulated failure'],
       snapshotDroppedAt,
     });
@@ -81,11 +83,13 @@ describe('SnapshotTableCleaner', () => {
 
   it('skips sessions that are already cleaned', async () => {
     const alreadyCleanedAt = sub(new Date(), { hours: 1 });
+    const when = sub(new Date(), { hours: 48 });
     const sessionId = fakeUUID();
     await models.SyncSession.create({
       id: sessionId,
-      startTime: sub(new Date(), { hours: 48 }),
-      completedAt: sub(new Date(), { hours: 48 }),
+      startTime: when,
+      lastConnectionTime: when,
+      completedAt: when,
       errors: ['simulated failure'],
       snapshotDroppedAt: alreadyCleanedAt,
     });
@@ -97,11 +101,13 @@ describe('SnapshotTableCleaner', () => {
   });
 
   it('ignores successful (non-errored) sessions', async () => {
+    const when = sub(new Date(), { hours: 48 });
     const sessionId = fakeUUID();
     await models.SyncSession.create({
       id: sessionId,
-      startTime: sub(new Date(), { hours: 48 }),
-      completedAt: sub(new Date(), { hours: 48 }),
+      startTime: when,
+      lastConnectionTime: when,
+      completedAt: when,
       errors: null,
       snapshotDroppedAt: null,
     });
