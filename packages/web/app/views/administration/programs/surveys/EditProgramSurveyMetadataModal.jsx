@@ -20,9 +20,9 @@ import {
 } from '@tamanu/ui-components';
 import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
-import { NullableBooleanField } from '../../../../components/Field/NullableBooleanField';
 import { notifyError, notifySuccess } from '../../../../utils';
 import { VisibilityStatusField, visibilityStatusOptions } from '../components';
+import { NullableBooleanSelect } from './components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -175,7 +175,7 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
                 required
               />
               <Field
-                component={NullableBooleanField}
+                component={NullableBooleanSelect}
                 label="isSensitive"
                 name="isSensitive"
                 required
@@ -187,7 +187,7 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
                 required
               />
               <Field
-                component={NullableBooleanField}
+                component={NullableBooleanSelect}
                 label="notifiable"
                 name="notifiable"
                 required
