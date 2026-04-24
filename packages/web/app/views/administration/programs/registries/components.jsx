@@ -112,6 +112,7 @@ export function createProgramRegistryRowActionsAccessor(resourceSegment, editMod
   };
 }
 
+/** @param {{ color: keyof typeof import('@tamanu/constants').STATUS_COLOR }} color */
 export function ColorCell({ color }) {
   return (
     color || (
