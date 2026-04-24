@@ -1,6 +1,7 @@
 name: E2E Tests
 
 on:
+  pull_request:
   merge_group:
 
 permissions:
@@ -16,6 +17,7 @@ env:
 
 jobs:
   node_modules_cache:
+    if: github.event_name == 'merge_group'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +42,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   e2e_prepare:
+    if: github.event_name == 'merge_group'
     needs: node_modules_cache
     name: Prepare E2E artifacts
     runs-on: ubuntu-latest
@@ -94,6 +97,7 @@ jobs:
           retention-days: 1
 
   e2e:
+    if: github.event_name == 'merge_group'
     needs: e2e_prepare
     name: E2E Tests ${{ matrix.shard }}
     runs-on: ubuntu-latest
@@ -183,6 +187,11 @@ jobs:
     steps:
       - name: Enforce passing E2E workflow
         run: |
+          if [ "${{ github.event_name }}" != "merge_group" ]; then
+            echo "Skipping full E2E outside merge queue."
+            exit 0
+          fi
+
           if [ "${{ needs.e2e.result }}" != "success" ]; then
             echo "E2E tests did not pass."
             exit 1
