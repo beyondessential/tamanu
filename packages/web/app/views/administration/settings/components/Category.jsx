@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import LockIcon from '@material-ui/icons/Lock';
-import RefreshIcon from '@material-ui/icons/Refresh';
+import LockIcon from '@mui/icons-material/Lock';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
 
 import { isSetting } from '@tamanu/settings';

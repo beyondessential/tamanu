@@ -86,7 +86,8 @@ export async function createApiApp({
   // both /api and /v1. Single buildRateLimiters() call avoids duplicate
   // MemoryStores and cleanup intervals.
   express.use('/', limiters.globalLimiter);
-  express.use('/', createRoutes(limiters));
+  const routes = createRoutes(limiters);
+  express.use('/', routes);
 
   if (config.integrations?.fhir?.enabled) {
     const ctx = { store };
