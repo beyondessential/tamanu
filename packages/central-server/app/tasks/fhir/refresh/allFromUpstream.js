@@ -3,7 +3,10 @@ import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { prepareQuery } from '../../../utils/prepareQuery';
 
-export async function allFromUpstream({ payload, priority }, { log, sequelize, models }) {
+export async function allFromUpstream(
+  { payload, priority = JOB_PRIORITIES.DEFAULT },
+  { log, sequelize, models },
+) {
   const { table, op, id, deletedRow = null } = payload;
   const [schema, tableName] = table.toLowerCase().split('.', 2);
 
@@ -76,7 +79,7 @@ export async function allFromUpstream({ payload, priority }, { log, sequelize, m
             'table', $table::text,
             'op', $op::text
           ),
-          COALESCE($priority::int, ${JOB_PRIORITIES.DEFAULT})
+          $priority::int as priority
         FROM upstreams
         ON CONFLICT (discriminant) DO NOTHING
       `;

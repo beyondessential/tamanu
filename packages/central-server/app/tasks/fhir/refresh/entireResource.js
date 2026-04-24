@@ -1,7 +1,10 @@
 import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
-export async function entireResource({ payload: { resource }, priority }, { log, sequelize, models }) {
+export async function entireResource(
+  { payload: { resource }, priority = JOB_PRIORITIES.DEFAULT },
+  { log, sequelize, models },
+) {
   const materialisableResources = resourcesThatCanDo(
     models,
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
@@ -31,7 +34,7 @@ export async function entireResource({ payload: { resource }, priority }, { log,
             'resource', $resource::text,
             'upstreamId', id
           ) as payload,
-          COALESCE($priority::int, ${JOB_PRIORITIES.DEFAULT}) as priority
+          $priority::int as priority
         FROM ${UpstreamModel.tableName}`,
       {
         bind: {
