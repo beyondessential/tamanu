@@ -50,7 +50,7 @@ function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
 // Umzug's down({ to }) INCLUDES the target in the revert. The baseline's down
 // drops all schemas, so we must not include it. Use the first post-baseline
 // migration as the revert boundary instead.
-const LAST_REVERSIBLE_MIGRATION = '1739240737046-addPatientprogramregistrationconditioncategorycolumn.js';
+const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdateSyncTick.js';
 
 /** @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }} */
 export function createMigrationInterface(log, sequelize) {

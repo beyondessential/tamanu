@@ -250,6 +250,15 @@
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
     },
+    "snapshotTableCleaner": {
+      "enabled": true,
+      // Once a minute between 01:00 and 05:59 server-local time, which is
+      // usually low-use hours since facility timezones follow their users.
+      "schedule": "* 1-5 * * *",
+      "retentionHours": 24,
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 100
+    },
     "processSyncQueue": {
       "enabled": true,
       "schedule": "* * * * *"

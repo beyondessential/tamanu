@@ -10,6 +10,7 @@ export type * from './step.ts';
 export * from './step.js';
 
 const EARLIEST_MIGRATION = '1739968205100-addLSFFunction';
+const BASELINE_MIGRATION = '000_baseline';
 
 export async function upgrade({
   sequelize,
@@ -37,9 +38,12 @@ export async function upgrade({
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();
 
-  const pendingEarliestMigration = pendingMigrations.find((mig: any) =>
-    mig.testFileName(EARLIEST_MIGRATION),
-  );
+  // Ensure the minimum schema is in place before any upgrade steps run.
+  // Prefer the historical earliest migration; if it's been squashed into the
+  // baseline, fall back to the baseline itself (which supersedes it).
+  const pendingEarliestMigration =
+    pendingMigrations.find((mig: any) => mig.testFileName(EARLIEST_MIGRATION)) ??
+    pendingMigrations.find((mig: any) => mig.testFileName(BASELINE_MIGRATION));
   if (pendingEarliestMigration) {
     await migrateUpTo({
       log,
