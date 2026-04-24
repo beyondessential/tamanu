@@ -33,7 +33,9 @@ function migrationDurationsForBatch(durationStats, batchMigrations) {
   const out = {};
   for (const m of batchMigrations) {
     if (!m?.file) continue;
-    const ms = durationStats[m.file];
+    // Umzug emits duration keys without the file extension; m.file is basename with extension.
+    const base = path.basename(m.file, path.extname(m.file));
+    const ms = durationStats[m.file] ?? durationStats[base];
     if (typeof ms === 'number') {
       out[m.file] = ms;
     }
