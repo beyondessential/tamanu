@@ -13,6 +13,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
+import { getDefaultFromAddress } from '../services/mailConfig';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
@@ -59,7 +60,7 @@ export class ReportRunner {
   async validate(reportModule, reportDataGenerator) {
     const localisation = await getLocalisation();
 
-    if (this.recipients.email && !config.mailgun.from) {
+    if (this.recipients.email && !getDefaultFromAddress()) {
       throw new Error('ReportRunner - Email config missing');
     }
 
@@ -257,7 +258,7 @@ export class ReportRunner {
       });
 
       const result = await this.emailService.sendEmail({
-        from: config.mailgun.from,
+        from: getDefaultFromAddress(),
         to: recipients,
         subject: 'Report delivery',
         text: `Report requested: ${reportName}`,
@@ -285,7 +286,7 @@ export class ReportRunner {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
       this.emailService.sendEmail({
-        from: config.mailgun.from,
+        from: getDefaultFromAddress(),
         to: user.email,
         subject: 'Failed to generate report',
         message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,

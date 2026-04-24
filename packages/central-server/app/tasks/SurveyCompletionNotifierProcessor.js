@@ -3,6 +3,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { getDefaultFromAddress } from '../services/mailConfig';
 
 export class SurveyCompletionNotifierProcessor extends ScheduledTask {
   /**
@@ -65,7 +66,7 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
     );
     for (const surveyResponse of surveyResponses) {
       const result = await this.context.emailService.sendEmail({
-        from: config.mailgun.from,
+        from: getDefaultFromAddress(),
         to: surveyResponse.survey.notifyEmailAddresses,
         subject: getTranslation(
           'surveyCompletionNotifier.emailSubject',
