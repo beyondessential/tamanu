@@ -3,14 +3,24 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 /** From pg_database_size; **-1** if the size could not be read (do not treat as a real byte count). */
 const DATABASE_SIZE_UNKNOWN = -1;
 
-/** Cap row-estimate rows so stats JSON stays bounded (ordered by reltuples desc — largest tables first). */
+/** Max tables with a non-negative reltuples estimate (planner has a row count to report). */
 const TABLE_ROW_ESTIMATE_LIMIT = 500;
+
+export type TableRowEstimateEntry = {
+  tableName: string;
+  /** From pg_class.reltuples (approximate). */
+  estimatedRowCount: number;
+};
 
 export type PreMigrationDbSnapshot = {
   /** From pg_database_size; **-1** if the size could not be read (do not treat as a real byte count). */
   databaseSizeBytes: number;
-  /** Approximate reltuples for the largest tables only (see TABLE_ROW_ESTIMATE_LIMIT). */
-  tableRowEstimates: Record<string, number>;
+  /**
+   * Largest tables first by planner row estimate (`reltuples` DESC).
+   * Stored as an array so order is preserved in JSONB.
+   * Tables with no estimate yet (`reltuples < 0`, common before ANALYZE) are omitted.
+   */
+  tableRowEstimates: TableRowEstimateEntry[];
 };
 
 /**
@@ -33,16 +43,25 @@ export async function gatherPreMigrationDbSnapshot(
       SELECT c.relname AS table_name, c.reltuples::bigint::text AS estimated_row_count
       FROM pg_class c
       JOIN pg_namespace n ON n.oid = c.relnamespace
-      WHERE n.nspname = 'public' AND c.relkind = 'r'
+      WHERE n.nspname = 'public'
+        AND c.relkind = 'r'
+        AND c.reltuples >= 0
       ORDER BY c.reltuples DESC
       LIMIT ${TABLE_ROW_ESTIMATE_LIMIT}
     `,
     { type: QueryTypes.SELECT },
   );
 
-  const tableRowEstimates: Record<string, number> = {};
+  const tableRowEstimates: TableRowEstimateEntry[] = [];
   for (const row of rows) {
-    tableRowEstimates[row.table_name] = Number(row.estimated_row_count);
+    const estimatedRowCount = Number(row.estimated_row_count);
+    if (!Number.isFinite(estimatedRowCount) || estimatedRowCount < 0) {
+      continue;
+    }
+    tableRowEstimates.push({
+      tableName: row.table_name,
+      estimatedRowCount,
+    });
   }
 
   let databaseSizeBytes = DATABASE_SIZE_UNKNOWN;

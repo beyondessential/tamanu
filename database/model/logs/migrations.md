@@ -58,8 +58,10 @@ JSONB object with per-batch diagnostics. Current shape:
 - `preSnapshot` (optional) — approximate database state captured before the
   batch ran:
   - `databaseSizeBytes` — result of `pg_database_size`; `-1` if unavailable.
-  - `tableRowEstimates` — object mapping public table names to approximate row
-    counts from `pg_class.reltuples` (capped to the 500 largest tables).
+  - `tableRowEstimates` — array of `{ tableName, estimatedRowCount }`, largest
+    tables first by `pg_class.reltuples`. Tables with no planner estimate yet
+    (negative `reltuples`, common before `ANALYZE`) are omitted. At most 500
+    catalog rows are read; entries without a usable estimate are skipped.
 
 Nullable; absent on rows written before the stats columns were added.
 {% enddocs %}
