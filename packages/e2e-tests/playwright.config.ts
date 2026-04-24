@@ -8,6 +8,9 @@ import dotenv from 'dotenv';
  */
 dotenv.config({ path: resolve(__dirname, '.env') });
 
+const isCI = !!process.env.CI;
+const keepDebugArtifactsInCI = process.env.PLAYWRIGHT_DEBUG_ARTIFACTS === 'true';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -16,17 +19,17 @@ module.exports = defineConfig({
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? 'blob' : 'html',
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  reporter: isCI ? 'blob' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    // Enable heavier debugging artifacts only for local runs.
-    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
-    video: process.env.CI ? 'off' : 'retain-on-failure',
-    screenshot: process.env.CI ? 'off' : 'only-on-failure',
+    // Keep heavy debug artifacts by default locally, and optionally in CI via PLAYWRIGHT_DEBUG_ARTIFACTS.
+    trace: isCI ? (keepDebugArtifactsInCI ? 'retain-on-failure' : 'on-first-retry') : 'retain-on-failure',
+    video: isCI ? (keepDebugArtifactsInCI ? 'retain-on-failure' : 'off') : 'retain-on-failure',
+    screenshot: isCI ? (keepDebugArtifactsInCI ? 'only-on-failure' : 'off') : 'only-on-failure',
     // Slow down each browser action to make local debugging easier.
     launchOptions: process.env.CI ? undefined : { slowMo: 200 },
     timezoneId: process.env.TZ,
