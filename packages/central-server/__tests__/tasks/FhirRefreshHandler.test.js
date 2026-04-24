@@ -19,7 +19,7 @@ describe('FHIR refresh handler', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { FhirEncounter } = ctx.store.models;
+    const { FhirEncounter, FhirServiceRequest } = ctx.store.models;
 
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
@@ -29,12 +29,15 @@ describe('FHIR refresh handler', () => {
       ctx.store.models,
       resources,
     );
+
+    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
   });
+
   afterAll(() => ctx.close());
 
   describe('allFromUpstream', () => {
     beforeEach(async () => {
-      await ctx.store.models.FhirJob.destroy({ where: {} });
+      await ctx.store.models.FhirJob.truncate({ force: true });
     });
 
     it('finds all the FHIR resources that need to be updated', async () => {
@@ -213,12 +216,15 @@ describe('FHIR refresh handler', () => {
     });
 
     it('uses lower priority when migration context is set', async () => {
-      await ctx.store.sequelize.query(
-        `SELECT set_config('tamanu.audit.migration_context', '{"test":"context"}', true)`,
-      );
-      await ctx.store.sequelize.query(
-        `INSERT INTO public.test_fhir_refresh_priority (id) VALUES ('with-context')`,
-      );
+      // set_config(..., true) is SET LOCAL: it only lasts for the current transaction.
+      await ctx.store.sequelize.transaction(async () => {
+        await ctx.store.sequelize.query(
+          `SELECT set_config('tamanu.audit.migration_context', '{"test":"context"}', true)`,
+        );
+        await ctx.store.sequelize.query(
+          `INSERT INTO public.test_fhir_refresh_priority (id) VALUES ('with-context')`,
+        );
+      });
 
       const job = await ctx.store.models.FhirJob.findOne({
         where: { topic: 'fhir.refresh.allFromUpstream' },
