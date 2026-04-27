@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
@@ -174,6 +175,83 @@ jobs:
           name: blob-report-${{ strategy.job-index }}
           path: packages/e2e-tests/blob-report/
           retention-days: 7
+
+  e2e_report:
+    needs: [e2e]
+    name: Build E2E HTML report artifact
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v5
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - run: npm i
+      - name: Download shard blob reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: blob-report-*
+          path: packages/e2e-tests/all-blob-reports
+          merge-multiple: true
+      - name: Merge Playwright blob reports into HTML report
+        run: npx playwright merge-reports --reporter html all-blob-reports
+        working-directory: packages/e2e-tests
+      - name: Zip HTML report for download
+        run: zip -r playwright-report.zip playwright-report
+        working-directory: packages/e2e-tests
+      - name: Upload HTML report zip artifact
+        id: report-artifact-upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-playwright-html-report
+          path: packages/e2e-tests/playwright-report.zip
+          retention-days: 7
+      - name: Post failure report link comment
+        continue-on-error: true
+        if: needs.e2e.result != 'success' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_URL: ${{ steps.report-artifact-upload.outputs.artifact-url }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        with:
+          script: |
+            const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
+            const { repo, owner } = context.repo;
+            const { number: issue_number } = context.issue;
+            if (!issue_number) return;
+
+            const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+            const downloadUrl = ARTIFACT_URL || runUrl;
+
+            const params = { issue_number, owner, repo };
+            const headerContent = "**E2E failure report**";
+            const latestText = " **Latest**";
+            const bodyLine = `- **${BUILD_NUMBER}:** [Download E2E HTML report zip](${downloadUrl})${latestText}`;
+
+            const comments = await github.rest.issues.listComments(params);
+            const existingComment = comments.data.find((comment) => comment.body.includes(headerContent));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                ...params,
+                comment_id: existingComment.id,
+                body: existingComment.body
+                  .replace(latestText, '')
+                  .replace(headerContent, `${headerContent}\n${bodyLine}`),
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...params,
+                body: `${headerContent}\n${bodyLine}`,
+              });
+            }
 
   e2e-required:
     name: E2E Required
