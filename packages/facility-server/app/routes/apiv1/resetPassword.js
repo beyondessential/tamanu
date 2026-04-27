@@ -5,7 +5,7 @@ import { CentralServerConnection } from '../../sync';
 export const resetPassword = express.Router();
 
 resetPassword.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { deviceId } = req;
     // no permission needed

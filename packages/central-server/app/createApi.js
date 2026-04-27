@@ -118,7 +118,7 @@ export async function createApi(ctx) {
 
   express.use(settingsReaderMiddleware);
 
-  express.get('/$', (req, res) => {
+  express.get('/', (req, res) => {
     res.send({
       index: true,
     });
@@ -138,7 +138,7 @@ export async function createApi(ctx) {
   express.use('/v1', api(ctx, limiters));
 
   // Dis-allow all other routes
-  express.use('*', (req, res) => {
+  express.use((req, res) => {
     res.status(404).end();
   });
 

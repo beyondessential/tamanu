@@ -1290,7 +1290,7 @@ const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
 const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
 suggestions.get(
-  '/timeZone$',
+  '/timeZone',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const searchQuery = (req.query.q || '').trim().toLowerCase();
