@@ -21,8 +21,6 @@ import path from 'path';
 import { SidebarPage } from '@pages/SidebarPage';
 import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
 
-test.describe.configure({ mode: 'serial' });
-
 test.describe('Basic tests', () => {
   let currentUserDisplayName: string;
 

@@ -39,6 +39,19 @@ module.exports = defineConfig({
     },
     {
       name: 'chromium',
+      // Exclude tests that use recently viewed patients (they run in separate project)
+      testIgnore: [/recentlyViewedPatients\.spec\.ts/, /Basic\.spec\.ts/],
+      use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'chromium-recently-viewed-serial',
+      // Tests that interact with shared "recently viewed patients" state
+      testMatch: [/recentlyViewedPatients\.spec\.ts/, /Basic\.spec\.ts/],
+      fullyParallel: true,
+      // Single worker ensures these files don't run in parallel with each other,
+      // preventing cross-file interference with shared database state
+      workers: 1,
       use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
       dependencies: ['setup'],
     },
