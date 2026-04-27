@@ -40,22 +40,27 @@ jobs:
           tally=$(kubectl -n "$ns" exec deploy/central-api -- \
             node -e "console.log(require.resolve('@tamanu/fake-data/populateDb').replace(/[^/]+$/, 'parseTally/standard.json'))")
 
-          # Run fake data generation inside the central-api pod using the tally file
-          kubectl -n "$ns" exec deploy/central-api -- node -e "
-            const { initDatabase } = require('@tamanu/database/services/database');
-            const { populateDbFromTallyFile } = require('@tamanu/fake-data/populateDb');
-            const config = require('config');
+          # Run fake data generation inside the central-api pod using the tally file.
+          # Values are passed as env vars (not interpolated into JS source) so paths
+          # containing quotes, backslashes, or dollar signs cannot break the script.
+          kubectl -n "$ns" exec deploy/central-api -- env "TALLY=$tally" "ROUNDS=$rounds" node -e '
+            const { initDatabase } = require("@tamanu/database/services/database");
+            const { populateDbFromTallyFile } = require("@tamanu/fake-data/populateDb");
+            const config = require("config");
 
             (async () => {
               const db = await initDatabase(config.db);
-              const rounds = ${rounds};
-              const tally = '${tally}';
-              console.log('Generating fake data:', rounds, 'rounds using tally:', tally);
+              const tally = process.env.TALLY;
+              const rounds = parseInt(process.env.ROUNDS, 10);
+              if (!Number.isInteger(rounds) || rounds < 1) {
+                throw new Error("Invalid ROUNDS: " + process.env.ROUNDS);
+              }
+              console.log("Generating fake data:", rounds, "rounds using tally:", tally);
               for (let i = 0; i < rounds; i++) {
-                console.log('Round ' + (i + 1) + '/' + rounds);
+                console.log("Round " + (i + 1) + "/" + rounds);
                 await populateDbFromTallyFile(db.models, tally);
               }
               await db.sequelize.close();
-              console.log('Done');
+              console.log("Done");
             })().catch(e => { console.error(e); process.exit(1); });
-          "
+          '
