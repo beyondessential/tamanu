@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
@@ -29,7 +30,11 @@ export async function upgrade({
     })) ?? '0.0.0';
   log.info('Upgrading Tamanu installation', { from: fromVersion, to: toVersion });
 
-  const migrations = createMigrationInterface(log, sequelize);
+  const upgradeRunId = randomUUID();
+  log.info('Upgrade run id', { upgradeRunId });
+
+  const { migrations: migrationsUmzug, getDurationStats } = createMigrationInterface(log, sequelize);
+  const migrations = migrationsUmzug as any;
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();
 
@@ -37,15 +42,17 @@ export async function upgrade({
   // Prefer the historical earliest migration; if it's been squashed into the
   // baseline, fall back to the baseline itself (which supersedes it).
   const pendingEarliestMigration =
-    pendingMigrations.find((mig) => mig.testFileName(EARLIEST_MIGRATION)) ??
-    pendingMigrations.find((mig) => mig.testFileName(BASELINE_MIGRATION));
+    pendingMigrations.find((mig: any) => mig.testFileName(EARLIEST_MIGRATION)) ??
+    pendingMigrations.find((mig: any) => mig.testFileName(BASELINE_MIGRATION));
   if (pendingEarliestMigration) {
     await migrateUpTo({
       log,
       sequelize,
       pending: pendingMigrations,
       migrations,
+      getDurationStats,
       upOpts: { to: pendingEarliestMigration.file },
+      upgradeRunId,
     });
     pendingMigrations = await migrations.pending();
     doneMigrations = await migrations.executed();
@@ -74,7 +81,9 @@ export async function upgrade({
         sequelize,
         pending: pendingMigrations,
         migrations,
+        getDurationStats,
         upOpts: {},
+        upgradeRunId,
       });
       continue;
     }
@@ -85,7 +94,7 @@ export async function upgrade({
     }
 
     if (id.startsWith(MIGRATION_PREFIX)) {
-      const target = pendingMigrations.find((mig) =>
+      const target = pendingMigrations.find((mig: any) =>
         mig.testFileName(migrationFile(id as MigrationStr)),
       );
       if (target) {
@@ -94,7 +103,9 @@ export async function upgrade({
           sequelize,
           pending: pendingMigrations,
           migrations,
+          getDurationStats,
           upOpts: { to: target.file },
+          upgradeRunId,
         });
       }
       continue;
@@ -111,7 +122,7 @@ export async function upgrade({
     const beforeMigrations = onlyMigrations(step.before);
     if (
       beforeMigrations.length > 0 &&
-      beforeMigrations.every((need) => doneMigrations.some((mig) => mig.testFileName(need)))
+      beforeMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no before:Migration that has not already run, skipping');
       continue;
@@ -122,7 +133,7 @@ export async function upgrade({
     const afterMigrations = onlyMigrations(step.after);
     if (
       afterMigrations.length > 0 &&
-      afterMigrations.every((need) => doneMigrations.some((mig) => mig.testFileName(need)))
+      afterMigrations.every((need) => doneMigrations.some((mig: any) => mig.testFileName(need)))
     ) {
       logger.debug('Step has no after:Migration that had not already run, skipping');
       continue;
