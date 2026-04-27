@@ -1,4 +1,5 @@
 import { test as setup } from '../../fixtures/baseFixture';
+import { expect } from '@playwright/test';
 import path from 'path';
 
 setup('authenticate', async ({ loginPage }) => {
@@ -13,8 +14,8 @@ setup('authenticate', async ({ loginPage }) => {
 
   await loginPage.login(email, password);
 
-  // Ensure state is persisted
-  await loginPage.page.waitForTimeout(1000);
+  // Ensure the logged-in landing page has rendered before snapshotting auth state.
+  await expect(loginPage.page.getByText('Search All Patients')).toBeVisible();
 
   // Save page context
   const authStatePath = path.join(__dirname, '../../.auth/user.json');

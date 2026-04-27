@@ -103,6 +103,7 @@ export function compareAlphabetically(order: 'asc' | 'desc') {
 export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
   await input.click();
   const firstOption = page.locator('[role="listbox"] li').first();
+  await firstOption.waitFor({ state: 'visible', timeout: 10000 });
   await firstOption.click();
   return (await firstOption.textContent()) || '';
 };

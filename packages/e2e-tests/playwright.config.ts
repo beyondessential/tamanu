@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
  */
 dotenv.config({ path: resolve(__dirname, '.env') });
 
+const localSlowMoMs = Number(process.env.PLAYWRIGHT_SLOW_MO_MS ?? 0);
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -27,8 +29,12 @@ module.exports = defineConfig({
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     video: process.env.CI ? 'off' : 'retain-on-failure',
     screenshot: process.env.CI ? 'off' : 'only-on-failure',
-    // Slow down each browser action to make local debugging easier.
-    launchOptions: process.env.CI ? undefined : { slowMo: 200 },
+    // Keep local runs fast by default; opt-in slow motion for interactive debugging.
+    launchOptions: process.env.CI
+      ? undefined
+      : localSlowMoMs > 0
+        ? { slowMo: localSlowMoMs }
+        : undefined,
     timezoneId: process.env.TZ,
     // Pin browser locale so navigator.language-driven date formatting is deterministic across
     // runners (CI Ubuntu defaults to en-US which yields MM/DD/YYYY; tests expect DD/MM/YYYY).
