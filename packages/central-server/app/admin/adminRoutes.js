@@ -162,15 +162,17 @@ adminRoutes.put(
         const settingDef = getSettingAtPath(schema, entry.path);
 
         if (settingDef?.secret) {
-          // Encrypt non-placeholder secret values before storing
-          if (
-            entry.value !== SECRET_PLACEHOLDER &&
-            entry.value !== null &&
-            entry.value !== undefined
-          ) {
+          if (entry.value === SECRET_PLACEHOLDER) {
+            // Unchanged — placeholder is what we returned to the client.
+          } else if (entry.value === null || entry.value === undefined || entry.value === '') {
+            // Admin cleared the field — delete the stored secret entirely so
+            // the UI shows an empty field next time, not the placeholder.
+            await Setting.unsetSecret(entry.path, scope, facilityId);
+          } else {
             await Setting.setSecret(entry.path, entry.value, scope, facilityId);
           }
-          // Remove secret from settings object (either unchanged placeholder or already encrypted)
+          // Always strip secrets from the regular settings object — they're
+          // either unchanged or handled via setSecret/unsetSecret above.
           unset(settings, entry.path);
         }
       }

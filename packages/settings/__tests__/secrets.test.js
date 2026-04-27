@@ -7,6 +7,9 @@ import {
   SECRET_PLACEHOLDER,
   isSetting,
 } from '../dist/cjs/schema/utils';
+import { centralSettings } from '../dist/cjs/schema/central';
+import { facilitySettings } from '../dist/cjs/schema/facility';
+import { globalSettings } from '../dist/cjs/schema/global';
 
 describe('Secret utilities', () => {
   describe('extractSecretPaths', () => {
@@ -36,7 +39,6 @@ describe('Secret utilities', () => {
         properties: {
           apiKey: {
             type: yup.string(),
-            defaultValue: '',
             secret: true,
           },
           normalSetting: {
@@ -58,7 +60,6 @@ describe('Secret utilities', () => {
                 properties: {
                   key: {
                     type: yup.string(),
-                    defaultValue: '',
                     secret: true,
                   },
                   url: {
@@ -73,7 +74,6 @@ describe('Secret utilities', () => {
             properties: {
               token: {
                 type: yup.string(),
-                defaultValue: '',
                 secret: true,
               },
             },
@@ -92,7 +92,6 @@ describe('Secret utilities', () => {
         properties: {
           secret1: {
             type: yup.string(),
-            defaultValue: '',
             secret: true,
           },
           notSecret: {
@@ -161,7 +160,7 @@ describe('Secret utilities', () => {
       expect(masked.token).toBe(undefined);
     });
 
-    it('should mask empty strings as valid secrets', () => {
+    it('should leave empty strings unmasked so cleared secrets show as empty', () => {
       const settings = {
         emptySecret: '',
         normalSetting: 'visible',
@@ -170,7 +169,7 @@ describe('Secret utilities', () => {
 
       const masked = maskSecrets(settings, secretPaths);
 
-      expect(masked.emptySecret).toBe(SECRET_PLACEHOLDER);
+      expect(masked.emptySecret).toBe('');
       expect(masked.normalSetting).toBe('visible');
     });
 
@@ -211,14 +210,12 @@ describe('Secret utilities', () => {
       properties: {
         apiKey: {
           type: yup.string(),
-          defaultValue: '',
           secret: true,
         },
         nested: {
           properties: {
             secret: {
               type: yup.string(),
-              defaultValue: '',
               secret: true,
             },
             normal: {
@@ -256,8 +253,7 @@ describe('Secret utilities', () => {
         nested: {
           properties: {
             child: {
-              type: yup.boolean(),
-              defaultValue: false,
+              type: yup.string(),
               secret: true,
             },
             deeper: {
@@ -285,8 +281,8 @@ describe('Secret utilities', () => {
       const setting = getSettingAtPath(schema, 'nested.child');
 
       expect(setting).not.toBeNull();
-      expect(setting.defaultValue).toBe(false);
       expect(setting.secret).toBe(true);
+      expect(setting.defaultValue).toBeUndefined();
     });
 
     it('should return setting at deeply nested path', () => {
@@ -319,6 +315,40 @@ describe('Secret utilities', () => {
     });
   });
 
+  describe('schema-level conventions', () => {
+    const collectSecretSettings = (schema, prefix = '') => {
+      const found = [];
+      for (const [key, value] of Object.entries(schema.properties)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        if ('properties' in value) {
+          found.push(...collectSecretSettings(value, fullKey));
+        } else if (value.secret) {
+          found.push({ path: fullKey, setting: value });
+        }
+      }
+      return found;
+    };
+
+    it('no secret setting in any schema should declare a defaultValue', () => {
+      const allSchemas = [
+        ['central', centralSettings],
+        ['facility', facilitySettings],
+        ['global', globalSettings],
+      ];
+
+      const offenders = [];
+      for (const [scope, schema] of allSchemas) {
+        for (const { path, setting } of collectSecretSettings(schema)) {
+          if ('defaultValue' in setting) {
+            offenders.push(`${scope}: ${path}`);
+          }
+        }
+      }
+
+      expect(offenders).toEqual([]);
+    });
+  });
+
   describe('isSetting', () => {
     it('should return true for valid setting objects', () => {
       const setting = {
@@ -329,10 +359,9 @@ describe('Secret utilities', () => {
       expect(isSetting(setting)).toBe(true);
     });
 
-    it('should return true for secret settings', () => {
+    it('should return true for secret settings (no defaultValue)', () => {
       const setting = {
         type: yup.string(),
-        defaultValue: '',
         secret: true,
       };
 

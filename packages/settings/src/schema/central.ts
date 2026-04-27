@@ -241,7 +241,6 @@ export const centralSettings = {
               name: 'Password',
               description: 'Password for DHIS2 API authentication',
               type: yup.string(),
-              defaultValue: '',
               secret: true,
             },
             reportIds: {

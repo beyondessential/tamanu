@@ -262,6 +262,26 @@ export class Setting extends Model {
     const encryptedValue = await encryptSecret(keyBuffer, value);
     await this.set(name as SettingPath, encryptedValue as unknown as object, scope, facilityId);
   }
+
+  /**
+   * Removes a secret from the settings table. Used when an admin clears a
+   * secret field — without this, the cleared value would be encrypted-and-
+   * stored as an empty string and the UI would show the placeholder again on
+   * reload, making it look like the secret was still set.
+   */
+  static async unsetSecret(
+    name: string,
+    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    facilityId: string | null = null,
+  ): Promise<void> {
+    await this.destroy({
+      where: {
+        key: name,
+        scope,
+        facilityId,
+      },
+    });
+  }
 }
 
 function buildSettingsRecords(

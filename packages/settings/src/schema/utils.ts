@@ -10,7 +10,7 @@ import {
 import { Setting, SettingsSchema } from '../types';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
-  return value && isObject(value) && 'type' in value && 'defaultValue' in value;
+  return Boolean(value) && isObject(value) && 'type' in value;
 };
 
 export const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {
@@ -54,7 +54,9 @@ export const SECRET_PLACEHOLDER = '••••••••';
 
 /**
  * Masks secret values in a settings object.
- * Secret fields that have a value (including empty strings) will be replaced with a placeholder.
+ * Secret fields with a non-empty value are replaced with a placeholder; empty,
+ * null, or unset values are left as-is so the admin UI shows an empty field
+ * (rather than appearing to hide a secret that doesn't actually exist).
  * This is used when returning settings to the admin UI.
  */
 export const maskSecrets = (
@@ -65,8 +67,7 @@ export const maskSecrets = (
 
   for (const path of secretPaths) {
     const value = getAtPath(masked, path);
-    // Mask if the value exists (including empty strings, which are valid secrets)
-    if (value !== undefined && value !== null) {
+    if (value !== undefined && value !== null && value !== '') {
       setAtPath(masked, path, SECRET_PLACEHOLDER);
     }
   }
