@@ -112,7 +112,7 @@ function createSuggesterRoute(
   },
 ) {
   suggestions.get(
-    `/${endpoint}$`,
+    `/${endpoint}`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -214,7 +214,7 @@ function createAllRecordsRoute(
   { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
-    `/${endpoint}/all$`,
+    `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
