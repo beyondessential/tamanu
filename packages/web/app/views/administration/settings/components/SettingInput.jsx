@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
-
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {
   AutocompleteInput,
   LargeBodyText,
