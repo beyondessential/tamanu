@@ -1,6 +1,7 @@
 export * from './initAuditActions';
 export * from './attachAuditUserToDbSession';
 export * from './createMigrationAuditLog';
+export * from './gatherPreMigrationDbSnapshot';
 export * from './attachChangelogToSnapshotRecords';
 export * from './insertChangelogRecords';
 export * from './extractChangelogFromSnapshotRecords';
