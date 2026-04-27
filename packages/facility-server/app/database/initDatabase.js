@@ -2,9 +2,7 @@ import config from 'config';
 
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { fakeUUID } from '@tamanu/utils/generateId';
-import { log } from '@tamanu/shared/services/logging';
 import { patchReadSettings } from '@tamanu/shared/utils/patchReadSettings';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
 // Patch ReadSettings to add getSecret method
 patchReadSettings();
