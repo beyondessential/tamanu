@@ -63,6 +63,10 @@ function api(ctx, limiters) {
 export async function createApi(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
   const express = defineExpress();
+  // Express 5 defaults to the "simple" query parser (Node querystring). Bracket
+  // keys like includedDataTypes[0]=x become flat keys, breaking many callers and
+  // tests that rely on Express 4's extended (qs) parsing.
+  express.set('query parser', 'extended');
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {

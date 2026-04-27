@@ -8,6 +8,7 @@ import { sync as syncRoutes } from './routes/sync/sync';
 
 export async function createSyncApp({ sequelize, syncManager, models, deviceId }) {
   const express = defineExpress();
+  express.set('query parser', 'extended');
   const server = createServer(express);
 
   express.use(
