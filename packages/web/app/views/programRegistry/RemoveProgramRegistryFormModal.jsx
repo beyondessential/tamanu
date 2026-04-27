@@ -1,10 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import {
-  DateDisplay,
-  FormSeparatorLine,
-} from '../../components';
+import { DateDisplay, FormSeparatorLine } from '../../components';
 import {
   ConfirmCancelRow,
   TranslatedReferenceData,
@@ -69,7 +66,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   const { currentUser } = useAuth();
   const { mutateAsync } = useUpdateProgramRegistryMutation(patientId, id);
 
-  if (!patientProgramRegistration) return <></>;
+  if (!patientProgramRegistration) return null;
 
   const remove = async () => {
     await mutateAsync({

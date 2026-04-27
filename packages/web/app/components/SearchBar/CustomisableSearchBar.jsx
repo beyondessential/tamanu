@@ -1,12 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, Button, TextButton } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import doubleDown from '../../assets/images/double_down.svg';
-import doubleUp from '../../assets/images/double_up.svg';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ThemedTooltip } from '../Tooltip';
 import { withPermissionCheck } from '../withPermissionCheck';
@@ -59,13 +58,25 @@ const ActionsContainer = styled(Box)`
   margin-left: 8px;
 `;
 
+const ExpandIcon = styled(KeyboardDoubleArrowDownIcon)`
+  &.MuiSvgIcon-root {
+    font-size: 24px;
+    transition: ${props => props.theme.transitions.create('rotate')};
+  }
+  [aria-expanded='true'] & {
+    rotate: x 0.5turn;
+  }
+`;
+
 const SearchButton = styled(withPermissionTooltip(Button))`
   margin-right: 20px;
   margin-left: 6px;
 `;
 
 const ClearButton = styled(TextButton)`
-  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const CustomisableSearchBar = ({
@@ -80,12 +91,14 @@ export const CustomisableSearchBar = ({
   className,
 }) => {
   const switchExpandValue = useCallback(() => {
-    setIsExpanded((previous) => !previous);
+    setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
-  const handleSubmit = (values) => {
+  const handleSubmit = values => {
     onSearch({ ...values });
   };
+
+  const hiddenFieldsId = useId();
 
   return (
     <Form
@@ -94,23 +107,24 @@ export const CustomisableSearchBar = ({
         <Container data-testid="container-ntc5" className={className}>
           <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-c6rk">
             {children}
-            <ActionsContainer data-testid="actionscontainer-3pm7" className='actions-container'>
+            <ActionsContainer data-testid="actionscontainer-3pm7" className="actions-container">
               {showExpandButton && (
                 <ThemedTooltip
                   title={isExpanded ? 'Hide advanced search' : 'Advanced search'}
                   data-testid="themedtooltip-arue"
                 >
                   <IconButton
+                    aria-controls={hiddenFieldsId}
+                    aria-expanded={isExpanded}
+                    aria-label={`${isExpanded ? 'hide' : 'show'} advanced search`}
                     onClick={() => {
                       switchExpandValue();
                     }}
                     color="primary"
                     data-testid="iconbutton-zrkv"
+                    style={{ padding: 6 }}
                   >
-                    <img
-                      src={isExpanded ? doubleUp : doubleDown}
-                      alt={`${isExpanded ? 'hide' : 'show'} advanced search`}
-                    />
+                    <ExpandIcon aria-hidden />
                   </IconButton>
                 </ThemedTooltip>
               )}
@@ -145,7 +159,10 @@ export const CustomisableSearchBar = ({
             </ActionsContainer>
           </CustomisableSearchBarGrid>
           {isExpanded && (
-            <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-q5qy">
+            <CustomisableSearchBarGrid
+              data-testid="customisablesearchbargrid-q5qy"
+              id={hiddenFieldsId}
+            >
               {hiddenFields}
             </CustomisableSearchBarGrid>
           )}

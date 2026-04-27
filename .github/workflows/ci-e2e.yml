@@ -2,7 +2,6 @@ name: E2E Tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -16,23 +15,7 @@ env:
     !packages/mobile/node_modules
 
 jobs:
-  check-e2e-request:
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request?.body;
-            const e2eMatch = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
-            core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
-
   node_modules_cache:
-    needs: check-e2e-request
-    if: needs.check-e2e-request.outputs.should_run == 'true'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -43,20 +26,81 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
+        id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
-      - uses: actions/cache/save@v3
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  e2e:
+  e2e_prepare:
     needs: node_modules_cache
-    name: E2E Tests
+    name: Prepare E2E artifacts
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v5
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm i
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/central-server build
+      - run: npm run --workspace @tamanu/facility-server build
+
+      - name: Setup postgres dbs
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          .github/scripts/e2e-test-setup.sh setup-postgres
+      - name: Setup central server
+        run: .github/scripts/e2e-test-setup.sh setup-central
+      - name: Setup facility server
+        run: .github/scripts/e2e-test-setup.sh setup-facility
+      - name: Start servers
+        run: .github/scripts/e2e-test-setup.sh start-servers
+      - name: Snapshot prepared databases
+        run: |
+          mkdir -p e2e-prepared-db
+          pg_dump -Fc -d central -f e2e-prepared-db/central.dump
+          pg_dump -Fc -d facility -f e2e-prepared-db/facility.dump
+      - name: Upload built server artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-built-artifacts
+          path: |
+            packages/*/dist
+            packages/central-server/config/local.json5
+            packages/central-server/provisioning.json5
+            packages/facility-server/config/local.json5
+          retention-days: 1
+      - name: Upload prepared database snapshot
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-db-snapshot
+          path: e2e-prepared-db
+          retention-days: 1
+
+  e2e:
+    needs: e2e_prepare
+    name: E2E Tests ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/4, 2/4, 3/4, 4/4]
     env:
       FACILITY_FRONTEND_URL: http://localhost:5173
       ADMIN_FRONTEND_URL: http://localhost:5174
@@ -74,34 +118,74 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - name: Download built server artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-built-artifacts
+          path: packages
+      - name: Download prepared database snapshot
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-db-snapshot
+          path: e2e-prepared-db
 
-      - run: npm ci
-      - run: npm run build
+      - run: npm i
 
       - name: Setup postgres dbs
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
-          .github/scripts/e2e-test-setup.sh setup-postgres
-      - name: Setup central server
-        run: .github/scripts/e2e-test-setup.sh setup-central
-      - name: Setup facility server
-        run: .github/scripts/e2e-test-setup.sh setup-facility
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+          createdb -O tamanu facility
+          pg_restore --clean --if-exists --no-owner --no-privileges -d central e2e-prepared-db/central.dump
+          pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
       - name: Start servers
-        run: .github/scripts/e2e-test-setup.sh start-servers
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      - name: Run Playwright tests
-        run: npm run e2e-test
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@v4
+        run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
+      - name: Restore Playwright browser cache
+        id: playwright-cache
+        uses: actions/cache/restore@v5
         with:
-          name: playwright-report
-          path: |
-            packages/e2e-tests/playwright-report/
-            packages/e2e-tests/test-results/
-          retention-days: 30
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/ms-playwright
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - name: Save Playwright browser cache
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          path: ~/.cache/ms-playwright
+      - name: Run Playwright tests
+        run: npx playwright test --shard=${{ matrix.shard }}
+        working-directory: packages/e2e-tests
+      - name: Upload blob report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: blob-report-${{ strategy.job-index }}
+          path: packages/e2e-tests/blob-report/
+          retention-days: 7
+
+  e2e-required:
+    name: E2E Required
+    if: always()
+    needs: [e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce passing E2E workflow
+        run: |
+          if [ "${{ needs.e2e.result }}" != "success" ]; then
+            echo "E2E tests did not pass."
+            exit 1
+          fi
+
+          echo "E2E passed."

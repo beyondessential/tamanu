@@ -2,14 +2,16 @@
 
 _Add a brief description of the changes in this PR to help give the reviewer context._
 
-### Deploys
+### Auto-Deploy
 
-- [ ] **Deploy to Tamanu Internal** <!-- #deploy -->
+- [ ] **Deploy** <!-- #deploy -->
 
-### Tests
+<details>
+<summary>Options</summary>
 
-- [ ] **Run E2E Tests** <!-- #e2e -->
-<!-- - [ ] **Run Synthetic Tests (WIP)** **Target URL:** _https://your-target-url_ -->
+- [ ] Synthetic test <!-- #deployopt %synthetic -->
+
+</details>
 
 ### Review Hero
 

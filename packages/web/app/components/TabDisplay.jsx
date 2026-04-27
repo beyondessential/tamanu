@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { isNil } from 'lodash';
 
 import { Tab, Tabs } from '@material-ui/core';
 import { Colors } from '../constants';
@@ -35,6 +36,33 @@ const Icon = styled.i`
   margin-right: 5px;
 `;
 
+/**
+ * `icon`: Font Awesome class string, React element, or no icon via `null` / `undefined` (`isNil`)
+ */
+export function resolveTabBarIcon({ icon, selected, testId }) {
+  const iconColor = selected ? Colors.primary : Colors.softText;
+
+  // In case we don't want any icons
+  if (isNil(icon)) {
+    return null;
+  }
+
+  if (typeof icon === 'string') {
+    return (
+      <Icon className={icon} color={iconColor} data-testid={testId} />
+    );
+  }
+
+  return React.cloneElement(icon, {
+    'data-testid': testId,
+    style: {
+      marginRight: 5,
+      ...(icon.props.style || {}),
+      color: iconColor,
+    },
+  });
+}
+
 export const TabDisplay = React.memo(
   ({ tabs, currentTab, onTabSelect, className, scrollable = true, ...tabProps }) => {
     const currentTabData = tabs.find((t) => t.key === currentTab);
@@ -45,13 +73,11 @@ export const TabDisplay = React.memo(
     const buttons = tabs.map(({ key, label, render, icon }) => (
       <StyledTab
         key={key}
-        icon={
-          <Icon
-            className={icon}
-            color={currentTabData.key === key ? Colors.primary : Colors.softText}
-            data-testid={`icon-r0ru-${key}`}
-          />
-        }
+        icon={resolveTabBarIcon({
+          icon,
+          selected: currentTabData.key === key,
+          testId: `icon-r0ru-${key}`,
+        })}
         data-testid={`tab-${key}`}
         style={{ minWidth: 'auto' }}
         label={label}
@@ -70,7 +96,7 @@ export const TabDisplay = React.memo(
         >
           {buttons}
         </TabContainer>
-        {currentTabData.render({ ...tabProps })}
+        {currentTabData.render(tabProps)}
       </TabBar>
     );
   },

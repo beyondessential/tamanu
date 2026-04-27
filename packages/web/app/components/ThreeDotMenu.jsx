@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
-import { MoreVert } from '@material-ui/icons';
+import MoreVert from '@mui/icons-material/MoreVert';
 import { Colors } from '../constants';
 
 const ThreeDotMenuItem = styled(MenuItem)`

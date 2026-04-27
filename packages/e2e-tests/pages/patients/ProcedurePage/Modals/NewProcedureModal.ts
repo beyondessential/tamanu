@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../../../BasePage';
 import { selectAutocompleteFieldOption } from '../../../../utils/fieldHelpers';
+import { fillMuiTimeField, formatForMuiTimePicker } from '../../../../utils/testHelper';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
 
 /**
@@ -39,9 +40,11 @@ export class NewProcedureModal extends BasePage {
   constructor(page: Page) {
     super(page);
     
+    // DateField / TimeField pass data-testid to the MUI TextField root (see ui-components DateField).
+    // AutocompleteField uses `${dataTestId}-input` on the text input (see ui-components AutocompleteField).
     const testIds = {
       procedureInput: 'field-87c2-input',
-      procedureDateInput: 'field-3a5v-input',
+      procedureDateInput: 'field-3a5v',
       procedureAreaInput: 'field-p4ef-group-input',
       procedureLocationInput: 'field-p4ef-location-input',
       leadClinicianInput: 'field-lit6-input',
@@ -49,10 +52,10 @@ export class NewProcedureModal extends BasePage {
       anaesthetistInput: 'field-96eg-input',
       assistantAnaesthetistInput: 'field-96eg1-input',
       anaestheticTypeInput: 'field-w9b5-input',
-      timeInInput: 'field-khml1-input',
-      timeOutInput: 'field-hgzz1-input',
-      timeStartedInput: 'field-khml-input',
-      timeEndedInput: 'field-hgzz-input',
+      timeInInput: 'field-khml1',
+      timeOutInput: 'field-hgzz1',
+      timeStartedInput: 'field-khml',
+      timeEndedInput: 'field-hgzz',
       notesInput: 'field-7en7-input',
       completedNotesInput: 'field-qrv7-input',
       assistantCliniciansInput: 'styledformcontrol-td30', 
@@ -111,17 +114,22 @@ export class NewProcedureModal extends BasePage {
       returnOptionText: true
     });
 
-    const timeIn = '09:00';
-    const timeOut = '10:00';
-    const timeStarted = '09:00';
-    const timeEnded = '10:00';
+    const timeInRaw = '09:00';
+    const timeOutRaw = '10:00';
+    const timeStartedRaw = '09:00';
+    const timeEndedRaw = '10:00';
+    const timeIn = formatForMuiTimePicker(timeInRaw);
+    const timeOut = formatForMuiTimePicker(timeOutRaw);
+    const timeStarted = formatForMuiTimePicker(timeStartedRaw);
+    const timeEnded = formatForMuiTimePicker(timeEndedRaw);
     const notes = 'This is a test note';
     const completedNotes = 'This is a test completed note';
 
-    await this.timeInInput.locator('input').fill(timeIn);
-    await this.timeOutInput.locator('input').fill(timeOut);
-    await this.timeStartedInput.locator('input').fill(timeStarted);
-    await this.timeEndedInput.locator('input').fill(timeEnded);
+    const timeInput = (fieldRoot: Locator) => fieldRoot.locator('input');
+    await fillMuiTimeField(timeInput(this.timeInInput), timeInRaw);
+    await fillMuiTimeField(timeInput(this.timeOutInput), timeOutRaw);
+    await fillMuiTimeField(timeInput(this.timeStartedInput), timeStartedRaw);
+    await fillMuiTimeField(timeInput(this.timeEndedInput), timeEndedRaw);
     await this.notesInput.fill(notes);
     await this.completedCheckbox.check();
     await this.completedNotesInput.fill(completedNotes);

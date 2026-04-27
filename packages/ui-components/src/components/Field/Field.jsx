@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import MuiBox from '@material-ui/core/Box';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import {
   connect as formikConnect,
@@ -7,12 +7,11 @@ import {
   useField,
   useFormikContext,
 } from 'formik';
-import MuiBox from '@material-ui/core/Box';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
-import { FormTooltip } from '../FormTooltip';
-
 export const Field = formikConnect(
   ({
     formik: {

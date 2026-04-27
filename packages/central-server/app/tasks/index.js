@@ -17,6 +17,7 @@ import { IPSRequestProcessor } from './IPSRequestProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
+import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import { FhirMissingResources } from './FhirMissingResources';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
@@ -49,6 +50,7 @@ export async function startScheduledTasks(context) {
     VaccinationReminderProcessor,
     AutomaticLabTestResultPublisher,
     CovidClearanceCertificatePublisher,
+    SnapshotTableCleaner,
     StaleSyncSessionCleaner,
     PlannedMoveTimeout,
     FhirMissingResources,

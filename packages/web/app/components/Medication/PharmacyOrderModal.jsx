@@ -33,6 +33,7 @@ const MODAL_TYPES = {
 };
 
 const StyledModal = styled(BaseModal)`
+  text-wrap: balance;
   .MuiPaper-root {
     max-width: ${({ $modalType }) => {
       switch ($modalType) {
@@ -71,26 +72,27 @@ const CommentsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const DialogPrimaryText = styled.div`
-  font-weight: bold;
+const DialogPrimaryText = styled.p`
   font-size: 16px;
-  margin-bottom: 12px;
+  font-weight: bold;
+  margin-block: 0 12px;
   text-align: center;
 `;
 
 const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
-  text-align: left;
+  text-align: start;
 `;
 
-const DialogSecondaryText = styled.div`
+const DialogSecondaryText = styled.p`
   font-size: 14px;
   text-align: center;
   color: ${Colors.textSecondary};
   line-height: 1.4;
+  margin-block: 0;
 `;
 
 const AlreadyOrderedSecondaryText = styled(DialogSecondaryText)`
-  text-align: left;
+  text-align: start;
 `;
 
 const DialogContent = styled.div`
@@ -276,13 +278,11 @@ export const PharmacyOrderModal = React.memo(
     const getAlreadyOrderedPrescriptions = useCallback(() => {
       const timeoutHours = Number(medicationAlreadyOrderedConfirmationTimeout) || 0;
       const cutoffMs = Date.now() - timeoutHours * 60 * 60 * 1000;
-      return prescriptions.filter(
-        p => {
-          if (!p.selected || !p.lastOrderedAt) return false;
-          const lastOrderedMs = storedDateTimeToEpochMilliseconds(p.lastOrderedAt);
-          return lastOrderedMs != null && lastOrderedMs > cutoffMs;
-        },
-      );
+      return prescriptions.filter(p => {
+        if (!p.selected || !p.lastOrderedAt) return false;
+        const lastOrderedMs = storedDateTimeToEpochMilliseconds(p.lastOrderedAt);
+        return lastOrderedMs != null && lastOrderedMs > cutoffMs;
+      });
     }, [
       prescriptions,
       medicationAlreadyOrderedConfirmationTimeout,

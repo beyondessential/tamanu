@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import AccessTime from '@material-ui/icons/AccessTime';
+import AccessTime from '@mui/icons-material/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';

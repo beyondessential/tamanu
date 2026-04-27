@@ -1,6 +1,7 @@
 import { addDays, subDays, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from '@material-ui/icons';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ChevronRight from '@mui/icons-material/ChevronRight';
 import {
   ButtonWithPermissionCheck,
   DateDisplay as DateDisplayComponent,

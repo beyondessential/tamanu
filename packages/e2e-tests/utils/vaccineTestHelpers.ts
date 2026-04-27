@@ -1,6 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
-import { formatForMuiDateTimePicker } from '@utils/testHelper';
-import { createPatient } from '../utils/apiHelpers';
+import { fillMuiDateTimeField } from '@utils/testHelper';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format } from 'date-fns';
@@ -80,7 +79,7 @@ export async function addVaccineAndAssert(
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
-  expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+  await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineCount(count);
 
   if (!given) {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
@@ -114,8 +113,7 @@ export async function triggerDateError(
   const dateField = patientDetailsPage.patientVaccinePane!.recordVaccineModal!.dateField;
 
   //Attempt to submit a date that should trigger a validation error
-  await dateField.fill(formatForMuiDateTimePicker(date));
-  await dateField.blur();
+  await fillMuiDateTimeField(dateField, date);
 
   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
@@ -259,7 +257,7 @@ export async function assertEditedVaccine(
  * @param date - The date to calculate the due date from
  * @param unit - The unit of time to add, e.g. 'weeks' or 'months'
  * @param unitsToAdd - The number of units to add to the date
- * @returns The expected due date in the format of "MM/dd/yyyy"
+ * @returns The expected due date in the format of "dd/MM/yyyy"
  */
 export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
   const dueDate = addWeeks(date, weeksToAdd);
@@ -278,7 +276,7 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
     Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
   );
 
-  const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
+  const formattedUtcWeekStart = format(utcWeekStart, 'dd/MM/yyyy');
 
   return formattedUtcWeekStart;
 }
@@ -291,13 +289,10 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
  */
 export async function testGivenElsewhereForCategory(
   patientDetailsPage: PatientDetailsPage,
-  newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>,
   category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
 ) {
   const givenElsewhereReason = 'Given overseas';
   const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
-  await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-  await patientDetailsPage.navigateToVaccineTab();
 
   await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
     vaccineGivenElsewhere: givenElsewhereReason,
