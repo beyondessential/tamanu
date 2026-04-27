@@ -7,8 +7,6 @@ import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { fhirRoutes } from '@tamanu/shared/routes/fhir';
-import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
@@ -19,7 +17,6 @@ import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
-import { authMiddlewareAllowMissingDevice } from './middleware/auth';
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -95,10 +92,9 @@ export async function createApiApp({
   if (config.integrations?.fhir?.enabled) {
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
-    const fhirAuthChain = [authMiddlewareAllowMissingDevice, constructPermission, attachAuditUserToDbSession];
     log.info('FHIR integration enabled, mounting routes');
-    routes.use('/api/integration/fhir/mat', ...fhirAuthChain, fhir);
-    routes.use('/v1/integration/fhir/mat', ...fhirAuthChain, fhir);
+    routes.use('/api/integration/fhir/mat', fhir);
+    routes.use('/v1/integration/fhir/mat', fhir);
   }
 
   // Dis-allow all other routes

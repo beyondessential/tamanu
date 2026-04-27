@@ -190,7 +190,7 @@ export async function loginHandler(req, res, next) {
   try {
     const { deviceId, email, password } = await z
       .object({
-        deviceId: z.string().min(1).optional(),
+        deviceId: z.string().min(1),
         email: z.email(),
         password: z.string().min(1),
       })
@@ -259,7 +259,7 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device?.id, facilityId, impersonateRoleId });
+    const token = await buildToken({ user, deviceId: device.id, facilityId, impersonateRoleId });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -273,7 +273,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId, deviceId: userDevice?.id, impersonateRoleId });
+  const token = await buildToken({ user, facilityId, deviceId: userDevice.id, impersonateRoleId });
   res.send({ token });
 }
 
@@ -345,4 +345,3 @@ function createAuthMiddleware({ requireDeviceId }) {
 }
 
 export const authMiddleware = createAuthMiddleware({ requireDeviceId: true });
-export const authMiddlewareAllowMissingDevice = createAuthMiddleware({ requireDeviceId: false });

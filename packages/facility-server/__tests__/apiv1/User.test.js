@@ -159,15 +159,6 @@ describe('User', () => {
         expect(result.body).toHaveProperty('token');
       });
 
-      it('should obtain a valid login token without deviceId', async () => {
-        const result = await baseApp.post('/api/login').send({
-          email: authUser.email,
-          password: rawPassword,
-        });
-        expect(result).toHaveSucceeded();
-        expect(result.body).toHaveProperty('token');
-      });
-
       it('should be case insensitive', async () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
@@ -282,17 +273,6 @@ describe('User', () => {
         const result = await userAgent.get('/api/user/me');
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('id', authUser.id);
-      });
-
-      it('should reject non-FHIR API requests when the token has no deviceId', async () => {
-        const loginResult = await baseApp.post('/api/login').send({
-          email: authUser.email,
-          password: rawPassword,
-        });
-        expect(loginResult).toHaveSucceeded();
-        const { token } = loginResult.body;
-        const result = await baseApp.get('/api/user/me').set('Authorization', `Bearer ${token}`);
-        expect(result).toHaveRequestError();
       });
 
       it('should fail to get the user with a null token', async () => {
