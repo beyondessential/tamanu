@@ -3,8 +3,6 @@ import config from 'config';
 import { addHooks } from './hooks';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { patchReadSettings } from '@tamanu/shared/utils/patchReadSettings';
-import { log } from '@tamanu/shared/services/logging';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { setFhirRefreshTriggers } from './setFhirRefreshTriggers';
 
 // Patch ReadSettings to add getSecret method
