@@ -2,13 +2,13 @@ import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
-import { getItemFromLocalStorage } from './localStorage';
+import { getAuthTokenFromLocalStorage, getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
 import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
-  const token = await getItemFromLocalStorage(page, 'apiToken');
+  const token = await getAuthTokenFromLocalStorage(page);
 
   return request.newContext({
     baseURL: constructFacilityUrl('/'),
