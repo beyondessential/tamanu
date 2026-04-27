@@ -7,6 +7,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
@@ -22,7 +23,7 @@ import { useApi } from '../../../../api';
 import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
 import { VisibilityStatusField, visibilityStatusOptions } from '../components';
-import { NullableBooleanSelect } from './components';
+import { NullableBooleanSelect, SurveyTypeField } from './components';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -49,7 +50,7 @@ const validationSchema = yup.object().shape({
   name: yup.string().trim().required('Required'),
   notifiable: yup.boolean().required('Required'),
   notifyEmailAddresses: yup.string().ensure(),
-  surveyType: yup.string().trim().required('Required'),
+  surveyType: yup.string().trim().required('Required').oneOf(Object.values(SURVEY_TYPES)),
   visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
 });
 
@@ -166,14 +167,7 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
                 name="name"
                 required
               />
-              <Field
-                autoComplete="off"
-                component={TextField}
-                inputProps={{ maxLength: 255 }}
-                label="surveyType"
-                name="surveyType"
-                required
-              />
+              <SurveyTypeField label="surveyType" name="surveyType" required />
               <NullableBooleanSelect label="isSensitive" name="isSensitive" required />
               <VisibilityStatusField
                 disabled={isPending}
