@@ -187,6 +187,28 @@ export async function getSettingsPskKeyBuffer() {
 }
 
 /**
+ * Reads and decrypts a secret stored in the settings table.
+ * @param {{ get: (name: string) => Promise<unknown> }} settings
+ *   Any settings reader (e.g. `ReadSettings`) — only `.get()` is required.
+ * @param {string} name
+ * @returns {Promise<string>}
+ */
+export async function getSettingSecret(settings, name) {
+  const encryptedValue = await settings.get(name);
+  if (!encryptedValue || typeof encryptedValue !== 'string') {
+    throw new SecretNotConfiguredError(`Secret setting not found: ${name}`);
+  }
+  if (!isEncryptedSecret(encryptedValue)) {
+    throw new Error(
+      `Setting at ${name} is not encrypted; re-save it via the admin UI to encrypt it`,
+    );
+  }
+
+  const keyBuffer = await getSettingsPskKeyBuffer();
+  return decryptSecret(keyBuffer, encryptedValue);
+}
+
+/**
  * Check if a value looks like an encrypted secret.
  * @param {string} value
  * @returns {boolean}

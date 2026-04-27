@@ -2,10 +2,6 @@ import config from 'config';
 
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { fakeUUID } from '@tamanu/utils/generateId';
-import { patchReadSettings } from '@tamanu/shared/utils/patchReadSettings';
-
-// Patch ReadSettings to add getSecret method
-patchReadSettings();
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';

@@ -22,4 +22,3 @@ export * from './medication';
 export * from './initDeviceId';
 export * from './errorHandlerProblem';
 export * from './crypto';
-export * from './patchReadSettings';
