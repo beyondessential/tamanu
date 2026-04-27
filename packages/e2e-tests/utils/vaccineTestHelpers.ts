@@ -1,6 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { fillMuiDateTimeField } from '@utils/testHelper';
-import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format } from 'date-fns';
