@@ -153,7 +153,7 @@ export function EditProgramRegistryTableRecordModal({
   const hasColor = fields.some(({ key }) => key === 'color');
   const validationSchema = useMemo(() => buildValidationSchema(fields), [fields]);
 
-  const { mutateAsync, isPending } = usePatchProgramRegistrySubResourceMutation(
+  const { mutateAsync, isLoading: isMutating } = usePatchProgramRegistrySubResourceMutation(
     { recordId: record.id, resourceSegment },
     {
       onSuccess: () => {
@@ -189,13 +189,13 @@ export function EditProgramRegistryTableRecordModal({
         render={({ submitForm, isSubmitting }) => (
           <>
             <FormGridThatFits disabled={isSubmitting}>
-              {fields.map(field => renderFieldForDefinition(field, { disabled: isPending }))}
+              {fields.map(field => renderFieldForDefinition(field, { disabled: isMutating }))}
             </FormGridThatFits>
             <Footer>
-              <Button isSubmitting={isPending} onClick={submitForm} type="submit">
+              <Button isSubmitting={isMutating} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
               </Button>
-              <OutlinedButton disabled={isPending} onClick={onClose}>
+              <OutlinedButton disabled={isMutating} onClick={onClose}>
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </OutlinedButton>
             </Footer>
