@@ -108,7 +108,6 @@ export const AddDesignationModal = ({ open, onClose, onSuccess }) => {
       title={<TranslatedText stringId="admin.designations.add.title" fallback="Add designation" />}
       open={open}
       onClose={onClose}
-      width="md"
     >
       <Form
         formType={FORM_TYPES.CREATE_FORM}
