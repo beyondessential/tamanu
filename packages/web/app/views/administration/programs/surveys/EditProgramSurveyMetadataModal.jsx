@@ -174,24 +174,14 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
                 name="surveyType"
                 required
               />
-              <Field
-                component={NullableBooleanSelect}
-                label="isSensitive"
-                name="isSensitive"
-                required
-              />
+              <NullableBooleanSelect label="isSensitive" name="isSensitive" required />
               <VisibilityStatusField
                 disabled={isPending}
                 label="visibilityStatus"
                 name="visibilityStatus"
                 required
               />
-              <Field
-                component={NullableBooleanSelect}
-                label="notifiable"
-                name="notifiable"
-                required
-              />
+              <NullableBooleanSelect label="notifiable" name="notifiable" required />
               <Field
                 autoComplete="off"
                 component={TextField}
