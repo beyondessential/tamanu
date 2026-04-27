@@ -18,6 +18,7 @@ import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
 
 import { assetRoutes } from './asset';
+import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
 import { mergePatientHandler } from './patientMerge';
 import { templateRoutes } from './template';
@@ -27,6 +28,9 @@ import { translationRouter } from './translation';
 import { usersRouter } from './users';
 import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
+import { permissionsRouter } from './permissions';
+import { roleRouter, rolesRouter } from './roles';
+import { referenceDataManageRouter } from './referenceDataManage';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -77,9 +81,15 @@ adminRoutes.get('/fhir/jobStats', fhirJobStats);
 adminRoutes.use('/template', templateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
+adminRoutes.use('/designations', designationsRouter);
+adminRoutes.use('/designation', designationRouter);
 adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
+adminRoutes.use('/permissions', permissionsRouter);
+adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
+adminRoutes.use('/roles', rolesRouter);
+adminRoutes.use('/role', roleRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(

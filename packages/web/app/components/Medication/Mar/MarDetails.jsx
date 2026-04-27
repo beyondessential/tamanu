@@ -18,9 +18,11 @@ import {
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
-import { Edit, Add, Remove } from '@material-ui/icons';
+import Add from '@mui/icons-material/Add';
+import Edit from '@mui/icons-material/Edit';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import Remove from '@mui/icons-material/Remove';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
@@ -534,7 +536,7 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              <TimeDisplay date={dose.givenTime} format="compact" noTooltip />
+                              <TimeDisplay date={dose.givenTime} noTooltip />
                             </DarkestText>
                             <MidText mt={'15px'}>
                               <TranslatedText
@@ -666,7 +668,7 @@ export const MarDetails = ({
                               })
                             }
                           >
-                            <StyledAddIcon />
+                            <StyledAddIcon aria-hidden />
                             <TranslatedText
                               stringId="medication.mar.addAdditionalDose"
                               fallback="Add additional dose"

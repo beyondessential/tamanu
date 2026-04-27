@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
@@ -286,10 +287,11 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
             color="primary"
             onClick={() => navigate(`/appointments/outpatients?patientId=${patient?.id}`)}
             data-testid="button-q06c"
+            startIcon={<AddIcon />}
           >
             <TranslatedText
               stringId="patient.appointments.table.bookAppointment"
-              fallback="+ Book appointment"
+              fallback="Book appointment"
               data-testid="translatedtext-xzcy"
             />
           </Button>
@@ -344,7 +346,9 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/outpatients?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
+    navigate(
+      `/appointments/outpatients?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`,
+    );
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

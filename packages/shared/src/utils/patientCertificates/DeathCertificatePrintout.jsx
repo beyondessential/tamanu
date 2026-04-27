@@ -12,6 +12,7 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { FSMDeathCertificatePrintout } from './FSMDeathCertificatePrintout';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import {
@@ -239,11 +240,16 @@ const PATIENT_DEATH_DETAILS = {
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
-  ({ patientData, certificateData }) => {
+  ({ patientData, certificateData, getSetting, printedBy }) => {
     const { getTranslation } = useLanguageContext();
     const { formatShort, formatShortExplicit, formatTime } = useDateTime();
     const renderDataOptions = { getTranslation, formatShort, formatShortExplicit, formatTime }; 
     const { logo, deathCertFooterImg } = certificateData;
+    const enableFSMStyle = getSetting('fsmCrvsCertificates.enableFSMStyle');
+
+    if (enableFSMStyle) {
+      return <FSMDeathCertificatePrintout patientData={patientData} printedBy={printedBy} />;
+    }
 
     const { causes } = patientData;
     const causeOfDeath = getCauseInfo(causes?.primary);

@@ -96,12 +96,11 @@ async function writeToPatientFields(
       throw new Error('No program registry configured for the current form');
     }
     await PatientProgramRegistration.upsertRegistration(patientId, programRegistryDetail.id, {
-      date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       registeringFacilityId:
         valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    });
+    }, submittedTime);
   }
 }
 
@@ -215,9 +214,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         // use optional chaining because vitals survey might not exist
         const isVitalSurvey = surveyId === vitalsSurvey?.id;
 
+        const componentsByCode = new Map(
+          components.map((c) => [c.dataElement.code, c]),
+        );
+
         for (const a of Object.entries(finalValues)) {
           const [dataElementCode, value] = a;
-          const component = components.find((c) => c.dataElement.code === dataElementCode);
+          const component = componentsByCode.get(dataElementCode);
           if (!component) {
             // better to fail entirely than save partial data
             throw new Error(

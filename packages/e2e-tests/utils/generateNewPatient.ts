@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
 import { constructFacilityUrl } from './navigation';
 import { testData } from '../utils/testData';
+import { getAuthTokenFromLocalStorage } from './localStorage';
 
 export function generateNHN() {
   const letters = faker.string.alpha({ length: 4, casing: 'upper' });
@@ -29,7 +30,7 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   const patientData = generatePatientData();
   allPatientsPage.setPatientData(patientData);
 
-  const token = await getItemFromLocalStorage(allPatientsPage, 'apiToken');
+  const token = await getAuthTokenFromLocalStorage(allPatientsPage.page);
   const userData = await getCurrentUser(token);
   const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
 

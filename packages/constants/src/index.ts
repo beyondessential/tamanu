@@ -1,5 +1,6 @@
 export * from './appointments.js';
 export * from './auth.js';
+export * from './binary.js';
 export * from './births.js';
 export * from './brands.js';
 export * from './colors.js';
@@ -23,6 +24,7 @@ export * from './medications.js';
 export * from './notes.js';
 export * from './patientFields.js';
 export * from './patientDetails.js';
+export * from './patientSearch.js';
 export * from './permissions.js';
 export * from './referenceData.js';
 export * from './reports.js';

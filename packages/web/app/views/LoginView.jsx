@@ -66,19 +66,17 @@ export const LoginView = () => {
         />
       )}
       {screen === 'resetPassword' && (
-        <>
-          <ResetPasswordForm
-            onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
-            onRestartFlow={() => dispatch(restartPasswordResetFlow())}
-            errorMessage={requestPasswordResetError}
-            success={requestPasswordResetSuccess}
-            initialEmail={rememberEmail}
-            resetPasswordEmail={resetPasswordEmail}
-            onNavToChangePassword={() => setScreen('changePassword')}
-            onNavToLogin={() => setScreen('login')}
-            data-testid="resetpasswordform-eka3"
-          />
-        </>
+        <ResetPasswordForm
+          onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
+          onRestartFlow={() => dispatch(restartPasswordResetFlow())}
+          errorMessage={requestPasswordResetError}
+          success={requestPasswordResetSuccess}
+          initialEmail={rememberEmail}
+          resetPasswordEmail={resetPasswordEmail}
+          onNavToChangePassword={() => setScreen('changePassword')}
+          onNavToLogin={() => setScreen('login')}
+          data-testid="resetpasswordform-eka3"
+        />
       )}
       {screen === 'changePassword' && (
         <ChangePasswordForm

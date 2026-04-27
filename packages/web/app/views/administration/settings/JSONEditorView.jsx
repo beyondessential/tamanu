@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Settings } from '@material-ui/icons';
+import Settings from '@mui/icons-material/Settings';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { TextButton, ButtonRow, Button } from '@tamanu/ui-components';

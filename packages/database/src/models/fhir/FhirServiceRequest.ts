@@ -1,6 +1,11 @@
-import { DataTypes, type InitOptions } from 'sequelize';
+import { DataTypes, Op, Sequelize, type InitOptions } from 'sequelize';
+import type { Ability } from '@casl/ability';
 
-import { FHIR_INTERACTIONS } from '@tamanu/constants';
+import {
+  FHIR_INTERACTIONS,
+  SERVICE_REQUEST_CATEGORY_CODES,
+  SERVICE_REQUEST_PERMISSION_NOUNS,
+} from '@tamanu/constants';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -12,6 +17,17 @@ import {
   searchParameters,
   shouldForceRematerialise,
 } from '../../utils/fhir/ServiceRequest';
+
+function getAllowedCategories(ability: Ability): string[] {
+  const categories: string[] = [];
+  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
+    categories.push(SERVICE_REQUEST_CATEGORY_CODES.LAB);
+  }
+  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
+    categories.push(SERVICE_REQUEST_CATEGORY_CODES.IMAGING);
+  }
+  return categories;
+}
 
 export class FhirServiceRequest extends FhirResource {
   declare identifier?: Record<string, any>;
@@ -92,6 +108,36 @@ export class FhirServiceRequest extends FhirResource {
     FHIR_INTERACTIONS.TYPE.SEARCH,
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
   ]);
+
+  static applyPermissionsFilterToSearchQuery(
+    query: Record<string, any>,
+    ability: Ability,
+  ): Record<string, any> {
+    const allowedCategories = getAllowedCategories(ability);
+    if (allowedCategories.length === 0) {
+      return { ...query, where: { ...query.where, id: null } };
+    }
+
+    const categoryConditions = allowedCategories.map(code =>
+      Sequelize.literal(`category @> '[{"coding": [{"code": "${code}"}]}]'::jsonb`),
+    );
+
+    const categoryWhere =
+      categoryConditions.length === 1
+        ? categoryConditions[0]
+        : { [Op.or]: categoryConditions };
+
+    return {
+      ...query,
+      where: {
+        ...query.where,
+        [Op.and]: [
+          ...(query.where?.[Op.and] ?? []),
+          categoryWhere,
+        ],
+      },
+    };
+  }
 
   async updateMaterialisation() {
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));

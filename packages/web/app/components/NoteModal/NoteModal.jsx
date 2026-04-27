@@ -288,8 +288,6 @@ export const NoteModal = () => {
   }, [blocker, closeNoteModal, getTranslation]);
 
   return (
-    <>
-      <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
-    </>
+    <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
   );
 };

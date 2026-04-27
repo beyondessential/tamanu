@@ -6,27 +6,27 @@ import { ReportAdminRoutes } from './ReportAdminRoutes';
 import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
+  DesignationsAdminView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
+  RolesAdminView,
+  RolesAndDesignationsAdminView,
   SurveyResponsesAdminView,
   ReferenceDataAdminView,
   SyncView,
   TemplateView,
   TranslationAdminView,
   SettingsView,
-  UserAdminView,
+  UserProfilesAdminView,
 } from '../views';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
     <Route path="assets" element={<AssetUploaderView />} />
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
-    <Route path='locationAssignments' element={<LocationAssignmentsContextProvider>
-      <LocationAssignmentsAdminView />
-    </LocationAssignmentsContextProvider>} />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs" element={<ProgramsAdminView />} />
@@ -37,7 +37,32 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="sync" element={<SyncView />} />
     <Route path="templates" element={<TemplateView />} />
     <Route path="translation" element={<TranslationAdminView />} />
-    <Route path="users" element={<UserAdminView />} />
+    <Route path="users">
+      <Route index element={<Navigate to="profiles" replace />} />
+      <Route path="profiles" element={<UserProfilesAdminView />} />
+
+      <Route path="rolesAndDesignations" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<Navigate to="roles" replace />} />
+        <Route path="roles">
+          <Route index element={<RolesAdminView />} />
+          <Route path="new" element={<RolesAdminView />} />
+          <Route path="delete/:id" element={<RolesAdminView />} />
+        </Route>
+        <Route path="designations">
+          <Route index element={<DesignationsAdminView />} />
+          <Route path="new" element={<DesignationsAdminView />} />
+          <Route path="delete/:id" element={<DesignationsAdminView />} />
+        </Route>
+      </Route>
+      <Route
+        path="locationAssignment"
+        element={
+          <LocationAssignmentsContextProvider>
+            <LocationAssignmentsAdminView />
+          </LocationAssignmentsContextProvider>
+        }
+      />
+    </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>

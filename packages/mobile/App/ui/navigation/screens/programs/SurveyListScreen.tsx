@@ -17,6 +17,7 @@ import { Survey } from '~/models/Survey';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { getProgramSurveysWithFormVisibility } from '~/utils/getProgramSurveysWithFormVisibility';
 
 type SurveyListScreenParams = {
   SurveyListScreen: {
@@ -37,21 +38,30 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
   const { programId, programName } = route.params;
   const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) =>
-    models.Survey.find({
-      relations: ['program'],
-      where: {
-        surveyType: SurveyTypes.Programs,
-        program: { id: programId },
-        visibilityStatus: VisibilityStatus.Current,
-      },
-      order: {
-        name: 'ASC',
-      },
-    }),
-  );
+  const [filteredSurveys, error] = useBackendEffect(
+    async ({ models }: { models: any }) => {
+      const allSurveys = await models.Survey.find({
+        relations: ['program'],
+        where: {
+          surveyType: SurveyTypes.Programs,
+          program: { id: programId },
+          visibilityStatus: VisibilityStatus.Current,
+        },
+        order: {
+          name: 'ASC',
+        },
+      });
 
-  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
+      const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
+
+      return getProgramSurveysWithFormVisibility(
+        models,
+        filteredByAbility,
+        selectedPatient?.id,
+      );
+    },
+    [programId, selectedPatient?.id, ability],
+  );
 
   const goBack = useCallback(() => {
     navigation.goBack();

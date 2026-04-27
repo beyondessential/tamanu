@@ -122,12 +122,51 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "mSupplyMedIntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "mSupplyStockOnHandProcessor": {
+      "enabled": false,
+      // every hour
+      "schedule": "0 * * * *",
+    },
+  },
+  "integrations": {
+    "mSupplyMed": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    }
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
   "reportConfig": {
     "encounter-summary-line-list": {
       "includedPatientFieldIds": []
+    }
+  },
+  "rateLimit": {
+    // Set `enabled: false` to disable express-rate-limit entirely.
+    // Rate limit counters key off `req.ip` and therefore respect the
+    // `proxy.trusted` setting below.
+    "enabled": true,
+    // Permissive global limit applied to every request as a DoS backstop.
+    "global": {
+      // window in milliseconds
+      "windowMs": 60000,
+      // maximum requests per window per IP
+      "max": 600
+    },
+    // Stricter limit applied to unauthenticated / expensive endpoints
+    // (login, refresh, setFacility, password reset). Successful requests
+    // are not counted, so only failed/abusive traffic accumulates toward
+    // this limit.
+    "auth": {
+      "windowMs": 900000,
+      "max": 30
     }
   },
   "proxy": {
