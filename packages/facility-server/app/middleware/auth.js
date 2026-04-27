@@ -186,18 +186,19 @@ async function centralServerLoginWithLocalFallback({
 
 export async function loginHandler(req, res, next) {
   const { body, deviceId: facilityDeviceId, models, settings } = req;
-  const { deviceId, email, password } = await z
-    .object({
-      deviceId: z.string().min(1),
-      email: z.email(),
-      password: z.string().min(1),
-    })
-    .parseAsync(body);
-
-  // no permission needed for login
-  req.flagPermissionChecked();
 
   try {
+    const { deviceId, email, password } = await z
+      .object({
+        deviceId: z.string().min(1).optional(),
+        email: z.email(),
+        password: z.string().min(1),
+      })
+      .parseAsync(body);
+
+    // no permission needed for login
+    req.flagPermissionChecked();
+
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
     const globalSettings =
@@ -258,7 +259,7 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device.id, facilityId, impersonateRoleId });
+    const token = await buildToken({ user, deviceId: device?.id, facilityId, impersonateRoleId });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -272,73 +273,76 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId, deviceId: userDevice.id, impersonateRoleId });
+  const token = await buildToken({ user, facilityId, deviceId: userDevice?.id, impersonateRoleId });
   res.send({ token });
 }
 
-export const authMiddleware = async (req, res, next) => {
-  const { canonicalHostName = 'localhost' } = config;
-  const { models, settings } = req;
-  try {
-    const { token, user, facility, device, impersonateRoleId } = await models.User.loginFromAuthorizationHeader(
-      req.get('authorization'),
-      {
-        log,
-        settings: settings.global ?? settings,
-        tokenDuration,
-        tokenIssuer: canonicalHostName,
-        tokenSecret: jwtSecretKey,
-      },
-    );
+function createAuthMiddleware({ requireDeviceId }) {
+  return async (req, res, next) => {
+    const { canonicalHostName = 'localhost' } = config;
+    const { models, settings } = req;
+    try {
+      const { token, user, facility, device, impersonateRoleId } =
+        await models.User.loginFromAuthorizationHeader(req.get('authorization'), {
+          log,
+          settings: settings.global ?? settings,
+          tokenDuration,
+          tokenIssuer: canonicalHostName,
+          tokenSecret: jwtSecretKey,
+        });
 
-    if (!device) {
-      throw new MissingCredentialError('Missing deviceId');
-    }
+      if (requireDeviceId && !device) {
+        throw new MissingCredentialError('Missing deviceId');
+      }
 
-    // when we login to a multi-facility server, we don't initially have a facilityId
-    if (facility) {
-      req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
-    }
+      // when we login to a multi-facility server, we don't initially have a facilityId
+      if (facility) {
+        req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
+      }
 
-    const sessionId = createSessionIdentifier(token);
-    req.user = user; // eslint-disable-line require-atomic-updates
-    req.userDevice = device; // eslint-disable-line require-atomic-updates
-    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
-    req.impersonateRoleId = impersonateRoleId; // eslint-disable-line require-atomic-updates
-    req.getLocalisation = async () =>
-      req.models.UserLocalisationCache.getLocalisation({
-        where: { userId: req.user.id },
-        order: [['createdAt', 'DESC']],
+      const sessionId = createSessionIdentifier(token);
+      req.user = user; // eslint-disable-line require-atomic-updates
+      req.userDevice = device; // eslint-disable-line require-atomic-updates
+      req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
+      req.impersonateRoleId = impersonateRoleId; // eslint-disable-line require-atomic-updates
+      req.getLocalisation = async () =>
+        req.models.UserLocalisationCache.getLocalisation({
+          where: { userId: req.user.id },
+          order: [['createdAt', 'DESC']],
+        });
+
+      const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
+      // Auditing middleware
+      // eslint-disable-next-line require-atomic-updates
+      req.audit = initAuditActions(req, {
+        enabled: auditSettings?.accesses.enabled,
+        userId: user.id,
+        version,
+        backEndContext: { serverType: SERVER_TYPES.FACILITY },
       });
 
-    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+      const spanAttributes = {
+        'enduser.id': user.id,
+        'enduser.role': user.role,
+        ...(device?.id ? { 'session.deviceId': device.id } : {}),
+      };
 
-    // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = initAuditActions(req, {
-      enabled: auditSettings?.accesses.enabled,
-      userId: user.id,
-      version,
-      backEndContext: { serverType: SERVER_TYPES.FACILITY },
-    });
+      if (facility) {
+        spanAttributes['session.facilityId'] = facility.id;
+      }
 
-    const spanAttributes = {
-      'enduser.id': user.id,
-      'enduser.role': user.role,
-      'session.deviceId': device.id,
-    };
-
-    if (facility) {
-      spanAttributes['session.facilityId'] = facility.id;
+      // eslint-disable-next-line no-unused-expressions
+      trace.getActiveSpan()?.setAttributes(spanAttributes);
+      context.with(
+        propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+        () => next(),
+      );
+    } catch (e) {
+      next(e);
     }
+  };
+}
 
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes(spanAttributes);
-    context.with(
-      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
-      () => next(),
-    );
-  } catch (e) {
-    next(e);
-  }
-};
+export const authMiddleware = createAuthMiddleware({ requireDeviceId: true });
+export const authMiddlewareAllowMissingDevice = createAuthMiddleware({ requireDeviceId: false });
