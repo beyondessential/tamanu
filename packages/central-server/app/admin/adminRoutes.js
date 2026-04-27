@@ -146,10 +146,15 @@ adminRoutes.put(
     const { Setting } = req.store.models;
     const { settings, scope, facilityId } = req.body;
 
+    if (!settings || typeof settings !== 'object') {
+      res.json({ code: 200 });
+      return;
+    }
+
     // Get the schema to identify secret fields
     const schema = scope ? getScopedSchema(scope) : null;
 
-    if (schema && settings && typeof settings === 'object') {
+    if (schema) {
       // Process settings to handle secrets
       const entries = flattenSettingsToEntries(settings);
 

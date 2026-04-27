@@ -3,7 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } fro
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
-import { getConfigSecret, encryptSecret } from '@tamanu/shared/utils/crypto';
+import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -258,8 +258,7 @@ export class Setting extends Model {
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
   ): Promise<void> {
-    const psk = await getConfigSecret('crypto.settingsPsk');
-    const keyBuffer = Buffer.from(psk, 'hex');
+    const keyBuffer = await getSettingsPskKeyBuffer();
     const encryptedValue = await encryptSecret(keyBuffer, value);
     await this.set(name as SettingPath, encryptedValue as unknown as object, scope, facilityId);
   }

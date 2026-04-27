@@ -7,7 +7,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { getConfigSecret } from '@tamanu/shared/utils/crypto';
+import { getConfigSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
@@ -74,39 +74,55 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   /**
-   * Gets DHIS2 credentials with fallback logic:
-   * 1. Try settings secret (encrypted in DB)
-   * 2. Try config secret (encrypted in config file)
-   * 3. Fall back to plain config value
+   * Gets DHIS2 credentials with fallback logic. The fallback is applied at the
+   * pair level so the username and password always come from the same source —
+   * mixing sources would silently produce broken credentials.
+   *
+   * Sources, in priority order:
+   * 1. Settings secret (encrypted in DB)
+   * 2. Config secret (encrypted in config file)
+   * 3. Plain config value
    */
   async getDHIS2Credentials() {
-    let username = null;
-    let password = null;
+    const sources = [
+      () =>
+        this.fetchCredentialPair(name => this.context.settings.getSecret(name), 'settings secret'),
+      () => this.fetchCredentialPair(getConfigSecret, 'config secret'),
+      () => ({
+        username: config.integrations?.dhis2?.username ?? null,
+        password: config.integrations?.dhis2?.password ?? null,
+      }),
+    ];
 
-    // Try settings secret first
-    try {
-      username = await this.context.settings.getSecret('integrations.dhis2.username');
-    } catch {
-      // Settings secret not available, try config secret
-      try {
-        username = await getConfigSecret('integrations.dhis2.username');
-      } catch {
-        // Config secret not available, fall back to plain config
-        username = config.integrations?.dhis2?.username || null;
+    for (const source of sources) {
+      const credentials = await source();
+      if (credentials?.username && credentials?.password) {
+        return credentials;
       }
     }
 
-    try {
-      password = await this.context.settings.getSecret('integrations.dhis2.password');
-    } catch {
-      try {
-        password = await getConfigSecret('integrations.dhis2.password');
-      } catch {
-        password = config.integrations?.dhis2?.password || null;
-      }
-    }
+    return { username: null, password: null };
+  }
 
-    return { username, password };
+  async fetchCredentialPair(getSecret, sourceLabel) {
+    try {
+      const [username, password] = await Promise.all([
+        getSecret('integrations.dhis2.username'),
+        getSecret('integrations.dhis2.password'),
+      ]);
+      return { username, password };
+    } catch (error) {
+      if (error instanceof SecretNotConfiguredError) {
+        return null;
+      }
+      // Decryption / unexpected errors must not silently fall through to a
+      // less-secure source — surface them to operators.
+      log.warn('DHIS2IntegrationProcessor: failed to read credentials', {
+        source: sourceLabel,
+        error: error.message,
+      });
+      return null;
+    }
   }
 
   async postToDHIS2({ reportId, reportCSV }) {

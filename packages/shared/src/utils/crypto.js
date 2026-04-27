@@ -9,6 +9,18 @@ const read = promisify(readSync);
 // Secret format version prefix
 const SECRET_VERSION = 'S1';
 
+/**
+ * Thrown when a secret is not present at the requested path. Distinct from
+ * decryption / format errors so callers can fall back through credential
+ * sources without swallowing real failures.
+ */
+export class SecretNotConfiguredError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'SecretNotConfiguredError';
+  }
+}
+
 // AES-GCM configuration
 const ALGORITHM = 'AES-GCM';
 const KEY_LENGTH = 256;
@@ -144,11 +156,34 @@ export async function getConfigSecret(name) {
 
   const encryptedValue = lodashGet(config, name);
   if (!encryptedValue) {
-    throw new Error(`Config value not found at path: ${name}`);
+    throw new SecretNotConfiguredError(`Config value not found at path: ${name}`);
   }
 
   const keyBuffer = await readKeyFile(keyFilePath);
   return decryptSecret(keyBuffer, encryptedValue);
+}
+
+// Cache the resolved settings PSK key buffer; the underlying config and key
+// file don't change at runtime, so reading and decrypting once is enough.
+let settingsPskKeyBufferPromise = null;
+
+/**
+ * Returns the (cached) AES key derived from the configured settings PSK.
+ * Used to encrypt/decrypt secrets stored in the settings table.
+ * @returns {Promise<Buffer>}
+ */
+export async function getSettingsPskKeyBuffer() {
+  if (!settingsPskKeyBufferPromise) {
+    settingsPskKeyBufferPromise = (async () => {
+      const psk = await getConfigSecret('crypto.settingsPsk');
+      return Buffer.from(psk, 'hex');
+    })().catch(err => {
+      // Don't cache failures — let the next call retry.
+      settingsPskKeyBufferPromise = null;
+      throw err;
+    });
+  }
+  return settingsPskKeyBufferPromise;
 }
 
 /**

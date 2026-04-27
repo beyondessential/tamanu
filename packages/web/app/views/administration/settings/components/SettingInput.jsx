@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import {
   AutocompleteInput,
   LargeBodyText,
@@ -84,9 +85,6 @@ const SETTING_TYPES = {
 const TYPE_OVERRIDES_BY_KEY = {
   ['body']: SETTING_TYPES.LONG_TEXT,
 };
-
-// Placeholder used by the server to indicate a secret exists but value is hidden
-const SECRET_PLACEHOLDER = '••••••••';
 
 const normalize = val => (val === null || val === '' ? '' : val);
 
