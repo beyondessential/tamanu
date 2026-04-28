@@ -370,6 +370,47 @@ export const UserFacility = yup.object().shape({
   userId: yup.string().required(),
 });
 
+// yup's .noUnknown() silently strips unknown keys in non-strict validate() mode, so
+// we use an explicit .test() to surface typos (e.g. "facility_id" instead of "facilityId").
+const KNOWN_RULE_KEYS = ['facilityId', 'patientType', 'patientAge'];
+const KNOWN_AGE_KEYS = ['min', 'max'];
+
+const invoicePriceListRulesSchema = yup
+  .object()
+  .nullable()
+  .default(null)
+  .test('known-keys', 'invalid rules', function (value) {
+    if (value == null) return true;
+    const unknown = Object.keys(value).filter(k => !KNOWN_RULE_KEYS.includes(k));
+    if (unknown.length > 0) {
+      return this.createError({
+        message: `rules has unknown keys: ${unknown.join(', ')} (expected ${KNOWN_RULE_KEYS.join(', ')})`,
+      });
+    }
+    const { patientAge } = value;
+    if (patientAge != null && typeof patientAge === 'object') {
+      const unknownAge = Object.keys(patientAge).filter(k => !KNOWN_AGE_KEYS.includes(k));
+      if (unknownAge.length > 0) {
+        return this.createError({
+          message: `rules.patientAge has unknown keys: ${unknownAge.join(', ')} (expected min, max)`,
+        });
+      }
+    } else if (patientAge != null && typeof patientAge !== 'number') {
+      return this.createError({
+        message: 'rules.patientAge must be a number or an object like {min, max}',
+      });
+    }
+    return true;
+  });
+
+export const InvoicePriceList = yup.object().shape({
+  id: fieldTypes.id.required(),
+  code: fieldTypes.code.required(),
+  name: yup.string().nullable(),
+  rules: invoicePriceListRulesSchema,
+  visibilityStatus,
+});
+
 export const InvoiceProduct = yup.object().shape({
   id: yup.string().required(),
   name: yup.string().required(),
