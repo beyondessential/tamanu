@@ -114,9 +114,10 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
 
 export const refreshSettings = () => async (dispatch, getState, { api }) => {
   // Best-effort: the next change event or login will reconcile if this fails.
-  if (!checkIsLoggedIn(getState())) return;
+  if (!checkIsFacilitySelected(getState())) return;
   try {
     const settings = await api.fetchFrontEndSettings();
+    if (!settings) return;
     dispatch({ type: SET_SETTINGS, settings });
   } catch (e) {
     // ignore

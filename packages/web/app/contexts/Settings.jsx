@@ -4,7 +4,7 @@ import { get } from 'lodash';
 import { SettingsContext, useSettings } from '@tamanu/ui-components';
 
 import { SettingsRefresher } from './SettingsRefresher';
-import { checkIsLoggedIn } from '../store/auth';
+import { checkIsFacilitySelected } from '../store/auth';
 
 export { useSettings };
 
@@ -12,7 +12,7 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const reduxSettings = useSelector(state => state.auth.settings);
-  const isLoggedIn = useSelector(checkIsLoggedIn);
+  const isFacilitySelected = useSelector(checkIsFacilitySelected);
 
   useEffect(() => {
     setSettings(reduxSettings);
@@ -29,8 +29,10 @@ export const SettingsProvider = ({ children }) => {
         isSettingsLoaded,
       }}
     >
-      {/* Only mount once logged in so we don't open an extra socket on the login screen. */}
-      {isLoggedIn && <SettingsRefresher />}
+      {/* Only mount once a facility is selected: settings are facility-scoped, and
+          mounting earlier risks the refresh endpoint returning no settings (no
+          facility context) and overwriting any global settings already in redux. */}
+      {isFacilitySelected && <SettingsRefresher />}
       {children}
     </SettingsContext.Provider>
   );

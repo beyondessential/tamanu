@@ -214,10 +214,12 @@ export function createApiv1({ authLimiter } = {}) {
       // by /login and /setFacility.
       req.flagPermissionChecked();
       const { facilityId } = req;
-      const settings = facilityId
-        ? await req.settings[facilityId]?.getFrontEndSettings()
-        : null;
-      res.send({ settings: settings ?? {} });
+      const reader = facilityId ? req.settings[facilityId] : null;
+      // Return `null` (not `{}`) when there's no facility context so callers can
+      // distinguish "nothing to update" from "settings are empty" and avoid
+      // overwriting any settings already loaded on the client.
+      const settings = reader ? await reader.getFrontEndSettings() : null;
+      res.send({ settings: settings ?? null });
     }),
   );
   apiv1.use(patientDataRoutes); // see below for specifics
