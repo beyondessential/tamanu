@@ -17,9 +17,7 @@ export const startTasks = async ({ skipMigrationCheck }) => {
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
   context.centralSyncManager = new CentralSyncManager(context);
 
-  // Long-running tasks read from `context.settings`, which is backed by the
-  // process-local `settingsCache`. Subscribe to the settings table NOTIFY so the
-  // cache is invalidated when settings change (the API process does this in createApp).
+  // Subscribe to settings NOTIFYs so the task runner's process-local settings cache stays fresh.
   const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);

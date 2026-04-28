@@ -107,8 +107,7 @@ describe('Read Settings - Cache', () => {
       { replacements: { scope: SETTINGS_SCOPES.GLOBAL } },
     );
 
-    // Raw SQL bypasses Sequelize hooks, so we have to wait for the debounced NOTIFY-driven
-    // listener to invalidate the cache before reading.
+    // Raw SQL bypasses Sequelize hooks, so wait for the NOTIFY-driven listener.
     await waitForExpect(() => expect(settingsCache.has()).toBe(false));
 
     await settings.get('timezone');
