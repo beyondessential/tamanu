@@ -95,10 +95,10 @@ function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, 
   return (
     <StyledDataFetchingTable
       columns={columns}
+      data-testid={dataTestId}
       endpoint={endpoint}
       initialSort={{ orderBy: 'name', order: 'asc' }}
       noDataMessage={noDataMessage}
-      data-testid={dataTestId}
     />
   );
 }
