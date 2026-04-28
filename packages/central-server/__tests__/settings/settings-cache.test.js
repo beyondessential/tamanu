@@ -41,37 +41,20 @@ describe('Read Settings - Cache', () => {
     buildSettings.mockClear();
   });
 
-  it('Should use cached value if in ttl', async () => {
-    // Call readSetting, it should store that in cache
+  it('Should use cached value once populated', async () => {
     const value = await settings.get('timezone');
     expect(value).toEqual('gmt-3');
 
     // Calling it again should not call build settings method
     await settings.get('timezone');
 
-    // Ensure buildSettings was called once
     expect(buildSettings).toHaveBeenCalledTimes(1);
-  });
-
-  it('Should not use cache if timestamp is not in ttl', async () => {
-    // Call .get should store that in cache
-    const value = await settings.get('timezone');
-    expect(value).toEqual('gmt-3');
-
-    const mockTimestamp = Date.now() + settingsCache.ttl + 1; // Simulate an expired cache
-    Date.now = jest.fn(() => mockTimestamp);
-
-    // Calling it again should not call build settings method
-    await settings.get('timezone');
-
-    // buildSettings should be called twice
-    expect(buildSettings).toHaveBeenCalledTimes(2);
   });
 
   // Cache invalidation now happens via a Postgres NOTIFY listener, so we wait
   // for the cache to be reset before asserting that buildSettings was called again.
   const expectCacheInvalidated = () =>
-    waitForExpect(() => expect(settingsCache.isValid()).toBeFalsy());
+    waitForExpect(() => expect(settingsCache.has()).toBe(false));
 
   it('It should invalidate cache if a new row is added to the settings table', async () => {
     // Call readSetting, it should store that in cache
