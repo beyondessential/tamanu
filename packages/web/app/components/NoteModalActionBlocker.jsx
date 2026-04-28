@@ -34,7 +34,7 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
         }
         $maxWidth="10rem"
       >
-        <div className="pointer-events-none">{child}</div>
+        <div style={{ pointerEvents: 'none' }}>{child}</div>
       </ConditionalTooltip>
     );
   });

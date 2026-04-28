@@ -48,9 +48,3 @@ export const denseTableStyle = {
     }
   `,
 };
-
-export const GlobalStyles = createGlobalStyle`
-  .pointer-events-none {
-    pointer-events: none;
-  }
-`;
