@@ -26,8 +26,7 @@ export class SettingsCache {
     }
   }
 
-  // No-arg form mirrors `reset()`: returns whether ANY bucket is cached. Used
-  // by tests to assert that async invalidation has cleared everything.
+  // No-arg form returns whether ANY bucket is cached (used by tests).
   has(facilityId?: string) {
     if (facilityId === undefined) {
       return this.allSettingsCache.size > 0;

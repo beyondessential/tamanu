@@ -210,16 +210,12 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.get(
     '/settings/frontEnd',
     asyncHandler(async (req, res) => {
-      // No permission check beyond auth: these are the same settings already returned
-      // by /login and /setFacility.
+      // Same payload as /login and /setFacility, so no extra permission check needed.
       req.flagPermissionChecked();
       const { facilityId } = req;
       const reader = facilityId ? req.settings[facilityId] : null;
-      // Return `null` (not `{}`) when there's no facility context so callers can
-      // distinguish "nothing to update" from "settings are empty" and avoid
-      // overwriting any settings already loaded on the client.
       const settings = reader ? await reader.getFrontEndSettings() : null;
-      res.send({ settings: settings ?? null });
+      res.send({ settings });
     }),
   );
   apiv1.use(patientDataRoutes); // see below for specifics

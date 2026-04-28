@@ -29,9 +29,7 @@ export const SettingsProvider = ({ children }) => {
         isSettingsLoaded,
       }}
     >
-      {/* Only mount once a facility is selected: settings are facility-scoped, and
-          mounting earlier risks the refresh endpoint returning no settings (no
-          facility context) and overwriting any global settings already in redux. */}
+      {/* Settings are facility-scoped; only refresh after a facility is selected. */}
       {isFacilitySelected && <SettingsRefresher />}
       {children}
     </SettingsContext.Provider>

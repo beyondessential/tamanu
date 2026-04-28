@@ -279,7 +279,6 @@ export class TamanuApi extends ApiClient {
   }
 
   async fetchFrontEndSettings() {
-    // Lightweight refresh of the cached frontend settings, without rotating the token.
     const { settings } = await this.get('settings/frontEnd');
     if (!settings) return null;
     saveToLocalStorage({ settings });

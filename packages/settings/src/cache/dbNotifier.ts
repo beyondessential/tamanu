@@ -3,8 +3,7 @@ import { settingsCache as defaultSettingsCache, SettingsCache } from './settings
 
 const SETTINGS_TABLE = 'settings';
 
-// `maxWait` ensures a steady stream of writes (e.g. a migration touching many rows)
-// can't defer the reset indefinitely — it would otherwise keep getting re-armed.
+// `maxWait` so a stream of writes (e.g. a migration) can't keep deferring the reset.
 const RESET_DEBOUNCE_MS = 50;
 const RESET_MAX_WAIT_MS = 200;
 
