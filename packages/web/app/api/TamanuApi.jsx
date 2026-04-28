@@ -280,9 +280,13 @@ export class TamanuApi extends ApiClient {
 
   async fetchFrontEndSettings() {
     const { settings } = await this.get('settings/frontEnd');
-    if (!settings) return null;
+    return settings ?? null;
+  }
+
+  // Caller is responsible for deciding whether the settings are still fresh
+  // (e.g. facility hasn't changed since the request was issued) before persisting.
+  persistSettings(settings) {
     saveToLocalStorage({ settings });
-    return settings;
   }
 
   async fetch(endpoint, query, config) {
