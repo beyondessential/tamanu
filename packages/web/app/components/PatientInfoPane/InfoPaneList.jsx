@@ -206,7 +206,7 @@ export const InfoPaneList = ({
             }
 
             return (
-              <React.Fragment key={id} data-testid="fragment-kg9n">
+              <React.Fragment key={id}>
                 {ListItemComponent ? (
                   <ListItemComponent
                     item={item}
