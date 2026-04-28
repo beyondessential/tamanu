@@ -34,6 +34,23 @@ env:
     packages/utils/dist
 
 jobs:
+  plan:
+    name: Plan CI
+    runs-on: ubuntu-latest
+    outputs:
+      test-matrix: ${{ steps.plan.outputs.test-matrix }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+      - name: Plan
+        id: plan
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/plan-ci.mjs
+
   node_version:
     name: Check node version consistency
     runs-on: ubuntu-latest
@@ -112,67 +129,50 @@ jobs:
           path: ${{ env.BUILD_SHARED_PATHS }}
 
   test:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - { package: "@tamanu/facility-server", shard: 1/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 2/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 3/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 4/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 5/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 6/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 7/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 8/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 1/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 2/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 3/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 4/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 5/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 6/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 7/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 8/8, postgres: 17 }
-          - { package: "@tamanu/database",                    postgres: 12 }
-          - { package: "@tamanu/database",                    postgres: 14 }
-          - { package: "@tamanu/database",                    postgres: 16 }
-          - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/database",                    postgres: 18 }
-          - { package: "@tamanu/settings"                                  }
-          - { package: "@tamanu/shared"                                    }
-          - { package: "@tamanu/upgrade"                                   }
-          - { package: "@tamanu/utils"                                     }
-          - { package: "@tamanu/web-frontend"                              }
+      matrix: ${{ fromJSON(needs.plan.outputs.test-matrix) }}
 
-    name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
+    name: Test ${{ matrix.skip || format('{0} {1} (pg={2})', matrix.package, matrix.shard, matrix.postgres || 'no') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - if: matrix.skip
+        run: echo "::notice::Skipping tests (${{ matrix.skip }})"
+
+      - if: ${{ !matrix.skip }}
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v6
+      - if: ${{ !matrix.skip }}
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - if: ${{ !matrix.skip }}
+        uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - if: ${{ !matrix.skip }}
+        uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
 
-      - run: npm i
-      - run: npm run --workspace ${{ matrix.package }} build
+      - if: ${{ !matrix.skip }}
+        run: npm i
+      - if: ${{ !matrix.skip }}
+        run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
-        if: matrix.postgres
+        if: ${{ !matrix.skip && matrix.postgres }}
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
+        if: ${{ !matrix.skip }}
         env:
           package: ${{ matrix.package }}
           shard: ${{ matrix.shard }}
@@ -437,6 +437,7 @@ jobs:
     if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
+      - plan
       - node_version
       - build_shared_cache
       - test
