@@ -17,7 +17,7 @@ export const startTasks = async ({ skipMigrationCheck }) => {
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
   context.centralSyncManager = new CentralSyncManager(context);
 
-  // Subscribe to settings NOTIFYs so the task runner's process-local settings cache stays fresh.
+  // Keep the task runner's process-local settings cache in sync via NOTIFYs.
   const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);

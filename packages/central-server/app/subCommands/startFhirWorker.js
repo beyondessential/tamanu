@@ -17,7 +17,7 @@ export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  // Subscribe to settings NOTIFYs so the worker's process-local settings cache stays fresh.
+  // Keep the worker's process-local settings cache in sync via NOTIFYs.
   const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
