@@ -1,0 +1,66 @@
+meta {
+  name: Discover Lab ServiceRequest
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  body: none
+  auth: bearer
+}
+
+params:query {
+  category: 108252007
+  _count: 20
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const LAB_TEST_CODE_SYSTEM = "https://www.senaite.com/testCodes.html";
+  const LAB_TEST_EXTERNAL_CODE_SYSTEM = "http://loinc.org";
+  
+  const body = res.getBody && res.getBody();
+  const entries = (body && body.entry) || [];
+  
+  // Prefer a ServiceRequest that has at least one orderDetail line with a senaite code.
+  // That guarantees the LabRequest has a real LabTest we can write Observations for.
+  let chosen = null;
+  for (const e of entries) {
+    const r = e.resource || {};
+    const orderDetail = r.orderDetail || [];
+    for (const od of orderDetail) {
+      const codings = (od && od.coding) || [];
+      const labCoding = codings.find(c => c.system === LAB_TEST_CODE_SYSTEM && c.code);
+      const extCoding = codings.find(c => c.system === LAB_TEST_EXTERNAL_CODE_SYSTEM && c.code);
+      if (labCoding || extCoding) {
+        chosen = { id: r.id, labCoding, extCoding };
+        break;
+      }
+    }
+    if (chosen) break;
+  }
+  
+  // Fallback: at least save first ServiceRequest id even if no resolvable code found
+  if (!chosen && entries[0] && entries[0].resource && entries[0].resource.id) {
+    chosen = { id: entries[0].resource.id };
+  }
+  
+  // Always reset (so stale values from a previous env can't leak through).
+  bru.setVar("labServiceRequestId", chosen ? chosen.id : "");
+  bru.setVar("serviceRequestId", chosen ? chosen.id : "");
+  bru.setVar("labTestCode", chosen && chosen.labCoding ? chosen.labCoding.code : "");
+  bru.setVar("labTestExternalCode", chosen && chosen.extCoding ? chosen.extCoding.code : "");
+}
+
+docs {
+  Searches for a lab `ServiceRequest` (FHIR category code 108252007). Saves
+  `labServiceRequestId`, `serviceRequestId` (alias), `labTestCode`, and
+  `labTestExternalCode` for use by Create Observation and Transaction Bundle
+  requests. The lab test codes are extracted from the first `orderDetail`
+  entry whose coding matches the configured senaite or LOINC code systems.
+}

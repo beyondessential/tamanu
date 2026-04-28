@@ -14,28 +14,48 @@ auth:bearer {
   token: {{token}}
 }
 
+headers {
+  Content-Type: application/json
+}
+
 body:json {
   {
     "resourceType": "Observation",
+    "basedOn": [
+      {
+        "type": "ServiceRequest",
+        "reference": "ServiceRequest/{{labServiceRequestId}}"
+      }
+    ],
     "status": "final",
     "code": {
       "coding": [
         {
+          "system": "https://www.senaite.com/testCodes.html",
+          "code": "{{labTestCode}}"
+        },
+        {
           "system": "http://loinc.org",
-          "code": "8867-4",
-          "display": "Heart rate"
+          "code": "{{labTestExternalCode}}"
         }
       ]
     },
-    "subject": {
-      "reference": "Patient/{{patientId}}"
-    },
-    "effectiveDateTime": "2024-01-01T12:00:00Z",
-    "valueQuantity": {
-      "value": 72,
-      "unit": "beats/minute",
-      "system": "http://unitsofmeasure.org",
-      "code": "/min"
-    }
+    "valueString": "Negative"
   }
+}
+
+docs {
+  Records a single lab test result against a LabTest belonging to the
+  ServiceRequest. Required by server validation (FhirObservation):
+  - `basedOn[0]` referencing an existing FHIR ServiceRequest with an upstream LabRequest
+  - `status`
+  - `code.coding` containing at least one coding whose `system` matches
+    `serviceRequestLabTestCodeSystem` (senaite) OR
+    `serviceRequestLabTestExternalCodeSystem` (LOINC) and whose `code`
+    matches a LabTest on that LabRequest
+  - one of `valueString`, `valueQuantity`, or `valueCodeableConcept`
+  
+  Run `bootstrap/Discover Lab ServiceRequest` first - it auto-populates the
+  `labServiceRequestId`, `labTestCode`, and `labTestExternalCode` from a
+  resolvable ServiceRequest's `orderDetail`.
 }

@@ -1,0 +1,43 @@
+meta {
+  name: Discover Imaging ServiceRequest
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  body: none
+  auth: bearer
+}
+
+params:query {
+  category: 363679005
+  _count: 10
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const entries = (body && body.entry) || [];
+  const r = entries[0] && entries[0].resource;
+  if (r && r.id) {
+    bru.setVar("imagingServiceRequestId", r.id);
+    // Generate a unique accession number for new ImagingStudy attachments
+    const ts = Date.now();
+    bru.setVar("imagingAccessionNumber", `BRUNO-${ts}`);
+  } else {
+    // Clear stale values from a previous env
+    bru.setVar("imagingServiceRequestId", "");
+    bru.setVar("imagingAccessionNumber", "");
+  }
+}
+
+docs {
+  Searches for an imaging `ServiceRequest` (FHIR category code 363679005)
+  and saves `imagingServiceRequestId` plus a unique
+  `imagingAccessionNumber` for use by Create ImagingStudy.
+}

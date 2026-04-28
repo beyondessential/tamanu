@@ -11,9 +11,15 @@ get {
 }
 
 params:path {
-  id: 
+  id: {{labServiceRequestId}}
 }
 
 auth:bearer {
   token: {{token}}
+}
+
+docs {
+  Defaults to `{{labServiceRequestId}}`. Override `:id` for a specific
+  ServiceRequest. Tamanu permission filtering means only lab requests are
+  visible to lab-FHIR roles and imaging requests to imaging-FHIR roles.
 }

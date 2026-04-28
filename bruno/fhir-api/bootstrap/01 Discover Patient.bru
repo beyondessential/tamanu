@@ -1,0 +1,31 @@
+meta {
+  name: Discover Patient
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Patient
+  body: none
+  auth: bearer
+}
+
+params:query {
+  _count: 1
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
+  bru.setVar("patientId", id || "");
+}
+
+docs {
+  Picks the most recently updated Patient and saves it as `patientId`. Used by
+  Read/Summary requests for Patient.
+}

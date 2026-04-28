@@ -1,0 +1,26 @@
+meta {
+  name: Discover Organization
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Organization
+  body: none
+  auth: bearer
+}
+
+params:query {
+  _count: 1
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
+  bru.setVar("organizationId", id || "");
+}

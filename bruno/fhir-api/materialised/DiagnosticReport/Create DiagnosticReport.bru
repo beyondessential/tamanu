@@ -14,27 +14,48 @@ auth:bearer {
   token: {{token}}
 }
 
+headers {
+  Content-Type: application/json
+}
+
 body:json {
   {
     "resourceType": "DiagnosticReport",
+    "basedOn": [
+      {
+        "type": "ServiceRequest",
+        "reference": "ServiceRequest/{{labServiceRequestId}}"
+      }
+    ],
     "status": "final",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "108252007"
+          }
+        ]
+      }
+    ],
     "code": {
       "coding": [
         {
           "system": "http://loinc.org",
-          "code": "58410-2",
-          "display": "Complete blood count (CBC)"
+          "code": "42191-7",
+          "display": "Hepatitis Panel"
         }
       ]
-    },
-    "subject": {
-      "reference": "Patient/{{patientId}}"
-    },
-    "effectiveDateTime": "2024-01-01T12:00:00Z",
-    "result": [
-      {
-        "reference": "Observation/{{observationId}}"
-      }
-    ]
+    }
   }
+}
+
+docs {
+  Acknowledges results for a lab `ServiceRequest`. Required by server validation:
+  - `basedOn[0]` referencing an existing FHIR `ServiceRequest` whose upstream is a LabRequest
+  - `status` (one of the supported FHIR DiagnosticReport statuses)
+  - `code` (CodeableConcept)
+  
+  Run `bootstrap/Discover Lab ServiceRequest` first to populate `labServiceRequestId`.
+  Returns 201 with empty body on success.
 }

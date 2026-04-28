@@ -11,9 +11,13 @@ get {
 }
 
 params:path {
-  id: 
+  id: {{patientId}}
 }
 
 auth:bearer {
   token: {{token}}
+}
+
+docs {
+  Defaults `:id` to `{{patientId}}` (set by `bootstrap/Discover Patient`).
 }
