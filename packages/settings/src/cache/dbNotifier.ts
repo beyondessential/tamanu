@@ -4,12 +4,8 @@ import { settingsCache as defaultSettingsCache, SettingsCache } from './settings
 
 const SETTINGS_TABLE = 'settings';
 
-// We use leading + trailing + maxWait so that:
-//   - the first NOTIFY in a burst invalidates immediately (leading edge)
-//   - subsequent NOTIFYs within RESET_DEBOUNCE_MS coalesce into a single trailing reset
-//   - a steady stream of writes (e.g. a long-running migration emitting one NOTIFY per
-//     row) cannot defer the reset indefinitely — `maxWait` forces a reset at least every
-//     RESET_MAX_WAIT_MS while changes are arriving.
+// `maxWait` ensures a steady stream of writes (e.g. a migration touching many rows)
+// can't defer the reset indefinitely — it would otherwise keep getting re-armed.
 const RESET_DEBOUNCE_MS = 50;
 const RESET_MAX_WAIT_MS = 200;
 
@@ -29,17 +25,8 @@ interface TableChangedPayload {
 
 type OnTableChanged = (callback: (payload: TableChangedPayload) => void) => void;
 
-/**
- * Determines which cache buckets a settings change affects.
- *
- * - GLOBAL: every cache (global settings are merged into both central and facility reads)
- * - CENTRAL: only the no-facility ('central') cache
- * - FACILITY: only the matching facility's cache
- * - missing/unknown scope: defensively reset all buckets
- *
- * Returns `null` for "reset everything" or an array of bucket identifiers, where
- * `undefined` represents the no-facility cache.
- */
+// Returns the cache buckets affected by a change, or `null` to mean "reset everything".
+// `undefined` in the array represents the no-facility ('central') cache.
 const getAffectedBuckets = (payload: TableChangedPayload): (string | undefined)[] | null => {
   if (!payload.scope) return null;
   if (payload.scope === SETTINGS_SCOPES.GLOBAL) return null;
@@ -51,18 +38,12 @@ const getAffectedBuckets = (payload: TableChangedPayload): (string | undefined)[
 };
 
 /**
- * Subscribes to the database `table_changed` NOTIFY channel and resets the in-memory
- * settings cache whenever the settings table changes. Using a database-level trigger
- * means cache invalidation also fires for changes made via raw SQL or migrations,
- * not just Sequelize model writes.
+ * Subscribes to `table_changed` NOTIFYs and invalidates the in-memory settings cache
+ * when the settings table changes. The DB-level trigger ensures invalidation also
+ * fires for raw SQL and migrations, not just Sequelize writes.
  *
- * The trigger fires per-row, so a bulk operation can emit many NOTIFYs in quick
- * succession; debouncing collapses bursts while `maxWait` guarantees bounded staleness.
- *
- * The Postgres trigger embeds `scope`/`facilityId` in the payload (see the
- * `notify_settings_changed` migration), so we only invalidate the cache buckets
- * actually affected — a CENTRAL-scoped change does not blow away every facility's
- * cached `getAll()` result.
+ * Per-bucket debouncers (driven by `scope`/`facilityId` in the payload) avoid
+ * blowing away every facility's cache for an unrelated change.
  */
 export const registerSettingsCacheInvalidator = (
   onTableChanged: OnTableChanged,

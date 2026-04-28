@@ -27,11 +27,6 @@ export const defineWebsocketService = injector => {
 
   const onTableChanged = injector.dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
   onTableChanged(payload => {
-    // The Postgres `notify_settings_changed` trigger embeds `scope`/`facilityId` in
-    // the payload directly (read from the exact tuple version that fired the trigger),
-    // so we forward it as-is. A previous implementation looked the row up via
-    // `findByPk`, which (a) returned null for hard deleted rows — losing scope info — and
-    // (b) raced UPDATE-after-UPDATE because the lookup ran after the change committed.
     socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 

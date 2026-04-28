@@ -1,16 +1,8 @@
 import { QueryInterface } from 'sequelize';
 
-// The shared `notify_table_changed` trigger emits only `{ table, event, oldId, newId,
-// changedColumns }`. The settings cache invalidator and the websocket service both
-// need to know the row's scope/facilityId to:
-//   - selectively invalidate per-facility caches (rather than blowing away every facility)
-//   - tell the web frontend to ignore changes for other facilities or central-only scopes
-//
-// The previous approach (looking up the row in JS via `Setting.findByPk`) was racy for
-// deleted rows and for updated rows (the row may have been updated
-// again by the time the lookup resolves). Embedding scope/facility_id in the NOTIFY
-// payload itself eliminates both races: the values are read inside the trigger from
-// the exact tuple version that fired the trigger.
+// Settings-specific trigger that embeds `scope`/`facilityId`/`key` in the NOTIFY
+// payload, so listeners can invalidate the right cache bucket without a row lookup
+// (which is racy for hard deletes and follow-up updates).
 const NOTIFY_SETTINGS_CHANGED_FUNCTION = `
   CREATE OR REPLACE FUNCTION public.notify_settings_changed() RETURNS trigger
     LANGUAGE plpgsql

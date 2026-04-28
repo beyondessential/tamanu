@@ -26,11 +26,8 @@ export class SettingsCache {
     }
   }
 
-  // When called with an explicit facilityId, returns whether that bucket is cached.
-  // When called with no argument, returns whether ANY bucket is cached — mirroring
-  // `reset()`'s no-arg semantics. Tests rely on the no-arg form to assert that an
-  // async invalidation has cleared everything; using only the 'central' key here
-  // would silently miss stale facility-scoped entries.
+  // No-arg form mirrors `reset()`: returns whether ANY bucket is cached. Used
+  // by tests to assert that async invalidation has cleared everything.
   has(facilityId?: string) {
     if (facilityId === undefined) {
       return this.allSettingsCache.size > 0;

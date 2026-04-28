@@ -56,11 +56,9 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        // Synchronous in-process cache invalidation for Sequelize-driven writes,
-        // so the same process sees the updated value immediately on the next read
-        // (the NOTIFY listener is debounced/cross-process and would otherwise race).
-        // The DB-level `notify_settings_changed` trigger still covers raw SQL,
-        // migrations, and other processes — see `registerSettingsCacheInvalidator`.
+        // Synchronous in-process invalidation for read-after-write consistency.
+        // The DB-level `notify_settings_changed` trigger covers raw SQL, migrations,
+        // and cross-process invalidation (see `registerSettingsCacheInvalidator`).
         hooks: {
           afterSave() {
             settingsCache.reset();
@@ -74,8 +72,6 @@ export class Setting extends Model {
           afterBulkDestroy() {
             settingsCache.reset();
           },
-          // `Setting.set` calls `Setting.restore({ where: { id } })` to un-delete
-          // re-introduced settings; that path doesn't fire `afterBulkUpdate`.
           afterBulkRestore() {
             settingsCache.reset();
           },

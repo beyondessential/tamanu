@@ -6,8 +6,8 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
-// Long enough to let the debounced NOTIFY-driven cache reset fire (debounce is 50ms in the
-// invalidator). Used to drain any in-flight reset before the next test populates the cache.
+// Long enough to outlast the NOTIFY listener's debounce, so trailing resets from
+// this test can't fire mid-next-test.
 const NOTIFY_DEBOUNCE_DRAIN_MS = 100;
 
 jest.mock('@tamanu/settings/reader', () => {
@@ -37,9 +37,7 @@ describe('Read Settings - Cache', () => {
 
   afterEach(async () => {
     await models.Setting.destroy({ where: {}, force: true });
-    // Drain any pending debounced NOTIFY-driven cache reset before the next test starts,
-    // so a stale NOTIFY from this test's writes can't reset the cache mid-next-test
-    // (which would invalidate buildSettings call-count assertions).
+    // Drain any pending NOTIFY-driven reset before the next test populates the cache.
     await sleepAsync(NOTIFY_DEBOUNCE_DRAIN_MS);
     settingsCache.reset();
     buildSettings.mockClear();
