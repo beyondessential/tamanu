@@ -98,6 +98,7 @@ function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, 
       data-testid={dataTestId}
       endpoint={endpoint}
       initialSort={{ orderBy: 'name', order: 'asc' }}
+      key={programRegistryId}
       noDataMessage={noDataMessage}
     />
   );
