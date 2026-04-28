@@ -26,19 +26,13 @@ export const defineWebsocketService = injector => {
   );
 
   const onTableChanged = injector.dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
-  onTableChanged(async payload => {
-    let outgoing = payload;
-    // Enrich settings changes with scope/facilityId so frontend listeners can
-    // filter (e.g. ignore other facilities' settings).
-    if (payload.table === 'settings') {
-      const setting = await injector.models.Setting.findByPk(payload.newId ?? payload.oldId, {
-        paranoid: false,
-      });
-      if (setting) {
-        outgoing = { ...payload, scope: setting.scope, facilityId: setting.facilityId };
-      }
-    }
-    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, outgoing);
+  onTableChanged(payload => {
+    // The Postgres `notify_settings_changed` trigger embeds `scope`/`facilityId` in
+    // the payload directly (read from the exact tuple version that fired the trigger),
+    // so we forward it as-is. A previous implementation looked the row up via
+    // `findByPk`, which (a) returned null for hard DELETEs — losing scope info — and
+    // (b) raced UPDATE-after-UPDATE because the lookup ran after the change committed.
+    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
   onTableChanged(async payload => {

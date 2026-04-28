@@ -1,5 +1,6 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash';
+import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { Model } from './Model';
@@ -55,9 +56,30 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        // Cache invalidation is handled at the database level via the `notify_settings_changed`
-        // trigger so that direct SQL or migration changes also invalidate the cache.
-        // See `registerSettingsCacheInvalidator` in @tamanu/settings/cache.
+        // Synchronous in-process cache invalidation for Sequelize-driven writes,
+        // so the same process sees the updated value immediately on the next read
+        // (the NOTIFY listener is debounced/cross-process and would otherwise race).
+        // The DB-level `notify_settings_changed` trigger still covers raw SQL,
+        // migrations, and other processes — see `registerSettingsCacheInvalidator`.
+        hooks: {
+          afterSave() {
+            settingsCache.reset();
+          },
+          afterBulkCreate() {
+            settingsCache.reset();
+          },
+          afterBulkUpdate() {
+            settingsCache.reset();
+          },
+          afterBulkDestroy() {
+            settingsCache.reset();
+          },
+          // `Setting.set` calls `Setting.restore({ where: { id } })` to un-delete
+          // re-introduced settings; that path doesn't fire `afterBulkUpdate`.
+          afterBulkRestore() {
+            settingsCache.reset();
+          },
+        },
         indexes: [
           {
             // settings_alive_key_unique_cnt

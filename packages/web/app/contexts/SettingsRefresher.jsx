@@ -9,8 +9,8 @@ import { refreshSettings } from '../store/auth';
 const SETTINGS_CHANGE_EVENT = `${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`;
 
 const isRelevantChange = (payload, currentFacilityId) => {
-  // Backend may not have been able to look up the row (e.g. unknown id) — be
-  // conservative and refresh in that case.
+  // The Postgres trigger embeds `scope`/`facilityId` directly so this should always
+  // be present, but stay defensive for legacy payloads or older facility servers.
   if (!payload || !payload.scope) return true;
   // Server-only scope — never affects what the web frontend reads.
   if (payload.scope === SETTINGS_SCOPES.CENTRAL) return false;

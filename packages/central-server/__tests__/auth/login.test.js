@@ -5,7 +5,6 @@ import * as jose from 'jose';
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { settingsCache } from '@tamanu/settings';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
@@ -211,9 +210,6 @@ describe('Auth - Login', () => {
       await store.models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
         lockoutThreshold: 2,
       });
-      // The settings cache is invalidated asynchronously via a Postgres NOTIFY listener,
-      // so reset it directly here to avoid racing the listener before the first request.
-      settingsCache.reset();
       const user = await store.models.User.findOne({
         where: {
           email: TEST_EMAIL,
