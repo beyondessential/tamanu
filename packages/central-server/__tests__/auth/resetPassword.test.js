@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { fake } from '@tamanu/fake-data/fake';
+import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { LOGIN_ATTEMPT_OUTCOMES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -185,6 +186,9 @@ describe('Auth', () => {
         await store.models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
           lockoutThreshold: 1,
         });
+        // The settings cache is invalidated asynchronously via a Postgres NOTIFY listener,
+        // so reset it directly here to avoid racing the listener before the first request.
+        settingsCache.reset();
       });
 
       beforeEach(async () => {
