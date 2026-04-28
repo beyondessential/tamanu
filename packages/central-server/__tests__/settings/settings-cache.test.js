@@ -1,6 +1,8 @@
+import waitForExpect from 'wait-for-expect';
 import { settingsCache } from '@tamanu/settings';
 import { buildSettings } from '@tamanu/settings/reader';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
@@ -31,6 +33,10 @@ describe('Read Settings - Cache', () => {
 
   afterEach(async () => {
     await models.Setting.destroy({ where: {}, force: true });
+    // Allow any in-flight pg NOTIFY messages from this test (or its cleanup) to be
+    // delivered before we move on, so they don't invalidate the cache mid-way
+    // through the next test.
+    await sleepAsync(150);
     settingsCache.reset();
     buildSettings.mockClear();
   });
@@ -62,12 +68,18 @@ describe('Read Settings - Cache', () => {
     expect(buildSettings).toHaveBeenCalledTimes(2);
   });
 
+  // Cache invalidation now happens via a Postgres NOTIFY listener, so we wait
+  // for the cache to be reset before asserting that buildSettings was called again.
+  const expectCacheInvalidated = () =>
+    waitForExpect(() => expect(settingsCache.isValid()).toBeFalsy());
+
   it('It should invalidate cache if a new row is added to the settings table', async () => {
     // Call readSetting, it should store that in cache
     await settings.get('timezone');
 
     // Create a new settings on database should invalidate the cache
     await createSetting(models, 'new-database-key', 'new-database-value', SETTINGS_SCOPES.GLOBAL);
+    await expectCacheInvalidated();
 
     // Calling it after creating a new row should call build settings one more time
     await settings.get(models, 'new-database-key');
@@ -81,6 +93,7 @@ describe('Read Settings - Cache', () => {
     // Call readSetting, it should store that in cache
     await settings.get('timezone');
     await models.Setting.destroy({ where: {}, force: true });
+    await expectCacheInvalidated();
 
     // Calling it after deleting a row should call build settings one more time
     await settings.get('timezone');
@@ -100,11 +113,26 @@ describe('Read Settings - Cache', () => {
     await settings.get('timezone');
 
     await setting.update({ key: 'updated-key' });
+    await expectCacheInvalidated();
 
     // Calling it after deleting a row should call build settings one more time
     await settings.get('timezone');
 
     // buildSettings should be called twice
+    expect(buildSettings).toHaveBeenCalledTimes(2);
+  });
+
+  it('It should invalidate cache when settings change via raw SQL (no Sequelize hook)', async () => {
+    await settings.get('timezone');
+
+    await models.Setting.sequelize.query(
+      `INSERT INTO settings (id, key, value, scope) VALUES (gen_random_uuid(), 'raw-sql-key', '"raw-sql-value"', :scope)`,
+      { replacements: { scope: SETTINGS_SCOPES.GLOBAL } },
+    );
+    await expectCacheInvalidated();
+
+    await settings.get('timezone');
+
     expect(buildSettings).toHaveBeenCalledTimes(2);
   });
 });
