@@ -24,3 +24,10 @@ script:post-response {
   const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
   bru.setVar("medicationRequestId", id || "");
 }
+
+tests {
+
+  test("MedicationRequest record found", function() {
+    expect(bru.getVar("medicationRequestId"), "No MedicationRequest found in this environment").to.be.a("string").and.not.empty;
+  });
+}

@@ -12,7 +12,7 @@ get {
 
 params:query {
   category: 363679005
-  _count: 10
+  _count: 1
   _sort: -_lastUpdated
 }
 
@@ -22,22 +22,19 @@ auth:bearer {
 
 script:post-response {
   const body = res.getBody && res.getBody();
-  const entries = (body && body.entry) || [];
-  const r = entries[0] && entries[0].resource;
-  if (r && r.id) {
-    bru.setVar("imagingServiceRequestId", r.id);
-    // Generate a unique accession number for new ImagingStudy attachments
-    const ts = Date.now();
-    bru.setVar("imagingAccessionNumber", `BRUNO-${ts}`);
+  const entry = body && body.entry && body.entry[0] && body.entry[0].resource;
+  if (entry && entry.id) {
+    bru.setVar("imagingServiceRequestId", entry.id);
+    bru.setVar("imagingAccessionNumber", "BRUNO-" + Date.now());
   } else {
-    // Clear stale values from a previous env
     bru.setVar("imagingServiceRequestId", "");
     bru.setVar("imagingAccessionNumber", "");
   }
 }
 
-docs {
-  Searches for an imaging `ServiceRequest` (FHIR category code 363679005)
-  and saves `imagingServiceRequestId` plus a unique
-  `imagingAccessionNumber` for use by Create ImagingStudy.
+tests {
+
+  test("imaging ServiceRequest record found", function() {
+    expect(bru.getVar("imagingServiceRequestId"), "No imaging ServiceRequest found in this environment").to.be.a("string").and.not.empty;
+  });
 }

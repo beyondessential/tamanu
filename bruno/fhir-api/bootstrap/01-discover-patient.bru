@@ -25,7 +25,9 @@ script:post-response {
   bru.setVar("patientId", id || "");
 }
 
-docs {
-  Picks the most recently updated Patient and saves it as `patientId`. Used by
-  Read/Summary requests for Patient.
+tests {
+
+  test("Patient record found", function() {
+    expect(bru.getVar("patientId"), "No Patient found in this environment").to.be.a("string").and.not.empty;
+  });
 }

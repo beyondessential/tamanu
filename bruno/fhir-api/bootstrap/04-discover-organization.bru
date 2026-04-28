@@ -24,3 +24,10 @@ script:post-response {
   const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
   bru.setVar("organizationId", id || "");
 }
+
+tests {
+
+  test("Organization record found", function() {
+    expect(bru.getVar("organizationId"), "No Organization found in this environment").to.be.a("string").and.not.empty;
+  });
+}
