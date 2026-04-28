@@ -40,6 +40,8 @@ module.exports = defineConfig({
     {
       name: 'setup',
       testMatch: /setup\.ts/,
+      // Auth setup hits a cold Vite + app bundle on CI; default 30s is often too tight.
+      timeout: 120 * 1000,
       use: { ...devices['Desktop Chrome'] },
     },
     {
