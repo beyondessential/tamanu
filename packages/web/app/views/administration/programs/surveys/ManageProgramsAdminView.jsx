@@ -2,7 +2,12 @@ import React, { useCallback, useEffect, useId, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import {
+  ContentUnavailableView,
+  TAMANU_COLORS,
+  TranslatedText,
+  useTranslation,
+} from '@tamanu/ui-components';
 import { ContentContainer } from '../../components/AdminViewContainer';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
 import { EditProgramButton } from './EditProgramMetadataModal';
@@ -18,6 +23,28 @@ const StyledArticle = styled(Article)`
 const StyledTableScopeHeader = styled(TableScopeHeader)`
   border-block-end-style: none;
 `;
+
+function EmptyState() {
+  const { getTranslation } = useTranslation();
+
+  return (
+    <StyledArticle
+      style={{ display: 'grid', flex: 1, placeItems: 'center', gridTemplateRows: '3fr auto 4fr' }}
+    >
+      <ContentUnavailableView
+        heading={<TranslatedText stringId="admin.programs.noData.heading" fallback="No programs" />}
+        description={
+          <TranslatedText
+            stringId="admin.programs.noData.description"
+            fallback="Import programs in the :import tab"
+            replacements={{ import: getTranslation('general.action.import', 'Import') }}
+          />
+        }
+        style={{ gridRow: '2' }}
+      />
+    </StyledArticle>
+  );
+}
 
 export function ManageProgramsAdminView() {
   const { programId } = useParams();
@@ -37,9 +64,10 @@ export function ManageProgramsAdminView() {
   );
 
   const { data: programs, isLoading: isProgramsLoading } = useProgramsQuery();
+  const hasNoPrograms = programs?.length === 0;
 
   const options = useMemo(
-    () => programs?.map(({ id, name }) => ({ value: id, label: name })),
+    () => programs?.map(({ id, name }) => ({ value: id, label: name })) ?? [],
     [programs],
   );
 
@@ -54,7 +82,9 @@ export function ManageProgramsAdminView() {
 
   const scopedTableId = useId();
 
-  return (
+  return hasNoPrograms ? (
+    <EmptyState />
+  ) : (
     <StyledArticle>
       <StyledTableScopeHeader>
         <TableScopeSelect
