@@ -25,10 +25,9 @@ export const NullableBooleanSelect = styled(Field).attrs({
 `;
 
 /** @type {{ value: (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES]; label: string }[]} */
-export const surveyTypeOptions = Object.values(SURVEY_TYPES).map(value => ({
-  value,
-  label: value,
-}));
+export const surveyTypeOptions = Object.values(SURVEY_TYPES)
+  .sort((a, b) => a.localeCompare(b))
+  .map(value => ({ value, label: value }));
 
 export function SurveyTypeField({ isClearable = false, ...props }) {
   return (

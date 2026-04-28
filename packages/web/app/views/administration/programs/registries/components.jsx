@@ -23,11 +23,8 @@ export const StyledDataFetchingTable = styled(DataFetchingTable).attrs({
 
 /** @type {{ value: keyof typeof STATUS_COLOR, label: keyof typeof STATUS_COLOR }[]} */
 export const programRegistryClinicalStatusColorOptions = Object.keys(STATUS_COLOR)
-  .sort()
-  .map(key => ({
-    value: key,
-    label: key,
-  }));
+  .sort((a, b) => a.localeCompare(b))
+  .map(key => ({ value: key, label: key }));
 
 export function ProgramRegistryClinicalStatusColorField({ isClearable = false, ...props }) {
   return (
