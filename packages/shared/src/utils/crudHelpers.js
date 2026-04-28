@@ -159,9 +159,13 @@ export const simplePatch = (modelName, options) => {
     } = req;
 
     if (process.env.NODE_ENV !== 'production') validatePatchAllowedFields(model, allowedFields);
-    if (req.body != null) await validatePatchBody(allowedFields, req);
+    if (req.body == null) throw new InvalidOperationError('PATCH body is required');
 
-    const object = await model.findByPk(id);
+    // Optimistically assume body is valid and begin fetching object before validated
+    const [, object] = await Promise.all([
+      validatePatchBody(allowedFields, req),
+      model.findByPk(id),
+    ]);
 
     if (!object) throw new NotFoundError(`No ${modelName} found with ID ${id}`);
     if (object.deletedAt) {
