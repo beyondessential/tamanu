@@ -112,6 +112,19 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
   }
 };
 
+export const refreshSettings = () => async (dispatch, getState, { api }) => {
+  // Triggered when the settings table changes on the server. Best-effort: silently
+  // ignore failures (e.g. transient network issues) since the next refresh event or
+  // login will reconcile.
+  if (!checkIsLoggedIn(getState())) return;
+  try {
+    const settings = await api.fetchFrontEndSettings();
+    dispatch({ type: SET_SETTINGS, settings });
+  } catch (e) {
+    // ignore
+  }
+};
+
 export const authFailure = () => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,

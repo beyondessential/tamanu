@@ -278,6 +278,13 @@ export class TamanuApi extends ApiClient {
     return { settings };
   }
 
+  async fetchFrontEndSettings() {
+    // Lightweight refresh of the cached frontend settings, without rotating the token.
+    const { settings } = await this.get('settings/frontEnd');
+    saveToLocalStorage({ settings });
+    return settings;
+  }
+
   async fetch(endpoint, query, config) {
     const {
       isErrorUnknown = isErrorUnknownDefault,
