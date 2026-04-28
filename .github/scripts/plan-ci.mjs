@@ -18,29 +18,65 @@
 import { execSync } from 'node:child_process';
 import { appendFileSync, readdirSync, readFileSync } from 'node:fs';
 
-const PR_DATABASE_PG = '18';
+const SERVER_SHARDS = 8;
+const MIN_PG_VERSION = 14;
+const MAX_PG_VERSION = 18;
+const POSTGRES_VERSIONS = Array.from(
+  { length: MAX_PG_VERSION - MIN_PG_VERSION + 1 },
+  (_, i) => `${MIN_PG_VERSION + i}`,
+);
+
+// Packages that have their own CI handling and should not be auto-included
+// in the standalone test matrix entries below: facility-server and
+// central-server are sharded against postgres, database is run across all
+// postgres versions, mobile is tested by `test-mobile`, and e2e-tests runs
+// in the dedicated E2E workflow.
+const SPECIAL_PACKAGES = new Set([
+  '@tamanu/facility-server',
+  '@tamanu/central-server',
+  '@tamanu/database',
+  '@tamanu/mobile',
+  '@tamanu/e2e-tests',
+]);
+
+// Read every `packages/*/package.json` so we can map names to directories
+// and discover which packages have a `test` script (so new packages with
+// tests are picked up automatically).
+const dirByName = {};
+const standalonePackages = [];
+for (const dir of readdirSync('packages')) {
+  if (dir.startsWith('.')) continue;
+  let pkg;
+  try {
+    pkg = JSON.parse(readFileSync(`packages/${dir}/package.json`, 'utf8'));
+  } catch {
+    continue;
+  }
+  if (!pkg.name) continue;
+  dirByName[pkg.name] = dir;
+  if (pkg.scripts?.test && !SPECIAL_PACKAGES.has(pkg.name)) {
+    standalonePackages.push(pkg.name);
+  }
+}
+standalonePackages.sort();
 
 const TEST_FULL = [];
-for (let i = 1; i <= 8; i++) {
-  TEST_FULL.push({ package: '@tamanu/facility-server', shard: `${i}/8`, postgres: '17' });
+for (let i = 1; i <= SERVER_SHARDS; i++) {
+  TEST_FULL.push({ package: '@tamanu/facility-server', shard: `${i}/${SERVER_SHARDS}`, postgres: `${MAX_PG_VERSION}` });
 }
-for (let i = 1; i <= 8; i++) {
-  TEST_FULL.push({ package: '@tamanu/central-server', shard: `${i}/8`, postgres: '17' });
+for (let i = 1; i <= SERVER_SHARDS; i++) {
+  TEST_FULL.push({ package: '@tamanu/central-server', shard: `${i}/${SERVER_SHARDS}`, postgres: `${MAX_PG_VERSION}` });
 }
-for (const pg of ['12', '14', '16', '17', '18']) {
+for (const pg of POSTGRES_VERSIONS) {
   TEST_FULL.push({ package: '@tamanu/database', postgres: pg });
 }
-TEST_FULL.push(
-  { package: '@tamanu/settings' },
-  { package: '@tamanu/shared' },
-  { package: '@tamanu/upgrade' },
-  { package: '@tamanu/utils' },
-  { package: '@tamanu/web-frontend' },
-);
+for (const name of standalonePackages) {
+  TEST_FULL.push({ package: name });
+}
 
 const MIGRATIONS_FULL = [];
 for (const server of ['central-server', 'facility-server']) {
-  for (const pg of ['12', '14', '15', '16', '17', '18']) {
+  for (const pg of POSTGRES_VERSIONS) {
     MIGRATIONS_FULL.push({ server, postgres: pg });
   }
 }
@@ -53,16 +89,6 @@ let testMatrix = TEST_FULL;
 let migrationsMatrix = MIGRATIONS_FULL;
 
 if (event === 'pull_request' && baseSha) {
-  const dirByName = {};
-  for (const dir of readdirSync('packages')) {
-    try {
-      const pkg = JSON.parse(readFileSync(`packages/${dir}/package.json`, 'utf8'));
-      if (pkg.name) dirByName[pkg.name] = dir;
-    } catch {
-      // ignore non-package directories
-    }
-  }
-
   const head = headSha || 'HEAD';
   const diff = execSync(`git diff --name-only ${baseSha}...${head}`, { encoding: 'utf8' });
   const files = diff.split('\n').filter(Boolean);
@@ -81,9 +107,9 @@ if (event === 'pull_request' && baseSha) {
 
   testMatrix = TEST_FULL
     .filter((e) => touched.has(dirByName[e.package]))
-    .filter((e) => e.package !== '@tamanu/database' || e.postgres === PR_DATABASE_PG);
+    .filter((e) => e.package !== '@tamanu/database' || e.postgres === `${MAX_PG_VERSION}`);
   migrationsMatrix = migrationsTouched
-    ? MIGRATIONS_FULL.filter((e) => e.postgres === PR_DATABASE_PG)
+    ? MIGRATIONS_FULL.filter((e) => e.postgres === `${MAX_PG_VERSION}`)
     : [];
 }
 

@@ -315,7 +315,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 18
           .github/scripts/test-facility-offline.sh setup-postgres
       - name: Build central and facility servers
         run: .github/scripts/test-facility-offline.sh build
@@ -370,7 +370,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 17
+          source .github/scripts/install-postgres-ubuntu.sh 18
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
