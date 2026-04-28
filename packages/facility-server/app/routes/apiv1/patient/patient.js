@@ -377,7 +377,8 @@ patientRoute.get(
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
 
-    // ReadSettings.get uses cached getAll() per facility (see packages/settings cache; ~60s TTL).
+    // ReadSettings.get uses cached getAll() per facility, invalidated via the
+    // settings table NOTIFY listener (see packages/settings cache).
     const additionalSearchFields =
       isAllPatientsListing && filterParams.facilityId
         ? (await settings[filterParams.facilityId]?.get(

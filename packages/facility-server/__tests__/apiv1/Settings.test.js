@@ -27,7 +27,6 @@ describe('Settings', () => {
       expect(settingsCache).toEqual(
         expect.objectContaining({
           allSettingsCache: new Map(),
-          expirationTimestamps: new Map(),
         }),
       );
     });
