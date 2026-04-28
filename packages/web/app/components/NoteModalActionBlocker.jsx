@@ -18,7 +18,7 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
     return (
       <ConditionalTooltip
         visible
-        $border={isNavigationBlock ? `1px solid ${Colors.outline}` : 'none'}
+        $border={isNavigationBlock ? `1px solid ${Colors.outline}` : undefined}
         title={
           isNavigationBlock ? (
             <TranslatedText
