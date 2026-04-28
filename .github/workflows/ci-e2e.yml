@@ -2,6 +2,7 @@ name: E2E Tests
 
 on:
   pull_request:
+  merge_group:
 
 permissions:
   contents: read
@@ -16,6 +17,7 @@ env:
 
 jobs:
   node_modules_cache:
+    if: github.event_name == 'merge_group'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -181,7 +183,8 @@ jobs:
     needs: [e2e]
     runs-on: ubuntu-latest
     steps:
-      - name: Enforce passing E2E workflow
+      - if: github.event_name == 'merge_group'
+        name: Enforce passing E2E workflow (in merge queue)
         run: |
           if [ "${{ needs.e2e.result }}" != "success" ]; then
             echo "E2E tests did not pass."
