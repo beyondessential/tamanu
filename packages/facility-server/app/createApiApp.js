@@ -35,7 +35,7 @@ export async function createApiApp({
     NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
   ]);
 
-  registerSettingsCacheInvalidator(dbNotifier);
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });

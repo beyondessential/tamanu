@@ -17,7 +17,7 @@ export async function createApp(ctx) {
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsCacheInvalidator(dbNotifier);
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
   if (config["socket.io"].enabled) {
     await createWebsocket(api.httpServer, ctx);

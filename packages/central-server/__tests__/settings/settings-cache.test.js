@@ -2,7 +2,6 @@ import waitForExpect from 'wait-for-expect';
 import { settingsCache } from '@tamanu/settings';
 import { buildSettings } from '@tamanu/settings/reader';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
@@ -32,11 +31,15 @@ describe('Read Settings - Cache', () => {
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    await models.Setting.destroy({ where: {}, force: true });
-    // Allow any in-flight pg NOTIFY messages from this test (or its cleanup) to be
-    // delivered before we move on, so they don't invalidate the cache mid-way
-    // through the next test.
-    await sleepAsync(150);
+    const deletedCount = await models.Setting.destroy({ where: {}, force: true });
+    // If the destroy actually removed rows, wait (with a bounded timeout) for the
+    // resulting NOTIFY to be delivered and invalidate the cache. This drains any
+    // in-flight notifications before the next test starts, so a stale NOTIFY
+    // can't reset the cache mid-test. The cache is populated by the test, so its
+    // transition to empty proves the NOTIFY has been processed.
+    if (deletedCount > 0) {
+      await waitForExpect(() => expect(settingsCache.has()).toBe(false));
+    }
     settingsCache.reset();
     buildSettings.mockClear();
   });
