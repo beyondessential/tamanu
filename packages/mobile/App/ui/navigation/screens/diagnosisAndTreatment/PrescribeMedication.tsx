@@ -349,8 +349,8 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     onChange={(_, selectedItem) => {
                       setValues({
                         ...values,
-                        route: selectedItem?.referenceDrug_route?.toLowerCase(),
-                        units: selectedItem?.referenceDrug_units,
+                        route: selectedItem?.referenceDrug_route?.toLowerCase() || undefined,
+                        units: selectedItem?.referenceDrug_units || undefined,
                         notes: selectedItem?.referenceDrug_notes || '',
                       });
                     }}
