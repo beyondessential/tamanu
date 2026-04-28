@@ -103,7 +103,7 @@ export const DataFetchingProgramsTable = ({
       key: 'actions',
       title: (
         <VisuallyHidden>
-          <TranslatedText stringId="program.table.column.actions" fallback="Actions" />
+          <TranslatedText stringId="general.table.column.actions" fallback="Actions" />
         </VisuallyHidden>
       ),
       dontCallRowInput: true,
