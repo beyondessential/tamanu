@@ -1,6 +1,9 @@
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
+import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startFhirWorkerTasks } from '../tasks';
@@ -13,6 +16,15 @@ export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   const dbKey = name ? `${appType}(${name})` : appType;
   const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
+
+  // FHIR worker handlers read from `context.settings`, which is backed by the
+  // process-local `settingsCache`. Subscribe to the settings table NOTIFY so the
+  // cache is invalidated when settings change (the API process does this in createApp).
+  const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
+    NOTIFY_CHANNELS.TABLE_CHANGED,
+  ]);
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  context.onClose(() => dbNotifier.close());
 
   if (!topics || topics === 'all') {
     topics = null;
