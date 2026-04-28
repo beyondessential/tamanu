@@ -13,19 +13,29 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
-const getSubmittedBy = ({ submittedBy, userId }) => {
+function DateAccessor({ endTime }) {
+  return <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
+}
+
+function SubmittedByAccessor({ submittedBy, userId }) {
   // Forms submitted on the patient portal are submitted against the system user on behalf of the patient
   if (userId === SYSTEM_USER_UUID) {
-    return 'Patient';
+    return <TranslatedText stringId="general.patient.label" fallback="Patient" />;
   }
   return submittedBy;
-};
-const getProgramName = ({ programName }) => programName;
-const getSurveyName = ({ surveyName }) => surveyName;
-const getResults = ({ resultText }) => (
-  <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />
-);
+}
+
+function ProgramNameAccessor({ programName }) {
+  return programName;
+}
+
+function SurveyNameAccessor({ surveyName }) {
+  return surveyName;
+}
+
+function ResultsAccessor({ resultText }) {
+  return <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />;
+}
 
 export const DataFetchingProgramsTable = ({
   endpoint,
@@ -73,27 +83,27 @@ export const DataFetchingProgramsTable = ({
       title: (
         <TranslatedText stringId="program.table.column.submittedDate" fallback="Date submitted" />
       ),
-      accessor: getDate,
+      accessor: DateAccessor,
     },
     {
       key: 'submittedBy',
       title: <TranslatedText stringId="program.table.column.submittedBy" fallback="Submitted by" />,
-      accessor: getSubmittedBy,
+      accessor: SubmittedByAccessor,
     },
     {
       key: 'programName',
       title: <TranslatedText stringId="program.table.column.programName" fallback="Program" />,
-      accessor: getProgramName,
+      accessor: ProgramNameAccessor,
     },
     {
       key: 'surveyName',
       title: <TranslatedText stringId="program.table.column.surveyName" fallback="Survey" />,
-      accessor: getSurveyName,
+      accessor: SurveyNameAccessor,
     },
     {
       key: 'resultText',
       title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
-      accessor: getResults,
+      accessor: ResultsAccessor,
     },
   ];
 
