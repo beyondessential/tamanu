@@ -49,7 +49,13 @@ const validationSchema = yup.object().shape({
   isSensitive: yup.boolean().required('Required'),
   name: yup.string().trim().required('Required'),
   notifiable: yup.boolean().required('Required'),
-  notifyEmailAddresses: yup.string().ensure(),
+  notifyEmailAddresses: yup
+    .string()
+    .ensure()
+    .test('email-length', 'Every email must be 255\u{00A0}characters or shorter', value => {
+      if (!value) return true;
+      return parseNotifyEmailAddresses(value).every(email => email.length <= 255);
+    }),
   surveyType: yup.string().trim().required('Required').oneOf(Object.values(SURVEY_TYPES)),
   visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
 });
