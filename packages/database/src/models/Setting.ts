@@ -57,8 +57,8 @@ export class Setting extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         // Synchronous in-process invalidation for read-after-write consistency.
-        // The DB-level `notify_settings_changed` trigger covers raw SQL, migrations,
-        // and cross-process invalidation (see `registerSettingsCacheInvalidator`).
+        // The settings-table NOTIFY listener covers raw SQL, migrations, and
+        // cross-process invalidation (see `registerSettingsCacheInvalidator`).
         hooks: {
           afterSave() {
             settingsCache.reset();

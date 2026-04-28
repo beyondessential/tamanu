@@ -2,8 +2,8 @@ type Cache = Record<string, string | number | object>;
 
 export class SettingsCache {
   // Map of facilityId (or 'central' for no facility) to cache objects.
-  // Invalidation is driven by the `notify_settings_changed` Postgres trigger
-  // via `registerSettingsCacheInvalidator`, so no TTL is needed.
+  // Invalidation is driven by the settings-table NOTIFY listener
+  // (`registerSettingsCacheInvalidator`), so no TTL is needed.
   allSettingsCache: Map<string, Cache | null> = new Map();
 
   private getCacheKey(facilityId?: string): string {
