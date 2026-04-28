@@ -152,13 +152,20 @@ export async function writeKeyFile(keyFilePath, key) {
  * @returns {Promise<string>}
  */
 export async function getConfigSecret(name) {
-  const keyFilePath = getConfigKeyFilePath();
-
   const encryptedValue = lodashGet(config, name);
   if (!encryptedValue) {
     throw new SecretNotConfiguredError(`Config value not found at path: ${name}`);
   }
+  // Plaintext at this path is treated as "no config secret configured" so
+  // callers using a fallback chain (e.g. settings → config secret → plaintext)
+  // can fall through cleanly without surfacing a decryption error.
+  if (!isEncryptedSecret(encryptedValue)) {
+    throw new SecretNotConfiguredError(
+      `Config value at ${name} is not an encrypted secret`,
+    );
+  }
 
+  const keyFilePath = getConfigKeyFilePath();
   const keyBuffer = await readKeyFile(keyFilePath);
   return decryptSecret(keyBuffer, encryptedValue);
 }
