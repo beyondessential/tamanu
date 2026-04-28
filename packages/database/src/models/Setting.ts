@@ -169,7 +169,7 @@ export class Setting extends Model {
 
   static async set(
     key: SettingPath | '' = '',
-    value: object,
+    value: unknown,
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
   ) {
@@ -260,7 +260,7 @@ export class Setting extends Model {
   ): Promise<void> {
     const keyBuffer = await getSettingsPskKeyBuffer();
     const encryptedValue = await encryptSecret(keyBuffer, value);
-    await this.set(name as SettingPath, encryptedValue as unknown as object, scope, facilityId);
+    await this.set(name as SettingPath, encryptedValue, scope, facilityId);
   }
 
   /**
@@ -286,12 +286,12 @@ export class Setting extends Model {
 
 function buildSettingsRecords(
   keyPrefix: string,
-  value: object,
+  value: unknown,
   facilityId: string | null,
   scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-): { key: string; value: object; facilityId: string | null; scope: string }[] {
+): { key: string; value: unknown; facilityId: string | null; scope: string }[] {
   if (isPlainObject(value)) {
-    return Object.entries(value).flatMap(([k, v]) =>
+    return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
       buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
     );
   }

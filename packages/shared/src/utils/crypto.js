@@ -315,11 +315,11 @@ export async function configSecretInitAction(stdout, stderr) {
 
     const keyBuffer = await readKeyFile(keyFilePath);
     const encryptedPsk = await encryptSecret(keyBuffer, settingsPsk);
-    settingsPskLine = `\n  settingsPsk: "${encryptedPsk}",`;
+    settingsPskLine = `\n  settingsPsk: ${JSON.stringify(encryptedPsk)},`;
   }
 
   stderr.write('\nAdd this to your config file:\n\n');
-  stdout.write(`crypto: {\n  keyFile: "${keyFilePath}",${settingsPskLine}\n},\n`);
+  stdout.write(`crypto: {\n  keyFile: ${JSON.stringify(keyFilePath)},${settingsPskLine}\n},\n`);
 }
 
 /**

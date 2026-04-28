@@ -125,6 +125,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   async postToDHIS2({ reportId, reportCSV }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = await this.getDHIS2Credentials();
+    if (!username || !password) {
+      // Defensive: run() guards on missing credentials, but postToDHIS2 may be
+      // called directly. Failing fast prevents sending "null:null" as a Basic
+      // Auth header to DHIS2.
+      throw new Error('DHIS2 credentials are not configured');
+    }
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });

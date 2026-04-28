@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { unset } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { NotFoundError } from '@tamanu/errors';
+import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import {
   settingsCache,
@@ -91,31 +91,39 @@ adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
 
-// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
+// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel.
+// Both endpoints require an explicit `scope` so that we can resolve the schema
+// and mask/encrypt secret fields. Without a scope we have no way to know which
+// fields are secret, so allowing the call would silently bypass masking on read
+// and encryption on write.
+const requireScope = scope => {
+  if (!scope) {
+    throw new InvalidParameterError('scope is required');
+  }
+  const schema = getScopedSchema(scope);
+  if (!schema) {
+    throw new InvalidParameterError(`unknown scope: ${scope}`);
+  }
+  return schema;
+};
+
 adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Setting');
     const { Setting } = req.store.models;
     const { facilityId, scope } = req.query;
+    const schema = requireScope(scope);
 
     const data = await Setting.get('', facilityId, scope);
 
-    // If no scope provided or no data, return as-is
-    if (!scope || !data || typeof data !== 'object') {
+    if (!data || typeof data !== 'object') {
       res.send(data);
       return;
     }
 
-    // Mask secret values before sending to the client
-    const schema = getScopedSchema(scope);
-    if (schema) {
-      const secretPaths = extractSecretPaths(schema);
-      const maskedData = maskSecrets(data, secretPaths);
-      res.send(maskedData);
-    } else {
-      res.send(data);
-    }
+    const secretPaths = extractSecretPaths(schema);
+    res.send(maskSecrets(data, secretPaths));
   }),
 );
 
@@ -145,40 +153,33 @@ adminRoutes.put(
     req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
     const { settings, scope, facilityId } = req.body;
+    const schema = requireScope(scope);
 
     if (!settings || typeof settings !== 'object') {
       res.json({ code: 200 });
       return;
     }
 
-    // Get the schema to identify secret fields
-    const schema = scope ? getScopedSchema(scope) : null;
+    const entries = flattenSettingsToEntries(settings);
 
-    if (schema) {
-      // Process settings to handle secrets
-      const entries = flattenSettingsToEntries(settings);
+    for (const entry of entries) {
+      const settingDef = getSettingAtPath(schema, entry.path);
+      if (!settingDef?.secret) continue;
 
-      for (const entry of entries) {
-        const settingDef = getSettingAtPath(schema, entry.path);
-
-        if (settingDef?.secret) {
-          if (entry.value === SECRET_PLACEHOLDER) {
-            // Unchanged — placeholder is what we returned to the client.
-          } else if (entry.value === null || entry.value === undefined || entry.value === '') {
-            // Admin cleared the field — delete the stored secret entirely so
-            // the UI shows an empty field next time, not the placeholder.
-            await Setting.unsetSecret(entry.path, scope, facilityId);
-          } else {
-            await Setting.setSecret(entry.path, entry.value, scope, facilityId);
-          }
-          // Always strip secrets from the regular settings object — they're
-          // either unchanged or handled via setSecret/unsetSecret above.
-          unset(settings, entry.path);
-        }
+      if (entry.value === SECRET_PLACEHOLDER) {
+        // Unchanged — placeholder is what we returned to the client.
+      } else if (entry.value === null || entry.value === undefined || entry.value === '') {
+        // Admin cleared the field — delete the stored secret entirely so
+        // the UI shows an empty field next time, not the placeholder.
+        await Setting.unsetSecret(entry.path, scope, facilityId);
+      } else {
+        await Setting.setSecret(entry.path, entry.value, scope, facilityId);
       }
+      // Always strip secrets from the regular settings object — they're
+      // either unchanged or handled via setSecret/unsetSecret above.
+      unset(settings, entry.path);
     }
 
-    // Only save non-secret settings if there are any remaining leaf values
     const remainingEntries = flattenSettingsToEntries(settings);
     if (remainingEntries.length > 0) {
       await Setting.set('', settings, scope, facilityId);
