@@ -1,7 +1,10 @@
-import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
-export async function entireResource({ payload: { resource } }, { log, sequelize, models }) {
+export async function entireResource(
+  { payload: { resource }, priority = JOB_PRIORITIES.DEFAULT },
+  { log, sequelize, models },
+) {
   const materialisableResources = resourcesThatCanDo(
     models,
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
@@ -24,18 +27,20 @@ export async function entireResource({ payload: { resource } }, { log, sequelize
     // sequelize can't do streaming queries, so doing it correctly in JS would
     // be a huge pain
     await sequelize.query(
-      `INSERT INTO fhir.jobs (topic, payload)
+      `INSERT INTO fhir.jobs (topic, payload, priority)
         SELECT
           $topic::text as topic,
           json_build_object(
             'resource', $resource::text,
             'upstreamId', id
-          ) as payload
+          ) as payload,
+          $priority::int as priority
         FROM ${UpstreamModel.tableName}`,
       {
         bind: {
           topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
           resource,
+          priority,
         },
       },
     );
