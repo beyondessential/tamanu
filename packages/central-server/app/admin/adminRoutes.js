@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { unset } from 'lodash';
+import { unset, get as getAtPath, set as setAtPath } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
@@ -11,8 +11,8 @@ import {
   extractSecretPaths,
   maskSecrets,
   SECRET_PLACEHOLDER,
-  getSettingAtPath,
 } from '@tamanu/settings';
+import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -128,23 +128,46 @@ adminRoutes.get(
 );
 
 /**
- * Flattens a nested settings object into an array of { path, value } entries.
- * e.g., { a: { b: 'val' } } => [{ path: 'a.b', value: 'val' }]
+ * Resolves secret fields in `settings` so the object can be safely passed to
+ * Setting.set('', ...) as a single bulk write. Setting.set with an empty key
+ * soft-deletes any row in scope that isn't in its records, so handling secrets
+ * via separate setSecret/unsetSecret calls around the bulk write would lose
+ * the freshly-written secret rows. Instead, for each schema-declared secret
+ * path we mutate `settings` in place:
+ *   - encrypt new plaintext values
+ *   - replace SECRET_PLACEHOLDER (unchanged) with the existing encrypted DB
+ *     value, so the bulk write's isEqual check leaves the row alone
+ *   - remove empty/null entries so the bulk cleanup soft-deletes them
  */
-function flattenSettingsToEntries(obj, parentPath = '') {
-  const entries = [];
+async function resolveSecretsForSave(Setting, settings, schema, scope, facilityId) {
+  const secretPaths = extractSecretPaths(schema);
+  if (secretPaths.length === 0) return;
 
-  for (const [key, value] of Object.entries(obj)) {
-    const fullPath = parentPath ? `${parentPath}.${key}` : key;
+  let keyBuffer;
+  for (const path of secretPaths) {
+    const value = getAtPath(settings, path);
+    if (value === undefined) continue;
 
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      entries.push(...flattenSettingsToEntries(value, fullPath));
-    } else {
-      entries.push({ path: fullPath, value });
+    if (value === SECRET_PLACEHOLDER) {
+      const existing = await Setting.findOne({
+        where: { key: path, scope, facilityId },
+      });
+      if (existing) {
+        setAtPath(settings, path, existing.value);
+      } else {
+        unset(settings, path);
+      }
+      continue;
     }
-  }
 
-  return entries;
+    if (value === null || value === '') {
+      unset(settings, path);
+      continue;
+    }
+
+    if (!keyBuffer) keyBuffer = await getSettingsPskKeyBuffer();
+    setAtPath(settings, path, await encryptSecret(keyBuffer, String(value)));
+  }
 }
 
 adminRoutes.put(
@@ -152,7 +175,7 @@ adminRoutes.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
-    const { settings, scope, facilityId } = req.body;
+    const { settings, scope, facilityId = null } = req.body;
     const schema = requireScope(scope);
 
     if (!settings || typeof settings !== 'object') {
@@ -160,30 +183,8 @@ adminRoutes.put(
       return;
     }
 
-    const entries = flattenSettingsToEntries(settings);
-
-    for (const entry of entries) {
-      const settingDef = getSettingAtPath(schema, entry.path);
-      if (!settingDef?.secret) continue;
-
-      if (entry.value === SECRET_PLACEHOLDER) {
-        // Unchanged — placeholder is what we returned to the client.
-      } else if (entry.value === null || entry.value === undefined || entry.value === '') {
-        // Admin cleared the field — delete the stored secret entirely so
-        // the UI shows an empty field next time, not the placeholder.
-        await Setting.unsetSecret(entry.path, scope, facilityId);
-      } else {
-        await Setting.setSecret(entry.path, entry.value, scope, facilityId);
-      }
-      // Always strip secrets from the regular settings object — they're
-      // either unchanged or handled via setSecret/unsetSecret above.
-      unset(settings, entry.path);
-    }
-
-    const remainingEntries = flattenSettingsToEntries(settings);
-    if (remainingEntries.length > 0) {
-      await Setting.set('', settings, scope, facilityId);
-    }
+    await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
+    await Setting.set('', settings, scope, facilityId);
     res.json({ code: 200 });
   }),
 );
