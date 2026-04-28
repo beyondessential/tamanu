@@ -7,7 +7,7 @@ import { QueryInterface } from 'sequelize';
 //   - tell the web frontend to ignore changes for other facilities or central-only scopes
 //
 // The previous approach (looking up the row in JS via `Setting.findByPk`) was racy for
-// hard DELETEs (row no longer exists) and for UPDATEs (the row may have been updated
+// deleted rows and for updated rows (the row may have been updated
 // again by the time the lookup resolves). Embedding scope/facility_id in the NOTIFY
 // payload itself eliminates both races: the values are read inside the trigger from
 // the exact tuple version that fired the trigger.
