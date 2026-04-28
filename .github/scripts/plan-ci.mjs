@@ -1,16 +1,24 @@
 #!/usr/bin/env node
 // Decide which CI test entries to run for the current event.
 //
-// On `pull_request` we run a smoke subset: each test matrix entry runs only
-// if its own package directory was touched. We don't try to resolve transitive
-// dependencies — the full suite runs on `merge_group` (and on push), which
-// catches everything else.
+// On `pull_request` we run a smoke subset:
+//   * each test matrix entry runs only if its own package directory was
+//     touched
+//   * the migrations matrix runs only when a server-migration file was
+//     touched
+//   * database tests (the `@tamanu/database` test entries and the migrations
+//     matrix) are restricted to the latest postgres version
+//
+// We don't try to resolve transitive dependencies — the full suite runs on
+// `merge_group` (and on push), which catches everything else.
 //
 // If the smoke subset would be empty we emit a single `{ skip }` entry so
 // the job still runs (and reports success).
 
 import { execSync } from 'node:child_process';
 import { appendFileSync, readdirSync, readFileSync } from 'node:fs';
+
+const PR_DATABASE_PG = '18';
 
 const TEST_FULL = [];
 for (let i = 1; i <= 8; i++) {
@@ -30,11 +38,19 @@ TEST_FULL.push(
   { package: '@tamanu/web-frontend' },
 );
 
+const MIGRATIONS_FULL = [];
+for (const server of ['central-server', 'facility-server']) {
+  for (const pg of ['12', '14', '15', '16', '17', '18']) {
+    MIGRATIONS_FULL.push({ server, postgres: pg });
+  }
+}
+
 const event = process.env.GITHUB_EVENT_NAME;
 const baseSha = process.env.BASE_SHA;
 const headSha = process.env.HEAD_SHA;
 
 let testMatrix = TEST_FULL;
+let migrationsMatrix = MIGRATIONS_FULL;
 
 if (event === 'pull_request' && baseSha) {
   const dirByName = {};
@@ -57,18 +73,31 @@ if (event === 'pull_request' && baseSha) {
     if (m) touched.add(m[1]);
   }
 
-  console.error(`Event:            ${event}`);
-  console.error(`Touched packages: ${[...touched].sort().join(', ') || '(none)'}`);
+  const migrationsTouched = files.some((f) => f.startsWith('packages/database/src/migrations/'));
 
-  testMatrix = TEST_FULL.filter((e) => touched.has(dirByName[e.package]));
+  console.error(`Event:              ${event}`);
+  console.error(`Touched packages:   ${[...touched].sort().join(', ') || '(none)'}`);
+  console.error(`Migrations touched: ${migrationsTouched}`);
+
+  testMatrix = TEST_FULL
+    .filter((e) => touched.has(dirByName[e.package]))
+    .filter((e) => e.package !== '@tamanu/database' || e.postgres === PR_DATABASE_PG);
+  migrationsMatrix = migrationsTouched
+    ? MIGRATIONS_FULL.filter((e) => e.postgres === PR_DATABASE_PG)
+    : [];
 }
 
 if (testMatrix.length === 0) {
   testMatrix = [{ skip: 'no relevant package changes' }];
 }
+if (migrationsMatrix.length === 0) {
+  migrationsMatrix = [{ skip: 'no migration changes' }];
+}
 
-console.error(`Test matrix entries: ${testMatrix.length}`);
+console.error(`Test matrix entries:       ${testMatrix.length}`);
+console.error(`Migrations matrix entries: ${migrationsMatrix.length}`);
 
 const out = process.env.GITHUB_OUTPUT;
 if (!out) throw new Error('GITHUB_OUTPUT not set');
 appendFileSync(out, `test-matrix=${JSON.stringify({ include: testMatrix })}\n`);
+appendFileSync(out, `migrations-matrix=${JSON.stringify({ include: migrationsMatrix })}\n`);

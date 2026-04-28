@@ -39,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       test-matrix: ${{ steps.plan.outputs.test-matrix }}
+      migrations-matrix: ${{ steps.plan.outputs.migrations-matrix }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -225,47 +226,48 @@ jobs:
         run: npm run lint-all
 
   migrations:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
     strategy:
       fail-fast: false
-      matrix:
-        server:
-          - central-server
-          - facility-server
-        postgres:
-          - '12'
-          - '14'
-          - '15'
-          - '16'
-          - '17'
+      matrix: ${{ fromJSON(needs.plan.outputs.migrations-matrix) }}
 
-    name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
+    name: ${{ matrix.skip || format('Test migrations server={0} pg={1}', matrix.server, matrix.postgres) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - if: matrix.skip
+        run: echo "::notice::Skipping migrations (${{ matrix.skip }})"
+
+      - if: ${{ !matrix.skip }}
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v6
+      - if: ${{ !matrix.skip }}
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - if: ${{ !matrix.skip }}
+        uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - if: ${{ !matrix.skip }}
+        uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
 
-      - run: npm i
+      - if: ${{ !matrix.skip }}
+        run: npm i
 
       - name: Install and start postgres ${{ matrix.postgres }}
+        if: ${{ !matrix.skip }}
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh migrations
 
-      - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
+      - if: ${{ !matrix.skip }}
+        run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
     needs: [node_modules_cache, build_shared_cache]
