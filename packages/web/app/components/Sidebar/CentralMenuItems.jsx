@@ -80,7 +80,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
   },
   {
     key: 'surveyResponses',
-    label: 'Survey Responses',
+    label: <TranslatedText stringId="adminSidebar.surveyResponses" fallback="Survey responses" />,
     path: '/admin/surveyResponses',
     icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
   },
