@@ -14,6 +14,7 @@ import { DrugExporter } from './DrugExporter';
 import { MedicationTemplateExporter } from './MedicationTemplateExporter';
 import { MedicationSetExporter } from './MedicationSetExporter';
 import { ProcedureTypeExporter } from './ProcedureTypeExporter';
+import { InvoicePriceListExporter } from './InvoicePriceListExporter';
 import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
 import { InvoiceInsurancePlanItemExporter } from './InvoiceInsurancePlanItemExporter';
 import { InvoiceProductExporter } from './InvoiceProductExporter';
@@ -32,6 +33,7 @@ const CustomExportersByDataType = {
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: MedicationTemplateExporter,
   [REFERENCE_TYPES.MEDICATION_SET]: MedicationSetExporter,
   [REFERENCE_TYPES.PROCEDURE_TYPE]: ProcedureTypeExporter,
+  invoicePriceList: InvoicePriceListExporter,
   invoicePriceListItem: InvoicePriceListItemExporter,
   invoiceInsurancePlanItem: InvoiceInsurancePlanItemExporter,
   [OTHER_REFERENCE_TYPES.INVOICE_PRODUCT]: InvoiceProductExporter,

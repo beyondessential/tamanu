@@ -702,7 +702,8 @@ describe('Reference data exporter', () => {
     });
 
     // Create price lists (codes will be sorted alphabetically by exporter)
-    const pl1 = await models.InvoicePriceList.create({ id: 'pl-1', code: 'B' });
+    const pl1Rules = { facilityId: 'facility-1', patientType: 'outpatient' };
+    const pl1 = await models.InvoicePriceList.create({ id: 'pl-1', code: 'B', rules: pl1Rules });
     const pl2 = await models.InvoicePriceList.create({ id: 'pl-2', code: 'A' });
 
     // Create price list items
@@ -739,7 +740,7 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['id', 'code', 'name', 'rules', 'visibilityStatus'],
-            ['pl-1', 'B', null, null, 'current'],
+            ['pl-1', 'B', null, JSON.stringify(pl1Rules), 'current'],
             ['pl-2', 'A', null, null, 'current'],
           ],
           name: 'Invoice Price List',
