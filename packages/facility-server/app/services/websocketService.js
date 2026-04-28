@@ -26,8 +26,19 @@ export const defineWebsocketService = injector => {
   );
 
   const onTableChanged = injector.dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
-  onTableChanged(payload => {
-    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
+  onTableChanged(async payload => {
+    let outgoing = payload;
+    // Enrich settings changes with scope/facilityId so frontend listeners can
+    // filter (e.g. ignore other facilities' settings).
+    if (payload.table === 'settings') {
+      const setting = await injector.models.Setting.findByPk(payload.newId ?? payload.oldId, {
+        paranoid: false,
+      });
+      if (setting) {
+        outgoing = { ...payload, scope: setting.scope, facilityId: setting.facilityId };
+      }
+    }
+    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, outgoing);
   });
 
   onTableChanged(async payload => {
