@@ -28,7 +28,7 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
           ) : (
             <TranslatedText
               stringId="note.modal.actionBlock.tooltip"
-              fallback="Can't perform this action while recording a note"
+              fallback="Can’t perform this action while recording a note"
             />
           )
         }
