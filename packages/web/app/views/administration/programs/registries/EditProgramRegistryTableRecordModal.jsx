@@ -40,7 +40,6 @@ const visibilityStatusValues = visibilityStatusOptions.map(option => option.valu
  */
 function buildValidationSchema(fields) {
   const shape = {
-    code: yup.string(),
     name: yup.string().trim().required('Required'),
     visibilityStatus: yup.string().required('Required').oneOf(visibilityStatusValues),
   };
