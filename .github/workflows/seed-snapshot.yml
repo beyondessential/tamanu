@@ -47,7 +47,7 @@ jobs:
   create-snapshot:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
-    timeout-minutes: 35
+    timeout-minutes: 10
     steps:
       - name: Validate version format
         env:
@@ -74,10 +74,10 @@ jobs:
           JOB_NAME="seed-migrate-${SAFE_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
           echo "job_name=${JOB_NAME}" >> "$GITHUB_OUTPUT"
 
-      # We submit the Job suspended; the pgsnap operator (watching the
-      # `pgsnap.bes.au/create` label) provisions the PVC + DB connection
-      # Secret, then unsuspends the Job. After completion, the operator
-      # snapshots the PVC and the Job is GC'd via ttlSecondsAfterFinished.
+      # Fire-and-forget: we submit the Job suspended and the pgsnap operator
+      # owns the rest of the lifecycle (provisioning the PVC + DB secret,
+      # unsuspending, snapshotting on completion, GC). Job correctness is
+      # observed via the resulting VolumeSnapshot in `tamanu-seed`, not here.
       - name: Create seed Job
         env:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
@@ -143,18 +143,4 @@ jobs:
                         memory: 2Gi
                         ephemeral-storage: 2Gi
           EOF
-
-      - name: Wait for Job to complete
-        env:
-          JOB_NAME: ${{ steps.names.outputs.job_name }}
-        run: |
-          # Bounded by the workflow's timeout-minutes; this just gives a clean
-          # success/failure signal and surfaces logs on failure.
-          if ! kubectl -n "$SEED_NAMESPACE" wait --for=condition=Complete \
-              "job/$JOB_NAME" --timeout=30m; then
-            echo "::error::Seed Job did not complete successfully"
-            kubectl -n "$SEED_NAMESPACE" describe "job/$JOB_NAME" || true
-            kubectl -n "$SEED_NAMESPACE" logs "job/$JOB_NAME" --tail=200 || true
-            exit 1
-          fi
 
