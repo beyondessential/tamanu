@@ -349,9 +349,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     onChange={(_, selectedItem) => {
                       setValues({
                         ...values,
-                        // Use undefined (not '') to trigger Dropdown default parameter (value = [])
-                        // This allows allowResetSingleValue to work correctly and prevents
-                        // showing clear icon on empty dropdowns (see BUGBOT_ANALYSIS_RESPONSE.md)
                         route: selectedItem?.referenceDrug_route?.toLowerCase() || undefined,
                         units: selectedItem?.referenceDrug_units || undefined,
                         notes: selectedItem?.referenceDrug_notes || '',
