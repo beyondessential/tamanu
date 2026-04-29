@@ -74,12 +74,7 @@ const TabKey = /** @type {const} */ ({
 const tabs = /** @type {const} */ ([
   {
     key: TabKey.ClinicalStatuses,
-    label: (
-      <TranslatedText
-        stringId="admin.programRegistries.tab.statuses"
-        fallback="Clinical statuses"
-      />
-    ),
+    label: <TranslatedText stringId="admin.programRegistries.tab.statuses" fallback="Statuses" />,
     render: Outlet,
   },
   {
