@@ -85,7 +85,10 @@ const tabs = /** @type {const} */ ([
   {
     key: TabKey.Conditions,
     label: (
-      <TranslatedText stringId="admin.programRegistries.tab.conditions" fallback="Conditions" />
+      <TranslatedText
+        stringId="admin.programRegistries.tab.conditions"
+        fallback="Related conditions"
+      />
     ),
     render: Outlet,
   },
