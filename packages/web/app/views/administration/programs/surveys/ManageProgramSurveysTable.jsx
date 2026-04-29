@@ -156,7 +156,7 @@ const programSurveyColumns = /** @type {const} */ ([
     sortable: false,
     title: (
       <VisuallyHidden>
-        <TranslatedText stringId="admin.programs.surveys.table.column.actions" fallback="Actions" />
+        <TranslatedText stringId="general.table.column.actions" fallback="Actions" />
       </VisuallyHidden>
     ),
   },
