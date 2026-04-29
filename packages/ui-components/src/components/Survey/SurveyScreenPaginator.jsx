@@ -18,27 +18,18 @@ const StyledButtonRow = styled(ButtonRow)`
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
-      <TranslatedText
-        stringId="program.modal.surveyResponse.complete"
-        fallback="Survey complete"
-        data-testid="translatedtext-97rx"
-      />
+      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
     </Typography>
     <Text data-testid="text-am03">
       <TranslatedText
         stringId="program.modal.surveyResponse.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-        data-testid="translatedtext-268y"
       />
     </Text>
     <div>
       <StyledButtonRow data-testid="styledbuttonrow-ljfc">
         <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
-          <TranslatedText
-            stringId="general.action.prev"
-            fallback="Prev"
-            data-testid="translatedtext-lzgi"
-          />
+          <TranslatedText stringId="general.action.prev" fallback="Prev" />
         </OutlinedButton>
         <FormSubmitButton
           color="primary"
@@ -46,11 +37,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
           onClick={onSurveyComplete}
           data-testid="formsubmitbutton-pufy"
         >
-          <TranslatedText
-            stringId="general.action.complete"
-            fallback="Complete"
-            data-testid="translatedtext-7box"
-          />
+          <TranslatedText stringId="general.action.complete" fallback="Complete" />
         </FormSubmitButton>
       </StyledButtonRow>
     </div>
