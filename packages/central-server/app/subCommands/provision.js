@@ -87,22 +87,6 @@ function validateFullReferenceDataImport(workbook) {
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
-  const userCount = await store.models.User.count({
-    where: {
-      id: { [Op.ne]: SYSTEM_USER_UUID },
-    },
-  });
-
-  if (userCount > 0) {
-    if (skipIfNotNeeded) {
-      log.info(
-        `Found ${userCount} users already in the database, but expecting to, not provisioning`,
-      );
-      return;
-    }
-
-    throw new Error(`Found ${userCount} users already in the database, aborting provision`);
-  }
 
   checkIntegrationsConfig();
 
@@ -113,6 +97,32 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     referenceData = [],
     settings = {},
   } = await loadSettingFile(provisioningFile);
+
+  // Bail signal is "the provisioning file's admin user(s) already exist", not
+  // "any user exists" — a DB seeded from a fake-data snapshot has random users
+  // but is still missing the admin/facility-sync users we want to create here.
+  const provisionedEmails = Object.keys(users);
+  if (provisionedEmails.length > 0) {
+    const existing = await store.models.User.count({
+      where: {
+        id: { [Op.ne]: SYSTEM_USER_UUID },
+        email: { [Op.in]: provisionedEmails },
+      },
+    });
+
+    if (existing > 0) {
+      if (skipIfNotNeeded) {
+        log.info(
+          `Found ${existing}/${provisionedEmails.length} provisioned admin user(s) already in the database, not provisioning`,
+        );
+        return;
+      }
+
+      throw new Error(
+        `Found ${existing} provisioned admin user(s) already in the database, aborting provision`,
+      );
+    }
+  }
 
   /// //////////////
   /// REFERENCE DATA
