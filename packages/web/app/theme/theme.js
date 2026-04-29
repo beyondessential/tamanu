@@ -86,6 +86,14 @@ const themeConfig = {
         borderColor: Colors.outline,
       },
     },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: '48px',
+          textTransform: 'none',
+        },
+      },
+    },
   },
 };
 
