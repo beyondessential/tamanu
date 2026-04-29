@@ -1,17 +1,17 @@
 meta {
-  name: Read MedicationRequest
+  name: Read Immunization
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/MedicationRequest/:id
+  url: {{baseUrl}}/api/integration/fhir/mat/Immunization/:id
   body: none
   auth: bearer
 }
 
 params:path {
-  id: 
+  id: {{immunizationId}}
 }
 
 auth:bearer {

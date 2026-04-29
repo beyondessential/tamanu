@@ -11,6 +11,7 @@ export const JOB_TOPICS = {
 
 export const JOB_PRIORITIES = {
   LOW: 500,
+  MIGRATION: 900,
   DEFAULT: 1000,
   HIGH: 1500,
 };
