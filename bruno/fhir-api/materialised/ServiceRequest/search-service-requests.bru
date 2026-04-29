@@ -19,4 +19,13 @@ params:query {
   ~_sort: -_lastUpdated
   ~_id: 
   ~_lastUpdated: 
+  ~category: 108252007
+  ~_include: Specimen:specimen
+}
+
+docs {
+  Optional query params:
+  - `category=108252007` for lab ServiceRequests
+  - `category=363679005` for imaging ServiceRequests
+  - `_include=Specimen:specimen` to embed referenced Specimens
 }

@@ -1,0 +1,40 @@
+meta {
+  name: Discover Imaging ServiceRequest
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  body: none
+  auth: bearer
+}
+
+params:query {
+  category: 363679005
+  _count: 1
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const entry = body && body.entry && body.entry[0] && body.entry[0].resource;
+  if (entry && entry.id) {
+    bru.setVar("imagingServiceRequestId", entry.id);
+    bru.setVar("imagingAccessionNumber", "BRUNO-" + Date.now());
+  } else {
+    bru.setVar("imagingServiceRequestId", "");
+    bru.setVar("imagingAccessionNumber", "");
+  }
+}
+
+tests {
+
+  test("imaging ServiceRequest record found", function() {
+    expect(bru.getVar("imagingServiceRequestId"), "No imaging ServiceRequest found in this environment").to.be.a("string").and.not.empty;
+  });
+}
