@@ -278,8 +278,8 @@ export class TamanuApi extends ApiClient {
     return { settings };
   }
 
-  async fetchFrontEndSettings() {
-    const { settings } = await this.get('settings/frontEnd', null, {
+  async fetchFrontEndSettings(facilityId) {
+    const { settings } = await this.get('settings/frontEnd', { facilityId }, {
       showUnknownErrorToast: false,
     });
     return settings ?? null;

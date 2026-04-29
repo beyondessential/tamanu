@@ -117,7 +117,7 @@ export const refreshSettings = () => async (dispatch, getState, { api }) => {
   const facilityIdAtStart = getState().auth.facilityId;
   if (!facilityIdAtStart) return;
   try {
-    const settings = await api.fetchFrontEndSettings();
+    const settings = await api.fetchFrontEndSettings(facilityIdAtStart);
     if (!settings) return;
     // If the user switched facility (or logged out) while the request was in flight,
     // the response is for the previous facility - drop it so we don't clobber the

@@ -20,7 +20,7 @@ export async function createApp(ctx) {
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
   if (config["socket.io"].enabled) {
-    await createWebsocket(api.httpServer, ctx);
+    await createWebsocket(api.httpServer, ctx, dbNotifier);
   }
 
   // Release the connection back to the pool when the server is closed
