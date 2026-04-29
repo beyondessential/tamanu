@@ -332,7 +332,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                     </Box>
                   ))}
                   <NoteText>
-                    {log.userChanged.name}
+                    {log.userChanged.name}{' '}
                     {log.userChanged.date}
                   </NoteText>
                   {log.doseIndex && (
