@@ -5,14 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest?category=http%3A%2F%2Fsnomed.info%2Fsct%7C108252007&_count=1&_sort=-_lastUpdated
   body: none
   auth: bearer
-}
-
-params:query {
-  _count: 10
-  _sort: -_lastUpdated
 }
 
 auth:bearer {
@@ -20,15 +15,11 @@ auth:bearer {
 }
 
 script:post-response {
-  const LAB_REQUEST_ID_SYSTEM = "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html";
   const LAB_TEST_CODE_SYSTEM = "https://www.senaite.com/testCodes.html";
   const LAB_TEST_EXTERNAL_CODE_SYSTEM = "http://loinc.org";
 
   const body = res.getBody && res.getBody();
-  const resources = ((body && body.entry) || []).map(e => e.resource);
-  const resource = resources.find(r =>
-    (r.identifier || []).some(i => i.system === LAB_REQUEST_ID_SYSTEM)
-  );
+  const resource = body && body.entry && body.entry[0] && body.entry[0].resource;
   const orderDetail = (resource && resource.orderDetail) || [];
   const firstCodingSet = (orderDetail[0] && orderDetail[0].coding) || [];
   const labCode = firstCodingSet.find(c => c && c.system === LAB_TEST_CODE_SYSTEM && c.code);

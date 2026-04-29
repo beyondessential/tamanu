@@ -5,14 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest?category=http%3A%2F%2Fsnomed.info%2Fsct%7C363679005&_count=1&_sort=-_lastUpdated
   body: none
   auth: bearer
-}
-
-params:query {
-  _count: 10
-  _sort: -_lastUpdated
 }
 
 auth:bearer {
@@ -20,13 +15,8 @@ auth:bearer {
 }
 
 script:post-response {
-  const IMAGING_REQUEST_ID_SYSTEM = "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html";
-
   const body = res.getBody && res.getBody();
-  const resources = ((body && body.entry) || []).map(e => e.resource);
-  const entry = resources.find(r =>
-    (r.identifier || []).some(i => i.system === IMAGING_REQUEST_ID_SYSTEM)
-  );
+  const entry = body && body.entry && body.entry[0] && body.entry[0].resource;
   if (entry && entry.id) {
     bru.setVar("imagingServiceRequestId", entry.id);
     bru.setVar("imagingAccessionNumber", "BRUNO-" + Date.now());
