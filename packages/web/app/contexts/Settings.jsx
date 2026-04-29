@@ -29,7 +29,7 @@ export const SettingsProvider = ({ children }) => {
         isSettingsLoaded,
       }}
     >
-      {/* Settings are facility-scoped; only refresh after a facility is selected. */}
+      {/* Web settings are tied to the selected facility session. */}
       {isFacilitySelected && <SettingsRefresher />}
       {children}
     </SettingsContext.Provider>

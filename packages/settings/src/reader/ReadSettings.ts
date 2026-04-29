@@ -8,6 +8,8 @@ import { facilitySettings } from '../schema/facility';
 import { centralSettings } from '../schema/central';
 
 const allSchemas = [globalSettings, facilitySettings, centralSettings];
+const getSchemasForSettingsContext = (facilityId?: string): SettingsSchema[] =>
+  facilityId ? [facilitySettings, globalSettings] : [centralSettings, globalSettings];
 
 // Recursively walks the schema tree collecting keys that have the given flag set.
 // When a node has the flag, its full dot-notated path is included and children are
@@ -26,8 +28,10 @@ const extractExposedKeys = (schema: SettingsSchema, flag: ExposedFlag, prefix = 
   return keys;
 };
 
-export const getKeysByFlag = (flag: ExposedFlag): string[] =>
-  allSchemas.flatMap(schema => extractExposedKeys(schema, flag));
+export const getKeysByFlag = (
+  flag: ExposedFlag,
+  schemas: SettingsSchema[] = allSchemas,
+): string[] => schemas.flatMap(schema => extractExposedKeys(schema, flag));
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -44,15 +48,21 @@ export class ReadSettings<Path = SettingPath> {
 
   // This is what is called on tamanu-web login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
-  // Settings are automatically extracted based on exposedToWeb: true in the schema
+  // Settings are extracted from the schemas that apply to this reader's context.
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, getKeysByFlag('exposedToWeb'));
+    return pick(
+      allSettings,
+      getKeysByFlag('exposedToWeb', getSchemasForSettingsContext(this.facilityId)),
+    );
   }
 
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, getKeysByFlag('exposedToPatientPortal'));
+    return pick(
+      allSettings,
+      getKeysByFlag('exposedToPatientPortal', getSchemasForSettingsContext(this.facilityId)),
+    );
   }
 
   async getAll() {

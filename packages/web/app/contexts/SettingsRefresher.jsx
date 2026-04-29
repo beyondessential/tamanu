@@ -10,7 +10,7 @@ const SETTINGS_CHANGE_EVENT = `${WS_EVENTS.DATABASE_TABLE_CHANGED}:settings`;
 
 /**
  * Re-fetches frontend settings into redux when the server broadcasts a settings
- * table change. Mounted only when authenticated (see SettingsProvider).
+ * table change for the selected facility session.
  */
 export const SettingsRefresher = () => {
   const dispatch = useDispatch();
