@@ -1,17 +1,17 @@
 meta {
-  name: Read Specimen
+  name: Read Practitioner
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/Specimen/:id
+  url: {{baseUrl}}/api/integration/fhir/mat/Practitioner/:id
   body: none
   auth: bearer
 }
 
 params:path {
-  id: 
+  id: {{practitionerId}}
 }
 
 auth:bearer {

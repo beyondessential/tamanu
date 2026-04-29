@@ -1,17 +1,17 @@
 meta {
-  name: Read ServiceRequest
+  name: Read Specimen
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest/:id
+  url: {{baseUrl}}/api/integration/fhir/mat/Specimen/:id
   body: none
   auth: bearer
 }
 
 params:path {
-  id: 
+  id: {{specimenId}}
 }
 
 auth:bearer {
