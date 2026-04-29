@@ -104,7 +104,7 @@ function useSurveyMetadataMutation(surveyId, { onError, onSuccess, ...rest }) {
  * }} props
  */
 export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }) {
-  const { mutateAsync, isPending } = useSurveyMetadataMutation(survey.id, {
+  const { mutateAsync, isLoading } = useSurveyMetadataMutation(survey.id, {
     onSuccess: () => {
       onClose();
       onSave?.();
@@ -176,7 +176,7 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
               <SurveyTypeField label="surveyType" name="surveyType" required />
               <NullableBooleanSelect label="isSensitive" name="isSensitive" required />
               <VisibilityStatusField
-                disabled={isPending}
+                disabled={isLoading}
                 label="visibilityStatus"
                 name="visibilityStatus"
                 required
@@ -190,10 +190,10 @@ export function EditProgramSurveyMetadataModal({ onClose, onSave, open, survey }
               />
             </FormGridThatFits>
             <Footer>
-              <Button isSubmitting={isPending} onClick={submitForm} type="submit">
+              <Button isSubmitting={isLoading} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
               </Button>
-              <OutlinedButton disabled={isPending} onClick={onClose}>
+              <OutlinedButton disabled={isLoading} onClick={onClose}>
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </OutlinedButton>
             </Footer>
