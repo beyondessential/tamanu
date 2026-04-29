@@ -11,8 +11,7 @@ get {
 }
 
 params:query {
-  category: 108252007
-  _count: 1
+  _count: 10
   _sort: -_lastUpdated
 }
 
@@ -21,19 +20,21 @@ auth:bearer {
 }
 
 script:post-response {
+  const LAB_REQUEST_ID_SYSTEM = "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html";
   const LAB_TEST_CODE_SYSTEM = "https://www.senaite.com/testCodes.html";
   const LAB_TEST_EXTERNAL_CODE_SYSTEM = "http://loinc.org";
 
   const body = res.getBody && res.getBody();
-  const resource = body && body.entry && body.entry[0] && body.entry[0].resource;
-
+  const resources = ((body && body.entry) || []).map(e => e.resource);
+  const resource = resources.find(r =>
+    (r.identifier || []).some(i => i.system === LAB_REQUEST_ID_SYSTEM)
+  );
   const orderDetail = (resource && resource.orderDetail) || [];
   const firstCodingSet = (orderDetail[0] && orderDetail[0].coding) || [];
   const labCode = firstCodingSet.find(c => c && c.system === LAB_TEST_CODE_SYSTEM && c.code);
   const externalCode = firstCodingSet.find(c => c && c.system === LAB_TEST_EXTERNAL_CODE_SYSTEM && c.code);
 
   bru.setVar("labServiceRequestId", (resource && resource.id) || "");
-  bru.setVar("serviceRequestId", (resource && resource.id) || "");
   bru.setVar("labTestCode", (labCode && labCode.code) || "");
   bru.setVar("labTestExternalCode", (externalCode && externalCode.code) || "");
 }

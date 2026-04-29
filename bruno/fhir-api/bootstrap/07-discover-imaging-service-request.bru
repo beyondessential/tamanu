@@ -11,8 +11,7 @@ get {
 }
 
 params:query {
-  category: 363679005
-  _count: 1
+  _count: 10
   _sort: -_lastUpdated
 }
 
@@ -21,8 +20,13 @@ auth:bearer {
 }
 
 script:post-response {
+  const IMAGING_REQUEST_ID_SYSTEM = "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html";
+
   const body = res.getBody && res.getBody();
-  const entry = body && body.entry && body.entry[0] && body.entry[0].resource;
+  const resources = ((body && body.entry) || []).map(e => e.resource);
+  const entry = resources.find(r =>
+    (r.identifier || []).some(i => i.system === IMAGING_REQUEST_ID_SYSTEM)
+  );
   if (entry && entry.id) {
     bru.setVar("imagingServiceRequestId", entry.id);
     bru.setVar("imagingAccessionNumber", "BRUNO-" + Date.now());
