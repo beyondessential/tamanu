@@ -1,0 +1,25 @@
+meta {
+  name: Read ServiceRequest
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{labServiceRequestId}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Defaults to `{{labServiceRequestId}}`. Override `:id` for a specific
+  ServiceRequest. Tamanu permission filtering means only lab requests are
+  visible to lab-FHIR roles and imaging requests to imaging-FHIR roles.
+}
