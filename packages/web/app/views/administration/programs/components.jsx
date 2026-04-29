@@ -40,18 +40,18 @@ export const TableScopeSelect = styled(SelectField).attrs({
   min-inline-size: 23rem;
 `;
 
-export const visibilityStatusSelectOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
+export const visibilityStatusOptions = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
   value,
   label: <TranslatedVisibilityStatus visibilityStatus={value} />,
 }));
 
-export function VisibilityStatusSelectField({ isClearable = false, ...props }) {
+export function VisibilityStatusField({ isClearable = false, ...props }) {
   return (
     <Field
       isClearable={isClearable}
       {...props}
       component={SelectField}
-      options={visibilityStatusSelectOptions}
+      options={visibilityStatusOptions}
     />
   );
 }

@@ -9,7 +9,7 @@ import { useParams } from 'react-router';
 import { ContentUnavailableView, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { VisibilityStatusCell } from '../components';
 import {
-  ColourCell,
+  ColorCell,
   createProgramRegistryRowActionsAccessor,
   StyledDataFetchingTable,
 } from './components';
@@ -24,6 +24,8 @@ const visibilityStatusColumn = /** @type {const} */ ({
   title: 'visibilityStatus',
 });
 
+const colorColumn = /** @type {const} */ ({ key: 'color', title: 'color', accessor: ColorCell });
+
 const actionsColumnBase = /** @type {const} */ ({
   dontCallRowInput: true,
   isExportable: false,
@@ -37,29 +39,49 @@ const actionsColumnBase = /** @type {const} */ ({
   ),
 });
 
+const clinicalStatusesEditFields = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  colorColumn,
+  visibilityStatusColumn,
+]);
+
 const clinicalStatusesActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryClinicalStatus', {
+    fields: clinicalStatusesEditFields,
+    title: 'Edit status',
+  }),
 });
+
+const conditionsEditFields = /** @type {const} */ ([
+  codeColumn,
+  nameColumn,
+  visibilityStatusColumn,
+]);
 
 const conditionsActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryCondition', {
+    fields: conditionsEditFields,
+    title: 'Edit condition',
+  }),
 });
+
+const conditionCategoriesEditFields = conditionsEditFields;
 
 const conditionCategoriesActionsColumn = /** @type {const} */ ({
   ...actionsColumnBase,
-  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory'),
+  accessor: createProgramRegistryRowActionsAccessor('programRegistryConditionCategory', {
+    fields: conditionCategoriesEditFields,
+    title: 'Edit condition category',
+  }),
 });
 
 const programRegistryClinicalStatusesColumns = /** @type {const} */ ([
   codeColumn,
   nameColumn,
-  {
-    accessor: ColourCell,
-    key: 'color',
-    title: 'color',
-  },
+  colorColumn,
   visibilityStatusColumn,
   clinicalStatusesActionsColumn,
 ]);
@@ -73,10 +95,11 @@ function ManageProgramRegistriesTable({ columns, endpointSuffix, noDataMessage, 
   return (
     <StyledDataFetchingTable
       columns={columns}
+      data-testid={dataTestId}
       endpoint={endpoint}
       initialSort={{ orderBy: 'name', order: 'asc' }}
+      key={programRegistryId}
       noDataMessage={noDataMessage}
-      data-testid={dataTestId}
     />
   );
 }

@@ -4,12 +4,45 @@ import React, { useId, useMemo } from 'react';
 import { Link, Outlet, useLocation, useMatch, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { TranslatedText, VisibilityStatusChip } from '@tamanu/ui-components';
+import {
+  ContentUnavailableView,
+  TranslatedText,
+  useTranslation,
+  VisibilityStatusChip,
+} from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants';
 import { Article, TableScopeHeader, TableScopeSelect } from '../components';
 import { EditProgramRegistryButton } from './EditProgramRegistryModal';
 import { useProgramRegistriesQuery, useProgramRegistryQuery } from './queries';
+
+function EmptyState() {
+  const { getTranslation } = useTranslation();
+  return (
+    <Article
+      style={{ display: 'grid', flex: 1, placeItems: 'center', gridTemplateRows: '3fr auto 4fr' }}
+    >
+      <ContentUnavailableView
+        heading={
+          <TranslatedText
+            stringId="admin.programRegistries.noData.heading"
+            fallback="No program registries"
+          />
+        }
+        description={
+          <TranslatedText
+            stringId="admin.programRegistries.noData.description"
+            fallback="Import program registries in :programsAndForms"
+            replacements={{
+              programsAndForms: getTranslation('adminSidebar.programsAndForms', 'Programs & forms'),
+            }}
+          />
+        }
+        style={{ gridRow: '2' }}
+      />
+    </Article>
+  );
+}
 
 const Metadata = styled.div`
   align-items: baseline;
@@ -41,18 +74,16 @@ const TabKey = /** @type {const} */ ({
 const tabs = /** @type {const} */ ([
   {
     key: TabKey.ClinicalStatuses,
-    label: (
-      <TranslatedText
-        stringId="admin.programRegistries.tab.statuses"
-        fallback="Clinical statuses"
-      />
-    ),
+    label: <TranslatedText stringId="admin.programRegistries.tab.statuses" fallback="Statuses" />,
     render: Outlet,
   },
   {
     key: TabKey.Conditions,
     label: (
-      <TranslatedText stringId="admin.programRegistries.tab.conditions" fallback="Conditions" />
+      <TranslatedText
+        stringId="admin.programRegistries.tab.conditions"
+        fallback="Related conditions"
+      />
     ),
     render: Outlet,
   },
@@ -94,10 +125,10 @@ export function ManageProgramRegistriesAdminView() {
     onSuccess: function defaultToFirst(data) {
       if (programRegistryId) return;
       const firstRegistryId = data?.[0]?.id;
-      if (!firstRegistryId) return;
-      switchProgramRegistry(firstRegistryId);
+      if (firstRegistryId) switchProgramRegistry(firstRegistryId);
     },
   });
+  const hasNoRegistries = registries?.length === 0;
   const options = useMemo(
     () => registries?.map(({ id, name }) => ({ value: id, label: name })) ?? [],
     [registries],
@@ -126,7 +157,9 @@ export function ManageProgramRegistriesAdminView() {
     navigate(`/admin/programs/registries/${encodeURIComponent(programRegistryId)}/${tabKey}`);
   };
 
-  return (
+  return hasNoRegistries ? (
+    <EmptyState />
+  ) : (
     <Article>
       <TableScopeHeader>
         <TableScopeSelect

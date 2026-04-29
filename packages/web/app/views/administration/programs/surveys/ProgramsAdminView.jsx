@@ -5,13 +5,23 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useMatch, useNavigate, useOutletContext } from 'react-router';
 import styled from 'styled-components';
 
-import { TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants/styles';
-import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
 import { ImporterView } from '../../components/ImporterView';
 import { ProgramExporterView } from '../../components/ProgramExporterView';
 import { Article } from '../components';
+
+/**
+ * Eventually, all {@link ContentContainer}s should use {@link TAMANU_COLORS.background2}. This
+ * component exists merely to preserve existing behaviour.
+ */
+const StyledArticle = styled(Article)`
+  ${ContentContainer}:has(&) {
+    background-color: ${TAMANU_COLORS.white};
+  }
+`;
 
 const StyledTabDisplay = styled(TabDisplay)`
   border-block-end: 1px solid ${Colors.outline};
@@ -34,13 +44,13 @@ export function ProgramsImportTab() {
   const { setIsLoading } = useOutletContext();
 
   return (
-    <Article data-testid="tabcontainer-g2le">
+    <StyledArticle data-testid="tabcontainer-g2le">
       <ImporterView
         endpoint="program"
         setIsLoading={setIsLoading}
         data-testid="importerview-0cyu"
       />
-    </Article>
+    </StyledArticle>
   );
 }
 
@@ -48,9 +58,9 @@ export function ProgramsExportTab() {
   const { setIsLoading } = useOutletContext();
 
   return (
-    <Article data-testid="tabcontainer-za63">
+    <StyledArticle data-testid="tabcontainer-za63">
       <ProgramExporterView setIsLoading={setIsLoading} data-testid="programexporterview-mazu" />
-    </Article>
+    </StyledArticle>
   );
 }
 

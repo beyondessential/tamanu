@@ -8,7 +8,7 @@ import { TranslatedText } from '../../../components';
 import { AutocompleteField, Field } from '../../../components/Field';
 import { notifySuccess } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
-import { useProgramsQuery } from '../programs/programs/queries';
+import { useProgramsQuery } from '../programs/surveys/queries';
 
 const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1} data-testid="formgrid-hbbc">

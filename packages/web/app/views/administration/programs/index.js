@@ -3,5 +3,5 @@ export {
   ProgramsAdminView,
   ProgramsExportTab,
   ProgramsImportTab,
-} from './programs';
+} from './surveys';
 export { ManageProgramRegistriesRoutes, ProgramRegistriesAdminView } from './registries';

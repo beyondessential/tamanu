@@ -34,7 +34,7 @@ export function useProgramRegistryMutation(useMutationOptions = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ['admin', 'programRegistry', 'updateMetadata'],
+    mutationKey: ['programRegistry', 'updateMetadata'],
     mutationFn: async ({ programRegistryId, name, visibilityStatus, currentlyAtType }) =>
       await api.patch(`admin/programRegistry/${encodeURIComponent(programRegistryId)}`, {
         name,

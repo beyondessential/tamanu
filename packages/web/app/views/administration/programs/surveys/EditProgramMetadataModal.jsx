@@ -1,3 +1,7 @@
+/*
+ * Input labels in this component deliberately untranslated to match those in program import/export.
+ */
+
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
@@ -8,6 +12,7 @@ import {
   Button,
   Field,
   Form,
+  FormGridThatFits,
   OutlinedButton,
   ReadOnlyTextField,
   TextField,
@@ -16,12 +21,6 @@ import {
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
 import { useProgramMutation, useProgramQuery } from './queries';
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -62,6 +61,7 @@ function EditProgramMetadataModal({ onClose, open }) {
       title={
         <TranslatedText stringId="admin.programs.editMetadata" fallback="Edit program metadata" />
       }
+      width="md"
     >
       <Form
         enableReinitialize
@@ -73,15 +73,21 @@ function EditProgramMetadataModal({ onClose, open }) {
         }}
         render={({ submitForm, isSubmitting }) => (
           <>
-            <Fieldset disabled={isSubmitting}>
+            <FormGridThatFits disabled={isSubmitting}>
               <ReadOnlyTextField
                 // Not to be confused with `program.code`
                 field={{ name: 'programCode', value: program?.programCode ?? '' }}
                 label="programCode"
                 required
               />
-              <Field name="name" component={TextField} label="programName" />
-            </Fieldset>
+              <Field
+                autoComplete="off"
+                name="name"
+                component={TextField}
+                label="programName"
+                required
+              />
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

@@ -69,13 +69,17 @@ export const SURVEY_TYPES = {
   SIMPLE_CHART: 'simpleChart',
   COMPLEX_CHART: 'complexChart',
   COMPLEX_CHART_CORE: 'complexChartCore',
-};
+} as const;
 
+/**
+ * @privateRemarks
+ * Wider type than necessary for simpler membership checking with {@link Array.prototype.includes}
+ */
 export const CHARTING_SURVEY_TYPES = [
   SURVEY_TYPES.SIMPLE_CHART,
   SURVEY_TYPES.COMPLEX_CHART,
   SURVEY_TYPES.COMPLEX_CHART_CORE,
-];
+] as readonly (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES][];
 
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
 const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';

@@ -85,20 +85,36 @@ adminRoutes.use('/programRegistries', programRegistriesRouter);
 adminRoutes.use('/programRegistry', programRegistryRouter);
 adminRoutes.patch(
   '/programRegistryClinicalStatus/:id',
-  simplePatch('ProgramRegistryClinicalStatus', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryClinicalStatus', {
+    allowedFields: ['color', 'name', 'visibilityStatus'],
+  }),
 );
 adminRoutes.patch(
   '/programRegistryCondition/:id',
-  simplePatch('ProgramRegistryCondition', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryCondition', { allowedFields: ['name', 'visibilityStatus'] }),
 );
 adminRoutes.patch(
   '/programRegistryConditionCategory/:id',
-  simplePatch('ProgramRegistryConditionCategory', { allowedFields: ['visibilityStatus'] }),
+  simplePatch('ProgramRegistryConditionCategory', {
+    allowedFields: ['name', 'visibilityStatus'],
+  }),
 );
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
-adminRoutes.patch('/survey/:id', simplePatch('Survey', { allowedFields: ['visibilityStatus'] }));
+adminRoutes.patch(
+  '/survey/:id',
+  simplePatch('Survey', {
+    allowedFields: [
+      'isSensitive',
+      'name',
+      'notifiable',
+      'notifyEmailAddresses',
+      'surveyType',
+      'visibilityStatus',
+    ],
+  }),
+);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(

@@ -9,6 +9,7 @@ import {
   Button,
   Field,
   Form,
+  FormGridThatFits,
   OutlinedButton,
   ReadOnlyTextField,
   SelectField,
@@ -17,14 +18,8 @@ import {
 } from '@tamanu/ui-components';
 import { FormModal } from '../../../../components';
 import { notifySuccess } from '../../../../utils';
-import { VisibilityStatusSelectField, visibilityStatusSelectOptions } from '../components';
+import { VisibilityStatusField, visibilityStatusOptions } from '../components';
 import { useProgramRegistryMutation, useProgramRegistryQuery } from './queries';
-
-const Fieldset = styled.fieldset`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 0.8rem;
-`;
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -55,7 +50,7 @@ const metadataValidationSchema = yup.object().shape({
   visibilityStatus: yup
     .string()
     .required('Required')
-    .oneOf(visibilityStatusSelectOptions.map(option => option.value)),
+    .oneOf(visibilityStatusOptions.map(option => option.value)),
   currentlyAtType: yup.string().required('Required'),
 });
 
@@ -95,6 +90,7 @@ function EditProgramRegistryModal({ onClose, open }) {
           fallback="Edit program registry metadata"
         />
       }
+      width="md"
     >
       <Form
         enableReinitialize
@@ -111,23 +107,31 @@ function EditProgramRegistryModal({ onClose, open }) {
         }}
         render={({ submitForm, isSubmitting }) => (
           <>
-            <Fieldset>
-              <Field name="code" component={ReadOnlyTextField} label="code" />
-              <Field name="name" component={TextField} disabled={isSubmitting} label="name" />
-              <VisibilityStatusSelectField
+            <FormGridThatFits disabled={isSubmitting}>
+              <Field component={ReadOnlyTextField} label="code" name="code" required />
+              <Field
+                component={TextField}
+                disabled={isSubmitting}
+                label="name"
+                name="name"
+                required
+              />
+              <VisibilityStatusField
                 disabled={isSubmitting}
                 label="visibilityStatus"
                 name="visibilityStatus"
+                required
               />
               <Field
-                name="currentlyAtType"
                 component={SelectField}
                 disabled={isSubmitting}
                 isClearable={false}
                 label="currentlyAtType"
+                name="currentlyAtType"
                 options={currentlyAtTypeSelectOptions}
+                required
               />
-            </Fieldset>
+            </FormGridThatFits>
             <Footer>
               <Button isSubmitting={isSubmitting} onClick={submitForm} type="submit">
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
