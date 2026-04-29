@@ -168,7 +168,7 @@ export const SampleDetailsField = ({
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
       return (
-        <React.Fragment key={identifier} data-testid="fragment-lxar">
+        <React.Fragment key={identifier}>
           {hasPanels && (
             <Cell style={{ marginLeft: '32px' }} data-testid="cell-ow83">
               <Typography variant="subtitle1" data-testid="typography-ex0x">

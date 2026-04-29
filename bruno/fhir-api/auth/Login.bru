@@ -24,7 +24,12 @@ body:json {
 }
 
 script:post-response {
-  if (res.body.token) {
+  if (res.body && res.body.token) {
     bru.setVar("token", res.body.token);
   }
+}
+
+docs {
+  Authenticates against the central server and stores the JWT in the `token`
+  environment variable for the rest of the collection. Run this first.
 }
