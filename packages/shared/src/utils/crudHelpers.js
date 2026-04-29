@@ -1,9 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { pick } from 'lodash';
 import { QueryTypes } from 'sequelize';
+import { z } from 'zod';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError, UsageError } from '@tamanu/errors';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
@@ -99,7 +100,88 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     res.send(transform ? transform(object) : object);
   });
 
-export const simplePut = (modelName) =>
+const conjoiner = new Intl.ListFormat();
+
+function validatePatchAllowedFields(model, allowedFields) {
+  const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
+  for (const field of ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick']) {
+    valids.delete(field);
+  }
+
+  const invalids = allowedFields.filter(field => !valids.has(field));
+  if (invalids.length > 0) {
+    const unit = invalids.length === 1 ? 'field' : 'fields';
+    throw new UsageError(
+      `simplePatch allowedFields option includes invalid ${unit} for ${model.name}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
+    );
+  }
+}
+
+async function validatePatchBody(allowedFields, req) {
+  const parsed = await z
+    .object(Object.fromEntries(allowedFields.map(key => [key, z.unknown()])))
+    .partial()
+    .strict()
+    .safeParseAsync(req.body);
+
+  if (parsed.success) return;
+
+  const disallowed = parsed.error.issues
+    .filter(issue => issue.code === 'unrecognized_keys')
+    .flatMap(issue => issue.keys);
+  if (disallowed.length > 0) {
+    const unit = disallowed.length === 1 ? 'field' : 'fields';
+    throw new InvalidOperationError(
+      `PATCH body includes disallowed ${unit}: ${conjoiner.format(disallowed)}. (Allowed fields: ${conjoiner.format(allowedFields)}.)`,
+    );
+  }
+
+  const [first] = parsed.error.issues;
+  throw new InvalidOperationError(first?.message ?? 'Invalid PATCH body');
+}
+
+/**
+ * @param {string} modelName
+ * @param {{ allowedFields: string[] }} options
+ */
+export const simplePatch = (modelName, options) => {
+  if (!options?.allowedFields || options.allowedFields.length === 0) {
+    throw new InvalidOperationError('simplePatch requires a nonempty allowedFields option');
+  }
+
+  return asyncHandler(async (req, res) => {
+    req.checkPermission('read', modelName);
+
+    const { allowedFields } = options;
+    const {
+      models: { [modelName]: model },
+      params: { id },
+    } = req;
+
+    if (process.env.NODE_ENV !== 'production') validatePatchAllowedFields(model, allowedFields);
+    if (req.body == null) throw new InvalidOperationError('PATCH body is required');
+
+    // Optimistically assume body is valid and begin fetching object before validated
+    const [, object] = await Promise.all([
+      validatePatchBody(allowedFields, req),
+      model.findByPk(id),
+    ]);
+
+    if (!object) throw new NotFoundError(`No ${modelName} found with ID ${id}`);
+    if (object.deletedAt) {
+      throw new InvalidOperationError(`Cannot update deleted ${modelName} with ID ${id}`);
+    }
+    if (Object.hasOwn(req.body, 'deletedAt')) {
+      throw new InvalidOperationError('Cannot update deletedAt field with PATCH request');
+    }
+
+    req.checkPermission('write', object);
+    await object.update(pick(req.body, allowedFields));
+    res.send(object);
+  });
+};
+
+export const simplePut = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', modelName);

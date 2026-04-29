@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { findRouteObject, simpleGetList, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simplePatch, findRouteObject, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/program` endpoint for CRUD-ing a single program */
 export const programRouter = express.Router();
@@ -16,7 +16,7 @@ programRouter.get(
     res.send({ ...object.toJSON(), programCode });
   }),
 );
-programRouter.put('/:id', simplePut('Program'));
+programRouter.patch('/:id', simplePatch('Program', { allowedFields: ['name'] }));
 
 /** `/admin/programs` endpoint for collections of programs */
 export const programsRouter = express.Router();
