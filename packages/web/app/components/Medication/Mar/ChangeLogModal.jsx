@@ -68,7 +68,7 @@ const LABELS = {
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const [changeLogList, setChangeLogList] = useState([]);
-  const { formatTimeSlot, formatShortest } = useDateTime();
+  const { formatTime, formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);
@@ -82,7 +82,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const getUserChanged = log => {
     return {
       name: log.changedByUser,
-      date: `${formatShortest(log.createdAt)} ${formatTimeSlot(log.createdAt)}`,
+      date: `${formatShortest(log.createdAt)} ${formatTime(log.createdAt)}`,
     };
   };
 
@@ -123,7 +123,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                   getEnumTranslation,
                 ),
               },
-              { label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) },
+              { label: LABELS.timeGiven, value: formatTime(log.doseGivenTime) },
               { label: LABELS.givenBy, value: log.doseGivenByUser.name },
               { label: LABELS.recordedBy, value: log.recordedByUser.name },
             ],
@@ -160,7 +160,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
             });
           }
           if (previousLog?.doseGivenTime !== log.doseGivenTime) {
-            changes.push({ label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) });
+            changes.push({ label: LABELS.timeGiven, value: formatTime(log.doseGivenTime) });
           }
           if (previousLog?.doseGivenByUser?.id !== log.doseGivenByUser.id) {
             changes.push({ label: LABELS.givenBy, value: log.doseGivenByUser.name });
@@ -262,7 +262,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                 },
                 {
                   label: LABELS.timeGiven,
-                  value: logs[1].doseGivenTime && formatTimeSlot(logs[1].doseGivenTime),
+                  value: logs[1].doseGivenTime && formatTime(logs[1].doseGivenTime),
                 },
                 { label: LABELS.givenBy, value: logs[1].doseGivenByUser.name },
                 { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
