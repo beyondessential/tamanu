@@ -14,6 +14,10 @@ auth:bearer {
   token: {{token}}
 }
 
+headers {
+  Content-Type: application/json
+}
+
 body:json {
   {
     "resourceType": "Bundle",
@@ -25,10 +29,17 @@ body:json {
           "basedOn": [
             {
               "type": "ServiceRequest",
-              "reference": "ServiceRequest/{{serviceRequestId}}"
+              "reference": "ServiceRequest/{{labServiceRequestId}}"
             }
           ],
           "status": "final",
+          "category": [
+            {
+              "coding": [
+                { "system": "http://snomed.info/sct", "code": "108252007" }
+              ]
+            }
+          ],
           "code": {
             "coding": [
               { "system": "http://loinc.org", "code": "42191-7", "display": "Hepatitis Panel" }
@@ -46,7 +57,7 @@ body:json {
           "basedOn": [
             {
               "type": "ServiceRequest",
-              "reference": "ServiceRequest/{{serviceRequestId}}"
+              "reference": "ServiceRequest/{{labServiceRequestId}}"
             }
           ],
           "status": "final",
@@ -54,13 +65,11 @@ body:json {
             "coding": [
               {
                 "system": "https://www.senaite.com/testCodes.html",
-                "code": "{{labTestCode}}",
-                "display": "Lab test"
+                "code": "{{labTestCode}}"
               },
               {
                 "system": "http://loinc.org",
-                "code": "{{labTestExternalCode}}",
-                "display": "Lab test (LOINC)"
+                "code": "{{labTestExternalCode}}"
               }
             ]
           },
@@ -73,4 +82,16 @@ body:json {
       }
     ]
   }
+}
+
+docs {
+  Atomic transaction. Server validates as a `FhirTransactionBundle`:
+  - `type` must be `transaction`
+  - each entry needs `resource`, `request.method = POST`, and `request.url`
+  - resourceType must be one of the create-supported types
+    (DiagnosticReport, Observation, ImagingStudy)
+  - all entries are processed inside one DB transaction; any failure rolls
+    back the entire bundle and returns an OperationOutcome
+  
+  Run `bootstrap/Discover Lab ServiceRequest` first.
 }
