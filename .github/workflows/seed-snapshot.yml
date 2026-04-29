@@ -47,7 +47,7 @@ jobs:
   create-snapshot:
     runs-on: ubuntu-latest
     name: Seed snapshot for ${{ inputs.version }}
-    timeout-minutes: 75
+    timeout-minutes: 35
     steps:
       - name: Validate version format
         env:
@@ -106,10 +106,11 @@ jobs:
           spec:
             suspend: true
             backoffLimit: 0
-            # 6h ceiling: covers the full provision → migrate → fake-data →
-            # snapshot pipeline including spot-instance scheduling delays.
-            activeDeadlineSeconds: 21600
-            ttlSecondsAfterFinished: 3600
+            # 30m ceiling: migrate + 50 rounds of fake data lands well under
+            # 20m in practice; the buffer covers spot-instance scheduling.
+            # If this trips, investigate rather than raise it.
+            activeDeadlineSeconds: 1800
+            ttlSecondsAfterFinished: 600
             template:
               spec:
                 restartPolicy: Never
@@ -150,7 +151,7 @@ jobs:
           # Bounded by the workflow's timeout-minutes; this just gives a clean
           # success/failure signal and surfaces logs on failure.
           if ! kubectl -n "$SEED_NAMESPACE" wait --for=condition=Complete \
-              "job/$JOB_NAME" --timeout=70m; then
+              "job/$JOB_NAME" --timeout=30m; then
             echo "::error::Seed Job did not complete successfully"
             kubectl -n "$SEED_NAMESPACE" describe "job/$JOB_NAME" || true
             kubectl -n "$SEED_NAMESPACE" logs "job/$JOB_NAME" --tail=200 || true
