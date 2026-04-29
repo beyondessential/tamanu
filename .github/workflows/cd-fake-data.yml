@@ -36,9 +36,9 @@ jobs:
           # Wait for central-api to be ready
           kubectl -n "$ns" rollout status deploy/central-api --timeout=300s
 
-          # Resolve tally file path inside the container
+          # Resolve tally file path inside the container (sibling of populateDb's index)
           tally=$(kubectl -n "$ns" exec deploy/central-api -- \
-            node -e "console.log(require.resolve('@tamanu/fake-data/populateDb').replace(/[^/]+$/, 'parseTally/standard.json'))")
+            node -e "const p=require('path');console.log(p.join(p.dirname(require.resolve('@tamanu/fake-data/populateDb')),'parseTally','standard.json'))")
 
           # Run fake data generation inside the central-api pod using the tally file.
           # Values are passed as env vars (not interpolated into JS source) so paths

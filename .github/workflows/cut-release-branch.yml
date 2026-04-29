@@ -128,9 +128,11 @@ jobs:
           tags: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
           build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
 
+  # Snapshot creation is best-effort: a release cut shouldn't be blocked
+  # if pgsnap or the EBS snapshotter is degraded. Re-run via
+  # workflow_dispatch on seed-snapshot.yml to retry.
   seed-snapshot:
     needs: [run, build-seed-image]
-    if: always() && needs.run.result == 'success' && needs.build-seed-image.result == 'success'
     continue-on-error: true
     permissions:
       contents: read
