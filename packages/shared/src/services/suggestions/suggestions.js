@@ -1305,8 +1305,10 @@ suggestions.get(
   '/timeZone/:id',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const tz = TIME_ZONES.find(t => t.id === req.params.id);
-    if (!tz) throw new NotFoundError();
+    const tz = TIME_ZONES.find(t => t.id === req.params.id) ?? {
+      id: req.params.id,
+      name: req.params.id,
+    };
     res.send(tz);
   }),
 );
