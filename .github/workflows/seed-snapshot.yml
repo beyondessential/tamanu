@@ -91,7 +91,7 @@ jobs:
             labels:
               pgsnap.bes.au/create: "true"
             annotations:
-              pgsnap.bes.au/size: "20Gi"
+              pgsnap.bes.au/size: "5Gi"
               pgsnap.bes.au/cpu: "2"
               pgsnap.bes.au/memory: "4Gi"
               pgsnap.bes.au/for-version: "${VERSION}"
