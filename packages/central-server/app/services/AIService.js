@@ -7,11 +7,16 @@ import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
 
+const SESSION_TTL_MS = 30 * 60 * 1000;
+const SESSION_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
+
 export class AIService {
   /** @type {Map<string, string>} */
   contexts = new Map();
 
-  /** @type {Map<string, InMemoryChatMessageHistory>} */
+  /**
+   * @type {Map<string, { history: InMemoryChatMessageHistory, lastAccessedAt: number, pending: Promise<void> }>}
+   */
   sessions = new Map();
 
   /** @type {import('@langchain/anthropic').ChatAnthropic} */
@@ -19,6 +24,9 @@ export class AIService {
 
   /** @type {RunnableWithMessageHistory} */
   conversationChain;
+
+  /** @type {ReturnType<typeof setInterval> | null} */
+  _sweepInterval = null;
 
   /**
    * @param {object} options
@@ -40,7 +48,7 @@ export class AIService {
     const service = new AIService();
     service.chatModel = new ChatAnthropic({
       anthropicApiKey,
-      modelName: anthropicModel,
+      model: anthropicModel,
     });
 
     const prompt = ChatPromptTemplate.fromMessages([
@@ -51,21 +59,44 @@ export class AIService {
     service.conversationChain = new RunnableWithMessageHistory({
       runnable: prompt.pipe(service.chatModel),
       getMessageHistory: (sessionId) => {
-        const history = service.sessions.get(sessionId);
-        if (!history) {
+        const session = service.sessions.get(sessionId);
+        if (!session) {
           throw new Error(`AI session "${sessionId}" not found`);
         }
-        return history;
+        return session.history;
       },
       inputMessagesKey: 'input',
       historyMessagesKey: 'history',
     });
+
+    service._sweepInterval = setInterval(
+      () => service._sweepStaleSessions(),
+      SESSION_SWEEP_INTERVAL_MS,
+    );
+    service._sweepInterval.unref();
 
     // TODO: Register default contexts here when contexts are available in settings
     // eg: service.registerContext('survey-builder', settings.get('ai.survey-builder.context'));
 
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
+  }
+
+  _sweepStaleSessions() {
+    const cutoff = Date.now() - SESSION_TTL_MS;
+    for (const [sessionId, session] of this.sessions) {
+      if (session.lastAccessedAt < cutoff) {
+        this.sessions.delete(sessionId);
+      }
+    }
+  }
+
+  close() {
+    if (this._sweepInterval !== null) {
+      clearInterval(this._sweepInterval);
+      this._sweepInterval = null;
+    }
+    this.sessions.clear();
   }
 
   /**
@@ -83,11 +114,10 @@ export class AIService {
    * @returns {string}
    */
   getContext(contextName) {
-    const systemPrompt = this.contexts.get(contextName);
-    if (!systemPrompt) {
+    if (!this.contexts.has(contextName)) {
       throw new Error(`AI context "${contextName}" is not registered`);
     }
-    return systemPrompt;
+    return this.contexts.get(contextName);
   }
 
   /**
@@ -100,23 +130,35 @@ export class AIService {
     const sessionId = nanoid();
     const history = new InMemoryChatMessageHistory();
     await history.addMessage(new SystemMessage(this.getContext(contextName)));
-    this.sessions.set(sessionId, history);
+    this.sessions.set(sessionId, { history, lastAccessedAt: Date.now(), pending: Promise.resolve() });
     return sessionId;
   }
 
   /**
    * Send a user message within an existing session.
    * History is managed automatically by RunnableWithMessageHistory.
+   * Invocations are serialised per session to prevent history corruption from concurrent calls.
    *
    * @param {string} sessionId
    * @param {string} userMessage
    * @returns {Promise<import('@langchain/core/messages').AIMessage>}
    */
   async sendMessage(sessionId, userMessage) {
-    return this.conversationChain.invoke(
-      { input: userMessage },
-      { configurable: { sessionId } },
+    if (!this.sessions.has(sessionId)) {
+      throw new Error(`AI session "${sessionId}" not found`);
+    }
+    const session = this.sessions.get(sessionId);
+    session.lastAccessedAt = Date.now();
+    const result = session.pending.then(() =>
+      this.conversationChain.invoke(
+        { input: userMessage },
+        { configurable: { sessionId } },
+      ),
     );
+    // Update pending so the next sendMessage call waits for this one to finish.
+    // Errors are suppressed on the chain itself so a failed call doesn't block future ones.
+    session.pending = result.then(() => {}).catch(() => {});
+    return result;
   }
 
   /**
