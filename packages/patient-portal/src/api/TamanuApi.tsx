@@ -1,4 +1,8 @@
-import { TamanuApi as BaseTamanuApi } from '@tamanu/api-client';
+import {
+  TamanuApi as BaseTamanuApi,
+  readPersistedAuthToken,
+  writePersistedAuthToken,
+} from '@tamanu/api-client';
 import { getDeviceId } from '@utils/getDeviceId';
 import { LoginCredentials, LoginResponse } from './types';
 
@@ -17,14 +21,11 @@ export class TamanuApi extends BaseTamanuApi {
       logger: console,
     });
 
-    this.restoreSession();
   }
 
-  setToken(token: string) {
-    if (token) {
-      localStorage.setItem(TOKEN, token);
-    }
-    return super.setToken(token);
+  async setToken(token: string, refreshToken?: string | null) {
+    super.setToken(token, refreshToken ?? undefined);
+    await writePersistedAuthToken(TOKEN, token, this.deviceId, 'patient-portal');
   }
 
   // Using a slightly different login flow for the patient portal authentication flow
@@ -38,7 +39,7 @@ export class TamanuApi extends BaseTamanuApi {
     });
 
     const { token } = await response.json();
-    this.setToken(token);
+    await this.setToken(token);
 
     // Fetch user data from patient portal endpoint
     const userResponse = await this.get('me', {}, { ...config, waitForAuth: false });
@@ -48,15 +49,14 @@ export class TamanuApi extends BaseTamanuApi {
   }
 
   async logout() {
-    this.setToken('');
-    localStorage.removeItem(TOKEN);
+    await this.setToken('');
   }
 
-  restoreSession() {
-    const token = localStorage.getItem(TOKEN);
-
-    if (token) {
-      this.setToken(token);
+  async restoreSession() {
+    const { token } = await readPersistedAuthToken(TOKEN, this.deviceId, 'patient-portal');
+    if (!token) {
+      return;
     }
+    await this.setToken(token);
   }
 }

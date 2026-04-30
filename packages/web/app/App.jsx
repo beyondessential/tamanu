@@ -3,9 +3,10 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
 import 'typeface-roboto';
-import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
+
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
@@ -23,14 +24,13 @@ import { SERVER_TYPES } from '@tamanu/constants';
 
 const AppContainer = styled.div`
   display: flex;
-  background: #f7f9fb;
+  background: ${TAMANU_COLORS.background2};
 `;
 
 const AppContentsContainer = styled.div`
-  height: 100vh;
+  height: 100dvh;
   overflow: auto;
   flex: 1;
-  border-top: 1px solid ${Colors.softOutline};
 `;
 
 export function App({ sidebar, children }) {

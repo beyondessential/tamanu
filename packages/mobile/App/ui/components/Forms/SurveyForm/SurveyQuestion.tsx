@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, memo, useMemo, useCallback } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
@@ -13,7 +13,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
-  setPosition: (pos: string) => void;
+  onLayout: (y: number) => void;
   patient: IPatient;
   // Dropdown components will overlap if there are 2 in a row if a z-index is not explicitly set
   zIndex: number;
@@ -60,26 +60,35 @@ const useGetConfig = component => {
   return configObject;
 };
 
+const optionsCache = new Map<string, { label: any; value: any }[] | null>();
+
 // Keep in sync with web/app/utils/survey.jsx
 function mapOptionsToValues(optionsString: string) {
   if (!optionsString) return null;
+  const cached = optionsCache.get(optionsString);
+  if (cached !== undefined) return cached;
+  let result: { label: any; value: any }[] | null = null;
   try {
     const options = JSON.parse(optionsString);
     if (typeof options === 'object') {
       // sometimes this is a map of value => value
-      return Object.values(options).map(x => ({ label: x, value: x }));
+      result = Object.values(options).map(x => ({ label: x, value: x }));
+    } else if (Array.isArray(options)) {
+      result = options.map(x => ({ label: x, value: x }));
     }
-    if (!Array.isArray(options)) return null;
-    return options.map(x => ({ label: x, value: x }));
   } catch (e) {
-    return null;
+    // invalid JSON — leave as null
   }
+  optionsCache.set(optionsString, result);
+  return result;
 }
 
-export const SurveyQuestion = ({
+const EMPTY_OPTIONS: any[] = [];
+
+export const SurveyQuestion = memo(({
   component,
   patient,
-  setPosition,
+  onLayout,
   zIndex,
   setDisableSubmit,
 }: SurveyQuestionProps): ReactElement => {
@@ -89,7 +98,8 @@ export const SurveyQuestion = ({
   const { dataElement } = component;
   const fieldInput: any = getField(dataElement.type, config);
 
-  const options = mapOptionsToValues(component.options || component.dataElement.defaultOptions);
+  const optionsString = component.options || component.dataElement.defaultOptions;
+  const options = mapOptionsToValues(optionsString);
   const translatedOptions = useMemo(() => {
     // if the question is a patient data question with a select field type,
     // we need to get the options from the patient data field locations, so the users don't need to translate the options twice
@@ -120,7 +130,12 @@ export const SurveyQuestion = ({
         value,
       };
     });
-  }, [getTranslation, dataElement.id, options, dataElement.type, getEnumTranslation, component.config]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getTranslation, dataElement.id, optionsString, dataElement.type, getEnumTranslation, component.config]);
+
+  const handleLayout = useCallback(({ nativeEvent }) => {
+    onLayout(nativeEvent.layout.y);
+  }, [onLayout]);
 
   if (!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
@@ -129,15 +144,13 @@ export const SurveyQuestion = ({
     <StyledView
       marginTop={12}
       zIndex={zIndex}
-      onLayout={({ nativeEvent }): void => {
-        setPosition(nativeEvent.layout.y);
-      }}
+      onLayout={handleLayout}
     >
       <Field
         component={fieldInput}
         name={dataElement.code}
         defaultText={dataElement.defaultText}
-        options={translatedOptions || []}
+        options={translatedOptions || EMPTY_OPTIONS}
         multiline={isMultiline}
         patient={patient}
         config={config}
@@ -145,4 +158,6 @@ export const SurveyQuestion = ({
       />
     </StyledView>
   );
-};
+});
+
+SurveyQuestion.displayName = 'SurveyQuestion';

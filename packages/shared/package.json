@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.54.0",
+  "version": "2.55.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -149,6 +149,7 @@
     "date-fns": "^2.25.0",
     "date-fns-tz": "^1.3.6",
     "decimal.js": "^10.4.3",
+    "express-rate-limit": "^7.5.0",
     "hookable": "^5.5.3",
     "jsbarcode": "^3.12.3",
     "khmer-unicode-converter": "^0.0.6",

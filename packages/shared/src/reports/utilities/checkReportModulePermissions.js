@@ -1,6 +1,6 @@
 import { ForbiddenError } from '@tamanu/errors';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/constants';
 import { canRunStaticReport } from './canRunStaticReport';
-import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '../reportDefinitions';
 import { canRunSurveyReport } from './canRunSurveyReport';
 
 export async function checkReportModulePermissions(req, reportModule, reportId, parameters) {
