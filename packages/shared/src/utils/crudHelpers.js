@@ -51,7 +51,7 @@ export const findRouteObject = async (req, modelName, options = {}) => {
   req.checkPermission('read', modelName);
   const object = await model.findByPk(params.id, {
     include: model.getFullReferenceAssociations(),
-    where: { ...additionalFilters },
+    where: additionalFilters,
   });
   if (!object) throw new NotFoundError();
   req.checkPermission('read', object);
