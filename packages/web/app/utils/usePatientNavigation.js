@@ -57,17 +57,6 @@ export const usePatientNavigation = () => {
     navigate(generatePath(`${PATIENT_PATHS.ENCOUNTER}/mar/view`, existingParams));
   }, [navigate, getParams]);
 
-  const navigateToLabRequest = useCallback(
-    (labRequestId, search) => {
-      const labRequestRoute = generatePath(PATIENT_PATHS.LAB_REQUEST, {
-        ...params,
-        labRequestId,
-      });
-      navigate(`${labRequestRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
-    },
-    [navigate, params],
-  );
-
   // @todo: refactor modal that is used in imaging request printing
   const navigateToImagingRequest = useCallback(
     (imagingRequestId, modal) => {
@@ -122,7 +111,6 @@ export const usePatientNavigation = () => {
   return {
     navigateToPatient,
     navigateToEncounter,
-    navigateToLabRequest,
     navigateToImagingRequest,
     navigateToCategory,
     navigateToSummary,
