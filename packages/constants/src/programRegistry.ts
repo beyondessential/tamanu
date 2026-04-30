@@ -70,7 +70,7 @@ export const POTENTIAL_LOSS_TO_FOLLOW_UP = {
   CODE_SUFFIX: 'pltfu',
   NAME: 'Potential loss to follow up',
   DEFAULT_THRESHOLD_DAYS: 90,
-  DEFAULT_COLOR: STATUS_COLOR.grey,
+  DEFAULT_COLOR: 'grey',
 };
 
 // ########################################################################################################
