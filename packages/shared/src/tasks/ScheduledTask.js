@@ -160,7 +160,7 @@ export class ScheduledTask {
 
     if (!this.job) {
       const name = this.getName();
-      this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule}`);
+      this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule.rule}`);
       this.job = scheduleJob(this.schedule, async () => {
         if (this.jitterTime) {
           const randomOffset = Math.floor(Math.random() * ms(this.jitterTime));
