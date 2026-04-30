@@ -77,10 +77,6 @@ test.describe('Basic tests', () => {
     expect(locationValue).toBe(triageFormValues.location?.split('\n')[0] || '');
     const level1Value = await emergencyPatientsPage.getLevelCardValue(1);
     expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
-    // TODO: Remove this intentional failure after validating merge queue E2E report comments.
-    await expect(
-      patientDetailsPage.page.getByText('Intentional merge queue E2E failure'),
-    ).toBeVisible();
   });
   test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({
     newPatient,
