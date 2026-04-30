@@ -3,6 +3,7 @@ import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useFormikContext } from 'formik';
 
 import {
@@ -309,7 +310,13 @@ export const SettingInput = ({
         <Flexbox data-testid={dataTestId ?? 'flexbox-markdowneditor'}>
           <MarkdownEditorButton
             onClick={() => setMarkdownModalOpen(true)}
-            startIcon={<EditIcon style={{ fontSize: 14 }} />}
+            startIcon={
+              disabled ? (
+                <VisibilityIcon style={{ fontSize: 14 }} />
+              ) : (
+                <EditIcon style={{ fontSize: 14 }} />
+              )
+            }
             size="small"
             data-testid="editbutton-markdowneditor"
           >
