@@ -2,6 +2,9 @@ import * as yup from 'yup';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
 
+const protocolWarning =
+  'Important: this prompt contains protocol used by the application. Do not rename bracketed input tags, response fields, or JSON format examples unless the calling code is updated too.';
+
 const interpretFormImageDefault = `Examine this image — it may be a paper form, whiteboard diagram, screenshot,
 or photograph related to a clinical program form.
 
@@ -149,21 +152,21 @@ export const formBuilderProperties = {
     },
     processMessage: {
       description:
-        'System prompt for each conversational turn. Drives information gathering and signals when the chat is ready to generate or export.',
+        `System prompt for each conversational turn. Drives information gathering and signals when the chat is ready to generate or export. ${protocolWarning}`,
       type: yup.string(),
       editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: processMessageDefault,
     },
     buildSurveyDefinition: {
       description:
-        'System prompt used to generate the complete ProgramDefinition (program metadata, surveys and questions) from the conversation history.',
+        `System prompt used to generate the complete ProgramDefinition (program metadata, surveys and questions) from the conversation history. ${protocolWarning}`,
       type: yup.string(),
       editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: buildSurveyDefinitionDefault,
     },
     fixProgramErrors: {
       description:
-        'System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question’s type.',
+        'System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question\'s type.',
       type: yup.string(),
       editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: fixProgramErrorsDefault,
