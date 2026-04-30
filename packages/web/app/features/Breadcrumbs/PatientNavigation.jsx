@@ -55,7 +55,11 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
     return matchPath({ path: fullPath, end: true }, location.pathname);
   });
 
-  return matchedRoute?.breadcrumbs || [];
+  const breadcrumbs = matchedRoute?.breadcrumbs || [];
+  const last = breadcrumbs.at(-1);
+  return React.isValidElement(last)
+    ? [...breadcrumbs.slice(0, -1), React.cloneElement(last, { 'aria-current': 'page' })]
+    : breadcrumbs;
 };
 
 export const PatientNavigation = ({ patientRoutes }) => {

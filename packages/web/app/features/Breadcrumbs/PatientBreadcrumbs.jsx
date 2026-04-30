@@ -24,25 +24,27 @@ const AnchorLikeButton = styled(UnstyledHtmlButton)`
   }
 `;
 
-export const Breadcrumb = ({ onClick, title }) => (
-  <AnchorLikeButton onClick={onClick}>{title}</AnchorLikeButton>
+export const Breadcrumb = ({ title, ...props }) => (
+  <AnchorLikeButton {...props}>{title}</AnchorLikeButton>
 );
 
-export const PatientBreadcrumb = () => {
+export const PatientBreadcrumb = props => {
   const patient = useSelector(state => state.patient);
   const { navigateToPatient } = usePatientNavigation();
   const onClick = () => navigateToPatient(patient.id);
-  return <Breadcrumb onClick={onClick} title={getPatientNameAsString(patient || {})} />;
+  return <Breadcrumb {...props} onClick={onClick} title={getPatientNameAsString(patient || {})} />;
 };
 
-export const CategoryBreadcrumb = () => {
+export const CategoryBreadcrumb = props => {
   const { navigateToCategory } = usePatientNavigation();
   const params = useParams();
   const onClick = () => navigateToCategory(params.category);
-  return <Breadcrumb onClick={onClick} title={PATIENT_CATEGORY_LABELS[params.category]} />;
+  return (
+    <Breadcrumb {...props} onClick={onClick} title={PATIENT_CATEGORY_LABELS[params.category]} />
+  );
 };
 
-export const ProgramRegistryBreadcrumb = () => {
+export const ProgramRegistryBreadcrumb = props => {
   const location = useLocation();
   const { navigateToProgramRegistry } = usePatientNavigation();
   const match = matchPath(
@@ -60,6 +62,7 @@ export const ProgramRegistryBreadcrumb = () => {
 
   return (
     <Breadcrumb
+      {...props}
       onClick={() => navigateToProgramRegistry(programRegistryId)}
       title={
         <TranslatedReferenceData
@@ -72,11 +75,12 @@ export const ProgramRegistryBreadcrumb = () => {
   );
 };
 
-export const EncounterBreadcrumb = () => {
+export const EncounterBreadcrumb = props => {
   const { encounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   return (
     <Breadcrumb
+      {...props}
       onClick={() => navigateToEncounter(encounter.id)}
       title={getEncounterType(encounter || {})}
       key="encounter"
@@ -84,16 +88,13 @@ export const EncounterBreadcrumb = () => {
   );
 };
 
-export const MedicationBreadcrumb = () => {
+export const MedicationBreadcrumb = props => {
   const { encounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   return (
     <Breadcrumb
-      onClick={() => {
-        navigateToEncounter(encounter?.id, {
-          tab: ENCOUNTER_TAB_NAMES.MEDICATION,
-        });
-      }}
+      {...props}
+      onClick={() => navigateToEncounter(encounter?.id, { tab: ENCOUNTER_TAB_NAMES.MEDICATION })}
       title={<TranslatedText stringId="encounter.medication.title" fallback="Medication" />}
     />
   );
