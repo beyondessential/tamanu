@@ -1,5 +1,12 @@
 import * as yup from 'yup';
 
+export const SETTING_EDITORS = {
+  MULTILINE: 'multiline',
+  MODAL_TEXT: 'modalText',
+} as const;
+
+export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];
+
 export interface Setting<T = any> {
   name?: string;
   description?: string;
@@ -10,5 +17,5 @@ export interface Setting<T = any> {
   deprecated?: boolean;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;
-  editor?: 'multiline' | 'modalText';
+  editor?: SettingEditor;
 }
