@@ -90,7 +90,6 @@ const LongTextActions = styled.div`
   margin-block-start: 13px;
 `;
 
-
 const SETTING_TYPES /** @type {const} */ = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -132,10 +131,10 @@ export const SettingInput = ({
   const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
-    value,
-    defaultValue,
-  ]);
+  const isUnchangedFromDefault = useMemo(
+    () => isEqual(normalize(value), normalize(defaultValue)),
+    [value, defaultValue],
+  );
 
   useEffect(() => {
     try {
@@ -314,17 +313,15 @@ export const SettingInput = ({
             size="small"
             data-testid="editbutton-markdowneditor"
           >
-            <TranslatedText
-              stringId="general.action.edit"
-              fallback="Edit"
-            />
+            {disabled ? (
+              <TranslatedText stringId="general.action.view" fallback="View" />
+            ) : (
+              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+            )}
           </MarkdownEditorButton>
           {hasUnsavedChange && (
             <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
-              <TranslatedText
-                stringId="admin.settings.status.unsavedChange"
-                fallback="Edited"
-              />
+              <TranslatedText stringId="admin.settings.status.unsavedChange" fallback="Edited" />
             </MarkdownEditorStatus>
           )}
           <DefaultButton data-testid="defaultbutton-5efq" />
