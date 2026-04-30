@@ -63,11 +63,11 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
-const ModalTextButton = styled(Button)`
+const MarkdownEditorButton = styled(Button)`
   align-self: center;
 `;
 
-const ModalTextStatus = styled.div`
+const MarkdownEditorStatus = styled.div`
   color: ${Colors.primary};
   font-size: 13px;
   font-weight: 500;
@@ -95,7 +95,7 @@ const SETTING_TYPES = {
   STRING: 'string',
   NUMBER: 'number',
   LONG_TEXT: 'longText',
-  MODAL_TEXT: 'modalText',
+  MARKDOWN: 'markdown',
   OBJECT: 'object',
   ARRAY: 'array',
 };
@@ -127,7 +127,7 @@ export const SettingInput = ({
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const [longTextModalOpen, setLongTextModalOpen] = useState(false);
+  const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
@@ -195,7 +195,7 @@ export const SettingInput = ({
     type === SETTING_TYPES.STRING && editor
       ? {
           [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.LONG_TEXT,
-          [SETTING_EDITORS.MODAL_TEXT]: SETTING_TYPES.MODAL_TEXT,
+          [SETTING_EDITORS.MARKDOWN]: SETTING_TYPES.MARKDOWN,
         }[editor] || type
       : type;
   if (suggesterEndpoint) {
@@ -307,36 +307,36 @@ export const SettingInput = ({
         </LongTextFlexbox>
       );
     }
-    case SETTING_TYPES.MODAL_TEXT: {
+    case SETTING_TYPES.MARKDOWN: {
       const modalTitle = name || path.split('.').pop();
       const category = formatCategoryPath(path);
       return (
-        <Flexbox data-testid="flexbox-modaltext">
-          <ModalTextButton
-            onClick={() => setLongTextModalOpen(true)}
+        <Flexbox data-testid="flexbox-markdowneditor">
+          <MarkdownEditorButton 
+            onClick={() => setMarkdownModalOpen(true)}
             startIcon={<EditIcon style={{ fontSize: 14 }} />}
             size="small"
-            data-testid="editbutton-modaltext"
+            data-testid="editbutton-markdowneditor"
           >
             <TranslatedText
               stringId="admin.settings.action.editInModal"
               fallback="Edit"
               data-testid="translatedtext-edit"
             />
-          </ModalTextButton>
+          </MarkdownEditorButton>
           {hasUnsavedChange && (
-            <ModalTextStatus data-testid="modaltextstatus-unsaved">
+            <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
               <TranslatedText
                 stringId="admin.settings.status.unsavedChange"
                 fallback="Edited"
                 data-testid="translatedtext-unsaved"
               />
-            </ModalTextStatus>
+            </MarkdownEditorStatus>
           )}
           <DefaultButton data-testid="defaultbutton-5efq" />
           <MarkdownEditorModal
-            open={longTextModalOpen}
-            onClose={() => setLongTextModalOpen(false)}
+            open={markdownModalOpen}
+            onClose={() => setMarkdownModalOpen(false)}
             title={modalTitle}
             category={category}
             description={description}
