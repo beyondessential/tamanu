@@ -97,7 +97,14 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
+export const Category = ({
+  schema,
+  path = '',
+  getSettingValue,
+  getInitialSettingValue,
+  handleChangeSetting,
+  facilityId,
+}) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -122,6 +129,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           unit,
           highRisk,
           suggesterEndpoint,
+          editor,
         } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
@@ -140,12 +148,16 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               typeSchema={type}
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
+              initialValue={getInitialSettingValue(newPath)}
               defaultValue={defaultValue}
               path={newPath}
+              name={name}
+              description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
               facilityId={facilityId}
+              editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -156,6 +168,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             // Pass down highRisk from parent category to now top level subcategory
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
+            getInitialSettingValue={getInitialSettingValue}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

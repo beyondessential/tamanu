@@ -5,15 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest
+  url: {{baseUrl}}/api/integration/fhir/mat/ServiceRequest?category=363679005&_count=1&_sort=-_lastUpdated
   body: none
   auth: bearer
-}
-
-params:query {
-  category: 363679005
-  _count: 1
-  _sort: -_lastUpdated
 }
 
 auth:bearer {

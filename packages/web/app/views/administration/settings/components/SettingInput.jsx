@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEqual, isString, isUndefined } from 'lodash';
+import { isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
+import EditIcon from '@mui/icons-material/Edit';
+import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   AutocompleteInput,
+  Button,
   LargeBodyText,
   NumberInput,
   TextButton,
@@ -13,6 +16,7 @@ import {
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
+import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
@@ -59,30 +63,58 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
+const MarkdownEditorButton = styled(Button)`
+  align-self: center;
+`;
+
+const MarkdownEditorStatus = styled.div`
+  color: ${Colors.primary};
+  font-size: 13px;
+  font-weight: 500;
+`;
+
 const Flexbox = styled.div`
   align-items: center;
   display: flex;
   gap: 0.5rem;
 `;
 
+const LongTextFlexbox = styled(Flexbox)`
+  align-items: flex-start;
+`;
+
+const LongTextActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-block-start: 13px;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
   NUMBER: 'number',
-  LONG_TEXT: 'longText',
+  MULTILINE: 'multiline',
+  MARKDOWN: 'markdown',
   OBJECT: 'object',
   ARRAY: 'array',
 };
 
-const TYPE_OVERRIDES_BY_KEY = {
-  ['body']: SETTING_TYPES.LONG_TEXT,
-};
-
 const normalize = val => (val === null || val === '' ? '' : val);
+
+const formatCategoryPath = path =>
+  path
+    .split('.')
+    .slice(0, -1)
+    .map(part => startCase(part))
+    .join(' / ');
 
 export const SettingInput = ({
   path,
+  name,
+  description,
   value,
+  initialValue,
   defaultValue,
   handleChangeSetting,
   unit,
@@ -90,9 +122,11 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
+  editor,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
+  const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
@@ -152,10 +186,17 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
+  const initialDisplayValue = isUndefined(initialValue) ? defaultValue : initialValue;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
+  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
 
-  const key = path.split('.').pop();
-  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+  const typeKey =
+    type === SETTING_TYPES.STRING && editor
+      ? {
+          [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.MULTILINE,
+          [SETTING_EDITORS.MARKDOWN]: SETTING_TYPES.MARKDOWN,
+        }[editor] || type
+      : type;
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
@@ -245,22 +286,66 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
-    case SETTING_TYPES.LONG_TEXT:
+    case SETTING_TYPES.MULTILINE: {
       return (
-        <Flexbox data-testid="flexbox-r6sr">
+        <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
+            rows={6}
             error={error}
             helperText={error?.message}
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
+          <LongTextActions data-testid="longtextactions-y1pc">
+            <DefaultButton data-testid="defaultbutton-5efq" />
+          </LongTextActions>
+        </LongTextFlexbox>
+      );
+    }
+    case SETTING_TYPES.MARKDOWN: {
+      const modalTitle = name || path.split('.').pop();
+      const category = formatCategoryPath(path);
+      return (
+        <Flexbox data-testid="flexbox-markdowneditor">
+          <MarkdownEditorButton
+            onClick={() => setMarkdownModalOpen(true)}
+            startIcon={<EditIcon style={{ fontSize: 14 }} />}
+            size="small"
+            data-testid="editbutton-markdowneditor"
+          >
+            <TranslatedText
+              stringId="general.action.edit"
+              fallback="Edit"
+              data-testid="translatedtext-edit"
+            />
+          </MarkdownEditorButton>
+          {hasUnsavedChange && (
+            <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
+              <TranslatedText
+                stringId="admin.settings.status.unsavedChange"
+                fallback="Edited"
+                data-testid="translatedtext-unsaved"
+              />
+            </MarkdownEditorStatus>
+          )}
           <DefaultButton data-testid="defaultbutton-5efq" />
+          <MarkdownEditorModal
+            open={markdownModalOpen}
+            onClose={() => setMarkdownModalOpen(false)}
+            title={modalTitle}
+            category={category}
+            description={description}
+            value={displayValue ?? ''}
+            onChange={newValue => handleChangeSetting(path, newValue)}
+            readOnly={disabled}
+          />
         </Flexbox>
       );
+    }
     case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
       return (

@@ -1,3 +1,4 @@
+import SettingsIcon from '@mui/icons-material/Settings';
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
@@ -21,17 +22,14 @@ import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
 
-const SETTING_TABS = {
+const SETTING_TABS = /** @type {const} */ ({
   EDITOR: 'editor',
   JSON: 'JSON',
-};
+});
 
 const StyledTabDisplay = styled(TabDisplay)`
-  height: 100%;
-  border-top: 1px solid ${Colors.outline};
-  > div:last-child {
-    flex: 1;
-  }
+  border-block-end: 1px solid ${Colors.outline};
+  padding-inline: 20px;
 `;
 
 const TabContainer = styled.div`
@@ -53,8 +51,8 @@ const tabs = [
       />
     ),
     key: SETTING_TABS.EDITOR,
-    icon: 'fa fa-cog',
-    render: (props) => {
+    icon: <SettingsIcon />,
+    render: props => {
       // Don't show the editor if the scope is facility and no facility is selected
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
@@ -76,7 +74,7 @@ const tabs = [
     ),
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
-    render: (props) => (
+    render: props => (
       <TabContainer data-testid="tabcontainer-z96b">
         <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mtsk" />
         <JSONEditorView {...props} data-testid="jsoneditorview-7anx" />
@@ -94,7 +92,7 @@ export const SettingsView = () => {
     scope,
     facilityId,
     {
-      select: (data) => applyDefaults(data, scope),
+      select: data => applyDefaults(data, scope),
     },
   );
 
@@ -109,7 +107,7 @@ export const SettingsView = () => {
       return true;
     } catch (error) {
       if (error instanceof ValidationError) {
-        error?.inner?.forEach((e) => {
+        error?.inner?.forEach(e => {
           notifyError(e.message);
         });
       } else {
@@ -137,7 +135,7 @@ export const SettingsView = () => {
           enableReinitialize
           initialValues={{ scope, facilityId, settings: settingsSnapshot }}
           onSubmit={handleSubmit}
-          render={(props) => (
+          render={props => (
             <SettingsForm
               {...props}
               scope={scope}
@@ -157,6 +155,7 @@ export const SettingsView = () => {
 
 const SettingsForm = ({
   values,
+  initialValues,
   setValues,
   setFieldValue,
   submitForm,
@@ -180,12 +179,12 @@ const SettingsForm = ({
   );
 
   const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
 
-  const handleChangeTab = async (newTab) => {
+  const handleChangeTab = async newTab => {
     if (newTab !== currentTab && dirty) {
       const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
@@ -194,7 +193,7 @@ const SettingsForm = ({
     setCurrentTab(newTab);
   };
 
-  const handleChangeScope = async (e) => {
+  const handleChangeScope = async e => {
     const newScope = e.target.value;
     if (newScope !== scope && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -204,7 +203,7 @@ const SettingsForm = ({
     setFacilityId(null);
   };
 
-  const handleFacilityChange = async (e) => {
+  const handleFacilityChange = async e => {
     const newFacilityId = e.target.value;
     if (newFacilityId !== facilityId && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -229,6 +228,7 @@ const SettingsForm = ({
         resetForm={resetForm}
         dirty={dirty}
         scope={scope}
+        initialValues={initialValues}
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}

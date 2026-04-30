@@ -89,14 +89,13 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
 `;
 
 const ComplexChartInstancesTab = styled(TabDisplay)`
-  overflow: initial;
   flex: 1;
   min-width: 200px;
-  .MuiTabs-root {
-    z-index: 9;
+  overflow: initial;
     position: sticky;
     top: 0;
-  }
+  z-index: 9;
+
   .MuiTabs-scroller {
     border-bottom: none;
   }
