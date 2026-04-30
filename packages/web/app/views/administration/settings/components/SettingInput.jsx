@@ -123,7 +123,6 @@ export const SettingInput = ({
   suggesterEndpoint,
   facilityId,
   editor,
-  dirty,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
@@ -189,7 +188,7 @@ export const SettingInput = ({
   const displayValue = isUndefined(value) ? defaultValue : value;
   const initialDisplayValue = isUndefined(initialValue) ? defaultValue : initialValue;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
-  const hasUnsavedChange = dirty && !isEqual(normalize(displayValue), normalize(initialDisplayValue));
+  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
 
   const typeKey =
     type === SETTING_TYPES.STRING && editor
