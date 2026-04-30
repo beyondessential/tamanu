@@ -15,7 +15,8 @@ import { useEncounter } from '../../contexts/Encounter';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getEncounterType } from '../../views/patients/panes/EncounterInfoPane';
 
-const BreadcrumbLink = styled(UnstyledHtmlButton)`
+/** Button semantics (uses `onClick` instead of `href`), but looks like an anchor. */
+const AnchorLikeButton = styled(UnstyledHtmlButton)`
   color: ${props => props.theme.palette.primary.main};
   cursor: pointer;
   &:hover {
@@ -24,7 +25,7 @@ const BreadcrumbLink = styled(UnstyledHtmlButton)`
 `;
 
 export const Breadcrumb = ({ onClick, title }) => (
-  <BreadcrumbLink onClick={onClick}>{title}</BreadcrumbLink>
+  <AnchorLikeButton onClick={onClick}>{title}</AnchorLikeButton>
 );
 
 export const PatientBreadcrumb = () => {
