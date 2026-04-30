@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
-import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import EditIcon from '@mui/icons-material/Edit';
 
 import {
   AutocompleteInput,
@@ -61,7 +61,7 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
-const ExpandButton = styled(TextButton)`
+const EditButton = styled(TextButton)`
   color: ${Colors.darkestText};
   font-size: 15px;
   font-weight: 500;
@@ -98,6 +98,7 @@ const SETTING_TYPES = {
   STRING: 'string',
   NUMBER: 'number',
   LONG_TEXT: 'longText',
+  MODAL_TEXT: 'modalText',
   OBJECT: 'object',
   ARRAY: 'array',
 };
@@ -123,7 +124,7 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
-  longText,
+  editor,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
@@ -189,7 +190,13 @@ export const SettingInput = ({
   const displayValue = isUndefined(value) ? defaultValue : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
-  const typeKey = longText && type === SETTING_TYPES.STRING ? SETTING_TYPES.LONG_TEXT : type;
+  const typeKey =
+    type === SETTING_TYPES.STRING && editor
+      ? {
+          multiline: SETTING_TYPES.LONG_TEXT,
+          modalText: SETTING_TYPES.MODAL_TEXT,
+        }[editor] || type
+      : type;
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
@@ -280,8 +287,6 @@ export const SettingInput = ({
         </Flexbox>
       );
     case SETTING_TYPES.LONG_TEXT: {
-      const modalTitle = name || path.split('.').pop();
-      const category = formatCategoryPath(path);
       return (
         <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
@@ -289,23 +294,35 @@ export const SettingInput = ({
             onChange={defaultHandleChange}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
+            rows={6}
             error={error}
             helperText={error?.message}
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
           <LongTextActions data-testid="longtextactions-y1pc">
-            <ExpandButton
+            <DefaultButton data-testid="defaultbutton-5efq" />
+          </LongTextActions>
+        </LongTextFlexbox>
+      );
+    }
+    case SETTING_TYPES.MODAL_TEXT: {
+      const modalTitle = name || path.split('.').pop();
+      const category = formatCategoryPath(path);
+      return (
+        <LongTextFlexbox data-testid="flexbox-r6sr">
+          <LongTextActions data-testid="longtextactions-y1pc">
+            <EditButton
               onClick={() => setLongTextModalOpen(true)}
-              startIcon={<OpenInFullIcon style={{ fontSize: 14 }} />}
-              data-testid="expandbutton-longtext"
+              startIcon={<EditIcon style={{ fontSize: 14 }} />}
+              data-testid="editbutton-modaltext"
             >
               <TranslatedText
-                stringId="admin.settings.action.expandEditor"
-                fallback="Expand"
-                data-testid="translatedtext-expand"
+                stringId="admin.settings.action.editInModal"
+                fallback="Edit"
+                data-testid="translatedtext-edit"
               />
-            </ExpandButton>
+            </EditButton>
             <DefaultButton data-testid="defaultbutton-5efq" />
           </LongTextActions>
           <LongTextEditorModal

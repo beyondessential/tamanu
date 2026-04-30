@@ -122,7 +122,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           unit,
           highRisk,
           suggesterEndpoint,
-          longText,
+          editor,
         } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
@@ -149,7 +149,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               unit={unit}
               disabled={disabled}
               facilityId={facilityId}
-              longText={longText}
+              editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
