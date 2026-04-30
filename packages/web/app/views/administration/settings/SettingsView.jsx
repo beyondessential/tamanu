@@ -155,7 +155,6 @@ export const SettingsView = () => {
 
 const SettingsForm = ({
   values,
-  initialValues,
   setValues,
   setFieldValue,
   submitForm,
@@ -228,7 +227,6 @@ const SettingsForm = ({
         resetForm={resetForm}
         dirty={dirty}
         scope={scope}
-        initialValues={initialValues}
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}

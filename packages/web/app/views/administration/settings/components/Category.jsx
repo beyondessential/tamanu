@@ -101,7 +101,7 @@ export const Category = ({
   schema,
   path = '',
   getSettingValue,
-  getInitialSettingValue,
+  resolveSettingsPath,
   handleChangeSetting,
   facilityId,
 }) => {
@@ -148,7 +148,7 @@ export const Category = ({
               typeSchema={type}
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
-              initialValue={getInitialSettingValue(newPath)}
+              settingsPath={resolveSettingsPath(newPath)}
               defaultValue={defaultValue}
               path={newPath}
               name={name}
@@ -168,7 +168,7 @@ export const Category = ({
             // Pass down highRisk from parent category to now top level subcategory
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
-            getInitialSettingValue={getInitialSettingValue}
+            resolveSettingsPath={resolveSettingsPath}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

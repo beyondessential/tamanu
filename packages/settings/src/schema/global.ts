@@ -1496,6 +1496,7 @@ export const globalSettings = {
             },
             body: {
               type: yup.string().trim().min(1),
+              editor: SETTING_EDITORS.MULTILINE,
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1510,6 +1511,7 @@ export const globalSettings = {
             },
             body: {
               type: yup.string().trim().min(1),
+              editor: SETTING_EDITORS.MULTILINE,
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1524,6 +1526,7 @@ export const globalSettings = {
             },
             body: {
               type: yup.string().trim().min(1),
+              editor: SETTING_EDITORS.MULTILINE,
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1539,6 +1542,7 @@ export const globalSettings = {
             },
             body: {
               type: yup.string().trim().min(1),
+              editor: SETTING_EDITORS.MULTILINE,
               defaultValue:
                 'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
             },
