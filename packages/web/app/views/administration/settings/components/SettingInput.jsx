@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEqual, isString, isUndefined, startCase } from 'lodash';
+import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import EditIcon from '@mui/icons-material/Edit';
-import { SETTING_EDITORS } from '@tamanu/constants';
+import { useFormikContext } from 'formik';
 
 import {
   AutocompleteInput,
@@ -111,10 +111,10 @@ const formatCategoryPath = path =>
 
 export const SettingInput = ({
   path,
+  settingsPath,
   name,
   description,
   value,
-  initialValue,
   defaultValue,
   handleChangeSetting,
   unit,
@@ -123,7 +123,9 @@ export const SettingInput = ({
   suggesterEndpoint,
   facilityId,
   editor,
+  'data-testid': dataTestId,
 }) => {
+  const { initialValues } = useFormikContext();
   const { type } = typeSchema;
   const [error, setError] = useState(null);
   const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
@@ -157,7 +159,6 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault.unchangedTooltip"
               fallback="This setting is already at its default value"
-              data-testid="translatedtext-1kr8"
             />
           )
         }
@@ -172,7 +173,6 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault"
               fallback="Reset to default"
-              data-testid="translatedtext-8elp"
             />
           </DefaultSettingButton>
         </div>
@@ -186,17 +186,12 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
-  const initialDisplayValue = isUndefined(initialValue) ? defaultValue : initialValue;
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  const initialDisplayValue = isUndefined(initialFieldValue) ? defaultValue : initialFieldValue;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
   const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
 
-  const typeKey =
-    type === SETTING_TYPES.STRING && editor
-      ? {
-          [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.MULTILINE,
-          [SETTING_EDITORS.MARKDOWN]: SETTING_TYPES.MARKDOWN,
-        }[editor] || type
-      : type;
+  const typeKey = type === SETTING_TYPES.STRING && editor ? editor : type;
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
@@ -234,7 +229,6 @@ export const SettingInput = ({
               stringId="admin.settings.error.noSuggesterComponent"
               fallback="No suggester component for this type: :type (default: :defaultValue)"
               replacements={{ type, defaultValue }}
-              data-testid="translatedtext-ah4n"
             />
           </LargeBodyText>
         );
@@ -307,10 +301,11 @@ export const SettingInput = ({
       );
     }
     case SETTING_TYPES.MARKDOWN: {
-      const modalTitle = name || path.split('.').pop();
+      const modalTitle = name ?? path.split('.').pop();
       const category = formatCategoryPath(path);
+      const markdownDisplayText = displayValue == null ? '' : String(displayValue);
       return (
-        <Flexbox data-testid="flexbox-markdowneditor">
+        <Flexbox data-testid={dataTestId ?? 'flexbox-markdowneditor'}>
           <MarkdownEditorButton
             onClick={() => setMarkdownModalOpen(true)}
             startIcon={<EditIcon style={{ fontSize: 14 }} />}
@@ -320,7 +315,6 @@ export const SettingInput = ({
             <TranslatedText
               stringId="general.action.edit"
               fallback="Edit"
-              data-testid="translatedtext-edit"
             />
           </MarkdownEditorButton>
           {hasUnsavedChange && (
@@ -328,7 +322,6 @@ export const SettingInput = ({
               <TranslatedText
                 stringId="admin.settings.status.unsavedChange"
                 fallback="Edited"
-                data-testid="translatedtext-unsaved"
               />
             </MarkdownEditorStatus>
           )}
@@ -339,8 +332,8 @@ export const SettingInput = ({
             title={modalTitle}
             category={category}
             description={description}
-            value={displayValue ?? ''}
-            onChange={newValue => handleChangeSetting(path, newValue)}
+            value={markdownDisplayText}
+            onSave={newValue => handleChangeSetting(path, newValue)}
             readOnly={disabled}
           />
         </Flexbox>
@@ -369,7 +362,6 @@ export const SettingInput = ({
             stringId="admin.settings.error.noComponent"
             fallback="No component for this type: :type (default: :defaultValue)"
             replacements={{ type, defaultValue }}
-            data-testid="translatedtext-ah4n"
           />
         </LargeBodyText>
       );

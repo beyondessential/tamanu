@@ -119,7 +119,6 @@ export const EditorView = memo(
     setFieldValue,
     submitForm,
     resetForm,
-    initialValues,
     isSubmitting,
     dirty,
     handleShowWarningModal,
@@ -174,7 +173,6 @@ export const EditorView = memo(
     };
 
     const getSettingValue = path => get(values.settings, getSettingPath(path));
-    const getInitialSettingValue = path => get(initialValues?.settings, getSettingPath(path));
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
@@ -256,7 +254,7 @@ export const EditorView = memo(
             <Category
               schema={schemaForCategory}
               getSettingValue={getSettingValue}
-              getInitialSettingValue={getInitialSettingValue}
+              resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
               data-testid="category-cbjk"
