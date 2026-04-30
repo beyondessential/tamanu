@@ -2,11 +2,6 @@ import * as yup from 'yup';
 
 import { SETTING_EDITORS } from '@tamanu/constants';
 
-// System prompts for the AI form builder. Stored as central settings so they
-// can be tuned per deployment without a code release. All four are plain
-// system-message strings; conversation history and any uploaded artefacts are
-// passed as user/assistant messages by the caller.
-
 const interpretFormImageDefault = `Examine this image — it may be a paper form, whiteboard diagram, screenshot,
 or photograph related to a clinical program form.
 
