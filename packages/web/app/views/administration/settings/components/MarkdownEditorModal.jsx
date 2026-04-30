@@ -56,20 +56,20 @@ export const MarkdownEditorModal = React.memo(
       onClose={onClose}
       width="lg"
       title={
-        <Title data-testid="longtexteditormodal-title">
+        <Title data-testid="markdowneditormodal-title">
           <span>{title}</span>
-          {category && <Category data-testid="longtexteditormodal-category">{category}</Category>}
+          {category && <Category data-testid="markdowneditormodal-category">{category}</Category>}
         </Title>
       }
-      data-testid="longtexteditormodal-modal"
+      data-testid="markdowneditormodal-modal"
     >
-      <ModalBody data-testid="longtexteditormodal-body">
+      <ModalBody data-testid="markdowneditormodal-body">
         {description && (
-          <Description data-testid="longtexteditormodal-desc">{description}</Description>
+          <Description data-testid="markdowneditormodal-desc">{description}</Description>
         )}
-        <EditorContainer data-testid="longtexteditormodal-editor-wrap">
+        <EditorContainer data-testid="markdowneditormodal-editor-wrap">
           <StyledMarkdownEditor
-            name="longtext-modal-markdown"
+            name="markdown-modal-markdown"
             mode="markdown"
             theme={readOnly ? THEMES.VIEW : THEMES.EDIT}
             width="100%"
@@ -88,7 +88,7 @@ export const MarkdownEditorModal = React.memo(
               cursorStyle: 'slim'
             }}
             editorProps={{ $blockScrolling: true }}
-            data-testid="longtexteditormodal-textarea"
+            data-testid="markdowneditormodal-textarea"
           />
         </EditorContainer>
       </ModalBody>

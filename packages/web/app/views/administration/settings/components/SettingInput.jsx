@@ -319,7 +319,7 @@ export const SettingInput = ({
             data-testid="editbutton-markdowneditor"
           >
             <TranslatedText
-              stringId="admin.settings.action.editInModal"
+              stringId="general.action.edit"
               fallback="Edit"
               data-testid="translatedtext-edit"
             />
