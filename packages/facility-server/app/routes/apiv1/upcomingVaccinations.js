@@ -37,7 +37,7 @@ const createUpcomingVaccinationFilters = filterParams => {
 };
 
 upcomingVaccinations.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
 
