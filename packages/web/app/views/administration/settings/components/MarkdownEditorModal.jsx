@@ -4,11 +4,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/theme-textmate';
 
-import { ConfirmCancelRow } from '@tamanu/ui-components';
-
-import { Modal } from '../../../../components/Modal';
-import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { Colors } from '../../../../constants';
+import { ConfirmCancelRow, TranslatedText, Modal, Colors } from '@tamanu/ui-components';
 
 const Title = styled.h3`
   display: flex;
