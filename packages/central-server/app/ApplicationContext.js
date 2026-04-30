@@ -129,6 +129,7 @@ export class ApplicationContext {
       await hook();
     }
     await closeDatabase();
+    this.aiService?.close();
   }
 
   async waitForClose() {
