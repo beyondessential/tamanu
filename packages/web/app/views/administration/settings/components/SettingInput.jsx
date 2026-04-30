@@ -69,8 +69,6 @@ const ExpandButton = styled(TextButton)`
   padding-block: 0;
   text-transform: none;
   transition: color 200ms ease;
-  align-self: flex-start;
-  margin-block-start: 13px; // Align baseline with the textarea
   margin-inline-start: 0.5rem;
 
   &:hover {
@@ -82,6 +80,17 @@ const Flexbox = styled.div`
   align-items: center;
   display: flex;
   gap: 0.5rem;
+`;
+
+const LongTextFlexbox = styled(Flexbox)`
+  align-items: flex-start;
+`;
+
+const LongTextActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-block-start: 13px; // Align baseline with the textarea
 `;
 
 const SETTING_TYPES = {
@@ -274,7 +283,7 @@ export const SettingInput = ({
       const modalTitle = name || path.split('.').pop();
       const category = formatCategoryPath(path);
       return (
-        <Flexbox data-testid="flexbox-r6sr">
+        <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
@@ -285,18 +294,20 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-          <ExpandButton
-            onClick={() => setLongTextModalOpen(true)}
-            startIcon={<OpenInFullIcon style={{ fontSize: 14 }} />}
-            data-testid="expandbutton-longtext"
-          >
-            <TranslatedText
-              stringId="admin.settings.action.expandEditor"
-              fallback="Expand"
-              data-testid="translatedtext-expand"
-            />
-          </ExpandButton>
-          <DefaultButton data-testid="defaultbutton-5efq" />
+          <LongTextActions data-testid="longtextactions-y1pc">
+            <ExpandButton
+              onClick={() => setLongTextModalOpen(true)}
+              startIcon={<OpenInFullIcon style={{ fontSize: 14 }} />}
+              data-testid="expandbutton-longtext"
+            >
+              <TranslatedText
+                stringId="admin.settings.action.expandEditor"
+                fallback="Expand"
+                data-testid="translatedtext-expand"
+              />
+            </ExpandButton>
+            <DefaultButton data-testid="defaultbutton-5efq" />
+          </LongTextActions>
           <LongTextEditorModal
             open={longTextModalOpen}
             onClose={() => setLongTextModalOpen(false)}
@@ -307,7 +318,7 @@ export const SettingInput = ({
             onChange={newValue => handleChangeSetting(path, newValue)}
             readOnly={disabled}
           />
-        </Flexbox>
+        </LongTextFlexbox>
       );
     }
     case SETTING_TYPES.OBJECT:
