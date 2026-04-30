@@ -19,6 +19,7 @@ const BreadcrumbLink = styled(UnstyledHtmlButton)`
   font-size: 12px;
   color: ${props => props.theme.palette.primary.main};
   font-weight: 400;
+  cursor: pointer;
   &:hover {
     text-decoration: underline;
   }
