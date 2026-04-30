@@ -13,8 +13,10 @@ const wrapScheduleWithTimeZone = schedule => {
   const primaryTimeZone = getPrimaryTimeZone(config);
   if (typeof schedule === 'object') {
     return {tz: primaryTimeZone, ...schedule};
+  } else if (typeof schedule === 'string') {
+    return { tz: primaryTimeZone, rule: schedule };
   }
-  return { tz: primaryTimeZone, rule: schedule };
+  throw new Error(`Invalid schedule: ${schedule}`);
 }
 
 export class ScheduledTask {
