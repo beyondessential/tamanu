@@ -12,12 +12,15 @@ import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 const wrapScheduleWithTimeZone = schedule => {
   const primaryTimeZone = getPrimaryTimeZone(config);
   if (typeof schedule === 'object') {
-    return {tz: primaryTimeZone, ...schedule};
+    if (schedule.tz) {
+      return schedule;
+    }
+    return { ...schedule, tz: primaryTimeZone };
   } else if (typeof schedule === 'string') {
     return { tz: primaryTimeZone, rule: schedule };
   }
   throw new Error(`Invalid schedule: ${schedule}`);
-}
+};
 
 export class ScheduledTask {
   getName() {
@@ -31,7 +34,7 @@ export class ScheduledTask {
       name: this.getName(),
     });
 
-    this.schedule = wrapScheduleWithTimeZone(schedule);
+    this.schedule = schedule && wrapScheduleWithTimeZone(schedule);
     this.job = null;
     this.log = log;
     this.isRunning = false;
