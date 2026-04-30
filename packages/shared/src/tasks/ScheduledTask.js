@@ -21,7 +21,7 @@ export class ScheduledTask {
       name: this.getName(),
     });
 
-    this.schedule = {
+    this.schedule = schedule && {
       rule: schedule,
       tz: getPrimaryTimeZone(config),
     };
