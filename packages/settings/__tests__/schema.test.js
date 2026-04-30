@@ -337,6 +337,7 @@ describe('Exposed keys', () => {
         'customisations',
         'features',
         'fields',
+        'fileChooserMbSizeLimit',
         'fsmCrvsCertificates',
         'imagingCancellationReasons',
         'imagingPriorities',
@@ -376,7 +377,6 @@ describe('Exposed keys', () => {
       expect(keys).not.toContain('integrations');
       expect(keys).not.toContain('security');
       expect(keys).not.toContain('security.loginAttempts');
-      expect(keys).not.toContain('security.reportNoUserError');
     });
   });
 

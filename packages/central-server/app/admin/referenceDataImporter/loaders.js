@@ -12,11 +12,12 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
 import { isEmpty, isNil } from 'lodash';
-import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
+import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -26,8 +27,24 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
+function parseAvailableFacilities(value) {
+  if (!value) return null;
+  if (Array.isArray(value)) return value;
+
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (e) {
+    // Fall through to throw an error below.
+  }
+
+  throw new Error('availableFacilities must be null or a JSON array of facility IDs');
+}
+
 export function referenceDataLoaderFactory(type) {
-  return ({ id, code, name, visibilityStatus }) => [
+  return ({ id, code, name, visibilityStatus, availableFacilities }) => [
     {
       model: 'ReferenceData',
       values: {
@@ -36,6 +53,7 @@ export function referenceDataLoaderFactory(type) {
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
+        availableFacilities: parseAvailableFacilities(availableFacilities),
       },
     },
   ];
@@ -236,7 +254,7 @@ async function validateObjectId(item, models, pushError) {
 
   if (noun === 'StaticReport') {
     const allowedReportIds = [
-      ...GENERIC_SURVEY_EXPORT_REPORT_ID,
+      GENERIC_SURVEY_EXPORT_REPORT_ID,
       ...REPORT_DEFINITIONS.map(({ id }) => id),
     ];
     const objectIds = objectId.split('/');
@@ -278,8 +296,7 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id =
-        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id = models.Permission.generatePermissionId(role, normalizedVerb, normalizedNoun, normalizedObjectId);
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -300,7 +317,7 @@ export async function permissionLoader(item, { models, pushError }) {
 }
 
 export function labTestPanelLoader(item) {
-  const { id, testTypesInPanel, ...otherFields } = item;
+  const { id, testTypesInPanel, availableFacilities, ...otherFields } = item;
   const rows = [];
 
   rows.push({
@@ -308,6 +325,7 @@ export function labTestPanelLoader(item) {
     values: {
       id,
       ...otherFields,
+      availableFacilities: parseAvailableFacilities(availableFacilities),
     },
   });
 
@@ -516,6 +534,7 @@ export async function drugLoader(item, { models, pushError }) {
     visibilityStatus,
     code,
     systemRequired,
+    availableFacilities,
     ...rest
   } = item;
   /* eslint-enable no-unused-vars */

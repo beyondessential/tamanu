@@ -1,0 +1,24 @@
+meta {
+  name: Patient Summary (IPS)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Patient/:id/$summary
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{patientId}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  IPS (International Patient Summary) for the patient. Defaults `:id` to
+  `{{patientId}}` (set by `bootstrap/Discover Patient`).
+}

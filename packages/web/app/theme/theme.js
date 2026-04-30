@@ -2,6 +2,26 @@ import { Colors } from '../constants/styles';
 import { createTheme } from '@material-ui/core/styles';
 import { MUI_SPACING_UNIT } from '../constants';
 
+const cssReset = {
+  fieldset: {
+    border: 0,
+    margin: 0,
+    minWidth: 0,
+    padding: 0,
+  },
+  html: {
+    interpolateSize: 'allow-keywords',
+    textWrap: 'pretty',
+  },
+  button: { font: 'inherit' },
+  ':where(button, figcaption, h1, h2, h3, h4, h5, h6, label)': {
+    textWrap: 'balance',
+  },
+  ':where(button, input, textarea, select)': {
+    touchAction: 'manipulation',
+  },
+};
+
 const themeConfig = {
   themeName: 'Tamanu',
   palette: {
@@ -42,6 +62,7 @@ const themeConfig = {
   },
   shape: { borderRadius: 3 },
   overrides: {
+    MuiCssBaseline: { '@global': cssReset },
     MuiCard: {
       root: {
         borderColor: Colors.outline,
@@ -63,6 +84,14 @@ const themeConfig = {
     MuiOutlinedInput: {
       notchedOutline: {
         borderColor: Colors.outline,
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: '48px',
+          textTransform: 'none',
+        },
       },
     },
   },

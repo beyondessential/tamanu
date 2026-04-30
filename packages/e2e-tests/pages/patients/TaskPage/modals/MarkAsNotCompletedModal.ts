@@ -16,7 +16,7 @@ export class MarkAsNotCompletedModal {
 
     const testIds = {
       recordedByInput: 'field-maud-input',
-      recordDateTimeField: 'field-sgto-input',
+      recordDateTimeField: 'field-sgto',
       reasonNotCompletedInput: 'field-r3a1-input',
       confirmButton: 'formsubmitcancelrow-y08n-confirmButton',
       cancelButton: 'outlinedbutton-8rnr',
@@ -25,6 +25,8 @@ export class MarkAsNotCompletedModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+
+    this.recordDateTimeInput = this.recordDateTimeField.locator('input');
   }
 
   async waitForModalToLoad(): Promise<void> {

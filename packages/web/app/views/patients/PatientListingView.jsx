@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
@@ -73,14 +74,14 @@ const locationGroup = {
 };
 
 const OUTPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, location, department, clinician].map((column) => ({
+  [locationGroup, location, department, clinician].map(column => ({
     ...column,
     sortable: false,
   })),
 );
 
 const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatientSex].concat(
-  [locationGroup, location, department, clinician, diet].map((column) => ({
+  [locationGroup, location, department, clinician, diet].map(column => ({
     ...column,
     sortable: false,
   })),
@@ -96,7 +97,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
     facilityId,
   };
 
-  const handleViewPatient = async (row) => {
+  const handleViewPatient = async row => {
     await dispatch(reloadPatient(row.id));
     navigateToPatient(row.id);
   };
@@ -129,7 +130,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     setCreatingPatient(true);
   }, []);
 
-  const handleCreateNewPatient = async (newPatient) => {
+  const handleCreateNewPatient = async newPatient => {
     setCreatingPatient(false);
     if (onCreateNewPatient) {
       onCreateNewPatient(newPatient.id);
@@ -148,8 +149,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
         data-testid="buttonwithpermissioncheck-itoq"
+        startIcon={<AddIcon />}
       >
-        +{'\u00A0'}
         <TranslatedText
           stringId="patientList.action.add"
           fallback="Add new patient"

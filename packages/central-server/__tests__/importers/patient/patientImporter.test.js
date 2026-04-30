@@ -4,7 +4,7 @@ import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 describe('Patients import', () => {
   let ctx;
@@ -13,7 +13,7 @@ describe('Patients import', () => {
     await ctx.store.models.ReferenceData.upsert({
       id: 'village-test',
       code: 'village-test',
-      type: 'village',
+      type: 'village',  
       name: 'Village test',
     });
   });

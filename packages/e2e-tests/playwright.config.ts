@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'path';
 import dotenv from 'dotenv';
 
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -20,15 +19,20 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? 'blob' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    // Enable heavier debugging artifacts only for local runs.
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
+    screenshot: process.env.CI ? 'off' : 'only-on-failure',
+    // Slow down each browser action to make local debugging easier.
+    launchOptions: process.env.CI ? undefined : { slowMo: 200 },
     timezoneId: process.env.TZ,
+    // Pin browser locale so navigator.language-driven date formatting is deterministic across
+    // runners (CI Ubuntu defaults to en-US which yields MM/DD/YYYY; tests expect DD/MM/YYYY).
+    locale: 'en-AU',
   },
 
   /* Configure projects for major browsers */

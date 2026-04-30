@@ -4,6 +4,7 @@ import { LAB_REQUEST_STATUSES, FHIR_OBSERVATION_STATUS } from '@tamanu/constants
 
 import { createTestContext } from '../../utilities';
 import {
+  ALL_FHIR_PERMISSIONS,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../../fake/fhir';
@@ -22,7 +23,7 @@ describe('Create Observation', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(

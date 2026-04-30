@@ -2,12 +2,6 @@
 Table with information about the program registrations of a patient. This is helpful
 to enroll a specific patient within a program that will be followed for an extended
 period of time.
-
-**This table is append-only.**
-A new record is created every time there is a change to the status of a registration. 
-
-At the moment, this implies that when merging two patients, both with a registration to the same
-registry, the merged patient ends up with two registrations.
 {% enddocs %}
 
 {% docs patient_program_registrations__registration_status %}

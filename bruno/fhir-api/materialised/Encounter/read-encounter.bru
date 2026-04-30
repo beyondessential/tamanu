@@ -1,0 +1,19 @@
+meta {
+  name: Read Encounter
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Encounter/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{encounterId}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

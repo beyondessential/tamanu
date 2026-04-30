@@ -192,7 +192,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn,
       const include = includeBuilder?.(req);
 
       const record = await models[modelName].findOne({
-        where: { id: { [Op.iLike]: params.id } },
+        where: { id: params.id },
         include,
         bind: {
           language,
@@ -211,7 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -223,7 +223,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = allRecordsIncludeBuilder?.(req);
+      const include = includeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -271,9 +271,9 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
+const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
-  ...VISIBILITY_CRITERIA,
+  ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
 
 const DEFAULT_MAPPER = ({ name, code, id }) => ({
@@ -315,6 +315,19 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
+// Reusable filter: if availableFacilities is set on a reference data row,
+// only show it when the requesting facility is in the list. NULL means visible everywhere.
+// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
+const buildAvailableFacilitiesFilter = facilityId => {
+  if (!facilityId) return null;
+  return {
+    [Op.or]: [
+      { availableFacilities: null },
+      { availableFacilities: { [Op.contains]: [facilityId] } },
+    ],
+  };
+};
+
 const afterCreatedReferenceData = async (req, newRecord) => {
   const { models } = req;
 
@@ -345,10 +358,17 @@ const referenceDataBodyBuilder = ({ type, name }) => {
 createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  ({ endpoint, modelName, query: { types } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: { [Op.in]: types },
-  }),
+  ({ endpoint, modelName, query: { types }, req }) => {
+    const baseWhere = {
+      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+      type: { [Op.in]: types },
+    };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
   {
     includeBuilder: req => {
       const {
@@ -357,6 +377,12 @@ createSuggester(
       } = req;
 
       if (!relationType) return undefined;
+
+      const childrenWhere = { ...VISIBILITY_CRITERIA };
+      const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+      if (facilityFilter) {
+        childrenWhere[Op.and] = [facilityFilter];
+      }
 
       return [
         {
@@ -380,7 +406,7 @@ createSuggester(
             as: 'taskTemplate',
             include: TaskTemplate.getFullReferenceAssociations(),
           },
-          where: VISIBILITY_CRITERIA,
+          where: childrenWhere,
         },
       ];
     },
@@ -421,15 +447,31 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     typeName,
     'ReferenceData',
     ({ endpoint, modelName, req }) => {
+      const { parentId } = req.query;
+
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
 
+      // Filter by parent using subquery to avoid self-join ambiguity issues
+      if (parentId) {
+        baseWhere.id = {
+          [Op.in]: Sequelize.literal(`(
+            SELECT reference_data_id
+            FROM reference_data_relations
+            WHERE reference_data_parent_id = $parentId
+              AND type = $relationType
+              AND deleted_at IS NULL
+          )`),
+        };
+      }
+
       const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
 
       if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: Sequelize.literal(`
             (SELECT DISTINCT(rdr.reference_data_parent_id)
             FROM reference_data_relations rdr
@@ -477,8 +519,30 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
       if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
         };
+      }
+
+      const facilityFilterTypes = [
+        REFERENCE_TYPES.PROCEDURE_TYPE,
+        REFERENCE_TYPES.IMAGING_TYPE,
+        REFERENCE_TYPES.DRUG,
+        REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        REFERENCE_TYPES.MEDICATION_SET,
+        REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        REFERENCE_TYPES.LAB_TEST_PRIORITY,
+        REFERENCE_TYPES.LAB_TEST_LABORATORY,
+        REFERENCE_TYPES.LAB_TEST_METHOD,
+        REFERENCE_TYPES.LAB_SAMPLE_SITE,
+        REFERENCE_TYPES.TASK_TEMPLATE,
+        REFERENCE_TYPES.TASK_SET,
+      ];
+      if (facilityFilterTypes.includes(typeName)) {
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+        if (facilityFilter) {
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
+        }
       }
 
       return baseWhere;
@@ -492,22 +556,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             ReferenceDrug,
             ReferenceDrugFacility,
           },
-          query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
         const result = [
-          parentId && {
-            model: ReferenceData,
-            as: 'parent',
-            required: true,
-            through: {
-              attributes: ['id'],
-              where: {
-                referenceDataParentId: parentId,
-                type: relationType,
-              },
-            },
-          },
           typeName === REFERENCE_TYPES.DRUG && {
             model: ReferenceDrug,
             as: 'referenceDrug',
@@ -525,27 +576,37 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && {
-            model: ReferenceData,
-            as: 'children',
-            where: VISIBILITY_CRITERIA,
-            through: {
-              attributes: [],
-              where: {
-                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
+            const childrenWhere = { ...VISIBILITY_CRITERIA };
+            const medicationWhere = { ...VISIBILITY_CRITERIA };
+            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+            if (facilityFilter) {
+              childrenWhere[Op.and] = [facilityFilter];
+              medicationWhere[Op.and] = [facilityFilter];
+            }
+            return {
+              model: ReferenceData,
+              as: 'children',
+              where: childrenWhere,
+              through: {
+                attributes: [],
+                where: {
+                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                  deleted_at: null,
+                },
               },
-            },
-            include: {
-              model: ReferenceMedicationTemplate,
-              as: 'medicationTemplate',
               include: {
-                model: ReferenceData,
-                as: 'medication',
-                where: VISIBILITY_CRITERIA,
+                model: ReferenceMedicationTemplate,
+                as: 'medicationTemplate',
+                include: {
+                  model: ReferenceData,
+                  as: 'medication',
+                  where: medicationWhere,
+                  required: !!facilityFilter,
+                },
               },
-            },
-          },
+            };
+          })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -554,6 +615,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
           ? { subQuery: false }
           : {},
+      extraReplacementsBuilder: ({ parentId, relationType = DEFAULT_HIERARCHY_TYPE }) => ({
+        parentId,
+        relationType,
+      }),
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
@@ -563,12 +628,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             // Prioritize treatment plan at the top
             Sequelize.literal(`
               CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-            `),
+              `),
           ];
         }
       },
-      shouldSkipDefaultOrder: req =>
-        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
@@ -585,7 +648,14 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
+createSuggester('labTestType', 'LabTestType', ({ req }) => {
+  const baseWhere = { ...VISIBILITY_CRITERIA };
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+  if (facilityFilter) {
+    baseWhere[Op.and] = [facilityFilter];
+  }
+  return baseWhere;
+}, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
     name,
     code,
@@ -625,6 +695,13 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+createNameSuggester(
+  'patientFieldDefinitionCategory',
+  'PatientFieldDefinitionCategory',
+  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+);
+createNameSuggester('invoicePriceList');
+createNameSuggester('referenceData', 'ReferenceData');
 
 // Calculate the availability of the location before passing on to the front end
 createSuggester(
@@ -715,7 +792,6 @@ createSuggester(
   'InvoiceInsurancePlan',
   ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
   {
-    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },
 );
@@ -1048,8 +1124,14 @@ createNameSuggester(
   },
 );
 
-// TODO: Use generic LabTest permissions for this suggester
-createNameSuggester('labTestPanel', 'LabTestPanel');
+createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+  if (facilityFilter) {
+    baseWhere[Op.and] = [facilityFilter];
+  }
+  return baseWhere;
+});
 
 createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });

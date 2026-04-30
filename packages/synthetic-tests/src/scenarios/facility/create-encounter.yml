@@ -1,0 +1,12 @@
+scenarios:
+  - name: Create encounter
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateEncounterPayload
+      - post:
+          url: '/api/encounter'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{encounterPayload}}'

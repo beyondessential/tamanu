@@ -1,3 +1,4 @@
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -112,7 +113,11 @@ export const EditReportView = () => {
 
   return (
     <Container data-testid="container-y6i6">
-      <StyledButton onClick={handleBack} data-testid="styledbutton-45ah">
+      <StyledButton
+        data-testid="styledbutton-45ah"
+        onClick={handleBack}
+        startIcon={<ChevronLeft />}
+      >
         <TranslatedText
           stringId="general.action.back"
           fallback="Back"

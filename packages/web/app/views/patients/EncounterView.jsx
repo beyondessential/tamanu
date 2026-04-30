@@ -81,9 +81,14 @@ const TABS = [
     ),
     key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => (
-      <ChartDataProvider data-testid="chartdataprovider-dwj3">
-        <ChartsPane {...props} data-testid="chartspane-l442" />
-      </ChartDataProvider>
+      <EncounterPaneWithPermissionCheck
+        permissionNoun="Charting"
+        data-testid="encounterpanewithpermissioncheck-chart"
+      >
+        <ChartDataProvider data-testid="chartdataprovider-dwj3">
+          <ChartsPane {...props} data-testid="chartspane-l442" />
+        </ChartDataProvider>
+      </EncounterPaneWithPermissionCheck>
     ),
     condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },

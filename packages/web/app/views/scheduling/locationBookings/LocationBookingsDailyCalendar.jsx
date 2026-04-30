@@ -281,9 +281,9 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
           assignments.map((assignment, index) => (
             <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
               <AssignmentTime data-testid="assignment-time">
-                <TimeDisplay date={assignment.startTime} format="compact" />-
+                <TimeDisplay date={assignment.startTime} />-
                 <br />
-                <TimeDisplay date={assignment.endTime} format="compact" />
+                <TimeDisplay date={assignment.endTime} />
               </AssignmentTime>
               <AssignmentDivider data-testid="assignment-divider" />
               <AssignmentName data-testid="assignment-name">

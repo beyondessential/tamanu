@@ -61,6 +61,7 @@ describe('SurveyResponseAnswer', () => {
       const location = await models.Location.findOne({
         where: {
           code: locationCode,
+          facilityId,
         },
         attributes: ['id'],
       });

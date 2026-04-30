@@ -1,35 +1,52 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
 import { LocationAssignmentsContextProvider } from '../contexts/LocationAssignments';
-import { ReportAdminRoutes } from './ReportAdminRoutes';
-import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
+  DesignationsAdminView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
+  ManageProgramRegistriesRoutes,
+  ManageProgramsAdminView,
   PatientMergeView,
   PermissionsAdminView,
+  ProgramRegistriesAdminView,
   ProgramsAdminView,
-  SurveyResponsesAdminView,
+  ProgramsExportTab,
+  ProgramsImportTab,
   ReferenceDataAdminView,
+  RolesAdminView,
+  RolesAndDesignationsAdminView,
+  SettingsView,
+  SurveyResponsesAdminView,
   SyncView,
   TemplateView,
   TranslationAdminView,
-  SettingsView,
-  UserAdminView,
+  UserProfilesAdminView,
 } from '../views';
+import { FhirAdminRoutes } from './FhirAdminRoutes';
+import { ReportAdminRoutes } from './ReportAdminRoutes';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
     <Route path="assets" element={<AssetUploaderView />} />
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
-    <Route path='locationAssignments' element={<LocationAssignmentsContextProvider>
-      <LocationAssignmentsAdminView />
-    </LocationAssignmentsContextProvider>} />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
-    <Route path="programs" element={<ProgramsAdminView />} />
+    <Route path="programs">
+      <Route index element={<Navigate to="forms" replace />} />
+      <Route path="forms/*" element={<ProgramsAdminView />}>
+        <Route index element={<Navigate to="manage" replace />} />
+        <Route path="manage" element={<ManageProgramsAdminView />} />
+        <Route path="manage/:programId" element={<ManageProgramsAdminView />} />
+        <Route path="import" element={<ProgramsImportTab />} />
+        <Route path="export" element={<ProgramsExportTab />} />
+      </Route>
+      <Route path="registries" element={<ProgramRegistriesAdminView />}>
+        <Route path=":programRegistryId/*" element={<ManageProgramRegistriesRoutes />} />
+      </Route>
+    </Route>
     <Route path="referenceData" element={<ReferenceDataAdminView />} />
     <Route path="reports/*" element={<ReportAdminRoutes />} />
     <Route path="settings" element={<SettingsView />} />
@@ -37,7 +54,32 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="sync" element={<SyncView />} />
     <Route path="templates" element={<TemplateView />} />
     <Route path="translation" element={<TranslationAdminView />} />
-    <Route path="users" element={<UserAdminView />} />
+    <Route path="users">
+      <Route index element={<Navigate to="profiles" replace />} />
+      <Route path="profiles" element={<UserProfilesAdminView />} />
+
+      <Route path="rolesAndDesignations" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<Navigate to="roles" replace />} />
+        <Route path="roles">
+          <Route index element={<RolesAdminView />} />
+          <Route path="new" element={<RolesAdminView />} />
+          <Route path="delete/:id" element={<RolesAdminView />} />
+        </Route>
+        <Route path="designations">
+          <Route index element={<DesignationsAdminView />} />
+          <Route path="new" element={<DesignationsAdminView />} />
+          <Route path="delete/:id" element={<DesignationsAdminView />} />
+        </Route>
+      </Route>
+      <Route
+        path="locationAssignment"
+        element={
+          <LocationAssignmentsContextProvider>
+            <LocationAssignmentsAdminView />
+          </LocationAssignmentsContextProvider>
+        }
+      />
+    </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>

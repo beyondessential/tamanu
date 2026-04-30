@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from '@tamanu/errors';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import {
   permissionCheckingRouter,
@@ -9,6 +10,8 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
+
+import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurveysWithFormVisibility';
 
 export const program = express.Router();
 
@@ -37,7 +40,9 @@ program.get(
     // Don't include programs that don't have any permitted survey to submit
     const canSubmit = survey => ability.can('submit', survey);
     const hasAnySurveys = programRecord => programRecord.surveys.some(canSubmit);
-    const filteredRecords = records.filter(hasAnySurveys);
+    const filteredRecords = records
+      .filter(record => ability.can('list', record))
+      .filter(hasAnySurveys);
     const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
@@ -52,7 +57,16 @@ programRelations.get(
   '/:id/surveys',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Survey');
-    const { models, params, ability } = req;
+    const { models, params, query, ability } = req;
+
+    const programRecord = await models.Program.findByPk(params.id);
+    if (!programRecord) {
+      throw new NotFoundError('Program not found');
+    }
+    req.checkPermission('read', programRecord);
+
+    const { patientId } = query;
+
     const records = await models.Survey.findAll({
       where: {
         programId: params.id,
@@ -61,7 +75,11 @@ programRelations.get(
       order: [['name', 'ASC']],
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
-    const data = filteredRecords.map(x => x.forResponse());
+    const data = await getProgramSurveysWithFormVisibility(
+      models,
+      filteredRecords,
+      patientId,
+    );
 
     res.send({
       count: data.length,

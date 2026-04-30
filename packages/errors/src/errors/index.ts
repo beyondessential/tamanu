@@ -7,6 +7,7 @@ export { NotFoundError } from './NotFoundError';
 export { RateLimitedError } from './RateLimitedError';
 export { UnimplementedError } from './UnimplementedError';
 export { UnknownError } from './UnknownError';
+export { UsageError } from './UsageError';
 
 export { BaseRemoteError, RemoteCallError } from './RemoteError';
 export { RemoteIncompatibleError } from './RemoteIncompatibleError';

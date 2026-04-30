@@ -1,27 +1,22 @@
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
+import CloudIcon from '@mui/icons-material/Cloud';
+import FeedIcon from '@mui/icons-material/Feed';
+import GroupIcon from '@mui/icons-material/Group';
+import LanguageIcon from '@mui/icons-material/Language';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TranslateIcon from '@mui/icons-material/Translate';
+import UploadIcon from '@mui/icons-material/Upload';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import React from 'react';
-import {
-  Assignment as AssignmentIcon,
-  AttachMoney as AttachMoneyIcon,
-  BarChart as BarChartIcon,
-  CallMerge as CallMergeIcon,
-  Cloud as CloudIcon,
-  Group as GroupIcon,
-  Language as LanguageIcon,
-  SingleBed as BedIcon,
-  Person as PersonIcon,
-  Settings as SettingsIcon,
-  Translate as TranslateIcon,
-} from '@material-ui/icons';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import {
-  autoAwesomeMotionIcon,
-  newsIcon,
-  upload2Icon,
-  workspacesIcon,
-} from '../../constants/images';
 
-export const CENTRAL_MENU_ITEMS = [
+export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
   {
     key: 'referenceData',
     label: (
@@ -32,7 +27,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/referenceData',
-    icon: <LanguageIcon color="secondary" data-testid="languageicon-zkee" />,
+    icon: <LanguageIcon aria-hidden color="secondary" data-testid="languageicon-zkee" />,
   },
   {
     key: 'permissions',
@@ -45,7 +40,7 @@ export const CENTRAL_MENU_ITEMS = [
     ),
     path: '/admin/permissions',
     ability: { action: 'read', subject: 'userRole' },
-    icon: <GroupIcon color="secondary" data-testid="groupicon-xmqw" />,
+    icon: <GroupIcon aria-hidden color="secondary" data-testid="groupicon-xmqw" />,
   },
   {
     key: 'programs',
@@ -57,25 +52,37 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/programs',
-    icon: workspacesIcon,
+    icon: <WorkspacesIcon aria-hidden color="secondary" />,
+    children: [
+      {
+        key: 'programsAndForms',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.programsAndForms"
+            fallback="Programs & forms"
+            data-testid="translatedtext-programs-and-forms"
+          />
+        ),
+        path: '/admin/programs/forms',
+      },
+      {
+        key: 'programRegistries',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.programRegistries"
+            fallback="Program registries"
+            data-testid="translatedtext-program-registries"
+          />
+        ),
+        path: '/admin/programs/registries',
+      },
+    ],
   },
   {
     key: 'surveyResponses',
-    label: 'Survey Responses',
+    label: <TranslatedText stringId="adminSidebar.surveyResponses" fallback="Survey responses" />,
     path: '/admin/surveyResponses',
-    icon: <AssignmentIcon color="secondary" data-testid="assignmenticon-retb" />,
-  },
-  {
-    key: 'locationAssignments',
-    label: (
-      <TranslatedText
-        stringId="adminSidebar.locationAssignment"
-        fallback="Location assignment"
-        data-testid="translatedtext-locationassignments"
-      />
-    ),
-    path: '/admin/locationAssignments',
-    icon: <BedIcon color="secondary" data-testid="bedicon-locationassignments" />,
+    icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
   },
   {
     key: 'users',
@@ -87,7 +94,42 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/users',
-    icon: <PersonIcon color="secondary" data-testid="peopleicon-users" />,
+    icon: <PersonIcon aria-hidden color="secondary" data-testid="personicon-users" />,
+    children: [
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.userProfiles"
+            fallback="User profiles"
+            data-testid="translatedtext-user-profiles"
+          />
+        ),
+        path: '/admin/users/profiles',
+        key: 'userProfiles',
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.rolesAndDesignations"
+            fallback="Roles & designations"
+            data-testid="translatedtext-roles-designations"
+          />
+        ),
+        path: '/admin/users/rolesAndDesignations',
+        key: 'rolesAndDesignations',
+      },
+      {
+        key: 'locationAssignment',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.locationAssignment"
+            fallback="Location assignment"
+            data-testid="translatedtext-locationassignments"
+          />
+        ),
+        path: '/admin/users/locationAssignment',
+      },
+    ],
   },
   {
     key: 'patientMerge',
@@ -99,7 +141,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/patientMerge',
-    icon: <CallMergeIcon color="secondary" data-testid="callmergeicon-ywnt" />,
+    icon: <CallMergeIcon aria-hidden color="secondary" data-testid="callmergeicon-ywnt" />,
   },
   {
     key: 'templates',
@@ -111,7 +153,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/templates',
-    icon: autoAwesomeMotionIcon,
+    icon: <AutoAwesomeMotionIcon aria-hidden color="secondary" />,
   },
   {
     key: 'translation',
@@ -124,7 +166,7 @@ export const CENTRAL_MENU_ITEMS = [
     ),
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
-    icon: <TranslateIcon color="secondary" data-testid="translateicon-49q7" />,
+    icon: <TranslateIcon aria-hidden color="secondary" data-testid="translateicon-49q7" />,
   },
   {
     key: 'assets',
@@ -136,7 +178,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/assets',
-    icon: upload2Icon,
+    icon: <UploadIcon aria-hidden color="secondary" />,
   },
   {
     key: 'sync',
@@ -148,7 +190,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/sync',
-    icon: <CloudIcon color="secondary" data-testid="cloudicon-755w" />,
+    icon: <CloudIcon aria-hidden color="secondary" data-testid="cloudicon-755w" />,
   },
   {
     key: 'settings',
@@ -161,7 +203,7 @@ export const CENTRAL_MENU_ITEMS = [
     ),
     path: '/admin/settings',
     ability: { action: 'write', subject: 'settings' },
-    icon: <SettingsIcon color="secondary" data-testid="settingsicon-h7ys" />,
+    icon: <SettingsIcon aria-hidden color="secondary" data-testid="settingsicon-h7ys" />,
   },
   {
     key: 'fhirJobStats',
@@ -173,7 +215,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/fhir/jobStats',
-    icon: <BarChartIcon color="secondary" data-testid="barcharticon-f74k" />,
+    icon: <BarChartIcon aria-hidden color="secondary" data-testid="barcharticon-f74k" />,
   },
   {
     key: 'reports',
@@ -185,7 +227,7 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/reports',
-    icon: newsIcon,
+    icon: <FeedIcon aria-hidden color="secondary" />,
   },
   {
     key: 'Insurer payments',
@@ -197,6 +239,6 @@ export const CENTRAL_MENU_ITEMS = [
       />
     ),
     path: '/admin/insurerPayments',
-    icon: <AttachMoneyIcon color="secondary" data-testid="attachmoneyicon-w0gr" />,
+    icon: <AttachMoneyIcon aria-hidden color="secondary" data-testid="attachmoneyicon-w0gr" />,
   },
-];
+]);

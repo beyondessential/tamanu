@@ -1,14 +1,19 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.51.0",
+  "version": "2.56.0",
   "private": true,
   "dependencies": {
+    "@tamanu/api-client": "*",
+    "@tamanu/constants": "*",
     "@tamanu/fake-data": "*",
-    "js-yaml": "^4.1.0",
-    "jose": "^5.9.6"
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.22"
   },
   "scripts": {
-    "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",
+    "test:facility": "npm run merge-scenarios && artillery run src/merged-facility.yml",
+    "test:central": "npm run merge-scenarios && artillery run src/merged-central.yml",
     "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
   },
   "keywords": [],

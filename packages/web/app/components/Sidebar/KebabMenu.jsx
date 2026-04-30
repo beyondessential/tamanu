@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, Menu } from '@material-ui/core';
-import { Launch, MoreVert } from '@material-ui/icons';
+import Launch from '@mui/icons-material/Launch';
+import MoreVert from '@mui/icons-material/MoreVert';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
