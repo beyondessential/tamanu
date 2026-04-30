@@ -104,6 +104,7 @@ export const Category = ({
   getInitialSettingValue,
   handleChangeSetting,
   facilityId,
+  dirty,
 }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
@@ -158,6 +159,7 @@ export const Category = ({
               disabled={disabled}
               facilityId={facilityId}
               editor={editor}
+              dirty={dirty}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -171,6 +173,7 @@ export const Category = ({
             getInitialSettingValue={getInitialSettingValue}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
+            dirty={dirty}
             data-testid={`category-9y74-${testIdSuffix}`}
           />
         );

@@ -142,6 +142,7 @@ export const SettingsView = () => {
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
+              initialSettingsSnapshot={settingsSnapshot}
               data-testid="settingsform-lqhf"
             />
           )}
@@ -165,6 +166,7 @@ const SettingsForm = ({
   setScope,
   facilityId,
   setFacilityId,
+  initialSettingsSnapshot,
 }) => {
   const { ability } = useAuth();
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
@@ -227,6 +229,7 @@ const SettingsForm = ({
         resetForm={resetForm}
         dirty={dirty}
         scope={scope}
+        initialSettingsSnapshot={initialSettingsSnapshot}
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
