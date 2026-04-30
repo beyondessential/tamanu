@@ -33,18 +33,22 @@ const Description = styled.p`
 const ModalBody = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 12rem);
+  gap: 12px;
+  overflow: hidden;
 `;
 
 const EditorContainer = styled.div`
-  flex: 1;
-  min-height: 240px;
+  height: clamp(240px, calc(100dvh - 320px), 520px);
   width: 100%;
 `;
 
 const StyledMarkdownEditor = styled(AceEditor)`
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
+
+  .ace_scroller {
+    padding: 10px 12px;
+  }
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
@@ -129,6 +133,7 @@ export const MarkdownEditorModal = React.memo(
                 cursorStyle: 'slim',
               }}
               editorProps={{ $blockScrolling: true }}
+              onLoad={editor => editor.resize()}
               data-testid="markdowneditormodal-textarea"
             />
           </EditorContainer>
