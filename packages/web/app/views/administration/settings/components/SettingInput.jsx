@@ -94,7 +94,7 @@ const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
   NUMBER: 'number',
-  LONG_TEXT: 'longText',
+  MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
   OBJECT: 'object',
   ARRAY: 'array',
@@ -194,7 +194,7 @@ export const SettingInput = ({
   const typeKey =
     type === SETTING_TYPES.STRING && editor
       ? {
-          [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.LONG_TEXT,
+          [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.MULTILINE,
           [SETTING_EDITORS.MARKDOWN]: SETTING_TYPES.MARKDOWN,
         }[editor] || type
       : type;
@@ -287,7 +287,7 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
-    case SETTING_TYPES.LONG_TEXT: {
+    case SETTING_TYPES.MULTILINE: {
       return (
         <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
