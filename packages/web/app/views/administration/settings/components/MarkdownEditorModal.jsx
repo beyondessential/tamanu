@@ -77,9 +77,8 @@ const EDITOR_PROPS = { $blockScrolling: true };
 
 const getStringValue = value => (value == null ? '' : String(value));
 
-export const MarkdownEditorModal = React.memo(
-  ({ open, onClose, title, category, description, value, onSave, readOnly }) => {
-    readOnly = true;
+export const MarkdownEditorModal = (
+  { open, onClose, title, category, description, value, onSave, readOnly } ) => {
     const currentValue = getStringValue(value);
     const [draft, setDraft] = useState(currentValue);
     const hasDraftChange = draft !== currentValue;
@@ -152,5 +151,4 @@ export const MarkdownEditorModal = React.memo(
         </ModalBody>
       </Modal>
     );
-  },
-);
+  };
