@@ -62,6 +62,11 @@ jobs:
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/central-server build
       - run: npm run --workspace @tamanu/facility-server build
+      # Build the web frontend up-front so E2E shards can serve it via
+      # `vite preview` instead of starting the dev server on every shard. The
+      # dev-server's cold-start optimizeDeps crawl is the primary source of
+      # intermittent login-page timeouts on CI runners post Vite 6 upgrade.
+      - run: npm run --workspace @tamanu/web-frontend build
 
       - name: Setup postgres dbs
         run: |

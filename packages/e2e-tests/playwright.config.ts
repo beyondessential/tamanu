@@ -99,18 +99,24 @@ module.exports = defineConfig({
             timeout: 240 * 1000,
             stdout: 'pipe',
           },
+          // Run the web frontends from the production build via `vite preview`
+          // rather than the dev server. The dev server's on-demand transform +
+          // optimizeDeps crawl is the largest source of cold-start variance on
+          // CI runners (and the cause of intermittent login-page timeouts after
+          // the Vite 6 upgrade). The build is produced once by the e2e_prepare
+          // job and downloaded into packages/web/dist before tests run.
           {
-            command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
+            command: 'npm run e2e-client-preview --workspace=@tamanu/web-frontend',
             port: 5173,
             reuseExistingServer: true,
-            timeout: 240 * 1000,
+            timeout: 120 * 1000,
             stdout: 'pipe',
           },
           {
-            command: 'npm run admin-start-dev --workspace @tamanu/web-frontend',
+            command: 'npm run e2e-admin-preview --workspace=@tamanu/web-frontend',
             port: 5174,
             reuseExistingServer: true,
-            timeout: 240 * 1000,
+            timeout: 120 * 1000,
             stdout: 'pipe',
           },
         ],

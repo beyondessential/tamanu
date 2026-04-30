@@ -17,6 +17,8 @@
     "start-dev": "vite",
     "admin-start-dev": "TAMANU_VITE_TARGET=http://localhost:3000 DISABLE_SINGLE_TAB=true npm run start-dev",
     "client-start-dev": "TAMANU_VITE_TARGET=http://localhost:4000 DISABLE_SINGLE_TAB=true npm run start-dev",
+    "e2e-client-preview": "TAMANU_VITE_TARGET=http://localhost:4000 VITE_PREVIEW_HTTP=true vite preview --port 5173 --strictPort",
+    "e2e-admin-preview": "TAMANU_VITE_TARGET=http://localhost:3000 VITE_PREVIEW_HTTP=true vite preview --port 5174 --strictPort",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch"
   },
