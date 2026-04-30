@@ -10,4 +10,5 @@ export interface Setting<T = any> {
   deprecated?: boolean;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;
+  longText?: boolean;
 }

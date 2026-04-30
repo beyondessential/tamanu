@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 
 import {
   AutocompleteInput,
@@ -13,6 +14,7 @@ import {
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
+import { LongTextEditorModal } from './LongTextEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
@@ -59,6 +61,23 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
+const ExpandButton = styled(TextButton)`
+  color: ${Colors.darkestText};
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18px;
+  padding-block: 0;
+  text-transform: none;
+  transition: color 200ms ease;
+  align-self: flex-start;
+  margin-block-start: 13px; // Align baseline with the textarea
+  margin-inline-start: 0.5rem;
+
+  &:hover {
+    color: ${Colors.primary};
+  }
+`;
+
 const Flexbox = styled.div`
   align-items: center;
   display: flex;
@@ -74,14 +93,12 @@ const SETTING_TYPES = {
   ARRAY: 'array',
 };
 
-const TYPE_OVERRIDES_BY_KEY = {
-  ['body']: SETTING_TYPES.LONG_TEXT,
-};
-
 const normalize = val => (val === null || val === '' ? '' : val);
 
 export const SettingInput = ({
   path,
+  name,
+  description,
   value,
   defaultValue,
   handleChangeSetting,
@@ -90,9 +107,11 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
+  longText,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
+  const [longTextModalOpen, setLongTextModalOpen] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
@@ -154,8 +173,7 @@ export const SettingInput = ({
   const displayValue = isUndefined(value) ? defaultValue : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
-  const key = path.split('.').pop();
-  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+  const typeKey = longText && type === SETTING_TYPES.STRING ? SETTING_TYPES.LONG_TEXT : type;
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
@@ -245,7 +263,8 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
-    case SETTING_TYPES.LONG_TEXT:
+    case SETTING_TYPES.LONG_TEXT: {
+      const modalTitle = name || path.split('.').pop();
       return (
         <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
@@ -258,9 +277,30 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
+          <ExpandButton
+            onClick={() => setLongTextModalOpen(true)}
+            startIcon={<OpenInFullIcon style={{ fontSize: 14 }} />}
+            data-testid="expandbutton-longtext"
+          >
+            <TranslatedText
+              stringId="admin.settings.action.expandEditor"
+              fallback="Expand"
+              data-testid="translatedtext-expand"
+            />
+          </ExpandButton>
           <DefaultButton data-testid="defaultbutton-5efq" />
+          <LongTextEditorModal
+            open={longTextModalOpen}
+            onClose={() => setLongTextModalOpen(false)}
+            title={modalTitle}
+            description={description}
+            value={displayValue ?? ''}
+            onChange={newValue => handleChangeSetting(path, newValue)}
+            readOnly={disabled}
+          />
         </Flexbox>
       );
+    }
     case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
       return (
