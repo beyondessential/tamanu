@@ -1,4 +1,4 @@
-import { addMilliseconds, addHours, addDays, addMonths, isWithinInterval } from 'date-fns';
+import { addMilliseconds, addHours, isWithinInterval } from 'date-fns';
 
 import { ScheduledTask } from '../../src/tasks/ScheduledTask';
 import { log } from '../../src/services/logging/log';
@@ -59,15 +59,26 @@ describe('ScheduledTask', () => {
     jest.useFakeTimers().setSystemTime(systemTime);
   });
 
+  it('adds the configured timezone to schedules', () => {
+    const task = new TestScheduledTask(() => {}, {
+      schedule: '0 2 * * *',
+    });
+
+    expect(task.schedule).toEqual({
+      rule: '0 2 * * *',
+      tz: 'Australia/Melbourne',
+    });
+  });
+
   it('Should run a task on a schedule', () => {
     const onEveryHour = new TestScheduledTask(() => {}, {
-      schedule: { rule: '0 * * * *', tz: 'UTC' },
+      schedule: '0 * * * *',
     });
     const onMidnightEveryDay = new TestScheduledTask(() => {}, {
-      schedule: { rule: '0 0 * * *', tz: 'UTC' },
+      schedule: '0 0 * * *',
     });
     const onFirstDayEveryMonth = new TestScheduledTask(() => {}, {
-      schedule: { rule: '0 0 1 * *', tz: 'UTC' },
+      schedule: '0 0 1 * *',
     });
     const tasks = [onEveryHour, onMidnightEveryDay, onFirstDayEveryMonth];
 
@@ -77,10 +88,10 @@ describe('ScheduledTask', () => {
       addHours(systemTime, 1).toISOString(),
     );
     expect(onMidnightEveryDay.job.nextInvocation().toISOString()).toEqual(
-      addDays(systemTime, 1).toISOString(),
+      '2020-01-01T13:00:00.000Z',
     );
     expect(onFirstDayEveryMonth.job.nextInvocation().toISOString()).toEqual(
-      addMonths(systemTime, 1).toISOString(),
+      '2020-01-31T13:00:00.000Z',
     );
 
     tasks.forEach((task) => task.cancelPolling());
@@ -96,7 +107,7 @@ describe('ScheduledTask', () => {
         taskRanAt = new Date();
       },
       {
-        schedule: { rule: '0 * * * *', tz: 'UTC' },
+        schedule: '0 * * * *',
         jitterTime,
       },
     );
@@ -123,7 +134,7 @@ describe('ScheduledTask', () => {
         hasRun = true;
       },
       {
-        schedule: { rule: '0 * * * *', tz: 'UTC' },
+        schedule: '0 * * * *',
         enabled: false,
       },
     );

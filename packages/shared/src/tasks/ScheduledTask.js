@@ -1,3 +1,4 @@
+import config from 'config';
 import { SpanStatusCode } from '@opentelemetry/api';
 import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
@@ -6,6 +7,7 @@ import ms from 'ms';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { getTracer, spanWrapFn } from '../services/logging';
+import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 
 export class ScheduledTask {
   getName() {
@@ -19,7 +21,10 @@ export class ScheduledTask {
       name: this.getName(),
     });
 
-    this.schedule = schedule;
+    this.schedule = {
+      rule: schedule,
+      tz: getPrimaryTimeZone(config),
+    };
     this.job = null;
     this.log = log;
     this.isRunning = false;
