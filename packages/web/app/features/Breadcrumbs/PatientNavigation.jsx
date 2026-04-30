@@ -32,14 +32,13 @@ const VerticalDivider = styled.div`
 `;
 
 const StyledBreadcrumbs = styled(Breadcrumbs)`
-  & ol > .MuiBreadcrumbs-separator {
-    font-size: 12px;
+  font-size: 12px;
+  .MuiBreadcrumbs-separator {
     color: ${Colors.softText};
   }
-  & ol > :last-child > p {
-    pointer-events: none;
+  .MuiBreadcrumbs-li:last-child {
     font-weight: 500;
-    cursor: default;
+    pointer-events: none;
   }
 `;
 
