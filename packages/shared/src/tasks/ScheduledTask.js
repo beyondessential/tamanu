@@ -21,6 +21,10 @@ export class ScheduledTask {
       name: this.getName(),
     });
 
+    if (schedule && typeof schedule !== 'string') {
+      throw new Error(`ScheduledTask: schedule must be a cron string, received ${typeof schedule}`);
+    }
+
     this.schedule = schedule && {
       rule: schedule,
       tz: getPrimaryTimeZone(config),
