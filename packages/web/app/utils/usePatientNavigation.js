@@ -13,9 +13,7 @@ export const usePatientNavigation = () => {
   );
 
   const navigateToCategory = useCallback(
-    category => {
-      navigate(generatePath(PATIENT_PATHS.CATEGORY, { category }));
-    },
+    category => void navigate(generatePath(PATIENT_PATHS.CATEGORY, { category })),
     [navigate],
   );
 
