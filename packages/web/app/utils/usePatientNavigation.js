@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate, generatePath, matchPath, useLocation, useParams } from 'react-router';
+import { generatePath, matchPath, useLocation, useNavigate, useParams } from 'react-router';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
@@ -24,7 +24,13 @@ export const usePatientNavigation = () => {
       const routeParams = getParams(PATIENT_PATHS.CATEGORY);
       const { category = PATIENT_CATEGORIES.ALL } = routeParams;
       const patientRoute = generatePath(PATIENT_PATHS.PATIENT, { category, patientId });
-      navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`, options);
+      navigate(
+        {
+          pathname: patientRoute,
+          ...(search && { search: `?${new URLSearchParams(search)}` }),
+        },
+        options,
+      );
     },
     [navigate, getParams],
   );
@@ -36,9 +42,13 @@ export const usePatientNavigation = () => {
         ...existingParams,
         encounterId,
       });
-      navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`, {
-        replace: Boolean(replaceInHistory),
-      });
+      navigate(
+        {
+          pathname: encounterRoute,
+          ...(search && { search: `?${new URLSearchParams(search)}` }),
+        },
+        { replace: Boolean(replaceInHistory) },
+      );
     },
     [navigate, getParams],
   );
@@ -82,10 +92,10 @@ export const usePatientNavigation = () => {
         navigate(programRegistryRoute);
       } else {
         const existingParams = getParams(PATIENT_PATHS.PROGRAM_REGISTRY);
-        const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, existingParams)}?${
-          location.search
-        }`;
-        navigate(path);
+        navigate({
+          pathname: generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, existingParams),
+          search: location.search,
+        });
       }
     },
     [navigate, params, getParams, location.search],
