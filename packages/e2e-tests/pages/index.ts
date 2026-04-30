@@ -1,7 +1,6 @@
 export { DashboardPage } from './DashboardPage';
 export { LoginPage } from './LoginPage';
 export { SidebarPage } from './SidebarPage';
-export { AdminSettingsPage } from './administration/AdminSettingsPage';
 
 export * from './facilityAdmin';
 export * from './programRegistry';

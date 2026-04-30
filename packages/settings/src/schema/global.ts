@@ -1397,7 +1397,7 @@ export const globalSettings = {
             },
             body: {
               type: yup.string().trim().min(1),
-              editor: SETTING_EDITORS.MARKDOWN,
+              editor: SETTING_EDITORS.MULTILINE,
               defaultValue:
                 'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
             },

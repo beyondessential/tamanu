@@ -90,7 +90,7 @@ const LongTextActions = styled.div`
   margin-block-start: 13px;
 `;
 
-const SETTING_TYPES /** @type {const} */ = {
+const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
   NUMBER: 'number',
@@ -182,9 +182,9 @@ export const SettingInput = ({
 
   const handleChangeValue = newValue => handleChangeSetting(path, newValue);
   const defaultHandleChange = e => handleChangeValue(e.target.value);
-  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
-  const handleChangeJSON = e => handleChangeSetting(path, e);
+  const handleChangeSwitch = e => handleChangeValue(e.target.checked);
+  const handleChangeNumber = e => handleChangeValue(Number(e.target.value));
+  const handleChangeJSON = e => handleChangeValue(e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
   const initialFieldValue = get(initialValues?.settings, settingsPath);

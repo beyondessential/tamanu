@@ -77,78 +77,86 @@ const EDITOR_PROPS = { $blockScrolling: true };
 
 const getStringValue = value => (value == null ? '' : String(value));
 
-export const MarkdownEditorModal = (
-  { open, onClose, title, category, description, value, onSave, readOnly } ) => {
-    const currentValue = getStringValue(value);
-    const [draft, setDraft] = useState(currentValue);
-    const hasDraftChange = draft !== currentValue;
+export const MarkdownEditorModal = ({
+  open,
+  onClose,
+  title,
+  category,
+  description,
+  value,
+  onSave,
+  readOnly,
+}) => {
+  const currentValue = getStringValue(value);
+  const [draft, setDraft] = useState(currentValue);
+  const hasDraftChange = draft !== currentValue;
 
-    const handleConfirm = () => {
-      onSave(draft);
-      onClose();
-    };
-
-    return (
-      <Modal
-        open={open}
-        onClose={onClose}
-        width="lg"
-        cornerExitButton={false}
-        fixedBottomRow
-        bottomRowContent={
-          <BottomPinnedRow data-testid="markdowneditormodal-footer">
-            <StyledConfirmCancelRow
-              onCancel={onClose}
-              onConfirm={handleConfirm}
-              confirmDisabled={!hasDraftChange}
-              cancelText={
-                readOnly || !hasDraftChange ? (
-                  <TranslatedText stringId="general.action.close" fallback="Close" />
-                ) : (
-                  <TranslatedText
-                    stringId="general.action.discardChanges"
-                    fallback="Discard changes"
-                  />
-                )
-              }
-              $hideConfirm={readOnly}
-            />
-          </BottomPinnedRow>
-        }
-        title={
-          <Title data-testid="markdowneditormodal-title">
-            <span>{title}</span>
-            {category && <Category data-testid="markdowneditormodal-category">{category}</Category>}
-          </Title>
-        }
-        data-testid="markdowneditormodal-modal"
-      >
-        <ModalBody data-testid="markdowneditormodal-body">
-          {description && (
-            <Description data-testid="markdowneditormodal-desc">{description}</Description>
-          )}
-          <EditorContainer data-testid="markdowneditormodal-editor-wrap">
-            <StyledMarkdownEditor
-              name="settings-markdown-modal-editor"
-              mode="markdown"
-              theme="textmate"
-              width="100%"
-              height="100%"
-              value={draft}
-              onChange={setDraft}
-              readOnly={readOnly}
-              showPrintMargin={false}
-              showLineNumbers={false}
-              highlightActiveLine={false}
-              wrapEnabled
-              fontSize={13}
-              setOptions={EDITOR_OPTIONS}
-              editorProps={EDITOR_PROPS}
-              onLoad={editor => editor.resize()}
-              data-testid="markdowneditormodal-textarea"
-            />
-          </EditorContainer>
-        </ModalBody>
-      </Modal>
-    );
+  const handleConfirm = () => {
+    onSave(draft);
+    onClose();
   };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      width="lg"
+      cornerExitButton={false}
+      fixedBottomRow
+      bottomRowContent={
+        <BottomPinnedRow data-testid="markdowneditormodal-footer">
+          <StyledConfirmCancelRow
+            onCancel={onClose}
+            onConfirm={handleConfirm}
+            confirmDisabled={!hasDraftChange}
+            cancelText={
+              readOnly ? (
+                <TranslatedText stringId="general.action.close" fallback="Close" />
+              ) : (
+                <TranslatedText
+                  stringId="general.action.discardChanges"
+                  fallback="Discard changes"
+                />
+              )
+            }
+            $hideConfirm={readOnly}
+          />
+        </BottomPinnedRow>
+      }
+      title={
+        <Title data-testid="markdowneditormodal-title">
+          <span>{title}</span>
+          {category && <Category data-testid="markdowneditormodal-category">{category}</Category>}
+        </Title>
+      }
+      data-testid="markdowneditormodal-modal"
+    >
+      <ModalBody data-testid="markdowneditormodal-body">
+        {description && (
+          <Description data-testid="markdowneditormodal-desc">{description}</Description>
+        )}
+        <EditorContainer data-testid="markdowneditormodal-editor-wrap">
+          <StyledMarkdownEditor
+            name="settings-markdown-modal-editor"
+            mode="markdown"
+            theme="textmate"
+            width="100%"
+            height="100%"
+            value={draft}
+            onChange={setDraft}
+            readOnly={readOnly}
+            showPrintMargin={false}
+            showLineNumbers={false}
+            highlightActiveLine={false}
+            wrapEnabled
+            fontSize={13}
+            setOptions={EDITOR_OPTIONS}
+            editorProps={EDITOR_PROPS}
+            onLoad={editor => editor.resize()}
+            data-testid="markdowneditormodal-textarea"
+          />
+        </EditorContainer>
+      </ModalBody>
+    </Modal>
+  );
+};
