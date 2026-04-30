@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEqual, isString, isUndefined } from 'lodash';
+import { isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
@@ -94,6 +94,13 @@ const SETTING_TYPES = {
 };
 
 const normalize = val => (val === null || val === '' ? '' : val);
+
+const formatCategoryPath = path =>
+  path
+    .split('.')
+    .slice(0, -1)
+    .map(part => startCase(part))
+    .join(' / ');
 
 export const SettingInput = ({
   path,
@@ -265,6 +272,7 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.LONG_TEXT: {
       const modalTitle = name || path.split('.').pop();
+      const category = formatCategoryPath(path);
       return (
         <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
@@ -293,6 +301,7 @@ export const SettingInput = ({
             open={longTextModalOpen}
             onClose={() => setLongTextModalOpen(false)}
             title={modalTitle}
+            category={category}
             description={description}
             value={displayValue ?? ''}
             onChange={newValue => handleChangeSetting(path, newValue)}
