@@ -19,7 +19,7 @@ env:
 
 jobs:
   node_modules_cache:
-    # TODO: Restore merge_group-only after validating E2E failure report comments from this PR.
+    if: github.event_name == 'merge_group'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -186,8 +186,7 @@ jobs:
 
   e2e_failure_report:
     name: E2E Failure Report
-    # TODO: Restore merge_group-only after validating E2E failure report comments from this PR.
-    if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group') && needs.e2e.result != 'success'
+    if: always() && github.event_name == 'merge_group' && needs.e2e.result != 'success'
     needs: [e2e]
     runs-on: ubuntu-latest
     steps:
