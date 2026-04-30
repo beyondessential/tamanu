@@ -110,6 +110,69 @@ const formatCategoryPath = path =>
     .map(part => startCase(part))
     .join(' / ');
 
+const MarkdownSettingInput = ({
+  path,
+  settingsPath,
+  name,
+  description,
+  displayValue,
+  defaultValue,
+  disabled,
+  onChange,
+  DefaultButton,
+  'data-testid': dataTestId,
+}) => {
+  const { initialValues } = useFormikContext();
+  const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  const initialDisplayValue = isUndefined(initialFieldValue) ? defaultValue : initialFieldValue;
+  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
+  const modalTitle = name ?? path.split('.').pop();
+  const category = formatCategoryPath(path);
+  const markdownDisplayText = displayValue == null ? '' : String(displayValue);
+
+  return (
+    <Flexbox data-testid={dataTestId ?? 'flexbox-markdowneditor'}>
+      <MarkdownEditorButton
+        onClick={() => setMarkdownModalOpen(true)}
+        startIcon={
+          disabled ? (
+            <VisibilityIcon style={{ fontSize: 14 }} />
+          ) : (
+            <EditIcon style={{ fontSize: 14 }} />
+          )
+        }
+        size="small"
+        data-testid="editbutton-markdowneditor"
+      >
+        {disabled ? (
+          <TranslatedText stringId="general.action.view" fallback="View" />
+        ) : (
+          <TranslatedText stringId="general.action.edit" fallback="Edit" />
+        )}
+      </MarkdownEditorButton>
+      {hasUnsavedChange && (
+        <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
+          <TranslatedText stringId="admin.settings.status.unsavedChange" fallback="Edited" />
+        </MarkdownEditorStatus>
+      )}
+      <DefaultButton data-testid="defaultbutton-5efq" />
+      {markdownModalOpen && (
+        <MarkdownEditorModal
+          open={markdownModalOpen}
+          onClose={() => setMarkdownModalOpen(false)}
+          title={modalTitle}
+          category={category}
+          description={description}
+          value={markdownDisplayText}
+          onSave={onChange}
+          readOnly={disabled}
+        />
+      )}
+    </Flexbox>
+  );
+};
+
 export const SettingInput = ({
   path,
   settingsPath,
@@ -126,10 +189,8 @@ export const SettingInput = ({
   editor,
   'data-testid': dataTestId,
 }) => {
-  const { initialValues } = useFormikContext();
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(
@@ -188,10 +249,7 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeValue(e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
-  const initialFieldValue = get(initialValues?.settings, settingsPath);
-  const initialDisplayValue = isUndefined(initialFieldValue) ? defaultValue : initialFieldValue;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
-  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
 
   const typeKey = type === SETTING_TYPES.STRING && editor ? editor : type;
   if (suggesterEndpoint) {
@@ -303,48 +361,19 @@ export const SettingInput = ({
       );
     }
     case SETTING_TYPES.MARKDOWN: {
-      const modalTitle = name ?? path.split('.').pop();
-      const category = formatCategoryPath(path);
-      const markdownDisplayText = displayValue == null ? '' : String(displayValue);
       return (
-        <Flexbox data-testid={dataTestId ?? 'flexbox-markdowneditor'}>
-          <MarkdownEditorButton
-            onClick={() => setMarkdownModalOpen(true)}
-            startIcon={
-              disabled ? (
-                <VisibilityIcon style={{ fontSize: 14 }} />
-              ) : (
-                <EditIcon style={{ fontSize: 14 }} />
-              )
-            }
-            size="small"
-            data-testid="editbutton-markdowneditor"
-          >
-            {disabled ? (
-              <TranslatedText stringId="general.action.view" fallback="View" />
-            ) : (
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
-            )}
-          </MarkdownEditorButton>
-          {hasUnsavedChange && (
-            <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
-              <TranslatedText stringId="admin.settings.status.unsavedChange" fallback="Edited" />
-            </MarkdownEditorStatus>
-          )}
-          <DefaultButton data-testid="defaultbutton-5efq" />
-          {markdownModalOpen && (
-            <MarkdownEditorModal
-              open={markdownModalOpen}
-              onClose={() => setMarkdownModalOpen(false)}
-              title={modalTitle}
-              category={category}
-              description={description}
-              value={markdownDisplayText}
-              onSave={handleChangeValue}
-              readOnly={disabled}
-            />
-          )}
-        </Flexbox>
+        <MarkdownSettingInput
+          path={path}
+          settingsPath={settingsPath}
+          name={name}
+          description={description}
+          displayValue={displayValue}
+          defaultValue={defaultValue}
+          disabled={disabled}
+          onChange={handleChangeValue}
+          DefaultButton={DefaultButton}
+          data-testid={dataTestId}
+        />
       );
     }
     case SETTING_TYPES.OBJECT:
