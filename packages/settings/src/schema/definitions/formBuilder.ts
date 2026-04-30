@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 
+import { SETTING_EDITORS } from '@tamanu/constants';
+
 // System prompts for the AI form builder. Stored as central settings so they
 // can be tuned per deployment without a code release. All four are plain
 // system-message strings; conversation history and any uploaded artefacts are
@@ -147,24 +149,28 @@ export const formBuilderProperties = {
       description:
         'System prompt used to extract field labels, input types, options and section structure from an uploaded form image (png/jpg/jpeg).',
       type: yup.string(),
+      editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: interpretFormImageDefault,
     },
     processMessage: {
       description:
         'System prompt for each conversational turn. Drives information gathering and signals when the chat is ready to generate or export.',
       type: yup.string(),
+      editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: processMessageDefault,
     },
     buildSurveyDefinition: {
       description:
         'System prompt used to generate the complete ProgramDefinition (program metadata, surveys and questions) from the conversation history.',
       type: yup.string(),
+      editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: buildSurveyDefinitionDefault,
     },
     fixProgramErrors: {
       description:
         'System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question’s type.',
       type: yup.string(),
+      editor: SETTING_EDITORS.MARKDOWN,
       defaultValue: fixProgramErrorsDefault,
     },
   },
