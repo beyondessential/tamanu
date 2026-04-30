@@ -18,7 +18,7 @@ env:
 
 jobs:
   node_modules_cache:
-    if: github.event_name == 'merge_group'
+    # TODO: Restore merge_group-only after validating E2E failure report comments from this PR.
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -185,7 +185,8 @@ jobs:
 
   e2e_failure_report:
     name: E2E Failure Report
-    if: always() && github.event_name == 'merge_group' && needs.e2e.result != 'success'
+    # TODO: Restore merge_group-only after validating E2E failure report comments from this PR.
+    if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group') && needs.e2e.result != 'success'
     needs: [e2e]
     runs-on: ubuntu-latest
     steps:
@@ -230,10 +231,11 @@ jobs:
             const { ARTIFACT_URL, RUN_NUMBER, RUN_URL, SHA } = process.env;
             const { repo, owner } = context.repo;
             const headRef = context.payload.merge_group?.head_ref ?? '';
-            const prNumber = headRef.match(/\/pr-(\d+)-/)?.[1];
+            const prNumber =
+              context.issue.number ?? headRef.match(/\/pr-(\d+)-/)?.[1];
 
             if (!prNumber) {
-              core.warning(`Could not determine PR number from merge queue head_ref: ${headRef}`);
+              core.warning(`Could not determine PR number from event ${context.eventName} and merge queue head_ref: ${headRef}`);
               return;
             }
 
@@ -246,7 +248,9 @@ jobs:
             const body = [
               headerContent,
               '',
-              `E2E failed in the merge queue for run **${RUN_NUMBER}** (${SHA.slice(0, 7)}).`,
+              context.eventName === 'pull_request'
+                ? `Temporary PR mechanics test: E2E failed for run **${RUN_NUMBER}** (${SHA.slice(0, 7)}).`
+                : `E2E failed in the merge queue for run **${RUN_NUMBER}** (${SHA.slice(0, 7)}).`,
               '',
               `- [View workflow run](${RUN_URL})`,
               `- [Download Playwright failure report](${ARTIFACT_URL})`,
