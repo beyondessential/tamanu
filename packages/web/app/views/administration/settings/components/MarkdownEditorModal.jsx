@@ -112,7 +112,7 @@ export const MarkdownEditorModal = React.memo(
                   />
                 )
               }
-              $hideConfirm={readOnly || !hasDraftChange}
+              $hideConfirm={readOnly}
             />
           </BottomPinnedRow>
         }
