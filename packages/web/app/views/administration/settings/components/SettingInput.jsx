@@ -6,6 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import {
   AutocompleteInput,
+  Button,
   LargeBodyText,
   NumberInput,
   TextButton,
@@ -61,19 +62,8 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
-const EditButton = styled(TextButton)`
-  color: ${Colors.darkestText};
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 18px;
-  padding-block: 0;
-  text-transform: none;
-  transition: color 200ms ease;
-  margin-inline-start: 0.5rem;
-
-  &:hover {
-    color: ${Colors.primary};
-  }
+const ModalTextButton = styled(Button)`
+  align-self: center;
 `;
 
 const Flexbox = styled.div`
@@ -310,21 +300,20 @@ export const SettingInput = ({
       const modalTitle = name || path.split('.').pop();
       const category = formatCategoryPath(path);
       return (
-        <LongTextFlexbox data-testid="flexbox-r6sr">
-          <LongTextActions data-testid="longtextactions-y1pc">
-            <EditButton
-              onClick={() => setLongTextModalOpen(true)}
-              startIcon={<EditIcon style={{ fontSize: 14 }} />}
-              data-testid="editbutton-modaltext"
-            >
-              <TranslatedText
-                stringId="admin.settings.action.editInModal"
-                fallback="Edit"
-                data-testid="translatedtext-edit"
-              />
-            </EditButton>
-            <DefaultButton data-testid="defaultbutton-5efq" />
-          </LongTextActions>
+        <Flexbox data-testid="flexbox-modaltext">
+          <ModalTextButton
+            onClick={() => setLongTextModalOpen(true)}
+            startIcon={<EditIcon style={{ fontSize: 14 }} />}
+            size="small"
+            data-testid="editbutton-modaltext"
+          >
+            <TranslatedText
+              stringId="admin.settings.action.editInModal"
+              fallback="Edit"
+              data-testid="translatedtext-edit"
+            />
+          </ModalTextButton>
+          <DefaultButton data-testid="defaultbutton-5efq" />
           <LongTextEditorModal
             open={longTextModalOpen}
             onClose={() => setLongTextModalOpen(false)}
@@ -335,7 +324,7 @@ export const SettingInput = ({
             onChange={newValue => handleChangeSetting(path, newValue)}
             readOnly={disabled}
           />
-        </LongTextFlexbox>
+        </Flexbox>
       );
     }
     case SETTING_TYPES.OBJECT:
