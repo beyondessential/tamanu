@@ -92,13 +92,13 @@ describe('ScheduledTask', () => {
     tasks.forEach(task => task.beginPolling());
 
     expect(onEveryHour.job.nextInvocation().toISOString()).toEqual(
-      addHours(systemTime, 1, { tz: 'UTC' }).toISOString(),
+      addHours(systemTime, 1).toISOString(),
     );
     expect(onMidnightEveryDay.job.nextInvocation().toISOString()).toEqual(
-      addDays(systemTime, 1, { tz: 'UTC' }).toISOString(),
+      addDays(systemTime, 1).toISOString(),
     );
     expect(onFirstDayEveryMonth.job.nextInvocation().toISOString()).toEqual(
-      addMonths(systemTime, 1, { tz: 'UTC' }).toISOString(),
+      addMonths(systemTime, 1).toISOString(),
     );
 
     tasks.forEach(task => task.cancelPolling());
