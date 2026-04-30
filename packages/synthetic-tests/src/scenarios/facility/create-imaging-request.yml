@@ -1,0 +1,23 @@
+scenarios:
+  - name: Create imaging request
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateImagingRequestPayload
+      - post:
+          url: '/api/imagingRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{imagingRequestPayload}}'
+  - name: Create imaging request with areas and notes
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateImagingRequestPayloadWithAreas
+      - post:
+          url: '/api/imagingRequest'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{imagingRequestPayload}}'

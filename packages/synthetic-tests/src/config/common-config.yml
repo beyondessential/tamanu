@@ -7,8 +7,8 @@ config:
     - name: 'Warmup'
       duration: 30s
       arrivalRate: 1
-      rampTo: 5
+      rampTo: 2
     - name: 'Sustained'
       ## GitHub Actions has a 6h limit
       duration: 30s
-      arrivalRate: 5
+      arrivalRate: 2

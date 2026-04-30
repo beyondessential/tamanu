@@ -11,7 +11,6 @@ import { Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { TranslatedText } from '../../../components';
 import { saveFile } from '../../../utils/fileSystemAccess';
-import { useTranslation } from '../../../contexts/Translation';
 import { notifySuccess } from '../../../utils';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -49,21 +48,23 @@ const ExportForm = ({
 export const ExporterView = memo(
   ({ title, endpoint, dataTypes, dataTypesSelectable, ExportButton }) => {
     const api = useApi();
-    const { getTranslation } = useTranslation();
     const { getCurrentDateTime } = useDateTime();
 
     const onSubmit = useCallback(
       async queryParameters => {
         await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTime()}`,
-          getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
+          getData: async () => await api.download(`admin/export/${endpoint}`, queryParameters),
           extension: 'xlsx',
         });
         notifySuccess(
-          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+          <TranslatedText
+            stringId="document.notification.downloadSuccess"
+            fallback="Successfully downloaded file"
+          />,
         );
       },
-      [api, title, endpoint],
+      [title, getCurrentDateTime, api, endpoint],
     );
 
     const buttonLabel = useMemo(() => {

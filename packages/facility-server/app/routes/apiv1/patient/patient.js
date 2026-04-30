@@ -199,7 +199,7 @@ patientRoute.put(
 );
 
 patientRoute.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
     const {
@@ -295,7 +295,7 @@ patientRoute.get(
 );
 
 patientRoute.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { Patient },

@@ -5,7 +5,7 @@ import { CentralServerConnection } from '../../sync/CentralServerConnection';
 export const syncHealth = express.Router();
 
 syncHealth.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { deviceId } = req;
     req.flagPermissionChecked();

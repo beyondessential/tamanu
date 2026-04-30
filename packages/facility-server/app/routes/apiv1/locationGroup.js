@@ -8,9 +8,9 @@ export const locationGroup = express.Router();
 
 locationGroup.get('/:id', simpleGet('LocationGroup'));
 locationGroup.put('/:id', simplePut('LocationGroup'));
-locationGroup.post('/$', simplePost('LocationGroup'));
+locationGroup.post('/', simplePost('LocationGroup'));
 locationGroup.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
     const { facilityId } = req.query;

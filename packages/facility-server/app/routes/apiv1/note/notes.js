@@ -14,7 +14,7 @@ function canModifyNote(note) {
 }
 
 noteRoute.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, body: noteData } = req;
 
