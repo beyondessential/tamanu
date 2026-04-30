@@ -79,17 +79,6 @@ const Flexbox = styled.div`
   gap: 0.5rem;
 `;
 
-const LongTextFlexbox = styled(Flexbox)`
-  align-items: flex-start;
-`;
-
-const LongTextActions = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-block-start: 13px; // Align baseline with the textarea
-`;
-
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -289,7 +278,7 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.MULTILINE: {
       return (
-        <LongTextFlexbox data-testid="flexbox-r6sr">
+        <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
@@ -301,10 +290,8 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-          <LongTextActions data-testid="longtextactions-y1pc">
-            <DefaultButton data-testid="defaultbutton-5efq" />
-          </LongTextActions>
-        </LongTextFlexbox>
+          <DefaultButton data-testid="defaultbutton-5efq" />
+        </Flexbox>
       );
     }
     case SETTING_TYPES.MARKDOWN: {
