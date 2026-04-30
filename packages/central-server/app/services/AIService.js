@@ -2,8 +2,8 @@ import { nanoid } from 'nanoid';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
-import { RunnableWithMessageHistory } from '@langchain/core/runnables/history';
 import { SystemMessage } from '@langchain/core/messages';
+import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
 
