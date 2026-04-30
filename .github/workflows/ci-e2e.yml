@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: write
 
 env:
   NODE_OPTIONS: "--max-old-space-size=6144"
@@ -257,10 +258,16 @@ jobs:
               '',
               'The report artifact contains the merged Playwright HTML report with failure videos, screenshots, and traces where available.',
             ].join('\n');
-            const comments = await github.rest.issues.listComments(params);
-            const existingComment = comments.data.find((comment) =>
-              comment.body?.includes(headerContent)
-            );
+            let existingComment = null;
+            for await (const { data: comments } of github.paginate.iterator(
+              github.rest.issues.listComments,
+              params
+            )) {
+              existingComment = comments.find((comment) =>
+                comment.body?.includes(headerContent)
+              );
+              if (existingComment) break;
+            }
 
             if (existingComment) {
               await github.rest.issues.updateComment({
