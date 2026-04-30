@@ -8,13 +8,16 @@ import {
   ISO9075_DATE_FORMAT,
   ISO9075_DATETIME_FORMAT,
 } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from './timeZoneCheck';
+
+const primaryTimeZone = getPrimaryTimeZone(config);
 
 export function toPrimaryDateTimeString(date) {
   if (date === null || date === undefined) {
     return null;
   }
 
-  return formatInTimeZone(date, config?.primaryTimeZone, ISO9075_DATETIME_FORMAT);
+  return formatInTimeZone(date, primaryTimeZone, ISO9075_DATETIME_FORMAT);
 }
 
 export function toPrimaryDateString(date) {
@@ -22,21 +25,19 @@ export function toPrimaryDateString(date) {
     return null;
   }
 
-  return formatInTimeZone(date, config?.primaryTimeZone, ISO9075_DATE_FORMAT);
+  return formatInTimeZone(date, primaryTimeZone, ISO9075_DATE_FORMAT);
 }
 
 export function getCurrentPrimaryTimeZoneDateTimeString() {
-  // Use the primaryTimeZone if set, other wise fallback to the server time zone
-  if (config?.primaryTimeZone) {
-    return formatInTimeZone(new Date(), config.primaryTimeZone, ISO9075_DATETIME_FORMAT);
+  if (primaryTimeZone) {
+    return formatInTimeZone(new Date(), primaryTimeZone, ISO9075_DATETIME_FORMAT);
   }
   return formatISO9075(new Date());
 }
 
 export function getCurrentPrimaryTimeZoneDateString() {
-  // Use the primaryTimeZone if set, other wise fallback to the server time zone
-  if (config?.primaryTimeZone) {
-    return formatInTimeZone(new Date(), config.primaryTimeZone, ISO9075_DATE_FORMAT);
+  if (primaryTimeZone) {
+    return formatInTimeZone(new Date(), primaryTimeZone, ISO9075_DATE_FORMAT);
   }
   return formatISO9075(new Date(), { representation: 'date' });
 }

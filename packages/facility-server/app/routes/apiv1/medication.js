@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   dateCustomValidation,
   datetimeCustomValidation,
@@ -342,7 +343,7 @@ medication.post(
 
 const sendOngoingToPharmacySchema = z
   .object({
-    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    patientId: z.string().min(1, { message: 'Patient ID is required' }),
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
@@ -1801,7 +1802,7 @@ medication.get(
       required: true,
     };
 
-    const { primaryTimeZone } = config;
+    const primaryTimeZone = getPrimaryTimeZone(config);
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     // PharmacyOrder filters
@@ -2047,7 +2048,7 @@ medication.get(
       },
     ]);
 
-    const { primaryTimeZone: dispenseTz } = config;
+    const dispenseTz = getPrimaryTimeZone(config);
     const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const rootFilter = mapQueryFilters(filterParams, [
@@ -2261,7 +2262,7 @@ medication.delete(
 
 const dispensableMedicationsQuerySchema = z
   .object({
-    patientId: z.uuid(),
+    patientId: z.string().min(1),
     facilityId: z.string(),
   })
   .strip();

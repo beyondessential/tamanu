@@ -9,6 +9,7 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
+import type { Ability } from '@casl/ability';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import { objectAsFhir } from '../../utils/fhir/utils';
 import { Model } from '../Model';
@@ -47,11 +48,13 @@ export class FhirResource extends Model {
           set(utcDate) {
             // Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
             if (!(utcDate instanceof Date)) {
-              return utcDate;
+              // Sequelize 6+ may pass defaults (e.g. NOW) or literals that are not Date
+              // instances; returning without setDataValue left the column unset (null).
+              this.setDataValue('lastUpdated', utcDate as unknown);
+              return;
             }
             const localOffsetMinutes = new Date().getTimezoneOffset();
             this.setDataValue('lastUpdated', subMinutes(utcDate, localOffsetMinutes));
-            return (this as FhirResource).lastUpdated;
           },
         },
         isLive: {
@@ -100,6 +103,13 @@ export class FhirResource extends Model {
   // yup schema for validating incoming resource
   // TODO: derive from the sequelize attributes by default
   static INTAKE_SCHEMA: unknown;
+
+  static applyPermissionsFilterToSearchQuery(
+    query: Record<string, any>,
+    _ability: Ability,
+  ): Record<string, any> {
+    return query;
+  }
 
   // Resource specific logic to find referenced resources in the bundle
   // and using them to hydrate any missing fields in the raw resource

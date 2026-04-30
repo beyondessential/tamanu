@@ -1,12 +1,20 @@
 import { QueryTypes } from 'sequelize';
 import { log } from '../services/logging';
 
+/**
+ * Resolve the canonical primary timezone from config.
+ * Accepts either `primaryTimeZone` or `countryTimeZone`, with `primaryTimeZone` taking precedence.
+ */
+export function getPrimaryTimeZone(cfg) {
+  return cfg?.primaryTimeZone ?? cfg?.countryTimeZone ?? null;
+}
+
 function getSystemTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 function getConfigTimeZone(config) {
-  return config.primaryTimeZone;
+  return getPrimaryTimeZone(config);
 }
 
 async function getDatabaseTimeZone(sequelize) {
@@ -30,8 +38,7 @@ async function getRemoteTimeZone(remote) {
         preserveBackoffForAuthAttempt: true,
       },
     );
-    const { primaryTimeZone } = health.config;
-    return primaryTimeZone;
+    return getPrimaryTimeZone(health.config);
   } catch (error) {
     log.warn('Unable to grab primaryTimeZone from central server.');
   }

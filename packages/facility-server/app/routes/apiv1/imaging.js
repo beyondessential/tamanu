@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { parseISO } from 'date-fns';
 import { literal, Op } from 'sequelize';
 import {
@@ -71,7 +72,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
-  '/areas$',
+  '/areas',
   asyncHandler(async (req, res) => {
     const {
       models: { ReferenceData },
@@ -257,7 +258,7 @@ imagingRequest.put(
 );
 
 imagingRequest.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { ImagingRequest, ImagingRequestArea },
@@ -317,7 +318,7 @@ const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest')
 
 // Route used on ImagingRequestsTable component
 globalImagingRequests.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, query, settings } = req;
     const {
@@ -354,7 +355,7 @@ globalImagingRequests.get(
       { key: 'departmentId', operator: Op.eq },
     ]);
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-    const { primaryTimeZone } = config;
+    const primaryTimeZone = getPrimaryTimeZone(config);
 
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {

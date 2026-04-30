@@ -1,0 +1,67 @@
+script:pre-request {
+  // Warn (but don't block) when running anything other than Login without a token.
+  const url = req && req.getUrl ? req.getUrl() : "";
+  const isLogin = url && url.endsWith("/api/login");
+  const token = bru.getVar("token");
+  if (!isLogin && !token) {
+    console.warn("No `token` env var set - run `auth/Login` first.");
+  }
+}
+
+docs {
+  # Tamanu FHIR Bruno Collection
+  
+  Manually exercises every materialised FHIR endpoint at
+  `{{baseUrl}}/api/integration/fhir/mat/...`. Designed for low-effort
+  endpoint testing: just point the env at a server, run the auth + bootstrap
+  folders once, and then any request in `materialised/` works.
+  
+  ## 1. Configure the environment
+  
+  Edit the variables in [`environments/local.bru`](environments/local.bru):
+  
+  - `baseUrl` (e.g. `http://localhost:3000`, or a deployed central server)
+  - `email`, `password` (a user with FHIR integration permissions)
+  
+  All other variables (token, bootstrap IDs, lab test codes) are populated
+  automatically by the bootstrap requests.
+  
+  ## 2. Recommended run order (one-click flow)
+  
+  Folders run alphabetically when you `Run Collection`. The included naming
+  ensures the right order:
+  
+  1. `auth/` - logs in and saves `{{token}}`
+  2. `bootstrap/` - searches for prerequisite IDs (Patient, ServiceRequest,
+     LabTest codes, etc.) and saves them as env vars
+  3. `materialised/` - exercises every read, search, create, and the
+     transaction Bundle endpoint
+  
+  ## 3. Endpoint coverage
+  
+  | Resource          | GET search | GET /:id | POST     | Notes                                      |
+  | ----------------- | ---------- | -------- | -------- | ------------------------------------------ |
+  | Patient           | yes        | yes      |          | also `Patient/:id/$summary` (IPS)          |
+  | Practitioner      | yes        | yes      |          |                                            |
+  | Encounter         | yes        | yes      |          |                                            |
+  | Organization      | yes        | yes      |          |                                            |
+  | Specimen          | yes        | yes      |          |                                            |
+  | ServiceRequest    | yes        | yes      |          | filter by `category` (lab/imaging)         |
+  | Immunization      | yes        | yes      |          |                                            |
+  | MedicationRequest | yes        | yes      |          |                                            |
+  | DiagnosticReport  |            |          | yes      | needs `basedOn` -> ServiceRequest (lab)    |
+  | Observation       |            |          | yes      | needs lab test code from same lab request  |
+  | ImagingStudy      |            |          | yes      | needs `basedOn` -> imaging ServiceRequest  |
+  | Bundle            |            |          | yes      | atomic transaction over the 3 creates      |
+  
+  ## 4. Auth and headers
+  
+  - `Authorization: Bearer {{token}}` is set on every non-login request
+  - POST bodies use `Content-Type: application/json` because the central
+    server is configured with default body-parser (only parses
+    `application/json`). Sending `application/fhir+json` leaves
+    `req.body` empty and the server reports
+    `must be 'DiagnosticReport'` (or similar) due to the missing
+    `resourceType`.
+  - Server response is `application/fhir+json; fhirVersion=4.3`
+}

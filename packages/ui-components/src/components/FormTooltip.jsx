@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import InfoIcon from '@material-ui/icons/Info';
+import InfoIcon from '@mui/icons-material/Info';
 import MuiTooltip from '@material-ui/core/Tooltip';
 import { TAMANU_COLORS } from '../constants';
 

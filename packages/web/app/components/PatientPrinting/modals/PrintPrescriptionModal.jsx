@@ -88,35 +88,33 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     isFetchingCertificate;
 
   return (
-    <>
-      <Modal
-        title={
-          <TranslatedText
-            stringId="medication.modal.print.title"
-            fallback="Prescription"
-            data-testid="translatedtext-aa0j"
-          />
-        }
-        open={open}
-        onClose={onClose}
-        width="md"
-        printable
-        onPrint={() => printPDF('prescription-printout')}
-        data-testid="modal-fdg7"
-      >
-        <PDFLoader isLoading={isLoading} id="prescription-printout" data-testid="pdfloader-ugi4">
-          <PrescriptionPrintout
-            patientData={{ ...patient, additionalData, village, patientWeight }}
-            prescriptions={[medication]}
-            certificateData={certificateData}
-            facility={facility}
-            prescriber={prescriber}
-            getSetting={getSetting}
-            primaryTimeZone={primaryTimeZone}
-            data-testid="prescriptionprintout-95jw"
-          />
-        </PDFLoader>
-      </Modal>
-    </>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="medication.modal.print.title"
+          fallback="Prescription"
+          data-testid="translatedtext-aa0j"
+        />
+      }
+      open={open}
+      onClose={onClose}
+      width="md"
+      printable
+      onPrint={() => printPDF('prescription-printout')}
+      data-testid="modal-fdg7"
+    >
+      <PDFLoader isLoading={isLoading} id="prescription-printout" data-testid="pdfloader-ugi4">
+        <PrescriptionPrintout
+          patientData={{ ...patient, additionalData, village, patientWeight }}
+          prescriptions={[medication]}
+          certificateData={certificateData}
+          facility={facility}
+          prescriber={prescriber}
+          getSetting={getSetting}
+          primaryTimeZone={primaryTimeZone}
+          data-testid="prescriptionprintout-95jw"
+        />
+      </PDFLoader>
+    </Modal>
   );
 };

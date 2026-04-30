@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
@@ -118,8 +118,8 @@ const validationSchema = yup.object().shape({
     .when('durationValue', (durationValue, schema) =>
       durationValue
         ? schema.required(
-          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-        )
+            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+          )
         : schema.optional(),
     ),
   prescriberId: foreignKey(
@@ -158,10 +158,10 @@ const StyledCheckField = styled(CheckField)`
   background-color: ${Colors.white};
   border: 1px solid
     ${({ $isChecked, $isLocked }) => {
-    if ($isLocked && $isChecked) return Colors.midText;
-    if ($isChecked) return Colors.primary;
-    return Colors.outline;
-  }};
+      if ($isLocked && $isChecked) return Colors.midText;
+      if ($isChecked) return Colors.primary;
+      return Colors.outline;
+    }};
   border-radius: 3px;
   .MuiFormControlLabel-root {
     padding: 10px 2px;
@@ -362,7 +362,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTimeCompact, formatShort } = useDateTime();
+  const { formatTime, formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -386,10 +386,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeCompact(
+    return `${formatTime(getDateFromTimeString(firstSlot.startTime))} - ${formatTime(
       getDateFromTimeString(firstSlot.endTime),
     )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, values.frequency, selectedTimeSlots, formatTimeCompact, formatShort]);
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatTime, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -411,13 +411,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
       ...values,
       timeSlots: checked
         ? [
-          ...selectedTimeSlots,
-          {
-            index,
-            value: getDefaultIdealTimeFromTimeSlot(slot, index),
-            timeSlot: slot,
-          },
-        ]
+            ...selectedTimeSlots,
+            {
+              index,
+              value: getDefaultIdealTimeFromTimeSlot(slot, index),
+              timeSlot: slot,
+            },
+          ]
         : selectedTimeSlots.filter(s => s.index !== index),
     });
   };
@@ -489,7 +489,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const isDisabled =
               (!checked &&
                 frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                selectedTimeSlots?.length) ||
+                  selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -550,7 +550,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       <CheckInput
                         label={
                           <FieldContent>
-                            {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
+                            {`${formatTime(startTime)} - ${formatTime(endTime)}`}
                           </FieldContent>
                         }
                         value={checked}
@@ -1141,46 +1141,45 @@ export const MedicationForm = ({
                 </FieldContent>
               </div>
             )}
-            <>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <Divider />
-              </div>
-              <Field
-                name="quantity"
-                label={
-                  encounterId ? (
-                    <TranslatedText
-                      stringId="medication.details.dischargeQuantity"
-                      fallback="Discharge quantity"
-                    />
-                  ) : (
-                    <TranslatedText
-                      stringId="medication.quantity.label"
-                      fallback="Quantity"
-                    />
-                  )
-                }
-                min={0}
-                component={NumberField}
-                onInput={preventInvalidNumber}
-                data-testid="medication-field-quantity-6j9m"
-              />
-              <Field
-                name="repeats"
-                label={
-                  encounterId ? (
-                    <TranslatedText stringId="medication.repeats.onDischarge.label" fallback="Repeats on discharge" />
-                  ) : (
-                    <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
-                  )
-                }
-                component={NumberField}
-                min={0}
-                max={MAX_REPEATS}
-                step={1}
-                onInput={preventInvalidRepeatsInput}
-              />
-            </>
+
+            <div style={{ gridColumn: '1 / -1' }}>
+              <Divider />
+            </div>
+            <Field
+              name="quantity"
+              label={
+                encounterId ? (
+                  <TranslatedText
+                    stringId="medication.details.dischargeQuantity"
+                    fallback="Discharge quantity"
+                  />
+                ) : (
+                  <TranslatedText stringId="medication.quantity.label" fallback="Quantity" />
+                )
+              }
+              min={0}
+              component={NumberField}
+              onInput={preventInvalidNumber}
+              data-testid="medication-field-quantity-6j9m"
+            />
+            <Field
+              name="repeats"
+              label={
+                encounterId ? (
+                  <TranslatedText
+                    stringId="medication.repeats.onDischarge.label"
+                    fallback="Repeats on discharge"
+                  />
+                ) : (
+                  <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
+                )
+              }
+              component={NumberField}
+              min={0}
+              max={MAX_REPEATS}
+              step={1}
+              onInput={preventInvalidRepeatsInput}
+            />
 
             {showPatientWeight && (
               <>

@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { DateDisplay, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
-import { CheckSharp } from '@material-ui/icons';
+import CheckSharp from '@mui/icons-material/CheckSharp';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
@@ -93,7 +93,7 @@ export const MedicationSummary = ({ medication }) => {
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
-              <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />
+              <DateDisplay date={medication.endDate} format="shortest" timeFormat="default" />
             </DarkestText>
           </Box>
         )}

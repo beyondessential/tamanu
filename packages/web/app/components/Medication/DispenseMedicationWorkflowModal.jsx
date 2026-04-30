@@ -1,6 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -29,7 +29,7 @@ import { useDispensableMedicationsQuery } from '../../api/queries/useDispensable
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   getMedicationLabelData,
   getStockStatus,
@@ -74,57 +74,6 @@ const StyledTableFormFields = styled(TableFormFields)`
     &.MuiTableCell-head {
       background-color: ${Colors.white};
       color: ${Colors.midText};
-    }
-  }
-`;
-
-const PrintContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-`;
-
-const PrintDescription = styled(Box)`
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: ${Colors.midText};
-
-  @media print {
-    display: none;
-  }
-`;
-
-const PrintStyles = createGlobalStyle`
-  @media print {
-    @page {
-      margin: 3mm;
-      size: auto;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .MuiDialogTitle-root,
-    .MuiDialogActions-root {
-      display: none;
-    }
-
-    .MuiDialog-container,
-    .MuiDialog-paper,
-    .MuiPaper-root,
-    .MuiDialogContent-root {
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Target ModalContainer and ModalContent BaseModal */
-    .MuiDialog-paper > div,
-    .MuiDialog-paper > div > div:first-child {
-      margin: 0;
-      padding: 0;
     }
   }
 `;
@@ -393,7 +342,12 @@ export const DispenseMedicationWorkflowModal = memo(
           requestNumber: item.displayId,
         };
       });
-      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
+      const reviewLabels = getMedicationLabelData({
+        items: labelItems,
+        patient,
+        facility,
+        currentDateTime: getCurrentDateTime(),
+      });
       setLabelsForPrint(reviewLabels);
     };
 
@@ -626,73 +580,56 @@ export const DispenseMedicationWorkflowModal = memo(
       );
 
     return (
-      <>
-        <StyledModal title={title} open={open} onClose={handleClose} actions={actions} $step={step}>
-          {step === MODAL_STEPS.DISPENSE && (
-            <>
-              <HeaderRow>
-                <BodyText>
-                  <TranslatedText
-                    stringId="modal.medication.dispense.description"
-                    fallback="Select the medications you'd like to dispense below. You'll be able to review and print labels on the next screen."
-                  />
-                </BodyText>
-                <Box width="365px">
-                  <AutocompleteInput
-                    name="dispensedByUserId"
-                    label={
-                      <TranslatedText
-                        stringId="medication.dispense.dispensedBy"
-                        fallback="Dispensed by"
-                      />
-                    }
-                    suggester={practitionerSuggester}
-                    value={dispensedByUserId}
-                    onChange={e => setDispensedByUserId(e.target.value)}
-                    required
-                    error={showValidationErrors && !dispensedByUserId}
-                    helperText={
-                      showValidationErrors && !dispensedByUserId
-                        ? getTranslation('validation.required.inline', '*Required')
-                        : ''
-                    }
-                    data-testid="dispense-dispensed-by"
-                  />
-                </Box>
-              </HeaderRow>
-
-              {isLoadingDispensables ? (
-                <Box p={4} textAlign="center">
-                  <TranslatedText stringId="general.table.loading" fallback="Loading..." />
-                </Box>
-              ) : dispensablesError ? (
-                <Box p={4} textAlign="center" color={Colors.alert}>
-                  {dispensablesError.message}
-                </Box>
-              ) : (
-                <StyledTableFormFields columns={columns} data={items} />
-              )}
-            </>
-          )}
-
-          {step === MODAL_STEPS.REVIEW && (
-            <>
-              <PrintStyles />
-              <PrintDescription>
+      <StyledModal title={title} open={open} onClose={handleClose} actions={actions} $step={step}>
+        {step === MODAL_STEPS.DISPENSE && (
+          <>
+            <HeaderRow>
+              <BodyText>
                 <TranslatedText
-                  stringId="medication.dispenseAndPrint.description"
-                  fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
+                  stringId="modal.medication.dispense.description"
+                  fallback="Select the medications you'd like to dispense below. You'll be able to review and print labels on the next screen."
                 />
-              </PrintDescription>
-              <PrintContainer>
-                {labelsForPrint.map(label => (
-                  <MedicationLabel key={label.id} data={label} />
-                ))}
-              </PrintContainer>
-            </>
-          )}
-        </StyledModal>
-      </>
+              </BodyText>
+              <Box width="365px">
+                <AutocompleteInput
+                  name="dispensedByUserId"
+                  label={
+                    <TranslatedText
+                      stringId="medication.dispense.dispensedBy"
+                      fallback="Dispensed by"
+                    />
+                  }
+                  suggester={practitionerSuggester}
+                  value={dispensedByUserId}
+                  onChange={e => setDispensedByUserId(e.target.value)}
+                  required
+                  error={showValidationErrors && !dispensedByUserId}
+                  helperText={
+                    showValidationErrors && !dispensedByUserId
+                      ? getTranslation('validation.required.inline', '*Required')
+                      : ''
+                  }
+                  data-testid="dispense-dispensed-by"
+                />
+              </Box>
+            </HeaderRow>
+
+            {isLoadingDispensables ? (
+              <Box p={4} textAlign="center">
+                <TranslatedText stringId="general.table.loading" fallback="Loading…" />
+              </Box>
+            ) : dispensablesError ? (
+              <Box p={4} textAlign="center" color={Colors.alert}>
+                {dispensablesError.message}
+              </Box>
+            ) : (
+              <StyledTableFormFields columns={columns} data={items} />
+            )}
+          </>
+        )}
+
+        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+      </StyledModal>
     );
   },
 );

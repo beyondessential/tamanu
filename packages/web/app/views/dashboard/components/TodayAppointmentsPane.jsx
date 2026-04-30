@@ -104,13 +104,13 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
   const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
   const { getCurrentDate, getDayBoundaries } = useDateTime();
-  
+
   // Get today's date boundaries in facility timezone, converted to primary timezone for query
-  const todayFacility = getCurrentDate(); 
+  const todayFacility = getCurrentDate();
   const boundaries = getDayBoundaries(todayFacility);
   const start = boundaries?.start;
   const end = boundaries?.end;
-  
+
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -125,8 +125,9 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
-    .length;
+  const totalSeenAppointments = appointments.filter(
+    appointment => appointment.status === 'Seen',
+  ).length;
 
   const onViewAll = () => {
     navigate(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
@@ -138,7 +139,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
         <Heading4 margin={0} data-testid="heading4-14lj">
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.title"
-            fallback="Today's appointments"
+            fallback="Today’s appointments"
             data-testid="translatedtext-5ugr"
           />
         </Heading4>
@@ -174,39 +175,37 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
           </Box>
         </NoDataContainer>
       ) : (
-        <>
-          <StyledContentContainer data-testid="styledcontentcontainer-rym9">
-            <StyledProgressBarContainer data-testid="styledprogressbarcontainer-iqy2">
-              <Box
-                display={'flex'}
-                justifyContent={'space-between'}
-                fontSize={'14px'}
-                data-testid="box-174y"
-              >
-                <TranslatedText
-                  stringId="dashboard.appointments.todayAppointments.seen"
-                  fallback="Seen"
-                  data-testid="translatedtext-91gu"
-                />
-                <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
-              </Box>
-              <ProgressBar
-                percentage={Math.floor((totalSeenAppointments / (appointments.length || 1)) * 100)}
-                data-testid="progressbar-cva4"
+        <StyledContentContainer data-testid="styledcontentcontainer-rym9">
+          <StyledProgressBarContainer data-testid="styledprogressbarcontainer-iqy2">
+            <Box
+              display={'flex'}
+              justifyContent={'space-between'}
+              fontSize={'14px'}
+              data-testid="box-174y"
+            >
+              <TranslatedText
+                stringId="dashboard.appointments.todayAppointments.seen"
+                fallback="Seen"
+                data-testid="translatedtext-91gu"
               />
-            </StyledProgressBarContainer>
-            <AppointmentListContainer data-testid="appointmentlistcontainer-v5hv">
-              {appointments.map((appointment, index) => (
-                <StyledAppointmentTile
-                  key={appointment.id}
-                  appointment={appointment}
-                  allowViewDetail={false}
-                  data-testid={`styledappointmenttile-8yd8-${index}`}
-                />
-              ))}
-            </AppointmentListContainer>
-          </StyledContentContainer>
-        </>
+              <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
+            </Box>
+            <ProgressBar
+              percentage={Math.floor((totalSeenAppointments / (appointments.length || 1)) * 100)}
+              data-testid="progressbar-cva4"
+            />
+          </StyledProgressBarContainer>
+          <AppointmentListContainer data-testid="appointmentlistcontainer-v5hv">
+            {appointments.map((appointment, index) => (
+              <StyledAppointmentTile
+                key={appointment.id}
+                appointment={appointment}
+                allowViewDetail={false}
+                data-testid={`styledappointmenttile-8yd8-${index}`}
+              />
+            ))}
+          </AppointmentListContainer>
+        </StyledContentContainer>
       )}
     </Container>
   );

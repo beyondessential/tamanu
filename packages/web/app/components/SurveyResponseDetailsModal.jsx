@@ -1,5 +1,5 @@
 import React from 'react';
-import PrintIcon from '@material-ui/icons/Print';
+import PrintIcon from '@mui/icons-material/Print';
 import styled from 'styled-components';
 import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
@@ -8,6 +8,7 @@ import { Table } from './Table';
 import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
+import { isErrorUnknownAllow404s } from '../api/index.js';
 
 const SectionSpacing = styled.div`
   height: 14px;
@@ -68,34 +69,15 @@ function shouldShow(component) {
 }
 
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
-  const { data: surveyDetails, isLoading, error } = useSurveyResponseQuery(surveyResponseId);
-  if (error) {
-    return (
-      <Modal
-        title={
-          <TranslatedText
-            stringId="surveyResponse.modal.details.title"
-            fallback="Form response"
-            data-testid="translatedtext-y8ns"
-          />
-        }
-        open={!!surveyResponseId}
-        onClose={onClose}
-        data-testid="modal-vzvm"
-      >
-        <h3>
-          <TranslatedText
-            stringId="surveyResponse.modal.details.error.fetchErrorMessage"
-            fallback="Error fetching response details"
-            data-testid="translatedtext-b9js"
-          />
-        </h3>
-        <pre>{error.stack}</pre>
-      </Modal>
-    );
-  }
+  const {
+    data: surveyDetails,
+    isLoading,
+    error,
+  } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
 
-  if (isLoading || !surveyDetails) {
+  if (isLoading || !surveyDetails || error) {
+    const isNotFound = error?.status === 404;
+
     return (
       <Modal
         title={
@@ -109,11 +91,27 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         onClose={onClose}
         data-testid="modal-qnfv"
       >
-        <TranslatedText
-          stringId="general.table.loading"
-          fallback="Loading..."
-          data-testid="translatedtext-ec13"
-        />
+        {isNotFound ? (
+          <TranslatedText
+            stringId={
+              isNotFound
+                ? 'surveyResponse.modal.details.error.formDeleted'
+                : 'surveyResponse.modal.details.error.fetchErrorMessage'
+            }
+            fallback={
+              isNotFound
+                ? 'This form has been deleted and is no longer available.'
+                : 'Error fetching response details'
+            }
+            data-testid="translatedtext-b9js"
+          />
+        ) : (
+          <TranslatedText
+            stringId="general.table.loading"
+            fallback="Loading…"
+            data-testid="translatedtext-ec13"
+          />
+        )}
       </Modal>
     );
   }

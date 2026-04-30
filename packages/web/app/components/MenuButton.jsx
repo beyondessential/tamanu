@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
   ClickAwayListener,
   IconButton,

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { AutocompleteField, DateDisplay, Field, Form, useSuggester } from '@tamanu/ui-components';
 import { formatDisplayPrice } from '@tamanu/utils/invoice';
@@ -7,7 +8,7 @@ import { formatDisplayPrice } from '@tamanu/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useRefundPatientPayment } from '../../api/mutations';
-import { CASH_PAYMENT_METHOD_ID } from '../../constants';
+import { useDefaultPaymentMethodId } from './useDefaultPaymentMethodId';
 import {
   Header,
   Label,
@@ -43,9 +44,16 @@ const RefundAmountValue = styled.span`
   margin-left: 20px;
 `;
 
+const validationSchema = yup.object().shape({
+  methodId: yup
+    .string()
+    .required(<TranslatedText stringId="general.required" fallback="Required" />),
+});
+
 export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPaymentRecord }) => {
   const paymentRecord = selectedPaymentRecord ?? {};
   const paymentMethodSuggester = useSuggester('paymentMethod');
+  const { defaultMethodId, loading: loadingDefaultMethod } = useDefaultPaymentMethodId(paymentMethodSuggester);
   const { mutate: refundPatientPayment } = useRefundPatientPayment(invoice, paymentRecord.id);
 
   const handleSubmit = data => {
@@ -61,13 +69,14 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
       onClose={onClose}
       data-testid="modal-j1bi"
     >
-      <Form
+      {loadingDefaultMethod ? null : <Form
         enableReinitialize
         suppressErrorDialog
         onSubmit={handleSubmit}
+        validationSchema={validationSchema}
         data-testid="form-xw5y"
         initialValues={{
-          methodId: CASH_PAYMENT_METHOD_ID,
+          methodId: defaultMethodId ?? '',
         }}
         render={() => {
           return (
@@ -133,7 +142,7 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
             </>
           );
         }}
-      />
+      />}
     </StyledModal>
   );
 };

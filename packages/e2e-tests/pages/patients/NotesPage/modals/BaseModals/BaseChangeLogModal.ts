@@ -24,7 +24,7 @@ export abstract class BaseChangeLogModal {
     
     // Special cases that need additional processing
     this.noteTypeLabel = page.getByTestId('cardbody-3iyj').getByTestId('cardcell-8efu').first().getByTestId('cardvalue-lcni');
-    this.changelogInfoDates = this.changeLogInfoWrappers.getByTestId('tooltip-b4e8');
+    this.changelogInfoDates = this.changeLogInfoWrappers.getByTestId('datedisplay-o9yj');
     this.changelogTextContents = this.page.getByRole('dialog').getByTestId('stylednotechangeloginfowrapper-zbh3').locator('+ span');
   }
 

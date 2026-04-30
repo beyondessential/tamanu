@@ -1,5 +1,5 @@
 import { Box } from '@material-ui/core';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
+import Brightness2Icon from '@mui/icons-material/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
 import { isSameDay, parseISO } from 'date-fns';

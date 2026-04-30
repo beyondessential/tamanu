@@ -4,12 +4,12 @@ import { CertificateHeader, styles, Watermark } from './Layout';
 import { ageInYears } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import {
-  ATTENDANT_OF_BIRTH_OPTIONS,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
-  BIRTH_TYPE_OPTIONS,
-  MARITAL_STATUS_OPTIONS,
-  PLACE_OF_BIRTH_OPTIONS,
-  SEX_OPTIONS,
+  ATTENDANT_OF_BIRTH_LABELS,
+  BIRTH_DELIVERY_TYPE_LABELS,
+  BIRTH_TYPE_LABELS,
+  MARITAL_STATUS_LABELS,
+  PLACE_OF_BIRTH_LABELS,
+  SEX_LABELS,
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getEthnicity } from '../patientAccessors';
@@ -118,15 +118,10 @@ const LeftCell = ({ children }) => (
   </View>
 );
 
-const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find(e => e.value === v);
-  return entry ? entry.label : '';
-};
-
 const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
 
 const ChildSection = ({ data }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort, formatTime } = useDateTime();
   const causeOfDeath =
     data?.deathData?.causes?.primary?.condition?.name ??
@@ -151,12 +146,12 @@ const ChildSection = ({ data }) => {
           {getTranslation('general.localisedField.birthDeliveryType.label', 'Delivery type')}
         </Cell>
         <Cell style={{ width: 70 }}>
-          {getLabelFromValue(BIRTH_DELIVERY_TYPE_OPTIONS, data?.birthData?.birthDeliveryType)}
+          {getEnumTranslation(BIRTH_DELIVERY_TYPE_LABELS, data?.birthData?.birthDeliveryType)}
         </Cell>
         <Cell style={{ width: 100 }} bold>
           {getTranslation('pdf.birthNotification.singlePluralBirths.label', 'Single/plural births')}
         </Cell>
-        <FlexCell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</FlexCell>
+        <FlexCell>{getEnumTranslation(BIRTH_TYPE_LABELS, data?.birthData?.birthType)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>
@@ -183,12 +178,12 @@ const ChildSection = ({ data }) => {
           {getTranslation('general.localisedField.registeredBirthPlace.label', 'Place of birth')}
         </LeftCell>
         <FlexCell>
-          {getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, data?.birthData?.registeredBirthPlace)}
+          {getEnumTranslation(PLACE_OF_BIRTH_LABELS, data?.birthData?.registeredBirthPlace)}
         </FlexCell>
       </Row>
       <Row>
         <LeftCell>{getTranslation('general.localisedField.sex.label', 'Sex')}</LeftCell>
-        <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
+        <Cell style={{ width: 130 }}>{getEnumTranslation(SEX_LABELS, data?.sex)}</Cell>
         <FlexCell bold>
           {getTranslation('general.localisedField.ethnicityId.label', 'Ethnicity')}
         </FlexCell>
@@ -199,7 +194,7 @@ const ChildSection = ({ data }) => {
           {getTranslation('general.localisedField.attendantAtBirth.label', 'Attendant at birth')}
         </LeftCell>
         <Cell style={{ width: 130 }}>
-          {getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, data?.birthData?.attendantAtBirth)}
+          {getEnumTranslation(ATTENDANT_OF_BIRTH_LABELS, data?.birthData?.attendantAtBirth)}
         </Cell>
         <FlexCell bold>
           {getTranslation(
@@ -223,7 +218,7 @@ const ChildSection = ({ data }) => {
 };
 
 const ParentSection = ({ parentType, data = {} }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
   return (
     <Table>
@@ -255,7 +250,7 @@ const ParentSection = ({ parentType, data = {} }) => {
           {getTranslation('general.localisedField.maritalStatus.label', 'Marital status')}
         </Cell>
         <FlexCell>
-          {getLabelFromValue(MARITAL_STATUS_OPTIONS, data?.additionalData?.maritalStatus)}
+          {getEnumTranslation(MARITAL_STATUS_LABELS, data?.additionalData?.maritalStatus)}
         </FlexCell>
       </Row>
       <Row>

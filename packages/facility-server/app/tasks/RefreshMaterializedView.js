@@ -8,7 +8,10 @@ import {
   NOTIFY_CHANNELS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentISO8601DateString } from '@tamanu/utils/dateTime';
+
+const primaryTimeZone = getPrimaryTimeZone(config);
 
 const buildRefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
@@ -29,10 +32,10 @@ const buildRefreshMaterializedViewTask = viewName =>
     async run() {
       await this.sequelize.transaction(async () => {
         // Set timezone to primary timezone this is because sequelize timezone is defaulted to UTC currently
-        await this.sequelize.query(`SET TIME ZONE '${config.primaryTimeZone}'`);
+        await this.sequelize.query(`SET TIME ZONE '${primaryTimeZone}'`);
         await this.sequelize.query(
           `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
-          { timezone: config.primaryTimeZone },
+          { timezone: primaryTimeZone },
         );
         await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`); // Revert to sequelize timezone
         await this.sequelize.query(

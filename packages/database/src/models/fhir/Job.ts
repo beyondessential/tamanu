@@ -138,7 +138,11 @@ export class FhirJob extends Model {
     throw new Error(`Failed to grab job after ${GRAB_RETRY} retries`);
   }
 
-  static async submit(topic: string, payload = {}, { priority = 1000, discriminant = null } = {}) {
+  static async submit(
+    topic: string,
+    payload = {},
+    { priority = JOB_PRIORITIES.DEFAULT, discriminant = null } = {},
+  ) {
     const result = await this.sequelize.query<{ id: string }>(
       `
       SELECT fhir.job_submit(

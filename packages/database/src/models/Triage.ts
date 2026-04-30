@@ -5,6 +5,7 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
@@ -167,12 +168,12 @@ export class Triage extends Model {
       await onChangeTextColumn({
         columnName: 'arrivalTime',
         noteLabel: 'arrival date & time',
-        formatText: date => (date ? formatShortDateTime(date, config.primaryTimeZone) : '-'),
+        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
-        formatText: date => (date ? formatShortDateTime(date, config.primaryTimeZone) : '-'),
+        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',

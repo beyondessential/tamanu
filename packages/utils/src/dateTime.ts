@@ -305,13 +305,15 @@ export const intlFormatDate = (
   fallback = 'Unknown',
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  localeOverride?: string,
 ) => {
   if (!date) return fallback;
+  const displayLocale = localeOverride ?? locale;
 
   try {
     if (date instanceof Date) {
       if (!isValid(date)) return fallback;
-      return date.toLocaleString(locale, formatOptions);
+      return date.toLocaleString(displayLocale, formatOptions);
     }
 
     if (isISO9075DateString(date)) {
@@ -319,9 +321,9 @@ export const intlFormatDate = (
       const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
       const hasTimeOptions = timeKeys.some(key => key in formatOptions);
       if (hasTimeOptions) {
-        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+        return plainDate.toPlainDateTime().toLocaleString(displayLocale, formatOptions);
       }
-      return plainDate.toLocaleString(locale, formatOptions);
+      return plainDate.toLocaleString(displayLocale, formatOptions);
     }
 
     const displayTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
@@ -331,10 +333,10 @@ export const intlFormatDate = (
       return plain
         .toZonedDateTime(primaryTimeZone)
         .withTimeZone(displayTz)
-        .toLocaleString(locale, formatOptions);
+        .toLocaleString(displayLocale, formatOptions);
     }
 
-    return plain.toLocaleString(locale, formatOptions);
+    return plain.toLocaleString(displayLocale, formatOptions);
   } catch (error) {
     logDateError('intlFormatDate', error, date, primaryTimeZone, facilityTimeZone);
     return fallback;
@@ -348,6 +350,29 @@ export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
 /** Get current date string in a specific timezone */
 export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
+
+/**
+ * Parse a stored datetime string (ISO 9075 in primary timezone, or ISO 8601 with Z) to epoch milliseconds.
+ * Use when computing durations so the result is not affected by the user's browser timezone.
+ */
+export const storedDateTimeToEpochMilliseconds = (
+  storedValue: string | null | undefined,
+  primaryTimeZone: string,
+): number | null => {
+  if (storedValue == null || (typeof storedValue === 'string' && storedValue.trim() === '')) {
+    return null;
+  }
+  try {
+    const normalized = storedValue.replace(' ', 'T');
+    if (/[Zz]$/.test(normalized)) {
+      return Temporal.Instant.from(normalized).epochMilliseconds;
+    }
+    const plain = Temporal.PlainDateTime.from(normalized);
+    return plain.toZonedDateTime(primaryTimeZone).epochMilliseconds;
+  } catch {
+    return null;
+  }
+};
 
 /** Get current facility date object in facility timezone */
 export const getFacilityNowDate = (

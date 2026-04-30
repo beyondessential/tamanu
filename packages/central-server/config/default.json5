@@ -124,7 +124,6 @@
     "secret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "reportNoUserError": false,
     "useHardcodedPermissions": true,
     "refreshToken": {
       "secret": null,
@@ -250,6 +249,15 @@
       "enabled": true,
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
+    },
+    "snapshotTableCleaner": {
+      "enabled": true,
+      // Once a minute between 01:00 and 05:59 server-local time, which is
+      // usually low-use hours since facility timezones follow their users.
+      "schedule": "* 1-5 * * *",
+      "retentionHours": 24,
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 100
     },
     "processSyncQueue": {
       "enabled": true,
@@ -473,6 +481,27 @@
       "labTestCategoryIds": []
     }
   },
+  "rateLimit": {
+    // Set `enabled: false` to disable express-rate-limit entirely.
+    // Rate limit counters key off `req.ip` and therefore respect the
+    // `proxy.trusted` setting below.
+    "enabled": true,
+    // Permissive global limit applied to every request as a DoS backstop.
+    "global": {
+      // window in milliseconds
+      "windowMs": 60000,
+      // maximum requests per window per IP
+      "max": 600
+    },
+    // Stricter limit applied to unauthenticated / expensive endpoints
+    // (login, refresh, setFacility, password reset, patient-portal login).
+    // Successful requests are not counted, so only failed/abusive traffic
+    // accumulates toward this limit.
+    "auth": {
+      "windowMs": 900000,
+      "max": 30
+    }
+  },
   "proxy": {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html
     //
@@ -487,9 +516,11 @@
   "validateQuestionConfigs": {
     "enabled": true
   },
-  // this should be an IANA tzdata timezone
-  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "primaryTimeZone": "Australia/Melbourne",
+  // IANA tzdata timezone for all stored datetimes.
+  // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
+  // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "primaryTimeZone": null,
+  "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "socket.io": {
     enabled: true,

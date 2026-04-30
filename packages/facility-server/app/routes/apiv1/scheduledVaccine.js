@@ -5,7 +5,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 export const scheduledVaccine = express.Router();
 
 scheduledVaccine.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
     const {

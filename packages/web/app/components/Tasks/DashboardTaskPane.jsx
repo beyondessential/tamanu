@@ -63,30 +63,54 @@ export const DashboardTaskPane = React.memo(() => {
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = (e) => {
-    const { value } = e.target;
-
-    const newParams = value
-      ? { ...clinicianDashboardTaskingTableFilter, locationId: value }
-      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
-
+  const updateTaskFilterPreference = value => {
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
+      value,
     });
   };
 
-  const onHighPriorityOnlyChange = (e) => {
+  const onLocationIdChange = e => {
+    const { value, groupValue } = e.target;
+
+    const paramsWithLocation = value
+      ? { ...clinicianDashboardTaskingTableFilter, locationId: value }
+      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
+
+    const newParams = groupValue
+      ? { ...paramsWithLocation, locationGroupId: groupValue }
+      : omit(paramsWithLocation, 'locationGroupId');
+
+    updateTaskFilterPreference(newParams);
+  };
+
+  const onLocationGroupIdChange = locationGroupId => {
+    // If we have a locationId but no locationGroupId, this is likely an initialization
+    // where the LocationInput is auto-detecting the group for an existing location.
+    // In this case, preserve the locationId instead of stripping it.
+    const isInitialization =
+      clinicianDashboardTaskingTableFilter.locationId &&
+      !clinicianDashboardTaskingTableFilter.locationGroupId;
+
+    const paramsWithoutLocation = isInitialization
+      ? clinicianDashboardTaskingTableFilter
+      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
+
+    const newParams = locationGroupId
+      ? { ...paramsWithoutLocation, locationGroupId }
+      : omit(paramsWithoutLocation, 'locationGroupId');
+
+    updateTaskFilterPreference(newParams);
+  };
+
+  const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
 
     const newParams = checked
       ? { ...clinicianDashboardTaskingTableFilter, highPriority: checked }
       : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
 
-    userPreferencesMutation.mutate({
-      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
-    });
+    updateTaskFilterPreference(newParams);
   };
 
   return (
@@ -104,6 +128,7 @@ export const DashboardTaskPane = React.memo(() => {
             <LocationInput
               name="locationId"
               onChange={onLocationIdChange}
+              onGroupChange={onLocationGroupIdChange}
               size="small"
               label={
                 <TranslatedText
@@ -120,6 +145,7 @@ export const DashboardTaskPane = React.memo(() => {
                 />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
+              groupValue={clinicianDashboardTaskingTableFilter.locationGroupId}
               autofill={false}
               isMulti={true}
               data-testid="locationinput-aabz"

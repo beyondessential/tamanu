@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Settings } from '@material-ui/icons';
+import Settings from '@mui/icons-material/Settings';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { TextButton, ButtonRow, Button } from '@tamanu/ui-components';
@@ -40,9 +40,6 @@ const StyledButtonRow = styled(ButtonRow)`
 
 const DefaultSettingsButton = styled(TextButton)`
   white-space: nowrap;
-  .MuiSvgIcon-root {
-    margin-right: 5px;
-  }
 `;
 
 const buildSettingsString = (settings) => {
@@ -102,8 +99,8 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
         <DefaultSettingsButton
           onClick={() => setIsDefaultModalOpen(true)}
           data-testid="defaultsettingsbutton-kn1k"
+          startIcon={<Settings aria-hidden data-testid="settings-3n10" />}
         >
-          <Settings data-testid="settings-3n10" />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
             fallback="View default :scope settings"

@@ -20,6 +20,9 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'varchar', nullable: false, default: '' })
   result: string;
 
+  @Column({ type: 'text', nullable: true })
+  secondaryResult?: string;
+
   @ManyToOne(() => LabRequest, (labRequest) => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)

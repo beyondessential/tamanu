@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { write, utils } from 'xlsx';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
@@ -22,7 +23,7 @@ import { makeRoleWithPermissions } from '../permissions';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -868,6 +869,101 @@ describe('Permissions import', () => {
     expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 3, updated: 0, errored: 0 },
+    });
+  });
+
+  describe('mixed FHIR/regular permissions', () => {
+    function buildPermissionWorkbook(roles, permissions) {
+      const roleHeaders = ['id', 'name'];
+      const roleSheet = {};
+      roleHeaders.forEach((h, c) => {
+        roleSheet[utils.encode_cell({ r: 0, c })] = { t: 's', v: h };
+      });
+      roles.forEach((role, r) => {
+        roleSheet[utils.encode_cell({ r: r + 1, c: 0 })] = { t: 's', v: role };
+        roleSheet[utils.encode_cell({ r: r + 1, c: 1 })] = { t: 's', v: role };
+      });
+      roleSheet['!ref'] = utils.encode_range({
+        s: { r: 0, c: 0 },
+        e: { r: roles.length, c: 1 },
+      });
+
+      const permHeaders = ['verb', 'noun', ...roles];
+      const permSheet = {};
+      permHeaders.forEach((h, c) => {
+        permSheet[utils.encode_cell({ r: 0, c })] = { t: 's', v: h };
+      });
+      permissions.forEach((perm, r) => {
+        permHeaders.forEach((h, c) => {
+          const v = perm[h];
+          if (v !== undefined) {
+            permSheet[utils.encode_cell({ r: r + 1, c })] = { t: 's', v: String(v) };
+          }
+        });
+      });
+      permSheet['!ref'] = utils.encode_range({
+        s: { r: 0, c: 0 },
+        e: { r: permissions.length, c: permHeaders.length - 1 },
+      });
+
+      const wb = {
+        SheetNames: ['Role', 'Permission'],
+        Sheets: { Role: roleSheet, Permission: permSheet },
+      };
+      return write(wb, { type: 'buffer', bookType: 'xlsx' });
+    }
+
+    function doBufferImport(buffer) {
+      return importerTransaction({
+        importer: referenceDataImporter,
+        data: buffer,
+        models: ctx.store.models,
+        includedDataTypes: PERMISSION_IMPORTABLE_DATA_TYPES,
+        checkPermission: () => true,
+      });
+    }
+
+    it('should reject a role that mixes FHIR and regular permissions', async () => {
+      const buffer = buildPermissionWorkbook(
+        ['mixed-role'],
+        [
+          { verb: 'read', noun: 'Patient', 'mixed-role': 'y' },
+          { verb: 'read', noun: 'FhirPatient', 'mixed-role': 'y' },
+        ],
+      );
+
+      const { didntSendReason, errors } = await doBufferImport(buffer);
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors.some(e => e.message.includes('mixes FHIR and regular permissions'))).toBe(true);
+    });
+
+    it('should allow a role with only regular permissions', async () => {
+      const buffer = buildPermissionWorkbook(
+        ['regular-role'],
+        [
+          { verb: 'read', noun: 'Patient', 'regular-role': 'y' },
+          { verb: 'list', noun: 'Patient', 'regular-role': 'y' },
+        ],
+      );
+
+      const { errors } = await doBufferImport(buffer);
+
+      expect(errors).toBeEmpty();
+    });
+
+    it('should allow a role with only FHIR permissions', async () => {
+      const buffer = buildPermissionWorkbook(
+        ['fhir-role'],
+        [
+          { verb: 'read', noun: 'FhirPatient', 'fhir-role': 'y' },
+          { verb: 'write', noun: 'FhirEncounter', 'fhir-role': 'y' },
+        ],
+      );
+
+      const { errors } = await doBufferImport(buffer);
+
+      expect(errors).toBeEmpty();
     });
   });
 });

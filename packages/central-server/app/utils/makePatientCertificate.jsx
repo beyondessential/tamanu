@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import ReactPDF from '@react-pdf/renderer';
 
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import {
   CovidVaccineCertificate,
@@ -98,7 +99,7 @@ export const makeCovidVaccineCertificate = async ({
       logoSrc={logo}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
-      primaryTimeZone={config.primaryTimeZone}
+      primaryTimeZone={getPrimaryTimeZone(config)}
       language={language}
     />,
     fileName,
@@ -144,7 +145,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
-      primaryTimeZone={config.primaryTimeZone}
+      primaryTimeZone={getPrimaryTimeZone(config)}
     />,
     fileName,
   );
@@ -211,7 +212,7 @@ export const makeCovidCertificate = async ({
       logoSrc={logo}
       printedBy={printedBy}
       getSetting={getSettingData}
-      primaryTimeZone={config.primaryTimeZone}
+      primaryTimeZone={getPrimaryTimeZone(config)}
       certType={certType}
       language={language}
     />,

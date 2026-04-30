@@ -17,11 +17,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat(locale, {
 });
 
 export const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return '--/--/----';
+  const emptyDate = '‒‒/‒‒/‒‒‒‒'; // Figure dashes U+2012
+  if (!dateString) return emptyDate;
   try {
     return dateFormatter.format(parseISO(dateString));
   } catch {
-    return '--/--/----';
+    return emptyDate;
   }
 };
 

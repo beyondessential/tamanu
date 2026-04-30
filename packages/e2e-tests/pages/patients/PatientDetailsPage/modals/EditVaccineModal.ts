@@ -2,6 +2,11 @@ import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 import { editFieldOption } from '@utils/fieldHelpers';
+import {
+  fillMuiDateTimeField,
+  getSidebarFacilityDisplayName,
+  normalizeToIsoDate,
+} from '@utils/testHelper';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class EditVaccineModal extends BasePatientModal {
@@ -48,27 +53,21 @@ export class EditVaccineModal extends BasePatientModal {
     this.recordedBy = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-e9ru');
     this.facility = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-iukb');
     this.batch = this.page.getByTestId('field-865y-input');
-    this.dateGiven = this.page.getByTestId('field-8sou-input').getByRole('textbox');
+    this.dateGiven = this.page.getByTestId('field-8sou').getByRole('textbox');
     this.injectionSite = this.page.getByTestId('field-jz48-select');
     this.area = this.page.getByTestId('field-zrlv-group-input');
-    this.areaSearch = this.page
-      .getByTestId('field-zrlv-group-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.areaSearch = this.page.getByTestId('field-zrlv-group-input').locator('input');
     this.location = this.page.getByTestId('field-zrlv-location-input');
-    this.locationSearch = this.page
-      .getByTestId('field-zrlv-location-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.locationSearch = this.page.getByTestId('field-zrlv-location-input').locator('input');
     this.department = this.page.getByTestId('field-5sfc-input');
-    this.departmentSearch = this.page
-      .getByTestId('field-5sfc-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.departmentSearch = this.page.getByTestId('field-5sfc-input').locator('input');
     this.givenBy = this.page.getByTestId('field-xycc-input');
     this.consentCheckbox = this.page.getByTestId('consentfield-rvwt-controlcheck');
     this.consentGivenBy = this.page.getByTestId('field-inc8-input');
     this.submitEditsButton = this.page.getByTestId('formsubmitcancelrow-vv8q-confirmButton');
     this.brand = this.page.getByTestId('field-f1vm-input');
     this.disease = this.page.getByTestId('field-gcfk-input');
-    this.reason = this.page.getByTestId('selectinput-phtg-select');
+    this.reason = this.page.getByTestId('selectinput-phtg-select').filter({ visible: true });
     this.notGivenClinician = this.page.getByTestId('field-xycc-input');
     this.closeModalButton = this.page.getByTestId('iconbutton-eull');
     this.areaFieldClearButton = this.page.getByTestId('field-zrlv-group-input-clearbutton');
@@ -121,7 +120,7 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await this.dateGiven.fill(dateGiven);
+      await fillMuiDateTimeField(this.dateGiven, dateGiven);
       editedFields.dateGiven = dateGiven;
     }
 
@@ -213,7 +212,8 @@ export class EditVaccineModal extends BasePatientModal {
     await expect(this.givenStatus).toContainText(givenStatus);
     await expect(this.recordedBy).toContainText('Initial Admin');
     if (givenStatus !== 'Not given') {
-      await expect(this.facility).toContainText('facility-1');
+      const facilityDisplayName = await getSidebarFacilityDisplayName(this.page);
+      await expect(this.facility).toContainText(facilityDisplayName);
     }
   }
 
@@ -238,7 +238,10 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     if (dateGiven) {
-      await expect(this.dateGiven).toHaveValue(dateGiven);
+      const displayed = await this.dateGiven.inputValue();
+      await expect(normalizeToIsoDate(displayed)).toBe(
+        normalizeToIsoDate(dateGiven),
+      );
     }
 
     if (injectionSite) {

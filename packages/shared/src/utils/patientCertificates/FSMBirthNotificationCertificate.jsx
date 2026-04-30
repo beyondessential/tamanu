@@ -1,16 +1,18 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import {
+  ATTENDANT_OF_BIRTH_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
-  BIRTH_TYPE_OPTIONS,
-  MARITAL_STATUS_OPTIONS,
-  PLACE_OF_BIRTH_OPTIONS,
-  SEX_OPTIONS,
+  BIRTH_TYPE_LABELS,
+  MARITAL_STATUS_LABELS,
+  PLACE_OF_BIRTH_LABELS,
+  SEX_LABELS,
 } from '@tamanu/constants';
 import { getEthnicity } from '../patientAccessors';
 import { useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const styles = StyleSheet.create({
   page: {
@@ -115,11 +117,6 @@ const Cell = ({ label, value = '', style, width, flex, lastCell = false }) => (
   </View>
 );
 
-const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find(e => e.value === v);
-  return entry ? entry.label : '';
-};
-
 const getCountryOfBirth = ({ additionalData }) => {
   return additionalData?.countryOfBirth?.name;
 };
@@ -130,6 +127,7 @@ export const FSMBirthNotificationCertificate = ({
   childData,
   printedBy,
 }) => {
+  const { getEnumTranslation } = useLanguageContext();
   const { formatShort, getCurrentDate } = useDateTime();
   const currentDateString = formatShort(getCurrentDate());
 
@@ -167,15 +165,15 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="First name:" value={childData?.firstName} />
                 <Cell flex={1} label="Middle name:" value={childData?.middleName} />
                 <Cell flex={1} label="Last name:" value={childData?.lastName} />
-                <Cell width={183} lastCell label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
+                <Cell width={183} lastCell label="Plurality:" value={getEnumTranslation(BIRTH_TYPE_LABELS, childData?.birthData?.birthType)} />
               </View>
 
               {/* Child Row 2 */}
               <View style={styles.lastRow}>
                 <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? formatShort(childData?.dateOfBirth) : ''} />
-                <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
-                <Cell width={146} label="Delivery site:" value={getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
-                <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
+                <Cell width={110} label="Sex:" value={getEnumTranslation(SEX_LABELS, childData?.sex)} />
+                <Cell width={146} label="Delivery site:" value={getEnumTranslation(PLACE_OF_BIRTH_LABELS, childData?.birthData?.registeredBirthPlace)} />
+                <Cell width={146} label="Attendant:" value={getEnumTranslation(ATTENDANT_OF_BIRTH_LABELS, childData?.birthData?.attendantAtBirth)} />
                 <Cell width={183} lastCell label="Birth order:" value={childData?.birthData?.birthOrder} />
               </View>
             </View>
@@ -210,7 +208,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
                 <Cell flex={1} label="Highest grade:" value={EDUCATIONAL_ATTAINMENT_LABELS[motherData?.additionalData?.educationalLevel]} />
                 <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
-                <Cell width={183} lastCell label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
+                <Cell width={183} lastCell label="Marital status:" value={getEnumTranslation(MARITAL_STATUS_LABELS, motherData?.additionalData?.maritalStatus)} />
               </View>
             </View>
           </View>

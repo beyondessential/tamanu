@@ -17,6 +17,13 @@ e2e_test_setup_setup_central() {
     cat <<- EOF > packages/central-server/config/local.json5
     {
         "port": "3000",
+        "countryTimeZone": "Pacific/Auckland",
+        "auth": {
+            "tokenDuration": "24h"
+        },
+        "rateLimit": {
+            "enabled": false
+        },
         "db": {
             "host": "localhost",
             "name": "central",
@@ -36,7 +43,7 @@ e2e_test_setup_setup_central() {
                     "alpha-2": "UT",
                     "alpha-3": "UTO"
                 },
-                "timeZone": "UTC",
+                "timeZone": "Pacific/Auckland",
                 "imagingTypes": {
                     "orthopantomography": { "label": "Orthopantomography" },
                     "xRay": { "label": "X-Ray" },
@@ -103,7 +110,7 @@ EOF
 
         referenceData: [
             {
-                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx',
+                defaultSpreadsheet: true,
             },
         ],
 
@@ -130,6 +137,13 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
+	    "countryTimeZone": "Pacific/Auckland",
+	    "auth": {
+	        "tokenDuration": "24h"
+	    },
+        "rateLimit": {
+            "enabled": false
+        },
 	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
 	        "email": "facility-1@tamanu.io",
@@ -154,14 +168,44 @@ EOF
     npm run --workspace @tamanu/facility-server start upgrade
 }
 
+e2e_test_setup_start_servers_no_sync() {
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    # Wait for central to accept connections before kicking off facility.
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:3000
+
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:4000
+}
+
 e2e_test_setup_start_servers() {
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    # Wait for central to accept connections before kicking off sync.
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:3000
+
+    # Run the initial sync BEFORE the facility-server is up. If the facility-server
+    # is running in parallel, its scheduled SyncTask (`*/1 * * * *`) will open a new
+    # session for the same device id, and central will close out our subcommand's
+    # session with "Session marked as completed due to its device reconnecting".
+    # Doing the slow first sync here in isolation avoids that race entirely.
+    #
+    # On a cold central server the SyncLookupRefresher (every 20s, no runImmediately)
+    # may not have built the lookup table yet, in which case sync fails with
+    # "Sync lookup table has not yet built. Cannot initiate sync." — retry a few
+    # times to give it room to finish the first build.
+    local attempt=0
+    local max_attempts=8
+    until npm run --workspace @tamanu/facility-server start sync; do
+        attempt=$((attempt + 1))
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "facility-server sync failed after $attempt attempts" >&2
+            return 1
+        fi
+        echo "facility-server sync attempt $attempt failed; retrying in 15s" >&2
+        sleep 15
+    done
+
     nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
-    # Give servers time to start before syncing
-    sleep 20
-    # Sync the servers
-    npm run --workspace @tamanu/facility-server start sync
-    sleep 20
+    curl --retry 20 --retry-all-errors --retry-delay 2 localhost:4000
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )

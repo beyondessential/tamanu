@@ -5,6 +5,7 @@ import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@ta
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -52,7 +53,7 @@ export const encounter = softDeletionCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models,
@@ -398,7 +399,7 @@ encounterRelations.get(
       req.checkPermission('list', 'MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-      const { primaryTimeZone } = config;
+      const primaryTimeZone = getPrimaryTimeZone(config);
       const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
       const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
       const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
@@ -729,7 +730,7 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/initialChart$',
+  '/:id/initialChart',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { id: encounterId } = params;

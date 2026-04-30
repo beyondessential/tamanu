@@ -1,7 +1,7 @@
 import { randomInt } from 'crypto';
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
-import Sequelize, { DataTypes } from 'sequelize';
+import Sequelize from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
@@ -271,8 +271,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
       unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
       isSensitive: false,
       externalCode: chance.pickone([chance.word(), null]), // sometimes external code not mapped
+      availableFacilities: null,
     };
   },
+  LabTestPanel: () => ({
+    availableFacilities: null,
+  }),
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
@@ -374,12 +378,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),
+    availableFacilities: null,
   }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   Survey: () => ({
     isSensitive: false,
+    visibilityCriteria: null,
     notifyEmailAddresses: [],
   }),
   SurveyScreenComponent: () => ({
@@ -570,20 +576,20 @@ export const fake = (
       return VISIBILITY_STATUSES.CURRENT;
     }
 
-    if (type instanceof DataTypes.ARRAY && (type as any).type) {
+    if (type instanceof Sequelize.ARRAY && (type as any).type) {
       return Array(chance.integer({ min: 0, max: 3 }))
         .fill(0)
         .map(() => fakeField(name, { ...attribute, type: (type as any).type }));
     }
 
     if (defaultValue) {
-      if (defaultValue instanceof Sequelize.NOW || defaultValue instanceof Sequelize.UUIDV4) {
+      if (defaultValue === Sequelize.NOW || defaultValue === Sequelize.UUIDV4) {
         return undefined;
       }
       return isFunction(defaultValue) ? defaultValue() : defaultValue;
     }
 
-    if (type instanceof DataTypes.BLOB) {
+    if (type instanceof Sequelize.BLOB) {
       return Buffer.from('test');
     }
 
@@ -595,15 +601,15 @@ export const fake = (
       return FIELD_HANDLERS[type.type](model, attribute, id);
     }
 
-    if (type instanceof DataTypes.STRING && (type as any).options.length) {
+    if (type instanceof Sequelize.STRING && (type as any).options.length) {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, (type as any).options.length);
     }
 
-    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
+    if (type?.key === 'JSONB' && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
       return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
     }
 
-    if (type instanceof DataTypes.JSONB) {
+    if (type?.key === 'JSONB') {
       return { test: 'test' };
     }
 

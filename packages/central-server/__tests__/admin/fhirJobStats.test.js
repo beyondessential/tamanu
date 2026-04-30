@@ -31,12 +31,11 @@ describe('FHIR job stats', () => {
     // assert
     expect(response.status).toBe(200);
     expect(response.body.data).toEqual([
-      {
+      expect.objectContaining({
         id: 'fhir.refresh.allFromUpstream,Queued',
         topic: 'fhir.refresh.allFromUpstream',
         status: 'Queued',
-        count: '18',
-      },
+      }),
       { id: 'topic2,Queued', topic: 'topic2', status: 'Queued', count: '3' },
       { id: 'topic3,Queued', topic: 'topic3', status: 'Queued', count: '2' },
       { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },

@@ -30,7 +30,7 @@ export const programRegistry = express.Router();
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
 programRegistry.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, query } = req;
     req.checkPermission('list', 'ProgramRegistry');
@@ -275,6 +275,7 @@ programRegistry.get(
     }
     const sortKeys = {
       displayId: 'patient.display_id',
+      patientName: 'UPPER(patient.last_name)',
       firstName: 'UPPER(patient.first_name)',
       lastName: 'UPPER(patient.last_name)',
       dateOfBirth: 'patient.date_of_birth',

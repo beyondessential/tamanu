@@ -12,12 +12,13 @@ export class Survey extends Model {
   declare id: string;
   declare code?: string;
   declare name?: string;
-  declare surveyType: string;
+  declare surveyType: (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES];
   declare isSensitive: boolean;
   declare visibilityStatus: string;
   declare notifiable: boolean;
   declare notifyEmailAddresses: string[];
   declare programId?: string;
+  declare visibilityCriteria?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -48,6 +49,10 @@ export class Survey extends Model {
           type: DataTypes.ARRAY(DataTypes.STRING),
           allowNull: false,
           defaultValue: [],
+        },
+        visibilityCriteria: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
       {
