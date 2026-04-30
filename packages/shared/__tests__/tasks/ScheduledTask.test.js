@@ -70,28 +70,35 @@ describe('ScheduledTask', () => {
     });
   });
 
+  it('preserves object schedules', () => {
+    const schedule = { rule: '0 2 * * *', tz: 'Pacific/Auckland' };
+    const task = new TestScheduledTask(() => {}, { schedule });
+
+    expect(task.schedule).toBe(schedule);
+  });
+
   it('Should run a task on a schedule', () => {
     const onEveryHour = new TestScheduledTask(() => {}, {
-      schedule: '0 * * * *',
+      schedule: { rule: '0 * * * *', tz: 'UTC' },
     });
     const onMidnightEveryDay = new TestScheduledTask(() => {}, {
-      schedule: '0 0 * * *',
+      schedule: { rule: '0 0 * * *', tz: 'UTC' },
     });
     const onFirstDayEveryMonth = new TestScheduledTask(() => {}, {
-      schedule: '0 0 1 * *',
+      schedule: { rule: '0 0 1 * *', tz: 'UTC' },
     });
     const tasks = [onEveryHour, onMidnightEveryDay, onFirstDayEveryMonth];
 
     tasks.forEach((task) => task.beginPolling());
 
     expect(onEveryHour.job.nextInvocation().toISOString()).toEqual(
-      addHours(systemTime, 1).toISOString(),
+      addHours(systemTime, 1, { tz: 'UTC' }).toISOString(),
     );
     expect(onMidnightEveryDay.job.nextInvocation().toISOString()).toEqual(
-      '2020-01-01T13:00:00.000Z',
+      addHours(systemTime, 1, { tz: 'UTC' }).toISOString(),
     );
     expect(onFirstDayEveryMonth.job.nextInvocation().toISOString()).toEqual(
-      '2020-01-31T13:00:00.000Z',
+      addHours(systemTime, 1, { tz: 'UTC' }).toISOString(),
     );
 
     tasks.forEach((task) => task.cancelPolling());
@@ -107,7 +114,7 @@ describe('ScheduledTask', () => {
         taskRanAt = new Date();
       },
       {
-        schedule: '0 * * * *',
+        schedule: { rule: '0 * * * *', tz: 'UTC' },
         jitterTime,
       },
     );
@@ -134,7 +141,7 @@ describe('ScheduledTask', () => {
         hasRun = true;
       },
       {
-        schedule: '0 * * * *',
+        schedule: { rule: '0 * * * *', tz: 'UTC' },
         enabled: false,
       },
     );

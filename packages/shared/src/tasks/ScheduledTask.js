@@ -9,6 +9,17 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { getTracer, spanWrapFn } from '../services/logging';
 import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 
+const wrapScheduleWithTimeZone = schedule => {
+  const primaryTimeZone = getPrimaryTimeZone(config);
+  if (typeof schedule === 'object') {
+    if (schedule.tz) {
+      return schedule;
+    }
+    return { ...schedule, tz: primaryTimeZone };
+  }
+  return { rule: schedule, tz: primaryTimeZone };
+};
+
 export class ScheduledTask {
   getName() {
     // Note that this.constructor.name will only work in dev,
@@ -21,14 +32,7 @@ export class ScheduledTask {
       name: this.getName(),
     });
 
-    if (schedule && typeof schedule !== 'string') {
-      throw new Error(`ScheduledTask: schedule must be a cron string, received ${typeof schedule}`);
-    }
-
-    this.schedule = schedule && {
-      rule: schedule,
-      tz: getPrimaryTimeZone(config),
-    };
+    this.schedule = wrapScheduleWithTimeZone(schedule);
     this.job = null;
     this.log = log;
     this.isRunning = false;
