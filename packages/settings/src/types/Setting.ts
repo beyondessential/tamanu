@@ -1,8 +1,6 @@
 import * as yup from 'yup';
 
-import type { SettingEditor } from '@tamanu/constants';
-
-export type { SettingEditor };
+import { SETTING_EDITORS } from '@tamanu/constants';
 
 export interface Setting<T = any> {
   name?: string;
@@ -14,5 +12,5 @@ export interface Setting<T = any> {
   deprecated?: boolean;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;
-  editor?: SettingEditor;
+  editor?: typeof SETTING_EDITORS[keyof typeof SETTING_EDITORS];
 }

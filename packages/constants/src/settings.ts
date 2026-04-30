@@ -33,5 +33,3 @@ export const SETTING_EDITORS = {
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
 } as const;
-
-export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];
