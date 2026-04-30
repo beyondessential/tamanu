@@ -79,6 +79,17 @@ const Flexbox = styled.div`
   gap: 0.5rem;
 `;
 
+const LongTextFlexbox = styled(Flexbox)`
+  align-items: flex-start;
+`;
+
+const LongTextActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-block-start: 13px;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -278,7 +289,7 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.MULTILINE: {
       return (
-        <Flexbox data-testid="flexbox-r6sr">
+        <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
@@ -290,8 +301,10 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-          <DefaultButton data-testid="defaultbutton-5efq" />
-        </Flexbox>
+          <LongTextActions data-testid="longtextactions-y1pc">
+            <DefaultButton data-testid="defaultbutton-5efq" />
+          </LongTextActions>
+        </LongTextFlexbox>
       );
     }
     case SETTING_TYPES.MARKDOWN: {
@@ -299,7 +312,7 @@ export const SettingInput = ({
       const category = formatCategoryPath(path);
       return (
         <Flexbox data-testid="flexbox-markdowneditor">
-          <MarkdownEditorButton 
+          <MarkdownEditorButton
             onClick={() => setMarkdownModalOpen(true)}
             startIcon={<EditIcon style={{ fontSize: 14 }} />}
             size="small"

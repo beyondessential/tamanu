@@ -69,7 +69,7 @@ export const MarkdownEditorModal = React.memo(
         )}
         <EditorContainer data-testid="markdowneditormodal-editor-wrap">
           <StyledMarkdownEditor
-            name="markdown-modal-markdown"
+            name="settings-markdown-modal-editor"
             mode="markdown"
             theme={readOnly ? THEMES.VIEW : THEMES.EDIT}
             width="100%"
@@ -85,7 +85,7 @@ export const MarkdownEditorModal = React.memo(
             setOptions={{
               showLineNumbers: false,
               showGutter: false,
-              cursorStyle: 'slim'
+              cursorStyle: 'slim',
             }}
             editorProps={{ $blockScrolling: true }}
             data-testid="markdowneditormodal-textarea"
