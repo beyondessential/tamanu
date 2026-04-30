@@ -9,19 +9,19 @@ import { COLORS } from './colors.js';
 export const CURRENTLY_AT_TYPES = {
   VILLAGE: 'village',
   FACILITY: 'facility',
-};
+} as const;
 
 export const REGISTRATION_STATUSES = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
   RECORDED_IN_ERROR: 'recordedInError',
-};
+} as const;
 
 export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [REGISTRATION_STATUSES.ACTIVE]: 'Active',
   [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
   [REGISTRATION_STATUSES.RECORDED_IN_ERROR]: 'Delete',
-};
+} as const;
 
 export const STATUS_COLOR = {
   purple: COLORS.purple,
@@ -34,7 +34,7 @@ export const STATUS_COLOR = {
   red: COLORS.red,
   brown: '#7A492E',
   teal: '#125E7E',
-};
+} as const;
 
 // Categories are now added as reference data in their own table, however,
 // these constants are mandatory on import and will be used to define UI behavior
@@ -43,16 +43,18 @@ export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   DISPROVEN: 'disproven',
   RESOLVED: 'resolved',
   RECORDED_IN_ERROR: 'recordedInError',
-};
+} as const;
 
 export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN]: 'Unknown',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN]: 'Disproven',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED]: 'Resolved',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
-};
+} as const;
 
-// This exists for backwards compatibility with the old enum values
+/**
+ * @deprecated This exists for backwards compatibility with the old enum values
+ */
 export const DEPRECATED_PRCC_LABELS = {
   suspected: 'Suspected',
   underInvestigation: 'Under investigation',
@@ -63,7 +65,7 @@ export const DEPRECATED_PRCC_LABELS = {
   inRemission: 'In remission',
   notApplicable: 'Not applicable',
   recordedInError: 'Recorded in error',
-};
+} as const;
 
 // Clinical status for potential loss to follow up
 export const POTENTIAL_LOSS_TO_FOLLOW_UP = {
@@ -71,6 +73,4 @@ export const POTENTIAL_LOSS_TO_FOLLOW_UP = {
   NAME: 'Potential loss to follow up',
   DEFAULT_THRESHOLD_DAYS: 90,
   DEFAULT_COLOR: 'grey',
-};
-
-// ########################################################################################################
+} as const;

@@ -1,9 +1,24 @@
-import { QueryTypes } from 'sequelize';
-import { writeExcelFile } from '../../utils/excelUtils';
+/**
+ * @typedef {{
+ *   code: string | null;
+ *   createdAt: Date;
+ *   deletedAt: Date | null;
+ *   id: string;
+ *   name: string | null;
+ *   updatedAt: Date;
+ *   updatedAtSyncTick: string;
+ * }} Program
+ */
+
 import { groupBy } from 'lodash';
+import { QueryTypes } from 'sequelize';
+
+import { NotFoundError } from '@tamanu/errors';
+import { writeExcelFile } from '../../utils/excelUtils';
 
 export async function exportProgram(context, programId) {
   const { models, sequelize } = context;
+  /** @type {Program} */
   const program = await models.Program.findOne({
     where: {
       id: programId,
@@ -12,7 +27,7 @@ export async function exportProgram(context, programId) {
     raw: true,
   });
   if (!program) {
-    throw new Error(`Program with id ${programId} not found`);
+    throw new NotFoundError(`No program found with ID ${programId}`);
   }
 
   const sheets = [];
@@ -21,11 +36,11 @@ export async function exportProgram(context, programId) {
     where: { programId: program.id },
   });
 
+  // "(Country) Program Name" → [, "Country", "Program Name"]
   const namePattern = /\((.*?)\)\s*(.*)/;
-  const match = program.name.match(namePattern);
-  const country = match?.[1] ?? '';
-  const programName = match?.[2] ?? program.name;
-  const programCode = program.id.replace('program-', '');
+  const [, country = '', programName = program.name ?? ''] = program.name?.match(namePattern) ?? [];
+
+  const programCode = program.id.replace(/^program-/, '');
 
   const metadataSheet = {
     name: 'Metadata',

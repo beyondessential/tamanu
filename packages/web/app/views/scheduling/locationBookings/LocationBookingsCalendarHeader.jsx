@@ -92,10 +92,6 @@ const StyledMonthPicker = styled(MonthPicker)`
   .MuiInputBase-input {
     font-size: inherit;
   }
-
-  body:has(&) > .MuiPickersPopper-root {
-    z-index: 2; // Above the sticky headers
-  }
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {

@@ -500,6 +500,19 @@ export class TamanuApi {
     );
   }
 
+  async patch<T = any>(
+    endpoint: string,
+    body: any = undefined,
+    config: FetchOptions = {},
+  ): Promise<T> {
+    return await this.fetch(endpoint, undefined, {
+      body,
+      headers: { 'Content-Type': 'application/json' },
+      ...config,
+      method: 'PATCH',
+    });
+  }
+
   async put<T = any>(
     endpoint: string,
     body: any = undefined,
