@@ -15,6 +15,30 @@ export const centralSettings = {
   name: 'Central server settings',
   description: 'Settings that apply only to a central server',
   properties: {
+    ai: {
+      name: 'AI',
+      description: 'Settings for AI-powered features',
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Enable or disable all AI-powered features',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        anthropicApiKey: {
+          name: 'Anthropic API key',
+          description: 'API key for the Anthropic API',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        anthropicModel: {
+          name: 'Anthropic model',
+          description: 'The Anthropic model to use for AI features',
+          type: yup.string(),
+          defaultValue: 'claude-sonnet-4-20250514',
+        },
+      },
+    },
     disk: {
       name: 'Disk',
       description: 'Disk settings',
