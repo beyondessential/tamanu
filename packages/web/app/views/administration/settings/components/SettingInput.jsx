@@ -21,6 +21,7 @@ import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
+import { formatSettingName } from '../EditorView';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -127,7 +128,7 @@ const MarkdownSettingInput = ({
   const initialFieldValue = get(initialValues?.settings, settingsPath);
   const initialDisplayValue = isUndefined(initialFieldValue) ? defaultValue : initialFieldValue;
   const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
-  const modalTitle = name ?? path.split('.').pop();
+  const modalTitle = formatSettingName(name, path.split('.').pop());
   const category = formatCategoryPath(path);
   const markdownDisplayText = displayValue == null ? '' : String(displayValue);
 
