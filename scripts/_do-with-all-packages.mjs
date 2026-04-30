@@ -1,17 +1,6 @@
 import { readFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 
-function getWorkspaceTreeJson() {
-  try {
-    return execFileSync('npm', ['ls', '--workspaces', '--legacy-peer-deps', '--json'], {
-      encoding: 'utf8',
-    });
-  } catch (err) {
-    if (err.stdout) return err.stdout.toString();
-    throw err;
-  }
-}
-
 function cleanupLeadingGarbage(jsonStr) {
   if (jsonStr.startsWith('{')) return jsonStr;
 
@@ -24,17 +13,15 @@ function cleanupLeadingGarbage(jsonStr) {
 function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
 
-  Object.entries(workspaceTree.dependencies)
-    .filter(([workspace]) => workspaces.has(workspace))
-    .forEach(([workspace, info]) => {
-      let dependencies = [];
-      if (info.dependencies) {
-        dependencies = Object.keys(info.dependencies).filter(dependency =>
-          workspaces.has(dependency),
-        );
-      }
-      dependencyTree[workspace] = dependencies;
-    });
+  Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
+    let dependencies = [];
+    if (info.dependencies) {
+      dependencies = Object.keys(info.dependencies).filter(dependency =>
+        workspaces.has(dependency),
+      );
+    }
+    dependencyTree[workspace] = dependencies;
+  });
 
   return dependencyTree;
 }
@@ -44,20 +31,16 @@ function extractLocation(resolvedPath) {
   return resolvedPath.slice(packageIndex);
 }
 
-function isWorkspacePackage(info) {
-  return info.resolved?.includes('packages/');
-}
-
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(getWorkspaceTreeJson()),
+    cleanupLeadingGarbage(
+      execFileSync('npm', ['ls', '--workspaces', '--legacy-peer-deps', '--json'], {
+        encoding: 'utf8',
+      }),
+    ),
   );
 
-  const workspaces = new Set(
-    Object.entries(workspaceTree.dependencies)
-      .filter(([, info]) => isWorkspacePackage(info))
-      .map(([workspace]) => workspace),
-  );
+  const workspaces = new Set(Object.keys(workspaceTree.dependencies));
   const processed = new Set();
 
   const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
