@@ -4,7 +4,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/theme-textmate';
 
-import { ConfirmCancelRow, TranslatedText, Modal, Colors } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Title = styled.h3`
   display: flex;
@@ -14,7 +14,7 @@ const Title = styled.h3`
 `;
 
 const Category = styled.p`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   font-size: 13px;
   font-weight: 400;
   line-height: 16px;
@@ -24,7 +24,7 @@ const Category = styled.p`
 const Description = styled.p`
   font-size: 14px;
   margin: 0;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const ModalBody = styled.div`
@@ -37,10 +37,10 @@ const ModalBody = styled.div`
 const EditorContainer = styled.div`
   height: clamp(240px, calc(100dvh - 320px), 520px);
   width: 100%;
-`;
+`;  
 
 const StyledMarkdownEditor = styled(AceEditor)`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
 
   .ace_scroller {
@@ -59,8 +59,8 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
 const BottomPinnedRow = styled.div`
   padding-block: 1rem 1.25rem;
   padding-inline: 32px;
-  border-block-start: 1px solid ${Colors.outline};
-  background-color: ${Colors.background};
+  border-block-start: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${TAMANU_COLORS.background};
 `;
 
 const EDITOR_OPTIONS = {
