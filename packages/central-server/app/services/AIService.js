@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import NodeCache from 'node-cache';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
@@ -7,26 +8,20 @@ import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
 
-const SESSION_TTL_MS = 30 * 60 * 1000;
-const SESSION_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
+const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
 export class AIService {
   /** @type {Map<string, string>} */
   contexts = new Map();
 
-  /**
-   * @type {Map<string, { history: InMemoryChatMessageHistory, lastAccessedAt: number, pending: Promise<void> }>}
-   */
-  sessions = new Map();
+  /** @type {NodeCache} */
+  sessions = new NodeCache({ stdTTL: SESSION_TTL_SECONDS, checkperiod: 300, useClones: false });
 
   /** @type {import('@langchain/anthropic').ChatAnthropic} */
   chatModel;
 
   /** @type {RunnableWithMessageHistory} */
   conversationChain;
-
-  /** @type {ReturnType<typeof setInterval> | null} */
-  _sweepInterval = null;
 
   /**
    * @param {object} options
@@ -63,40 +58,18 @@ export class AIService {
         if (!session) {
           throw new Error(`AI session "${sessionId}" not found`);
         }
-        return session.history;
+        return session;
       },
       inputMessagesKey: 'input',
       historyMessagesKey: 'history',
     });
 
-    service._sweepInterval = setInterval(
-      () => service._sweepStaleSessions(),
-      SESSION_SWEEP_INTERVAL_MS,
-    );
-    service._sweepInterval.unref();
-
-    // TODO: Register default contexts here when contexts are available in settings
-    // eg: service.registerContext('survey-builder', settings.get('ai.survey-builder.context'));
-
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
   }
 
-  _sweepStaleSessions() {
-    const cutoff = Date.now() - SESSION_TTL_MS;
-    for (const [sessionId, session] of this.sessions) {
-      if (session.lastAccessedAt < cutoff) {
-        this.sessions.delete(sessionId);
-      }
-    }
-  }
-
   close() {
-    if (this._sweepInterval !== null) {
-      clearInterval(this._sweepInterval);
-      this._sweepInterval = null;
-    }
-    this.sessions.clear();
+    this.sessions.close();
   }
 
   /**
@@ -130,14 +103,13 @@ export class AIService {
     const sessionId = nanoid();
     const history = new InMemoryChatMessageHistory();
     await history.addMessage(new SystemMessage(this.getContext(contextName)));
-    this.sessions.set(sessionId, { history, lastAccessedAt: Date.now(), pending: Promise.resolve() });
+    this.sessions.set(sessionId, history);
     return sessionId;
   }
 
   /**
    * Send a user message within an existing session.
    * History is managed automatically by RunnableWithMessageHistory.
-   * Invocations are serialised per session to prevent history corruption from concurrent calls.
    *
    * @param {string} sessionId
    * @param {string} userMessage
@@ -147,18 +119,11 @@ export class AIService {
     if (!this.sessions.has(sessionId)) {
       throw new Error(`AI session "${sessionId}" not found`);
     }
-    const session = this.sessions.get(sessionId);
-    session.lastAccessedAt = Date.now();
-    const result = session.pending.then(() =>
-      this.conversationChain.invoke(
-        { input: userMessage },
-        { configurable: { sessionId } },
-      ),
+    this.sessions.ttl(sessionId, SESSION_TTL_SECONDS); // refresh TTL on access
+    return this.conversationChain.invoke(
+      { input: userMessage },
+      { configurable: { sessionId } },
     );
-    // Update pending so the next sendMessage call waits for this one to finish.
-    // Errors are suppressed on the chain itself so a failed call doesn't block future ones.
-    session.pending = result.then(() => {}).catch(() => {});
-    return result;
   }
 
   /**
@@ -167,7 +132,7 @@ export class AIService {
    * @param {string} sessionId
    */
   deleteSession(sessionId) {
-    this.sessions.delete(sessionId);
+    this.sessions.del(sessionId);
   }
 
   /**
