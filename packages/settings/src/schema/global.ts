@@ -1392,7 +1392,7 @@ export const globalSettings = {
               defaultValue: 'Your Tamanu Patient Portal Login Code',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
@@ -1407,7 +1407,7 @@ export const globalSettings = {
               defaultValue: 'Tamanu Patient Portal Registration',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'Please follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$.\n\n$registrationLink$\n\nDo not respond to this email',
@@ -1422,7 +1422,7 @@ export const globalSettings = {
               defaultValue: 'New Patient Form Request from $facilityName$',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nDo not respond to this email.',
@@ -1437,7 +1437,7 @@ export const globalSettings = {
               defaultValue: 'New Patient Form Request from $facilityName$',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Before you can access this form, you must register for a Tamanu Patient Portal account.\n\nPlease follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$. Once you have set up your patient portal account, you will be able to log in and access the requested form.\n\n$registrationLink$\n\nDo not respond to this email.',
@@ -1455,7 +1455,7 @@ export const globalSettings = {
                   defaultValue: 'Booking confirmation',
                 },
                 body: {
-                  editor: 'multiline',
+                  editor: 'multiline' as const,
                   type: yup.string().trim().min(1),
                   defaultValue:
                     'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your booking has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
@@ -1470,7 +1470,7 @@ export const globalSettings = {
                   defaultValue: 'Appointment confirmation',
                 },
                 body: {
-                  editor: 'multiline',
+                  editor: 'multiline' as const,
                   type: yup.string().trim().min(1),
                   defaultValue:
                     'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
@@ -1491,7 +1491,7 @@ export const globalSettings = {
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
@@ -1506,7 +1506,7 @@ export const globalSettings = {
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
@@ -1521,7 +1521,7 @@ export const globalSettings = {
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
@@ -1537,7 +1537,7 @@ export const globalSettings = {
               defaultValue: 'COVID-19 Clearance Certificate now available',
             },
             body: {
-              editor: 'multiline',
+              editor: 'multiline' as const,
               type: yup.string().trim().min(1),
               defaultValue:
                 'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
