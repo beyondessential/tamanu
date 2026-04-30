@@ -5,7 +5,6 @@ function getWorkspaceTreeJson() {
   try {
     return execFileSync('npm', ['ls', '--workspaces', '--legacy-peer-deps', '--json'], {
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
     });
   } catch (err) {
     if (err.stdout) return err.stdout.toString();
