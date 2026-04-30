@@ -1,24 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
+import { findRouteObject, simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
 
 const getProgramRegistryHandler = asyncHandler(async (req, res) => {
-  req.checkPermission('read', 'ProgramRegistry');
-
-  const { ProgramRegistry, Program } = req.models;
-  const programRegistry = await ProgramRegistry.findByPk(req.params.id, {
-    include: [
-      {
-        model: Program,
-        as: 'program',
-        attributes: ['id', 'name'],
-      },
-    ],
-  });
-  if (!programRegistry) throw new NotFoundError();
-
+  const programRegistry = await findRouteObject(req, 'ProgramRegistry');
   res.send({
     ...programRegistry.forResponse(),
     program: programRegistry.program
