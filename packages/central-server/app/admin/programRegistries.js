@@ -1,17 +1,6 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler';
 
-import { findRouteObject, simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
-
-const getProgramRegistryHandler = asyncHandler(async (req, res) => {
-  const programRegistry = await findRouteObject(req, 'ProgramRegistry');
-  res.send({
-    ...programRegistry.forResponse(),
-    program: programRegistry.program
-      ? { id: programRegistry.program.id, name: programRegistry.program.name }
-      : null,
-  });
-});
+import { simpleGet, simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/programRegistry` endpoint when dealing with a single program registry */
 export const programRegistryRouter = express.Router();
@@ -31,7 +20,7 @@ programRegistryRouter.get(
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
 
-programRegistryRouter.get('/:id', getProgramRegistryHandler);
+programRegistryRouter.get('/:id', simpleGet('ProgramRegistry'));
 programRegistryRouter.patch(
   '/:id',
   simplePatch('ProgramRegistry', {
