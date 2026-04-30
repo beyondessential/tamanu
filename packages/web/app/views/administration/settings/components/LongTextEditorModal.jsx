@@ -4,23 +4,6 @@ import styled from 'styled-components';
 import { Modal } from '../../../../components/Modal';
 import { Colors } from '../../../../constants';
 
-const StyledModal = styled(Modal)`
-  .MuiPaper-root {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    > :not(.MuiDialogTitle-root) {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      > :not(.MuiDialogActions-root) {
-        display: flex;
-        flex-direction: column;
-      }
-    }
-  }
-`;
-
 const Title = styled.div`
   display: flex;
   flex-direction: column;
@@ -38,6 +21,12 @@ const Description = styled.div`
   font-size: 14px;
   margin-bottom: 12px;
   color: ${Colors.midText};
+`;
+
+const ModalBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 12rem);
 `;
 
 const StyledTextArea = styled.textarea`
@@ -59,7 +48,7 @@ const StyledTextArea = styled.textarea`
 
 export const LongTextEditorModal = React.memo(
   ({ open, onClose, title, category, description, value, onChange, readOnly }) => (
-    <StyledModal
+    <Modal
       open={open}
       onClose={onClose}
       width="lg"
@@ -71,13 +60,17 @@ export const LongTextEditorModal = React.memo(
       }
       data-testid="longtexteditormodal-modal"
     >
-      {description && <Description data-testid="longtexteditormodal-desc">{description}</Description>}
-      <StyledTextArea
-        value={value ?? ''}
-        onChange={event => onChange(event.target.value)}
-        disabled={readOnly}
-        data-testid="longtexteditormodal-textarea"
-      />
-    </StyledModal>
+      <ModalBody data-testid="longtexteditormodal-body">
+        {description && (
+          <Description data-testid="longtexteditormodal-desc">{description}</Description>
+        )}
+        <StyledTextArea
+          value={value ?? ''}
+          onChange={event => onChange(event.target.value)}
+          disabled={readOnly}
+          data-testid="longtexteditormodal-textarea"
+        />
+      </ModalBody>
+    </Modal>
   ),
 );
