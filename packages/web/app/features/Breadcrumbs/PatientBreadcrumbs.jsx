@@ -1,31 +1,31 @@
 import React from 'react';
-import { Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { useLocation, useParams, matchPath } from 'react-router';
+import { matchPath, useLocation, useParams } from 'react-router';
 import styled from 'styled-components';
-import { PATIENT_CATEGORY_LABELS, PATIENT_PATHS } from '../../constants/patientPaths';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { getPatientNameAsString, TranslatedText, TranslatedReferenceData } from '../../components';
-import { useEncounter } from '../../contexts/Encounter';
-import { getEncounterType } from '../../views/patients/panes/EncounterInfoPane';
 import { useProgramRegistryQuery } from '../../api/queries';
+import {
+  getPatientNameAsString,
+  TranslatedReferenceData,
+  TranslatedText,
+  UnstyledHtmlButton,
+} from '../../components';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { PATIENT_CATEGORY_LABELS, PATIENT_PATHS } from '../../constants/patientPaths';
+import { useEncounter } from '../../contexts/Encounter';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { getEncounterType } from '../../views/patients/panes/EncounterInfoPane';
 
-const BreadcrumbLink = styled(Typography)`
+const BreadcrumbLink = styled(UnstyledHtmlButton)`
   font-size: 12px;
   color: ${props => props.theme.palette.primary.main};
   font-weight: 400;
-  text-transform: capitalize;
-  cursor: pointer;
   &:hover {
     text-decoration: underline;
   }
 `;
 
 export const Breadcrumb = ({ onClick, title }) => (
-  <BreadcrumbLink underline="hover" color="inherit" onClick={onClick}>
-    {title}
-  </BreadcrumbLink>
+  <BreadcrumbLink onClick={onClick}>{title}</BreadcrumbLink>
 );
 
 export const PatientBreadcrumb = () => {
