@@ -66,6 +66,12 @@ const ModalTextButton = styled(Button)`
   align-self: center;
 `;
 
+const ModalTextStatus = styled.div`
+  color: ${Colors.primary};
+  font-size: 13px;
+  font-weight: 500;
+`;
+
 const Flexbox = styled.div`
   align-items: center;
   display: flex;
@@ -107,6 +113,7 @@ export const SettingInput = ({
   name,
   description,
   value,
+  initialValue,
   defaultValue,
   handleChangeSetting,
   unit,
@@ -178,7 +185,9 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
+  const initialDisplayValue = isUndefined(initialValue) ? defaultValue : initialValue;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
+  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
 
   const typeKey =
     type === SETTING_TYPES.STRING && editor
@@ -313,6 +322,15 @@ export const SettingInput = ({
               data-testid="translatedtext-edit"
             />
           </ModalTextButton>
+          {hasUnsavedChange && (
+            <ModalTextStatus data-testid="modaltextstatus-unsaved">
+              <TranslatedText
+                stringId="admin.settings.status.unsavedChange"
+                fallback="Edited - save changes"
+                data-testid="translatedtext-unsaved"
+              />
+            </ModalTextStatus>
+          )}
           <DefaultButton data-testid="defaultbutton-5efq" />
           <LongTextEditorModal
             open={longTextModalOpen}
