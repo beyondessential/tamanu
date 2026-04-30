@@ -12,10 +12,7 @@ import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 const wrapScheduleWithTimeZone = schedule => {
   const primaryTimeZone = getPrimaryTimeZone(config);
   if (typeof schedule === 'object') {
-    if (schedule.tz) {
-      return schedule;
-    }
-    return { ...schedule, tz: primaryTimeZone };
+    return schedule.tz ? schedule : { ...schedule, tz: primaryTimeZone };
   }
   return { rule: schedule, tz: primaryTimeZone };
 };
