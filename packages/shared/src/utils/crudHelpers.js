@@ -53,7 +53,11 @@ export const findRouteObject = async (req, modelName, options = {}) => {
     include: model.getFullReferenceAssociations(),
     where: additionalFilters,
   });
-  if (!object) throw new NotFoundError();
+  if (!object) {
+    throw new NotFoundError(
+      `No ${modelName} found with ID ${params.id} matching ${JSON.stringify(additionalFilters)}`,
+    );
+  }
   req.checkPermission('read', object);
   return object;
 };
@@ -186,7 +190,7 @@ export const simplePut = modelName =>
     const { models, params } = req;
     req.checkPermission('read', modelName);
     const object = await models[modelName].findByPk(params.id);
-    if (!object) throw new NotFoundError();
+    if (!object) throw new NotFoundError(`No ${modelName} found with ID ${params.id}`);
     if (object.deletedAt)
       throw new InvalidOperationError(
         `Cannot update deleted object with id (${params.id}), you need to restore it first`,
