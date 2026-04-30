@@ -54,11 +54,7 @@ export const usePatientNavigation = () => {
 
   const navigateToMar = useCallback(() => {
     const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
-    navigate(
-      generatePath(`${PATIENT_PATHS.ENCOUNTER}/mar/view`, {
-        ...existingParams,
-      }),
-    );
+    navigate(generatePath(`${PATIENT_PATHS.ENCOUNTER}/mar/view`, existingParams));
   }, [navigate, getParams]);
 
   const navigateToLabRequest = useCallback(
@@ -97,7 +93,7 @@ export const usePatientNavigation = () => {
         navigate(programRegistryRoute);
       } else {
         const existingParams = getParams(PATIENT_PATHS.PROGRAM_REGISTRY);
-        const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, { ...existingParams })}?${
+        const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, existingParams)}?${
           location.search
         }`;
         navigate(path);
