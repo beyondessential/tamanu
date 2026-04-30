@@ -20,7 +20,7 @@ export const usePatientNavigation = () => {
   );
 
   const navigateToPatient = useCallback(
-    (patientId, search, options = {}) => {
+    (patientId, search, options) => {
       const routeParams = getParams(PATIENT_PATHS.CATEGORY);
       const { category = PATIENT_CATEGORIES.ALL } = routeParams;
       const patientRoute = generatePath(PATIENT_PATHS.PATIENT, { category, patientId });
