@@ -12,10 +12,10 @@ import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 const wrapScheduleWithTimeZone = schedule => {
   const primaryTimeZone = getPrimaryTimeZone(config);
   if (typeof schedule === 'object') {
-    return schedule.tz ? schedule : { ...schedule, tz: primaryTimeZone };
+    return {tz: primaryTimeZone, ...schedule};
   }
-  return { rule: schedule, tz: primaryTimeZone };
-};
+  return { tz: primaryTimeZone, rule: schedule };
+}
 
 export class ScheduledTask {
   getName() {
