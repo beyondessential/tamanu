@@ -93,7 +93,7 @@ export async function createSurveyResponse(req) {
 }
 
 surveyResponse.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const responseRecord = await req.db.transaction(async () => {
       return await createSurveyResponse(req);
