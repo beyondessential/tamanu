@@ -117,7 +117,6 @@ jobs:
       TEST_EMAIL: admin@tamanu.io
       TEST_PASSWORD: admin
       TZ: Pacific/Auckland
-      FORCE_E2E_FAILURE_FOR_REPORT_TESTING: ${{ github.event_name == 'merge_group' }}
 
     steps:
       - uses: actions/checkout@v6
