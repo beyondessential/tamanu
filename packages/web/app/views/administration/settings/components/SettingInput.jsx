@@ -16,7 +16,7 @@ import {
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
-import { LongTextEditorModal } from './LongTextEditorModal';
+import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
@@ -334,7 +334,7 @@ export const SettingInput = ({
             </ModalTextStatus>
           )}
           <DefaultButton data-testid="defaultbutton-5efq" />
-          <LongTextEditorModal
+          <MarkdownEditorModal
             open={longTextModalOpen}
             onClose={() => setLongTextModalOpen(false)}
             title={modalTitle}
