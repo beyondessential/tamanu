@@ -90,7 +90,8 @@ const LongTextActions = styled.div`
   margin-block-start: 13px;
 `;
 
-const SETTING_TYPES = {
+
+const SETTING_TYPES /** @type {const} */ = {
   BOOLEAN: 'boolean',
   STRING: 'string',
   NUMBER: 'number',
@@ -180,7 +181,8 @@ export const SettingInput = ({
     );
   };
 
-  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
+  const handleChangeValue = newValue => handleChangeSetting(path, newValue);
+  const defaultHandleChange = e => handleChangeValue(e.target.value);
   const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
@@ -326,16 +328,18 @@ export const SettingInput = ({
             </MarkdownEditorStatus>
           )}
           <DefaultButton data-testid="defaultbutton-5efq" />
-          <MarkdownEditorModal
-            open={markdownModalOpen}
-            onClose={() => setMarkdownModalOpen(false)}
-            title={modalTitle}
-            category={category}
-            description={description}
-            value={markdownDisplayText}
-            onSave={newValue => handleChangeSetting(path, newValue)}
-            readOnly={disabled}
-          />
+          {markdownModalOpen && (
+            <MarkdownEditorModal
+              open={markdownModalOpen}
+              onClose={() => setMarkdownModalOpen(false)}
+              title={modalTitle}
+              category={category}
+              description={description}
+              value={markdownDisplayText}
+              onSave={handleChangeValue}
+              readOnly={disabled}
+            />
+          )}
         </Flexbox>
       );
     }

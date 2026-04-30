@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-markdown';
@@ -7,6 +7,7 @@ import 'ace-builds/src-noconflict/theme-textmate';
 import { ConfirmCancelRow } from '@tamanu/ui-components';
 
 import { Modal } from '../../../../components/Modal';
+import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { Colors } from '../../../../constants';
 
 const Title = styled.h3`
@@ -47,12 +48,16 @@ const StyledMarkdownEditor = styled(AceEditor)`
   border-radius: 4px;
 
   .ace_scroller {
-    padding: 10px 12px;
+    padding: 12px 10px;
   }
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
   margin-top: 0;
+
+  > button:last-child {
+    display: ${props => (props.$hideConfirm ? 'none' : 'inline-flex')};
+  }
 `;
 
 const BottomPinnedRow = styled.div`
@@ -62,43 +67,54 @@ const BottomPinnedRow = styled.div`
   background-color: ${Colors.background};
 `;
 
+const EDITOR_OPTIONS = {
+  showLineNumbers: false,
+  showGutter: false,
+  cursorStyle: 'slim',
+};
+
+const EDITOR_PROPS = { $blockScrolling: true };
+
+const getStringValue = value => (value == null ? '' : String(value));
+
 export const MarkdownEditorModal = React.memo(
   ({ open, onClose, title, category, description, value, onSave, readOnly }) => {
-    const [draft, setDraft] = useState('');
-
-    useEffect(() => {
-      if (open) {
-        setDraft(value == null ? '' : String(value));
-      }
-    }, [open, value]);
-
-    const handleDiscard = () => {
-      onClose();
-    };
+    readOnly = true;
+    const currentValue = getStringValue(value);
+    const [draft, setDraft] = useState(currentValue);
+    const hasDraftChange = draft !== currentValue;
 
     const handleConfirm = () => {
-      if (!readOnly) {
-        onSave(draft);
-      }
+      onSave(draft);
       onClose();
     };
 
     return (
       <Modal
         open={open}
-        onClose={handleDiscard}
+        onClose={onClose}
         width="lg"
         cornerExitButton={false}
-        fixedBottomRow={!readOnly}
+        fixedBottomRow
         bottomRowContent={
-          !readOnly ? (
-            <BottomPinnedRow data-testid="markdowneditormodal-footer">
-              <StyledConfirmCancelRow
-                onCancel={handleDiscard}
-                onConfirm={handleConfirm}
-              />
-            </BottomPinnedRow>
-          ) : undefined
+          <BottomPinnedRow data-testid="markdowneditormodal-footer">
+            <StyledConfirmCancelRow
+              onCancel={onClose}
+              onConfirm={handleConfirm}
+              confirmDisabled={!hasDraftChange}
+              cancelText={
+                readOnly || !hasDraftChange ? (
+                  <TranslatedText stringId="general.action.close" fallback="Close" />
+                ) : (
+                  <TranslatedText
+                    stringId="general.action.discardChanges"
+                    fallback="Discard changes"
+                  />
+                )
+              }
+              $hideConfirm={readOnly || !hasDraftChange}
+            />
+          </BottomPinnedRow>
         }
         title={
           <Title data-testid="markdowneditormodal-title">
@@ -126,13 +142,9 @@ export const MarkdownEditorModal = React.memo(
               showLineNumbers={false}
               highlightActiveLine={false}
               wrapEnabled
-              fontSize={15}
-              setOptions={{
-                showLineNumbers: false,
-                showGutter: false,
-                cursorStyle: 'slim',
-              }}
-              editorProps={{ $blockScrolling: true }}
+              fontSize={13}
+              setOptions={EDITOR_OPTIONS}
+              editorProps={EDITOR_PROPS}
               onLoad={editor => editor.resize()}
               data-testid="markdowneditormodal-textarea"
             />
