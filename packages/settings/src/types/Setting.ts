@@ -1,11 +1,8 @@
 import * as yup from 'yup';
 
-export const SETTING_EDITORS = {
-  MULTILINE: 'multiline',
-  MODAL_TEXT: 'modalText',
-} as const;
+import type { SettingEditor } from '@tamanu/constants';
 
-export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];
+export type { SettingEditor };
 
 export interface Setting<T = any> {
   name?: string;

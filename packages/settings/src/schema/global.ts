@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import { SETTING_EDITORS } from '../types/Setting';
 import { extractDefaults } from './utils';
 import {
   ageDisplayFormatDefault,
@@ -26,7 +25,11 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
-import { ADMINISTRATION_FREQUENCIES, isValidAdditionalSearchField } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  isValidAdditionalSearchField,
+  SETTING_EDITORS,
+} from '@tamanu/constants';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,

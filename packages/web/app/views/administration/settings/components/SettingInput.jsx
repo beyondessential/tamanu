@@ -3,6 +3,7 @@ import { isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import EditIcon from '@mui/icons-material/Edit';
+import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   AutocompleteInput,
@@ -193,8 +194,8 @@ export const SettingInput = ({
   const typeKey =
     type === SETTING_TYPES.STRING && editor
       ? {
-          multiline: SETTING_TYPES.LONG_TEXT,
-          modalText: SETTING_TYPES.MODAL_TEXT,
+          [SETTING_EDITORS.MULTILINE]: SETTING_TYPES.LONG_TEXT,
+          [SETTING_EDITORS.MODAL_TEXT]: SETTING_TYPES.MODAL_TEXT,
         }[editor] || type
       : type;
   if (suggesterEndpoint) {
