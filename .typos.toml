@@ -4,6 +4,7 @@ extend-ignore-re = [
   "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$", # lines trailing with // spellchecker:disable-line
   "\\W[A-Z]{3,5}-[0-9]+", # linear team names
   "pattern\\s*=\\s*['\"].+", # regexes or globs
+  "data-testid=\"[^\"]*\"", # test ids contain random suffixes
 
   # unfortunately these typos made it into a public API (translations, settings...)
   "report\\.summary\\.poepleAttended\\.text",
