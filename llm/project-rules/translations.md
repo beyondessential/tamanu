@@ -81,23 +81,24 @@ Pick the most reusable ID that still preserves meaning in future contexts:
    />
    ```
 
-2. **Nested translated terms** — a replacement may be another
-   `TranslatedText` when the inserted term also needs translation:
+2. **Nested translated terms** — resolve the inner term with
+   `getTranslation` from `useTranslation()` so the replacement stays a plain
+   string:
 
    ```jsx
-   <TranslatedText
-     stringId="general.dischargingClinician.label"
-     fallback="Discharging :clinician"
-     replacements={{
-       clinician: (
-         <TranslatedText
-           casing="lower"
-           stringId="general.localisedField.clinician.label.short"
-           fallback="Clinician"
-         />
-       ),
-     }}
-   />
+   const { getTranslation } = useTranslation();
+
+   // ...
+
+   return (
+     <TranslatedText
+       stringId="general.dischargingClinician.label"
+       fallback="Discharging :clinician"
+       replacements={{
+         clinician: getTranslation('general.localisedField.clinician.label.short', 'Clinician'),
+       }}
+     />
+   );
    ```
 
 3. **Styled or complex JSX** — split the sentence only when replacements
