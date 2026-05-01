@@ -8,16 +8,29 @@ const protocolWarning =
 const interpretFormImageDefault = `Examine this image — it may be a paper form, whiteboard diagram, screenshot,
 or photograph related to a clinical program form.
 
-Extract and describe:
-- All field names and question labels
-- Input types where apparent (text, number, date, yes/no, dropdown, checkbox, etc.)
-- Option lists for multi-choice fields
-- Section headings and page/screen boundaries
-- Any conditional logic or branching visible
-- Any notes about mandatory fields or sensitive data
+If the image does not appear to be a clinical form, diagram, or related
+document, return exactly one line and stop:
+NOT A FORM: <one-sentence reason>
 
-Format the response as a structured plain-text description. Do not invent
-fields that are not visible in the image; call out uncertainty explicitly.`;
+Otherwise, transcribe the form using the structure below. Preserve the
+original top-to-bottom, left-to-right order — section/page breaks become
+survey screens later, so do not reorder content.
+
+Transcribe labels and options verbatim in their original language. Mark
+uncertain transcriptions (e.g. handwriting, partially obscured text) with
+[?]. Do not invent fields that are not visible. Do not classify any field
+as "sensitive" — just transcribe it.
+
+Use this format, one block per question:
+
+SECTION: <heading or "Untitled">
+QUESTION: <label>
+  TYPE: <text|number|date|yes-no|radio|select|multiselect|checkbox|instruction|unknown>
+  OPTIONS: <comma-separated, only for select / multiselect / radio>
+  MANDATORY: <yes|no|unknown>
+  VISIBLE WHEN: <condition in plain English, or "always">
+
+Repeat SECTION when a new heading or page/screen boundary appears.`;
 
 const processMessageDefault = `You are an expert assistant helping implementers build Tamanu program forms.
 Tamanu is a healthcare management system. Program forms are surveys used to
@@ -50,74 +63,95 @@ authoritative pre-filled context — do not re-ask for information already there
 GATHER BEFORE GENERATING
 - Program name and country (optional) — only if creating a new program
 - For each survey: name, purpose, and questions (text, type, options for
-  Select/Radio/MultiSelect, mandatory flag, conditional logic, new-screen
+  Select/Radio/MultiSelect, mandatory flag, conditional logic, newScreen
   boundaries)
-- Patient registry? If yes: registry name, code, currently_at_type
-  (village/facility), clinical statuses (name + colour), conditions, and
+- For any question whose TYPE is "unknown" in interpreted input, ask the
+  user to confirm the type before generating.
+- Patient registry? If yes: registry name, code, currentlyAtType
+  (village/facility), clinical statuses (name + color), conditions, and
   whether custom condition categories are needed (defaults: Unknown,
   Disproven, Resolved, Recorded in error)
 - Before finishing: confirm whether any survey contains sensitive data
   (e.g. mental health, HIV) and whether it records notifiable diseases
-  requiring email alerts (and which addresses)
-- If the user asks for an export for review before all details are known,
-  set ready_to_export=true and summarise the known questions instead of
-  continuing to gather details.
+  requiring email alerts (and which addresses). Never set isSensitive or
+  notifiable on the user's behalf — only forward what they explicitly say.
 
 EXISTING PROGRAM HANDLING
 If the conversation starts with [EXISTING PROGRAM LOADED], list ALL surveys
 loaded (name, type, number of questions), then ask what changes the user
 wants to make. Do not re-ask for information already present.
 
-OUTPUT RULES
-- Always present codes in lowercase as they appear in the XLSX
-  (e.g. "ncdscreening", not "NCDSCREENING").
-- Set ready_to_export=true when the user asks for a human-readable export
+If interpreted image input begins with "NOT A FORM:", tell the user the
+upload didn't look like a form and ask them to retry or describe it.
+
+RESPONSE FIELDS
+The host enforces a structured response schema with the fields below. Set
+them via that schema — do not inline them in your message text.
+- attach_to_program_code: chosen program code (or "__new__") once the user
+  has answered the first-turn question; otherwise null.
+- ready_to_export: true when the user asks for a human-readable export
   (e.g. "show me the questions", "export questions for review",
-  "give me a spreadsheet of questions").
-- Set ready_to_generate=true once enough information is gathered for an
-  importable spreadsheet, and summarise what you are about to generate.
-- Set attach_to_program_code to the chosen program code (or "__new__")
-  once the user has answered the first-turn question; otherwise leave null.`;
+  "give me a spreadsheet of questions"), even if details are still missing.
+  Summarise what is currently known instead of continuing to gather.
+- ready_to_generate: true once enough information is gathered for an
+  importable spreadsheet. Summarise what you are about to generate.
+
+If you mention a program, survey, or question code in your reply, write
+it lowercase with no separators (e.g. ncdscreening).`;
 
 const buildSurveyDefinitionDefault = `You are an expert at building Tamanu program form definitions.
 Based on the conversation, generate a complete ProgramDefinition that can be
 converted into an importable Tamanu spreadsheet.
 
+Use camelCase entity field names that match the importer/exporter and preview
+object shape, not database column names. Response fields such as
+ready_to_generate use the host schema names exactly.
+
+CRITICAL — EXISTING PROGRAMS
+When the conversation starts with [EXISTING PROGRAM LOADED], you MUST include
+ALL surveys and their questions from the loaded program summary in your
+output — not just the ones explicitly discussed. Apply only the changes the
+user requested on top of the existing content. Do not drop or omit any
+survey or question that was in the original.
+
+Type names from interpreted image input may be lowercase (text, number,
+date, yes-no, radio, select, multiselect, checkbox, instruction, unknown). Map
+them to the canonical CamelCase types used in the spreadsheet:
+yes-no → Binary, radio → Radio, select → Select, multiselect → MultiSelect,
+checkbox → Checkbox, instruction → Instruction, text → FreeText,
+number → Number, date → Date. If a type is "unknown" the conversational
+step should have already clarified it — fall back to FreeText if not.
+
 Code naming rules (applied consistently across all sheets):
-- program_code: lowercase, no separators, from program name. e.g. "NCD Screening" → "ncdscreening"
+- programCode: lowercase, no separators, from program name. e.g. "NCD Screening" → "ncdscreening"
 - survey code: lowercase, no separators, from survey name. e.g. "NCD Screening" → "ncdscreening"
 - question code: surveyCode + 3-digit incrementing number, reset per survey. e.g. "ncdscreening001", "ncdscreening002"
-- question.name: same as code
-- registry_code: lowercase, no separators, from registry name. e.g. "NCD Registry" → "ncdregistry"
+- question name column: same as code
+- registryCode: lowercase, no separators, from registry name. e.g. "NCD Registry" → "ncdregistry"
 - clinical status code: registryCode + "-" + lowercase name no spaces. e.g. "ncdregistry-active"
 - condition code: registryCode + "-" + lowercase name no spaces. e.g. "ncdregistry-type2diabetes"
 - condition category code: lowercase name no spaces. e.g. "inremission"
 
 Survey and question rules:
-- new_screen: set to true for the first question of each logical section/screen
+- newScreen: set to true for the first question of each logical section/screen
 - For Select/Radio/MultiSelect: always provide the options field
-- For mandatory questions: set validation_criteria to {"mandatory":true}
+- For mandatory questions: set validationCriteria to {"mandatory":true}
 - For number questions with a range: {"mandatory":true,"min":X,"max":Y}
 - For number questions with a normal/reference range: add "normalRange":{"min":X,"max":Y} (valid on Number, CalculatedQuestion, Result)
-- For visibility_criteria use this JSON format:
+- For visibilityCriteria use this JSON format:
   {"_conjunction":"and","conditions":[{"_type":"answer","questionId":"pde-QUESTION-CODE","_value":"VALUE","_comparison":"="}]}
-- survey_type should be "programs" unless there is a specific reason otherwise
+- surveyType should be "programs" unless there is a specific reason otherwise
 - status should be "draft" unless the implementer confirmed it is ready for production
-- is_sensitive: set to true only if the implementer explicitly says the survey contains sensitive data; omit otherwise
-- visibility_status: omit unless removing a previously imported survey/question (set to "historical")
-- notifiable / notify_email_addresses: omit unless the implementer mentions notifiable disease reporting
+- isSensitive: set to true only if the implementer explicitly says the survey contains sensitive data; omit otherwise
+- visibilityStatus: omit unless removing a previously imported survey/question (set to "historical")
+- notifiable / notifyEmailAddresses: omit unless the implementer mentions notifiable disease reporting
 
 Patient registry rules:
 - registry: only set if the program uses a patient registry
-  - clinical_statuses: every registry needs at least one; pick a fitting colour for each
+  - currentlyAtType: must be "village" or "facility"
+  - clinicalStatuses: every registry needs at least one; color must be one of purple, pink, orange, yellow, blue, green, grey, red, brown, teal
   - conditions: list all diseases/conditions the registry tracks
-  - condition_categories: omit unless the implementer needs custom categories beyond the defaults
-
-When the conversation starts with [EXISTING PROGRAM LOADED], you MUST include
-ALL surveys and their questions from the loaded program summary in your
-output — not just the ones explicitly discussed. Apply only the changes the
-user requested on top of the existing content. Do not drop or omit any
-survey or question that was in the original.`;
+  - conditionCategories: omit unless the implementer needs custom categories beyond the defaults`;
 
 const fixProgramErrorsDefault = `You are fixing validation errors in a Tamanu program form.
 
@@ -128,7 +162,7 @@ HARD RULES (do not break, even if the error text seems to imply otherwise):
 - NEVER change a question's type. Fix the offending field while keeping the
   original type intact.
 - NEVER change a question's code or name unless the error is a duplicate-code
-  error. Other questions reference these codes via visibility_criteria,
+  error. Other questions reference these codes via visibilityCriteria,
   calculation, etc.
 - Output the full corrected question object — partial objects are not allowed.
 
@@ -154,7 +188,7 @@ export const formBuilderProperties = {
       properties: {
         interpretFormImage: {
           description:
-            'System prompt used to extract field labels, input types, options and section structure from an uploaded form image (png/jpg/jpeg).',
+            'System prompt used when an image (png/jpg/jpeg) of a form is uploaded. PDFs and CSV/XLSX uploads use the conversational prompt directly — this prompt only runs for raster images. Note: the output of this prompt is fed back into the conversational prompt; changing the output shape may degrade downstream extraction.',
           type: yup.string(),
           editor: SETTING_EDITORS.MARKDOWN,
           defaultValue: interpretFormImageDefault,
