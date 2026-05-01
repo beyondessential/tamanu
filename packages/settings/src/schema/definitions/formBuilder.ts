@@ -147,35 +147,38 @@ HOW TO FIX EACH ERROR TYPE
   without violating the hard rules above`;
 
 export const formBuilderProperties = {
-  description: 'AI form builder system prompts',
+  description: 'AI form builder settings',
   properties: {
-    interpretFormImage: {
-      description:
-        'System prompt used to extract field labels, input types, options and section structure from an uploaded form image (png/jpg/jpeg).',
-      type: yup.string(),
-      editor: SETTING_EDITORS.MARKDOWN,
-      defaultValue: interpretFormImageDefault,
-    },
-    processMessage: {
-      description:
-        `System prompt for each conversational turn. Drives information gathering and signals when the chat is ready to generate or export. ${protocolWarning}`,
-      type: yup.string(),
-      editor: SETTING_EDITORS.MARKDOWN,
-      defaultValue: processMessageDefault,
-    },
-    buildSurveyDefinition: {
-      description:
-        `System prompt used to generate the complete ProgramDefinition (program metadata, surveys and questions) from the conversation history. ${protocolWarning}`,
-      type: yup.string(),
-      editor: SETTING_EDITORS.MARKDOWN,
-      defaultValue: buildSurveyDefinitionDefault,
-    },
-    fixProgramErrors: {
-      description:
-        'System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question\'s type.',
-      type: yup.string(),
-      editor: SETTING_EDITORS.MARKDOWN,
-      defaultValue: fixProgramErrorsDefault,
+    prompts: {
+      description: 'System prompts used to build Tamanu program forms',
+      properties: {
+        interpretFormImage: {
+          description:
+            'System prompt used to extract field labels, input types, options and section structure from an uploaded form image (png/jpg/jpeg).',
+          type: yup.string(),
+          editor: SETTING_EDITORS.MARKDOWN,
+          defaultValue: interpretFormImageDefault,
+        },
+        processMessage: {
+          description: `System prompt for each conversational turn. Drives information gathering and signals when the chat is ready to generate or export. ${protocolWarning}`,
+          type: yup.string(),
+          editor: SETTING_EDITORS.MARKDOWN,
+          defaultValue: processMessageDefault,
+        },
+        buildSurveyDefinition: {
+          description: `System prompt used to generate the complete ProgramDefinition (program metadata, surveys and questions) from the conversation history. ${protocolWarning}`,
+          type: yup.string(),
+          editor: SETTING_EDITORS.MARKDOWN,
+          defaultValue: buildSurveyDefinitionDefault,
+        },
+        fixProgramErrors: {
+          description:
+            "System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question's type.",
+          type: yup.string(),
+          editor: SETTING_EDITORS.MARKDOWN,
+          defaultValue: fixProgramErrorsDefault,
+        },
+      },
     },
   },
 };
