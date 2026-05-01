@@ -147,6 +147,24 @@ e.g. `category="scheduledVaccine"` or `category="programRegistryCondition"`.
 Do not create static `TranslatedText` IDs for individual reference data
 values.
 
+## Server-Side / PDF Rendering
+
+PDF certificates and other server-side renders (e.g. files under
+`packages/shared/src/utils/patientCertificates`) do not have the React
+`TranslationContext`. They get translations from `useLanguageContext()` (in
+`pdf/languageContext`) and use plain strings rather than React elements:
+
+```jsx
+const { getTranslation, getEnumTranslation } = useLanguageContext();
+// ...
+<P>{getTranslation('pdf.birthNotification.child.label', 'Child')}</P>
+```
+
+Use `getTranslation(stringId, fallback)` for free text and
+`getEnumTranslation(enumValues, value)` for enum labels. Do not use
+`TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData` components
+inside PDF renderers — `@react-pdf/renderer` cannot render them.
+
 # Avoid
 
 - Missing nearby hardcoded copy because it is in a prop rather than JSX
