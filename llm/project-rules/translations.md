@@ -32,8 +32,17 @@ For changes to existing copy (rather than introducing translations), see
 ## Coverage Guidance
 
 - Translate user-facing static English, including strings passed as props
-  such as `title`, `label`, `placeholder`, `helperText`, `confirmText`,
-  `cancelText`, toast messages, and table column titles.
+  such as `title`, `label`, `helperText`, `confirmText`, `cancelText`,
+  toast messages, and table column titles.
+- Props that must receive a plain string (e.g. `placeholder`) cannot accept
+  a `TranslatedText` element — resolve them with `getTranslation` from
+  `useTranslation()`:
+
+  ```jsx
+  const { getTranslation } = useTranslation();
+  // ...
+  <TextInput placeholder={getTranslation('patient.search.placeholder', 'Search patients')} />
+  ```
 - Translate repeated fragments consistently across the same file or feature.
 - Do not translate test IDs, internal codes, route names, object keys,
   analytics/event names, log messages intended only for developers, or
