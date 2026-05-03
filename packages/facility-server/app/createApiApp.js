@@ -3,6 +3,7 @@ import defineExpress from 'express';
 import helmet from 'helmet';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
@@ -36,6 +37,8 @@ export async function createApiApp({
     NOTIFY_CHANNELS.TABLE_CHANGED,
     NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
   ]);
+
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });

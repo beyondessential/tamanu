@@ -1,11 +1,11 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
 import { log } from '@tamanu/shared/services/logging';
-import { WS_PATH } from '@tamanu/constants';
+import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
 
 /**
  *
- * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize}} injector
+ * @param {{ httpServer: import('http').Server, sequelize: import('sequelize').Sequelize, dbNotifier?: Awaited<ReturnType<import('@tamanu/shared/services/dbNotifier').defineDbNotifier>>}} injector
  * @returns
  */
 export const defineWebsocketService = async injector => {
@@ -14,6 +14,10 @@ export const defineWebsocketService = async injector => {
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
   });
   const getSocketServer = () => socketServer;
+
+  injector.dbNotifier?.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]?.(payload => {
+    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
+  });
 
   const testMode = process.env.NODE_ENV === 'test';
 
