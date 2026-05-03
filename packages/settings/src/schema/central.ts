@@ -4,6 +4,7 @@ import {
   durationStringSchema,
   dhis2IdSchemeSchema,
   emailSchema,
+  formBuilderProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
@@ -218,6 +219,7 @@ export const centralSettings = {
         },
       },
     },
+    formBuilder: formBuilderProperties,
     integrations: {
       description: 'Integrations with external services',
       properties: {
