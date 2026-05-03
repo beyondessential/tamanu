@@ -9,8 +9,8 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 
 import {
   BaseModal,
-  ConfirmCancelBackRow,
-  ConfirmCancelRow,
+  Button,
+  OutlinedButton,
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
@@ -20,7 +20,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { singularize } from '../../utils';
+import { notifySuccess, singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
 import { trimToDate } from '@tamanu/utils/dateTime';
@@ -41,9 +41,12 @@ const MODAL_STEPS = {
   REVIEW: 'review',
 };
 
+const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
+
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: ${({ $step }) => ($step === MODAL_STEPS.REVIEW ? '542px' : '1322px')};
+    max-width: ${({ $step }) =>
+      $step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px'};
   }
 
   .MuiDialogActions-root {
@@ -78,10 +81,44 @@ const StyledTableFormFields = styled(TableFormFields)`
   }
 `;
 
-const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
+const FooterButtonRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
   width: 100%;
-  position: relative;
-  button {
+
+  > button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+`;
+
+const ReviewFooter = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  row-gap: 12px;
+  width: 100%;
+
+  > button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+`;
+
+const ReviewFooterTrailing = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+
+  > button {
+    flex: 0 0 auto;
     white-space: nowrap;
   }
 `;
@@ -189,7 +226,14 @@ export const DispenseMedicationWorkflowModal = memo(
       if (open) {
         setStep(MODAL_STEPS.DISPENSE);
         setShowValidationErrors(false);
+        return;
       }
+      // Defer reset until after close so we don't flash the dispense step while still open
+      setItems([]);
+      setItemErrors({});
+      setStep(MODAL_STEPS.DISPENSE);
+      setShowValidationErrors(false);
+      setLabelsForPrint([]);
     }, [open]);
 
     useEffect(() => {
@@ -225,11 +269,6 @@ export const DispenseMedicationWorkflowModal = memo(
     }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
-      setItems([]);
-      setItemErrors({});
-      setStep(MODAL_STEPS.DISPENSE);
-      setShowValidationErrors(false);
-      setLabelsForPrint([]);
       onClose();
     };
 
@@ -351,13 +390,15 @@ export const DispenseMedicationWorkflowModal = memo(
       setLabelsForPrint(reviewLabels);
     };
 
-    const handleDispenseAndPrint = async () => {
+    const performDispense = async () => {
       const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
       setItemErrors(newErrors);
       if (!isValid) {
-        setStep(MODAL_STEPS.DISPENSE);
         setShowValidationErrors(true);
-        return;
+        if (step === MODAL_STEPS.REVIEW) {
+          setStep(MODAL_STEPS.DISPENSE);
+        }
+        return false;
       }
 
       await api.post('medication/dispense', {
@@ -374,9 +415,29 @@ export const DispenseMedicationWorkflowModal = memo(
 
       if (onDispenseSuccess) onDispenseSuccess();
 
+      return true;
+    };
+
+    const handleDispenseAndPrint = async () => {
+      const ok = await performDispense();
+      if (!ok) return;
+
       print();
 
-      // Close dispense modal
+      onClose();
+    };
+
+    const handleDispenseWithoutLabels = async () => {
+      const ok = await performDispense();
+      if (!ok) return;
+
+      notifySuccess(
+        <TranslatedText
+          stringId="medication.dispense.success"
+          fallback="Medication successfully dispensed"
+        />,
+      );
+
       onClose();
     };
 
@@ -551,32 +612,68 @@ export const DispenseMedicationWorkflowModal = memo(
         <TranslatedText stringId="medication.dispense.title" fallback="Dispense medication" />
       );
 
+    const dispenseWithoutLabelsButton = (
+      <OutlinedButton
+        onClick={handleDispenseWithoutLabels}
+        disabled={
+          isLoadingFacility || isLoadingDispensables || selectedItems.length === 0
+        }
+        data-testid="dispense-without-labels-button"
+      >
+        <TranslatedText
+          stringId="medication.dispenseWithoutLabels.action"
+          fallback="Dispense without labels"
+        />
+      </OutlinedButton>
+    );
+
     const actions =
       step === MODAL_STEPS.REVIEW ? (
-        <StyledConfirmCancelBackRow
-          backText={<TranslatedText stringId="general.action.back" fallback="Back" />}
-          confirmText={
-            <TranslatedText
-              stringId="medication.dispenseAndPrint.action"
-              fallback="Dispense & print"
-            />
-          }
-          confirmDisabled={isLoadingFacility || isLoadingDispensables}
-          onBack={() => {
-            setStep(MODAL_STEPS.DISPENSE);
-            setShowValidationErrors(false);
-          }}
-          onCancel={handleClose}
-          onConfirm={handleDispenseAndPrint}
-        />
+        <ReviewFooter>
+          <OutlinedButton
+            onClick={() => {
+              setStep(MODAL_STEPS.DISPENSE);
+              setShowValidationErrors(false);
+            }}
+            data-testid="dispense-review-back-button"
+          >
+            <TranslatedText stringId="general.action.back" fallback="Back" />
+          </OutlinedButton>
+          <ReviewFooterTrailing>
+            <OutlinedButton onClick={handleClose} data-testid="dispense-review-cancel-button">
+              <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+            </OutlinedButton>
+            <Button
+              color="primary"
+              onClick={handleDispenseAndPrint}
+              disabled={isLoadingFacility || isLoadingDispensables}
+              data-testid="dispense-and-print-button"
+            >
+              <TranslatedText
+                stringId="medication.dispenseAndPrint.action"
+                fallback="Dispense & print"
+              />
+            </Button>
+          </ReviewFooterTrailing>
+        </ReviewFooter>
       ) : (
-        <ConfirmCancelRow
-          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          confirmText={<TranslatedText stringId="medication.action.review" fallback="Review" />}
-          confirmDisabled={isLoadingDispensables || selectedItems.length === 0}
-          onCancel={handleClose}
-          onConfirm={handleReview}
-        />
+        <FooterButtonRow>
+          <OutlinedButton onClick={handleClose} data-testid="dispense-cancel-button">
+            <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+          </OutlinedButton>
+          {dispenseWithoutLabelsButton}
+          <Button
+            color="primary"
+            onClick={handleReview}
+            disabled={isLoadingDispensables || selectedItems.length === 0}
+            data-testid="dispense-review-button"
+          >
+            <TranslatedText
+              stringId="medication.dispense.reviewAndPrintLabels"
+              fallback="Review and print labels"
+            />
+          </Button>
+        </FooterButtonRow>
       );
 
     return (
