@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 
+import type { SettingEditor } from '@tamanu/constants';
+
 export interface Setting<T = any> {
   name?: string;
   description?: string;
@@ -20,4 +22,5 @@ export interface Setting<T = any> {
   secret?: boolean;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;
+  editor?: SettingEditor;
 }

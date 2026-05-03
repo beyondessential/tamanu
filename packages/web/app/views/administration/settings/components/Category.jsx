@@ -110,6 +110,7 @@ export const Category = ({
   schema,
   path = '',
   getSettingValue,
+  resolveSettingsPath,
   handleChangeSetting,
   facilityId,
 }) => {
@@ -138,6 +139,7 @@ export const Category = ({
           highRisk,
           suggesterEndpoint,
           secret,
+          editor,
         } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
@@ -158,13 +160,17 @@ export const Category = ({
               typeSchema={type}
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
+              settingsPath={resolveSettingsPath(newPath)}
               defaultValue={defaultValue}
               path={newPath}
+              name={name}
+              description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
               facilityId={facilityId}
               isSecret={isSecret}
+              editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -175,6 +181,7 @@ export const Category = ({
             // Pass down highRisk from parent category to now top level subcategory
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
+            resolveSettingsPath={resolveSettingsPath}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

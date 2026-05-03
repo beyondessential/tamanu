@@ -206,6 +206,18 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.post('/refresh', refreshHandler);
   apiv1.post('/setFacility', setFacilityHandler);
+
+  apiv1.get(
+    '/settings/frontEnd',
+    asyncHandler(async (req, res) => {
+      // Same payload as /login and /setFacility, so no extra permission check needed.
+      req.flagPermissionChecked();
+      const { facilityId } = req;
+      const reader = facilityId ? req.settings[facilityId] : null;
+      const settings = reader ? await reader.getFrontEndSettings() : null;
+      res.send({ settings });
+    }),
+  );
   apiv1.use(patientDataRoutes); // see below for specifics
   apiv1.use(referenceDataRoutes); // see below for specifics
   apiv1.use(syncRoutes); // see below for specifics

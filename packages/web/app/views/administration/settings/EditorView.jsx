@@ -254,6 +254,7 @@ export const EditorView = memo(
             <Category
               schema={schemaForCategory}
               getSettingValue={getSettingValue}
+              resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
               data-testid="category-cbjk"

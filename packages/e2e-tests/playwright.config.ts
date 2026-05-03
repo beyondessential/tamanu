@@ -23,10 +23,10 @@ module.exports = defineConfig({
   reporter: process.env.CI ? 'blob' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    // Enable heavier debugging artifacts only for local runs.
+    // Keep failure media in CI so merge queue reports contain useful debugging context.
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
-    video: process.env.CI ? 'off' : 'retain-on-failure',
-    screenshot: process.env.CI ? 'off' : 'only-on-failure',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
     // Slow down each browser action to make local debugging easier.
     launchOptions: process.env.CI ? undefined : { slowMo: 200 },
     timezoneId: process.env.TZ,

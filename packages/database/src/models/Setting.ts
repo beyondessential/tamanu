@@ -57,6 +57,8 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        // Synchronous in-process invalidation; raw SQL / cross-process is covered
+        // by the NOTIFY listener (see `registerSettingsCacheInvalidator`).
         hooks: {
           afterSave() {
             settingsCache.reset();
@@ -68,6 +70,9 @@ export class Setting extends Model {
             settingsCache.reset();
           },
           afterBulkDestroy() {
+            settingsCache.reset();
+          },
+          afterBulkRestore() {
             settingsCache.reset();
           },
         },
