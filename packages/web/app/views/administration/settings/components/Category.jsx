@@ -12,8 +12,9 @@ import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
-  font-size: 1.125rem;
-  margin-inline-start: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
 `;
 
 const Wrapper = styled.div`
@@ -36,6 +37,9 @@ const SettingLine = styled(BodyText)`
 const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
   // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
   font-size: 15px;
@@ -75,7 +79,7 @@ const SettingName = memo(({ name, path, description, disabled, isSecret }) => (
       ) : isSecret ? (
         <TranslatedText
           stringId="admin.settings.secretSettingTooltip"
-          fallback="This is a secret setting. The current value cannot be retrieved."
+          fallback="This is a secret setting. The current value is hidden."
           data-testid="translatedtext-secret"
         />
       ) : (

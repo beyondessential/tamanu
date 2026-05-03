@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
 import {
@@ -205,8 +204,9 @@ export const SettingInput = ({
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
 
-  // For secrets, check if the value is the placeholder (meaning secret exists but is hidden)
-  const isSecretPlaceholder = isSecret && value === SECRET_PLACEHOLDER;
+  // Secret values should never be displayed. Hiding any existing value keeps
+  // older plaintext provisioned values from briefly appearing in the UI.
+  const hasExistingSecret = isSecret && !isUndefined(value) && value !== null && value !== '';
 
   const isUnchangedFromDefault = useMemo(() => {
     if (isSecret) {
@@ -217,8 +217,8 @@ export const SettingInput = ({
   }, [value, defaultValue, isSecret, secretEdited]);
 
   useEffect(() => {
-    // Don't validate secret placeholders
-    if (isSecretPlaceholder) {
+    // Don't validate hidden secret values; only validate once the user types a replacement.
+    if (isSecret && hasExistingSecret && !secretEdited) {
       setError(null);
       return;
     }
@@ -233,7 +233,7 @@ export const SettingInput = ({
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema, type, isSecretPlaceholder]);
+  }, [value, typeSchema, type, isSecret, hasExistingSecret, secretEdited]);
 
   const DefaultButton = () => {
     if (disabled) return null;
@@ -292,7 +292,7 @@ export const SettingInput = ({
   // Handle secret fields with password-style input
   if (isSecret) {
     // For secrets, we only support string type
-    const secretDisplayValue = isSecretPlaceholder && !secretEdited ? '' : displayValue ?? '';
+    const secretDisplayValue = hasExistingSecret && !secretEdited ? '' : displayValue ?? '';
 
     return (
       <Flexbox data-testid="flexbox-secret">
@@ -305,7 +305,7 @@ export const SettingInput = ({
             helperText={error?.message}
             disabled={disabled}
             type={showSecretValue ? 'text' : 'password'}
-            placeholder={isSecretPlaceholder ? 'Enter new value to update' : 'Enter secret value'}
+            placeholder={hasExistingSecret ? 'Secret value is set' : 'Enter secret value'}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -322,7 +322,7 @@ export const SettingInput = ({
             }}
             data-testid="styledtextinput-secret"
           />
-          {isSecretPlaceholder && !secretEdited && (
+          {hasExistingSecret && !secretEdited && (
             <SecretHelpText data-testid="secret-help-text">
               <TranslatedText
                 stringId="admin.settings.secretExistsHint"
