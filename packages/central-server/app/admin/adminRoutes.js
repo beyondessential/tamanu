@@ -4,7 +4,7 @@ import { unset, get as getAtPath, set as setAtPath } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
 import {
   settingsCache,
   getScopedSchema,
@@ -20,17 +20,19 @@ import { importerRouter } from './importer';
 import { assetRoutes } from './asset';
 import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
-import { mergePatientHandler } from './patientMerge';
-import { templateRoutes } from './template';
-import { reportsRouter } from './reports/reportRoutes';
-import { syncLastCompleted } from './sync';
-import { translationRouter } from './translation';
-import { usersRouter } from './users';
-import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
+import { mergePatientHandler } from './patientMerge';
 import { permissionsRouter } from './permissions';
-import { roleRouter, rolesRouter } from './roles';
+import { programRouter, programsRouter } from './programs';
+import { programRegistryRouter, programRegistriesRouter } from './programRegistries';
 import { referenceDataManageRouter } from './referenceDataManage';
+import { reportsRouter } from './reports/reportRoutes';
+import { roleRouter, rolesRouter } from './roles';
+import { syncLastCompleted } from './sync';
+import { templateRoutes } from './template';
+import { translationRouter } from './translation';
+import { userPreferencesRouter } from './userPreferences';
+import { usersRouter } from './users';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -72,8 +74,6 @@ adminRoutes.get(
 adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
 
-adminRoutes.get('/programs', simpleGetList('Program'));
-
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
@@ -87,9 +87,42 @@ adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 adminRoutes.use('/permissions', permissionsRouter);
+adminRoutes.use('/programs', programsRouter);
+adminRoutes.use('/program', programRouter);
+adminRoutes.use('/programRegistries', programRegistriesRouter);
+adminRoutes.use('/programRegistry', programRegistryRouter);
+adminRoutes.patch(
+  '/programRegistryClinicalStatus/:id',
+  simplePatch('ProgramRegistryClinicalStatus', {
+    allowedFields: ['color', 'name', 'visibilityStatus'],
+  }),
+);
+adminRoutes.patch(
+  '/programRegistryCondition/:id',
+  simplePatch('ProgramRegistryCondition', { allowedFields: ['name', 'visibilityStatus'] }),
+);
+adminRoutes.patch(
+  '/programRegistryConditionCategory/:id',
+  simplePatch('ProgramRegistryConditionCategory', {
+    allowedFields: ['name', 'visibilityStatus'],
+  }),
+);
 adminRoutes.use('/referenceData/manage', referenceDataManageRouter);
 adminRoutes.use('/roles', rolesRouter);
 adminRoutes.use('/role', roleRouter);
+adminRoutes.patch(
+  '/survey/:id',
+  simplePatch('Survey', {
+    allowedFields: [
+      'isSensitive',
+      'name',
+      'notifiable',
+      'notifyEmailAddresses',
+      'surveyType',
+      'visibilityStatus',
+    ],
+  }),
+);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel.
 // Both endpoints require an explicit `scope` so that we can resolve the schema

@@ -1,6 +1,6 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
-import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/shared/reports';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 

@@ -8,9 +8,9 @@ export const location = express.Router();
 
 location.get('/:id', simpleGet('Location'));
 location.put('/:id', simplePut('Location'));
-location.post('/$', simplePost('Location'));
+location.post('/', simplePost('Location'));
 location.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
     const {

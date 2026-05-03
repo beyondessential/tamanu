@@ -30,7 +30,7 @@ export const programRegistry = express.Router();
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
 programRegistry.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, query } = req;
     req.checkPermission('list', 'ProgramRegistry');

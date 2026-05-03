@@ -5,6 +5,8 @@ export const REPORT_REQUEST_STATUSES = {
   ERROR: 'Error',
 };
 
+export const GENERIC_SURVEY_EXPORT_REPORT_ID = 'generic-survey-export-line-list';
+
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
 
 export const REPORT_DATA_SOURCES = {

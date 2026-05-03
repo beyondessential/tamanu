@@ -12,11 +12,12 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
 import { isEmpty, isNil } from 'lodash';
-import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
+import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -253,7 +254,7 @@ async function validateObjectId(item, models, pushError) {
 
   if (noun === 'StaticReport') {
     const allowedReportIds = [
-      ...GENERIC_SURVEY_EXPORT_REPORT_ID,
+      GENERIC_SURVEY_EXPORT_REPORT_ID,
       ...REPORT_DEFINITIONS.map(({ id }) => id),
     ];
     const objectIds = objectId.split('/');

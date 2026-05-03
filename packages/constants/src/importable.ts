@@ -129,19 +129,19 @@ export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
   MERGED: 'merged',
-};
+} as const;
 
 export const NONPATIENT_VISIBILITY_STATUS_VALUES = [
   VISIBILITY_STATUSES.CURRENT,
   VISIBILITY_STATUSES.HISTORICAL,
-];
+] as const;
 
 export const VISIBILITY_STATUS_VALUES = Object.values(VISIBILITY_STATUSES);
 
 export const HIDDEN_VISIBILITY_STATUSES = [
   VISIBILITY_STATUSES.HISTORICAL,
   VISIBILITY_STATUSES.MERGED,
-];
+] as const;
 
 export const ASSET_NAMES = {
   LETTERHEAD_LOGO: 'letterhead-logo',

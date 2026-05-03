@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.55.0",
+  "version": "2.56.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -155,6 +155,7 @@
     "date-fns-tz": "^1.3.6",
     "decimal.js": "^10.4.3",
     "express-rate-limit": "^7.5.0",
+    "express": "^5.2.1",
     "hookable": "^5.5.3",
     "jsbarcode": "^3.12.3",
     "khmer-unicode-converter": "^0.0.6",
@@ -166,8 +167,7 @@
     "pg-notify": "^1.0.5",
     "react": "^18.2.0",
     "read": "^1.0.7",
-    "semver-compare": "^1.0.0",
-    "semver-diff": "^3.1.1",
+    "semver": "^7.7.4",
     "shortid": "^2.2.14",
     "winston": "^3.14.2",
     "zod": "^4.0.17"

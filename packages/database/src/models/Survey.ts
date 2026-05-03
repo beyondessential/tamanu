@@ -12,7 +12,7 @@ export class Survey extends Model {
   declare id: string;
   declare code?: string;
   declare name?: string;
-  declare surveyType: string;
+  declare surveyType: (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES];
   declare isSensitive: boolean;
   declare visibilityStatus: string;
   declare notifiable: boolean;
