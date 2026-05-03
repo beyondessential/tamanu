@@ -151,7 +151,7 @@ survey.get(
   }),
 );
 survey.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, ability } = req;
     req.checkPermission('list', 'Survey');

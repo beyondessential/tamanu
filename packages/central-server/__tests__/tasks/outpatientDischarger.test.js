@@ -1,4 +1,4 @@
-import { endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
+import { addHours, endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -83,8 +83,10 @@ describe('Outpatient discharger', () => {
   });
 
   it('Should not discharge a patient whose encounter opened today', async () => {
+    // Anchor to midday local time so this test never flakes in the first minutes
+    // after midnight (sub(minutes: 2) can otherwise fall on the previous calendar date).
     const enc = await createEncounter({
-      startDate: toDateTimeString(sub(new Date(), { minutes: 2 })),
+      startDate: toDateTimeString(addHours(startOfDay(new Date()), 12)),
     });
     await runDischarger();
     await enc.reload();

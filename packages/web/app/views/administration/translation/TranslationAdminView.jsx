@@ -1,19 +1,21 @@
+import EditIcon from '@mui/icons-material/Edit';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { TranslationForm } from './TranslationForm';
-import { ImportExportView } from '../components/ImportExportView';
-import { useTranslation } from '../../../contexts/Translation';
+
 import {
   Button,
-  FormSubmitButton,
-  OutlinedButton,
   ButtonRow,
+  FormSubmitButton,
   Modal,
+  OutlinedButton,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { makeModalRow } from '../../../components';
 import { Field } from '../../../components/Field';
+import { useTranslation } from '../../../contexts/Translation';
+import { ImportExportView } from '../components/ImportExportView';
 import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
+import { TranslationForm } from './TranslationForm';
 
 const TRANSLATED_STRING_REFDATA_TYPE = 'translatedString';
 
@@ -141,28 +143,30 @@ const ExportButton = props => {
   );
 };
 
+const editTab = {
+  label: (
+    <TranslatedText
+      stringId="admin.translation.edit"
+      fallback="Edit"
+      data-testid="translatedtext-4wh9"
+    />
+  ),
+  key: 'edit',
+  icon: <EditIcon />,
+  render: TranslationForm,
+};
+
+const buildTabs = (importTab, exportTab) => [editTab, importTab, exportTab];
+
 export const TranslationAdminView = () => {
   const { getTranslation } = useTranslation();
-
-  const editTab = {
-    label: (
-      <TranslatedText
-        stringId="admin.translation.edit"
-        fallback="Edit"
-        data-testid="translatedtext-4wh9"
-      />
-    ),
-    key: 'edit',
-    icon: 'fa fa-edit',
-    render: TranslationForm,
-  };
 
   return (
     <ImportExportView
       title={getTranslation('admin.translation.title', 'Translation')}
       endpoint="referenceData"
       dataTypes={[TRANSLATED_STRING_REFDATA_TYPE]}
-      buildTabs={(importTab, exportTab) => [editTab, importTab, exportTab]}
+      buildTabs={buildTabs}
       defaultTab="edit"
       ImportButton={ImportButton}
       ExportButton={ExportButton}

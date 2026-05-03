@@ -1,0 +1,70 @@
+scenarios:
+  - name: Medication encounter (STAT prescription, MAR given, pharmacy order, dispense)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: prepareMedicationEncounterAcutePharmacyDispenseContext
+      - post:
+          url: '/api/medication/encounterPrescription/{{medicationEncounterId}}'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{medicationEncounterPrescriptionBody}}'
+          capture:
+            - json: $.id
+              as: acutePrescriptionId
+      - get:
+          url: '/api/encounter/{{medicationEncounterId}}/medications'
+          qs:
+            marDate: '{{medicationMarDate}}'
+            facilityId: '{{facilityId}}'
+          headers:
+            Authorization: 'Bearer {{token}}'
+          capture:
+            - json: $.data[0].medicationAdministrationRecords[0].id
+              as: marId
+      - put:
+          url: '/api/medication/medication-administration-record/{{marId}}/given'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json:
+            dose:
+              doseAmount: 1
+              givenTime: '{{medicationMarGivenTime}}'
+      - function: prepareMedicationPharmacyOrderPayload
+      - post:
+          url: '/api/encounter/{{medicationEncounterId}}/pharmacyOrder'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{medicationPharmacyOrderPayload}}'
+      - function: prepareMedicationDispensePayload
+      - post:
+          url: '/api/medication/dispense'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{medicationDispensePayload}}'
+  - name: Medication patient ongoing prescription
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: preparePatientOngoingPrescriptionContext
+      - post:
+          url: '/api/medication/patientOngoingPrescription/{{patientOngoingMedicationPatientId}}'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{patientOngoingMedicationBody}}'
+  - name: Medication encounter prescription (ongoing twice daily)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: prepareMedicationEncounterOngoingPrescriptionContext
+      - post:
+          url: '/api/medication/encounterPrescription/{{medicationEncounterOngoingId}}'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{medicationEncounterOngoingPrescriptionBody}}'
