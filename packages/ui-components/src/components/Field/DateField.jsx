@@ -35,8 +35,7 @@ const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
 const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm', 'HH:mm:ss'];
 
-// Parses a string value to Date, trying explicit formats before the generic
-// parser so ambiguous typed values like 05/04/2026 stay day-first.
+// Parses a string value to Date, trying explicit formats before the generic parser
 function parseValue(value, primaryFormat) {
   if (!value) return null;
   const formats = primaryFormat ? [primaryFormat, ...USER_INPUT_FORMATS] : USER_INPUT_FORMATS;
