@@ -72,8 +72,11 @@ export function AiFormBuilderView() {
 
   useEffect(() => {
     setHasAiFormBuilderChat(hasExistingChat);
-    return () => setHasAiFormBuilderChat(false);
   }, [hasExistingChat, setHasAiFormBuilderChat]);
+
+  useEffect(() => {
+    return () => setHasAiFormBuilderChat(false);
+  }, [setHasAiFormBuilderChat]);
 
   const resetChat = useCallback(() => {
     abortControllerRef.current?.abort();
