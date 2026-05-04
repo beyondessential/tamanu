@@ -284,7 +284,7 @@ export function AiFormBuilderView() {
                       fallback="Attachment:"
                     />
                   </AttachmentLabel>
-                  <Attachment file={pendingFile} onRemove={() => setPendingFile(null)} />
+                  <Attachment file={pendingFile} fullWidth onRemove={() => setPendingFile(null)} />
                 </PendingAttachmentRow>
               )}
 

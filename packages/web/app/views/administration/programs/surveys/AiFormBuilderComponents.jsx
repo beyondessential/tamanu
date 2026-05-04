@@ -9,17 +9,20 @@ import { IconButton } from '@material-ui/core';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   AutocompleteInput,
   Button,
+  Form,
   OutlinedButton,
-  SelectInput,
+  SurveyScreenPaginator,
   TAMANU_COLORS,
   TextInput,
   TranslatedText,
   useTranslation,
 } from '@tamanu/ui-components';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { getComponentForQuestionType } from '../../../../components/Surveys';
 import { Article } from '../components';
 
 export const BuilderArticle = styled(Article)`
@@ -81,6 +84,8 @@ export const Messages = styled.div`
   min-block-size: 0;
   overflow-y: auto;
   padding-block-end: 18px;
+  padding-inline-end: 12px;
+  scrollbar-gutter: stable;
 `;
 
 export const IntroText = styled.p`
@@ -120,24 +125,25 @@ const AttachmentChip = styled.div`
   font-size: 14px;
   font-weight: 500;
   gap: 8px;
-  min-block-size: 42px;
+  min-block-size: ${({ $fullWidth }) => ($fullWidth ? '46px' : '42px')};
   min-inline-size: 0;
-  padding: 0 14px;
+  padding: 0 ${({ $fullWidth }) => ($fullWidth ? '14px' : '14px')};
 `;
 
 const AttachmentPanel = styled.div`
-  align-self: flex-end;
+  align-self: ${({ $fullWidth }) => ($fullWidth ? 'stretch' : 'flex-end')};
   border: ${({ $sent }) => ($sent ? `1px solid ${TAMANU_COLORS.outline}` : 'none')};
   border-radius: 9px;
   display: grid;
   gap: 8px;
-  inline-size: min(100%, 310px);
+  inline-size: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'min(100%, 310px)')};
   padding: ${({ $sent }) => ($sent ? '14px' : '0')};
 `;
 
 export const PendingAttachmentRow = styled.div`
   display: grid;
   gap: 8px;
+  margin-block-end: 14px;
 `;
 
 export const AttachmentLabel = styled.div`
@@ -172,22 +178,28 @@ const ProgramSelectWrap = styled.div`
 `;
 
 const ComposerWrap = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
-  border-radius: 10px;
+  margin-inline: -14px;
   margin-block-start: auto;
   padding: 0;
 `;
 
 const StyledTextInput = styled(TextInput)`
-  .MuiOutlinedInput-root {
+  && .MuiOutlinedInput-root {
     align-items: flex-start;
     border-radius: 10px;
     min-block-size: 118px;
     padding-block-end: 54px;
   }
 
-  .MuiOutlinedInput-notchedOutline {
-    border: 0;
+  && .MuiOutlinedInput-notchedOutline,
+  && .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  && .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-width: 1px;
+  }
+
+  && .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  && .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
+    border-color: ${TAMANU_COLORS.primary};
   }
 
   .MuiInputBase-input {
@@ -225,6 +237,9 @@ const SendButton = styled(ComposerIconButton)`
   && {
     background: ${({ disabled, $isThinking }) =>
       disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primary};
+    border-radius: 3px;
+    block-size: 48px;
+    inline-size: 58px;
   }
   color: ${TAMANU_COLORS.white};
 
@@ -267,18 +282,15 @@ const Ripple = styled.div`
   block-size: 42px;
   inline-size: 42px;
   position: relative;
+`;
 
-  span {
-    animation: ${pulse} 1.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-    border: 2px solid ${TAMANU_COLORS.primary};
-    border-radius: 50%;
-    inset: 0;
-    position: absolute;
-  }
-
-  span:nth-child(2) {
-    animation-delay: -0.75s;
-  }
+const RippleRing = styled.div`
+  animation: ${pulse} 1.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  animation-delay: ${({ $delay }) => $delay};
+  border: 2px solid ${TAMANU_COLORS.primary};
+  border-radius: 50%;
+  inset: 0;
+  position: absolute;
 `;
 
 const previewEnter = keyframes`
@@ -310,6 +322,11 @@ const PreviewHeader = styled.div`
   padding: 0 20px;
 `;
 
+const PreviewHeaderSpacer = styled.div`
+  block-size: 1px;
+  inline-size: 24px;
+`;
+
 const PreviewHeading = styled.div`
   color: ${TAMANU_COLORS.darkText};
   font-size: 13px;
@@ -323,51 +340,29 @@ const PreviewFormTitle = styled.h2`
   margin: 0;
 `;
 
-const StepBar = styled.div`
+const PreviewProgress = styled.div`
   display: grid;
   gap: 3px;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(${({ $segments }) => $segments}, 1fr);
   padding-inline: 0;
+`;
 
-  span {
-    background: ${TAMANU_COLORS.midText};
-    block-size: 5px;
-  }
-
-  span:nth-child(-n + 2) {
-    background: ${TAMANU_COLORS.primary};
-  }
+const PreviewProgressSegment = styled.div`
+  background: ${({ $active }) => ($active ? TAMANU_COLORS.primary : TAMANU_COLORS.midText)};
+  block-size: 5px;
 `;
 
 const PreviewBody = styled.div`
   display: grid;
-  gap: 18px;
-  padding: 28px 18px;
+  padding: 28px 18px 0;
 `;
 
-const PreviewSectionTitle = styled.h3`
-  color: ${TAMANU_COLORS.darkestText};
-  font-size: 15px;
-  font-weight: 500;
-  margin: 0;
-`;
+const PreviewSurveyWrap = styled.div`
+  margin-block-start: 14px;
 
-const PreviewField = styled.label`
-  color: ${TAMANU_COLORS.darkText};
-  display: grid;
-  font-size: 13px;
-  gap: 7px;
-`;
-
-const Required = styled.span`
-  color: ${TAMANU_COLORS.alert};
-`;
-
-const PreviewFooter = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-block-start: auto;
-  padding: 18px;
+  .MuiFormControl-root {
+    pointer-events: none;
+  }
 `;
 
 const DownloadCard = styled.div`
@@ -401,9 +396,43 @@ const NewChatModalBody = styled.div`
   text-align: left;
 `;
 
-export function Attachment({ file, sent = false, onRemove }) {
+const createPreviewSurvey = form => ({
+  id: 'ai-form-builder-preview',
+  name: form.title,
+  components: form.sections.flatMap((section, sectionIndex) => [
+    {
+      id: `ai-preview-section-${sectionIndex}`,
+      dataElementId: `ai-preview-section-${sectionIndex}`,
+      screenIndex: sectionIndex,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      dataElement: {
+        id: `ai-preview-section-${sectionIndex}`,
+        type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+        defaultText: section.title,
+      },
+    },
+    ...section.questions.map((question, questionIndex) => {
+      const id = `ai-preview-question-${sectionIndex}-${questionIndex}`;
+      return {
+        id,
+        dataElementId: id,
+        screenIndex: sectionIndex,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        validationCriteria: JSON.stringify({ mandatory: true }),
+        dataElement: {
+          id,
+          type: PROGRAM_DATA_ELEMENT_TYPES.SELECT,
+          defaultText: question,
+          defaultOptions: ['Yes', 'No', 'Prefer not to say'],
+        },
+      };
+    }),
+  ]),
+});
+
+export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
-    <AttachmentPanel $sent={sent}>
+    <AttachmentPanel $sent={sent} $fullWidth={fullWidth}>
       {sent && (
         <AttachmentLabel>
           <TranslatedText
@@ -412,7 +441,7 @@ export function Attachment({ file, sent = false, onRemove }) {
           />
         </AttachmentLabel>
       )}
-      <AttachmentChip>
+      <AttachmentChip $fullWidth={fullWidth}>
         <AttachFileIcon fontSize="small" />
         {file.name}
         {onRemove && (
@@ -442,8 +471,8 @@ export function ThinkingMessage() {
   return (
     <ThinkingWrap>
       <Ripple aria-hidden="true">
-        <span />
-        <span />
+        <RippleRing $delay="0s" />
+        <RippleRing $delay="-0.75s" />
       </Ripple>
       <MessageText>
         <TranslatedText
@@ -574,7 +603,8 @@ export function ChatComposer({
 export function FormPreview({ form }) {
   if (!form) return null;
 
-  const section = form.sections[0];
+  const previewSurvey = createPreviewSurvey(form);
+  const screenCount = Math.max(...previewSurvey.components.map(component => component.screenIndex)) + 1;
 
   return (
     <PreviewColumn>
@@ -586,48 +616,40 @@ export function FormPreview({ form }) {
             fallback="Form preview"
           />
         </PreviewHeading>
-        <span />
+        <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
       <PreviewHeader>
-        <span />
+        <PreviewHeaderSpacer aria-hidden="true" />
         <PreviewFormTitle>{form.title}</PreviewFormTitle>
-        <span />
+        <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
-      <StepBar aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-      </StepBar>
-      <PreviewBody>
-        <PreviewSectionTitle>{section.title}</PreviewSectionTitle>
-        {section.questions.map((question, index) => (
-          <PreviewField key={`${question}-${index}`}>
-            <span>
-              {question}
-              <Required>*</Required>
-            </span>
-            <SelectInput
-              name={`preview-${index}`}
-              value=""
-              onChange={() => {}}
-              options={[]}
-              disabled
-              data-testid={`ai-form-builder-preview-select-${index}`}
-            />
-          </PreviewField>
+      <PreviewProgress $segments={screenCount} aria-hidden="true">
+        {Array.from({ length: screenCount }, (_, index) => (
+          <PreviewProgressSegment key={index} $active={index === 0} />
         ))}
+      </PreviewProgress>
+      <PreviewBody>
+        <PreviewSurveyWrap>
+          <Form
+            initialValues={{}}
+            onSubmit={async () => {}}
+            render={({ values, setFieldValue, validateForm, setErrors, errors, setStatus, status }) => (
+              <SurveyScreenPaginator
+                survey={previewSurvey}
+                values={values}
+                setFieldValue={setFieldValue}
+                onSurveyComplete={async () => {}}
+                validateForm={validateForm}
+                setErrors={setErrors}
+                errors={errors}
+                setStatus={setStatus}
+                status={status}
+                getComponentForQuestionType={getComponentForQuestionType}
+              />
+            )}
+          />
+        </PreviewSurveyWrap>
       </PreviewBody>
-      <PreviewFooter>
-        <OutlinedButton>
-          <TranslatedText stringId="general.action.back" fallback="Back" />
-        </OutlinedButton>
-        <Button>
-          <TranslatedText stringId="general.action.next" fallback="Next" />
-        </Button>
-      </PreviewFooter>
     </PreviewColumn>
   );
 }
