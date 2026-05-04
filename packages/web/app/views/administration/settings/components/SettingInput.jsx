@@ -188,6 +188,7 @@ export const SettingInput = ({
   suggesterEndpoint,
   facilityId,
   isSecret = false,
+  canClearSecret = false,
   editor,
   'data-testid': dataTestId,
 }) => {
@@ -343,7 +344,7 @@ export const SettingInput = ({
           {hasExistingSecret && (
             <DefaultSettingButton
               onClick={handleClearSecret}
-              disabled={disabled}
+              disabled={disabled || !canClearSecret}
               data-testid="clearsecretbutton-x5r2"
             >
               <TranslatedText
