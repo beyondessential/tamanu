@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
@@ -204,18 +204,10 @@ export const SettingInput = ({
   const [error, setError] = useState(null);
   const [showSecretValue, setShowSecretValue] = useState(false);
   const [secretEdited, setSecretEdited] = useState(false);
-  const hiddenSecretValueRef = useRef(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
 
-  // Secret values should never be displayed. Hiding any existing value keeps
-  // older plaintext provisioned values from briefly appearing in the UI.
-  const hasExistingSecret = isSecret && !isUndefined(value) && value !== null && value !== '';
   const isMaskedSecret = isSecret && value === SECRET_PLACEHOLDER;
-  const shouldHideSecretValue = hasExistingSecret && (!secretEdited || isMaskedSecret);
-  if (hasExistingSecret && !secretEdited) {
-    hiddenSecretValueRef.current = value;
-  }
 
   const isUnchangedFromDefault = useMemo(() => {
     if (isSecret) {
@@ -232,14 +224,12 @@ export const SettingInput = ({
       return;
     }
 
-    // Don't validate hidden secret values; only validate once the user types a replacement.
-    if (isSecret && shouldHideSecretValue) {
+    // Don't validate the mask that represents an existing hidden secret.
+    if (isMaskedSecret) {
       setError(null);
       return;
     }
-    // Empty secret fields mean "no change" in the editor, not an invalid null/empty
-    // schema value. The backend only receives a new value once the user types one.
-    if (isSecret && (value === null || value === undefined || value === '')) {
+    if (isSecret && value === null) {
       setError(null);
       return;
     }
@@ -254,7 +244,7 @@ export const SettingInput = ({
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema, type, isSecret, isMaskedSecret, shouldHideSecretValue, secretEdited]);
+  }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
 
   const DefaultButton = () => {
     if (disabled) return null;
@@ -298,12 +288,6 @@ export const SettingInput = ({
 
   const handleSecretChange = e => {
     const newValue = e.target.value ?? '';
-    if (hasExistingSecret && newValue === '') {
-      setSecretEdited(false);
-      handleChangeSetting(path, hiddenSecretValueRef.current);
-      return;
-    }
-
     setSecretEdited(true);
     handleChangeSetting(path, newValue);
   };
@@ -320,8 +304,8 @@ export const SettingInput = ({
   // Handle secret fields with password-style input
   if (isSecret) {
     // For secrets, we only support string type
-    const secretDisplayValue = shouldHideSecretValue ? '' : displayValue ?? '';
-    const secretInputType = showSecretValue || shouldHideSecretValue ? 'text' : 'password';
+    const secretDisplayValue = displayValue ?? '';
+    const secretInputType = showSecretValue || isMaskedSecret ? 'text' : 'password';
     const secretInputName = `setting-secret-${path.replace(/\./g, '-')}`;
 
     return (
@@ -358,7 +342,7 @@ export const SettingInput = ({
             }}
             data-testid="styledtextinput-secret"
           />
-          {shouldHideSecretValue && (
+          {isMaskedSecret && (
             <SecretHelpText data-testid="secret-help-text">
               <TranslatedText
                 stringId="admin.settings.secretExistsHint"
