@@ -45,14 +45,25 @@ export const ChatColumn = styled.section`
   justify-content: center;
   min-block-size: 0;
   overflow: hidden;
+  transition: border-color 180ms ease-out;
+`;
+
+export const ChatStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  inline-size: min(100%, ${({ $showPreview }) => ($showPreview ? '100%' : '530px')});
+  margin: ${({ $showPreview }) => ($showPreview ? '0' : '22px auto 0')};
+  min-block-size: 0;
+  transition:
+    inline-size 180ms ease-out,
+    margin 180ms ease-out;
 `;
 
 export const ChatPanel = styled.div`
   background: ${TAMANU_COLORS.white};
   display: flex;
+  flex: 1;
   flex-direction: column;
-  inline-size: min(100%, ${({ $showPreview }) => ($showPreview ? '100%' : '530px')});
-  margin: ${({ $showPreview }) => ($showPreview ? '0' : '22px auto 0')};
   min-block-size: 0;
   padding: 28px 32px 8px;
 `;
@@ -105,6 +116,7 @@ const AttachmentChip = styled.div`
   font-weight: 500;
   gap: 8px;
   min-block-size: 42px;
+  min-inline-size: 0;
   padding: 0 14px;
 `;
 
@@ -268,7 +280,19 @@ const Ripple = styled.div`
   }
 `;
 
+const previewEnter = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+
 const PreviewColumn = styled.aside`
+  animation: ${previewEnter} 220ms ease-out;
   background: ${TAMANU_COLORS.white};
   display: flex;
   flex-direction: column;
@@ -365,6 +389,17 @@ const SaveButtonRow = styled.div`
   justify-content: flex-end;
 `;
 
+const NewChatModalBody = styled.div`
+  align-items: center;
+  color: ${TAMANU_COLORS.darkestText};
+  display: flex;
+  font-size: 14px;
+  line-height: 1.45;
+  min-block-size: 128px;
+  padding: 20px 64px;
+  text-align: left;
+`;
+
 export function Attachment({ file, sent = false, onRemove }) {
   return (
     <AttachmentPanel $sent={sent}>
@@ -390,6 +425,10 @@ export function Attachment({ file, sent = false, onRemove }) {
 }
 
 export function UserMessageContent({ message }) {
+  if (!message.text && message.file) {
+    return <Attachment file={message.file} />;
+  }
+
   return (
     <UserMessage>
       {message.text && <div>{message.text}</div>}
@@ -604,11 +643,13 @@ export function NewChatConfirmModal({ open, onCancel, onConfirm }) {
           fallback="New chat"
         />
       }
-      text={
-        <TranslatedText
-          stringId="admin.programs.aiFormBuilder.newChat.confirmText"
-          fallback="Starting a new chat will clear your existing chat. Are you sure you wish to continue?"
-        />
+      customContent={
+        <NewChatModalBody>
+          <TranslatedText
+            stringId="admin.programs.aiFormBuilder.newChat.confirmText"
+            fallback="Starting a new chat will clear your existing chat. Are you sure you wish to continue?"
+          />
+        </NewChatModalBody>
       }
       confirmButtonText={
         <TranslatedText
