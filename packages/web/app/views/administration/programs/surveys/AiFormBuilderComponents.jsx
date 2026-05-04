@@ -417,6 +417,7 @@ const DownloadCard = styled.div`
 const DownloadFileName = styled.span`
   color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
+  font-size: 14px;
 `;
 
 const SaveButtonRow = styled.div`
