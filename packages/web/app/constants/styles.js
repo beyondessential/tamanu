@@ -1,5 +1,5 @@
 import { TAMANU_COLORS } from '@tamanu/ui-components';
-import { createGlobalStyle, css } from 'styled-components';
+import { css } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;
 
