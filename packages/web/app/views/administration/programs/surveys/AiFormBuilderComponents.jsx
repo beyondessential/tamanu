@@ -190,8 +190,8 @@ const ProgramQuestion = styled.div`
 `;
 
 const ProgramSelectWrap = styled.div`
-  justify-self: center;
-  inline-size: min(100%, 390px);
+  inline-size: min(100%, 310px);
+  justify-self: end;
 `;
 
 const ComposerWrap = styled.div`
