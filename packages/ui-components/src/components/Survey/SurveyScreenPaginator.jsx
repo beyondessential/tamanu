@@ -15,7 +15,7 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton }) => (
   <div>
     <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
       <TranslatedText
@@ -40,18 +40,20 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
             data-testid="translatedtext-lzgi"
           />
         </OutlinedButton>
-        <FormSubmitButton
-          color="primary"
-          variant="contained"
-          onClick={onSurveyComplete}
-          data-testid="formsubmitbutton-pufy"
-        >
-          <TranslatedText
-            stringId="general.action.complete"
-            fallback="Complete"
-            data-testid="translatedtext-7box"
-          />
-        </FormSubmitButton>
+        {summarySubmitButton || (
+          <FormSubmitButton
+            color="primary"
+            variant="contained"
+            onClick={onSurveyComplete}
+            data-testid="formsubmitbutton-pufy"
+          >
+            <TranslatedText
+              stringId="general.action.complete"
+              fallback="Complete"
+              data-testid="translatedtext-7box"
+            />
+          </FormSubmitButton>
+        )}
       </StyledButtonRow>
     </div>
   </div>
@@ -72,6 +74,7 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
+  summarySubmitButton,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -113,6 +116,7 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      summarySubmitButton={summarySubmitButton}
       data-testid="surveysummaryscreen-1jn5"
     />
   );

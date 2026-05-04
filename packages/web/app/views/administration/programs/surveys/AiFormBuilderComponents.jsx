@@ -4,7 +4,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopRoundedIcon from '@mui/icons-material/StopRounded';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -330,7 +330,7 @@ const PreviewColumn = styled.aside`
   display: flex;
   flex-direction: column;
   min-block-size: 0;
-  overflow: auto;
+  overflow: hidden;
 `;
 
 const PreviewHeader = styled.div`
@@ -338,8 +338,15 @@ const PreviewHeader = styled.div`
   border-block-end: 1px solid ${TAMANU_COLORS.outline};
   display: grid;
   grid-template-columns: auto 1fr auto;
-  min-block-size: 54px;
+  min-block-size: 48px;
   padding: 0 20px;
+`;
+
+const PreviewTitleHeader = styled(PreviewHeader)`
+  border-block-end: 0;
+  grid-template-columns: 56px 1fr 56px;
+  min-block-size: 66px;
+  padding: 0 28px;
 `;
 
 const PreviewHeaderSpacer = styled.div`
@@ -349,15 +356,18 @@ const PreviewHeaderSpacer = styled.div`
 
 const PreviewHeading = styled.div`
   color: ${TAMANU_COLORS.darkText};
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   justify-self: center;
 `;
 
 const PreviewFormTitle = styled.h2`
   color: ${TAMANU_COLORS.darkText};
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
+  line-height: 1.3;
   margin: 0;
+  text-align: center;
 `;
 
 const PreviewProgress = styled.div`
@@ -373,7 +383,9 @@ const PreviewProgressSegment = styled.div`
 `;
 
 const PreviewBody = styled.div`
-  display: grid;
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
   padding: 28px 18px 0;
 `;
 
@@ -410,6 +422,10 @@ const SaveButtonRow = styled.div`
   justify-content: flex-end;
 `;
 
+const PreviewSubmitTooltipTarget = styled.div`
+  display: inline-flex;
+`;
+
 const NewChatModalBody = styled.div`
   align-items: center;
   color: ${TAMANU_COLORS.darkestText};
@@ -443,7 +459,6 @@ const createPreviewSurvey = form => ({
         dataElementId: id,
         screenIndex: sectionIndex,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        validationCriteria: JSON.stringify({ mandatory: true }),
         dataElement: {
           id,
           type: PROGRAM_DATA_ELEMENT_TYPES.SELECT,
@@ -643,7 +658,7 @@ export function FormPreview({ form }) {
   return (
     <PreviewColumn>
       <PreviewHeader>
-        <ArrowBackIosNewIcon htmlColor={TAMANU_COLORS.primary} fontSize="small" />
+        <PreviewHeaderSpacer aria-hidden="true" />
         <PreviewHeading>
           <TranslatedText
             stringId="admin.programs.aiFormBuilder.preview.heading"
@@ -652,11 +667,11 @@ export function FormPreview({ form }) {
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
-      <PreviewHeader>
-        <PreviewHeaderSpacer aria-hidden="true" />
+      <PreviewTitleHeader>
+        <ArrowBackIosNewIcon htmlColor={TAMANU_COLORS.primary} fontSize="small" />
         <PreviewFormTitle>{form.title}</PreviewFormTitle>
         <PreviewHeaderSpacer aria-hidden="true" />
-      </PreviewHeader>
+      </PreviewTitleHeader>
       <PreviewProgress $segments={screenCount} aria-hidden="true">
         {Array.from({ length: screenCount }, (_, index) => (
           <PreviewProgressSegment key={index} $active={index === 0} />
@@ -679,6 +694,25 @@ export function FormPreview({ form }) {
                 setStatus={setStatus}
                 status={status}
                 getComponentForQuestionType={getComponentForQuestionType}
+                summarySubmitButton={
+                  <Tooltip
+                    title={
+                      <TranslatedText
+                        stringId="admin.programs.aiFormBuilder.preview.submit.tooltip"
+                        fallback="This is a preview only. No data can be submitted."
+                      />
+                    }
+                  >
+                    <PreviewSubmitTooltipTarget>
+                      <Button color="primary" variant="contained" functionallyDisabled>
+                        <TranslatedText
+                          stringId="general.action.submit"
+                          fallback="Submit"
+                        />
+                      </Button>
+                    </PreviewSubmitTooltipTarget>
+                  </Tooltip>
+                }
               />
             )}
           />
