@@ -72,10 +72,9 @@ export function AiFormBuilderView() {
   }, [persistableState]);
 
   useEffect(() => {
-    messagesRef.current?.scrollTo({
-      top: messagesRef.current.scrollHeight,
-      behavior: 'smooth',
-    });
+    const messagesEl = messagesRef.current;
+    if (!messagesEl) return;
+    messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
   }, [state.messages.length, isThinking]);
 
   useEffect(() => {

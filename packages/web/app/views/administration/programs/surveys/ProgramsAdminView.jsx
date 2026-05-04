@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Button, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants/styles';
+import { useSettings } from '../../../../contexts/Settings';
 import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
 import { ImporterView } from '../../components/ImporterView';
 import { ProgramExporterView } from '../../components/ProgramExporterView';
@@ -101,6 +102,8 @@ export const ProgramsAdminView = () => {
   const [hasAiFormBuilderChat, setHasAiFormBuilderChat] = useState(false);
   const [newChatRequestId, setNewChatRequestId] = useState(0);
   const navigate = useNavigate();
+  const { getSetting } = useSettings();
+  const isAiFormBuilderEnabled = Boolean(getSetting('formBuilder.enabled'));
 
   const isBuilderRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Builder]));
   const isExportRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Export]));
@@ -108,7 +111,7 @@ export const ProgramsAdminView = () => {
   const isManageRoute = Boolean(useMatch(`${TAB_ROUTES[TabKey.Manage]}/*`));
 
   const currentTab = (() => {
-    if (isBuilderRoute) return TabKey.Builder;
+    if (isAiFormBuilderEnabled && isBuilderRoute) return TabKey.Builder;
     if (isImportRoute) return TabKey.Import;
     if (isExportRoute) return TabKey.Export;
     if (isManageRoute) return TabKey.Manage;
@@ -122,8 +125,13 @@ export const ProgramsAdminView = () => {
 
   const tabs = useMemo(
     () =>
-      [builderTab, manageTab, importTab, exportTab].map(tab => ({ ...tab, render: renderTabContent })),
-    [renderTabContent],
+      [
+        ...(isAiFormBuilderEnabled ? [builderTab] : []),
+        manageTab,
+        importTab,
+        exportTab,
+      ].map(tab => ({ ...tab, render: renderTabContent })),
+    [isAiFormBuilderEnabled, renderTabContent],
   );
 
   const onTabSelect = key => {
