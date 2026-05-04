@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
+import KeyIcon from '@mui/icons-material/Key';
 
 import { isSetting } from '@tamanu/settings';
 
@@ -12,6 +13,12 @@ import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+`;
+
+const StyledSecretIcon = styled(KeyIcon)`
   flex-shrink: 0;
   font-size: 0.875rem;
   line-height: 1;
@@ -88,12 +95,13 @@ const SettingName = memo(({ name, path, description, disabled, isSecret }) => (
     }
     data-testid="themedtooltip-2qoa"
   >
-    <SettingNameLabel
-      color={(disabled || isSecret) && 'textTertiary'}
-      data-testid="settingnamelabel-xr19"
-    >
+    <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
       {formatSettingName(name, path.split('.').pop())}
-      {(disabled || isSecret) && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
+      {disabled ? (
+        <StyledLockIcon data-testid="styledlockicon-x3w0" />
+      ) : (
+        isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
+      )}
     </SettingNameLabel>
   </ThemedTooltip>
 ));
