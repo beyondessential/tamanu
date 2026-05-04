@@ -12,6 +12,7 @@ import {
   ChatColumn,
   ChatComposer,
   ChatPanel,
+  ChatStack,
   Disclaimer,
   DownloadMessage,
   FormPreview,
@@ -235,78 +236,80 @@ export function AiFormBuilderView() {
     <BuilderArticle>
       <BuilderShell $showPreview={showPreview}>
         <ChatColumn $showPreview={showPreview}>
-          <ChatPanel $showPreview={showPreview}>
-            <Messages>
-              <IntroText>
-                <TranslatedText
-                  stringId="admin.programs.aiFormBuilder.welcome"
-                  fallback="Welcome to the Tamanu form builder. Let's start by uploading a document containing the form otherwise describe the form you'd like to build and I'll help you build it."
-                />
-              </IntroText>
-
-              {state.messages.map(message => {
-                if (message.type === 'user') {
-                  return <UserMessageContent key={message.id} message={message} />;
-                }
-                if (message.type === 'programQuestion') {
-                  return (
-                    <ProgramQuestionMessage
-                      key={message.id}
-                      value={state.selectedProgramId}
-                      onChange={handleSelectProgram}
-                      programOptions={programOptions}
-                    />
-                  );
-                }
-                if (message.type === 'download') {
-                  return (
-                    <DownloadMessage
-                      key={message.id}
-                      fileName={message.fileName}
-                      onDownload={() => handleDownload(message.fileName)}
-                      onSave={handleSave}
-                    />
-                  );
-                }
-                return <MessageText key={message.id}>{message.text}</MessageText>;
-              })}
-
-              {isThinking && <ThinkingMessage />}
-            </Messages>
-
-            {pendingFile && (
-              <PendingAttachmentRow>
-                <AttachmentLabel>
+          <ChatStack $showPreview={showPreview}>
+            <ChatPanel>
+              <Messages>
+                <IntroText>
                   <TranslatedText
-                    stringId="admin.programs.aiFormBuilder.pendingAttachment.label"
-                    fallback="Attachment:"
+                    stringId="admin.programs.aiFormBuilder.welcome"
+                    fallback="Welcome to the Tamanu form builder. Let's start by uploading a document containing the form otherwise describe the form you'd like to build and I'll help you build it."
                   />
-                </AttachmentLabel>
-                <Attachment file={pendingFile} onRemove={() => setPendingFile(null)} />
-              </PendingAttachmentRow>
-            )}
+                </IntroText>
 
-            <ChatComposer
-              acceptedFileExtensions={ACCEPTED_FILE_EXTENSIONS}
-              getTranslation={getTranslation}
-              handleDrop={handleDrop}
-              handleFileSelected={handleFileSelected}
-              handleStop={handleStop}
-              handleSubmit={handleSubmit}
-              inputFileRef={inputFileRef}
-              inputValue={inputValue}
-              isThinking={isThinking}
-              openFileDialog={() => inputFileRef.current?.click()}
-              sendDisabled={sendDisabled}
-              setInputValue={setInputValue}
-            />
+                {state.messages.map(message => {
+                  if (message.type === 'user') {
+                    return <UserMessageContent key={message.id} message={message} />;
+                  }
+                  if (message.type === 'programQuestion') {
+                    return (
+                      <ProgramQuestionMessage
+                        key={message.id}
+                        value={state.selectedProgramId}
+                        onChange={handleSelectProgram}
+                        programOptions={programOptions}
+                      />
+                    );
+                  }
+                  if (message.type === 'download') {
+                    return (
+                      <DownloadMessage
+                        key={message.id}
+                        fileName={message.fileName}
+                        onDownload={() => handleDownload(message.fileName)}
+                        onSave={handleSave}
+                      />
+                    );
+                  }
+                  return <MessageText key={message.id}>{message.text}</MessageText>;
+                })}
+
+                {isThinking && <ThinkingMessage />}
+              </Messages>
+
+              {pendingFile && (
+                <PendingAttachmentRow>
+                  <AttachmentLabel>
+                    <TranslatedText
+                      stringId="admin.programs.aiFormBuilder.pendingAttachment.label"
+                      fallback="Attachment:"
+                    />
+                  </AttachmentLabel>
+                  <Attachment file={pendingFile} onRemove={() => setPendingFile(null)} />
+                </PendingAttachmentRow>
+              )}
+
+              <ChatComposer
+                acceptedFileExtensions={ACCEPTED_FILE_EXTENSIONS}
+                getTranslation={getTranslation}
+                handleDrop={handleDrop}
+                handleFileSelected={handleFileSelected}
+                handleStop={handleStop}
+                handleSubmit={handleSubmit}
+                inputFileRef={inputFileRef}
+                inputValue={inputValue}
+                isThinking={isThinking}
+                openFileDialog={() => inputFileRef.current?.click()}
+                sendDisabled={sendDisabled}
+                setInputValue={setInputValue}
+              />
+            </ChatPanel>
             <Disclaimer>
               <TranslatedText
                 stringId="admin.programs.aiFormBuilder.disclaimer"
                 fallback="You are using AI which can make mistakes. Please double check all responses and output."
               />
             </Disclaimer>
-          </ChatPanel>
+          </ChatStack>
         </ChatColumn>
         {showPreview && <FormPreview form={state.generatedForm} />}
       </BuilderShell>
