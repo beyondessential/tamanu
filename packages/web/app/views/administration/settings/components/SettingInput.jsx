@@ -82,6 +82,14 @@ const Flexbox = styled.div`
   gap: 0.5rem;
 `;
 
+const SecretHelpText = styled.span`
+  color: ${Colors.midText};
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  margin-block-start: 0.25rem;
+`;
+
 const LongTextFlexbox = styled(Flexbox)`
   align-items: flex-start;
 `;
@@ -330,7 +338,7 @@ export const SettingInput = ({
             disabled={disabled}
             type={secretInputType}
             autoComplete="new-password"
-            placeholder={hasExistingSecret ? 'Secret value is set' : 'Enter secret value'}
+            placeholder="Enter secret value"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -350,6 +358,15 @@ export const SettingInput = ({
             }}
             data-testid="styledtextinput-secret"
           />
+          {shouldHideSecretValue && (
+            <SecretHelpText data-testid="secret-help-text">
+              <TranslatedText
+                stringId="admin.settings.secretExistsHint"
+                fallback="A secret value is set. Enter a new value to change it."
+                data-testid="translatedtext-secret-hint"
+              />
+            </SecretHelpText>
+          )}
         </div>
       </Flexbox>
     );
