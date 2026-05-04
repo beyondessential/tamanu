@@ -179,7 +179,7 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Manage]: 'M',
   [Run]: 'X',
   [Submit]: 'S',
-  [Login]: 'I',
+  [Login]: 'N',
   [FhirIntegration]: 'F',
 };
 
@@ -192,7 +192,7 @@ export const HIDDEN_PERMISSION_NOUNS = new Set([
 // If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
 export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
 
-// Canonical left-to-right column order for summary display (L R W C D X S I F).
+// Canonical left-to-right column order for summary display (L R W C D X S N F).
 // Every noun gets the same number of columns so summaries stay aligned.
 // `manage` is excluded because its only noun (`all`) is hidden.
 export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit', 'login', 'fhirIntegration'];
