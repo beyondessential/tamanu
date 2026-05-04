@@ -37,28 +37,25 @@ export const BuilderShell = styled.div`
   display: grid;
   flex: 1;
   grid-template-columns: ${({ $showPreview }) =>
-    $showPreview ? 'minmax(420px, 0.9fr) 1.1fr' : '1fr'};
+    $showPreview ? 'minmax(420px, 0.95fr) 1.05fr' : '1fr'};
   min-block-size: 0;
   padding-inline: ${({ $showPreview }) => ($showPreview ? '0' : '20px')};
 `;
 
 export const ChatColumn = styled.section`
-  border-inline-end: ${({ $showPreview }) =>
-    $showPreview ? `1px solid ${TAMANU_COLORS.outline}` : 'none'};
   display: flex;
   justify-content: center;
   min-block-size: 0;
   overflow: hidden;
-  transition: border-color 180ms ease-out;
 `;
 
 export const ChatStack = styled.div`
-  block-size: ${({ $showPreview }) => ($showPreview ? '100%' : 'calc(100% - 22px)')};
+  block-size: ${({ $showPreview }) => ($showPreview ? 'calc(100% - 28px)' : 'calc(100% - 22px)')};
   display: flex;
   flex-direction: column;
   gap: 10px;
-  inline-size: min(100%, ${({ $showPreview }) => ($showPreview ? '100%' : '530px')});
-  margin: ${({ $showPreview }) => ($showPreview ? '0' : '22px auto 0')};
+  inline-size: min(100%, 530px);
+  margin: ${({ $showPreview }) => ($showPreview ? '14px 20px 0' : '22px auto 0')};
   min-block-size: 0;
   transition:
     inline-size 180ms ease-out,
@@ -67,8 +64,8 @@ export const ChatStack = styled.div`
 
 export const ChatPanel = styled.div`
   background: ${TAMANU_COLORS.white};
-  border: ${({ $showPreview }) => ($showPreview ? 'none' : `1px solid ${TAMANU_COLORS.outline}`)};
-  border-radius: ${({ $showPreview }) => ($showPreview ? '0' : '3px')};
+  border: 1px solid ${TAMANU_COLORS.outline};
+  border-radius: 3px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -81,11 +78,26 @@ export const Messages = styled.div`
   flex: 1;
   flex-direction: column;
   gap: 24px;
+  margin-inline-end: -10px;
   min-block-size: 0;
   overflow-y: auto;
   padding-block-end: 18px;
-  padding-inline-end: 12px;
+  padding-inline-end: 22px;
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    inline-size: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${TAMANU_COLORS.outline};
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;
 
 export const IntroText = styled.p`
@@ -113,6 +125,10 @@ const UserMessage = styled.div`
   line-height: 1.4;
   max-inline-size: 78%;
   padding: 14px 18px;
+`;
+
+const UserMessageText = styled.div`
+  margin-block-end: 6px;
 `;
 
 const AttachmentChip = styled.div`
@@ -310,6 +326,7 @@ const previewEnter = keyframes`
 const PreviewColumn = styled.aside`
   animation: ${previewEnter} 220ms ease-out;
   background: ${TAMANU_COLORS.white};
+  border-inline-start: 1px solid ${TAMANU_COLORS.outline};
   display: flex;
   flex-direction: column;
   min-block-size: 0;
@@ -361,10 +378,15 @@ const PreviewBody = styled.div`
 `;
 
 const PreviewSurveyWrap = styled.div`
+  padding-block-end: 24px;
   margin-block-start: 14px;
 
   .MuiFormControl-root {
     pointer-events: none;
+  }
+
+  [data-testid='styledbuttonrow-pvdv'] {
+    margin-block-end: 18px;
   }
 `;
 
@@ -473,7 +495,7 @@ export function UserMessageContent({ message }) {
 
   return (
     <UserMessage>
-      {message.text && <div>{message.text}</div>}
+      {message.text && <UserMessageText>{message.text}</UserMessageText>}
       {message.file && <Attachment file={message.file} />}
     </UserMessage>
   );
