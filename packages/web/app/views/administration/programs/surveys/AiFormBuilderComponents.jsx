@@ -222,6 +222,12 @@ const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {
     padding: 15px 17px;
   }
+
+  .MuiInputBase-input::placeholder {
+    color: ${TAMANU_COLORS.softText};
+    font-size: 14px;
+    opacity: 1;
+  }
 `;
 
 const ComposerActions = styled.div`
