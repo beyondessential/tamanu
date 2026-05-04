@@ -154,9 +154,9 @@ export const Category = ({
           editor,
         } = propertySchema;
 
-        const isHighRisk = schema.highRisk || highRisk;
-        const disabled = !canWriteHighRisk && isHighRisk;
         const isSecret = Boolean(secret);
+        const isHighRisk = schema.highRisk || highRisk || isSecret;
+        const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
