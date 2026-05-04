@@ -157,7 +157,7 @@ const AttachmentPanel = styled.div`
   border-radius: 9px;
   display: grid;
   gap: 8px;
-  inline-size: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'min(100%, 310px)')};
+
   padding: ${({ $sent }) => ($sent ? '14px' : '0')};
 `;
 
