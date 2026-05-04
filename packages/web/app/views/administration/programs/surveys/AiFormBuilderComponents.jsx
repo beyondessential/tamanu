@@ -5,6 +5,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopRoundedIcon from '@mui/icons-material/StopRounded';
+import { IconButton } from '@material-ui/core';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -36,6 +37,7 @@ export const BuilderShell = styled.div`
   grid-template-columns: ${({ $showPreview }) =>
     $showPreview ? 'minmax(420px, 0.9fr) 1.1fr' : '1fr'};
   min-block-size: 0;
+  padding-inline: ${({ $showPreview }) => ($showPreview ? '0' : '20px')};
 `;
 
 export const ChatColumn = styled.section`
@@ -49,8 +51,10 @@ export const ChatColumn = styled.section`
 `;
 
 export const ChatStack = styled.div`
+  block-size: ${({ $showPreview }) => ($showPreview ? '100%' : 'calc(100% - 22px)')};
   display: flex;
   flex-direction: column;
+  gap: 10px;
   inline-size: min(100%, ${({ $showPreview }) => ($showPreview ? '100%' : '530px')});
   margin: ${({ $showPreview }) => ($showPreview ? '0' : '22px auto 0')};
   min-block-size: 0;
@@ -61,11 +65,12 @@ export const ChatStack = styled.div`
 
 export const ChatPanel = styled.div`
   background: ${TAMANU_COLORS.white};
+  border: ${({ $showPreview }) => ($showPreview ? 'none' : `1px solid ${TAMANU_COLORS.outline}`)};
   display: flex;
   flex: 1;
   flex-direction: column;
   min-block-size: 0;
-  padding: 28px 32px 8px;
+  padding: 28px 24px 12px;
 `;
 
 export const Messages = styled.div`
@@ -201,25 +206,14 @@ const ComposerActions = styled.div`
   z-index: 1;
 `;
 
-const IconButtonBase = styled.button`
-  align-items: center;
-  appearance: none;
+const ComposerIconButton = styled(IconButton)`
   border-radius: 3px;
-  border: 0;
-  cursor: pointer;
-  display: inline-flex;
-  justify-content: center;
-  min-block-size: 42px;
-  min-inline-size: 42px;
+  block-size: 42px;
+  inline-size: 42px;
   pointer-events: auto;
-
-  &:disabled {
-    cursor: not-allowed;
-  }
 `;
 
-const AttachButton = styled(IconButtonBase)`
-  background: transparent;
+const AttachButton = styled(ComposerIconButton)`
   color: ${TAMANU_COLORS.primary};
 
   svg {
@@ -227,10 +221,17 @@ const AttachButton = styled(IconButtonBase)`
   }
 `;
 
-const SendButton = styled(IconButtonBase)`
-  background: ${({ disabled, $isThinking }) =>
-    disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primary};
+const SendButton = styled(ComposerIconButton)`
+  && {
+    background: ${({ disabled, $isThinking }) =>
+      disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primary};
+  }
   color: ${TAMANU_COLORS.white};
+
+  &&:hover {
+    background: ${({ disabled, $isThinking }) =>
+      disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primaryDark};
+  }
 
   svg {
     font-size: 22px;
@@ -241,7 +242,7 @@ export const Disclaimer = styled.p`
   color: ${TAMANU_COLORS.midText};
   font-size: 11px;
   line-height: 1.3;
-  margin: 8px 0 0;
+  margin: 0 0 10px;
   text-align: center;
 `;
 
