@@ -6,6 +6,7 @@ import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 
 import {
+  configSecretCommand,
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
@@ -31,6 +32,7 @@ async function run() {
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
   program.addCommand(shellCommand);
   program.addCommand(upgradeCommand);
+  program.addCommand(configSecretCommand);
 
   await program.parseAsync(process.argv);
 }

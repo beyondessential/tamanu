@@ -233,6 +233,18 @@ export const centralSettings = {
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
             },
+            username: {
+              name: 'Username',
+              description: 'Username for DHIS2 API authentication',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            password: {
+              name: 'Password',
+              description: 'Password for DHIS2 API authentication',
+              type: yup.string(),
+              secret: true,
+            },
             reportIds: {
               name: 'Reports',
               description: 'The IDs of the reports to send to DHIS2',
