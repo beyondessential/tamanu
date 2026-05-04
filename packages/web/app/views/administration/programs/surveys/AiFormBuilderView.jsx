@@ -45,6 +45,7 @@ export function AiFormBuilderView() {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const abortControllerRef = useRef(null);
   const inputFileRef = useRef(null);
+  const messagesRef = useRef(null);
   const previousNewChatRequestIdRef = useRef(newChatRequestId);
 
   const { data: programOptions = [] } = useProgramsQuery({
@@ -69,6 +70,13 @@ export function AiFormBuilderView() {
   useEffect(() => {
     writeStoredState(persistableState);
   }, [persistableState]);
+
+  useEffect(() => {
+    messagesRef.current?.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [state.messages.length, isThinking]);
 
   useEffect(() => {
     setHasAiFormBuilderChat(hasExistingChat);
@@ -245,7 +253,7 @@ export function AiFormBuilderView() {
         <ChatColumn>
           <ChatStack $showPreview={showPreview}>
             <ChatPanel>
-              <Messages>
+              <Messages ref={messagesRef}>
                 <IntroText>
                   <TranslatedText
                     stringId="admin.programs.aiFormBuilder.welcome"
