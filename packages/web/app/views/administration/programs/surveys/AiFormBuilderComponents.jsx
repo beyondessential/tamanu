@@ -393,10 +393,6 @@ const PreviewSurveyWrap = styled.div`
   padding-block-end: 24px;
   margin-block-start: 14px;
 
-  .MuiFormControl-root {
-    pointer-events: none;
-  }
-
   [data-testid='styledbuttonrow-pvdv'] {
     margin-block-end: 18px;
   }
