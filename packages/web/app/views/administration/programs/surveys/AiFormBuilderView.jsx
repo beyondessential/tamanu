@@ -237,7 +237,7 @@ export function AiFormBuilderView() {
       <BuilderShell $showPreview={showPreview}>
         <ChatColumn $showPreview={showPreview}>
           <ChatStack $showPreview={showPreview}>
-            <ChatPanel>
+            <ChatPanel $showPreview={showPreview}>
               <Messages>
                 <IntroText>
                   <TranslatedText
