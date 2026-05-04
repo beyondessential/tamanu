@@ -36,7 +36,7 @@ import {
 import { useProgramsQuery } from './queries';
 
 export function AiFormBuilderView() {
-  const { newChatRequestId } = useOutletContext();
+  const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
   const { getTranslation } = useTranslation();
   const [state, setState] = useState(readStoredState);
   const [inputValue, setInputValue] = useState('');
@@ -69,6 +69,11 @@ export function AiFormBuilderView() {
   useEffect(() => {
     writeStoredState(persistableState);
   }, [persistableState]);
+
+  useEffect(() => {
+    setHasAiFormBuilderChat(hasExistingChat);
+    return () => setHasAiFormBuilderChat(false);
+  }, [hasExistingChat, setHasAiFormBuilderChat]);
 
   const resetChat = useCallback(() => {
     abortControllerRef.current?.abort();
