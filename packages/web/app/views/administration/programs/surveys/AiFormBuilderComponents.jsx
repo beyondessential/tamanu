@@ -246,9 +246,9 @@ const ComposerActions = styled.div`
 `;
 
 const ComposerIconButton = styled(IconButton)`
-  block-size: 48px;
+  block-size: 44px;
   border-radius: 3px;
-  inline-size: 58px;
+  inline-size: 62px;
   pointer-events: auto;
 `;
 
