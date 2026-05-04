@@ -50,7 +50,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       return getTranslation(
         'notification.content.labRequest.resultsAmended',
         'Lab results for :patientName (:displayId) have been <strong>amended</strong>',
-        { replacements: { displayId, patientName } },
+        { replacements: { displayId: patient.displayId, patientName } },
       );
     }
 
@@ -59,19 +59,19 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
         return getTranslation(
           'notification.content.labRequest.published',
           'Lab results for :patientName (:displayId) are <strong>now available</strong>',
-          { replacements: { displayId, patientName } },
+          { replacements: { displayId: patient.displayId, patientName } },
         );
       case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
         return getTranslation(
           'notification.content.labRequest.interimResults',
           'Interim lab results for :patientName (:displayId) are <strong>now available</strong>',
-          { replacements: { displayId, patientName } },
+          { replacements: { displayId: patient.displayId, patientName } },
         );
       case LAB_REQUEST_STATUSES.INVALIDATED:
         return getTranslation(
           'notification.content.labRequest.invalidated',
           'Lab results for :patientName (:displayId) have been <strong>invalidated</strong>',
-          { replacements: { displayId, patientName } },
+          { replacements: { displayId: patient.displayId, patientName } },
         );
     }
   }
