@@ -144,6 +144,7 @@ const AttachmentPanel = styled.div`
 export const PendingAttachmentRow = styled.div`
   display: grid;
   gap: 8px;
+  margin-inline: -14px;
   margin-block-end: 14px;
 `;
 
