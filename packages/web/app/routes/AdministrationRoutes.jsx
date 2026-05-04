@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { LocationAssignmentsContextProvider } from '../contexts/LocationAssignments';
 import {
   AssetUploaderView,
+  AiFormBuilderView,
   DesignationsAdminView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
@@ -37,7 +38,8 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="programs">
       <Route index element={<Navigate to="forms" replace />} />
       <Route path="forms/*" element={<ProgramsAdminView />}>
-        <Route index element={<Navigate to="manage" replace />} />
+        <Route index element={<Navigate to="aiFormBuilder" replace />} />
+        <Route path="aiFormBuilder" element={<AiFormBuilderView />} />
         <Route path="manage" element={<ManageProgramsAdminView />} />
         <Route path="manage/:programId" element={<ManageProgramsAdminView />} />
         <Route path="import" element={<ProgramsImportTab />} />

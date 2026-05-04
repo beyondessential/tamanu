@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -5,7 +6,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useMatch, useNavigate, useOutletContext } from 'react-router';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants/styles';
 import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
@@ -29,9 +30,21 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 const TabKey = /** @type {const} */ ({
+  Builder: 'aiFormBuilder',
   Manage: 'manage',
   Import: 'import',
   Export: 'export',
+});
+
+const builderTab = /** @type {const} */ ({
+  label: (
+    <TranslatedText
+      stringId="admin.programs.aiFormBuilder.tab.label"
+      fallback="AI form builder"
+    />
+  ),
+  key: TabKey.Builder,
+  icon: <AddIcon />,
 });
 
 const manageTab = /** @type {const} */ ({
@@ -66,30 +79,39 @@ export function ProgramsExportTab() {
 
 export const ProgramsAdminView = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [newChatRequestId, setNewChatRequestId] = useState(0);
   const navigate = useNavigate();
 
+  const isBuilderRoute = Boolean(useMatch('/admin/programs/forms/aiFormBuilder'));
   const isExportRoute = Boolean(useMatch('/admin/programs/forms/export'));
   const isImportRoute = Boolean(useMatch('/admin/programs/forms/import'));
+  const isManageRoute = Boolean(useMatch('/admin/programs/forms/manage/*'));
 
   const currentTab = (() => {
+    if (isBuilderRoute) return TabKey.Builder;
     if (isImportRoute) return 'import';
     if (isExportRoute) return 'export';
+    if (isManageRoute) return 'manage';
     return 'manage';
   })();
 
-  const renderTabContent = useCallback(() => <Outlet context={{ setIsLoading }} />, [setIsLoading]);
+  const renderTabContent = useCallback(
+    () => <Outlet context={{ setIsLoading, newChatRequestId }} />,
+    [newChatRequestId, setIsLoading],
+  );
 
   const tabs = useMemo(
     () => [
+      { ...builderTab, render: renderTabContent },
       { ...manageTab, render: renderTabContent },
       {
-        label: 'Import',
+        label: <TranslatedText stringId="general.action.import" fallback="Import" />,
         key: TabKey.Import,
         icon: <LoginIcon />,
         render: renderTabContent,
       },
       {
-        label: 'Export',
+        label: <TranslatedText stringId="general.action.export" fallback="Export" />,
         key: TabKey.Export,
         icon: <LogoutIcon />,
         render: renderTabContent,
@@ -100,6 +122,10 @@ export const ProgramsAdminView = () => {
 
   const onTabSelect = key => {
     if (key === currentTab) return;
+    if (key === TabKey.Builder) {
+      navigate('/admin/programs/forms/aiFormBuilder');
+      return;
+    }
     if (key === 'manage') {
       navigate('/admin/programs/forms/manage');
       return;
@@ -118,10 +144,20 @@ export const ProgramsAdminView = () => {
       aria-busy={isLoading}
       title={
         <TranslatedText
-          stringId="admin.program.title"
-          fallback="Programs (aka forms)"
+          stringId="admin.programs.forms.title"
+          fallback="Forms"
           data-testid="translatedtext-52ok"
         />
+      }
+      titleActions={
+        currentTab === TabKey.Builder && (
+          <Button size="small" onClick={() => setNewChatRequestId(value => value + 1)}>
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.newChat.action"
+              fallback="New chat"
+            />
+          </Button>
+        )
       }
       showLoadingIndicator={isLoading}
       data-testid="adminviewcontainer-w2w4"
