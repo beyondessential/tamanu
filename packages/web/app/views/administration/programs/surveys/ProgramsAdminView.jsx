@@ -145,8 +145,8 @@ export const ProgramsAdminView = () => {
       aria-busy={isLoading}
       title={
         <TranslatedText
-          stringId="admin.programs.forms.title"
-          fallback="Forms"
+          stringId="admin.program.title"
+          fallback="Programs (aka forms)"
           data-testid="translatedtext-52ok"
         />
       }

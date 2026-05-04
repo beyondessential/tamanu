@@ -1,9 +1,10 @@
 export const ACCEPTED_FILE_EXTENSIONS = ['png', 'pdf', 'jpg', 'jpeg', 'csv', 'xls', 'xlsx'];
 
 const STORAGE_KEY = 'tamanu.aiFormBuilder.chat';
+let messageIdCounter = 0;
 
 export const createMessage = message => ({
-  id: `${Date.now()}-${Math.random()}`,
+  id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${messageIdCounter++}`,
   ...message,
 });
 
