@@ -69,11 +69,12 @@ export const ChatStack = styled.div`
 export const ChatPanel = styled.div`
   background: ${TAMANU_COLORS.white};
   border: ${({ $showPreview }) => ($showPreview ? 'none' : `1px solid ${TAMANU_COLORS.outline}`)};
+  border-radius: ${({ $showPreview }) => ($showPreview ? '0' : '3px')};
   display: flex;
   flex: 1;
   flex-direction: column;
   min-block-size: 0;
-  padding: 28px 24px 12px;
+  padding: 28px 24px 8px;
 `;
 
 export const Messages = styled.div`
@@ -188,7 +189,7 @@ const StyledTextInput = styled(TextInput)`
     align-items: flex-start;
     border-radius: 10px;
     min-block-size: 118px;
-    padding-block-end: 54px;
+    padding-block-end: 58px;
   }
 
   && .MuiOutlinedInput-notchedOutline,
@@ -211,8 +212,8 @@ const ComposerActions = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-block-start: -50px;
-  padding: 0 10px 10px 14px;
+  margin-block-start: -56px;
+  padding: 0 10px 10px;
   pointer-events: none;
   position: relative;
   z-index: 1;
@@ -226,7 +227,9 @@ const ComposerIconButton = styled(IconButton)`
 `;
 
 const AttachButton = styled(ComposerIconButton)`
+  block-size: 48px;
   color: ${TAMANU_COLORS.primary};
+  inline-size: 58px;
 
   svg {
     font-size: 25px;
@@ -564,7 +567,7 @@ export function ChatComposer({
         onDragOver={event => event.preventDefault()}
         placeholder={getTranslation(
           'admin.programs.aiFormBuilder.input.placeholder',
-          'Start typing here or attach a file containing the form...',
+          'Start typing here or attached a file containing the form...',
         )}
         enablePasting
         data-testid="ai-form-builder-input"
