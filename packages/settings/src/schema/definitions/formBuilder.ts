@@ -183,13 +183,6 @@ HOW TO FIX EACH ERROR TYPE
 export const formBuilderProperties = {
   description: 'AI form builder settings',
   properties: {
-    enabled: {
-      description:
-        'Enables the AI form builder admin tab. The feature is mocked and incomplete; leave disabled outside of development.',
-      type: yup.boolean(),
-      defaultValue: false,
-      exposedToWeb: true,
-    },
     prompts: {
       description: 'System prompts used to build Tamanu program forms',
       properties: {
