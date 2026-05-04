@@ -75,7 +75,7 @@ export const ChatPanel = styled.div`
   flex: 1;
   flex-direction: column;
   min-block-size: 0;
-  padding: 28px 24px 8px;
+  padding: 28px 24px 10px;
 `;
 
 export const Messages = styled.div`
@@ -417,6 +417,13 @@ const DownloadFileName = styled.span`
 const SaveButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
+  padding-inline-end: 14px;
+`;
+
+const DownloadButton = styled(OutlinedButton)`
+  && {
+    padding-block: 7px;
+  }
 `;
 
 const PreviewSubmitTooltipTarget = styled.div`
@@ -582,9 +589,9 @@ export function DownloadMessage({ fileName, onDownload, onSave }) {
       </MessageText>
       <DownloadCard>
         <DownloadFileName>{fileName}</DownloadFileName>
-        <OutlinedButton size="small" startIcon={<DownloadIcon />} onClick={onDownload}>
+        <DownloadButton size="small" startIcon={<DownloadIcon />} onClick={onDownload}>
           <TranslatedText stringId="general.action.download" fallback="Download" />
-        </OutlinedButton>
+        </DownloadButton>
       </DownloadCard>
       <SaveButtonRow>
         <Button size="small" onClick={onSave}>
