@@ -200,9 +200,8 @@ const ProgramSelectWrap = styled.div`
 `;
 
 const ComposerWrap = styled.div`
-  margin-inline: -14px;
   margin-block-start: auto;
-  padding: 0;
+  margin-inline: -14px;
 `;
 
 const StyledTextInput = styled(TextInput)`
@@ -247,16 +246,14 @@ const ComposerActions = styled.div`
 `;
 
 const ComposerIconButton = styled(IconButton)`
+  block-size: 48px;
   border-radius: 3px;
-  block-size: 42px;
-  inline-size: 42px;
+  inline-size: 58px;
   pointer-events: auto;
 `;
 
 const AttachButton = styled(ComposerIconButton)`
-  block-size: 48px;
   color: ${TAMANU_COLORS.primary};
-  inline-size: 58px;
 
   svg {
     font-size: 25px;
@@ -267,9 +264,6 @@ const SendButton = styled(ComposerIconButton)`
   && {
     background: ${({ disabled, $isThinking }) =>
       disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primary};
-    border-radius: 3px;
-    block-size: 48px;
-    inline-size: 58px;
   }
   color: ${TAMANU_COLORS.white};
 
@@ -385,7 +379,6 @@ const PreviewProgress = styled.div`
   display: grid;
   gap: 3px;
   grid-template-columns: repeat(${({ $segments }) => $segments}, 1fr);
-  padding-inline: 0;
 `;
 
 const PreviewProgressSegment = styled.div`
@@ -401,12 +394,8 @@ const PreviewBody = styled.div`
 `;
 
 const PreviewSurveyWrap = styled.div`
-  padding-block-end: 24px;
   margin-block-start: 14px;
-
-  [data-testid='styledbuttonrow-pvdv'] {
-    margin-block-end: 18px;
-  }
+  padding-block-end: 42px;
 `;
 
 const DownloadCard = styled.div`
@@ -480,6 +469,25 @@ const createPreviewSurvey = form => ({
 
 const getPreviewScreenCount = survey =>
   Math.max(1, ...survey.components.map(component => component.screenIndex + 1));
+
+function PreviewSubmitButton() {
+  return (
+    <Tooltip
+      title={
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.preview.submit.tooltip"
+          fallback="This is a preview only. No data can be submitted."
+        />
+      }
+    >
+      <PreviewSubmitTooltipTarget>
+        <Button color="primary" variant="contained" functionallyDisabled>
+          <TranslatedText stringId="general.action.submit" fallback="Submit" />
+        </Button>
+      </PreviewSubmitTooltipTarget>
+    </Tooltip>
+  );
+}
 
 export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
@@ -697,25 +705,7 @@ export function FormPreview({ form }) {
                 setStatus={setStatus}
                 status={status}
                 getComponentForQuestionType={getComponentForQuestionType}
-                summarySubmitButton={
-                  <Tooltip
-                    title={
-                      <TranslatedText
-                        stringId="admin.programs.aiFormBuilder.preview.submit.tooltip"
-                        fallback="This is a preview only. No data can be submitted."
-                      />
-                    }
-                  >
-                    <PreviewSubmitTooltipTarget>
-                      <Button color="primary" variant="contained" functionallyDisabled>
-                        <TranslatedText
-                          stringId="general.action.submit"
-                          fallback="Submit"
-                        />
-                      </Button>
-                    </PreviewSubmitTooltipTarget>
-                  </Tooltip>
-                }
+                summarySubmitButton={<PreviewSubmitButton />}
               />
             )}
           />

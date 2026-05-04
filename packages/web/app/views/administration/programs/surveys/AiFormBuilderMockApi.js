@@ -1,8 +1,17 @@
+const MOCK_GENERATION_DELAY_MS = 1800;
+
+const createAbortError = () => new DOMException('Aborted', 'AbortError');
+
 export const mockGenerateForm = ({
   signal,
   title = 'Knowledge, Awareness and Practices Form',
-}) =>
+} = {}) =>
   new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(createAbortError());
+      return;
+    }
+
     const timeout = setTimeout(() => {
       resolve({
         title,
@@ -19,13 +28,13 @@ export const mockGenerateForm = ({
           },
         ],
       });
-    }, 1800);
+    }, MOCK_GENERATION_DELAY_MS);
 
-    signal.addEventListener(
+    signal?.addEventListener(
       'abort',
       () => {
         clearTimeout(timeout);
-        reject(new DOMException('Aborted', 'AbortError'));
+        reject(createAbortError());
       },
       { once: true },
     );

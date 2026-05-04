@@ -27,5 +27,9 @@ export const readStoredState = () => {
 export const writeStoredState = state => {
   if (typeof window === 'undefined') return;
 
-  window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage may be unavailable or out of quota; persistence is best-effort.
+  }
 };

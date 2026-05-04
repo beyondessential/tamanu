@@ -53,6 +53,25 @@ const manageTab = /** @type {const} */ ({
   icon: <TuneIcon />,
 });
 
+const importTab = /** @type {const} */ ({
+  label: <TranslatedText stringId="general.action.import" fallback="Import" />,
+  key: TabKey.Import,
+  icon: <LoginIcon />,
+});
+
+const exportTab = /** @type {const} */ ({
+  label: <TranslatedText stringId="general.action.export" fallback="Export" />,
+  key: TabKey.Export,
+  icon: <LogoutIcon />,
+});
+
+const TAB_ROUTES = /** @type {const} */ ({
+  [TabKey.Builder]: '/admin/programs/forms/aiFormBuilder',
+  [TabKey.Manage]: '/admin/programs/forms/manage',
+  [TabKey.Import]: '/admin/programs/forms/import',
+  [TabKey.Export]: '/admin/programs/forms/export',
+});
+
 export function ProgramsImportTab() {
   const { setIsLoading } = useOutletContext();
 
@@ -83,17 +102,17 @@ export const ProgramsAdminView = () => {
   const [newChatRequestId, setNewChatRequestId] = useState(0);
   const navigate = useNavigate();
 
-  const isBuilderRoute = Boolean(useMatch('/admin/programs/forms/aiFormBuilder'));
-  const isExportRoute = Boolean(useMatch('/admin/programs/forms/export'));
-  const isImportRoute = Boolean(useMatch('/admin/programs/forms/import'));
-  const isManageRoute = Boolean(useMatch('/admin/programs/forms/manage/*'));
+  const isBuilderRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Builder]));
+  const isExportRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Export]));
+  const isImportRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Import]));
+  const isManageRoute = Boolean(useMatch(`${TAB_ROUTES[TabKey.Manage]}/*`));
 
   const currentTab = (() => {
     if (isBuilderRoute) return TabKey.Builder;
-    if (isImportRoute) return 'import';
-    if (isExportRoute) return 'export';
-    if (isManageRoute) return 'manage';
-    return 'manage';
+    if (isImportRoute) return TabKey.Import;
+    if (isExportRoute) return TabKey.Export;
+    if (isManageRoute) return TabKey.Manage;
+    return TabKey.Manage;
   })();
 
   const renderTabContent = useCallback(
@@ -102,42 +121,15 @@ export const ProgramsAdminView = () => {
   );
 
   const tabs = useMemo(
-    () => [
-      { ...builderTab, render: renderTabContent },
-      { ...manageTab, render: renderTabContent },
-      {
-        label: <TranslatedText stringId="general.action.import" fallback="Import" />,
-        key: TabKey.Import,
-        icon: <LoginIcon />,
-        render: renderTabContent,
-      },
-      {
-        label: <TranslatedText stringId="general.action.export" fallback="Export" />,
-        key: TabKey.Export,
-        icon: <LogoutIcon />,
-        render: renderTabContent,
-      },
-    ],
+    () =>
+      [builderTab, manageTab, importTab, exportTab].map(tab => ({ ...tab, render: renderTabContent })),
     [renderTabContent],
   );
 
   const onTabSelect = key => {
     if (key === currentTab) return;
-    if (key === TabKey.Builder) {
-      navigate('/admin/programs/forms/aiFormBuilder');
-      return;
-    }
-    if (key === 'manage') {
-      navigate('/admin/programs/forms/manage');
-      return;
-    }
-    if (key === 'import') {
-      navigate('/admin/programs/forms/import');
-      return;
-    }
-    if (key === 'export') {
-      navigate('/admin/programs/forms/export');
-    }
+    const route = TAB_ROUTES[key];
+    if (route) navigate(route);
   };
 
   return (

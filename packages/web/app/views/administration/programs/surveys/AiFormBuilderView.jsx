@@ -155,12 +155,14 @@ export function AiFormBuilderView() {
 
   const handleSelectProgram = useCallback(
     programId => {
-      setState(current => ({ ...current, selectedProgramId: programId }));
-      if (programId && !state.generatedForm && !isThinking) {
-        runMockGeneration();
-      }
+      let shouldGenerate = false;
+      setState(current => {
+        shouldGenerate = Boolean(programId) && !current.generatedForm;
+        return { ...current, selectedProgramId: programId };
+      });
+      if (shouldGenerate && !isThinking) runMockGeneration();
     },
-    [isThinking, runMockGeneration, state.generatedForm],
+    [isThinking, runMockGeneration],
   );
 
   const handleSubmit = useCallback(() => {
@@ -180,10 +182,7 @@ export function AiFormBuilderView() {
       return;
     }
 
-    const requestedTitle = text.toLowerCase().includes('knowledge')
-      ? 'Knowledge and Practices Form'
-      : state.generatedForm?.title;
-    runMockGeneration({ title: requestedTitle });
+    runMockGeneration({ title: state.generatedForm?.title });
   }, [
     appendMessage,
     inputValue,
@@ -243,9 +242,9 @@ export function AiFormBuilderView() {
   return (
     <BuilderArticle>
       <BuilderShell $showPreview={showPreview}>
-        <ChatColumn $showPreview={showPreview}>
+        <ChatColumn>
           <ChatStack $showPreview={showPreview}>
-            <ChatPanel $showPreview={showPreview}>
+            <ChatPanel>
               <Messages>
                 <IntroText>
                   <TranslatedText
