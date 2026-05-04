@@ -15,7 +15,6 @@ import {
   ChatStack,
   Disclaimer,
   DownloadMessage,
-  FormPreview,
   IntroText,
   MessageText,
   Messages,
@@ -25,6 +24,7 @@ import {
   ThinkingMessage,
   UserMessageContent,
 } from './AiFormBuilderComponents';
+import { FormPreview } from './AiFormBuilderPreview';
 import { mockGenerateForm } from './AiFormBuilderMockApi';
 import {
   ACCEPTED_FILE_EXTENSIONS,
@@ -85,6 +85,10 @@ export function AiFormBuilderView() {
     return () => setHasAiFormBuilderChat(false);
   }, [setHasAiFormBuilderChat]);
 
+  useEffect(() => {
+    return () => abortControllerRef.current?.abort();
+  }, []);
+
   const resetChat = useCallback(() => {
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
@@ -113,6 +117,7 @@ export function AiFormBuilderView() {
   }, []);
 
   const runMockGeneration = useCallback(async ({ title } = {}) => {
+    abortControllerRef.current?.abort();
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     setIsThinking(true);
@@ -162,17 +167,16 @@ export function AiFormBuilderView() {
 
   const handleSelectProgram = useCallback(
     programId => {
-      let shouldGenerate = false;
-      setState(current => {
-        shouldGenerate = Boolean(programId) && !current.generatedForm;
-        return { ...current, selectedProgramId: programId };
-      });
+      const shouldGenerate = Boolean(programId) && !state.generatedForm;
+      setState(current => ({ ...current, selectedProgramId: programId }));
       if (shouldGenerate && !isThinking) runMockGeneration();
     },
-    [isThinking, runMockGeneration],
+    [isThinking, runMockGeneration, state.generatedForm],
   );
 
   const handleSubmit = useCallback(() => {
+    if (isThinking) return;
+
     const text = inputValue.trim();
     if (!text && !pendingFile) return;
 
@@ -193,6 +197,7 @@ export function AiFormBuilderView() {
   }, [
     appendMessage,
     inputValue,
+    isThinking,
     pendingFile,
     runMockGeneration,
     state.generatedForm?.title,
