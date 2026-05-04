@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
@@ -79,12 +79,6 @@ const Flexbox = styled.div`
   align-items: center;
   display: flex;
   gap: 0.5rem;
-`;
-
-const SecretHelpText = styled.span`
-  font-size: 12px;
-  color: ${Colors.midText};
-  font-style: italic;
 `;
 
 const LongTextFlexbox = styled(Flexbox)`
@@ -201,12 +195,16 @@ export const SettingInput = ({
   const [error, setError] = useState(null);
   const [showSecretValue, setShowSecretValue] = useState(false);
   const [secretEdited, setSecretEdited] = useState(false);
+  const hiddenSecretValueRef = useRef(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
 
   // Secret values should never be displayed. Hiding any existing value keeps
   // older plaintext provisioned values from briefly appearing in the UI.
   const hasExistingSecret = isSecret && !isUndefined(value) && value !== null && value !== '';
+  if (hasExistingSecret && !secretEdited) {
+    hiddenSecretValueRef.current = value;
+  }
 
   const isUnchangedFromDefault = useMemo(() => {
     if (isSecret) {
@@ -276,8 +274,20 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeValue(e);
 
   const handleSecretChange = e => {
+    if (hasExistingSecret && e.target.value === '') {
+      setSecretEdited(false);
+      handleChangeSetting(path, hiddenSecretValueRef.current);
+      return;
+    }
+
     setSecretEdited(true);
     handleChangeSetting(path, e.target.value);
+  };
+
+  const handleClearSecret = () => {
+    setSecretEdited(true);
+    setShowSecretValue(false);
+    handleChangeSetting(path, null);
   };
 
   const toggleShowSecret = () => {
@@ -330,14 +340,17 @@ export const SettingInput = ({
             }}
             data-testid="styledtextinput-secret"
           />
-          {hasExistingSecret && !secretEdited && (
-            <SecretHelpText data-testid="secret-help-text">
+          {hasExistingSecret && (
+            <DefaultSettingButton
+              onClick={handleClearSecret}
+              disabled={disabled}
+              data-testid="clearsecretbutton-x5r2"
+            >
               <TranslatedText
-                stringId="admin.settings.secretExistsHint"
-                fallback="A secret value is set. Enter a new value to change it."
-                data-testid="translatedtext-secret-hint"
+                stringId="admin.settings.action.clearSecret"
+                fallback="Clear secret"
               />
-            </SecretHelpText>
+            </DefaultSettingButton>
           )}
         </div>
       </Flexbox>
