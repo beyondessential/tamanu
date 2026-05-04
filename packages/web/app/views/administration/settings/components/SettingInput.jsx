@@ -293,18 +293,23 @@ export const SettingInput = ({
   if (isSecret) {
     // For secrets, we only support string type
     const secretDisplayValue = hasExistingSecret && !secretEdited ? '' : displayValue ?? '';
+    const secretInputType = showSecretValue || (hasExistingSecret && !secretEdited) ? 'text' : 'password';
+    const secretInputName = `setting-secret-${path.replace(/\./g, '-')}`;
 
     return (
       <Flexbox data-testid="flexbox-secret">
         <div>
           <StyledTextInput
+            id={secretInputName}
+            name={secretInputName}
             value={secretDisplayValue}
             onChange={handleSecretChange}
             style={{ width: '353px' }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
-            type={showSecretValue ? 'text' : 'password'}
+            type={secretInputType}
+            autoComplete="new-password"
             placeholder={hasExistingSecret ? 'Secret value is set' : 'Enter secret value'}
             InputProps={{
               endAdornment: (
@@ -319,6 +324,9 @@ export const SettingInput = ({
                   </IconButton>
                 </InputAdornment>
               ),
+            }}
+            inputProps={{
+              autoComplete: 'new-password',
             }}
             data-testid="styledtextinput-secret"
           />
