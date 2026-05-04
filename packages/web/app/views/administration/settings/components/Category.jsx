@@ -174,7 +174,6 @@ export const Category = ({
               disabled={disabled}
               facilityId={facilityId}
               isSecret={isSecret}
-              canClearSecret={canWriteHighRisk}
               editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />

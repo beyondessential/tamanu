@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
 import {
@@ -188,7 +189,6 @@ export const SettingInput = ({
   suggesterEndpoint,
   facilityId,
   isSecret = false,
-  canClearSecret = false,
   editor,
   'data-testid': dataTestId,
 }) => {
@@ -203,6 +203,8 @@ export const SettingInput = ({
   // Secret values should never be displayed. Hiding any existing value keeps
   // older plaintext provisioned values from briefly appearing in the UI.
   const hasExistingSecret = isSecret && !isUndefined(value) && value !== null && value !== '';
+  const isMaskedSecret = isSecret && value === SECRET_PLACEHOLDER;
+  const shouldHideSecretValue = hasExistingSecret && (!secretEdited || isMaskedSecret);
   if (hasExistingSecret && !secretEdited) {
     hiddenSecretValueRef.current = value;
   }
@@ -216,8 +218,20 @@ export const SettingInput = ({
   }, [value, defaultValue, isSecret, secretEdited]);
 
   useEffect(() => {
+    if (isMaskedSecret && secretEdited) {
+      setSecretEdited(false);
+      setShowSecretValue(false);
+      return;
+    }
+
     // Don't validate hidden secret values; only validate once the user types a replacement.
-    if (isSecret && hasExistingSecret && !secretEdited) {
+    if (isSecret && shouldHideSecretValue) {
+      setError(null);
+      return;
+    }
+    // Empty secret fields mean "no change" in the editor, not an invalid null/empty
+    // schema value. The backend only receives a new value once the user types one.
+    if (isSecret && (value === null || value === undefined || value === '')) {
       setError(null);
       return;
     }
@@ -232,7 +246,7 @@ export const SettingInput = ({
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema, type, isSecret, hasExistingSecret, secretEdited]);
+  }, [value, typeSchema, type, isSecret, isMaskedSecret, shouldHideSecretValue, secretEdited]);
 
   const DefaultButton = () => {
     if (disabled) return null;
@@ -275,20 +289,15 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeValue(e);
 
   const handleSecretChange = e => {
-    if (hasExistingSecret && e.target.value === '') {
+    const newValue = e.target.value ?? '';
+    if (hasExistingSecret && newValue === '') {
       setSecretEdited(false);
       handleChangeSetting(path, hiddenSecretValueRef.current);
       return;
     }
 
     setSecretEdited(true);
-    handleChangeSetting(path, e.target.value);
-  };
-
-  const handleClearSecret = () => {
-    setSecretEdited(true);
-    setShowSecretValue(false);
-    handleChangeSetting(path, null);
+    handleChangeSetting(path, newValue);
   };
 
   const toggleShowSecret = () => {
@@ -303,8 +312,8 @@ export const SettingInput = ({
   // Handle secret fields with password-style input
   if (isSecret) {
     // For secrets, we only support string type
-    const secretDisplayValue = hasExistingSecret && !secretEdited ? '' : displayValue ?? '';
-    const secretInputType = showSecretValue || (hasExistingSecret && !secretEdited) ? 'text' : 'password';
+    const secretDisplayValue = shouldHideSecretValue ? '' : displayValue ?? '';
+    const secretInputType = showSecretValue || shouldHideSecretValue ? 'text' : 'password';
     const secretInputName = `setting-secret-${path.replace(/\./g, '-')}`;
 
     return (
@@ -341,18 +350,6 @@ export const SettingInput = ({
             }}
             data-testid="styledtextinput-secret"
           />
-          {hasExistingSecret && (
-            <DefaultSettingButton
-              onClick={handleClearSecret}
-              disabled={disabled || !canClearSecret}
-              data-testid="clearsecretbutton-x5r2"
-            >
-              <TranslatedText
-                stringId="admin.settings.action.clearSecret"
-                fallback="Clear secret"
-              />
-            </DefaultSettingButton>
-          )}
         </div>
       </Flexbox>
     );
