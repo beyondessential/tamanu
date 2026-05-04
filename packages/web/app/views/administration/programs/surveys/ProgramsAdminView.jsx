@@ -79,6 +79,7 @@ export function ProgramsExportTab() {
 
 export const ProgramsAdminView = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAiFormBuilderChat, setHasAiFormBuilderChat] = useState(false);
   const [newChatRequestId, setNewChatRequestId] = useState(0);
   const navigate = useNavigate();
 
@@ -96,8 +97,8 @@ export const ProgramsAdminView = () => {
   })();
 
   const renderTabContent = useCallback(
-    () => <Outlet context={{ setIsLoading, newChatRequestId }} />,
-    [newChatRequestId, setIsLoading],
+    () => <Outlet context={{ setIsLoading, newChatRequestId, setHasAiFormBuilderChat }} />,
+    [newChatRequestId, setIsLoading, setHasAiFormBuilderChat],
   );
 
   const tabs = useMemo(
@@ -151,7 +152,11 @@ export const ProgramsAdminView = () => {
       }
       titleActions={
         currentTab === TabKey.Builder && (
-          <Button size="small" onClick={() => setNewChatRequestId(value => value + 1)}>
+          <Button
+            size="small"
+            disabled={!hasAiFormBuilderChat}
+            onClick={() => setNewChatRequestId(value => value + 1)}
+          >
             <TranslatedText
               stringId="admin.programs.aiFormBuilder.newChat.action"
               fallback="New chat"
