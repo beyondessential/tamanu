@@ -36,48 +36,61 @@ translationRouter.put(
       sequelize,
     } = store;
     req.checkPermission('write', 'Translation');
-    const upsertTranslation = async ({ stringId, language, text }) => {
-      if (language === DEFAULT_LANGUAGE_CODE) return []; // Ignore default translations
 
-      const updateAndRestore = async (existing, text) => {
-        let restored = false;
-        if (existing.deletedAt) {
-          await existing.restore();
-          restored = true;
-        }
-        return [await existing.update({ text }), restored];
-      };
+    // Flatten the FE shape (grouped by stringId, keyed by language) into
+    // discrete entries, skipping the default language since it isn't stored.
+    const entries = Object.entries(body).flatMap(([stringId, languages]) =>
+      Object.entries(languages)
+        .filter(([language]) => language !== DEFAULT_LANGUAGE_CODE)
+        .map(([language, text]) => ({ stringId, language, text })),
+    );
 
-      // Postgres doesn't return any information about whether an upserted row was created or updated
-      // so we have to check for an existing row first and match the return style of upsert i.e [record, isCreate].
-      const existing = await TranslatedString.findOne({
-        where: {
-          stringId,
-          language,
-        },
-        paranoid: false, // Find soft deleted translations so that we can restore them instead of creating a new one
-      });
-      if (isEmpty(text) && !existing) return [];
-      if (isEmpty(text) && existing) return [await existing.destroy(), false];
-      if (existing?.text === text && !existing.deletedAt) return [];
-      if (existing) return await updateAndRestore(existing, text);
-      return [await TranslatedString.create({ stringId, language, text }), true];
-    };
-    const results = await sequelize.transaction(async () => {
-      // Convert FE representation of translation data (grouped by stringId with keys for each languages text)
-      // to upsertable entries.
-      return Promise.all(
-        Object.entries(body).flatMap(([stringId, languages]) =>
-          Object.entries(languages).map(([language, text]) =>
-            upsertTranslation({ stringId, language, text }),
-          ),
-        ),
-      );
+    if (entries.length === 0) {
+      res.send({ ok: 'ok' });
+      return;
+    }
+
+    // Bulk-fetch all candidate rows in a single SELECT (including soft-deleted
+    // ones, so we can restore rather than recreate) instead of doing a findOne
+    // per entry — typical saves submit hundreds of unchanged rows.
+    const stringIds = [...new Set(entries.map(e => e.stringId))];
+    const languages = [...new Set(entries.map(e => e.language))];
+    const existingRows = await TranslatedString.findAll({
+      where: { stringId: stringIds, language: languages },
+      paranoid: false,
     });
+    const keyOf = (stringId, language) => `${stringId}\x00${language}`;
+    const existingByKey = new Map(
+      existingRows.map(row => [keyOf(row.stringId, row.language), row]),
+    );
 
-    const newlyCreated = results
-      .filter(result => result[1])
-      .map(result => result[0].get({ plain: true }));
+    const newlyCreated = await sequelize.transaction(async () => {
+      const created = [];
+      for (const { stringId, language, text } of entries) {
+        const existing = existingByKey.get(keyOf(stringId, language));
+        const noText = isEmpty(text);
+
+        if (!existing) {
+          if (noText) continue;
+          const row = await TranslatedString.create({ stringId, language, text });
+          created.push(row.get({ plain: true }));
+          continue;
+        }
+
+        if (noText) {
+          if (!existing.deletedAt) await existing.destroy();
+          continue;
+        }
+
+        const wasDeleted = !!existing.deletedAt;
+        if (wasDeleted) await existing.restore();
+        if (existing.text !== text) await existing.update({ text });
+        // Restoring a soft-deleted row counts as a creation for the response,
+        // matching the previous (one-findOne-per-entry) behaviour.
+        if (wasDeleted) created.push(existing.get({ plain: true }));
+      }
+      return created;
+    });
 
     if (newlyCreated.length) {
       res.status(201).send({ data: newlyCreated });
