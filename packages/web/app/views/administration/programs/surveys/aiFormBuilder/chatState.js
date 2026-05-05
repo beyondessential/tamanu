@@ -12,6 +12,8 @@ export const createMessage = message => ({
 export const createEmptyState = () => ({
   messages: [],
   selectedProgramId: '',
+  sessionId: null,
+  pendingSubmission: null,
   generatedForm: null,
   savedSurveyId: null,
 });

@@ -28,7 +28,6 @@ import {
   UserMessageContent,
 } from './ChatComponents';
 import { FormPreview } from './FormPreview';
-import { mockGenerateForm } from './mockGenerateForm';
 import { normaliseProgramDefinition } from './programDefinition';
 import { createProgramDefinitionWorkbook } from './programDefinitionWorkbook';
 import {
@@ -39,6 +38,8 @@ import {
   writeSessionChatState,
 } from './chatState';
 import { useProgramsQuery } from '../queries';
+
+const getProgramCode = programId => programId?.replace(/^program-/, '');
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
@@ -58,7 +59,12 @@ export function AiFormBuilderView() {
   const previousNewChatRequestIdRef = useRef(newChatRequestId);
 
   const { data: programOptions = [] } = useProgramsQuery({
-    select: programs => programs.map(program => ({ label: program.name, value: program.id })),
+    select: programs =>
+      programs.map(program => ({
+        label: program.name,
+        value: program.id,
+        code: getProgramCode(program.id),
+      })),
   });
 
   const hasExistingChat = Boolean(
@@ -121,23 +127,37 @@ export function AiFormBuilderView() {
     }));
   }, []);
 
-  const runMockGeneration = useCallback(async ({ title } = {}) => {
+  const sendChatMessage = useCallback(async ({ message, file, selectedProgramId }) => {
     abortControllerRef.current?.abort();
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     setIsThinking(true);
 
     try {
-      const generatedForm = await mockGenerateForm({ signal: abortController.signal, title });
+      const selectedProgramCode = getProgramCode(selectedProgramId);
+      const body = {
+        sessionId: state.sessionId,
+        message: [
+          selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
+          message,
+        ]
+          .filter(Boolean)
+          .join('\n\n'),
+      };
+      const response = file
+        ? await api.postWithFileUpload('admin/form-builder/chat', file, body, {
+            signal: abortController.signal,
+          })
+        : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
+
       setState(current => ({
         ...current,
-        generatedForm: normaliseProgramDefinition(generatedForm),
-        savedSurveyId: null,
+        sessionId: response.sessionId,
         messages: [
           ...current.messages,
           createMessage({
-            type: 'download',
-            fileName: generatedForm.downloadFileName,
+            type: 'assistant',
+            text: response.message,
           }),
         ],
       }));
@@ -156,7 +176,7 @@ export function AiFormBuilderView() {
         setIsThinking(false);
       }
     }
-  }, []);
+  }, [api, state.sessionId]);
 
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -173,11 +193,13 @@ export function AiFormBuilderView() {
 
   const handleSelectProgram = useCallback(
     programId => {
-      const shouldGenerate = Boolean(programId) && !state.generatedForm;
-      setState(current => ({ ...current, selectedProgramId: programId }));
-      if (shouldGenerate && !isThinking) runMockGeneration();
+      const pendingSubmission = state.pendingSubmission;
+      setState(current => ({ ...current, selectedProgramId: programId, pendingSubmission: null }));
+      if (programId && pendingSubmission && !isThinking) {
+        sendChatMessage({ ...pendingSubmission, selectedProgramId: programId });
+      }
     },
-    [isThinking, runMockGeneration, state.generatedForm],
+    [isThinking, sendChatMessage, state.pendingSubmission],
   );
 
   const handleSubmit = useCallback(() => {
@@ -186,27 +208,37 @@ export function AiFormBuilderView() {
     const text = inputValue.trim();
     if (!text && !pendingFile) return;
 
-    appendMessage({
+    const userMessage = createMessage({
       type: 'user',
       text,
       file: pendingFile ? { name: pendingFile.name } : null,
     });
+
+    const submission = { message: text, file: pendingFile };
+
+    setState(current => ({
+      ...current,
+      pendingSubmission: current.selectedProgramId ? null : submission,
+      messages: [
+        ...current.messages,
+        userMessage,
+        ...(current.selectedProgramId ? [] : [createMessage({ type: 'programQuestion' })]),
+      ],
+    }));
+
     setInputValue('');
     setPendingFile(null);
 
     if (!state.selectedProgramId) {
-      appendMessage({ type: 'programQuestion' });
       return;
     }
 
-    runMockGeneration({ title: state.generatedForm?.title });
+    sendChatMessage({ ...submission, selectedProgramId: state.selectedProgramId });
   }, [
-    appendMessage,
     inputValue,
     isThinking,
     pendingFile,
-    runMockGeneration,
-    state.generatedForm?.title,
+    sendChatMessage,
     state.selectedProgramId,
   ]);
 

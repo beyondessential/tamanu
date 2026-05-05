@@ -18,6 +18,10 @@ export async function createApp(ctx) {
   ]);
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
+    if (payload.table !== 'settings') return;
+    await ctx.aiService?.registerFormBuilderContext(ctx.settings);
+  });
 
   if (config["socket.io"].enabled) {
     await createWebsocket(api.httpServer, ctx, dbNotifier);

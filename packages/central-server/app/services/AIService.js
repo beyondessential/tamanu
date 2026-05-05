@@ -9,6 +9,7 @@ import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 import { log } from '@tamanu/shared/services/logging';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
+const FORM_BUILDER_CONTEXT = 'formBuilder';
 
 export class AIService {
   /** @type {Map<string, string>} */
@@ -64,8 +65,7 @@ export class AIService {
       historyMessagesKey: 'history',
     });
 
-    // TODO: Register context here so that it's only loaded once. 
-    // Eg: service.registerContext('developer', 'You are a senior backend developer.');
+    await service.registerFormBuilderContext(settings);
 
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
@@ -83,6 +83,17 @@ export class AIService {
    */
   registerContext(name, systemPrompt) {
     this.contexts.set(name, systemPrompt);
+  }
+
+  /**
+   * Register the AI form builder context from settings. This is called once on
+   * startup, then explicitly after settings changes.
+   *
+   * @param {import('@tamanu/settings').ReadSettings} settings
+   */
+  async registerFormBuilderContext(settings) {
+    const systemPrompt = await settings.get('formBuilder.prompts.processMessage');
+    this.registerContext(FORM_BUILDER_CONTEXT, systemPrompt);
   }
 
   /**
