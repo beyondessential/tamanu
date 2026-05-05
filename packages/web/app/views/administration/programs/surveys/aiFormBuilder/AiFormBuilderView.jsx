@@ -10,6 +10,7 @@ import { saveFile } from '../../../../../utils/fileSystemAccess';
 import {
   Attachment,
   AttachmentLabel,
+  AssistantMessageContent,
   BuilderArticle,
   BuilderShell,
   ChatColumn,
@@ -19,7 +20,6 @@ import {
   Disclaimer,
   DownloadMessage,
   IntroText,
-  MessageText,
   Messages,
   NewChatConfirmModal,
   PendingAttachmentRow,
@@ -367,7 +367,7 @@ export function AiFormBuilderView() {
                       />
                     );
                   }
-                  return <MessageText key={message.id}>{message.text}</MessageText>;
+                  return <AssistantMessageContent key={message.id} text={message.text} />;
                 })}
 
                 {isThinking && <ThinkingMessage />}

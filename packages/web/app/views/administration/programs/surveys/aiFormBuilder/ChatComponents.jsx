@@ -111,6 +111,27 @@ export const MessageText = styled.p`
   margin: 0;
 `;
 
+const AssistantMessage = styled.div`
+  color: ${TAMANU_COLORS.darkestText};
+  display: grid;
+  font-size: 14px;
+  gap: 10px;
+  line-height: 1.45;
+
+  p {
+    margin: 0;
+  }
+
+  ol {
+    margin: 0;
+    padding-inline-start: 22px;
+  }
+
+  li + li {
+    margin-block-start: 6px;
+  }
+`;
+
 const UserMessage = styled.div`
   align-self: flex-end;
   background: ${TAMANU_COLORS.background2};
@@ -348,6 +369,23 @@ const NewChatModalBody = styled.div`
   text-align: left;
 `;
 
+const getNumberedListParts = text => {
+  const matches = [...text.matchAll(/(?:^|\s)(\d+)\.\s+/g)];
+  if (!matches.length) {
+    return null;
+  }
+
+  const firstMatch = matches[0];
+  const intro = text.slice(0, firstMatch.index).trim();
+  const items = matches.map((match, index) => {
+    const itemStart = match.index + match[0].length;
+    const itemEnd = matches[index + 1]?.index ?? text.length;
+    return text.slice(itemStart, itemEnd).trim();
+  });
+
+  return { intro, items };
+};
+
 export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
     <AttachmentPanel $sent={sent} $fullWidth={fullWidth}>
@@ -382,6 +420,37 @@ export function UserMessageContent({ message }) {
       {message.text && <MessageText>{message.text}</MessageText>}
       {message.file && <Attachment file={message.file} />}
     </UserMessage>
+  );
+}
+
+export function AssistantMessageContent({ text }) {
+  const paragraphs = text
+    .trim()
+    .split(/\n{2,}/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean);
+
+  return (
+    <AssistantMessage>
+      {paragraphs.map((paragraph, paragraphIndex) => {
+        const numberedListParts = getNumberedListParts(paragraph);
+
+        if (!numberedListParts) {
+          return <p key={paragraphIndex}>{paragraph}</p>;
+        }
+
+        return (
+          <React.Fragment key={paragraphIndex}>
+            {numberedListParts.intro && <p>{numberedListParts.intro}</p>}
+            <ol>
+              {numberedListParts.items.map((item, itemIndex) => (
+                <li key={itemIndex}>{item}</li>
+              ))}
+            </ol>
+          </React.Fragment>
+        );
+      })}
+    </AssistantMessage>
   );
 }
 
