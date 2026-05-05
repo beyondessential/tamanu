@@ -112,14 +112,15 @@ describe('Form Builder Admin', () => {
   });
 
   it('interprets uploaded images using the form builder image prompt', async () => {
+    const imageBuffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     const response = await app
       .post('/v1/admin/form-builder/chat')
       .field('jsonData', JSON.stringify({ message: 'Use this image' }))
-      .attach('file', Buffer.from('fake png'), 'form.png');
+      .attach('file', imageBuffer, 'form.png');
 
     expect(response).toHaveSucceeded();
     expect(aiService.interpretFormBuilderImage).toHaveBeenCalledWith({
-      imageBase64: Buffer.from('fake png').toString('base64'),
+      imageBase64: imageBuffer.toString('base64'),
       mediaType: 'image/png',
       fileName: 'form.png',
     });

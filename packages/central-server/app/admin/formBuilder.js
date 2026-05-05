@@ -13,13 +13,24 @@ const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 const MAX_FILE_CONTEXT_LENGTH = 200_000;
 const TEXT_FILE_EXTENSIONS = new Set(['.txt', '.csv']);
 const WORKBOOK_FILE_EXTENSIONS = new Set(['.xls', '.xlsx']);
-const IMAGE_FILE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg']);
 const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
 };
 const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
+
+const getImageMediaTypeFromBuffer = buffer => {
+  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    return 'image/png';
+  }
+
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return 'image/jpeg';
+  }
+
+  return null;
+};
 
 export const formBuilderRouter = express.Router();
 
@@ -59,17 +70,21 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
     return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". Text extraction is not available yet; ask the implementer to confirm any details that are not already in the conversation.`;
   }
 
-  if (IMAGE_FILE_EXTENSIONS.has(extension) || IMAGE_CONTENT_TYPES.has(contentType)) {
-    const mediaType = contentType || IMAGE_MEDIA_TYPES_BY_EXTENSION[extension];
+  const fileBuffer = await fs.readFile(file);
+  const mediaType =
+    (IMAGE_CONTENT_TYPES.has(contentType) ? contentType : null) ||
+    IMAGE_MEDIA_TYPES_BY_EXTENSION[extension] ||
+    getImageMediaTypeFromBuffer(fileBuffer);
+  if (IMAGE_CONTENT_TYPES.has(mediaType)) {
     const interpretedImage = await aiService.interpretFormBuilderImage({
-      imageBase64: await fs.readFile(file, 'base64'),
+      imageBase64: fileBuffer.toString('base64'),
       mediaType,
       fileName,
     });
     return `[FORM IMAGE INTERPRETED]\n${interpretedImage}`;
   }
 
-  return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
+  return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(fileBuffer.toString('utf8'))}`;
 };
 
 const buildUserMessage = ({ message, fileContext }) => {
