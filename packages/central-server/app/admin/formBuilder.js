@@ -4,25 +4,13 @@ import { promises as fs } from 'fs';
 
 import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { programDefinitionSchema } from './programImporter/programDefinition';
 
 const FORM_BUILDER_CONTEXT = 'formBuilder';
+const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 const MAX_FILE_CONTEXT_LENGTH = 200_000;
 
 export const formBuilderRouter = express.Router();
-
-const normalizeAiMessageContent = content => {
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content)) {
-    return content
-      .map(part => {
-        if (typeof part === 'string') return part;
-        if (typeof part?.text === 'string') return part.text;
-        return JSON.stringify(part);
-      })
-      .join('\n');
-  }
-  return String(content ?? '');
-};
 
 const getFileContext = async file => {
   if (!file) return '';
@@ -69,11 +57,26 @@ formBuilderRouter.post(
       const userMessage = buildUserMessage({ message, fileContext });
       const sessionId =
         existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));
-      const response = await req.aiService.sendMessage(sessionId, userMessage);
+      const response = await req.aiService.sendFormBuilderMessage(sessionId, userMessage);
+      const programDefinition =
+        response.ready_to_export || response.ready_to_generate
+          ? await programDefinitionSchema.parseAsync(
+              await req.aiService.invokeStructured(
+                FORM_BUILDER_BUILD_CONTEXT,
+                await req.aiService.getSessionTranscript(sessionId),
+                programDefinitionSchema,
+                { name: 'form_builder_program_definition' },
+              ),
+            )
+          : null;
 
       res.send({
         sessionId,
-        message: normalizeAiMessageContent(response.content),
+        message: response.message,
+        attachToProgramCode: response.attach_to_program_code,
+        readyToExport: response.ready_to_export,
+        readyToGenerate: response.ready_to_generate,
+        programDefinition,
       });
     } finally {
       if (file && deleteFileAfterImport) {

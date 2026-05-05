@@ -40,6 +40,8 @@ import {
 import { useProgramsQuery } from '../queries';
 
 const getProgramCode = programId => programId?.replace(/^program-/, '');
+const getProgramDefinitionFileName = programDefinition =>
+  `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
@@ -153,12 +155,26 @@ export function AiFormBuilderView() {
       setState(current => ({
         ...current,
         sessionId: response.sessionId,
+        readyToExport: Boolean(response.readyToExport),
+        readyToGenerate: Boolean(response.readyToGenerate),
+        generatedForm: response.programDefinition
+          ? normaliseProgramDefinition(response.programDefinition)
+          : current.generatedForm,
+        savedSurveyId: response.programDefinition ? null : current.savedSurveyId,
         messages: [
           ...current.messages,
           createMessage({
             type: 'assistant',
             text: response.message,
           }),
+          ...(response.programDefinition
+            ? [
+                createMessage({
+                  type: 'download',
+                  fileName: getProgramDefinitionFileName(response.programDefinition),
+                }),
+              ]
+            : []),
         ],
       }));
     } catch (error) {

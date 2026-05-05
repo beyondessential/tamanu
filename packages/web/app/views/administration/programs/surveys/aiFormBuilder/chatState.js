@@ -14,6 +14,8 @@ export const createEmptyState = () => ({
   selectedProgramId: '',
   sessionId: null,
   pendingSubmission: null,
+  readyToExport: false,
+  readyToGenerate: false,
   generatedForm: null,
   savedSurveyId: null,
 });
