@@ -79,10 +79,10 @@ export const SurveyViewForm = ({
     getCurrentDateTime,
     initialAnswerOverrides,
   ]);
-  const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
-    survey,
-    getTranslation,
-  ]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(survey, getTranslation),
+    [survey, getTranslation],
+  );
 
   const renderSurvey = props => {
     const {
