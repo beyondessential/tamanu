@@ -11,6 +11,7 @@ import { EmailService } from './services/EmailService';
 
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
+import { AIService } from './services/AIService';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
@@ -38,6 +39,9 @@ export class ApplicationContext {
 
   /** @type {EmailService | null} */
   emailService = null;
+
+  /** @type {AIService | null} */
+  aiService = null;
 
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
@@ -84,6 +88,8 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting(this.store);
     }
 
+    this.aiService = await AIService.init({ settings: this.settings });
+
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
       models: this.store.models,
@@ -123,6 +129,7 @@ export class ApplicationContext {
       await hook();
     }
     await closeDatabase();
+    this.aiService?.close();
   }
 
   async waitForClose() {
