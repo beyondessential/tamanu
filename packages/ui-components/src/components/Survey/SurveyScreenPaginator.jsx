@@ -74,7 +74,7 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
-  summarySubmitButton,
+  summarySubmitButton = null,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
