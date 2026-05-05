@@ -5,5 +5,5 @@ import config from 'config';
  * `mailgun.from` so existing deployments keep working without a config change.
  */
 export function getDefaultFromAddress() {
-  return config.mail?.from ?? config.mailgun?.from ?? '';
+  return config.mail?.from || config.mailgun?.from || '';
 }
