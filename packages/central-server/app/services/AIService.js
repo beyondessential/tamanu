@@ -64,6 +64,9 @@ export class AIService {
       historyMessagesKey: 'history',
     });
 
+    // TODO: Register context here so that it's only loaded once. 
+    // Eg: service.registerContext('developer', 'You are a senior backend developer.');
+
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
   }
