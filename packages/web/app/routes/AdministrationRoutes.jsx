@@ -49,40 +49,40 @@ export const AdministrationRoutes = React.memo(() => (
         <Route path=":programRegistryId/*" element={<ManageProgramRegistriesRoutes />} />
       </Route>
     </Route>
-      <Route path="referenceData" element={<ReferenceDataAdminView />} />
-      <Route path="reports/*" element={<ReportAdminRoutes />} />
-      <Route path="settings" element={<SettingsView />} />
-      <Route path="surveyResponses" element={<SurveyResponsesAdminView />} />
-      <Route path="sync" element={<SyncView />} />
-      <Route path="templates" element={<TemplateView />} />
-      <Route path="translation" element={<TranslationAdminView />} />
-      <Route path="users">
-        <Route index element={<Navigate to="profiles" replace />} />
-        <Route path="profiles" element={<UserProfilesAdminView />} />
+    <Route path="referenceData" element={<ReferenceDataAdminView />} />
+    <Route path="reports/*" element={<ReportAdminRoutes />} />
+    <Route path="settings" element={<SettingsView />} />
+    <Route path="surveyResponses" element={<SurveyResponsesAdminView />} />
+    <Route path="sync" element={<SyncView />} />
+    <Route path="templates" element={<TemplateView />} />
+    <Route path="translation" element={<TranslationAdminView />} />
+    <Route path="users">
+      <Route index element={<Navigate to="profiles" replace />} />
+      <Route path="profiles" element={<UserProfilesAdminView />} />
 
-        <Route path="rolesAndDesignations" element={<RolesAndDesignationsAdminView />}>
-          <Route index element={<Navigate to="roles" replace />} />
-          <Route path="roles">
-            <Route index element={<RolesAdminView />} />
-            <Route path="new" element={<RolesAdminView />} />
-            <Route path="delete/:id" element={<RolesAdminView />} />
-          </Route>
-          <Route path="designations">
-            <Route index element={<DesignationsAdminView />} />
-            <Route path="new" element={<DesignationsAdminView />} />
-            <Route path="delete/:id" element={<DesignationsAdminView />} />
-          </Route>
+      <Route path="rolesAndDesignations" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<Navigate to="roles" replace />} />
+        <Route path="roles">
+          <Route index element={<RolesAdminView />} />
+          <Route path="new" element={<RolesAdminView />} />
+          <Route path="delete/:id" element={<RolesAdminView />} />
         </Route>
-        <Route
-          path="locationAssignment"
-          element={
-            <LocationAssignmentsContextProvider>
-              <LocationAssignmentsAdminView />
-            </LocationAssignmentsContextProvider>
-          }
-        />
+        <Route path="designations">
+          <Route index element={<DesignationsAdminView />} />
+          <Route path="new" element={<DesignationsAdminView />} />
+          <Route path="delete/:id" element={<DesignationsAdminView />} />
+        </Route>
       </Route>
-      <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
-      <Route path="*" element={<Navigate to="referenceData" replace />} />
+      <Route
+        path="locationAssignment"
+        element={
+          <LocationAssignmentsContextProvider>
+            <LocationAssignmentsAdminView />
+          </LocationAssignmentsContextProvider>
+        }
+      />
+    </Route>
+    <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
+    <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>
 ));
