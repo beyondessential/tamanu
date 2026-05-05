@@ -36,9 +36,11 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   try {
     const loginInfo = await api.login(email, password);
     await handleLoginSuccess(dispatch, loginInfo);
+    return true;
   } catch (error) {
     const message = getLoginErrorMessage(error);
     dispatch({ type: LOGIN_FAILURE, error: message });
+    return false;
   }
 };
 
