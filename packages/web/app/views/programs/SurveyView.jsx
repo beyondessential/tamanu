@@ -17,10 +17,10 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
-  background: ${props => props.theme.palette.primary.main};
+  background-color: ${props => props.theme.palette.primary.main};
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
   text-align: center;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
