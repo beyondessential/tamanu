@@ -53,6 +53,7 @@ describe('Form Builder Admin', () => {
       }),
       getSessionTranscript: jest.fn().mockResolvedValue('[human]\nBuild a referral form'),
       invokeStructured: jest.fn().mockResolvedValue(programDefinition),
+      interpretFormBuilderImage: jest.fn().mockResolvedValue('SECTION: Referral\nQUESTION: Patient name'),
       registerFormBuilderContext: jest.fn().mockResolvedValue(undefined),
     };
     ctx.aiService = aiService;
@@ -107,6 +108,24 @@ describe('Form Builder Admin', () => {
     expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
       'new-session-id',
       '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
+    );
+  });
+
+  it('interprets uploaded images using the form builder image prompt', async () => {
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this image' }))
+      .attach('file', Buffer.from('fake png'), 'form.png');
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.interpretFormBuilderImage).toHaveBeenCalledWith({
+      imageBase64: Buffer.from('fake png').toString('base64'),
+      mediaType: 'image/png',
+      fileName: 'form.png',
+    });
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      '[FORM IMAGE INTERPRETED]\nSECTION: Referral\nQUESTION: Patient name\n\nUse this image',
     );
   });
 

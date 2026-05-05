@@ -14,6 +14,12 @@ const MAX_FILE_CONTEXT_LENGTH = 200_000;
 const TEXT_FILE_EXTENSIONS = new Set(['.txt', '.csv']);
 const WORKBOOK_FILE_EXTENSIONS = new Set(['.xls', '.xlsx']);
 const IMAGE_FILE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg']);
+const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+};
+const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
 
 export const formBuilderRouter = express.Router();
 
@@ -35,10 +41,11 @@ const readWorkbookContext = file => {
   }).join('\n\n');
 };
 
-const getFileContext = async ({ file, fileName, fileContentType }) => {
+const getFileContext = async ({ aiService, file, fileName, fileContentType }) => {
   if (!file) return '';
 
   const extension = extname(fileName || '').toLowerCase();
+  const contentType = fileContentType?.split(';')[0].trim().toLowerCase();
   if (WORKBOOK_FILE_EXTENSIONS.has(extension)) {
     return `[XLSX DOCUMENT LOADED]\n${truncateFileContext(readWorkbookContext(file))}`;
   }
@@ -48,12 +55,18 @@ const getFileContext = async ({ file, fileName, fileContentType }) => {
     return `[${tag}]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
   }
 
-  if (extension === '.pdf' || fileContentType === 'application/pdf') {
+  if (extension === '.pdf' || contentType === 'application/pdf') {
     return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". Text extraction is not available yet; ask the implementer to confirm any details that are not already in the conversation.`;
   }
 
-  if (IMAGE_FILE_EXTENSIONS.has(extension)) {
-    return `[FORM IMAGE UPLOADED]\nUploaded image "${fileName || 'attachment'}". Image interpretation is not available yet; ask the implementer to confirm the visible fields.`;
+  if (IMAGE_FILE_EXTENSIONS.has(extension) || IMAGE_CONTENT_TYPES.has(contentType)) {
+    const mediaType = contentType || IMAGE_MEDIA_TYPES_BY_EXTENSION[extension];
+    const interpretedImage = await aiService.interpretFormBuilderImage({
+      imageBase64: await fs.readFile(file, 'base64'),
+      mediaType,
+      fileName,
+    });
+    return `[FORM IMAGE INTERPRETED]\n${interpretedImage}`;
   }
 
   return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
@@ -92,7 +105,12 @@ formBuilderRouter.post(
     } = await getUploadedData(req);
 
     try {
-      const fileContext = await getFileContext({ file, fileName, fileContentType });
+      const fileContext = await getFileContext({
+        aiService: req.aiService,
+        file,
+        fileName,
+        fileContentType,
+      });
       const userMessage = buildUserMessage({ message, fileContext });
       const sessionId =
         existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));

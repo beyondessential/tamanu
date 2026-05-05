@@ -12,6 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
+const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 
 const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
@@ -122,7 +123,9 @@ export class AIService {
    * @param {import('@tamanu/settings').ReadSettings} settings
    */
   async registerFormBuilderContext(settings) {
-    const { processMessage, buildSurveyDefinition } = await settings.get('formBuilder.prompts');
+    const { interpretFormImage, processMessage, buildSurveyDefinition } =
+      await settings.get('formBuilder.prompts');
+    this.registerContext(FORM_BUILDER_IMAGE_CONTEXT, interpretFormImage);
     this.registerContext(FORM_BUILDER_CONTEXT, processMessage);
     this.registerContext(FORM_BUILDER_BUILD_CONTEXT, buildSurveyDefinition);
   }
@@ -195,6 +198,37 @@ export class AIService {
     await history.addMessage(new AIMessage(JSON.stringify(response)));
 
     return response;
+  }
+
+  /**
+   * Interpret an uploaded form image using the form builder image prompt setting.
+   *
+   * @param {object} options
+   * @param {string} options.imageBase64
+   * @param {string} options.mediaType
+   * @param {string} [options.fileName]
+   * @returns {Promise<string>}
+   */
+  async interpretFormBuilderImage({ imageBase64, mediaType, fileName }) {
+    const response = await this.chatModel.invoke([
+      new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
+      new HumanMessage({
+        content: [
+          {
+            type: 'text',
+            text: `Interpret the uploaded form image${fileName ? ` "${fileName}"` : ''}.`,
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${mediaType};base64,${imageBase64}`,
+            },
+          },
+        ],
+      }),
+    ]);
+
+    return normalizeMessageContent(response.content);
   }
 
   /**
