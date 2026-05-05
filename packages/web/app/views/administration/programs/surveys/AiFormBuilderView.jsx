@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
@@ -30,15 +31,16 @@ import {
   ACCEPTED_FILE_EXTENSIONS,
   createEmptyState,
   createMessage,
-  readStoredState,
-  writeStoredState,
+  readSessionChatState,
+  writeSessionChatState,
 } from './AiFormBuilderState';
 import { useProgramsQuery } from './queries';
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
   const { getTranslation } = useTranslation();
-  const [state, setState] = useState(readStoredState);
+  const sessionKey = useSelector(state => state.auth.token);
+  const [state, setState] = useState(() => readSessionChatState(sessionKey));
   const [inputValue, setInputValue] = useState('');
   const [pendingFile, setPendingFile] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
@@ -58,18 +60,13 @@ export function AiFormBuilderView() {
   const showPreview = Boolean(state.generatedForm);
   const sendDisabled = !inputValue.trim() && !pendingFile;
 
-  const persistableState = useMemo(
-    () => ({
-      messages: state.messages,
-      selectedProgramId: state.selectedProgramId,
-      generatedForm: state.generatedForm,
-    }),
-    [state],
-  );
+  useEffect(() => {
+    setState(readSessionChatState(sessionKey));
+  }, [sessionKey]);
 
   useEffect(() => {
-    writeStoredState(persistableState);
-  }, [persistableState]);
+    writeSessionChatState(sessionKey, state);
+  }, [sessionKey, state]);
 
   useEffect(() => {
     const messagesEl = messagesRef.current;
