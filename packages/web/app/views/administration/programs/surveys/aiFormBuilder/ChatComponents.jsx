@@ -16,9 +16,9 @@ import {
   TranslatedText,
   useTranslation,
 } from '@tamanu/ui-components';
-import { ConfirmModal } from '../../../../components/ConfirmModal';
-import { ClipIcon } from '../../../../components/Icons';
-import { Article } from '../components';
+import { ConfirmModal } from '../../../../../components/ConfirmModal';
+import { ClipIcon } from '../../../../../components/Icons';
+import { Article } from '../../components';
 
 export const BuilderArticle = styled(Article)`
   display: flex;
@@ -122,7 +122,6 @@ const UserMessage = styled.div`
   max-inline-size: 78%;
   padding: 14px 18px;
 `;
-
 
 const AttachmentChip = styled.div`
   align-items: center;
