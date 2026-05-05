@@ -116,12 +116,14 @@ const PreviewSubmitTooltipTarget = styled.div`
 
 const createPreviewSurvey = form => {
   const survey = form.surveys[0];
+  const surveySheet =
+    form.surveySheets.find(({ surveyName }) => surveyName === survey.name) || form.surveySheets[0];
   let screenIndex = -1;
 
   return {
     id: 'ai-form-builder-preview',
     name: survey.name,
-    components: survey.questions.map((question, questionIndex) => {
+    components: surveySheet.questions.map((question, questionIndex) => {
       if (questionIndex === 0 || question.newScreen) screenIndex += 1;
       const id = `ai-preview-question-${question.code}`;
 

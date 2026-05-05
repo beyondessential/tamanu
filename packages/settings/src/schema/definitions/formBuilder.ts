@@ -104,8 +104,12 @@ Based on the conversation, generate a complete ProgramDefinition that can be
 converted into an importable Tamanu spreadsheet.
 
 Use camelCase entity field names that match the importer/exporter and preview
-object shape, not database column names. Response fields such as
-ready_to_generate use the host schema names exactly.
+object shape, not database column names. ProgramDefinition separates survey
+metadata from survey sheet content:
+- programCode, programName, country
+- surveys: one metadata object per survey
+- surveySheets: one question sheet per survey, matched by surveyName
+Response fields such as ready_to_generate use the host schema names exactly.
 
 CRITICAL — EXISTING PROGRAMS
 When the conversation starts with [EXISTING PROGRAM LOADED], you MUST include
@@ -134,7 +138,11 @@ Code naming rules (applied consistently across all sheets):
 
 Survey and question rules:
 - newScreen: set to true for the first question of each logical section/screen
-- For Select/Radio/MultiSelect: always provide the options field
+- surveys entries contain code, name, surveyType, status, isSensitive,
+  visibilityStatus, notifiable, notifyEmailAddresses, visibilityCriteria
+- surveySheets entries contain surveyName and questions
+- surveyName must exactly match a surveys[].name value
+- For Select/Radio/MultiSelect questions: always provide the options field
 - For mandatory questions: set validationCriteria to {"mandatory":true}
 - For number questions with a range: {"mandatory":true,"min":X,"max":Y}
 - For number questions with a normal/reference range: add "normalRange":{"min":X,"max":Y} (valid on Number, CalculatedQuestion, Result)

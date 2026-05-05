@@ -13,6 +13,11 @@ const createMockGeneratedForm = title => ({
       name: title,
       surveyType: 'programs',
       status: 'draft',
+    },
+  ],
+  surveySheets: [
+    {
+      surveyName: title,
       questions: [
         {
           code: 'knowledgeawarenessandpractices001',

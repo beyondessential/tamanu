@@ -69,38 +69,46 @@ const createMetadataSheet = programDefinition => ({
   ],
 });
 
-const createSurveySheet = (survey, index) => ({
-  name: createSheetName(survey.code, `Survey ${index + 1}`),
-  data: [
-    SURVEY_SHEET_HEADERS,
-    ...survey.questions.map(question => [
-      question.code,
-      question.type,
-      question.name || question.code,
-      question.text,
-      question.detail || '',
-      question.newScreen ? 'yes' : '',
-      stringifyField(question.options),
-      stringifyField(question.optionLabels),
-      stringifyField(question.optionColors),
-      stringifyField(question.visibilityCriteria),
-      stringifyField(question.validationCriteria),
-      stringifyField(question.visualisationConfig),
-      question.optionSet || '',
-      question.questionLabel || '',
-      question.detailLabel || '',
-      stringifyField(question.calculation),
-      stringifyField(question.config),
-      question.visibilityStatus || '',
-    ]),
-  ],
-});
+const findSurveyMetadata = (programDefinition, surveySheet) =>
+  programDefinition.surveys.find(({ name }) => name === surveySheet.surveyName);
+
+const createSurveySheet = (programDefinition, surveySheet, index) => {
+  const survey = findSurveyMetadata(programDefinition, surveySheet);
+  return {
+    name: createSheetName(survey?.code || surveySheet.surveyName, `Survey ${index + 1}`),
+    data: [
+      SURVEY_SHEET_HEADERS,
+      ...surveySheet.questions.map(question => [
+        question.code,
+        question.type,
+        question.name || question.code,
+        question.text,
+        question.detail || '',
+        question.newScreen ? 'yes' : '',
+        stringifyField(question.options),
+        stringifyField(question.optionLabels),
+        stringifyField(question.optionColors),
+        stringifyField(question.visibilityCriteria),
+        stringifyField(question.validationCriteria),
+        stringifyField(question.visualisationConfig),
+        question.optionSet || '',
+        question.questionLabel || '',
+        question.detailLabel || '',
+        stringifyField(question.calculation),
+        stringifyField(question.config),
+        question.visibilityStatus || '',
+      ]),
+    ],
+  };
+};
 
 export const createProgramDefinitionWorkbook = programDefinition => {
   const workbook = XLSX.utils.book_new();
   const sheets = [
     createMetadataSheet(programDefinition),
-    ...programDefinition.surveys.map(createSurveySheet),
+    ...programDefinition.surveySheets.map((surveySheet, index) =>
+      createSurveySheet(programDefinition, surveySheet, index),
+    ),
   ];
 
   for (const sheet of sheets) {

@@ -66,28 +66,43 @@ const programDefinitionQuestionSchema = z
     }
   });
 
-export const programDefinitionSchema = z.object({
-  title: z.string().trim().min(1),
-  programCode: z.string().trim().optional(),
-  programName: z.string().trim().optional(),
-  surveys: z
-    .array(
-      z.object({
-        code: z.string().trim().min(1),
-        name: z.string().trim().min(1),
-        surveyType: z.string().trim().optional(),
-        isSensitive: z.boolean().optional(),
-        notifiable: z.boolean().optional(),
-        notifyEmailAddresses: z.array(z.string().trim()).optional(),
-        visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
-        visibilityStatus: z.string().trim().optional(),
-        questions: z
-          .array(programDefinitionQuestionSchema)
-          .min(1),
-      }),
-    )
-    .min(1),
+const surveyMetadataSchema = z.object({
+  code: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  surveyType: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  isSensitive: z.boolean().optional(),
+  notifiable: z.boolean().optional(),
+  notifyEmailAddresses: z.array(z.string().trim()).optional(),
+  visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
+  visibilityStatus: z.string().trim().optional(),
 });
+
+const surveySheetSchema = z.object({
+  surveyName: z.string().trim().min(1),
+  questions: z.array(programDefinitionQuestionSchema).min(1),
+});
+
+export const programDefinitionSchema = z
+  .object({
+    title: z.string().trim().min(1),
+    programCode: z.string().trim().optional(),
+    programName: z.string().trim().optional(),
+    surveys: z.array(surveyMetadataSchema).min(1),
+    surveySheets: z.array(surveySheetSchema).min(1),
+  })
+  .superRefine((programDefinition, ctx) => {
+    const sheetNames = new Set(programDefinition.surveySheets.map(({ surveyName }) => surveyName));
+    for (const [index, survey] of programDefinition.surveys.entries()) {
+      if (!sheetNames.has(survey.name)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['surveys', index, 'name'],
+          message: `Survey "${survey.name}" must have a matching surveySheet`,
+        });
+      }
+    }
+  });
 
 const createCode = value => idify(value) || 'generatedform';
 
@@ -119,11 +134,11 @@ const stringifyField = (value, questionCodeMap = new Map()) => {
   return replaceQuestionReferences(value, questionCodeMap);
 };
 
-const createSurveyImportRows = ({ programId, surveyDefinition, surveyCode }) => {
+const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surveyCode }) => {
   const surveyId = `${programId}-${surveyCode}`;
   const originalSurveyCode = createCode(surveyDefinition.code);
   const questionCodeMap = new Map(
-    surveyDefinition.questions.map((question, questionIndex) => {
+    surveySheet.questions.map((question, questionIndex) => {
       const originalQuestionCode = createCode(question.code);
       const questionCode = originalQuestionCode.startsWith(originalSurveyCode)
         ? `${surveyCode}${originalQuestionCode.slice(originalSurveyCode.length)}`
@@ -156,7 +171,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveyCode }) => 
 
   let screenIndex = -1;
   let componentIndex = 0;
-  for (const [questionIndex, question] of surveyDefinition.questions.entries()) {
+  for (const [questionIndex, question] of surveySheet.questions.entries()) {
     if (questionIndex === 0 || question.newScreen) {
       screenIndex += 1;
       componentIndex = 0;
@@ -244,6 +259,9 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
 
   await db.transaction(async () => {
     for (const surveyDefinition of programDefinition.surveys) {
+      const surveySheet = programDefinition.surveySheets.find(
+        ({ surveyName }) => surveyName === surveyDefinition.name,
+      );
       const surveyCode = await getAvailableSurveyCode(
         models.Survey,
         createCode(surveyDefinition.code),
@@ -252,6 +270,7 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
         programId,
         surveyCode,
         surveyDefinition,
+        surveySheet,
       });
       const stats = await validateSurvey({ context, rows, surveyInfo });
       if (errors.length > 0) throw errors[0];
