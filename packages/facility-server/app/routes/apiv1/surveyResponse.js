@@ -73,13 +73,13 @@ const getFieldsToWrite = async (models, questions, answers) => {
     const config = safeJsonParse(configString) ?? {};
     if (!config.writeToPatient) continue;
 
-    const { fieldName: configFieldName } = config.writeToPatient ?? {};
+    const configFieldName = config.writeToPatient?.fieldName;
     if (!configFieldName) throw new Error('No fieldName defined for writeToPatient config');
 
     const value = answers[dataElement.id];
     const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
     if (!modelName) throw new Error(`Unknown fieldName: ${configFieldName}`);
-    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName] ??= {};
     recordValuesByModel[modelName][fieldName] = value;
   }
   return recordValuesByModel;
