@@ -123,9 +123,6 @@ const UserMessage = styled.div`
   padding: 14px 18px;
 `;
 
-const UserMessageText = styled.div`
-  margin-block-end: 6px;
-`;
 
 const AttachmentChip = styled.div`
   align-items: center;
@@ -237,14 +234,18 @@ const ComposerActions = styled.div`
 `;
 
 const ComposerIconButton = styled(IconButton)`
-  block-size: 44px;
-  border-radius: 3px;
-  inline-size: 62px;
-  pointer-events: auto;
+  && {
+    block-size: 44px;
+    border-radius: 3px;
+    inline-size: 62px;
+    pointer-events: auto;
+  }
 `;
 
 const AttachButton = styled(ComposerIconButton)`
-  color: ${TAMANU_COLORS.primary};
+  && {
+    color: ${TAMANU_COLORS.primary};
+  }
 
   svg {
     font-size: 25px;
@@ -252,11 +253,12 @@ const AttachButton = styled(ComposerIconButton)`
 `;
 
 const SendButton = styled(ComposerIconButton)`
-  && {
+  &&,
+  &&.Mui-disabled {
     background: ${({ disabled, $isThinking }) =>
       disabled && !$isThinking ? TAMANU_COLORS.primary30 : TAMANU_COLORS.primary};
+    color: ${TAMANU_COLORS.white};
   }
-  color: ${TAMANU_COLORS.white};
 
   &&:hover {
     background: ${({ disabled, $isThinking }) =>
@@ -378,7 +380,7 @@ export function UserMessageContent({ message }) {
 
   return (
     <UserMessage>
-      {message.text && <UserMessageText>{message.text}</UserMessageText>}
+      {message.text && <MessageText>{message.text}</MessageText>}
       {message.file && <Attachment file={message.file} />}
     </UserMessage>
   );
