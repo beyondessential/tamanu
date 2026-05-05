@@ -29,6 +29,7 @@ import {
 } from './ChatComponents';
 import { FormPreview } from './FormPreview';
 import { mockGenerateForm } from './mockGenerateForm';
+import { createProgramDefinitionWorkbook } from './programDefinitionWorkbook';
 import {
   ACCEPTED_FILE_EXTENSIONS,
   createEmptyState,
@@ -238,10 +239,12 @@ export function AiFormBuilderView() {
   };
 
   const handleDownload = async fileName => {
+    if (!state.generatedForm) return;
+
     await saveFile({
       defaultFileName: fileName,
       extension: 'xlsx',
-      getData: async () => 'Mock form builder export. AI generation is not connected yet.',
+      getData: async () => createProgramDefinitionWorkbook(state.generatedForm),
     });
   };
 
