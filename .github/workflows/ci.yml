@@ -40,6 +40,13 @@ jobs:
     outputs:
       test-matrix: ${{ steps.plan.outputs.test-matrix }}
       migrations-matrix: ${{ steps.plan.outputs.migrations-matrix }}
+      run-test: ${{ steps.plan.outputs.run-test }}
+      run-migrations: ${{ steps.plan.outputs.run-migrations }}
+      run-mobile: ${{ steps.plan.outputs.run-mobile }}
+      run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
+      run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-build-shared: ${{ steps.plan.outputs.run-build-shared }}
+      allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -99,7 +106,8 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   build_shared_cache:
-    needs: node_modules_cache
+    needs: [plan, node_modules_cache]
+    if: needs.plan.outputs.run-build-shared == 'true'
     name: Build shared packages
     runs-on: ubuntu-latest
     steps:
@@ -131,49 +139,40 @@ jobs:
 
   test:
     needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-test == 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.test-matrix) }}
 
-    name: Test ${{ matrix.skip || format('{0} {1} (pg={2})', matrix.package, matrix.shard, matrix.postgres || 'no') }}
+    name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
     steps:
-      - if: matrix.skip
-        run: echo "::notice::Skipping tests (${{ matrix.skip }})"
-
-      - if: ${{ !matrix.skip }}
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - if: ${{ !matrix.skip }}
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
-      - if: ${{ !matrix.skip }}
-        uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - if: ${{ !matrix.skip }}
-        uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
 
-      - if: ${{ !matrix.skip }}
-        run: npm i
-      - if: ${{ !matrix.skip }}
-        run: npm run --workspace ${{ matrix.package }} build
+      - run: npm i
+      - run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
-        if: ${{ !matrix.skip && matrix.postgres }}
+        if: matrix.postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
-        if: ${{ !matrix.skip }}
         env:
           package: ${{ matrix.package }}
           shard: ${{ matrix.shard }}
@@ -227,50 +226,42 @@ jobs:
 
   migrations:
     needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-migrations == 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.migrations-matrix) }}
 
-    name: ${{ matrix.skip || format('Test migrations server={0} pg={1}', matrix.server, matrix.postgres) }}
+    name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-      - if: matrix.skip
-        run: echo "::notice::Skipping migrations (${{ matrix.skip }})"
-
-      - if: ${{ !matrix.skip }}
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - if: ${{ !matrix.skip }}
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
-      - if: ${{ !matrix.skip }}
-        uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - if: ${{ !matrix.skip }}
-        uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v3
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
 
-      - if: ${{ !matrix.skip }}
-        run: npm i
+      - run: npm i
 
       - name: Install and start postgres ${{ matrix.postgres }}
-        if: ${{ !matrix.skip }}
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-for-one-package.sh migrations
 
-      - if: ${{ !matrix.skip }}
-        run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
+      - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-mobile == 'true'
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
@@ -296,7 +287,8 @@ jobs:
         working-directory: packages/mobile
 
   test-facility-offline:
-    needs: node_modules_cache
+    needs: [plan, node_modules_cache]
+    if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
@@ -348,7 +340,8 @@ jobs:
       - run: git diff --exit-code
 
   dbt-model:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-dbt-model == 'true'
     name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
@@ -457,3 +450,4 @@ jobs:
       - uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+          allowed-skips: ${{ needs.plan.outputs.allowed-skips }}

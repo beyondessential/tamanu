@@ -8,12 +8,12 @@
 //     touched
 //   * database tests (the `@tamanu/database` test entries and the migrations
 //     matrix) are restricted to the latest postgres version
+//   * the auxiliary jobs (test-mobile, test-facility-offline, dbt-model,
+//     build_shared_cache) are gated to only run when their relevant inputs
+//     have changed; flags below tell ci.yml whether each should run
 //
 // We don't try to resolve transitive dependencies — the full suite runs on
 // `merge_group` (and on push), which catches everything else.
-//
-// If the smoke subset would be empty we emit a single `{ skip }` entry so
-// the job still runs (and reports success).
 
 import { execSync } from 'node:child_process';
 import { appendFileSync, readdirSync, readFileSync } from 'node:fs';
@@ -87,6 +87,9 @@ const headSha = process.env.HEAD_SHA;
 
 let testMatrix = TEST_FULL;
 let migrationsMatrix = MIGRATIONS_FULL;
+let runMobile = true;
+let runFacilityOffline = true;
+let runDbtModel = true;
 
 if (event === 'pull_request' && baseSha) {
   const head = headSha || 'HEAD';
@@ -111,19 +114,45 @@ if (event === 'pull_request' && baseSha) {
   migrationsMatrix = migrationsTouched
     ? MIGRATIONS_FULL.filter((e) => e.postgres === `${MAX_PG_VERSION}`)
     : [];
+  runMobile = touched.has('mobile');
+  runFacilityOffline = touched.has('facility-server') || touched.has('central-server');
+  runDbtModel = migrationsTouched;
 }
 
-if (testMatrix.length === 0) {
-  testMatrix = [{ skip: 'no relevant package changes' }];
-}
-if (migrationsMatrix.length === 0) {
-  migrationsMatrix = [{ skip: 'no migration changes' }];
-}
+const runTest = testMatrix.length > 0;
+const runMigrations = migrationsMatrix.length > 0;
+// build_shared_cache is the prerequisite for test, migrations, test-mobile,
+// and dbt-model — we can skip it entirely when none of those will run.
+const runBuildShared = runTest || runMigrations || runMobile || runDbtModel;
 
-console.error(`Test matrix entries:       ${testMatrix.length}`);
-console.error(`Migrations matrix entries: ${migrationsMatrix.length}`);
+// Names match the job IDs in ci.yml. Building the list here keeps it in sync
+// with the gating logic above — adding a new gated job means updating both
+// the flag and this list in the same place rather than poking ci.yml.
+const allowedSkips = [
+  !runBuildShared && 'build_shared_cache',
+  !runTest && 'test',
+  !runMigrations && 'migrations',
+  !runMobile && 'test-mobile',
+  !runFacilityOffline && 'test-facility-offline',
+  !runDbtModel && 'dbt-model',
+].filter(Boolean);
+
+console.error(`Run test:                  ${runTest} (${testMatrix.length} entries)`);
+console.error(`Run migrations:            ${runMigrations} (${migrationsMatrix.length} entries)`);
+console.error(`Run test-mobile:           ${runMobile}`);
+console.error(`Run test-facility-offline: ${runFacilityOffline}`);
+console.error(`Run dbt-model:             ${runDbtModel}`);
+console.error(`Run build_shared_cache:    ${runBuildShared}`);
+console.error(`Allowed skips:             ${allowedSkips.join(', ') || '(none)'}`);
 
 const out = process.env.GITHUB_OUTPUT;
 if (!out) throw new Error('GITHUB_OUTPUT not set');
 appendFileSync(out, `test-matrix=${JSON.stringify({ include: testMatrix })}\n`);
 appendFileSync(out, `migrations-matrix=${JSON.stringify({ include: migrationsMatrix })}\n`);
+appendFileSync(out, `run-test=${runTest}\n`);
+appendFileSync(out, `run-migrations=${runMigrations}\n`);
+appendFileSync(out, `run-mobile=${runMobile}\n`);
+appendFileSync(out, `run-facility-offline=${runFacilityOffline}\n`);
+appendFileSync(out, `run-dbt-model=${runDbtModel}\n`);
+appendFileSync(out, `run-build-shared=${runBuildShared}\n`);
+appendFileSync(out, `allowed-skips=${allowedSkips.join(',')}\n`);
