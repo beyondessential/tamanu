@@ -1,6 +1,6 @@
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { Tooltip } from '@mui/material';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -168,6 +168,7 @@ function PreviewSubmitButton() {
 }
 
 export function FormPreview({ form }) {
+  const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
 
   if (!form) return null;
@@ -193,7 +194,7 @@ export function FormPreview({ form }) {
       </PreviewTitleHeader>
       <PreviewProgress $segments={screenCount} aria-hidden="true">
         {Array.from({ length: screenCount }, (_, index) => (
-          <PreviewProgressSegment key={index} $active={index === 0} />
+          <PreviewProgressSegment key={index} $active={index === activeScreenIndex} />
         ))}
       </PreviewProgress>
       <PreviewBody>
@@ -221,6 +222,7 @@ export function FormPreview({ form }) {
                 setStatus={setStatus}
                 status={status}
                 getComponentForQuestionType={getComponentForQuestionType}
+                onScreenIndexChange={setActiveScreenIndex}
                 summarySubmitButton={<PreviewSubmitButton />}
               />
             )}

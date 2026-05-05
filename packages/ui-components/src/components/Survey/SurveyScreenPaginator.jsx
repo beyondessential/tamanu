@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Typography } from '@material-ui/core';
@@ -75,6 +75,7 @@ export const SurveyScreenPaginator = ({
   encounterType,
   getComponentForQuestionType,
   summarySubmitButton = null,
+  onScreenIndexChange,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -85,6 +86,10 @@ export const SurveyScreenPaginator = ({
   const maxIndex = currentComponents
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
+
+  useEffect(() => {
+    onScreenIndexChange?.(Math.min(screenIndex, maxIndex));
+  }, [maxIndex, onScreenIndexChange, screenIndex]);
 
   if (screenIndex <= maxIndex) {
     const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);

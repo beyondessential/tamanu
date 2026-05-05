@@ -490,8 +490,6 @@ export function ChatComposer({
         minRows={3}
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
-        onDrop={handleDrop}
-        onDragOver={event => event.preventDefault()}
         placeholder={getTranslation(
           'admin.programs.aiFormBuilder.input.placeholder',
           'Start typing here or attach a file containing the form...',
