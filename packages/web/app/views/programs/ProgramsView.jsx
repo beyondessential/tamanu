@@ -103,7 +103,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${programId}/surveys`, {
+        const { data } = await api.get(`program/${encodeURIComponent(programId)}/surveys`, {
           ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
@@ -163,9 +163,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   });
 
   const surveyForEdit = useMemo(() => {
-    if (!existingSurveyResponse) {
-      return null;
-    }
+    if (!existingSurveyResponse) return null;
     return {
       id: existingSurveyResponse.surveyId,
       components: existingSurveyResponse.components,
@@ -173,20 +171,17 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }, [existingSurveyResponse]);
 
   const initialAnswerOverrides = useMemo(() => {
-    if (!existingSurveyResponse?.answers?.length) {
-      return null;
-    }
+    if (!existingSurveyResponse?.answers?.length) return null;
     return Object.fromEntries(
       existingSurveyResponse.answers.map(a => {
-        const value =
-          a.originalBody !== undefined && a.originalBody !== null ? a.originalBody : a.body;
+        const value = a.originalBody ?? a.body;
         return [a.dataElementId, value];
       }),
     );
   }, [existingSurveyResponse]);
 
   const submitSurveyResponseEdit = async data => {
-    await api.patch(`surveyResponse/${surveyResponseId}`, {
+    await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
       facilityId,
       answers: await getAnswersFromData(data, surveyForEdit),
     });
@@ -215,18 +210,14 @@ const SurveyFlow = ({ patient, currentUser }) => {
     (!surveyResponseId && (programsLoading || !programs)) ||
     (surveyResponseId && isLoadingSurveyResponse)
   ) {
-    return <LoadingIndicator data-testid="loadingindicator-43uf" />;
+    return <LoadingIndicator />;
   }
 
   if (isError) {
     return (
       <ErrorMessage
         title={
-          <TranslatedText
-            stringId="program.modal.selectSurvey.error.title"
-            fallback="Error"
-            data-testid="translatedtext-cz5r"
-          />
+          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
         }
         error={error}
         data-testid="errormessage-kl46"
@@ -239,11 +230,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return (
       <ErrorMessage
         title={
-          <TranslatedText
-            stringId="program.modal.selectSurvey.error.title"
-            fallback="Error"
-            data-testid="translatedtext-cz5r-survey-edit"
-          />
+          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
         }
         error={
           isNotFound
@@ -298,7 +285,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-                data-testid="translatedtext-30u8"
               />
             }
             data-testid="selectinput-5hi2"
@@ -314,7 +300,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-                data-testid="translatedtext-htq6"
               />
             }
             data-testid="surveyselector-bn1a"
