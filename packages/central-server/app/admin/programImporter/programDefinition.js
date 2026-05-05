@@ -17,12 +17,54 @@ import {
   validateVitalsSurvey,
 } from './validation';
 
-const PREVIEW_SELECT_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
-const CHOICE_DATA_ELEMENT_TYPES = [
+const DATA_ELEMENT_TYPES_REQUIRING_OPTIONS = [
   PROGRAM_DATA_ELEMENT_TYPES.SELECT,
   PROGRAM_DATA_ELEMENT_TYPES.RADIO,
   PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
 ];
+
+const normalizeOptions = options => {
+  if (!options) return [];
+  if (typeof options === 'string') {
+    return options
+      .split(',')
+      .map(option => option.trim())
+      .filter(Boolean);
+  }
+  if (Array.isArray(options)) return options;
+  return Object.values(options);
+};
+
+const hasOptions = options => normalizeOptions(options).length > 0;
+
+const programDefinitionQuestionSchema = z
+  .object({
+    code: z.string().trim().min(1),
+    name: z.string().trim().optional(),
+    text: z.string().trim().min(1),
+    type: z.string().trim().min(1),
+    options: z.union([z.string(), z.array(z.string()), z.record(z.string())]).optional(),
+    newScreen: z.boolean().optional(),
+    visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
+    validationCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
+    detail: z.string().optional(),
+    config: z.union([z.string(), z.record(z.unknown())]).optional(),
+    calculation: z.string().optional(),
+    visibilityStatus: z.string().trim().optional(),
+    visualisationConfig: z.union([z.string(), z.record(z.unknown())]).optional(),
+  })
+  .superRefine((question, ctx) => {
+    if (
+      DATA_ELEMENT_TYPES_REQUIRING_OPTIONS.includes(question.type) &&
+      !hasOptions(question.options)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['options'],
+        message: `${question.type} questions must include options`,
+      });
+    }
+  });
 
 export const programDefinitionSchema = z.object({
   title: z.string().trim().min(1),
@@ -40,23 +82,7 @@ export const programDefinitionSchema = z.object({
         visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
         visibilityStatus: z.string().trim().optional(),
         questions: z
-          .array(
-            z.object({
-              code: z.string().trim().min(1),
-              name: z.string().trim().optional(),
-              text: z.string().trim().min(1),
-              type: z.string().trim().min(1),
-              options: z.union([z.string(), z.array(z.string()), z.record(z.string())]).optional(),
-              newScreen: z.boolean().optional(),
-              visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
-              validationCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
-              detail: z.string().optional(),
-              config: z.union([z.string(), z.record(z.unknown())]).optional(),
-              calculation: z.string().optional(),
-              visibilityStatus: z.string().trim().optional(),
-              visualisationConfig: z.union([z.string(), z.record(z.unknown())]).optional(),
-            }),
-          )
+          .array(programDefinitionQuestionSchema)
           .min(1),
       }),
     )
@@ -91,18 +117,6 @@ const replaceQuestionReferences = (value, questionCodeMap) => {
 const stringifyField = (value, questionCodeMap = new Map()) => {
   if (!value) return '';
   return replaceQuestionReferences(value, questionCodeMap);
-};
-
-const normalizeOptions = options => {
-  if (!options) return [];
-  if (typeof options === 'string') {
-    return options
-      .split(',')
-      .map(option => option.trim())
-      .filter(Boolean);
-  }
-  if (Array.isArray(options)) return options;
-  return Object.values(options);
 };
 
 const createSurveyImportRows = ({ programId, surveyDefinition, surveyCode }) => {
@@ -151,8 +165,8 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveyCode }) => 
     const questionCode = questionCodeMap.get(createCode(question.code));
     const dataElementId = `pde-${questionCode}`;
     const type = question.type || PROGRAM_DATA_ELEMENT_TYPES.TEXT;
-    const defaultOptions = CHOICE_DATA_ELEMENT_TYPES.includes(type)
-      ? JSON.stringify(normalizeOptions(question.options || PREVIEW_SELECT_OPTIONS))
+    const defaultOptions = DATA_ELEMENT_TYPES_REQUIRING_OPTIONS.includes(type)
+      ? JSON.stringify(normalizeOptions(question.options))
       : '';
 
     rows.push(
