@@ -13,9 +13,21 @@ import {
 } from '@tamanu/ui-components';
 import { getComponentForQuestionType } from '../../../../../components/Surveys';
 
-const PREVIEW_SELECT_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
 const EMPTY_FORM_VALUES = {};
 const noopAsync = async () => {};
+
+const normalizeOptions = options => {
+  if (!options || Array.isArray(options) || typeof options === 'object') return options;
+  return options
+    .split(',')
+    .map(option => option.trim())
+    .filter(Boolean);
+};
+
+const stringifyField = value => {
+  if (!value || typeof value === 'string') return value;
+  return JSON.stringify(value);
+};
 
 const previewEnter = keyframes`
   from {
@@ -102,38 +114,36 @@ const PreviewSubmitTooltipTarget = styled.div`
   display: inline-flex;
 `;
 
-const createPreviewSurvey = form => ({
-  id: 'ai-form-builder-preview',
-  name: form.title,
-  components: form.sections.flatMap((section, sectionIndex) => [
-    {
-      id: `ai-preview-section-${sectionIndex}`,
-      dataElementId: `ai-preview-section-${sectionIndex}`,
-      screenIndex: sectionIndex,
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      dataElement: {
-        id: `ai-preview-section-${sectionIndex}`,
-        type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
-        defaultText: section.title,
-      },
-    },
-    ...section.questions.map((question, questionIndex) => {
-      const id = `ai-preview-question-${sectionIndex}-${questionIndex}`;
+const createPreviewSurvey = form => {
+  const survey = form.surveys[0];
+  let screenIndex = -1;
+
+  return {
+    id: 'ai-form-builder-preview',
+    name: survey.name,
+    components: survey.questions.map((question, questionIndex) => {
+      if (questionIndex === 0 || question.newScreen) screenIndex += 1;
+      const id = `ai-preview-question-${question.code}`;
+
       return {
         id,
         dataElementId: id,
-        screenIndex: sectionIndex,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        screenIndex,
+        visibilityStatus: question.visibilityStatus || VISIBILITY_STATUSES.CURRENT,
+        visibilityCriteria: stringifyField(question.visibilityCriteria),
+        validationCriteria: stringifyField(question.validationCriteria),
+        config: stringifyField(question.config),
         dataElement: {
           id,
-          type: PROGRAM_DATA_ELEMENT_TYPES.SELECT,
-          defaultText: question,
-          defaultOptions: PREVIEW_SELECT_OPTIONS,
+          code: question.code,
+          type: question.type || PROGRAM_DATA_ELEMENT_TYPES.TEXT,
+          defaultText: question.text,
+          defaultOptions: normalizeOptions(question.options),
         },
       };
     }),
-  ]),
-});
+  };
+};
 
 const getPreviewScreenCount = survey =>
   Math.max(1, ...survey.components.map(component => component.screenIndex + 1));

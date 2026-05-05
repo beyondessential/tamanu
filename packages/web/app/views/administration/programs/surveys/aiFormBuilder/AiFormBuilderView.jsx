@@ -1,8 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
+import { useApi } from '../../../../../api';
 import { notifyError, notifySuccess } from '../../../../../utils';
 import { saveFile } from '../../../../../utils/fileSystemAccess';
 import {
@@ -39,11 +41,14 @@ import { useProgramsQuery } from '../queries';
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
   const { getTranslation } = useTranslation();
+  const api = useApi();
+  const queryClient = useQueryClient();
   const sessionKey = useSelector(state => state.auth.token);
   const [state, setState] = useState(() => readSessionChatState(sessionKey));
   const [inputValue, setInputValue] = useState('');
   const [pendingFile, setPendingFile] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const abortControllerRef = useRef(null);
   const inputFileRef = useRef(null);
@@ -124,6 +129,7 @@ export function AiFormBuilderView() {
       setState(current => ({
         ...current,
         generatedForm,
+        savedSurveyId: null,
         messages: [
           ...current.messages,
           createMessage({
@@ -239,13 +245,33 @@ export function AiFormBuilderView() {
     });
   };
 
-  const handleSave = () => {
-    notifySuccess(
-      <TranslatedText
-        stringId="admin.programs.aiFormBuilder.save.success"
-        fallback="Mock form saved to the database"
-      />,
-    );
+  const handleSave = async () => {
+    if (isSaving || state.savedSurveyId || !state.generatedForm || !state.selectedProgramId) return;
+
+    setIsSaving(true);
+    try {
+      const { surveys } = await api.post(`admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`, {
+        form: state.generatedForm,
+      });
+      setState(current => ({ ...current, savedSurveyId: surveys[0]?.id }));
+      await queryClient.invalidateQueries({ queryKey: ['programs'] });
+
+      notifySuccess(
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.save.success"
+          fallback="Form saved to the database"
+        />,
+      );
+    } catch {
+      notifyError(
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.save.error"
+          fallback="Unable to save the form"
+        />,
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -281,7 +307,9 @@ export function AiFormBuilderView() {
                       <DownloadMessage
                         key={message.id}
                         fileName={message.fileName}
+                        isSaved={Boolean(state.savedSurveyId)}
                         onDownload={() => handleDownload(message.fileName)}
+                        isSaving={isSaving}
                         onSave={handleSave}
                       />
                     );
