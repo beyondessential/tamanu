@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
+import { extname } from 'path';
+import { readFile, utils } from 'xlsx';
 
 import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
@@ -9,20 +11,52 @@ import { programDefinitionSchema } from './programImporter/programDefinition';
 const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 const MAX_FILE_CONTEXT_LENGTH = 200_000;
+const TEXT_FILE_EXTENSIONS = new Set(['.txt', '.csv']);
+const WORKBOOK_FILE_EXTENSIONS = new Set(['.xls', '.xlsx']);
+const IMAGE_FILE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg']);
 
 export const formBuilderRouter = express.Router();
 
-const getFileContext = async file => {
-  if (!file) return '';
-
-  const content = await fs.readFile(file, 'utf8');
+const truncateFileContext = content => {
   const truncated = content.length > MAX_FILE_CONTEXT_LENGTH;
   const fileContent = truncated ? content.slice(0, MAX_FILE_CONTEXT_LENGTH) : content;
   const truncationNotice = truncated
     ? `\n\n[File content truncated to ${MAX_FILE_CONTEXT_LENGTH} characters]`
     : '';
 
-  return `[TEXT DOCUMENT LOADED]\n${fileContent}${truncationNotice}`;
+  return `${fileContent}${truncationNotice}`;
+};
+
+const readWorkbookContext = file => {
+  const workbook = readFile(file);
+  return workbook.SheetNames.map(sheetName => {
+    const worksheet = workbook.Sheets[sheetName];
+    return `[Sheet: ${sheetName}]\n${utils.sheet_to_csv(worksheet)}`;
+  }).join('\n\n');
+};
+
+const getFileContext = async ({ file, fileName, fileContentType }) => {
+  if (!file) return '';
+
+  const extension = extname(fileName || '').toLowerCase();
+  if (WORKBOOK_FILE_EXTENSIONS.has(extension)) {
+    return `[XLSX DOCUMENT LOADED]\n${truncateFileContext(readWorkbookContext(file))}`;
+  }
+
+  if (TEXT_FILE_EXTENSIONS.has(extension)) {
+    const tag = extension === '.csv' ? 'CSV DOCUMENT LOADED' : 'TEXT DOCUMENT LOADED';
+    return `[${tag}]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
+  }
+
+  if (extension === '.pdf' || fileContentType === 'application/pdf') {
+    return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". Text extraction is not available yet; ask the implementer to confirm any details that are not already in the conversation.`;
+  }
+
+  if (IMAGE_FILE_EXTENSIONS.has(extension)) {
+    return `[FORM IMAGE UPLOADED]\nUploaded image "${fileName || 'attachment'}". Image interpretation is not available yet; ask the implementer to confirm the visible fields.`;
+  }
+
+  return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
 };
 
 const buildUserMessage = ({ message, fileContext }) => {
@@ -48,12 +82,17 @@ formBuilderRouter.post(
       throw new InvalidOperationError('AI service is not enabled');
     }
 
-    const { sessionId: existingSessionId, message, file, deleteFileAfterImport } = await getUploadedData(
-      req,
-    );
+    const {
+      sessionId: existingSessionId,
+      message,
+      file,
+      fileName,
+      fileContentType,
+      deleteFileAfterImport,
+    } = await getUploadedData(req);
 
     try {
-      const fileContext = await getFileContext(file);
+      const fileContext = await getFileContext({ file, fileName, fileContentType });
       const userMessage = buildUserMessage({ message, fileContext });
       const sessionId =
         existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));
