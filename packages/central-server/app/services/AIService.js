@@ -53,7 +53,7 @@ export class AIService {
 
     service.conversationChain = new RunnableWithMessageHistory({
       runnable: prompt.pipe(service.chatModel),
-      getMessageHistory: (sessionId) => {
+      getMessageHistory: sessionId => {
         const session = service.sessions.get(sessionId);
         if (!session) {
           throw new Error(`AI session "${sessionId}" not found`);
@@ -120,10 +120,7 @@ export class AIService {
       throw new Error(`AI session "${sessionId}" not found`);
     }
     this.sessions.ttl(sessionId, SESSION_TTL_SECONDS); // refresh TTL on access
-    return this.conversationChain.invoke(
-      { input: userMessage },
-      { configurable: { sessionId } },
-    );
+    return this.conversationChain.invoke({ input: userMessage }, { configurable: { sessionId } });
   }
 
   /**
