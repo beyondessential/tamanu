@@ -1,15 +1,288 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { QueryTypes } from 'sequelize';
 import { subject } from '@casl/ability';
+import {
+  getActiveActionComponents,
+  getResultValue,
+  getStringValue,
+} from '@tamanu/shared/utils/fields';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
+import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 
 import {
   getPatientDataFieldAssociationData,
   transformAnswers,
 } from '@tamanu/shared/reports/utilities/transformAnswers';
-import { PATIENT_DATA_FIELD_LOCATIONS, SURVEY_TYPES } from '@tamanu/constants';
+import {
+  PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/errors';
 
 export const surveyResponse = express.Router();
+
+async function getBodyForAnswer(dataElementType, value, models) {
+  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
+    // If the client already provided an attachment id, keep it as-is
+    if (typeof value === 'string') return value;
+
+    const { size, data } = value;
+    const { id: attachmentId } = await models.Attachment.create(
+      models.Attachment.sanitizeForDatabase({
+        type: 'image/jpeg',
+        size,
+        data,
+      }),
+    );
+    return attachmentId;
+  }
+
+  return getStringValue(dataElementType, value);
+}
+
+async function createPatientIssues(models, questions, patientId) {
+  const issueQuestions = questions.filter(
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+  );
+  for (const question of issueQuestions) {
+    const config = safeJsonParse(question.config) ?? {};
+    if (!config.issueNote || !config.issueType) {
+      throw new InvalidOperationError(
+        `Ill-configured PatientIssue with config: ${question.config}`,
+      );
+    }
+    await models.PatientIssue.create({
+      patientId,
+      type: config.issueType,
+      note: config.issueNote,
+    });
+  }
+}
+
+const getFieldsToWrite = async (models, questions, answers) => {
+  const recordValuesByModel = {};
+  const patientDataQuestions = questions.filter(
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  );
+  for (const question of patientDataQuestions) {
+    const { dataElement, config: configString } = question;
+    const config = safeJsonParse(configString) ?? {};
+    if (!config.writeToPatient) continue;
+
+    const { fieldName: configFieldName } = config.writeToPatient ?? {};
+    if (!configFieldName) throw new Error('No fieldName defined for writeToPatient config');
+
+    const value = answers[dataElement.id];
+    const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
+    if (!modelName) throw new Error(`Unknown fieldName: ${configFieldName}`);
+    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName][fieldName] = value;
+  }
+  return recordValuesByModel;
+};
+
+async function writeToPatientFields(
+  models,
+  facilityId,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
+  const valuesByModel = await getFieldsToWrite(models, questions, answers);
+
+  if (valuesByModel.Patient) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient?.update(valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientFieldValue) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient?.writeFieldValues(valuesByModel.PatientFieldValue);
+  }
+
+  if (valuesByModel.PatientAdditionalData) {
+    const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
+    await pad.update(valuesByModel.PatientAdditionalData);
+  }
+
+  if (valuesByModel.PatientProgramRegistration) {
+    const survey = await models.Survey.findByPk(surveyId);
+    const programRegistryDetail = await models.ProgramRegistry.findOne({
+      where: { programId: survey?.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (!programRegistryDetail?.id) {
+      throw new Error('No program registry configured for the current form');
+    }
+
+    const existingRegistration = await models.PatientProgramRegistration.findOne({
+      where: {
+        patientId,
+        programRegistryId: programRegistryDetail.id,
+      },
+    });
+
+    const registrationData = {
+      patientId,
+      programRegistryId: programRegistryDetail.id,
+      ...valuesByModel.PatientProgramRegistration,
+      registeringFacilityId:
+        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
+      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
+    };
+
+    if (existingRegistration) {
+      await existingRegistration.update(registrationData);
+    } else {
+      await models.PatientProgramRegistration.create({
+        date: submittedTime,
+        ...registrationData,
+      });
+    }
+  }
+}
+
+async function handleSurveyResponseActions(
+  models,
+  facilityId,
+  questions,
+  answers,
+  patientId,
+  surveyId,
+  userId,
+  submittedTime,
+) {
+  const activeQuestions = getActiveActionComponents(questions, answers);
+  await createPatientIssues(models, activeQuestions, patientId);
+  await writeToPatientFields(
+    models,
+    facilityId,
+    activeQuestions,
+    answers,
+    patientId,
+    surveyId,
+    userId,
+    submittedTime,
+  );
+}
+
+/**
+ * Survey response changelog for facility (logs.changes).
+ * Response: { changes: Array<{ id, loggedAt, tableName, recordId, changedBy, fieldChanges, recordData }> }
+ * fieldChanges: { fieldKey, from, to }[] — only rows after the first snapshot per DB record (edit history only).
+ */
+surveyResponse.get(
+  '/:id/changes',
+  asyncHandler(async (req, res) => {
+    const { models, params, db } = req;
+    req.checkPermission('read', 'SurveyResponse');
+
+    const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
+    if (!surveyResponseRecord) {
+      throw new NotFoundError('Survey response not found');
+    }
+    const survey = await surveyResponseRecord.getSurvey();
+    if (!survey) {
+      throw new NotFoundError('Associated survey not found');
+    }
+    if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
+      throw new InvalidOperationError('Changelog is only available for program survey responses');
+    }
+
+    req.checkPermission('read', survey);
+
+    const rawRows = await db.query(
+      `
+      SELECT
+        c.id,
+        c.created_at AS "loggedAt",
+        c.table_name AS "tableName",
+        c.record_id AS "recordId",
+        c.record_data AS "recordData",
+        c.updated_by_user_id AS "updatedByUserId",
+        u.display_name AS "changedByDisplayName"
+      FROM logs.changes c
+      LEFT JOIN users u ON u.id = c.updated_by_user_id
+      WHERE c.migration_context IS NULL
+        AND (
+          (c.table_name = 'survey_responses' AND c.record_id = :surveyResponseId)
+          OR (
+            c.table_name = 'survey_response_answers'
+            AND (c.record_data->>'response_id') = :surveyResponseId
+          )
+        )
+      ORDER BY c.created_at ASC
+    `,
+      {
+        replacements: { surveyResponseId: params.id },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    const seqByKey = {};
+    const rowsWithSeq = rawRows.map(row => {
+      const key = `${row.tableName}\0${row.recordId}`;
+      seqByKey[key] = (seqByKey[key] || 0) + 1;
+      return { ...row, _seq: seqByKey[key] };
+    });
+
+    const editRowsOnly = rowsWithSeq.filter(r => r._seq > 1);
+
+    const diffKeys = (prev, curr) => {
+      if (!curr) return [];
+      const keys = new Set([...Object.keys(prev || {}), ...Object.keys(curr)]);
+      const out = [];
+      for (const k of keys) {
+        const a = prev ? prev[k] : undefined;
+        const b = curr[k];
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
+          out.push({ fieldKey: k, from: a ?? null, to: b ?? null });
+        }
+      }
+      return out;
+    };
+
+    const changes = editRowsOnly.map(row => {
+      const prevRow = rowsWithSeq.find(
+        r =>
+          r.tableName === row.tableName &&
+          r.recordId === row.recordId &&
+          r._seq === row._seq - 1,
+      );
+      const prevData = prevRow?.recordData ?? null;
+      const fieldChanges = diffKeys(prevData, row.recordData);
+      return {
+        id: row.id,
+        loggedAt: row.loggedAt,
+        tableName: row.tableName,
+        recordId: row.recordId,
+        recordData: row.recordData,
+        changedBy: {
+          id: row.updatedByUserId,
+          displayName: row.changedByDisplayName,
+        },
+        fieldChanges,
+      };
+    });
+
+    changes.reverse();
+
+    await req.audit.access({
+      recordId: surveyResponseRecord.id,
+      frontEndContext: { ...params, changelog: true },
+      model: models.SurveyResponse,
+      facilityId: req.query.facilityId,
+    });
+
+    res.send({ changes });
+  }),
+);
 
 surveyResponse.get(
   '/:id',
@@ -149,6 +422,117 @@ surveyResponse.put(
     });
 
     res.send(responseRecord);
+  }),
+);
+
+surveyResponse.patch(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    req.checkPermission('read', 'SurveyResponse');
+
+    const responseRecord = await models.SurveyResponse.findByPk(params.id);
+    if (!responseRecord) {
+      throw new NotFoundError('Survey response not found');
+    }
+
+    const survey = await responseRecord.getSurvey();
+    if (!survey) {
+      throw new NotFoundError('Associated survey not found');
+    }
+    if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
+      throw new InvalidOperationError('Cannot edit survey responses');
+    }
+
+    req.checkPermission('write', survey);
+
+    const facilityId = body?.facilityId;
+    if (!facilityId) {
+      throw new InvalidParameterError('facilityId is required');
+    }
+    const patchedAnswers = body?.answers;
+    if (!patchedAnswers || typeof patchedAnswers !== 'object') {
+      throw new InvalidParameterError('answers is required');
+    }
+
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
+    const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
+    const validDataElementIds = new Set(componentByDataElementId.keys());
+
+    const responseAnswers = await models.SurveyResponseAnswer.findAll({
+      where: { responseId: params.id },
+    });
+
+    const mergedAnswerValues = {};
+    for (const answer of responseAnswers) {
+      mergedAnswerValues[answer.dataElementId] = answer.body;
+    }
+
+    await req.db.transaction(async () => {
+      for (const [dataElementId, value] of Object.entries(patchedAnswers)) {
+        if (!validDataElementIds.has(dataElementId)) {
+          throw new InvalidOperationError('Some components are missing from the survey');
+        }
+
+        // Ignore null values
+        if (value === null) continue;
+
+        const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
+        const bodyValue = await getBodyForAnswer(dataElementType, value, models);
+        if (bodyValue === null) continue;
+
+        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
+        if (existingAnswer) {
+          await existingAnswer.update({ body: bodyValue });
+        } else {
+          await models.SurveyResponseAnswer.create({
+            dataElementId,
+            body: bodyValue,
+            responseId: params.id,
+          });
+        }
+        mergedAnswerValues[dataElementId] = bodyValue;
+      }
+
+      // Recalculate calculated questions and persist them
+      const calculatedValues = runCalculations(components, mergedAnswerValues);
+      for (const [dataElementId, value] of Object.entries(calculatedValues)) {
+        if (!validDataElementIds.has(dataElementId)) continue;
+        const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
+        const bodyValue = getStringValue(dataElementType, value) ?? '';
+        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
+        if (existingAnswer) {
+          await existingAnswer.update({ body: bodyValue });
+        } else {
+          await models.SurveyResponseAnswer.create({
+            dataElementId,
+            body: bodyValue,
+            responseId: params.id,
+          });
+        }
+        mergedAnswerValues[dataElementId] = bodyValue;
+      }
+
+      const encounter = await responseRecord.getEncounter();
+      const { result, resultText } = getResultValue(components, mergedAnswerValues, {
+        encounterType: encounter?.encounterType,
+      });
+      await responseRecord.update({ result, resultText });
+
+      // Re-run actions without changing submission time
+      await handleSurveyResponseActions(
+        models,
+        facilityId,
+        components,
+        mergedAnswerValues,
+        responseRecord.patientId,
+        responseRecord.surveyId,
+        req.user.id,
+        responseRecord.endTime,
+      );
+    });
+
+    res.send({ ok: true });
   }),
 );
 

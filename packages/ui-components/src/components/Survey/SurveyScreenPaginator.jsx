@@ -16,7 +16,7 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisabled }) => (
   <div>
     <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
       <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
@@ -36,6 +36,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
           color="primary"
           variant="contained"
           onClick={onSurveyComplete}
+          functionallyDisabled={completeButtonDisabled}
           data-testid="formsubmitbutton-pufy"
         >
           <TranslatedText stringId="general.action.complete" fallback="Complete" />
@@ -60,6 +61,7 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
+  completeButtonDisabled = false,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -101,6 +103,7 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      completeButtonDisabled={completeButtonDisabled}
       data-testid="surveysummaryscreen-1jn5"
     />
   );

@@ -251,6 +251,54 @@ describe('Programs', () => {
       });
     });
 
+    it('should return no changelog entries before any edit', async () => {
+      const responseData = createDummySurveyResponse(testSurvey);
+      const result = await app.post(`/api/surveyResponse`).send({
+        ...responseData,
+        encounterId: testEncounter.id,
+        surveyId: testSurvey.id,
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const changelog = await app.get(`/api/surveyResponse/${result.body.id}/changes`);
+      expect(changelog).toHaveSucceeded();
+      expect(changelog.body.changes).toEqual([]);
+    });
+
+    it('should list changelog after PATCH and keep end_time unchanged', async () => {
+      const responseData = createDummySurveyResponse(testSurvey);
+      const post = await app.post(`/api/surveyResponse`).send({
+        ...responseData,
+        encounterId: testEncounter.id,
+        surveyId: testSurvey.id,
+        facilityId,
+      });
+      expect(post).toHaveSucceeded();
+      const responseId = post.body.id;
+      const [dataElementId] = Object.keys(responseData.answers);
+      const before = await models.SurveyResponse.findByPk(responseId);
+
+      const patch = await app.patch(`/api/surveyResponse/${responseId}`).send({
+        facilityId,
+        answers: { [dataElementId]: 'patched-answer-value' },
+      });
+      expect(patch).toHaveSucceeded();
+
+      const after = await models.SurveyResponse.findByPk(responseId);
+      expect(after.endTime).toEqual(before.endTime);
+
+      const changelog = await app.get(`/api/surveyResponse/${responseId}/changes`);
+      expect(changelog).toHaveSucceeded();
+      expect(Array.isArray(changelog.body.changes)).toBe(true);
+      expect(changelog.body.changes.length).toBeGreaterThan(0);
+      const first = changelog.body.changes[0];
+      expect(first).toMatchObject({
+        tableName: expect.any(String),
+        fieldChanges: expect.any(Array),
+      });
+    });
+
     it('should only list program responses from an encounter, not referrals', async () => {
       const NUMBER_PROGRAM_RESPONSES = 7;
       const NUMBER_REFERRAL_SURVEY_RESPONSES = 19;

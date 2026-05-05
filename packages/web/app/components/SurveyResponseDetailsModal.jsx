@@ -1,11 +1,12 @@
 import PrintIcon from '@mui/icons-material/Print';
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
+import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
@@ -31,33 +32,6 @@ const PrintButton = styled(Button).attrs({
   top: 21px;
 `;
 
-const COLUMNS = [
-  {
-    key: 'text',
-    title: (
-      <TranslatedText
-        stringId="surveyResponse.details.table.column.indicator"
-        fallback="Indicator"
-      />
-    ),
-    accessor: ({ name }) => name,
-  },
-  {
-    key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
-      <SurveyAnswerResult
-        answer={answer}
-        type={type}
-        data-testid="surveyanswerresult-dhnv"
-        originalBody={originalBody}
-        componentConfig={componentConfig}
-        dataElementId={dataElementId}
-      />
-    ),
-  },
-];
-
 const isShowable = component =>
   component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
 
@@ -81,15 +55,102 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+export const SurveyResponseDetailsModal = ({
+  surveyResponseId,
+  onClose,
+  onPrint,
+  onViewChangeLog = null,
+}) => {
   const {
     data: surveyDetails,
     isLoading,
     error,
   } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
-
   const isNotFound = error?.status === 404;
   const isPending = isLoading || !surveyDetails || error;
+
+  const { data: changesData } = useSurveyResponseChangesQuery(surveyResponseId, {
+    enabled: Boolean(surveyResponseId && surveyDetails && !error),
+  });
+  const editedAnswerIds = useMemo(() => {
+    const ids = new Set();
+    for (const ch of changesData?.changes || []) {
+      if (ch.tableName === 'survey_response_answers') {
+        ids.add(ch.recordId);
+      }
+    }
+    return ids;
+  }, [changesData]);
+
+  const columns = useMemo(
+    () => [
+      {
+        key: 'text',
+        title: (
+          <TranslatedText
+            stringId="surveyResponse.details.table.column.indicator"
+            fallback="Indicator"
+            data-testid="translatedtext-62uq"
+          />
+        ),
+        accessor: ({ name, wasEdited }) => (
+          <span>
+            {name}
+            {wasEdited ? (
+              <>
+                {' '}
+                <TranslatedText
+                  stringId="surveyResponse.details.edited.label"
+                  fallback="Edited"
+                  data-testid="surveyresponse-details-edited"
+                />
+                {onViewChangeLog ? (
+                  <>
+                    {' '}
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onViewChangeLog(surveyResponseId);
+                      }}
+                      data-testid="surveyresponse-details-view-changelog"
+                    >
+                      <TranslatedText
+                        stringId="surveyResponse.details.viewChangeLog"
+                        fallback="View change log"
+                      />
+                    </Button>
+                  </>
+                ) : null}
+              </>
+            ) : null}
+          </span>
+        ),
+      },
+      {
+        key: 'value',
+        title: (
+          <TranslatedText
+            stringId="surveyResponse.details.table.column.value"
+            fallback="Value"
+            data-testid="translatedtext-fah5"
+          />
+        ),
+        accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
+          <SurveyAnswerResult
+            answer={answer}
+            type={type}
+            data-testid="surveyanswerresult-dhnv"
+            originalBody={originalBody}
+            componentConfig={componentConfig}
+            dataElementId={dataElementId}
+          />
+        ),
+      },
+    ],
+    [onViewChangeLog, surveyResponseId],
+  );
 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
@@ -111,12 +172,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       const type =
         originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
 
+      const wasEdited =
+        answerObject?.id && editedAnswerIds.size > 0 && editedAnswerIds.has(answerObject.id);
+
       return {
         id,
         dataElementId,
         type,
         answer,
         originalBody,
+        wasEdited,
         name: (
           <TranslatedReferenceData
             category="programDataElement"
@@ -153,7 +218,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           <TableContainer data-testid="tablecontainer-csba">
             <Table
               data={answerRows}
-              columns={COLUMNS}
+              columns={columns}
               allowExport={false}
               data-testid="table-3xqx"
             />

@@ -47,6 +47,8 @@ export const SurveyViewForm = ({
   patientProgramRegistration,
   showCancelButton,
   setSurveyFormDirty,
+  initialAnswerOverrides = null,
+  disableCompleteUntilDirty = false,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
@@ -55,14 +57,28 @@ export const SurveyViewForm = ({
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
-  const initialValues = getFormInitialValues({
-    components: currentComponents,
-    additionalData: patientAdditionalData,
+  const initialValues = useMemo(() => {
+    const base = getFormInitialValues({
+      components: currentComponents,
+      additionalData: patientAdditionalData,
+      patient,
+      currentUser,
+      patientProgramRegistration,
+      getCurrentDateTime,
+    });
+    if (!initialAnswerOverrides) {
+      return base;
+    }
+    return { ...base, ...initialAnswerOverrides };
+  }, [
+    currentComponents,
+    patientAdditionalData,
     patient,
     currentUser,
     patientProgramRegistration,
     getCurrentDateTime,
-  });
+    initialAnswerOverrides,
+  ]);
   const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
     survey,
     getTranslation,
@@ -119,6 +135,7 @@ export const SurveyViewForm = ({
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
+          completeButtonDisabled={disableCompleteUntilDirty && !dirty}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -133,6 +150,7 @@ export const SurveyViewForm = ({
       validationSchema={validationSchema}
       validateOnChange
       validateOnBlur
+      enableReinitialize={Boolean(initialAnswerOverrides) || disableCompleteUntilDirty}
       data-testid="form-12o2"
     />
   );
@@ -147,7 +165,19 @@ export const SurveyView = props => {
           <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
-      <SurveyViewForm {...props} />
+      <SurveyViewForm
+        survey={survey}
+        onSubmit={props.onSubmit}
+        onCancel={props.onCancel}
+        patient={props.patient}
+        patientAdditionalData={props.patientAdditionalData}
+        currentUser={props.currentUser}
+        patientProgramRegistration={props.patientProgramRegistration}
+        showCancelButton={props.showCancelButton}
+        setSurveyFormDirty={props.setSurveyFormDirty}
+        initialAnswerOverrides={props.initialAnswerOverrides}
+        disableCompleteUntilDirty={props.disableCompleteUntilDirty}
+      />
     </ProgramsPane>
   );
 };

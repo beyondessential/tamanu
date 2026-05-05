@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -19,6 +19,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
+import { isErrorUnknownAllow404s } from '../../api/index.js';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedReferenceData } from '../../components';
@@ -33,6 +34,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const dispatch = useDispatch();
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
+  const surveyResponseId = params.surveyResponseId;
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [programsLoading, setProgramsLoading] = useState(true);
@@ -150,7 +152,69 @@ const SurveyFlow = ({ patient, currentUser }) => {
     error,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  if (isLoading || programsLoading || !programs) {
+  const {
+    data: existingSurveyResponse,
+    isLoading: isLoadingSurveyResponse,
+    isError: isSurveyResponseError,
+    error: surveyResponseError,
+  } = useSurveyResponseQuery(surveyResponseId, {
+    enabled: Boolean(surveyResponseId),
+    isErrorUnknown: isErrorUnknownAllow404s,
+  });
+
+  const surveyForEdit = useMemo(() => {
+    if (!existingSurveyResponse) {
+      return null;
+    }
+    return {
+      id: existingSurveyResponse.surveyId,
+      components: existingSurveyResponse.components,
+    };
+  }, [existingSurveyResponse]);
+
+  const initialAnswerOverrides = useMemo(() => {
+    if (!existingSurveyResponse?.answers?.length) {
+      return null;
+    }
+    return Object.fromEntries(
+      existingSurveyResponse.answers.map(a => {
+        const value =
+          a.originalBody !== undefined && a.originalBody !== null ? a.originalBody : a.body;
+        return [a.dataElementId, value];
+      }),
+    );
+  }, [existingSurveyResponse]);
+
+  const submitSurveyResponseEdit = async data => {
+    await api.patch(`surveyResponse/${surveyResponseId}`, {
+      facilityId,
+      answers: await getAnswersFromData(data, surveyForEdit),
+    });
+    queryClient.invalidateQueries(['surveyResponse', surveyResponseId]);
+    queryClient.invalidateQueries(['surveyResponseChanges', surveyResponseId]);
+    dispatch(reloadPatient(patient.id));
+    if (params?.encounterId && encounter && !encounter.endDate) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+    } else {
+      queryClient.resetQueries(['patientFields', patient.id]);
+      await dispatch(reloadPatient(patient.id));
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
+  };
+
+  const onCancelEdit = useCallback(() => {
+    if (params.encounterId) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+    } else {
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
+  }, [navigateToEncounter, navigateToPatient, params.encounterId, patient.id]);
+
+  if (
+    isLoading ||
+    (!surveyResponseId && (programsLoading || !programs)) ||
+    (surveyResponseId && isLoadingSurveyResponse)
+  ) {
     return <LoadingIndicator data-testid="loadingindicator-43uf" />;
   }
 
@@ -166,6 +230,45 @@ const SurveyFlow = ({ patient, currentUser }) => {
         }
         error={error}
         data-testid="errormessage-kl46"
+      />
+    );
+  }
+
+  if (surveyResponseId && isSurveyResponseError) {
+    const isNotFound = surveyResponseError?.status === 404;
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="program.modal.selectSurvey.error.title"
+            fallback="Error"
+            data-testid="translatedtext-cz5r-survey-edit"
+          />
+        }
+        error={
+          isNotFound
+            ? new Error(
+                'This form response could not be loaded. It may have been deleted or you may not have access.',
+              )
+            : surveyResponseError
+        }
+        data-testid="errormessage-survey-edit"
+      />
+    );
+  }
+
+  if (surveyResponseId && surveyForEdit) {
+    return (
+      <SurveyView
+        onSubmit={submitSurveyResponseEdit}
+        survey={surveyForEdit}
+        onCancel={onCancelEdit}
+        patient={patient}
+        patientAdditionalData={patientAdditionalData}
+        currentUser={currentUser}
+        initialAnswerOverrides={initialAnswerOverrides}
+        disableCompleteUntilDirty
+        data-testid="surveyview-edit"
       />
     );
   }

@@ -19,7 +19,6 @@ describe('Changelogs', () => {
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    await models.Setting.set('audit.changes.enabled', true);
     await models.Program.destroy({ where: {}, force: true });
     await sequelize.query('DELETE FROM logs.changes');
   });
