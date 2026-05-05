@@ -13,6 +13,7 @@ export const createEmptyState = () => ({
   messages: [],
   selectedProgramId: '',
   generatedForm: null,
+  savedSurveyId: null,
 });
 
 export const readSessionChatState = sessionKey => {

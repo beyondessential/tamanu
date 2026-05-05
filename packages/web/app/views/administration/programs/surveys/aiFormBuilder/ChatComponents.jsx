@@ -430,7 +430,7 @@ export function ProgramQuestionMessage({ value, onChange, programOptions }) {
   );
 }
 
-export function DownloadMessage({ fileName, onDownload, onSave }) {
+export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSave }) {
   return (
     <>
       <MessageText>
@@ -446,11 +446,23 @@ export function DownloadMessage({ fileName, onDownload, onSave }) {
         </DownloadButton>
       </DownloadCard>
       <SaveButtonRow>
-        <Button size="small" onClick={onSave}>
-          <TranslatedText
-            stringId="admin.programs.aiFormBuilder.saveToDatabase.action"
-            fallback="Save to database"
-          />
+        <Button size="small" disabled={isSaving || isSaved} onClick={onSave}>
+          {isSaved ? (
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.saveToDatabase.saved"
+              fallback="Saved"
+            />
+          ) : isSaving ? (
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.saveToDatabase.saving"
+              fallback="Saving..."
+            />
+          ) : (
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.saveToDatabase.action"
+              fallback="Save to database"
+            />
+          )}
         </Button>
       </SaveButtonRow>
     </>
