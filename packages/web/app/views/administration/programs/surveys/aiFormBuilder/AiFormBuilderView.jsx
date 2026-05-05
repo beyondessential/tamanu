@@ -29,6 +29,7 @@ import {
 } from './ChatComponents';
 import { FormPreview } from './FormPreview';
 import { mockGenerateForm } from './mockGenerateForm';
+import { normaliseProgramDefinition } from './programDefinition';
 import { createProgramDefinitionWorkbook } from './programDefinitionWorkbook';
 import {
   ACCEPTED_FILE_EXTENSIONS,
@@ -63,7 +64,8 @@ export function AiFormBuilderView() {
   const hasExistingChat = Boolean(
     state.messages.length || state.generatedForm || inputValue.trim() || pendingFile,
   );
-  const showPreview = Boolean(state.generatedForm);
+  const generatedForm = normaliseProgramDefinition(state.generatedForm);
+  const showPreview = Boolean(generatedForm);
   const sendDisabled = !inputValue.trim() && !pendingFile;
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export function AiFormBuilderView() {
       const generatedForm = await mockGenerateForm({ signal: abortController.signal, title });
       setState(current => ({
         ...current,
-        generatedForm,
+        generatedForm: normaliseProgramDefinition(generatedForm),
         savedSurveyId: null,
         messages: [
           ...current.messages,
@@ -239,22 +241,22 @@ export function AiFormBuilderView() {
   };
 
   const handleDownload = async fileName => {
-    if (!state.generatedForm) return;
+    if (!generatedForm) return;
 
     await saveFile({
       defaultFileName: fileName,
       extension: 'xlsx',
-      getData: async () => createProgramDefinitionWorkbook(state.generatedForm),
+      getData: async () => createProgramDefinitionWorkbook(generatedForm),
     });
   };
 
   const handleSave = async () => {
-    if (isSaving || state.savedSurveyId || !state.generatedForm || !state.selectedProgramId) return;
+    if (isSaving || state.savedSurveyId || !generatedForm || !state.selectedProgramId) return;
 
     setIsSaving(true);
     try {
       const { surveys } = await api.post(`admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`, {
-        form: state.generatedForm,
+        form: generatedForm,
       });
       setState(current => ({ ...current, savedSurveyId: surveys[0]?.id }));
       await queryClient.invalidateQueries({ queryKey: ['programs'] });
@@ -358,7 +360,7 @@ export function AiFormBuilderView() {
             </Disclaimer>
           </ChatStack>
         </ChatColumn>
-        {showPreview && <FormPreview form={state.generatedForm} />}
+        {showPreview && <FormPreview form={generatedForm} />}
       </BuilderShell>
       <NewChatConfirmModal
         open={isNewChatModalOpen}
