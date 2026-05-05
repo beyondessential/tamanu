@@ -11,7 +11,7 @@ import {
   TAMANU_COLORS,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { getComponentForQuestionType } from '../../../../components/Surveys';
+import { getComponentForQuestionType } from '../../../../../components/Surveys';
 
 const PREVIEW_SELECT_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
 const EMPTY_FORM_VALUES = {};

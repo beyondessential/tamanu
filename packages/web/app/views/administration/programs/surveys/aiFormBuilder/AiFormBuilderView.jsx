@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
-import { notifyError, notifySuccess } from '../../../../utils';
-import { saveFile } from '../../../../utils/fileSystemAccess';
+import { notifyError, notifySuccess } from '../../../../../utils';
+import { saveFile } from '../../../../../utils/fileSystemAccess';
 import {
   Attachment,
   AttachmentLabel,
@@ -24,17 +24,17 @@ import {
   ProgramQuestionMessage,
   ThinkingMessage,
   UserMessageContent,
-} from './AiFormBuilderComponents';
-import { FormPreview } from './AiFormBuilderPreview';
-import { mockGenerateForm } from './AiFormBuilderMockApi';
+} from './ChatComponents';
+import { FormPreview } from './FormPreview';
+import { mockGenerateForm } from './mockGenerateForm';
 import {
   ACCEPTED_FILE_EXTENSIONS,
   createEmptyState,
   createMessage,
   readSessionChatState,
   writeSessionChatState,
-} from './AiFormBuilderState';
-import { useProgramsQuery } from './queries';
+} from './chatState';
+import { useProgramsQuery } from '../queries';
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
