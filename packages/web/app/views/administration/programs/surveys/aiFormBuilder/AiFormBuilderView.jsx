@@ -155,31 +155,39 @@ export function AiFormBuilderView() {
           })
         : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
 
-      setState(current => ({
-        ...current,
-        sessionId: response.sessionId,
-        readyToExport: Boolean(response.readyToExport),
-        readyToGenerate: Boolean(response.readyToGenerate),
-        generatedForm: response.programDefinition
-          ? normaliseProgramDefinition(response.programDefinition)
-          : current.generatedForm,
-        savedSurveyId: response.programDefinition ? null : current.savedSurveyId,
-        messages: [
-          ...current.messages,
-          createMessage({
-            type: 'assistant',
-            text: response.message,
-          }),
-          ...(response.programDefinition
-            ? [
-                createMessage({
-                  type: 'download',
-                  fileName: getProgramDefinitionFileName(response.programDefinition),
-                }),
-              ]
-            : []),
-        ],
-      }));
+      setState(current => {
+        const generatedFormIteration = response.programDefinition
+          ? (current.generatedFormIteration ?? 0) + 1
+          : current.generatedFormIteration;
+
+        return {
+          ...current,
+          sessionId: response.sessionId,
+          readyToExport: Boolean(response.readyToExport),
+          readyToGenerate: Boolean(response.readyToGenerate),
+          generatedForm: response.programDefinition
+            ? normaliseProgramDefinition(response.programDefinition)
+            : current.generatedForm,
+          generatedFormIteration,
+          savedSurveyId: response.programDefinition ? null : current.savedSurveyId,
+          messages: [
+            ...current.messages,
+            createMessage({
+              type: 'assistant',
+              text: response.message,
+            }),
+            ...(response.programDefinition
+              ? [
+                  createMessage({
+                    type: 'download',
+                    fileName: getProgramDefinitionFileName(response.programDefinition),
+                    iteration: generatedFormIteration,
+                  }),
+                ]
+              : []),
+          ],
+        };
+      });
     } catch (error) {
       if (error.name !== 'AbortError') {
         notifyError(
@@ -364,6 +372,7 @@ export function AiFormBuilderView() {
                         key={message.id}
                         fileName={message.fileName}
                         isSaved={Boolean(state.savedSurveyId)}
+                        iteration={message.iteration}
                         onDownload={() => handleDownload(message.fileName)}
                         isSaving={isSaving}
                         onSave={handleSave}
@@ -411,7 +420,13 @@ export function AiFormBuilderView() {
             </Disclaimer>
           </ChatStack>
         </ChatColumn>
-        {showPreview && <FormPreview form={generatedForm} isSaved={Boolean(state.savedSurveyId)} />}
+        {showPreview && (
+          <FormPreview
+            form={generatedForm}
+            isSaved={Boolean(state.savedSurveyId)}
+            iteration={state.generatedFormIteration}
+          />
+        )}
       </BuilderShell>
       <NewChatConfirmModal
         open={isNewChatModalOpen}

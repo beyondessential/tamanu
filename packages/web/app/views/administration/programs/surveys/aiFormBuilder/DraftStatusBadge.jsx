@@ -18,11 +18,17 @@ const StyledDraftStatusBadge = styled.span`
   white-space: nowrap;
 `;
 
-export function DraftStatusBadge({ isSaved }) {
+export function DraftStatusBadge({ isSaved, iteration }) {
   return (
     <StyledDraftStatusBadge $saved={isSaved}>
       {isSaved ? (
         <TranslatedText stringId="general.status.saved" fallback="Saved" />
+      ) : iteration > 1 ? (
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.status.draftIteration"
+          fallback="Draft :iteration"
+          replacements={{ iteration }}
+        />
       ) : (
         <TranslatedText stringId="general.status.draft" fallback="Draft" />
       )}

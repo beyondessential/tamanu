@@ -540,7 +540,7 @@ export function ProgramQuestionMessage({ value, onChange, programOptions }) {
   );
 }
 
-export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSave }) {
+export function DownloadMessage({ fileName, isSaved, isSaving, iteration, onDownload, onSave }) {
   return (
     <>
       <MessageText>
@@ -552,7 +552,7 @@ export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSav
       <DownloadCard>
         <DownloadFileDetails>
           <DownloadFileName>{fileName}</DownloadFileName>
-          <DraftStatusBadge isSaved={isSaved} />
+          <DraftStatusBadge isSaved={isSaved} iteration={iteration} />
         </DownloadFileDetails>
         <DownloadButton size="small" startIcon={<DownloadIcon />} onClick={onDownload}>
           <TranslatedText stringId="general.action.download" fallback="Download" />

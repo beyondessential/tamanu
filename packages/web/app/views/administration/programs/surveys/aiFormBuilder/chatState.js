@@ -17,6 +17,7 @@ export const createEmptyState = () => ({
   readyToExport: false,
   readyToGenerate: false,
   generatedForm: null,
+  generatedFormIteration: 0,
   savedSurveyId: null,
 });
 

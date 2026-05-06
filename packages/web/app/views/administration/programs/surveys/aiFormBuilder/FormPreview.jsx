@@ -229,7 +229,7 @@ function PreviewSubmitButton() {
   );
 }
 
-export function FormPreview({ form, isSaved }) {
+export function FormPreview({ form, isSaved, iteration }) {
   const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
@@ -262,7 +262,7 @@ export function FormPreview({ form, isSaved }) {
             stringId="admin.programs.aiFormBuilder.preview.heading"
             fallback="Form preview"
           />
-          <DraftStatusBadge isSaved={isSaved} />
+          <DraftStatusBadge isSaved={isSaved} iteration={iteration} />
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
