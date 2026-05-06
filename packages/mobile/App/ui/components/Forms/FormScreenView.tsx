@@ -96,6 +96,7 @@ export const FormScreenView = ({
           showsVerticalScrollIndicator={false}
           scrollToOverflowEnabled
           overScrollMode="always"
+          keyboardShouldPersistTaps="handled"
         >
           <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>{children}</FullView>
         </ScrollView>
