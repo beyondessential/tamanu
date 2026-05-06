@@ -102,6 +102,13 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const EditedEntryLegend = styled.div`
+  text-align: end;
+  margin-top: 8px;
+  font-size: 9px;
+  color: ${Colors.softText};
+`;
+
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
     const { formatShort, formatTimeWithSeconds } = useDateTime();
@@ -113,6 +120,7 @@ export const PatientLabTestsTable = React.memo(
         setModalOpen(true);
       }
     };
+    const showEditedEntryLegend = labTests.some(test => test.results.some(result => result.isEdited));
 
     const allDates = isLoading
       ? []
@@ -260,6 +268,9 @@ export const PatientLabTestsTable = React.memo(
           rowIdKey="testType"
           data-testid="styledtable-u2v9"
         />
+        {showEditedEntryLegend && (
+          <EditedEntryLegend data-testid="box-q7pq">*Edited entry</EditedEntryLegend>
+        )}
         <LabTestResultModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
