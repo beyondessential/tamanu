@@ -166,6 +166,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     if (!existingSurveyResponse) return null;
     return {
       id: existingSurveyResponse.surveyId,
+      name: existingSurveyResponse.surveyName,
       components: existingSurveyResponse.components,
     };
   }, [existingSurveyResponse]);

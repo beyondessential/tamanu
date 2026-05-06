@@ -162,7 +162,11 @@ export const SurveyView = props => {
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
         <SurveyPaneHeading variant="h6" data-testid="surveypaneheading-b5sc">
-          <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
+          <TranslatedReferenceData
+            category="survey"
+            value={survey.id}
+            fallback={survey.name ?? survey.surveyName}
+          />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
       <SurveyViewForm
