@@ -272,7 +272,9 @@ export const LabTestResultModal = React.memo(
                       )}{' '}
                       <DateDisplay
                         date={item.loggedAt}
-                        showTime
+                        format="long"
+                        timeFormat="default"
+                        noTooltip
                         data-testid="datedisplay-loggedat"
                       />
                     </HistoryItemLabel>
