@@ -287,6 +287,8 @@ const StyledTextInput = styled(TextInput)`
   }
 
   .MuiInputBase-input {
+    max-block-size: 170px;
+    overflow-y: auto !important;
     padding: 15px 17px;
   }
 
@@ -586,13 +588,33 @@ export function ChatComposer({
   sendDisabled,
   setInputValue,
 }) {
+  const handleKeyDown = event => {
+    if (
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.nativeEvent.isComposing
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    if (!isThinking && !sendDisabled) {
+      handleSubmit();
+    }
+  };
+
   return (
     <ComposerWrap onDragOver={event => event.preventDefault()} onDrop={handleDrop}>
       <StyledTextInput
         multiline
         minRows={3}
+        rowsMax={8}
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder={getTranslation(
           'admin.programs.aiFormBuilder.input.placeholder',
           'Start typing here or attach a file containing the form...',
