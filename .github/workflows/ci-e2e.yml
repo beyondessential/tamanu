@@ -72,7 +72,7 @@ jobs:
 
       - name: Setup postgres dbs
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 18
           .github/scripts/e2e-test-setup.sh setup-postgres
       - name: Setup central server
         run: .github/scripts/e2e-test-setup.sh setup-central
@@ -146,7 +146,7 @@ jobs:
 
       - name: Setup postgres dbs
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 18
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
           createdb -O tamanu central
