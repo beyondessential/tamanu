@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isEmpty } from 'lodash';
+import { Op } from 'sequelize';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
 import { LANGUAGE_NAME_STRING_ID, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 
@@ -50,21 +51,22 @@ translationRouter.put(
       return;
     }
 
-    // Bulk-fetch all candidate rows in a single SELECT (including soft-deleted
-    // ones, so we can restore rather than recreate) instead of doing a findOne
-    // per entry — typical saves submit hundreds of unchanged rows.
-    const stringIds = [...new Set(entries.map(e => e.stringId))];
-    const languages = [...new Set(entries.map(e => e.language))];
-    const existingRows = await TranslatedString.findAll({
-      where: { stringId: stringIds, language: languages },
-      paranoid: false,
-    });
     const keyOf = (stringId, language) => `${stringId}\x00${language}`;
-    const existingByKey = new Map(
-      existingRows.map(row => [keyOf(row.stringId, row.language), row]),
-    );
 
     const newlyCreated = await sequelize.transaction(async () => {
+      // Bulk-fetch all candidate rows in a single SELECT inside the transaction
+      // (including soft-deleted ones, so we can restore rather than recreate)
+      // instead of doing a findOne per entry — typical saves submit hundreds of
+      // unchanged rows. Op.or matches only the exact (stringId, language) pairs
+      // rather than the full Cartesian product of unique stringIds × languages.
+      const existingRows = await TranslatedString.findAll({
+        where: { [Op.or]: entries.map(({ stringId, language }) => ({ stringId, language })) },
+        paranoid: false,
+      });
+      const existingByKey = new Map(
+        existingRows.map(row => [keyOf(row.stringId, row.language), row]),
+      );
+
       const created = [];
       for (const { stringId, language, text } of entries) {
         const existing = existingByKey.get(keyOf(stringId, language));
