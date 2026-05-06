@@ -35,16 +35,11 @@ export const Field = ({
     return field.onChange({ target: { name, value: newValue } });
   }, [field.onChange, name, onChange]);
 
-  const combinedOnBlur = useCallback(() => {
-    field.onBlur({ target: { name } });
-  }, [field.onBlur, name]);
-
   return (
     <FormikField
       as={component}
       name={name}
       onChange={combinedOnChange}
-      onBlur={combinedOnBlur}
       value={field.value}
       label={label}
       error={error}
