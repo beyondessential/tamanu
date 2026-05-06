@@ -9,6 +9,8 @@ import JSON5 from 'json5';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  PERMISSION_SCHEMA,
+  FHIR_PERMISSION_NOUNS,
   SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
@@ -27,6 +29,35 @@ import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { normaliseSheetName } from '../admin/importer/importerEndpoint';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+
+/**
+ * Generates permission rows for the adminICT role from the canonical PERMISSION_SCHEMA.
+ * Excludes FHIR nouns (can't mix FHIR and regular permissions in one role) and the
+ * `all: manage` wildcard (that would bypass normal permission checks).
+ */
+const buildAdminIctPermissionRows = () => {
+  const rows = [];
+  for (const [noun, verbs] of Object.entries(PERMISSION_SCHEMA)) {
+    if (noun === 'all') continue;
+    if (FHIR_PERMISSION_NOUNS.has(noun)) continue;
+    for (const verb of verbs) {
+      // Column must be 'role' (the association name) — the importer's FK resolver
+      // expects this and renames it to 'roleId' after validating the foreign key.
+      rows.push({ id: `adminICT-${noun}-${verb}`, role: 'adminICT', verb, noun });
+    }
+  }
+  return rows;
+};
+
+/**
+ * Appends a dynamically-generated permission sheet to the workbook so the adminICT role's
+ * permissions always reflect the current PERMISSION_SCHEMA without a separate static file.
+ */
+const appendGeneratedPermissionSheet = wb => {
+  const columns = ['id', 'role', 'verb', 'noun'];
+  const ws = utils.json_to_sheet(buildAdminIctPermissionRows(), { header: columns });
+  utils.book_append_sheet(wb, ws, 'permission');
+};
 
 /**
  * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
@@ -201,6 +232,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       const defaultReferenceDataWorkbook = parseDefaultProvisioningJsonSheets(
         defaultProvisioningDataDirectory,
       );
+      appendGeneratedPermissionSheet(defaultReferenceDataWorkbook);
 
       // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
       validateFullReferenceDataImport(defaultReferenceDataWorkbook);
