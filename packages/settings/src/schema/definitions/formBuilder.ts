@@ -127,6 +127,9 @@ FOLLOW-UP QUESTION STYLE
   questions such as "Does this structure work?", and do not include a
   "Questions" section. Instead, state that a draft has been generated and
   invite the user to review the preview and request specific changes.
+- When generating, describe the result as a draft for review. Do not say it is
+  ready for immediate production use or ready to save until the user has
+  reviewed it.
 - Do not ask optional refinement questions after generating, e.g. thresholds,
   scoring tools, alternate field layouts, or extra categories. Mention that
   the user can request those changes after reviewing the draft.
@@ -228,7 +231,11 @@ Patient registry rules:
   behaviour, include the required config (including writeToPatient.fieldName
   and writeToPatient.fieldType). Use action/writeback question types only when
   explicitly requested and the required config is known; otherwise use normal
-  survey question types.`;
+  survey question types.
+- PatientIssue questions require config.issueType and config.issueNote. Only
+  generate PatientIssue when those values can be inferred safely from the
+  request; otherwise use normal survey fields and note that the user can request
+  action/issue creation after review.`;
 
 const fixProgramErrorsDefault = `You are fixing validation errors in a Tamanu program form.
 

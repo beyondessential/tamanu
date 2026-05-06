@@ -197,6 +197,10 @@ const UserMessage = styled.div`
   line-height: 1.4;
   max-inline-size: 78%;
   padding: 14px 18px;
+
+  ${AssistantMessage} {
+    color: inherit;
+  }
 `;
 
 const AttachmentChip = styled.div`
@@ -473,18 +477,22 @@ export function UserMessageContent({ message }) {
 
   return (
     <UserMessage>
-      {message.text && <MessageText>{message.text}</MessageText>}
+      {message.text && <MarkdownMessageContent text={message.text} />}
       {message.file && <Attachment file={message.file} />}
     </UserMessage>
   );
 }
 
-export function AssistantMessageContent({ text }) {
+function MarkdownMessageContent({ text }) {
   return (
     <AssistantMessage>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{normaliseAssistantMarkdown(text)}</ReactMarkdown>
     </AssistantMessage>
   );
+}
+
+export function AssistantMessageContent({ text }) {
+  return <MarkdownMessageContent text={text} />;
 }
 
 export function ThinkingMessage() {
