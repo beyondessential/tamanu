@@ -43,9 +43,15 @@ const getProgramCode = programId => programId?.replace(/^program-/, '');
 const getProgramDefinitionFileName = programDefinition =>
   `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
 const CHAT_JOB_POLL_INTERVAL_MS = 2000;
+const CHAT_JOB_MAX_WAIT_MS = 10 * 60 * 1000;
 
 const waitForChatJob = async ({ api, jobId, signal }) => {
+  const startedAt = Date.now();
   while (!signal.aborted) {
+    if (Date.now() - startedAt > CHAT_JOB_MAX_WAIT_MS) {
+      throw new Error('The form builder response took too long. Please try again.');
+    }
+
     const job = await api.get(
       `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
       {},

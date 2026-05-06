@@ -112,6 +112,16 @@ describe('Form Builder Admin', () => {
     });
   });
 
+  it('keeps unknown async chat jobs pending for non-sticky deployments', async () => {
+    const response = await app.get('/v1/admin/form-builder/chat/jobs/job-on-another-instance');
+
+    expect(response.status).toBe(202);
+    expect(response.body).toMatchObject({
+      id: 'job-on-another-instance',
+      status: 'pending',
+    });
+  });
+
   it('reuses an existing AI session', async () => {
     const response = await app.post('/v1/admin/form-builder/chat').send({
       sessionId: 'existing-session-id',

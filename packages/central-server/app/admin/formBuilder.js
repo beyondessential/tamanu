@@ -468,7 +468,15 @@ formBuilderRouter.get(
     req.checkPermission('write', 'FormBuilder');
 
     const job = chatJobs.get(req.params.jobId);
-    if (!job || job.userId !== req.user.id) {
+    if (!job) {
+      res.status(202).send({
+        id: req.params.jobId,
+        status: CHAT_JOB_STATUSES.PENDING,
+      });
+      return;
+    }
+
+    if (job.userId !== req.user.id) {
       throw new InvalidParameterError('AI form builder chat job was not found');
     }
 
