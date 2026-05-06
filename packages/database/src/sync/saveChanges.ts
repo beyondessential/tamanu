@@ -47,9 +47,18 @@ export const saveUpdates = async (
       })
     : // on the facility server, trust the resolved central server version
       incomingRecords;
-  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id }, paranoid: false, hooks: false }),
-  );
+  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r => {
+    // Strip `id` from the update payload — it's already in the WHERE clause and is
+    // never supposed to change. Models with GENERATED ALWAYS `id` columns (e.g.
+    // PatientOngoingPrescription, PatientFacility) rely on Sequelize re-picking values
+    // from the validated instance's dataValues (where the column-level `set()` no-op
+    // has already filtered `id` out). With `hooks: false`, `instance.validate()` no
+    // longer returns the instance, so that re-pick is skipped and `id` slips through
+    // into the SET clause — which Postgres rejects for GENERATED columns. Filtering
+    // here keeps the write valid regardless of the hooks/validate behaviour.
+    const { id, ...values } = r;
+    return model.update(values, { where: { id }, paranoid: false, hooks: false });
+  });
 };
 
 // model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
