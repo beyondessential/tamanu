@@ -7,15 +7,41 @@ import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constan
 import {
   Button,
   Form,
+  getFormInitialValues,
   SurveyScreenPaginator,
   TAMANU_COLORS,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { getComponentForQuestionType } from '../../../../../components/Surveys';
 import { DraftStatusBadge } from './DraftStatusBadge';
 
 const EMPTY_FORM_VALUES = {};
 const noopAsync = async () => {};
+const PREVIEW_PATIENT = {
+  id: 'ai-preview-patient',
+  displayId: 'PREVIEW001',
+  firstName: 'Mere',
+  lastName: 'Tavita',
+  dateOfBirth: '1984-05-01',
+  sex: 'female',
+  email: 'mere.tavita@example.com',
+  villageId: 'preview-village',
+  fieldValues: [],
+};
+const PREVIEW_PATIENT_ADDITIONAL_DATA = {
+  primaryContactNumber: '+685 555 0101',
+  cityTown: 'Apia',
+  streetVillage: 'Vaiala',
+};
+const PREVIEW_CURRENT_USER = {
+  id: 'ai-preview-user',
+  displayName: 'Dr Preview User',
+};
+const PREVIEW_PATIENT_PROGRAM_REGISTRATION = {
+  clinicalStatusId: 'active',
+  registrationStatus: 'active',
+};
 
 const normalizeOptions = options => {
   if (!options || Array.isArray(options) || typeof options === 'object') return options;
@@ -125,10 +151,12 @@ const PreviewPatientDataValue = styled.div`
   margin-block-end: 10px;
 `;
 
-function PreviewPatientDataField({ label, value }) {
+function PreviewPatientDataField({ field, label, value }) {
+  const displayValue = value ?? field?.value;
+
   return (
     <PreviewPatientDataValue>
-      {label}: {value || (
+      {label}: {displayValue ?? (
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.preview.patientDataPlaceholder"
           fallback="Patient record value"
@@ -202,12 +230,28 @@ function PreviewSubmitButton() {
 }
 
 export function FormPreview({ form, isSaved }) {
+  const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
+  const previewInitialValues = useMemo(() => {
+    if (!previewSurvey) return EMPTY_FORM_VALUES;
+
+    return getFormInitialValues({
+      components: previewSurvey.components.filter(
+        component => component.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+      ),
+      patient: PREVIEW_PATIENT,
+      additionalData: PREVIEW_PATIENT_ADDITIONAL_DATA,
+      currentUser: PREVIEW_CURRENT_USER,
+      patientProgramRegistration: PREVIEW_PATIENT_PROGRAM_REGISTRATION,
+      getCurrentDateTime,
+    });
+  }, [getCurrentDateTime, previewSurvey]);
 
   if (!form) return null;
 
   const screenCount = getPreviewScreenCount(previewSurvey);
+  const previewFormKey = previewSurvey.components.map(({ id }) => id).join('|');
 
   return (
     <PreviewColumn>
@@ -235,7 +279,8 @@ export function FormPreview({ form, isSaved }) {
       <PreviewBody>
         <PreviewSurveyWrap>
           <Form
-            initialValues={EMPTY_FORM_VALUES}
+            key={previewFormKey}
+            initialValues={previewInitialValues}
             onSubmit={noopAsync}
             render={({
               values,
@@ -248,6 +293,7 @@ export function FormPreview({ form, isSaved }) {
             }) => (
               <SurveyScreenPaginator
                 survey={previewSurvey}
+                patient={PREVIEW_PATIENT}
                 values={values}
                 setFieldValue={setFieldValue}
                 onSurveyComplete={noopAsync}
