@@ -326,11 +326,20 @@ export function AiFormBuilderView() {
           fallback="Form saved to the database"
         />,
       );
-    } catch {
+    } catch (error) {
       notifyError(
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.save.error"
-          fallback="Unable to save the form"
+          fallback="Unable to save the form: :message"
+          replacements={{
+            message:
+              error.detail ||
+              error.message ||
+              getTranslation(
+                'admin.programs.aiFormBuilder.save.error.unknown',
+                'Failed to persist to database',
+              ),
+          }}
         />,
       );
     } finally {

@@ -120,20 +120,18 @@ const getAvailableSurveyCode = async (Survey, baseCode) => {
   return code;
 };
 
-const replaceQuestionReferences = (value, questionCodeMap) => {
+const replaceQuestionReferences = (value, sortedQuestionCodeEntries) => {
   if (!value) return value;
   let stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-  for (const [oldCode, newCode] of [...questionCodeMap.entries()].sort(
-    ([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length,
-  )) {
+  for (const [oldCode, newCode] of sortedQuestionCodeEntries) {
     stringValue = stringValue.replaceAll(`pde-${oldCode}`, `pde-${newCode}`);
   }
   return stringValue;
 };
 
-const stringifyField = (value, questionCodeMap = new Map()) => {
+const stringifyField = (value, sortedQuestionCodeEntries = []) => {
   if (!value) return '';
-  return replaceQuestionReferences(value, questionCodeMap);
+  return replaceQuestionReferences(value, sortedQuestionCodeEntries);
 };
 
 const parseConfig = config => {
@@ -178,6 +176,9 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
       return [originalQuestionCode, questionCode];
     }),
   );
+  const sortedQuestionCodeEntries = [...questionCodeMap.entries()].sort(
+    ([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length,
+  );
 
   const rows = [
     {
@@ -192,7 +193,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
         surveyType: surveyDefinition.surveyType || SURVEY_TYPES.PROGRAMS,
         isSensitive: surveyDefinition.isSensitive || false,
         programId,
-        visibilityCriteria: stringifyField(surveyDefinition.visibilityCriteria, questionCodeMap),
+        visibilityCriteria: stringifyField(surveyDefinition.visibilityCriteria, sortedQuestionCodeEntries),
         visibilityStatus: surveyDefinition.visibilityStatus || VISIBILITY_STATUSES.CURRENT,
         notifiable: surveyDefinition.notifiable || false,
         notifyEmailAddresses: surveyDefinition.notifyEmailAddresses || [],
@@ -227,7 +228,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
           type,
           defaultText: question.text,
           defaultOptions,
-          visualisationConfig: stringifyField(question.visualisationConfig, questionCodeMap),
+          visualisationConfig: stringifyField(question.visualisationConfig, sortedQuestionCodeEntries),
         },
       },
       {
@@ -241,11 +242,11 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
           componentIndex,
           text: '',
           options: '',
-          visibilityCriteria: stringifyField(question.visibilityCriteria, questionCodeMap),
-          validationCriteria: stringifyField(question.validationCriteria, questionCodeMap),
+          visibilityCriteria: stringifyField(question.visibilityCriteria, sortedQuestionCodeEntries),
+          validationCriteria: stringifyField(question.validationCriteria, sortedQuestionCodeEntries),
           detail: question.detail || '',
-          config: stringifyField(questionConfig, questionCodeMap),
-          calculation: stringifyField(question.calculation, questionCodeMap),
+          config: stringifyField(questionConfig, sortedQuestionCodeEntries),
+          calculation: stringifyField(question.calculation, sortedQuestionCodeEntries),
           visibilityStatus: question.visibilityStatus || VISIBILITY_STATUSES.CURRENT,
           type,
         },

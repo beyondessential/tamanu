@@ -22,6 +22,7 @@ const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
   '.png': 'image/png',
 };
 const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
+const MAX_AI_FILENAME_LENGTH = 80;
 
 const partialSurveySchema = z
   .object({
@@ -125,6 +126,19 @@ const readWorkbookContext = file => {
   }).join('\n\n');
 };
 
+const sanitizeFileNameForPrompt = fileName => {
+  if (!fileName) return undefined;
+
+  const sanitized = fileName
+    .split(/[\\/]/)
+    .pop()
+    .replace(/[^A-Za-z0-9._ -]/g, '')
+    .trim()
+    .slice(0, MAX_AI_FILENAME_LENGTH);
+
+  return sanitized || undefined;
+};
+
 const getFileContext = async ({ aiService, file, fileName, fileContentType }) => {
   if (!file) return '';
 
@@ -152,7 +166,7 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
     const interpretedImage = await aiService.interpretFormBuilderImage({
       imageBase64: fileBuffer.toString('base64'),
       mediaType,
-      fileName,
+      fileName: sanitizeFileNameForPrompt(fileName),
     });
     return `[FORM IMAGE INTERPRETED]\n${interpretedImage}`;
   }
@@ -313,8 +327,10 @@ formBuilderRouter.post(
         existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));
 
       if (currentProgramDefinition) {
+        let tweakResponse;
+        let programDefinition;
         try {
-          const tweakResponse = await req.aiService.invokeStructured(
+          tweakResponse = await req.aiService.invokeStructured(
             FORM_BUILDER_TWEAK_CONTEXT,
             buildProgramDefinitionTweakInput({
               currentProgramDefinition,
@@ -323,13 +339,21 @@ formBuilderRouter.post(
             formBuilderTweakResponseSchema,
             { name: 'form_builder_tweak_response' },
           );
-          const programDefinition = await applyProgramDefinitionTweak(
+          programDefinition = await applyProgramDefinitionTweak(
             currentProgramDefinition,
             tweakResponse,
           );
+        } catch (error) {
+          log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
+        }
+
+        if (tweakResponse && programDefinition) {
+          // History persistence should not discard a valid tweak result.
           await req.aiService.addSessionMessages(sessionId, {
             userMessage,
             assistantMessage: tweakResponse.message,
+          }).catch(error => {
+            log.warn({ error }, 'AI form builder failed to persist tweak chat history');
           });
 
           res.send({
@@ -341,8 +365,6 @@ formBuilderRouter.post(
             programDefinition,
           });
           return;
-        } catch (error) {
-          log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
         }
       }
 

@@ -2,6 +2,7 @@ import config from 'config';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
+import { log } from '@tamanu/shared/services/logging';
 
 import { createApi } from './createApi';
 import { createWebsocket } from './createWebsocket';
@@ -20,7 +21,11 @@ export async function createApp(ctx) {
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
   dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
     if (payload.table !== 'settings') return;
-    await ctx.aiService?.registerFormBuilderContext(ctx.settings);
+    try {
+      await ctx.aiService?.registerFormBuilderContext(ctx.settings);
+    } catch (error) {
+      log.warn({ error }, 'Failed to refresh AI form builder contexts after settings change');
+    }
   });
 
   if (config["socket.io"].enabled) {
