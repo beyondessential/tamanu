@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'path';
 import dotenv from 'dotenv';
 
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -24,9 +23,16 @@ module.exports = defineConfig({
   reporter: process.env.CI ? 'blob' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    // Keep failure media in CI so merge queue reports contain useful debugging context.
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    // Slow down each browser action to make local debugging easier.
+    launchOptions: process.env.CI ? undefined : { slowMo: 200 },
     timezoneId: process.env.TZ,
+    // Pin browser locale so navigator.language-driven date formatting is deterministic across
+    // runners (CI Ubuntu defaults to en-US which yields MM/DD/YYYY; tests expect DD/MM/YYYY).
+    locale: 'en-AU',
   },
 
   /* Configure projects for major browsers */
@@ -34,6 +40,8 @@ module.exports = defineConfig({
     {
       name: 'setup',
       testMatch: /setup\.ts/,
+      // Auth setup hits a cold Vite + app bundle on CI; default 30s is often too tight.
+      timeout: 120 * 1000,
       use: { ...devices['Desktop Chrome'] },
     },
     {
@@ -91,18 +99,24 @@ module.exports = defineConfig({
             timeout: 240 * 1000,
             stdout: 'pipe',
           },
+          // Run the web frontends from the production build via `vite preview`
+          // rather than the dev server. The dev server's on-demand transform +
+          // optimizeDeps crawl is the largest source of cold-start variance on
+          // CI runners (and the cause of intermittent login-page timeouts after
+          // the Vite 6 upgrade). The build is produced once by the e2e_prepare
+          // job and downloaded into packages/web/dist before tests run.
           {
-            command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
+            command: 'npm run e2e-client-preview --workspace=@tamanu/web-frontend',
             port: 5173,
             reuseExistingServer: true,
-            timeout: 240 * 1000,
+            timeout: 120 * 1000,
             stdout: 'pipe',
           },
           {
-            command: 'npm run admin-start-dev --workspace @tamanu/web-frontend',
+            command: 'npm run e2e-admin-preview --workspace=@tamanu/web-frontend',
             port: 5174,
             reuseExistingServer: true,
-            timeout: 240 * 1000,
+            timeout: 120 * 1000,
             stdout: 'pipe',
           },
         ],

@@ -59,7 +59,7 @@ export const getReferenceRange = ({
 
   let baseRange: string;
   if (hasMin && hasMax)
-    baseRange = getTranslation('general.fallback.range', ':min - :max', {
+    baseRange = getTranslation('general.fallback.range', ':min–:max', {
       replacements: { min, max },
     });
   else if (hasMin)

@@ -1,0 +1,62 @@
+meta {
+  name: Create ImagingStudy
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/integration/fhir/mat/ImagingStudy
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "resourceType": "ImagingStudy",
+    "status": "available",
+    "identifier": [
+      {
+        "system": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
+        "value": "{{imagingAccessionNumber}}"
+      }
+    ],
+    "basedOn": [
+      {
+        "type": "ServiceRequest",
+        "reference": "ServiceRequest/{{imagingServiceRequestId}}"
+      }
+    ],
+    "started": "2024-01-01T12:00:00Z",
+    "note": [
+      {
+        "text": "Imaging completed via Bruno API test"
+      }
+    ]
+  }
+}
+
+docs {
+  Attaches an imaging result to an imaging `ServiceRequest`. Required by
+  server validation (FhirImagingStudy):
+  - `status` (must be `available`, `final`, or `cancelled`)
+  - `basedOn` resolving to an imaging ServiceRequest, either:
+    - `reference: ServiceRequest/{fhirId}`, OR
+    - `identifier.system = serviceRequestImagingId` with the Tamanu
+      ImagingRequest UUID, OR
+    - `identifier.system = serviceRequestImagingDisplayId` with the
+      ImagingRequest displayId
+  - For `available`/`final`: at least one of:
+    - an accession-number `identifier` (this template uses one), OR
+    - a `contained[0].address` Endpoint URL
+  
+  Run `bootstrap/Discover Imaging ServiceRequest` first to populate
+  `imagingServiceRequestId` and a unique `imagingAccessionNumber`.
+}

@@ -261,7 +261,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
           <ActionLink onClick={onViewAll} data-testid="actionlink-5g8z">
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.viewAll"
-              fallback="View all..."
+              fallback="View all…"
               data-testid="translatedtext-hiv0"
             />
           </ActionLink>

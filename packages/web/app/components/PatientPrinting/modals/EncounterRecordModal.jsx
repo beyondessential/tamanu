@@ -32,8 +32,34 @@ import { useAuth } from '../../../contexts/Auth';
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
 
-const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
-const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
+// Support both old format ("Changed location from X to Y") and new bullet-prefixed format
+// ("• Changed location from 'X' to 'Y'"). Also handle "encounter type" vs "type".
+const locationNoteMatcher = /Changed location from (?<from>.*?) to (?<to>.*?)\s*$/;
+const encounterTypeNoteMatcher = /Changed (?:encounter )?type from (?<from>.*?) to (?<to>.*?)\s*$/;
+
+// Since 2.49+, multiple changes in a single encounter update are combined into one system note
+// with bullet-prefixed lines. This helper expands combined notes into individual entries so each
+// matching line becomes its own note object (preserving the parent note's date).
+const expandCombinedNotes = (systemNotes, matcher) => {
+  const expanded = [];
+  for (const note of systemNotes) {
+    const lines = note.content.split('\n');
+    for (const line of lines) {
+      const stripped = line.replace(/^[•\s]+/, '');
+      if (stripped.match(matcher)) {
+        expanded.push({ ...note, content: stripped });
+      }
+    }
+  }
+  return expanded;
+};
+
+const stripQuotes = str => {
+  if (!str) return str;
+  // Remove quote characters from start and end, then lowercase
+  // Handles both ASCII quotes (' ") and Unicode smart quotes (' ' " ")
+  return str.replace(/^['"\u2018\u2019\u201C\u201D]/, '').replace(/['"\u2018\u2019\u201C\u201D]$/, '').trim().toLowerCase();
+};
 
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
@@ -44,14 +70,14 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
 
     const history = [
       {
-        to: from,
+        to: stripQuotes(from),
         date: encounterData.startDate,
       },
       ...(notes?.map(({ content, date }) => {
         const {
           groups: { to },
         } = content.match(matcher);
-        return { to, date };
+        return { to: stripQuotes(to), date };
       }) ?? {}),
     ];
     return history;
@@ -280,16 +306,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return note.noteTypeId === NOTE_TYPES.SYSTEM;
   });
 
-  const locationSystemNotes = systemNotes.filter(note => {
-    return note.content.match(locationNoteMatcher);
-  });
+  const locationSystemNotes = expandCombinedNotes(systemNotes, locationNoteMatcher);
   const locationHistory = locationSystemNotes
     ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
-  const encounterTypeSystemNotes = systemNotes.filter(note => {
-    return note.content.match(encounterTypeNoteMatcher);
-  });
+  const encounterTypeSystemNotes = expandCombinedNotes(systemNotes, encounterTypeNoteMatcher);
   const encounterTypeHistory = encounterTypeSystemNotes
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];

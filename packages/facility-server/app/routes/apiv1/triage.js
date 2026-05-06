@@ -26,7 +26,7 @@ triage.put(
 );
 
 triage.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, db, user, body, settings } = req;
     const { vitals, notes, facilityId } = body;
@@ -134,7 +134,7 @@ const sortKeys = {
 };
 
 triage.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, db, query } = req;
     const { Triage } = models;

@@ -400,7 +400,26 @@ patientRelations.get(
     const { categoryId, panelId, status = 'published' } = query;
 
     const results = await db.query(
-      `SELECT
+      `WITH edited_tests AS (
+    SELECT
+      record_id,
+      COUNT(DISTINCT (record_data->>'result')) >= 2 AS is_edited
+    FROM logs.changes
+    WHERE table_schema = 'public'
+      AND table_name = 'lab_tests'
+      AND record_data->>'result' IS NOT NULL
+      AND TRIM(record_data->>'result') != ''
+      AND record_id::uuid IN (
+        SELECT lab_tests.id
+        FROM lab_tests
+        INNER JOIN lab_requests ON lab_tests.lab_request_id = lab_requests.id
+        WHERE lab_requests.encounter_id IN (
+          SELECT id FROM encounters WHERE patient_id = :patientId
+        )
+      )
+    GROUP BY record_id
+  )
+  SELECT
     reference_data.name AS test_category,
     lab_test_types.name AS test_type,
     lab_test_types.options AS test_options,
@@ -422,6 +441,7 @@ patientRelations.get(
         'id', lab_tests.id,
         'referenceRangeMin', lab_tests.reference_range_min,
         'referenceRangeMax', lab_tests.reference_range_max
+        'isEdited', COALESCE(edited_tests.is_edited, FALSE)
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}
@@ -439,6 +459,10 @@ patientRelations.get(
     reference_data
   ON
     lab_test_types.lab_test_category_id = reference_data.id
+  LEFT JOIN
+    edited_tests
+  ON
+    edited_tests.record_id = lab_tests.id::text
   ${
     panelId
       ? `LEFT JOIN

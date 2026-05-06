@@ -64,7 +64,10 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return !isPatientRemoved && ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
+        return (
+          !isPatientRemoved &&
+          ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }))
+        );
       },
       wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     },
@@ -118,7 +121,7 @@ export const CoreComplexChartData = ({
                 {typeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
 
-              <>{type || '-'}</>
+              {type || '-'}
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
 
@@ -133,7 +136,7 @@ export const CoreComplexChartData = ({
                 />
                 {subtypeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
-              <>{subtype || '-'}</>
+              {subtype || '-'}
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>

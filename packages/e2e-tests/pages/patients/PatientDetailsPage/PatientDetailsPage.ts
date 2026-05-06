@@ -132,9 +132,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'Ongoing conditionsAdd' })
       .getByTestId('addbutton-b0ln');
-    this.ongoingConditionNameField = this.page
-      .getByTestId('field-j30y-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input').locator('input');
     this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775').locator('input');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
@@ -164,9 +162,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'AllergiesAdd' })
       .getByTestId('addbutton-b0ln');
-    this.allergyNameField = this.page
-      .getByTestId('field-hwfk-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.allergyNameField = this.page.getByTestId('field-hwfk-input').locator('input');
     this.savedAllergyName = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-hwfk-input')
@@ -184,9 +180,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .locator('div')
       .filter({ hasText: 'Family historyAdd' })
       .getByTestId('addbutton-b0ln');
-    this.familyHistoryDiagnosisField = this.page
-      .getByTestId('field-3b4u-input')
-      .getByRole('textbox', { name: 'Search...' });
+    this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input').locator('input');
     this.familyHistoryDateRecordedField = this.page.getByTestId('field-wrp3').locator('input');
     this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
@@ -247,7 +241,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.resolvedClinician = this.page
       .getByRole('combobox')
       .filter({ hasText: 'Clinician confirming' })
-      .getByPlaceholder('Search...');
+      .locator('input');
     this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
     this.savedFamilyHistoryName = this.page
       .getByTestId('collapse-0a33')

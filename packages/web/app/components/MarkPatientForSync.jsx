@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Loop } from '@material-ui/icons';
+import Loop from '@mui/icons-material/Loop';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { Button } from '@tamanu/ui-components';

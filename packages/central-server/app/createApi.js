@@ -7,6 +7,7 @@ import helmet from 'helmet';
 
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -31,7 +32,7 @@ const rawBodySaver = function (req, res, buf) {
   }
 };
 
-function api(ctx) {
+function api(ctx, limiters) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
   apiRoutes.post(
@@ -48,7 +49,7 @@ function api(ctx) {
       }
     }),
   );
-  apiRoutes.use(authModule);
+  apiRoutes.use(authModule(limiters));
   apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
@@ -62,6 +63,10 @@ function api(ctx) {
 export async function createApi(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
   const express = defineExpress();
+  // Express 5 defaults to the "simple" query parser (Node querystring). Bracket
+  // keys like includedDataTypes[0]=x become flat keys, breaking many callers and
+  // tests that rely on Express 4's extended (qs) parsing.
+  express.set('query parser', 'extended');
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {
@@ -80,6 +85,14 @@ export async function createApi(ctx) {
     }),
   );
   express.use(loadshedder());
+
+  // Apply a permissive global rate limit to every request as a
+  // denial-of-service backstop. Stricter per-endpoint limits for unauthenticated
+  // endpoints are applied by the auth and patient-portal sub-routers so they
+  // cover both /api and /v1 mounts consistently.
+  const limiters = buildRateLimiters();
+  express.use(limiters.globalLimiter);
+
   express.use(compression());
   express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
   express.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
@@ -109,26 +122,27 @@ export async function createApi(ctx) {
 
   express.use(settingsReaderMiddleware);
 
-  express.get('/$', (req, res) => {
+  express.get('/', (req, res) => {
     res.send({
       index: true,
     });
   });
 
   // Patient Portal - must go before main API to avoid main authentication
+  const portalRouter = patientPortalApi(limiters);
   express.use('/api/portal', async (req, res, next) => {
     const patientPortalEnabled = await req.settings.get('features.patientPortal');
-    return patientPortalEnabled ? patientPortalApi(req, res, next) : res.status(501).end();
+    return patientPortalEnabled ? portalRouter(req, res, next) : res.status(501).end();
   });
 
   // API
-  express.use('/api', api(ctx));
+  express.use('/api', api(ctx, limiters));
 
   // Legacy API endpoint
-  express.use('/v1', api(ctx));
+  express.use('/v1', api(ctx, limiters));
 
   // Dis-allow all other routes
-  express.use('*', (req, res) => {
+  express.use((req, res) => {
     res.status(404).end();
   });
 

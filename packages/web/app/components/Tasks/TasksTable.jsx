@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
-import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { addMilliseconds, subMilliseconds } from 'date-fns';
 
 import {

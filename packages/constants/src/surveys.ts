@@ -4,7 +4,7 @@
 import {
   BLOOD_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
-  MARTIAL_STATUS_LABELS,
+  MARITAL_STATUS_LABELS,
   SEX_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
@@ -69,13 +69,17 @@ export const SURVEY_TYPES = {
   SIMPLE_CHART: 'simpleChart',
   COMPLEX_CHART: 'complexChart',
   COMPLEX_CHART_CORE: 'complexChartCore',
-};
+} as const;
 
+/**
+ * @privateRemarks
+ * Wider type than necessary for simpler membership checking with {@link Array.prototype.includes}
+ */
 export const CHARTING_SURVEY_TYPES = [
   SURVEY_TYPES.SIMPLE_CHART,
   SURVEY_TYPES.COMPLEX_CHART,
   SURVEY_TYPES.COMPLEX_CHART_CORE,
-];
+] as readonly (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES][];
 
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
 const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';
@@ -175,7 +179,7 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     ['bloodType', BLOOD_LABELS],
     'primaryContactNumber',
     'secondaryContactNumber',
-    ['maritalStatus', MARTIAL_STATUS_LABELS],
+    ['maritalStatus', MARITAL_STATUS_LABELS],
     'cityTown',
     'streetVillage',
     ['educationalLevel', EDUCATIONAL_ATTAINMENT_LABELS],

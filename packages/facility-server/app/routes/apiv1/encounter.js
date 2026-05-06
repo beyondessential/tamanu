@@ -53,7 +53,7 @@ export const encounter = softDeletionCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models,
@@ -730,7 +730,7 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/initialChart$',
+  '/:id/initialChart',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { id: encounterId } = params;

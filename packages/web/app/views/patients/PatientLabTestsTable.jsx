@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, TranslatedOption, useDateTime } from '@tamanu/ui-components';
+import {
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedOption,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
@@ -29,9 +34,9 @@ const StyledTable = styled(Table)`
     }
 
     ${props =>
-    COLUMN_WIDTHS.slice(0, props.$stickyColumns)
-      .map(
-        (width, index) => `
+      COLUMN_WIDTHS.slice(0, props.$stickyColumns)
+        .map(
+          (width, index) => `
       thead tr th:nth-child(${index + 1}),
       tbody tr td:nth-child(${index + 1}) {
         width: ${width}px;
@@ -40,8 +45,8 @@ const StyledTable = styled(Table)`
         left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
       }
     `,
-      )
-      .join('\n')}
+        )
+        .join('\n')}
 
     tfoot {
       inset-inline-end: 0;
@@ -122,21 +127,21 @@ export const PatientLabTestsTable = React.memo(
       // Only include category column if not filtering by category
       ...(!searchParameters.categoryId
         ? [
-          {
-            key: 'testCategory.id',
-            title: (
-              <TranslatedText
-                stringId="lab.testCategory.label"
-                fallback="Test category"
-                data-testid="translatedtext-0dpy"
-              />
-            ),
-            accessor: row => (
-              <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
-            ),
-            sortable: false,
-          },
-        ]
+            {
+              key: 'testCategory.id',
+              title: (
+                <TranslatedText
+                  stringId="lab.testCategory.label"
+                  fallback="Test category"
+                  data-testid="translatedtext-0dpy"
+                />
+              ),
+              accessor: row => (
+                <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
+              ),
+              sortable: false,
+            },
+          ]
         : []),
       {
         key: 'testType',
@@ -201,24 +206,27 @@ export const PatientLabTestsTable = React.memo(
                   }
                 : row.normalRanges[patient?.sex];
             if (cellData) {
+              const isEdited = cellData.isEdited === true;
               return (
                 <StyledButton
                   onClick={() => openModal(cellData.id)}
                   data-testid={`styledbutton-d5us-${index}`}
                 >
                   {row.testOptions ? (
-                    <TranslatedOption
-                      value={cellData.result}
-                      referenceDataId={row.testTypeId}
-                      referenceDataCategory="labTestType"
-                    />
+                    <>
+                      <TranslatedOption
+                        value={cellData.result}
+                        referenceDataId={row.testTypeId}
+                        referenceDataCategory="labTestType"
+                      />
+                      {isEdited && '*'}
+                    </>
                   ) : (
                     <RangeValidatedCell
                       value={cellData.result}
                       config={{ unit: row.unit, rounding: null }}
-                      validationCriteria={{
-                        normalRange: normalRange?.min != null ? normalRange : null,
-                      }}
+                      validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                      isEdited={isEdited}
                       data-testid={`rangevalidatedcell-ebuf-${index}`}
                     />
                   )}

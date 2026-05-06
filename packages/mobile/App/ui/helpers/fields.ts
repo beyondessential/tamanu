@@ -1,6 +1,7 @@
-import { camelCase, inRange, isNil } from 'lodash';
+import { camelCase } from 'lodash';
 import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { checkJSONCriteria } from '@tamanu/utils';
 import { formatDate, parseDate } from './date';
 import { DateFormats } from './constants';
 import { getPatientNameAsString } from './patient';
@@ -142,7 +143,7 @@ function fallbackParseVisibilityCriteria(
   }
   const expectedTrimmed = expectedAnswer.toLowerCase().trim();
 
-  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+  const comparisonComponent = getComponentsByCode(allComponents).get(elementCode);
 
   if (!comparisonComponent) {
     console.warn(`Comparison component ${elementCode} not found!`);
@@ -154,56 +155,15 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
-export function checkJSONCriteria(
-  criteria: string,
-  allComponents: ISurveyScreenComponent[],
-  values: any,
-) {
-  // nothing set - show by default
-  if (!criteria) return true;
+const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
 
-  const criteriaObject = JSON.parse(criteria);
-
-  if (!criteriaObject) {
-    return true;
+function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+  let map = componentsByCodeCache.get(allComponents);
+  if (!map) {
+    map = new Map(allComponents.map(c => [c.dataElement?.code, c]));
+    componentsByCodeCache.set(allComponents, map);
   }
-
-  const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
-  if (Object.keys(restOfCriteria).length === 0) {
-    return true;
-  }
-
-  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
-    const value = values[questionCode];
-    if (answersEnablingFollowUp.type === 'range') {
-      if (isNil(value)) return false;
-      const { start, end } = answersEnablingFollowUp;
-
-      if (!start) return value < end;
-      if (!end) return value >= start;
-      if (inRange(value, parseFloat(start), parseFloat(end))) {
-        return true;
-      }
-      return false;
-    }
-
-    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-    const isMultiSelect = matchingComponent?.dataElement?.type === DataElementType.MultiSelect;
-
-    if (Array.isArray(answersEnablingFollowUp)) {
-      return isMultiSelect
-        ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-        : answersEnablingFollowUp.includes(value);
-    }
-
-    return isMultiSelect
-      ? value?.includes(answersEnablingFollowUp)
-      : answersEnablingFollowUp === value;
-  };
-
-  return conjunction === 'and'
-    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+  return map;
 }
 
 /**

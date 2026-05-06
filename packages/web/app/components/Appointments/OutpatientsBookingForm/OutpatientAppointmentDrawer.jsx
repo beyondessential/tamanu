@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
 import { isNumber, omit, set } from 'lodash';
 import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
 import styled from 'styled-components';

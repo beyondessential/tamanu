@@ -7,6 +7,11 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
+import {
+  getConfigSecret,
+  getSettingSecret,
+  SecretNotConfiguredError,
+} from '@tamanu/shared/utils/crypto';
 
 const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
@@ -72,9 +77,60 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     return pick(logEntry.get({ plain: true }), LOG_FIELDS);
   }
 
+  /**
+   * Gets DHIS2 credentials. Username is stored plaintext (so operators can
+   * verify it at a glance). Password is sensitive and runs through a fallback
+   * chain: settings secret (DB) → config secret (encrypted file) → plain config.
+   */
+  async getDHIS2Credentials() {
+    const dhis2Settings = await this.context.settings.get('integrations.dhis2');
+    // Falsy fallback is intentional: empty-string default in the schema means
+    // "not configured", so we want to fall through to config in that case.
+    const username =
+      dhis2Settings?.username || config.integrations?.dhis2?.username || null;
+    const password = await this.getDHIS2Password();
+    return { username, password };
+  }
+
+  async getDHIS2Password() {
+    const sources = [
+      {
+        label: 'settings secret',
+        fetch: () => getSettingSecret(this.context.settings, 'integrations.dhis2.password'),
+      },
+      {
+        label: 'config secret',
+        fetch: () => getConfigSecret('integrations.dhis2.password'),
+      },
+    ];
+
+    for (const { label, fetch } of sources) {
+      try {
+        return await fetch();
+      } catch (error) {
+        if (error instanceof SecretNotConfiguredError) continue;
+        // Decryption / unexpected errors must not silently fall through to a
+        // less-secure source — surface them to operators.
+        log.warn('DHIS2IntegrationProcessor: failed to read password', {
+          source: label,
+          error: error.message,
+        });
+        return null;
+      }
+    }
+
+    return config.integrations?.dhis2?.password ?? null;
+  }
+
   async postToDHIS2({ reportId, reportCSV }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
-    const { username, password } = config.integrations.dhis2;
+    const { username, password } = await this.getDHIS2Credentials();
+    if (!username || !password) {
+      // Defensive: run() guards on missing credentials, but postToDHIS2 may be
+      // called directly. Failing fast prevents sending "null:null" as a Basic
+      // Auth header to DHIS2.
+      throw new Error('DHIS2 credentials are not configured');
+    }
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
@@ -174,7 +230,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async run() {
     const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
-    const { enabled, username, password } = config.integrations.dhis2;
+    const { enabled } = config.integrations?.dhis2 || {};
+    const { username, password } = await this.getDHIS2Credentials();
 
     if (!enabled || !host || !username || !password || reportIds.length === 0) {
       log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {

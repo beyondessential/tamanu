@@ -14,6 +14,7 @@ export {
   labsCancellationReasonsDefault,
 } from './labsCancellationReasons';
 export { letterheadProperties } from './letterheadTemplate';
+export { formBuilderProperties } from './formBuilder';
 export {
   emailSchema,
   nationalityIdSchema,
