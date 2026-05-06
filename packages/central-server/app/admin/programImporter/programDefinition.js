@@ -43,15 +43,15 @@ const programDefinitionQuestionSchema = z
     name: z.string().trim().optional(),
     text: z.string().trim().min(1),
     type: z.string().trim().min(1),
-    options: z.union([z.string(), z.array(z.string()), z.record(z.string())]).optional(),
+    options: z.union([z.string(), z.array(z.string()), z.record(z.string(), z.string())]).optional(),
     newScreen: z.boolean().optional(),
-    visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
-    validationCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
+    visibilityCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+    validationCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
     detail: z.string().optional(),
-    config: z.union([z.string(), z.record(z.unknown())]).optional(),
+    config: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
     calculation: z.string().optional(),
     visibilityStatus: z.string().trim().optional(),
-    visualisationConfig: z.union([z.string(), z.record(z.unknown())]).optional(),
+    visualisationConfig: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
   })
   .superRefine((question, ctx) => {
     if (
@@ -74,7 +74,7 @@ const surveyMetadataSchema = z.object({
   isSensitive: z.boolean().optional(),
   notifiable: z.boolean().optional(),
   notifyEmailAddresses: z.array(z.string().trim()).optional(),
-  visibilityCriteria: z.union([z.string(), z.record(z.unknown())]).optional(),
+  visibilityCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
   visibilityStatus: z.string().trim().optional(),
 });
 

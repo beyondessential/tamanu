@@ -408,7 +408,7 @@ export function AiFormBuilderView() {
             </Disclaimer>
           </ChatStack>
         </ChatColumn>
-        {showPreview && <FormPreview form={generatedForm} />}
+        {showPreview && <FormPreview form={generatedForm} isSaved={Boolean(state.savedSurveyId)} />}
       </BuilderShell>
       <NewChatConfirmModal
         open={isNewChatModalOpen}

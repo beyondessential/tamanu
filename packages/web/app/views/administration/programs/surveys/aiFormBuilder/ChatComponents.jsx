@@ -5,6 +5,8 @@ import DownloadIcon from '@mui/icons-material/Download';
 import StopRoundedIcon from '@mui/icons-material/StopRounded';
 import { IconButton } from '@mui/material';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import styled, { keyframes } from 'styled-components';
 
 import {
@@ -19,6 +21,7 @@ import {
 import { ConfirmModal } from '../../../../../components/ConfirmModal';
 import { ClipIcon } from '../../../../../components/Icons';
 import { Article } from '../../components';
+import { DraftStatusBadge } from './DraftStatusBadge';
 
 export const BuilderArticle = styled(Article)`
   display: flex;
@@ -113,22 +116,74 @@ export const MessageText = styled.p`
 
 const AssistantMessage = styled.div`
   color: ${TAMANU_COLORS.darkestText};
-  display: grid;
   font-size: 14px;
-  gap: 10px;
   line-height: 1.45;
 
-  p {
-    margin: 0;
+  > *:first-child {
+    margin-block-start: 0;
   }
 
+  > *:last-child {
+    margin-block-end: 0;
+  }
+
+  p,
+  ul,
   ol {
-    margin: 0;
+    margin-block: 0 10px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: ${TAMANU_COLORS.darkestText};
+    font-weight: 600;
+    line-height: 1.3;
+    margin-block: 0 8px;
+  }
+
+  h1 {
+    font-size: 17px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+
+  ul,
+  ol {
     padding-inline-start: 22px;
   }
 
   li + li {
     margin-block-start: 6px;
+  }
+
+  code {
+    background: ${TAMANU_COLORS.background2};
+    border: 1px solid ${TAMANU_COLORS.outline};
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 1px 4px;
+  }
+
+  pre {
+    background: ${TAMANU_COLORS.background2};
+    border: 1px solid ${TAMANU_COLORS.outline};
+    border-radius: 6px;
+    overflow-x: auto;
+    padding: 10px 12px;
+  }
+
+  pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
   }
 `;
 
@@ -340,6 +395,14 @@ const DownloadCard = styled.div`
   padding: 12px 14px;
 `;
 
+const DownloadFileDetails = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-inline-size: 0;
+`;
+
 const DownloadFileName = styled.span`
   color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
@@ -369,22 +432,13 @@ const NewChatModalBody = styled.div`
   text-align: left;
 `;
 
-const getNumberedListParts = text => {
-  const matches = [...text.matchAll(/(?:^|\s)(\d+)\.\s+/g)];
-  if (!matches.length) {
-    return null;
-  }
-
-  const firstMatch = matches[0];
-  const intro = text.slice(0, firstMatch.index).trim();
-  const items = matches.map((match, index) => {
-    const itemStart = match.index + match[0].length;
-    const itemEnd = matches[index + 1]?.index ?? text.length;
-    return text.slice(itemStart, itemEnd).trim();
-  });
-
-  return { intro, items };
-};
+const normaliseAssistantMarkdown = text =>
+  text
+    .trim()
+    .replace(/:\s+([-*]\s+)/g, ':\n$1')
+    .replace(/([^\n])\s+([-*]\s+)/g, '$1\n$2')
+    .replace(/:\s+(\d+\.\s+)/g, ':\n$1')
+    .replace(/([^\n])\s+(\d+\.\s+)/g, '$1\n$2');
 
 export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
@@ -424,32 +478,9 @@ export function UserMessageContent({ message }) {
 }
 
 export function AssistantMessageContent({ text }) {
-  const paragraphs = text
-    .trim()
-    .split(/\n{2,}/)
-    .map(paragraph => paragraph.trim())
-    .filter(Boolean);
-
   return (
     <AssistantMessage>
-      {paragraphs.map((paragraph, paragraphIndex) => {
-        const numberedListParts = getNumberedListParts(paragraph);
-
-        if (!numberedListParts) {
-          return <p key={paragraphIndex}>{paragraph}</p>;
-        }
-
-        return (
-          <React.Fragment key={paragraphIndex}>
-            {numberedListParts.intro && <p>{numberedListParts.intro}</p>}
-            <ol>
-              {numberedListParts.items.map((item, itemIndex) => (
-                <li key={itemIndex}>{item}</li>
-              ))}
-            </ol>
-          </React.Fragment>
-        );
-      })}
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{normaliseAssistantMarkdown(text)}</ReactMarkdown>
     </AssistantMessage>
   );
 }
@@ -505,11 +536,14 @@ export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSav
       <MessageText>
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.readyMessage"
-          fallback="Your form is ready for preview and the xlsx file can be downloaded if you wish. Would you like to save this new form to the database?"
+          fallback="A draft form is ready for preview. Review it before saving to the database or downloading the xlsx."
         />
       </MessageText>
       <DownloadCard>
-        <DownloadFileName>{fileName}</DownloadFileName>
+        <DownloadFileDetails>
+          <DownloadFileName>{fileName}</DownloadFileName>
+          <DraftStatusBadge isSaved={isSaved} />
+        </DownloadFileDetails>
         <DownloadButton size="small" startIcon={<DownloadIcon />} onClick={onDownload}>
           <TranslatedText stringId="general.action.download" fallback="Download" />
         </DownloadButton>

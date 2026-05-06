@@ -12,6 +12,7 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { getComponentForQuestionType } from '../../../../../components/Surveys';
+import { DraftStatusBadge } from './DraftStatusBadge';
 
 const EMPTY_FORM_VALUES = {};
 const noopAsync = async () => {};
@@ -72,9 +73,12 @@ const PreviewHeaderSpacer = styled.div`
 `;
 
 const PreviewHeading = styled.div`
+  align-items: center;
   color: ${TAMANU_COLORS.darkText};
+  display: flex;
   font-size: 14px;
   font-weight: 500;
+  gap: 8px;
   justify-self: center;
 `;
 
@@ -169,7 +173,7 @@ function PreviewSubmitButton() {
   );
 }
 
-export function FormPreview({ form }) {
+export function FormPreview({ form, isSaved }) {
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
 
@@ -186,6 +190,7 @@ export function FormPreview({ form }) {
             stringId="admin.programs.aiFormBuilder.preview.heading"
             fallback="Form preview"
           />
+          <DraftStatusBadge isSaved={isSaved} />
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
