@@ -8,6 +8,7 @@ import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
+import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 const FORM_BUILDER_CONTEXT = 'formBuilder';
@@ -61,11 +62,22 @@ export class AIService {
    * @param {import('@tamanu/settings').ReadSettings} options.settings
    */
   static async init({ settings }) {
-    const { enabled, anthropicApiKey, anthropicModel } = await settings.get('ai');
+    const { enabled, anthropicModel } = await settings.get('ai');
 
     if (!enabled) {
       log.info('AIService: disabled, skipping initialisation');
       return null;
+    }
+
+    let anthropicApiKey;
+    try {
+      anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
+    } catch (error) {
+      if (error instanceof SecretNotConfiguredError) {
+        log.info('AIService: no Anthropic API key configured, skipping initialisation');
+        return null;
+      }
+      throw error;
     }
 
     if (!anthropicApiKey) {
