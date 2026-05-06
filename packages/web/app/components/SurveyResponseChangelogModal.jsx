@@ -25,7 +25,7 @@ const Muted = styled.em`
   color: ${p => p.theme.palette.text.secondary};
 `;
 
-const renderChangelogValue = value => {
+const ChangelogValue = ({ value }) => {
   if (value === null || value === undefined || value === '') {
     return (
       <Muted>
@@ -86,7 +86,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
           description={
             <TranslatedText
               stringId="surveyResponse.changelog.empty.subtitle"
-              fallback="There are no recorded changes for this form response yet."
+              fallback="There are no recorded changes for this form response yet"
             />
           }
         />
@@ -96,22 +96,20 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
             <ChangeBlock key={row.id} data-testid={`changelog-row-${row.id}`}>
               <Typography variant="subtitle2">
                 <DateDisplay date={row.loggedAt} format="short" timeFormat="default" />
-                {row.changedBy?.displayName
-                  ? ` — ${row.changedBy.displayName}`
-                  : null}
+                {row.changedBy?.displayName ? ` — ${row.changedBy.displayName}` : null}
               </Typography>
-              {row.fieldChanges?.map((fc, idx) => (
+              {row.fieldChanges?.map((change, idx) => (
                 <FieldRow key={`${row.id}-fc-${idx}`}>
                   <Typography variant="caption" color="textSecondary">
-                    {fc.fieldKey}
+                    {change.fieldKey}
                   </Typography>
                   <div>
                     <TranslatedText stringId="surveyResponse.changelog.from" fallback="From" />:{' '}
-                    {renderChangelogValue(fc.from)}
+                    <ChangelogValue value={change.from} />
                   </div>
                   <div>
                     <TranslatedText stringId="surveyResponse.changelog.to" fallback="To" />:{' '}
-                    {renderChangelogValue(fc.to)}
+                    <ChangelogValue value={change.to} />
                   </div>
                 </FieldRow>
               ))}
@@ -121,9 +119,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
       )}
       <ModalCancelRow
         onConfirm={onClose}
-        confirmText={
-          <TranslatedText stringId="general.action.close" fallback="Close" />
-        }
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
       />
     </Modal>
   );
