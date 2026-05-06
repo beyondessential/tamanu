@@ -36,7 +36,7 @@ export const Field = ({
   }, [field.onChange, name, onChange]);
 
   const combinedOnBlur = useCallback(() => {
-    field.onBlur(name);
+    field.onBlur({ target: { name } });
   }, [field.onBlur, name]);
 
   return (
