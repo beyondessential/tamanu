@@ -8,11 +8,11 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { usePaginatedForm } from './usePaginatedForm';
 
 const Text = styled.div`
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 24px;
+  margin-block-start: 24px;
 `;
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
