@@ -440,7 +440,7 @@ patientRelations.get(
         'result', lab_tests.result,
         'id', lab_tests.id,
         'referenceRangeMin', lab_tests.reference_range_min,
-        'referenceRangeMax', lab_tests.reference_range_max
+        'referenceRangeMax', lab_tests.reference_range_max,
         'isEdited', COALESCE(edited_tests.is_edited, FALSE)
       )
     ) AS results
@@ -473,7 +473,7 @@ patientRelations.get(
       : ''
   }
   WHERE
-  encounter_id IN (
+  lab_requests.encounter_id IN (
       SELECT id
       FROM
         encounters
