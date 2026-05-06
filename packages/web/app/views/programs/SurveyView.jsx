@@ -169,19 +169,7 @@ export const SurveyView = props => {
           />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
-      <SurveyViewForm
-        survey={survey}
-        onSubmit={props.onSubmit}
-        onCancel={props.onCancel}
-        patient={props.patient}
-        patientAdditionalData={props.patientAdditionalData}
-        currentUser={props.currentUser}
-        patientProgramRegistration={props.patientProgramRegistration}
-        showCancelButton={props.showCancelButton}
-        setSurveyFormDirty={props.setSurveyFormDirty}
-        initialAnswerOverrides={props.initialAnswerOverrides}
-        disableCompleteUntilDirty={props.disableCompleteUntilDirty}
-      />
+      <SurveyViewForm {...props} />
     </ProgramsPane>
   );
 };
