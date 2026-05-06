@@ -255,7 +255,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
         patientAdditionalData={patientAdditionalData}
         currentUser={currentUser}
         initialAnswerOverrides={initialAnswerOverrides}
-        disableCompleteUntilDirty
         data-testid="surveyview-edit"
       />
     );

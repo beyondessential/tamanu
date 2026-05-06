@@ -48,7 +48,6 @@ export const SurveyViewForm = ({
   showCancelButton,
   setSurveyFormDirty,
   initialAnswerOverrides = null,
-  disableCompleteUntilDirty = false,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
@@ -135,7 +134,7 @@ export const SurveyViewForm = ({
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
-          completeButtonDisabled={disableCompleteUntilDirty && !dirty}
+          completeButtonDisabled={!dirty}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -150,7 +149,7 @@ export const SurveyViewForm = ({
       validationSchema={validationSchema}
       validateOnChange
       validateOnBlur
-      enableReinitialize={Boolean(initialAnswerOverrides) || disableCompleteUntilDirty}
+      enableReinitialize={Boolean(initialAnswerOverrides)}
       data-testid="form-12o2"
     />
   );
