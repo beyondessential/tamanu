@@ -156,6 +156,41 @@ describe('Form Builder Admin', () => {
     });
   });
 
+  it('uses the current program definition when regenerating an existing preview', async () => {
+    aiService.sendFormBuilderMessage.mockResolvedValueOnce({
+      message: 'Updated the draft.',
+      attach_to_program_code: 'ncd',
+      ready_to_export: false,
+      ready_to_generate: true,
+    });
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      sessionId: 'existing-session-id',
+      message: 'Make patient age read only',
+      programDefinition,
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.getSessionTranscript).not.toHaveBeenCalled();
+    expect(aiService.invokeStructured).toHaveBeenCalledWith(
+      'formBuilderBuildSurveyDefinition',
+      [
+        '[CURRENT PROGRAM DEFINITION]',
+        JSON.stringify(programDefinition),
+        '[LATEST USER REQUEST]',
+        'Make patient age read only',
+        '[ASSISTANT RESPONSE]',
+        'Updated the draft.',
+      ].join('\n\n'),
+      expect.any(Object),
+      { name: 'form_builder_program_definition' },
+    );
+    expect(response.body).toMatchObject({
+      readyToGenerate: true,
+      programDefinition,
+    });
+  });
+
   it('requires write FormBuilder permission', async () => {
     const response = await forbiddenApp.post('/v1/admin/form-builder/chat').send({
       message: 'Build a referral form',

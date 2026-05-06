@@ -101,6 +101,27 @@ const buildUserMessage = ({ message, fileContext }) => {
   return parts.join('\n\n');
 };
 
+const buildProgramDefinitionInput = async ({
+  aiService,
+  currentProgramDefinition,
+  responseMessage,
+  sessionId,
+  userMessage,
+}) => {
+  if (!currentProgramDefinition) {
+    return aiService.getSessionTranscript(sessionId);
+  }
+
+  return [
+    '[CURRENT PROGRAM DEFINITION]',
+    JSON.stringify(currentProgramDefinition),
+    '[LATEST USER REQUEST]',
+    userMessage,
+    '[ASSISTANT RESPONSE]',
+    responseMessage,
+  ].join('\n\n');
+};
+
 formBuilderRouter.post(
   '/chat',
   asyncHandler(async (req, res) => {
@@ -116,6 +137,7 @@ formBuilderRouter.post(
       file,
       fileName,
       fileContentType,
+      programDefinition: currentProgramDefinition,
       deleteFileAfterImport,
     } = await getUploadedData(req);
 
@@ -135,7 +157,13 @@ formBuilderRouter.post(
           ? await programDefinitionSchema.parseAsync(
               await req.aiService.invokeStructured(
                 FORM_BUILDER_BUILD_CONTEXT,
-                await req.aiService.getSessionTranscript(sessionId),
+                await buildProgramDefinitionInput({
+                  aiService: req.aiService,
+                  currentProgramDefinition,
+                  responseMessage: response.message,
+                  sessionId,
+                  userMessage,
+                }),
                 programDefinitionSchema,
                 { name: 'form_builder_program_definition' },
               ),

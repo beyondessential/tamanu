@@ -139,6 +139,9 @@ export function AiFormBuilderView() {
       const selectedProgramCode = getProgramCode(selectedProgramId);
       const body = {
         sessionId: state.sessionId,
+        programDefinition: state.generatedForm
+          ? normaliseProgramDefinition(state.generatedForm)
+          : undefined,
         message: [
           selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
           message,
@@ -192,7 +195,7 @@ export function AiFormBuilderView() {
         setIsThinking(false);
       }
     }
-  }, [api, state.sessionId]);
+  }, [api, state.generatedForm, state.sessionId]);
 
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();

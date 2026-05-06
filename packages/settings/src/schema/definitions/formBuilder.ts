@@ -178,6 +178,13 @@ output — not just the ones explicitly discussed. Apply only the changes the
 user requested on top of the existing content. Do not drop or omit any
 survey or question that was in the original.
 
+CRITICAL — CURRENT PROGRAM DEFINITION
+When the input contains [CURRENT PROGRAM DEFINITION], treat that JSON as the
+source of truth for the current draft. Apply the [LATEST USER REQUEST] on top
+of it and preserve every unchanged survey, question, code, config, visibility
+rule, validation rule, and option exactly unless the latest request requires a
+change.
+
 Type names from interpreted image input may be lowercase (text, number,
 date, yes-no, radio, select, multiselect, checkbox, instruction, unknown). Map
 them to the canonical CamelCase types used in the spreadsheet:
