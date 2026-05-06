@@ -7,7 +7,7 @@ import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants';
 export const facilityRoutes = express.Router();
 
 facilityRoutes.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { store, user } = req;
     const { Facility, User } = store.models;

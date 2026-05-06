@@ -5,7 +5,7 @@ import { Op } from 'sequelize';
 export const locationAssignments = express.Router();
 
 locationAssignments.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkListOrReadPermission('LocationAssignment');
 

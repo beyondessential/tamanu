@@ -18,6 +18,33 @@ export default async () => {
     /* ignore */
   }
 
+  // The web app talks to the backend via relative URLs (e.g. `/api/public/ping`,
+  // `io('')` with path `/api/socket.io`), so whichever server hosts the bundle
+  // must also forward `/api` to the configured backend. Share the proxy config
+  // between the dev server and `vite preview` so E2E (which runs against a
+  // production build) gets the same routing as local dev.
+  const apiProxyTarget =
+    process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app';
+  const apiProxy = {
+    '/api': {
+      target: apiProxyTarget,
+      // specify other servers to use as backend by setting the environment variable, e.g.
+      // TAMANU_VITE_TARGET=http://localhost:3000
+      // TAMANU_VITE_TARGET=http://localhost:4000
+      // TAMANU_VITE_TARGET=https://central.main.cd.tamanu.app
+      changeOrigin: true,
+    },
+    '/api/socket.io': {
+      target: apiProxyTarget,
+      ws: true,
+    },
+  };
+
+  // Preview defaults to HTTPS (so local previews mimic production). E2E needs
+  // plain HTTP on localhost — opt out via env var rather than flipping the
+  // default and changing local-dev behaviour for everyone else.
+  const previewHttps = process.env.VITE_PREVIEW_HTTP === 'true' ? false : true;
+
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
     optimizeDeps: {
@@ -48,7 +75,9 @@ export default async () => {
       format: 'es',
     },
     preview: {
-      https: true,
+      host: 'localhost',
+      https: previewHttps,
+      proxy: apiProxy,
     },
     build: {
       rollupOptions: {
@@ -59,20 +88,7 @@ export default async () => {
     },
     server: {
       host: 'localhost',
-      proxy: {
-        '/api': {
-          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
-          // specify other servers to use as backend by setting the environment variable, e.g.
-          // TAMANU_VITE_TARGET=http://localhost:3000
-          // TAMANU_VITE_TARGET=http://localhost:4000
-          // TAMANU_VITE_TARGET=https://central.main.cd.tamanu.app
-          changeOrigin: true,
-        },
-        '/api/socket.io': {
-          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
-          ws: true,
-        },
-      },
+      proxy: apiProxy,
     },
     test: {
       clearMocks: true,

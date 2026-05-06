@@ -199,7 +199,7 @@ patientRoute.put(
 );
 
 patientRoute.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
     const {
@@ -295,7 +295,7 @@ patientRoute.get(
 );
 
 patientRoute.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { Patient },
@@ -377,7 +377,7 @@ patientRoute.get(
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
 
-    // ReadSettings.get uses cached getAll() per facility (see packages/settings cache; ~60s TTL).
+    // ReadSettings.get caches getAll() per facility (see packages/settings cache).
     const additionalSearchFields =
       isAllPatientsListing && filterParams.facilityId
         ? (await settings[filterParams.facilityId]?.get(

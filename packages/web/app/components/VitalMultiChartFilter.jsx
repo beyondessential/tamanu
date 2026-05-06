@@ -62,7 +62,11 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
           data-testid="popover-5s9v"
         >
           <ExpandedMultiSelectField
-            selectAllOptionLabel={<small>Select All</small>}
+            selectAllOptionLabel={
+              <small>
+                <TranslatedText stringId="general.action.selectAll" fallback="Select all" />
+              </small>
+            }
             options={optionsWithSmallLabel}
             field={field}
             data-testid="expandedmultiselectfield-rekh"

@@ -6,4 +6,4 @@ export const diagnosis = express.Router();
 
 diagnosis.get('/:id', simpleGet('EncounterDiagnosis', { auditAccess: true }));
 diagnosis.put('/:id', simplePut('EncounterDiagnosis'));
-diagnosis.post('/$', simplePost('EncounterDiagnosis'));
+diagnosis.post('/', simplePost('EncounterDiagnosis'));

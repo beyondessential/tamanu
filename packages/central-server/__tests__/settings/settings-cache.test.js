@@ -1,8 +1,13 @@
+import waitForExpect from 'wait-for-expect';
 import { settingsCache } from '@tamanu/settings';
 import { buildSettings } from '@tamanu/settings/reader';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
+
+// Outlast the NOTIFY listener's debounce so trailing resets don't fire in the next test.
+const NOTIFY_DEBOUNCE_DRAIN_MS = 100;
 
 jest.mock('@tamanu/settings/reader', () => {
   const originalModule = jest.requireActual('@tamanu/settings/reader');
@@ -31,35 +36,19 @@ describe('Read Settings - Cache', () => {
 
   afterEach(async () => {
     await models.Setting.destroy({ where: {}, force: true });
+    await sleepAsync(NOTIFY_DEBOUNCE_DRAIN_MS);
     settingsCache.reset();
     buildSettings.mockClear();
   });
 
-  it('Should use cached value if in ttl', async () => {
-    // Call readSetting, it should store that in cache
+  it('Should use cached value once populated', async () => {
     const value = await settings.get('timezone');
     expect(value).toEqual('gmt-3');
 
     // Calling it again should not call build settings method
     await settings.get('timezone');
 
-    // Ensure buildSettings was called once
     expect(buildSettings).toHaveBeenCalledTimes(1);
-  });
-
-  it('Should not use cache if timestamp is not in ttl', async () => {
-    // Call .get should store that in cache
-    const value = await settings.get('timezone');
-    expect(value).toEqual('gmt-3');
-
-    const mockTimestamp = Date.now() + settingsCache.ttl + 1; // Simulate an expired cache
-    Date.now = jest.fn(() => mockTimestamp);
-
-    // Calling it again should not call build settings method
-    await settings.get('timezone');
-
-    // buildSettings should be called twice
-    expect(buildSettings).toHaveBeenCalledTimes(2);
   });
 
   it('It should invalidate cache if a new row is added to the settings table', async () => {
@@ -105,6 +94,22 @@ describe('Read Settings - Cache', () => {
     await settings.get('timezone');
 
     // buildSettings should be called twice
+    expect(buildSettings).toHaveBeenCalledTimes(2);
+  });
+
+  it('It should invalidate cache when settings change via raw SQL (no Sequelize hook)', async () => {
+    await settings.get('timezone');
+
+    await models.Setting.sequelize.query(
+      `INSERT INTO settings (id, key, value, scope) VALUES (gen_random_uuid(), 'raw-sql-key', '"raw-sql-value"', :scope)`,
+      { replacements: { scope: SETTINGS_SCOPES.GLOBAL } },
+    );
+
+    // Raw SQL bypasses Sequelize hooks, so wait for the NOTIFY-driven listener.
+    await waitForExpect(() => expect(settingsCache.has()).toBe(false));
+
+    await settings.get('timezone');
+
     expect(buildSettings).toHaveBeenCalledTimes(2);
   });
 });

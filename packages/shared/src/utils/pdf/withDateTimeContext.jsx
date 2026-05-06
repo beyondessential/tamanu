@@ -22,6 +22,8 @@ export const withDateTimeContext = Component => props => {
 
   const facilityTimeZone = getSetting('facilityTimeZone');
   const effectiveTimeZone = facilityTimeZone ?? primaryTimeZone;
+  // TODO: Make configurable through settings
+  const dateLocale = 'en-GB';
 
   const value = useMemo(
     () => ({
@@ -29,9 +31,12 @@ export const withDateTimeContext = Component => props => {
       facilityTimeZone,
       getCurrentDate: () => getCurrentDateStringInTimezone(effectiveTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      ...mapValues(dateTimeFormatters, fn => date => fn(date, primaryTimeZone, facilityTimeZone)),
+      ...mapValues(
+        dateTimeFormatters,
+        fn => date => fn(date, primaryTimeZone, facilityTimeZone, dateLocale),
+      ),
     }),
-    [primaryTimeZone, facilityTimeZone, effectiveTimeZone],
+    [primaryTimeZone, facilityTimeZone, effectiveTimeZone, dateLocale],
   );
 
   return (

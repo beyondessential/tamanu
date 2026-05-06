@@ -114,6 +114,24 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
   }
 };
 
+export const refreshSettings = () => async (dispatch, getState, { api }) => {
+  // Best-effort: the next change event or login will reconcile if this fails.
+  const facilityIdAtStart = getState().auth.facilityId;
+  if (!facilityIdAtStart) return;
+  try {
+    const settings = await api.fetchFrontEndSettings(facilityIdAtStart);
+    if (!settings) return;
+    // If the user switched facility (or logged out) while the request was in flight,
+    // the response is for the previous facility - drop it so we don't clobber the
+    // freshly-loaded settings in redux/localStorage.
+    if (getState().auth.facilityId !== facilityIdAtStart) return;
+    api.persistSettings(settings);
+    dispatch({ type: SET_SETTINGS, settings });
+  } catch (e) {
+    // ignore
+  }
+};
+
 export const authFailure = () => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
