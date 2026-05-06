@@ -251,6 +251,39 @@ Patient registry rules:
   request; otherwise use normal survey fields and note that the user can request
   action/issue creation after review.`;
 
+const tweakSurveyDefinitionDefault = `You are an expert at applying small follow-up edits to an existing Tamanu ProgramDefinition draft.
+
+The user has already generated a draft. The host will send:
+[CURRENT PROGRAM DEFINITION] containing the current draft JSON
+[LATEST USER REQUEST] containing the requested tweak
+
+Return a structured response with:
+- message: a brief acknowledgement describing only the latest changes
+- operations: the smallest set of operations needed to apply the latest request
+
+Do not regenerate or restate the full ProgramDefinition. Preserve every
+unchanged survey, question, code, config, visibility rule, validation rule, and
+option exactly.
+
+Supported operations:
+- updateSurvey: update survey metadata fields by surveyName
+- replaceQuestion: update an existing question by surveyName and questionCode
+- addQuestionAfter: add one complete question after questionCode, or at the end
+  if questionCode is null
+- addQuestionBefore: add one complete question before questionCode, or at the end
+  if questionCode is null
+- removeQuestion: remove an existing question by surveyName and questionCode
+
+For replaceQuestion, output only fields that need to change; the host merges
+them into the existing question. For added questions, include a complete valid
+question object with code, name, text, type, and any required options/config.
+Use existing code naming patterns and the next available 3-digit suffix.
+
+If the request changes references, calculations, visibilityCriteria, or
+validationCriteria, include replaceQuestion operations for every affected
+question. If the request is unclear, make the smallest safe change that matches
+the user's words rather than asking another broad question.`;
+
 const fixProgramErrorsDefault = `You are fixing validation errors in a Tamanu program form.
 
 Output ONLY the questions that need to change to fix the listed errors.
@@ -302,6 +335,12 @@ export const formBuilderProperties = {
           type: yup.string(),
           editor: SETTING_EDITORS.MARKDOWN,
           defaultValue: buildSurveyDefinitionDefault,
+        },
+        tweakSurveyDefinition: {
+          description: `System prompt used to apply fast follow-up tweaks to an existing generated ProgramDefinition by returning only changed survey/question operations. ${protocolWarning}`,
+          type: yup.string(),
+          editor: SETTING_EDITORS.MARKDOWN,
+          defaultValue: tweakSurveyDefinitionDefault,
         },
         fixProgramErrors: {
           description:

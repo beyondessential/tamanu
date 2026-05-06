@@ -55,6 +55,7 @@ describe('Form Builder Admin', () => {
       invokeStructured: jest.fn().mockResolvedValue(programDefinition),
       interpretFormBuilderImage: jest.fn().mockResolvedValue('SECTION: Referral\nQUESTION: Patient name'),
       registerFormBuilderContext: jest.fn().mockResolvedValue(undefined),
+      addSessionMessages: jest.fn().mockResolvedValue(undefined),
     };
     ctx.aiService = aiService;
   });
@@ -156,7 +157,68 @@ describe('Form Builder Admin', () => {
     });
   });
 
-  it('uses the current program definition when regenerating an existing preview', async () => {
+  it('applies a fast patch when tweaking an existing preview', async () => {
+    aiService.invokeStructured.mockResolvedValueOnce({
+      message: 'Updated the patient name field.',
+      operations: [
+        {
+          type: 'replaceQuestion',
+          surveyName: 'Referral form',
+          questionCode: 'referral001',
+          question: {
+            text: 'Patient age',
+            type: 'Number',
+          },
+        },
+      ],
+    });
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      sessionId: 'existing-session-id',
+      message: 'Change patient name to patient age as a number',
+      programDefinition,
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+    expect(aiService.getSessionTranscript).not.toHaveBeenCalled();
+    expect(aiService.invokeStructured).toHaveBeenCalledWith(
+      'formBuilderTweakSurveyDefinition',
+      [
+        '[CURRENT PROGRAM DEFINITION]',
+        JSON.stringify(programDefinition),
+        '[LATEST USER REQUEST]',
+        'Change patient name to patient age as a number',
+      ].join('\n\n'),
+      expect.any(Object),
+      { name: 'form_builder_tweak_response' },
+    );
+    expect(aiService.addSessionMessages).toHaveBeenCalledWith('existing-session-id', {
+      userMessage: 'Change patient name to patient age as a number',
+      assistantMessage: 'Updated the patient name field.',
+    });
+    expect(response.body).toMatchObject({
+      readyToGenerate: true,
+      programDefinition: {
+        surveySheets: [
+          {
+            questions: [
+              {
+                code: 'referral001',
+                text: 'Patient age',
+                type: 'Number',
+              },
+            ],
+          },
+        ],
+      },
+    });
+  });
+
+  it('falls back to full generation when a fast patch fails', async () => {
+    aiService.invokeStructured
+      .mockRejectedValueOnce(new Error('Invalid patch'))
+      .mockResolvedValueOnce(programDefinition);
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Updated the draft.',
       attach_to_program_code: 'ncd',
@@ -171,8 +233,11 @@ describe('Form Builder Admin', () => {
     });
 
     expect(response).toHaveSucceeded();
-    expect(aiService.getSessionTranscript).not.toHaveBeenCalled();
-    expect(aiService.invokeStructured).toHaveBeenCalledWith(
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'existing-session-id',
+      'Make patient age read only',
+    );
+    expect(aiService.invokeStructured).toHaveBeenLastCalledWith(
       'formBuilderBuildSurveyDefinition',
       [
         '[CURRENT PROGRAM DEFINITION]',

@@ -12,6 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
+const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 
 const formBuilderChatResponseSchema = z.object({
@@ -123,11 +124,12 @@ export class AIService {
    * @param {import('@tamanu/settings').ReadSettings} settings
    */
   async registerFormBuilderContext(settings) {
-    const { interpretFormImage, processMessage, buildSurveyDefinition } =
+    const { interpretFormImage, processMessage, buildSurveyDefinition, tweakSurveyDefinition } =
       await settings.get('formBuilder.prompts');
     this.registerContext(FORM_BUILDER_IMAGE_CONTEXT, interpretFormImage);
     this.registerContext(FORM_BUILDER_CONTEXT, processMessage);
     this.registerContext(FORM_BUILDER_BUILD_CONTEXT, buildSurveyDefinition);
+    this.registerContext(FORM_BUILDER_TWEAK_CONTEXT, tweakSurveyDefinition);
   }
 
   /**
@@ -198,6 +200,17 @@ export class AIService {
     await history.addMessage(new AIMessage(JSON.stringify(response)));
 
     return response;
+  }
+
+  async addSessionMessages(sessionId, { userMessage, assistantMessage }) {
+    const history = this.sessions.get(sessionId);
+    if (!history) {
+      throw new Error(`AI session "${sessionId}" not found`);
+    }
+
+    this.sessions.ttl(sessionId, SESSION_TTL_SECONDS);
+    await history.addMessage(new HumanMessage(userMessage));
+    await history.addMessage(new AIMessage(assistantMessage));
   }
 
   /**

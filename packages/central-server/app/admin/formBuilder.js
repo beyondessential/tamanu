@@ -3,13 +3,16 @@ import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
 import { readFile, utils } from 'xlsx';
+import { z } from 'zod';
 
 import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { programDefinitionSchema } from './programImporter/programDefinition';
 
 const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
+const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 const MAX_FILE_CONTEXT_LENGTH = 200_000;
 const TEXT_FILE_EXTENSIONS = new Set(['.txt', '.csv']);
 const WORKBOOK_FILE_EXTENSIONS = new Set(['.xls', '.xlsx']);
@@ -19,6 +22,76 @@ const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
   '.png': 'image/png',
 };
 const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
+
+const partialSurveySchema = z
+  .object({
+    code: z.string().trim().min(1).optional(),
+    name: z.string().trim().min(1).optional(),
+    surveyType: z.string().trim().optional(),
+    status: z.string().trim().optional(),
+    isSensitive: z.boolean().optional(),
+    notifiable: z.boolean().optional(),
+    notifyEmailAddresses: z.array(z.string().trim()).optional(),
+    visibilityCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+    visibilityStatus: z.string().trim().optional(),
+  })
+  .passthrough();
+
+const partialQuestionSchema = z
+  .object({
+    code: z.string().trim().min(1).optional(),
+    name: z.string().trim().optional(),
+    text: z.string().trim().min(1).optional(),
+    type: z.string().trim().min(1).optional(),
+    options: z.union([z.string(), z.array(z.string()), z.record(z.string(), z.string())]).optional(),
+    newScreen: z.boolean().optional(),
+    visibilityCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+    validationCriteria: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+    detail: z.string().optional(),
+    config: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+    calculation: z.string().optional(),
+    visibilityStatus: z.string().trim().optional(),
+    visualisationConfig: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  })
+  .passthrough();
+
+const formBuilderTweakResponseSchema = z.object({
+  message: z.string().describe('A concise assistant message describing only the latest changes.'),
+  operations: z
+    .array(
+      z.discriminatedUnion('type', [
+        z.object({
+          type: z.literal('updateSurvey'),
+          surveyName: z.string().trim().min(1),
+          survey: partialSurveySchema,
+        }),
+        z.object({
+          type: z.literal('replaceQuestion'),
+          surveyName: z.string().trim().min(1),
+          questionCode: z.string().trim().min(1),
+          question: partialQuestionSchema,
+        }),
+        z.object({
+          type: z.literal('addQuestionAfter'),
+          surveyName: z.string().trim().min(1),
+          questionCode: z.string().trim().min(1).nullable().optional(),
+          question: partialQuestionSchema,
+        }),
+        z.object({
+          type: z.literal('addQuestionBefore'),
+          surveyName: z.string().trim().min(1),
+          questionCode: z.string().trim().min(1).nullable().optional(),
+          question: partialQuestionSchema,
+        }),
+        z.object({
+          type: z.literal('removeQuestion'),
+          surveyName: z.string().trim().min(1),
+          questionCode: z.string().trim().min(1),
+        }),
+      ]),
+    )
+    .default([]),
+});
 
 const getImageMediaTypeFromBuffer = buffer => {
   if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
@@ -122,6 +195,93 @@ const buildProgramDefinitionInput = async ({
   ].join('\n\n');
 };
 
+const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessage }) =>
+  [
+    '[CURRENT PROGRAM DEFINITION]',
+    JSON.stringify(currentProgramDefinition),
+    '[LATEST USER REQUEST]',
+    userMessage,
+  ].join('\n\n');
+
+const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
+
+const findSurveySheet = (programDefinition, surveyName) => {
+  const surveySheet = programDefinition.surveySheets.find(sheet => sheet.surveyName === surveyName);
+  if (!surveySheet) {
+    throw new InvalidParameterError(`Survey sheet "${surveyName}" was not found`);
+  }
+  return surveySheet;
+};
+
+const findQuestionIndex = (surveySheet, questionCode) =>
+  surveySheet.questions.findIndex(question => question.code === questionCode);
+
+const insertQuestion = ({ surveySheet, questionCode, question, offset }) => {
+  const referenceIndex = questionCode ? findQuestionIndex(surveySheet, questionCode) : -1;
+  const insertIndex = referenceIndex === -1 ? surveySheet.questions.length : referenceIndex + offset;
+  surveySheet.questions.splice(insertIndex, 0, question);
+};
+
+const applyProgramDefinitionTweak = async (currentProgramDefinition, tweakResponse) => {
+  const programDefinition = cloneProgramDefinition(currentProgramDefinition);
+
+  for (const operation of tweakResponse.operations) {
+    if (operation.type === 'updateSurvey') {
+      const survey = programDefinition.surveys.find(({ name }) => name === operation.surveyName);
+      if (!survey) {
+        throw new InvalidParameterError(`Survey "${operation.surveyName}" was not found`);
+      }
+      Object.assign(survey, operation.survey);
+      continue;
+    }
+
+    const surveySheet = findSurveySheet(programDefinition, operation.surveyName);
+
+    if (operation.type === 'replaceQuestion') {
+      const questionIndex = findQuestionIndex(surveySheet, operation.questionCode);
+      if (questionIndex === -1) {
+        throw new InvalidParameterError(`Question "${operation.questionCode}" was not found`);
+      }
+      surveySheet.questions[questionIndex] = {
+        ...surveySheet.questions[questionIndex],
+        ...operation.question,
+        code: operation.question.code || operation.questionCode,
+      };
+      continue;
+    }
+
+    if (operation.type === 'addQuestionAfter') {
+      insertQuestion({
+        surveySheet,
+        questionCode: operation.questionCode,
+        question: operation.question,
+        offset: 1,
+      });
+      continue;
+    }
+
+    if (operation.type === 'addQuestionBefore') {
+      insertQuestion({
+        surveySheet,
+        questionCode: operation.questionCode,
+        question: operation.question,
+        offset: 0,
+      });
+      continue;
+    }
+
+    if (operation.type === 'removeQuestion') {
+      const questionIndex = findQuestionIndex(surveySheet, operation.questionCode);
+      if (questionIndex === -1) {
+        throw new InvalidParameterError(`Question "${operation.questionCode}" was not found`);
+      }
+      surveySheet.questions.splice(questionIndex, 1);
+    }
+  }
+
+  return programDefinitionSchema.parseAsync(programDefinition);
+};
+
 formBuilderRouter.post(
   '/chat',
   asyncHandler(async (req, res) => {
@@ -151,6 +311,41 @@ formBuilderRouter.post(
       const userMessage = buildUserMessage({ message, fileContext });
       const sessionId =
         existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));
+
+      if (currentProgramDefinition) {
+        try {
+          const tweakResponse = await req.aiService.invokeStructured(
+            FORM_BUILDER_TWEAK_CONTEXT,
+            buildProgramDefinitionTweakInput({
+              currentProgramDefinition,
+              userMessage,
+            }),
+            formBuilderTweakResponseSchema,
+            { name: 'form_builder_tweak_response' },
+          );
+          const programDefinition = await applyProgramDefinitionTweak(
+            currentProgramDefinition,
+            tweakResponse,
+          );
+          await req.aiService.addSessionMessages(sessionId, {
+            userMessage,
+            assistantMessage: tweakResponse.message,
+          });
+
+          res.send({
+            sessionId,
+            message: tweakResponse.message,
+            attachToProgramCode: null,
+            readyToExport: false,
+            readyToGenerate: true,
+            programDefinition,
+          });
+          return;
+        } catch (error) {
+          log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
+        }
+      }
+
       const response = await req.aiService.sendFormBuilderMessage(sessionId, userMessage);
       const programDefinition =
         response.ready_to_export || response.ready_to_generate
