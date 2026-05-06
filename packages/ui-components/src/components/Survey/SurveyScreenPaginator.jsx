@@ -34,10 +34,11 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisab
         </OutlinedButton>
         <FormSubmitButton
           color="primary"
-          variant="contained"
-          onClick={onSurveyComplete}
-          functionallyDisabled={completeButtonDisabled}
           data-testid="formsubmitbutton-pufy"
+          disabled={completeButtonDisabled}
+          onClick={onSurveyComplete}
+          type="submit"
+          variant="contained"
         >
           <TranslatedText stringId="general.action.complete" fallback="Complete" />
         </FormSubmitButton>
