@@ -246,10 +246,13 @@ Patient registry rules:
   writeToPatient.fieldType). Use action/writeback question types only when
   explicitly requested and the required config is known; otherwise use normal
   survey question types.
-- PatientIssue questions require config.issueType and config.issueNote. Only
-  generate PatientIssue when those values can be inferred safely from the
-  request; otherwise use normal survey fields and note that the user can request
-  action/issue creation after review.`;
+- PatientIssue questions require config.issueType and config.issueNote.
+  config.issueType must be exactly "issue" or "warning"; do not invent custom
+  issue types such as "urgent-referral". Use "warning" for urgent, alert, or
+  high-risk patient warnings; otherwise use "issue". Only generate PatientIssue
+  when those values can be inferred safely from the request; otherwise use
+  normal survey fields and note that the user can request action/issue creation
+  after review.`;
 
 const tweakSurveyDefinitionDefault = `You are an expert at applying small follow-up edits to an existing Tamanu ProgramDefinition draft.
 

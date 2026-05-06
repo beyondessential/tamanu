@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   CHARTING_SURVEY_TYPES,
+  PATIENT_ISSUE_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
@@ -22,6 +23,7 @@ const DATA_ELEMENT_TYPES_REQUIRING_OPTIONS = [
   PROGRAM_DATA_ELEMENT_TYPES.RADIO,
   PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
 ];
+const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
 
 const normalizeOptions = options => {
   if (!options) return [];
@@ -134,6 +136,35 @@ const stringifyField = (value, questionCodeMap = new Map()) => {
   return replaceQuestionReferences(value, questionCodeMap);
 };
 
+const parseConfig = config => {
+  if (!config || typeof config !== 'string') return config;
+  try {
+    return JSON.parse(config);
+  } catch {
+    return config;
+  }
+};
+
+const normalizePatientIssueType = issueType => {
+  if (PATIENT_ISSUE_TYPE_VALUES.includes(issueType)) return issueType;
+
+  return /urgent|warning|alert|risk|danger|emergency/i.test(issueType || '')
+    ? PATIENT_ISSUE_TYPES.WARNING
+    : PATIENT_ISSUE_TYPES.ISSUE;
+};
+
+export const normalizeQuestionConfigForImport = question => {
+  if (question.type !== PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE) return question.config;
+
+  const config = parseConfig(question.config);
+  if (!config || typeof config !== 'object' || Array.isArray(config)) return question.config;
+
+  return {
+    ...config,
+    issueType: normalizePatientIssueType(config.issueType),
+  };
+};
+
 const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surveyCode }) => {
   const surveyId = `${programId}-${surveyCode}`;
   const originalSurveyCode = createCode(surveyDefinition.code);
@@ -183,6 +214,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
     const defaultOptions = DATA_ELEMENT_TYPES_REQUIRING_OPTIONS.includes(type)
       ? JSON.stringify(normalizeOptions(question.options))
       : '';
+    const questionConfig = normalizeQuestionConfigForImport({ ...question, type });
 
     rows.push(
       {
@@ -212,7 +244,7 @@ const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surv
           visibilityCriteria: stringifyField(question.visibilityCriteria, questionCodeMap),
           validationCriteria: stringifyField(question.validationCriteria, questionCodeMap),
           detail: question.detail || '',
-          config: stringifyField(question.config, questionCodeMap),
+          config: stringifyField(questionConfig, questionCodeMap),
           calculation: stringifyField(question.calculation, questionCodeMap),
           visibilityStatus: question.visibilityStatus || VISIBILITY_STATUSES.CURRENT,
           type,
