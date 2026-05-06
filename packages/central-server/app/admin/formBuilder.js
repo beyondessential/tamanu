@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
+import { nanoid } from 'nanoid';
+import NodeCache from 'node-cache';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
@@ -23,6 +25,14 @@ const IMAGE_MEDIA_TYPES_BY_EXTENSION = {
 };
 const IMAGE_CONTENT_TYPES = new Set(Object.values(IMAGE_MEDIA_TYPES_BY_EXTENSION));
 const MAX_AI_FILENAME_LENGTH = 80;
+const CHAT_JOB_TTL_SECONDS = 60 * 30;
+const CHAT_JOB_STATUSES = {
+  PENDING: 'pending',
+  COMPLETE: 'complete',
+  FAILED: 'failed',
+};
+
+const chatJobs = new NodeCache({ stdTTL: CHAT_JOB_TTL_SECONDS, checkperiod: 60, useClones: false });
 
 const partialSurveySchema = z
   .object({
@@ -296,6 +306,137 @@ const applyProgramDefinitionTweak = async (currentProgramDefinition, tweakRespon
   return programDefinitionSchema.parseAsync(programDefinition);
 };
 
+const serializeChatJobError = error => ({
+  message: error?.message || 'AI form builder chat failed',
+  detail: error?.detail,
+  status: error?.status,
+});
+
+const processChatRequest = async ({
+  aiService,
+  sessionId: existingSessionId,
+  message,
+  file,
+  fileName,
+  fileContentType,
+  programDefinition: currentProgramDefinition,
+  deleteFileAfterImport,
+}) => {
+  try {
+    const fileContext = await getFileContext({
+      aiService,
+      file,
+      fileName,
+      fileContentType,
+    });
+    const userMessage = buildUserMessage({ message, fileContext });
+    const sessionId = existingSessionId || (await aiService.createSession(FORM_BUILDER_CONTEXT));
+
+    if (currentProgramDefinition) {
+      let tweakResponse;
+      let programDefinition;
+      try {
+        tweakResponse = await aiService.invokeStructured(
+          FORM_BUILDER_TWEAK_CONTEXT,
+          buildProgramDefinitionTweakInput({
+            currentProgramDefinition,
+            userMessage,
+          }),
+          formBuilderTweakResponseSchema,
+          { name: 'form_builder_tweak_response' },
+        );
+        programDefinition = await applyProgramDefinitionTweak(
+          currentProgramDefinition,
+          tweakResponse,
+        );
+      } catch (error) {
+        log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
+      }
+
+      if (tweakResponse && programDefinition) {
+        // History persistence should not discard a valid tweak result.
+        await aiService.addSessionMessages(sessionId, {
+          userMessage,
+          assistantMessage: tweakResponse.message,
+        }).catch(error => {
+          log.warn({ error }, 'AI form builder failed to persist tweak chat history');
+        });
+
+        return {
+          sessionId,
+          message: tweakResponse.message,
+          attachToProgramCode: null,
+          readyToExport: false,
+          readyToGenerate: true,
+          programDefinition,
+        };
+      }
+    }
+
+    const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
+    const programDefinition =
+      response.ready_to_export || response.ready_to_generate
+        ? await programDefinitionSchema.parseAsync(
+            await aiService.invokeStructured(
+              FORM_BUILDER_BUILD_CONTEXT,
+              await buildProgramDefinitionInput({
+                aiService,
+                currentProgramDefinition,
+                responseMessage: response.message,
+                sessionId,
+                userMessage,
+              }),
+              programDefinitionSchema,
+              { name: 'form_builder_program_definition' },
+            ),
+          )
+        : null;
+
+    return {
+      sessionId,
+      message: response.message,
+      attachToProgramCode: response.attach_to_program_code,
+      readyToExport: response.ready_to_export,
+      readyToGenerate: response.ready_to_generate,
+      programDefinition,
+    };
+  } finally {
+    if (file && deleteFileAfterImport) {
+      await fs.unlink(file).catch(() => {});
+    }
+  }
+};
+
+const startChatJob = ({ aiService, userId, payload }) => {
+  const jobId = nanoid();
+  chatJobs.set(jobId, {
+    id: jobId,
+    userId,
+    status: CHAT_JOB_STATUSES.PENDING,
+  });
+
+  processChatRequest({ aiService, ...payload })
+    .then(result => {
+      chatJobs.set(jobId, {
+        id: jobId,
+        userId,
+        status: CHAT_JOB_STATUSES.COMPLETE,
+        result,
+      });
+    })
+    .catch(error => {
+      log.warn({ error }, 'AI form builder async chat job failed');
+      chatJobs.set(jobId, {
+        id: jobId,
+        userId,
+        status: CHAT_JOB_STATUSES.FAILED,
+        error: serializeChatJobError(error),
+      });
+    });
+
+  return jobId;
+};
+
 formBuilderRouter.post(
   '/chat',
   asyncHandler(async (req, res) => {
@@ -305,100 +446,32 @@ formBuilderRouter.post(
       throw new InvalidOperationError('AI service is not enabled');
     }
 
-    const {
-      sessionId: existingSessionId,
-      message,
-      file,
-      fileName,
-      fileContentType,
-      programDefinition: currentProgramDefinition,
-      deleteFileAfterImport,
-    } = await getUploadedData(req);
+    const { async: runAsync, ...payload } = await getUploadedData(req);
 
-    try {
-      const fileContext = await getFileContext({
+    if (runAsync) {
+      const jobId = startChatJob({
         aiService: req.aiService,
-        file,
-        fileName,
-        fileContentType,
+        userId: req.user.id,
+        payload,
       });
-      const userMessage = buildUserMessage({ message, fileContext });
-      const sessionId =
-        existingSessionId || (await req.aiService.createSession(FORM_BUILDER_CONTEXT));
-
-      if (currentProgramDefinition) {
-        let tweakResponse;
-        let programDefinition;
-        try {
-          tweakResponse = await req.aiService.invokeStructured(
-            FORM_BUILDER_TWEAK_CONTEXT,
-            buildProgramDefinitionTweakInput({
-              currentProgramDefinition,
-              userMessage,
-            }),
-            formBuilderTweakResponseSchema,
-            { name: 'form_builder_tweak_response' },
-          );
-          programDefinition = await applyProgramDefinitionTweak(
-            currentProgramDefinition,
-            tweakResponse,
-          );
-        } catch (error) {
-          log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
-        }
-
-        if (tweakResponse && programDefinition) {
-          // History persistence should not discard a valid tweak result.
-          await req.aiService.addSessionMessages(sessionId, {
-            userMessage,
-            assistantMessage: tweakResponse.message,
-          }).catch(error => {
-            log.warn({ error }, 'AI form builder failed to persist tweak chat history');
-          });
-
-          res.send({
-            sessionId,
-            message: tweakResponse.message,
-            attachToProgramCode: null,
-            readyToExport: false,
-            readyToGenerate: true,
-            programDefinition,
-          });
-          return;
-        }
-      }
-
-      const response = await req.aiService.sendFormBuilderMessage(sessionId, userMessage);
-      const programDefinition =
-        response.ready_to_export || response.ready_to_generate
-          ? await programDefinitionSchema.parseAsync(
-              await req.aiService.invokeStructured(
-                FORM_BUILDER_BUILD_CONTEXT,
-                await buildProgramDefinitionInput({
-                  aiService: req.aiService,
-                  currentProgramDefinition,
-                  responseMessage: response.message,
-                  sessionId,
-                  userMessage,
-                }),
-                programDefinitionSchema,
-                { name: 'form_builder_program_definition' },
-              ),
-            )
-          : null;
-
-      res.send({
-        sessionId,
-        message: response.message,
-        attachToProgramCode: response.attach_to_program_code,
-        readyToExport: response.ready_to_export,
-        readyToGenerate: response.ready_to_generate,
-        programDefinition,
-      });
-    } finally {
-      if (file && deleteFileAfterImport) {
-        await fs.unlink(file).catch(() => {});
-      }
+      res.status(202).send({ jobId, status: CHAT_JOB_STATUSES.PENDING });
+      return;
     }
+
+    res.send(await processChatRequest({ aiService: req.aiService, ...payload }));
+  }),
+);
+
+formBuilderRouter.get(
+  '/chat/jobs/:jobId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'FormBuilder');
+
+    const job = chatJobs.get(req.params.jobId);
+    if (!job || job.userId !== req.user.id) {
+      throw new InvalidParameterError('AI form builder chat job was not found');
+    }
+
+    res.send(job);
   }),
 );

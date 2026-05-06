@@ -85,6 +85,33 @@ describe('Form Builder Admin', () => {
     );
   });
 
+  it('can process a chat message asynchronously for polling clients', async () => {
+    const startResponse = await app.post('/v1/admin/form-builder/chat').send({
+      async: true,
+      message: 'Build a referral form',
+    });
+
+    expect(startResponse.status).toBe(202);
+    expect(startResponse.body).toMatchObject({ status: 'pending' });
+
+    const pollResponse = await app.get(
+      `/v1/admin/form-builder/chat/jobs/${encodeURIComponent(startResponse.body.jobId)}`,
+    );
+
+    expect(pollResponse).toHaveSucceeded();
+    expect(pollResponse.body).toMatchObject({
+      status: 'complete',
+      result: {
+        sessionId: 'new-session-id',
+        message: 'AI response',
+        attachToProgramCode: 'ncd',
+        readyToExport: false,
+        readyToGenerate: false,
+        programDefinition: null,
+      },
+    });
+  });
+
   it('reuses an existing AI session', async () => {
     const response = await app.post('/v1/admin/form-builder/chat').send({
       sessionId: 'existing-session-id',

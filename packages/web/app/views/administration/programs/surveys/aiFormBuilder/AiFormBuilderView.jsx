@@ -42,6 +42,36 @@ import { useProgramsQuery } from '../queries';
 const getProgramCode = programId => programId?.replace(/^program-/, '');
 const getProgramDefinitionFileName = programDefinition =>
   `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
+const CHAT_JOB_POLL_INTERVAL_MS = 2000;
+
+const waitForChatJob = async ({ api, jobId, signal }) => {
+  while (!signal.aborted) {
+    const job = await api.get(
+      `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
+      {},
+      { signal },
+    );
+
+    if (job.status === 'complete') return job.result;
+    if (job.status === 'failed') {
+      throw new Error(job.error?.detail || job.error?.message || 'Unable to build the form');
+    }
+
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(resolve, CHAT_JOB_POLL_INTERVAL_MS);
+      signal.addEventListener(
+        'abort',
+        () => {
+          clearTimeout(timeout);
+          reject(new DOMException('The request was aborted.', 'AbortError'));
+        },
+        { once: true },
+      );
+    });
+  }
+
+  throw new DOMException('The request was aborted.', 'AbortError');
+};
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
@@ -138,6 +168,7 @@ export function AiFormBuilderView() {
     try {
       const selectedProgramCode = getProgramCode(selectedProgramId);
       const body = {
+        async: true,
         sessionId: state.sessionId,
         programDefinition: state.generatedForm
           ? normaliseProgramDefinition(state.generatedForm)
@@ -154,33 +185,36 @@ export function AiFormBuilderView() {
             signal: abortController.signal,
           })
         : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
+      const chatResponse = response.jobId
+        ? await waitForChatJob({ api, jobId: response.jobId, signal: abortController.signal })
+        : response;
 
       setState(current => {
-        const generatedFormIteration = response.programDefinition
+        const generatedFormIteration = chatResponse.programDefinition
           ? (current.generatedFormIteration ?? 0) + 1
           : current.generatedFormIteration;
 
         return {
           ...current,
-          sessionId: response.sessionId,
-          readyToExport: Boolean(response.readyToExport),
-          readyToGenerate: Boolean(response.readyToGenerate),
-          generatedForm: response.programDefinition
-            ? normaliseProgramDefinition(response.programDefinition)
+          sessionId: chatResponse.sessionId,
+          readyToExport: Boolean(chatResponse.readyToExport),
+          readyToGenerate: Boolean(chatResponse.readyToGenerate),
+          generatedForm: chatResponse.programDefinition
+            ? normaliseProgramDefinition(chatResponse.programDefinition)
             : current.generatedForm,
           generatedFormIteration,
-          savedSurveyId: response.programDefinition ? null : current.savedSurveyId,
+          savedSurveyId: chatResponse.programDefinition ? null : current.savedSurveyId,
           messages: [
             ...current.messages,
             createMessage({
               type: 'assistant',
-              text: response.message,
+              text: chatResponse.message,
             }),
-            ...(response.programDefinition
+            ...(chatResponse.programDefinition
               ? [
                   createMessage({
                     type: 'download',
-                    fileName: getProgramDefinitionFileName(response.programDefinition),
+                    fileName: getProgramDefinitionFileName(chatResponse.programDefinition),
                     iteration: generatedFormIteration,
                   }),
                 ]
