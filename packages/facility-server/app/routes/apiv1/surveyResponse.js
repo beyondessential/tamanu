@@ -184,13 +184,11 @@ surveyResponse.get(
     req.checkPermission('read', 'SurveyResponse');
 
     const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
-    if (!surveyResponseRecord) {
-      throw new NotFoundError('Survey response not found');
-    }
+    if (!surveyResponseRecord) throw new NotFoundError('Survey response not found');
+
     const survey = await surveyResponseRecord.getSurvey();
-    if (!survey) {
-      throw new NotFoundError('Associated survey not found');
-    }
+    if (!survey) throw new NotFoundError('Associated survey not found');
+
     if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
       throw new InvalidOperationError('Changelog is only available for program survey responses');
     }
@@ -199,25 +197,25 @@ surveyResponse.get(
 
     const rawRows = await db.query(
       `
-      SELECT
-        c.id,
-        c.created_at AS "loggedAt",
-        c.table_name AS "tableName",
-        c.record_id AS "recordId",
-        c.record_data AS "recordData",
-        c.updated_by_user_id AS "updatedByUserId",
-        u.display_name AS "changedByDisplayName"
-      FROM logs.changes c
-      LEFT JOIN users u ON u.id = c.updated_by_user_id
-      WHERE c.migration_context IS NULL
-        AND (
-          (c.table_name = 'survey_responses' AND c.record_id = :surveyResponseId)
-          OR (
-            c.table_name = 'survey_response_answers'
-            AND (c.record_data->>'response_id') = :surveyResponseId
-          )
-        )
-      ORDER BY c.created_at ASC
+        SELECT
+          c.id,
+          c.created_at AS "loggedAt",
+          c.table_name AS "tableName",
+          c.record_id AS "recordId",
+          c.record_data AS "recordData",
+          c.updated_by_user_id AS "updatedByUserId",
+          u.display_name AS "changedByDisplayName"
+        FROM
+          logs.changes c
+          LEFT JOIN users u ON u.id = c.updated_by_user_id
+        WHERE
+          c.migration_context IS NULL
+          AND ((c.table_name = 'survey_responses'
+              AND c.record_id = :surveyResponseId)
+            OR (c.table_name = 'survey_response_answers'
+              AND (c.record_data ->> 'response_id') = :surveyResponseId))
+        ORDER BY
+          c.created_at ASC
     `,
       {
         replacements: { surveyResponseId: params.id },
@@ -251,9 +249,7 @@ surveyResponse.get(
     const changes = editRowsOnly.map(row => {
       const prevRow = rowsWithSeq.find(
         r =>
-          r.tableName === row.tableName &&
-          r.recordId === row.recordId &&
-          r._seq === row._seq - 1,
+          r.tableName === row.tableName && r.recordId === row.recordId && r._seq === row._seq - 1,
       );
       const prevData = prevRow?.recordData ?? null;
       const fieldChanges = diffKeys(prevData, row.recordData);
