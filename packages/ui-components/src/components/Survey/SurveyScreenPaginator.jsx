@@ -48,7 +48,6 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisab
             data-testid="formsubmitbutton-pufy"
             disabled={completeButtonDisabled}
             onClick={onSurveyComplete}
-            type="submit"
             variant="contained"
           >
             <TranslatedText stringId="general.action.complete" fallback="Complete" />
