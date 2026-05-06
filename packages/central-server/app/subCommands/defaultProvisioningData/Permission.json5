@@ -1,0 +1,2063 @@
+{
+  "sheetName": "permission",
+  "columns": [
+    "id",
+    "roleId",
+    "verb",
+    "noun"
+  ],
+  "data": [
+    {
+      "id": "adminICT-AdministeredVaccine-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "AdministeredVaccine"
+    },
+    {
+      "id": "adminICT-AdministeredVaccine-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "AdministeredVaccine"
+    },
+    {
+      "id": "adminICT-AdministeredVaccine-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "AdministeredVaccine"
+    },
+    {
+      "id": "adminICT-AdministeredVaccine-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "AdministeredVaccine"
+    },
+    {
+      "id": "adminICT-Appointment-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Appointment"
+    },
+    {
+      "id": "adminICT-Appointment-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Appointment"
+    },
+    {
+      "id": "adminICT-Appointment-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Appointment"
+    },
+    {
+      "id": "adminICT-Appointment-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Appointment"
+    },
+    {
+      "id": "adminICT-Asset-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Asset"
+    },
+    {
+      "id": "adminICT-Asset-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Asset"
+    },
+    {
+      "id": "adminICT-Asset-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Asset"
+    },
+    {
+      "id": "adminICT-Asset-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Asset"
+    },
+    {
+      "id": "adminICT-Attachment-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Attachment"
+    },
+    {
+      "id": "adminICT-Attachment-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Attachment"
+    },
+    {
+      "id": "adminICT-Attachment-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Attachment"
+    },
+    {
+      "id": "adminICT-CertificateNotification-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "CertificateNotification"
+    },
+    {
+      "id": "adminICT-CertifiableVaccine-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "CertifiableVaccine"
+    },
+    {
+      "id": "adminICT-CertifiableVaccine-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "CertifiableVaccine"
+    },
+    {
+      "id": "adminICT-CertifiableVaccine-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "CertifiableVaccine"
+    },
+    {
+      "id": "adminICT-CertifiableVaccine-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "CertifiableVaccine"
+    },
+    {
+      "id": "adminICT-Charting-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Charting"
+    },
+    {
+      "id": "adminICT-Charting-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Charting"
+    },
+    {
+      "id": "adminICT-Charting-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Charting"
+    },
+    {
+      "id": "adminICT-Charting-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Charting"
+    },
+    {
+      "id": "adminICT-Charting-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Charting"
+    },
+    {
+      "id": "adminICT-Department-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Department"
+    },
+    {
+      "id": "adminICT-Department-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Department"
+    },
+    {
+      "id": "adminICT-Department-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Department"
+    },
+    {
+      "id": "adminICT-Department-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Department"
+    },
+    {
+      "id": "adminICT-Discharge-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Discharge"
+    },
+    {
+      "id": "adminICT-Discharge-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Discharge"
+    },
+    {
+      "id": "adminICT-Discharge-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Discharge"
+    },
+    {
+      "id": "adminICT-Discharge-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Discharge"
+    },
+    {
+      "id": "adminICT-DocumentMetadata-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "DocumentMetadata"
+    },
+    {
+      "id": "adminICT-DocumentMetadata-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "DocumentMetadata"
+    },
+    {
+      "id": "adminICT-DocumentMetadata-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "DocumentMetadata"
+    },
+    {
+      "id": "adminICT-DocumentMetadata-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "DocumentMetadata"
+    },
+    {
+      "id": "adminICT-DocumentMetadata-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "DocumentMetadata"
+    },
+    {
+      "id": "adminICT-Encounter-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Encounter"
+    },
+    {
+      "id": "adminICT-Encounter-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Encounter"
+    },
+    {
+      "id": "adminICT-Encounter-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Encounter"
+    },
+    {
+      "id": "adminICT-Encounter-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Encounter"
+    },
+    {
+      "id": "adminICT-Encounter-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Encounter"
+    },
+    {
+      "id": "adminICT-EncounterDiagnosis-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "EncounterDiagnosis"
+    },
+    {
+      "id": "adminICT-EncounterDiagnosis-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "EncounterDiagnosis"
+    },
+    {
+      "id": "adminICT-EncounterDiagnosis-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "EncounterDiagnosis"
+    },
+    {
+      "id": "adminICT-EncounterDiagnosis-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "EncounterDiagnosis"
+    },
+    {
+      "id": "adminICT-EncounterNote-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "EncounterNote"
+    },
+    {
+      "id": "adminICT-EncounterNote-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "EncounterNote"
+    },
+    {
+      "id": "adminICT-EncounterNote-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "EncounterNote"
+    },
+    {
+      "id": "adminICT-EncounterNote-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "EncounterNote"
+    },
+    {
+      "id": "adminICT-Facility-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Facility"
+    },
+    {
+      "id": "adminICT-Facility-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Facility"
+    },
+    {
+      "id": "adminICT-Facility-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Facility"
+    },
+    {
+      "id": "adminICT-Facility-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Facility"
+    },
+    {
+      "id": "adminICT-ImagingAreaExternalCode-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ImagingAreaExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingAreaExternalCode-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ImagingAreaExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingAreaExternalCode-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ImagingAreaExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingAreaExternalCode-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ImagingAreaExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingRequest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ImagingRequest"
+    },
+    {
+      "id": "adminICT-ImagingRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ImagingRequest"
+    },
+    {
+      "id": "adminICT-ImagingRequest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ImagingRequest"
+    },
+    {
+      "id": "adminICT-ImagingRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ImagingRequest"
+    },
+    {
+      "id": "adminICT-ImagingTypeExternalCode-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ImagingTypeExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingTypeExternalCode-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ImagingTypeExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingTypeExternalCode-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ImagingTypeExternalCode"
+    },
+    {
+      "id": "adminICT-ImagingTypeExternalCode-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ImagingTypeExternalCode"
+    },
+    {
+      "id": "adminICT-Invoice-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Invoice"
+    },
+    {
+      "id": "adminICT-Invoice-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Invoice"
+    },
+    {
+      "id": "adminICT-Invoice-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Invoice"
+    },
+    {
+      "id": "adminICT-Invoice-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Invoice"
+    },
+    {
+      "id": "adminICT-Invoice-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Invoice"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlan-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoiceInsurancePlan"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlan-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoiceInsurancePlan"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlan-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoiceInsurancePlan"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlan-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoiceInsurancePlan"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlanItem-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoiceInsurancePlanItem"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlanItem-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoiceInsurancePlanItem"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlanItem-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoiceInsurancePlanItem"
+    },
+    {
+      "id": "adminICT-InvoiceInsurancePlanItem-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoiceInsurancePlanItem"
+    },
+    {
+      "id": "adminICT-InvoicePayment-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoicePayment"
+    },
+    {
+      "id": "adminICT-InvoicePayment-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoicePayment"
+    },
+    {
+      "id": "adminICT-InvoicePayment-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoicePayment"
+    },
+    {
+      "id": "adminICT-InvoicePayment-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoicePayment"
+    },
+    {
+      "id": "adminICT-InvoicePriceList-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoicePriceList"
+    },
+    {
+      "id": "adminICT-InvoicePriceList-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoicePriceList"
+    },
+    {
+      "id": "adminICT-InvoicePriceList-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoicePriceList"
+    },
+    {
+      "id": "adminICT-InvoicePriceList-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoicePriceList"
+    },
+    {
+      "id": "adminICT-InvoicePriceListItem-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoicePriceListItem"
+    },
+    {
+      "id": "adminICT-InvoicePriceListItem-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoicePriceListItem"
+    },
+    {
+      "id": "adminICT-InvoicePriceListItem-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoicePriceListItem"
+    },
+    {
+      "id": "adminICT-InvoicePriceListItem-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoicePriceListItem"
+    },
+    {
+      "id": "adminICT-InvoiceProduct-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "InvoiceProduct"
+    },
+    {
+      "id": "adminICT-InvoiceProduct-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "InvoiceProduct"
+    },
+    {
+      "id": "adminICT-InvoiceProduct-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "InvoiceProduct"
+    },
+    {
+      "id": "adminICT-InvoiceProduct-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "InvoiceProduct"
+    },
+    {
+      "id": "adminICT-IPSRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "IPSRequest"
+    },
+    {
+      "id": "adminICT-IPSRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "IPSRequest"
+    },
+    {
+      "id": "adminICT-LabRequest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabRequest"
+    },
+    {
+      "id": "adminICT-LabRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabRequest"
+    },
+    {
+      "id": "adminICT-LabRequest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabRequest"
+    },
+    {
+      "id": "adminICT-LabRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LabRequest"
+    },
+    {
+      "id": "adminICT-LabRequestLog-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabRequestLog"
+    },
+    {
+      "id": "adminICT-LabRequestLog-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabRequestLog"
+    },
+    {
+      "id": "adminICT-LabRequestLog-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabRequestLog"
+    },
+    {
+      "id": "adminICT-LabRequestLog-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LabRequestLog"
+    },
+    {
+      "id": "adminICT-LabRequestStatus-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabRequestStatus"
+    },
+    {
+      "id": "adminICT-LabTest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabTest"
+    },
+    {
+      "id": "adminICT-LabTest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabTest"
+    },
+    {
+      "id": "adminICT-LabTest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabTest"
+    },
+    {
+      "id": "adminICT-LabTest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LabTest"
+    },
+    {
+      "id": "adminICT-LabTestPanel-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabTestPanel"
+    },
+    {
+      "id": "adminICT-LabTestPanel-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabTestPanel"
+    },
+    {
+      "id": "adminICT-LabTestPanel-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabTestPanel"
+    },
+    {
+      "id": "adminICT-LabTestPanel-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LabTestPanel"
+    },
+    {
+      "id": "adminICT-LabTestResult-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabTestResult"
+    },
+    {
+      "id": "adminICT-LabTestResult-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabTestResult"
+    },
+    {
+      "id": "adminICT-LabTestResult-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabTestResult"
+    },
+    {
+      "id": "adminICT-LabTestType-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LabTestType"
+    },
+    {
+      "id": "adminICT-LabTestType-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LabTestType"
+    },
+    {
+      "id": "adminICT-LabTestType-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LabTestType"
+    },
+    {
+      "id": "adminICT-LabTestType-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LabTestType"
+    },
+    {
+      "id": "adminICT-Location-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Location"
+    },
+    {
+      "id": "adminICT-Location-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Location"
+    },
+    {
+      "id": "adminICT-Location-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Location"
+    },
+    {
+      "id": "adminICT-Location-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Location"
+    },
+    {
+      "id": "adminICT-LocationAssignment-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LocationAssignment"
+    },
+    {
+      "id": "adminICT-LocationAssignment-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LocationAssignment"
+    },
+    {
+      "id": "adminICT-LocationGroup-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LocationGroup"
+    },
+    {
+      "id": "adminICT-LocationGroup-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LocationGroup"
+    },
+    {
+      "id": "adminICT-LocationGroup-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LocationGroup"
+    },
+    {
+      "id": "adminICT-LocationGroup-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LocationGroup"
+    },
+    {
+      "id": "adminICT-LocationSchedule-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "LocationSchedule"
+    },
+    {
+      "id": "adminICT-LocationSchedule-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "LocationSchedule"
+    },
+    {
+      "id": "adminICT-LocationSchedule-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "LocationSchedule"
+    },
+    {
+      "id": "adminICT-LocationSchedule-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "LocationSchedule"
+    },
+    {
+      "id": "adminICT-LocationSchedule-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "LocationSchedule"
+    },
+    {
+      "id": "adminICT-Medication-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Medication"
+    },
+    {
+      "id": "adminICT-Medication-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Medication"
+    },
+    {
+      "id": "adminICT-Medication-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Medication"
+    },
+    {
+      "id": "adminICT-Medication-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Medication"
+    },
+    {
+      "id": "adminICT-MedicationAdministration-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "MedicationAdministration"
+    },
+    {
+      "id": "adminICT-MedicationAdministration-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "MedicationAdministration"
+    },
+    {
+      "id": "adminICT-MedicationAdministration-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "MedicationAdministration"
+    },
+    {
+      "id": "adminICT-MedicationAdministration-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "MedicationAdministration"
+    },
+    {
+      "id": "adminICT-MedicationDispense-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "MedicationDispense"
+    },
+    {
+      "id": "adminICT-MedicationDispense-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "MedicationDispense"
+    },
+    {
+      "id": "adminICT-MedicationDispense-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "MedicationDispense"
+    },
+    {
+      "id": "adminICT-MedicationDispense-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "MedicationDispense"
+    },
+    {
+      "id": "adminICT-MedicationDispense-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "MedicationDispense"
+    },
+    {
+      "id": "adminICT-MedicationPharmacyNote-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "MedicationPharmacyNote"
+    },
+    {
+      "id": "adminICT-MedicationPharmacyNote-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "MedicationPharmacyNote"
+    },
+    {
+      "id": "adminICT-MedicationRequest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "MedicationRequest"
+    },
+    {
+      "id": "adminICT-MedicationRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "MedicationRequest"
+    },
+    {
+      "id": "adminICT-MedicationRequest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "MedicationRequest"
+    },
+    {
+      "id": "adminICT-MedicationRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "MedicationRequest"
+    },
+    {
+      "id": "adminICT-MedicationRequest-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "MedicationRequest"
+    },
+    {
+      "id": "adminICT-OtherPractitionerEncounterNote-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "OtherPractitionerEncounterNote"
+    },
+    {
+      "id": "adminICT-Patient-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Patient"
+    },
+    {
+      "id": "adminICT-Patient-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Patient"
+    },
+    {
+      "id": "adminICT-Patient-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Patient"
+    },
+    {
+      "id": "adminICT-Patient-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Patient"
+    },
+    {
+      "id": "adminICT-PatientAllergy-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientAllergy"
+    },
+    {
+      "id": "adminICT-PatientAllergy-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientAllergy"
+    },
+    {
+      "id": "adminICT-PatientAllergy-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientAllergy"
+    },
+    {
+      "id": "adminICT-PatientAllergy-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientAllergy"
+    },
+    {
+      "id": "adminICT-PatientBirthData-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientBirthData"
+    },
+    {
+      "id": "adminICT-PatientBirthData-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientBirthData"
+    },
+    {
+      "id": "adminICT-PatientCarePlan-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientCarePlan"
+    },
+    {
+      "id": "adminICT-PatientCarePlan-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientCarePlan"
+    },
+    {
+      "id": "adminICT-PatientCarePlan-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientCarePlan"
+    },
+    {
+      "id": "adminICT-PatientCarePlan-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientCarePlan"
+    },
+    {
+      "id": "adminICT-PatientCondition-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientCondition"
+    },
+    {
+      "id": "adminICT-PatientCondition-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientCondition"
+    },
+    {
+      "id": "adminICT-PatientCondition-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientCondition"
+    },
+    {
+      "id": "adminICT-PatientCondition-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientCondition"
+    },
+    {
+      "id": "adminICT-PatientCondition-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "PatientCondition"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinition-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientFieldDefinition"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinition-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientFieldDefinition"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinition-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientFieldDefinition"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinition-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientFieldDefinition"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinitionCategory-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientFieldDefinitionCategory"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinitionCategory-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientFieldDefinitionCategory"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinitionCategory-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientFieldDefinitionCategory"
+    },
+    {
+      "id": "adminICT-PatientFieldDefinitionCategory-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientFieldDefinitionCategory"
+    },
+    {
+      "id": "adminICT-PatientDeath-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientDeath"
+    },
+    {
+      "id": "adminICT-PatientDeath-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientDeath"
+    },
+    {
+      "id": "adminICT-PatientDeathData-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientDeathData"
+    },
+    {
+      "id": "adminICT-PatientDeathData-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientDeathData"
+    },
+    {
+      "id": "adminICT-PatientFamilyHistory-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientFamilyHistory"
+    },
+    {
+      "id": "adminICT-PatientFamilyHistory-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientFamilyHistory"
+    },
+    {
+      "id": "adminICT-PatientFamilyHistory-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientFamilyHistory"
+    },
+    {
+      "id": "adminICT-PatientFamilyHistory-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientFamilyHistory"
+    },
+    {
+      "id": "adminICT-PatientIssue-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientIssue"
+    },
+    {
+      "id": "adminICT-PatientIssue-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientIssue"
+    },
+    {
+      "id": "adminICT-PatientIssue-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientIssue"
+    },
+    {
+      "id": "adminICT-PatientIssue-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientIssue"
+    },
+    {
+      "id": "adminICT-PatientLetterTemplate-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientLetterTemplate"
+    },
+    {
+      "id": "adminICT-PatientLetterTemplate-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientLetterTemplate"
+    },
+    {
+      "id": "adminICT-PatientLetterTemplate-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientLetterTemplate"
+    },
+    {
+      "id": "adminICT-PatientPortalForm-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientPortalForm"
+    },
+    {
+      "id": "adminICT-PatientPortalForm-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientPortalForm"
+    },
+    {
+      "id": "adminICT-PatientPortalForm-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientPortalForm"
+    },
+    {
+      "id": "adminICT-PatientPortalForm-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "PatientPortalForm"
+    },
+    {
+      "id": "adminICT-PatientPortalRegistration-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientPortalRegistration"
+    },
+    {
+      "id": "adminICT-PatientPortalRegistration-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientPortalRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistration-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientProgramRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistration-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientProgramRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistration-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientProgramRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistration-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientProgramRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistration-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "PatientProgramRegistration"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistrationCondition-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientProgramRegistrationCondition"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistrationCondition-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientProgramRegistrationCondition"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistrationCondition-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientProgramRegistrationCondition"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistrationCondition-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientProgramRegistrationCondition"
+    },
+    {
+      "id": "adminICT-PatientProgramRegistrationCondition-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "PatientProgramRegistrationCondition"
+    },
+    {
+      "id": "adminICT-PatientSecondaryId-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientSecondaryId"
+    },
+    {
+      "id": "adminICT-PatientSecondaryId-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientSecondaryId"
+    },
+    {
+      "id": "adminICT-PatientSecondaryId-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientSecondaryId"
+    },
+    {
+      "id": "adminICT-PatientSecondaryId-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientSecondaryId"
+    },
+    {
+      "id": "adminICT-PatientVaccine-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "PatientVaccine"
+    },
+    {
+      "id": "adminICT-PatientVaccine-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "PatientVaccine"
+    },
+    {
+      "id": "adminICT-PatientVaccine-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "PatientVaccine"
+    },
+    {
+      "id": "adminICT-PatientVaccine-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "PatientVaccine"
+    },
+    {
+      "id": "adminICT-Permission-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Permission"
+    },
+    {
+      "id": "adminICT-Permission-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Permission"
+    },
+    {
+      "id": "adminICT-Permission-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Permission"
+    },
+    {
+      "id": "adminICT-Permission-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Permission"
+    },
+    {
+      "id": "adminICT-Permission-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Permission"
+    },
+    {
+      "id": "adminICT-Procedure-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Procedure"
+    },
+    {
+      "id": "adminICT-Procedure-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Procedure"
+    },
+    {
+      "id": "adminICT-Procedure-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Procedure"
+    },
+    {
+      "id": "adminICT-Procedure-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Procedure"
+    },
+    {
+      "id": "adminICT-Program-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Program"
+    },
+    {
+      "id": "adminICT-Program-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Program"
+    },
+    {
+      "id": "adminICT-Program-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Program"
+    },
+    {
+      "id": "adminICT-Program-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Program"
+    },
+    {
+      "id": "adminICT-ProgramRegistry-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ProgramRegistry"
+    },
+    {
+      "id": "adminICT-ProgramRegistry-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ProgramRegistry"
+    },
+    {
+      "id": "adminICT-ProgramRegistry-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ProgramRegistry"
+    },
+    {
+      "id": "adminICT-ProgramRegistryClinicalStatus-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ProgramRegistryClinicalStatus"
+    },
+    {
+      "id": "adminICT-ProgramRegistryClinicalStatus-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ProgramRegistryClinicalStatus"
+    },
+    {
+      "id": "adminICT-ProgramRegistryClinicalStatus-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ProgramRegistryClinicalStatus"
+    },
+    {
+      "id": "adminICT-ProgramRegistryCondition-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ProgramRegistryCondition"
+    },
+    {
+      "id": "adminICT-ProgramRegistryCondition-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ProgramRegistryCondition"
+    },
+    {
+      "id": "adminICT-ProgramRegistryCondition-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ProgramRegistryCondition"
+    },
+    {
+      "id": "adminICT-ProgramRegistryConditionCategory-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ProgramRegistryConditionCategory"
+    },
+    {
+      "id": "adminICT-ProgramRegistryConditionCategory-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ProgramRegistryConditionCategory"
+    },
+    {
+      "id": "adminICT-ProgramRegistryConditionCategory-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ProgramRegistryConditionCategory"
+    },
+    {
+      "id": "adminICT-ReferenceData-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ReferenceData"
+    },
+    {
+      "id": "adminICT-ReferenceData-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ReferenceData"
+    },
+    {
+      "id": "adminICT-ReferenceData-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReferenceData"
+    },
+    {
+      "id": "adminICT-ReferenceData-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ReferenceData"
+    },
+    {
+      "id": "adminICT-ReferenceData-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "ReferenceData"
+    },
+    {
+      "id": "adminICT-ReferenceDataRelation-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ReferenceDataRelation"
+    },
+    {
+      "id": "adminICT-ReferenceDataRelation-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ReferenceDataRelation"
+    },
+    {
+      "id": "adminICT-ReferenceDataRelation-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReferenceDataRelation"
+    },
+    {
+      "id": "adminICT-ReferenceDataRelation-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ReferenceDataRelation"
+    },
+    {
+      "id": "adminICT-Referral-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Referral"
+    },
+    {
+      "id": "adminICT-Referral-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Referral"
+    },
+    {
+      "id": "adminICT-Referral-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Referral"
+    },
+    {
+      "id": "adminICT-Referral-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Referral"
+    },
+    {
+      "id": "adminICT-Referral-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Referral"
+    },
+    {
+      "id": "adminICT-ReportDbSchema-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReportDbSchema"
+    },
+    {
+      "id": "adminICT-ReportDefinition-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ReportDefinition"
+    },
+    {
+      "id": "adminICT-ReportDefinition-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ReportDefinition"
+    },
+    {
+      "id": "adminICT-ReportDefinition-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReportDefinition"
+    },
+    {
+      "id": "adminICT-ReportDefinition-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ReportDefinition"
+    },
+    {
+      "id": "adminICT-ReportDefinition-run",
+      "roleId": "adminICT",
+      "verb": "run",
+      "noun": "ReportDefinition"
+    },
+    {
+      "id": "adminICT-ReportDefinitionVersion-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ReportDefinitionVersion"
+    },
+    {
+      "id": "adminICT-ReportDefinitionVersion-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ReportDefinitionVersion"
+    },
+    {
+      "id": "adminICT-ReportDefinitionVersion-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReportDefinitionVersion"
+    },
+    {
+      "id": "adminICT-ReportDefinitionVersion-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ReportDefinitionVersion"
+    },
+    {
+      "id": "adminICT-ReportRequest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ReportRequest"
+    },
+    {
+      "id": "adminICT-ReportRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ReportRequest"
+    },
+    {
+      "id": "adminICT-ReportRequest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ReportRequest"
+    },
+    {
+      "id": "adminICT-ReportRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ReportRequest"
+    },
+    {
+      "id": "adminICT-Role-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Role"
+    },
+    {
+      "id": "adminICT-Role-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Role"
+    },
+    {
+      "id": "adminICT-Role-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Role"
+    },
+    {
+      "id": "adminICT-Role-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Role"
+    },
+    {
+      "id": "adminICT-Role-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Role"
+    },
+    {
+      "id": "adminICT-ScheduledVaccine-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "ScheduledVaccine"
+    },
+    {
+      "id": "adminICT-ScheduledVaccine-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "ScheduledVaccine"
+    },
+    {
+      "id": "adminICT-ScheduledVaccine-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "ScheduledVaccine"
+    },
+    {
+      "id": "adminICT-ScheduledVaccine-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "ScheduledVaccine"
+    },
+    {
+      "id": "adminICT-SensitiveLabRequest-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "SensitiveLabRequest"
+    },
+    {
+      "id": "adminICT-SensitiveLabRequest-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "SensitiveLabRequest"
+    },
+    {
+      "id": "adminICT-SensitiveLabRequest-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "SensitiveLabRequest"
+    },
+    {
+      "id": "adminICT-SensitiveLabRequest-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "SensitiveLabRequest"
+    },
+    {
+      "id": "adminICT-SensitiveMedication-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "SensitiveMedication"
+    },
+    {
+      "id": "adminICT-SensitiveMedication-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "SensitiveMedication"
+    },
+    {
+      "id": "adminICT-SensitiveMedication-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "SensitiveMedication"
+    },
+    {
+      "id": "adminICT-SensitiveMedication-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "SensitiveMedication"
+    },
+    {
+      "id": "adminICT-Setting-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Setting"
+    },
+    {
+      "id": "adminICT-Setting-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Setting"
+    },
+    {
+      "id": "adminICT-Setting-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Setting"
+    },
+    {
+      "id": "adminICT-Signer-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Signer"
+    },
+    {
+      "id": "adminICT-Signer-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Signer"
+    },
+    {
+      "id": "adminICT-StaticReport-run",
+      "roleId": "adminICT",
+      "verb": "run",
+      "noun": "StaticReport"
+    },
+    {
+      "id": "adminICT-Survey-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Survey"
+    },
+    {
+      "id": "adminICT-Survey-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Survey"
+    },
+    {
+      "id": "adminICT-Survey-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Survey"
+    },
+    {
+      "id": "adminICT-Survey-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Survey"
+    },
+    {
+      "id": "adminICT-Survey-submit",
+      "roleId": "adminICT",
+      "verb": "submit",
+      "noun": "Survey"
+    },
+    {
+      "id": "adminICT-SurveyResponse-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "SurveyResponse"
+    },
+    {
+      "id": "adminICT-SurveyResponse-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "SurveyResponse"
+    },
+    {
+      "id": "adminICT-SurveyResponse-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "SurveyResponse"
+    },
+    {
+      "id": "adminICT-SurveyResponse-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "SurveyResponse"
+    },
+    {
+      "id": "adminICT-SurveyResponse-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "SurveyResponse"
+    },
+    {
+      "id": "adminICT-Tasking-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Tasking"
+    },
+    {
+      "id": "adminICT-Tasking-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Tasking"
+    },
+    {
+      "id": "adminICT-Tasking-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Tasking"
+    },
+    {
+      "id": "adminICT-Tasking-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Tasking"
+    },
+    {
+      "id": "adminICT-Tasking-delete",
+      "roleId": "adminICT",
+      "verb": "delete",
+      "noun": "Tasking"
+    },
+    {
+      "id": "adminICT-Template-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Template"
+    },
+    {
+      "id": "adminICT-Template-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Template"
+    },
+    {
+      "id": "adminICT-Template-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Template"
+    },
+    {
+      "id": "adminICT-Template-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Template"
+    },
+    {
+      "id": "adminICT-Translation-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Translation"
+    },
+    {
+      "id": "adminICT-TranslatedString-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "TranslatedString"
+    },
+    {
+      "id": "adminICT-TranslatedString-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "TranslatedString"
+    },
+    {
+      "id": "adminICT-TranslatedString-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "TranslatedString"
+    },
+    {
+      "id": "adminICT-TreatmentPlan-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "TreatmentPlan"
+    },
+    {
+      "id": "adminICT-TreatmentPlan-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "TreatmentPlan"
+    },
+    {
+      "id": "adminICT-TreatmentPlanNote-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "TreatmentPlanNote"
+    },
+    {
+      "id": "adminICT-Triage-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Triage"
+    },
+    {
+      "id": "adminICT-Triage-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Triage"
+    },
+    {
+      "id": "adminICT-Triage-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Triage"
+    },
+    {
+      "id": "adminICT-Triage-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Triage"
+    },
+    {
+      "id": "adminICT-User-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "User"
+    },
+    {
+      "id": "adminICT-User-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "User"
+    },
+    {
+      "id": "adminICT-User-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "User"
+    },
+    {
+      "id": "adminICT-User-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "User"
+    },
+    {
+      "id": "adminICT-UserDesignation-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "UserDesignation"
+    },
+    {
+      "id": "adminICT-UserDesignation-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "UserDesignation"
+    },
+    {
+      "id": "adminICT-UserDesignation-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "UserDesignation"
+    },
+    {
+      "id": "adminICT-UserDesignation-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "UserDesignation"
+    },
+    {
+      "id": "adminICT-Vitals-list",
+      "roleId": "adminICT",
+      "verb": "list",
+      "noun": "Vitals"
+    },
+    {
+      "id": "adminICT-Vitals-read",
+      "roleId": "adminICT",
+      "verb": "read",
+      "noun": "Vitals"
+    },
+    {
+      "id": "adminICT-Vitals-write",
+      "roleId": "adminICT",
+      "verb": "write",
+      "noun": "Vitals"
+    },
+    {
+      "id": "adminICT-Vitals-create",
+      "roleId": "adminICT",
+      "verb": "create",
+      "noun": "Vitals"
+    }
+  ]
+}

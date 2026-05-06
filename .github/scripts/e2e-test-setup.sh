@@ -83,6 +83,16 @@ EOF
                 password: "admin",
                 displayName: "Initial Admin",
             },
+            "adminict@tamanu.io": {
+                role: "adminICT",
+                password: "admin",
+                displayName: "Admin ICT",
+            },
+            "nopermissions@tamanu.io": {
+                role: "noPermissions",
+                password: "admin",
+                displayName: "No Permissions",
+            },
         },
 
         facilities: {

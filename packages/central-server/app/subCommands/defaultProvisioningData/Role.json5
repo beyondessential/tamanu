@@ -1,0 +1,17 @@
+{
+  "sheetName": "role",
+  "columns": [
+    "id",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "adminICT",
+      "name": "Admin ICT"
+    },
+    {
+      "id": "noPermissions",
+      "name": "No Permissions"
+    }
+  ]
+}
