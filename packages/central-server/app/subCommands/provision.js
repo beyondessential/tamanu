@@ -34,6 +34,9 @@ import { programImporter } from '../admin/programImporter/programImporter';
  * Generates permission rows for the adminICT role from the canonical PERMISSION_SCHEMA.
  * Excludes FHIR nouns (can't mix FHIR and regular permissions in one role) and the
  * `all: manage` wildcard (that would bypass normal permission checks).
+ *
+ * permissionLoader expects the matrix format: verb | noun | <roleName>...
+ * Each extra column is a role; a truthy value means the role has that permission.
  */
 const buildAdminIctPermissionRows = () => {
   const rows = [];
@@ -41,9 +44,7 @@ const buildAdminIctPermissionRows = () => {
     if (noun === 'all') continue;
     if (FHIR_PERMISSION_NOUNS.has(noun)) continue;
     for (const verb of verbs) {
-      // Column must be 'role' (the association name) — the importer's FK resolver
-      // expects this and renames it to 'roleId' after validating the foreign key.
-      rows.push({ id: `adminICT-${noun}-${verb}`, role: 'adminICT', verb, noun });
+      rows.push({ verb, noun, adminICT: 'y' });
     }
   }
   return rows;
@@ -54,7 +55,7 @@ const buildAdminIctPermissionRows = () => {
  * permissions always reflect the current PERMISSION_SCHEMA without a separate static file.
  */
 const appendGeneratedPermissionSheet = wb => {
-  const columns = ['id', 'role', 'verb', 'noun'];
+  const columns = ['verb', 'noun', 'adminICT'];
   const ws = utils.json_to_sheet(buildAdminIctPermissionRows(), { header: columns });
   utils.book_append_sheet(wb, ws, 'permission');
 };
