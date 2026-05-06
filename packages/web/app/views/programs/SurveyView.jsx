@@ -156,6 +156,7 @@ export const SurveyViewForm = ({
   );
 };
 
+/** @param {React.ComponentPropsWithRef<typeof SurveyViewForm>} props */
 export const SurveyView = props => {
   const { survey } = props;
   return (
