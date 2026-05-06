@@ -1,27 +1,28 @@
+import { subject } from '@casl/ability';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { isEqual } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import { subject } from '@casl/ability';
-import {
-  getActiveActionComponents,
-  getResultValue,
-  getStringValue,
-} from '@tamanu/shared/utils/fields';
-import { runCalculations } from '@tamanu/shared/utils/calculations';
-import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 
-import {
-  getPatientDataFieldAssociationData,
-  transformAnswers,
-} from '@tamanu/shared/reports/utilities/transformAnswers';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
+import {
+  getPatientDataFieldAssociationData,
+  transformAnswers,
+} from '@tamanu/shared/reports/utilities/transformAnswers';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
+import {
+  getActiveActionComponents,
+  getResultValue,
+  getStringValue,
+} from '@tamanu/shared/utils/fields';
+import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
 export const surveyResponse = express.Router();
 
@@ -173,6 +174,30 @@ async function handleSurveyResponseActions(
 }
 
 /**
+ * @param {Record<string, unknown>} prev
+ * @param {Record<string, unknown>} curr
+ */
+function diffKeys(prev, curr) {
+  if (!curr) return [];
+  const keys = new Set(Object.keys(prev).concat(Object.keys(curr)));
+
+  /** @type {{ fieldKey: string; from: any; to: any; }[]} */
+  const out = [];
+  for (const k of keys) {
+    const a = prev ? prev[k] : undefined;
+    const b = curr[k];
+    if (!isEqual(a, b)) {
+      out.push({
+        fieldKey: k,
+        from: a ?? null,
+        to: b ?? null,
+      });
+    }
+  }
+  return out;
+}
+
+/**
  * Survey response changelog for facility (logs.changes).
  * Response: { changes: Array<{ id, loggedAt, tableName, recordId, changedBy, fieldChanges, recordData }> }
  * fieldChanges: { fieldKey, from, to }[] — only rows after the first snapshot per DB record (edit history only).
@@ -231,20 +256,6 @@ surveyResponse.get(
     });
 
     const editRowsOnly = rowsWithSeq.filter(r => r._seq > 1);
-
-    const diffKeys = (prev, curr) => {
-      if (!curr) return [];
-      const keys = new Set([...Object.keys(prev || {}), ...Object.keys(curr)]);
-      const out = [];
-      for (const k of keys) {
-        const a = prev ? prev[k] : undefined;
-        const b = curr[k];
-        if (JSON.stringify(a) !== JSON.stringify(b)) {
-          out.push({ fieldKey: k, from: a ?? null, to: b ?? null });
-        }
-      }
-      return out;
-    };
 
     const changes = editRowsOnly.map(row => {
       const prevRow = rowsWithSeq.find(
