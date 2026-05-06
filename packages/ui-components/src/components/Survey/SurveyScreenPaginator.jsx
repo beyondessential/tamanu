@@ -7,7 +7,8 @@ import { SurveyScreen } from './SurveyScreen';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { usePaginatedForm } from './usePaginatedForm';
 
-const Text = styled.div`
+const Text = styled.p`
+  margin-block-start: 0;
   margin-block-end: 10px;
 `;
 
