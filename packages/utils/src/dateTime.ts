@@ -305,13 +305,15 @@ export const intlFormatDate = (
   fallback = 'Unknown',
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
+  localeOverride?: string,
 ) => {
   if (!date) return fallback;
+  const displayLocale = localeOverride ?? locale;
 
   try {
     if (date instanceof Date) {
       if (!isValid(date)) return fallback;
-      return date.toLocaleString(locale, formatOptions);
+      return date.toLocaleString(displayLocale, formatOptions);
     }
 
     if (isISO9075DateString(date)) {
@@ -319,9 +321,9 @@ export const intlFormatDate = (
       const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
       const hasTimeOptions = timeKeys.some(key => key in formatOptions);
       if (hasTimeOptions) {
-        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+        return plainDate.toPlainDateTime().toLocaleString(displayLocale, formatOptions);
       }
-      return plainDate.toLocaleString(locale, formatOptions);
+      return plainDate.toLocaleString(displayLocale, formatOptions);
     }
 
     const displayTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
@@ -331,10 +333,10 @@ export const intlFormatDate = (
       return plain
         .toZonedDateTime(primaryTimeZone)
         .withTimeZone(displayTz)
-        .toLocaleString(locale, formatOptions);
+        .toLocaleString(displayLocale, formatOptions);
     }
 
-    return plain.toLocaleString(locale, formatOptions);
+    return plain.toLocaleString(displayLocale, formatOptions);
   } catch (error) {
     logDateError('intlFormatDate', error, date, primaryTimeZone, facilityTimeZone);
     return fallback;

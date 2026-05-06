@@ -1,0 +1,12 @@
+scenarios:
+  - name: Patient check duplicates (demographics and display id)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: preparePatientCheckDuplicatesPayload
+      - post:
+          url: '/api/patient/checkDuplicates'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{patientCheckDuplicatesPayload}}'

@@ -7,7 +7,7 @@ import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 export const patientFieldDefinition = permissionCheckingRouter('read', 'Patient');
 
 patientFieldDefinition.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const values = await req.db.query(
       `
