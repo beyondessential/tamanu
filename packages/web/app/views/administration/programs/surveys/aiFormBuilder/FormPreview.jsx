@@ -118,6 +118,34 @@ const PreviewSubmitTooltipTarget = styled.div`
   display: inline-flex;
 `;
 
+const PreviewPatientDataValue = styled.div`
+  color: ${TAMANU_COLORS.darkText};
+  font-size: 14px;
+  line-height: 1.4;
+  margin-block-end: 10px;
+`;
+
+function PreviewPatientDataField({ label, value }) {
+  return (
+    <PreviewPatientDataValue>
+      {label}: {value || (
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.preview.patientDataPlaceholder"
+          fallback="Patient record value"
+        />
+      )}
+    </PreviewPatientDataValue>
+  );
+}
+
+const getPreviewComponentForQuestionType = (type, config) => {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && !config.writeToPatient) {
+    return PreviewPatientDataField;
+  }
+
+  return getComponentForQuestionType(type, config);
+};
+
 const createPreviewSurvey = form => {
   const survey = form.surveys[0];
   const surveySheet =
@@ -228,7 +256,7 @@ export function FormPreview({ form, isSaved }) {
                 errors={errors}
                 setStatus={setStatus}
                 status={status}
-                getComponentForQuestionType={getComponentForQuestionType}
+                getComponentForQuestionType={getPreviewComponentForQuestionType}
                 onScreenIndexChange={setActiveScreenIndex}
                 summarySubmitButton={<PreviewSubmitButton />}
               />

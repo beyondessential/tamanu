@@ -227,9 +227,12 @@ Patient registry rules:
 - Patient registry configuration is out of scope for this generated
   ProgramDefinition. Do not include a top-level registry object in the output.
 - Survey question types that interact with existing patient or registry-related
-  data are still in scope when requested. For PatientData write-to-patient
-  behaviour, include the required config (including writeToPatient.fieldName
-  and writeToPatient.fieldType). Use action/writeback question types only when
+  data are still in scope when requested. For read-only PatientData, use
+  config.column, not config.fieldName. Examples: patient age uses
+  {"column":"age"} or {"column":"ageWithMonths"}; patient sex uses
+  {"column":"sex"}. For PatientData write-to-patient behaviour, include the
+  required config (including writeToPatient.fieldName and
+  writeToPatient.fieldType). Use action/writeback question types only when
   explicitly requested and the required config is known; otherwise use normal
   survey question types.
 - PatientIssue questions require config.issueType and config.issueNote. Only
