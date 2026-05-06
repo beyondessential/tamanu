@@ -1,10 +1,12 @@
+import { Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Typography } from '@material-ui/core';
-import { FormSubmitButton, OutlinedButton, ButtonRow } from '../Button';
-import { SurveyScreen } from './SurveyScreen';
+import { useTranslation } from '../../contexts';
+import { ButtonRow, FormSubmitButton, OutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { SurveyScreen } from './SurveyScreen';
 import { usePaginatedForm } from './usePaginatedForm';
 
 const Text = styled.p`
@@ -16,36 +18,46 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisabled }) => (
-  <div>
-    <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
-      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
-    </Typography>
-    <Text data-testid="text-am03">
-      <TranslatedText
-        stringId="program.modal.surveyResponse.completeMessage"
-        fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-      />
-    </Text>
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisabled }) => {
+  const { getTranslation } = useTranslation();
+  return (
     <div>
-      <StyledButtonRow data-testid="styledbuttonrow-ljfc">
-        <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
-          <TranslatedText stringId="general.action.prev" fallback="Prev" />
-        </OutlinedButton>
-        <FormSubmitButton
-          color="primary"
-          data-testid="formsubmitbutton-pufy"
-          disabled={completeButtonDisabled}
-          onClick={onSurveyComplete}
-          type="submit"
-          variant="contained"
-        >
-          <TranslatedText stringId="general.action.complete" fallback="Complete" />
-        </FormSubmitButton>
-      </StyledButtonRow>
+      <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
+        <TranslatedText
+          stringId="program.modal.surveyResponse.complete"
+          fallback="Survey complete"
+        />
+      </Typography>
+      <Text data-testid="text-am03">
+        <TranslatedText
+          stringId="program.modal.surveyResponse.completeMessage"
+          fallback="Press “:complete” to submit your response, or use the “:prev” button to review answers."
+          replacements={{
+            complete: getTranslation('general.action.complete', 'Complete'),
+            prev: getTranslation('general.action.previous', 'Prev'),
+          }}
+        />
+      </Text>
+      <div>
+        <StyledButtonRow data-testid="styledbuttonrow-ljfc">
+          <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
+            <TranslatedText stringId="general.action.prev" fallback="Prev" />
+          </OutlinedButton>
+          <FormSubmitButton
+            color="primary"
+            data-testid="formsubmitbutton-pufy"
+            disabled={completeButtonDisabled}
+            onClick={onSurveyComplete}
+            type="submit"
+            variant="contained"
+          >
+            <TranslatedText stringId="general.action.complete" fallback="Complete" />
+          </FormSubmitButton>
+        </StyledButtonRow>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const SurveyScreenPaginator = ({
   survey,
