@@ -10,6 +10,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 <summary>Options</summary>
 
 - [ ] Synthetic test <!-- #deployopt %synthetic -->
+- [ ] E2E tests <!-- #e2e -->
 
 </details>
 
