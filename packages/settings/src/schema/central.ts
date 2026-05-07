@@ -11,6 +11,7 @@ import {
   datelessTimeStringSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
+import { patientSummaryProperties } from './definitions/patientSummary';
 
 export const centralSettings = {
   name: 'Central server settings',
@@ -37,6 +38,12 @@ export const centralSettings = {
           description: 'The Anthropic model to use for AI features',
           type: yup.string(),
           defaultValue: 'claude-sonnet-4-20250514',
+        },
+        patientSummarySystemPrompt: {
+          name: 'Patient summary system prompt',
+          description: 'The system prompt to use for the patient summary',
+          type: yup.string(),
+          defaultValue: '',
         },
       },
     },
@@ -244,6 +251,7 @@ export const centralSettings = {
       },
     },
     formBuilder: formBuilderProperties,
+    patientSummary: patientSummaryProperties,
     integrations: {
       description: 'Integrations with external services',
       properties: {
