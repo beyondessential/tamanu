@@ -471,6 +471,7 @@ surveyResponse.patch(
         attributes: ['id', 'dataElementId', 'body'],
         where: { responseId: params.id },
       });
+      const answerByDataElementId = new Map(responseAnswers.map(a => [a.dataElementId, a]));
 
       const mergedAnswerValues = {};
       for (const answer of responseAnswers) {
@@ -485,20 +486,21 @@ surveyResponse.patch(
         if (value === null) continue;
 
         const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
-        const bodyValue = await getBodyForAnswer(dataElementType, value, models);
-        if (bodyValue === null) continue;
+        const body = await getBodyForAnswer(dataElementType, value, models);
+        if (body === null) continue;
 
-        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
+        const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
-          await existingAnswer.update({ body: bodyValue });
+          await existingAnswer.update({ body });
         } else {
-          await models.SurveyResponseAnswer.create({
+          const createdAnswer = await models.SurveyResponseAnswer.create({
             dataElementId,
-            body: bodyValue,
+            body,
             responseId: params.id,
           });
+          answerByDataElementId.set(dataElementId, createdAnswer);
         }
-        mergedAnswerValues[dataElementId] = bodyValue;
+        mergedAnswerValues[dataElementId] = body;
       }
 
       // Recalculate calculated questions and persist them
@@ -507,15 +509,16 @@ surveyResponse.patch(
         if (!validDataElementIds.has(dataElementId)) continue;
         const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
         const bodyValue = getStringValue(dataElementType, value) ?? '';
-        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
+        const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
           await existingAnswer.update({ body: bodyValue });
         } else {
-          await models.SurveyResponseAnswer.create({
+          const createdAnswer = await models.SurveyResponseAnswer.create({
             dataElementId,
             body: bodyValue,
             responseId: params.id,
           });
+          answerByDataElementId.set(dataElementId, createdAnswer);
         }
         mergedAnswerValues[dataElementId] = bodyValue;
       }
