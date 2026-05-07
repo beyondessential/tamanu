@@ -1,3 +1,4 @@
+export * from './ai.js';
 export * from './appointments.js';
 export * from './auth.js';
 export * from './binary.js';
