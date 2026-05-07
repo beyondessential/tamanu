@@ -119,6 +119,8 @@ const getImageMediaTypeFromBuffer = buffer => {
   return null;
 };
 
+const isPdfBuffer = buffer => buffer.subarray(0, 5).toString('ascii') === '%PDF-';
+
 export const formBuilderRouter = express.Router();
 
 const truncateFileContext = content => {
@@ -166,20 +168,21 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
     return `[${tag}]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
   }
 
-  if (extension === '.pdf' || contentType === 'application/pdf') {
+  const fileBuffer = await fs.readFile(file);
+
+  if (extension === '.pdf' || contentType === 'application/pdf' || isPdfBuffer(fileBuffer)) {
     try {
       const interpretedPdf = await aiService.interpretFormBuilderPdf({
-        pdfBase64: (await fs.readFile(file)).toString('base64'),
+        pdfBase64: fileBuffer.toString('base64'),
         fileName: sanitizeFileNameForPrompt(fileName),
       });
       return `[PDF DOCUMENT INTERPRETED]\n${interpretedPdf}`;
     } catch (error) {
       log.warn({ error }, 'AI form builder failed to interpret uploaded PDF');
-      return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed; make a best-effort draft from the filename and conversation, and explain that the PDF content could not be read.`;
+      return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed. Do not stop to ask for another upload; make a best-effort draft from the filename and conversation, and mention that the PDF content could not be interpreted.`;
     }
   }
 
-  const fileBuffer = await fs.readFile(file);
   const mediaType =
     (IMAGE_CONTENT_TYPES.has(contentType) ? contentType : null) ||
     IMAGE_MEDIA_TYPES_BY_EXTENSION[extension] ||

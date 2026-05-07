@@ -197,6 +197,27 @@ describe('Form Builder Admin', () => {
     );
   });
 
+  it('interprets uploaded PDFs by file signature when upload metadata is missing', async () => {
+    const pdfBuffer = Buffer.from('%PDF-1.4 fake pdf content');
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Use this PDF' }))
+      .attach('file', pdfBuffer, {
+        filename: 'blob',
+        contentType: 'application/octet-stream',
+      });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.interpretFormBuilderPdf).toHaveBeenCalledWith({
+      pdfBase64: pdfBuffer.toString('base64'),
+      fileName: 'blob',
+    });
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      '[PDF DOCUMENT INTERPRETED]\nSECTION: PDF Referral\nQUESTION: Patient name\n\nUse this PDF',
+    );
+  });
+
   it('generates a program definition for the ready to export state', async () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Your form is ready to export.',

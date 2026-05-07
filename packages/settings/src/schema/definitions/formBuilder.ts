@@ -49,8 +49,8 @@ than dropping the detail. If a PDF fallback note says interpretation failed
 and no extracted form content is present elsewhere in the conversation,
 make a best-effort draft from any title, filename, user instructions, and
 clinical context available. Clearly state that the draft is less faithful
-because the PDF content could not be interpreted, and invite the user to paste
-text or provide another file if they want a closer conversion.`;
+because the PDF content could not be interpreted. Do not stop to ask for
+another upload before generating the draft.`;
 
 const interpretFormImageDefault = `Examine this image or PDF — it may be a paper form, whiteboard diagram, screenshot,
 photograph, or document related to a clinical program form.
