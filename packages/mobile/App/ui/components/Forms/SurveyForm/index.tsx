@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
@@ -132,6 +133,8 @@ export const SurveyForm = ({
     >
       {({ values, setValues, isSubmitting }: FormikProps<any>): ReactElement => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
+        const lastAppliedCalculatedValuesRef = useRef<Record<string, any>>({});
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -141,13 +144,19 @@ export const SurveyForm = ({
 
           if (changes.length > 0) {
             const changedCalculatedValues = Object.fromEntries(changes);
-            setValues(
-              prev => ({
-                ...prev,
-                ...changedCalculatedValues,
-              }),
-              false,
+            const hasNewCalculatedValue = changes.some(
+              ([key, value]) => lastAppliedCalculatedValuesRef.current[key] !== value,
             );
+            if (hasNewCalculatedValue) {
+              lastAppliedCalculatedValuesRef.current = {
+                ...lastAppliedCalculatedValuesRef.current,
+                ...changedCalculatedValues,
+              };
+              setValues(
+                { ...values, ...changedCalculatedValues },
+                false,
+              );
+            }
           }
 
           const nextFormValues = {
