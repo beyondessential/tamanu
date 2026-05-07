@@ -217,11 +217,30 @@ export const fakeBool = () => chance.bool();
 
 /** Matches Sequelize abstract float types without relying on handler map key coercion. */
 function isSequelizeApproximateNumericType(type: unknown): boolean {
-  if (!type || typeof type !== 'object') {
+  if (type == null) {
     return false;
   }
-  const ctor = (type as { constructor?: { name?: string } }).constructor?.name;
-  return ctor === 'FLOAT' || ctor === 'DOUBLE' || ctor === 'REAL' || ctor === 'DECIMAL';
+  const floatKeys = new Set(['FLOAT', 'DOUBLE PRECISION', 'REAL', 'DECIMAL']);
+  if (typeof type === 'object' && typeof (type as { key?: unknown }).key === 'string') {
+    if (floatKeys.has((type as { key: string }).key)) {
+      return true;
+    }
+  }
+  if (typeof type === 'function') {
+    const n = (type as { name?: string }).name;
+    return n === 'FLOAT' || n === 'DOUBLE' || n === 'REAL' || n === 'DECIMAL';
+  }
+  if (typeof type === 'object') {
+    const ctor = (type as { constructor?: { name?: string } }).constructor?.name;
+    if (ctor === 'FLOAT' || ctor === 'DOUBLE' || ctor === 'REAL' || ctor === 'DECIMAL') {
+      return true;
+    }
+    const asString = String(type);
+    if (floatKeys.has(asString) || asString === 'DOUBLE') {
+      return true;
+    }
+  }
+  return false;
 }
 
 const FIELD_HANDLERS = {
@@ -575,6 +594,18 @@ export const fake = (
 
     if (overrideFields.includes(fieldName) || overrideFields.includes(name)) {
       return overrides[fieldName] ?? overrides[name];
+    }
+
+    // Optional lab reference bounds — do not depend on MODEL_SPECIFIC_OVERRIDES / type map
+    // (migration determinism can run an older tree or a build where overrides are absent).
+    if (
+      model.tableName === 'lab_tests' &&
+      (name === 'referenceRangeMin' ||
+        name === 'referenceRangeMax' ||
+        name === 'reference_range_min' ||
+        name === 'reference_range_max')
+    ) {
+      return null;
     }
 
     if (attribute.references) {
