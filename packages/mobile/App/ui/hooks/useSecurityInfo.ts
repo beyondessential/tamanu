@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { NativeModules } from 'react-native';
 import { SETTING_KEYS } from '@tamanu/constants';
 import {
@@ -74,19 +74,34 @@ export const useSecurityInfo = () => {
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
+  // Track whether the initial check for the current sign-in session has completed.
+  // Subsequent foreground-return checks (e.g. returning from the camera) should still
+  // re-validate security, but must not show the blocking loading screen — doing so
+  // unmounts the entire navigation stack, causing in-flight work (e.g. photo saves) to
+  // be lost and form state to reset.
+  const hasCheckedSinceSignIn = useRef(false);
 
   const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   const fetchSecurityInfo = useCallback(async () => {
-    setIsLoading(true);
+    if (!hasCheckedSinceSignIn.current) {
+      setIsLoading(true);
+    }
     const storageEncryptionStatus = await getStorageEncryptionStatus();
     const isStorageEncryptedValue = checkIsStorageEncrypted(storageEncryptionStatus);
     const isDeviceSecureValue = await checkIsDeviceSecure();
     setIsStorageEncrypted(isStorageEncryptedValue);
     setIsDeviceSecure(isDeviceSecureValue);
+    hasCheckedSinceSignIn.current = true;
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (!signedIn) {
+      hasCheckedSinceSignIn.current = false;
+    }
+  }, [signedIn]);
 
   useEffect(() => {
     if (signedIn && isForeground) {
