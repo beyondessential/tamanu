@@ -4,6 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
   merge_group:
+  workflow_dispatch:
 
 permissions:
   contents: read
