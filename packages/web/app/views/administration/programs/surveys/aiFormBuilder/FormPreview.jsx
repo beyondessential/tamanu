@@ -156,22 +156,6 @@ const PreviewSubmitTooltipTarget = styled.div`
   display: inline-flex;
 `;
 
-const PreviewSubmitTooltip = styled(ThemedTooltip)`
-  .MuiTooltip-tooltip {
-    background-color: ${TAMANU_COLORS.darkText};
-    border-radius: 4px;
-    color: ${TAMANU_COLORS.white};
-    font-size: 16px;
-    font-weight: 600;
-    max-inline-size: none;
-    padding: 9px 16px;
-  }
-
-  .MuiTooltip-arrow {
-    display: none;
-  }
-`;
-
 const PreviewPatientDataValue = styled.div`
   color: ${TAMANU_COLORS.darkText};
   font-size: 14px;
@@ -241,8 +225,7 @@ const getPreviewScreenCount = survey =>
 
 function PreviewSubmitButton() {
   return (
-    <PreviewSubmitTooltip
-      arrow={false}
+    <ThemedTooltip
       placement="bottom"
       title={
         <TranslatedText
@@ -256,7 +239,7 @@ function PreviewSubmitButton() {
           <TranslatedText stringId="general.action.submit" fallback="Submit" />
         </Button>
       </PreviewSubmitTooltipTarget>
-    </PreviewSubmitTooltip>
+    </ThemedTooltip>
   );
 }
 
