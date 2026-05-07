@@ -226,6 +226,12 @@ Survey and question rules:
 - For mandatory questions: set validationCriteria to {"mandatory":true}
 - For number questions with a range: {"mandatory":true,"min":X,"max":Y}
 - For number questions with a normal/reference range: add "normalRange":{"min":X,"max":Y} (valid on Number, CalculatedQuestion, Result)
+- For CalculatedQuestion and Result calculations: use plain math.js expressions
+  without a leading "=". Reference other answers by their question code only,
+  not the "pde-" data element id. For example use
+  "ncdreview001 + ncdreview002" or
+  "sum(ncdreview001, ncdreview002, ncdreview003)", not
+  "=SUM(...)" and not "pde-ncdreview001 + pde-ncdreview002".
 - For visibilityCriteria use this JSON format:
   {"_conjunction":"and","conditions":[{"_type":"answer","questionId":"pde-QUESTION-CODE","_value":"VALUE","_comparison":"="}]}
 - surveyType should be "programs" unless there is a specific reason otherwise
@@ -297,6 +303,12 @@ validationCriteria, include replaceQuestion operations for every affected
 question. If the request is unclear, make the smallest safe change that matches
 the user's words rather than asking another broad question.
 
+For CalculatedQuestion and Result calculations, use plain math.js expressions
+without a leading "=". Reference other answers by their question code only, not
+the "pde-" data element id. For example use "ncdreview001 + ncdreview002" or
+"sum(ncdreview001, ncdreview002, ncdreview003)", not "=SUM(...)" and not
+"pde-ncdreview001 + pde-ncdreview002".
+
 Only include config keys that are explicitly supported for the question type:
 Autocomplete: source, scope, where; UserData: column; PatientData: column,
 source, where, writeToPatient; SurveyLink/SurveyResult/SurveyAnswer: source;
@@ -325,8 +337,11 @@ HOW TO FIX EACH ERROR TYPE
 - "Binary/Checkbox: options field is set" → clear the options field; keep the type
 - "Select/Radio/MultiSelect: no options defined" → add comma-separated options
   inferred from the question text or surrounding context; keep the type
-- "CalculatedQuestion: no calculation formula" → add the formula referencing
-  pde-{code} ids; keep type as CalculatedQuestion
+- "CalculatedQuestion: no calculation formula" → add a plain math.js formula
+  referencing question codes only; keep type as CalculatedQuestion
+- "calculation is not a valid math.js expression" → remove any leading "=",
+  use question codes only, and use math.js syntax such as
+  "question001 + question002" or "sum(question001, question002)"
 - "visibilityCriteria is not valid JSON" → fix the JSON; if unrecoverable, clear the field
 - "validationCriteria is not valid JSON" → fix the JSON; if unrecoverable, clear the field
 - "config is not valid JSON" → fix the JSON; if unrecoverable, clear the field

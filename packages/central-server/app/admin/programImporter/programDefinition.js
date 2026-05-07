@@ -76,6 +76,9 @@ const parseObjectField = value => {
 const pickKnownKeys = (object, keys) =>
   Object.fromEntries(Object.entries(object).filter(([key]) => keys.includes(key)));
 
+const normalizeCalculation = calculation =>
+  typeof calculation === 'string' ? calculation.trim().replace(/^=\s*/, '') : calculation;
+
 const sanitizeQuestionConfig = question => {
   const config = parseObjectField(question.config);
   if (!config) return question;
@@ -124,12 +127,23 @@ const sanitizeSurveyMetadata = survey => {
   return sanitizedSurvey;
 };
 
+const sanitizeQuestion = question => {
+  const sanitizedQuestion = sanitizeQuestionConfig(question);
+  const calculation = normalizeCalculation(sanitizedQuestion.calculation);
+  return calculation == null
+    ? sanitizedQuestion
+    : {
+        ...sanitizedQuestion,
+        calculation,
+      };
+};
+
 export const sanitizeProgramDefinitionPreview = programDefinition => ({
   ...programDefinition,
   surveys: programDefinition.surveys.map(sanitizeSurveyMetadata),
   surveySheets: programDefinition.surveySheets.map(surveySheet => ({
     ...surveySheet,
-    questions: surveySheet.questions.map(sanitizeQuestionConfig),
+    questions: surveySheet.questions.map(sanitizeQuestion),
   })),
 });
 

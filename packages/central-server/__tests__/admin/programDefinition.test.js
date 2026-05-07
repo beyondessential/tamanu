@@ -71,4 +71,32 @@ describe('programDefinition', () => {
       ],
     });
   });
+
+  it('normalizes generated Excel-style calculations to math.js expressions', () => {
+    expect(
+      sanitizeProgramDefinitionPreview({
+        title: 'NCD Follow-up Review',
+        surveys: [
+          {
+            code: 'ncdreview',
+            name: 'NCD Follow-up Review',
+          },
+        ],
+        surveySheets: [
+          {
+            surveyName: 'NCD Follow-up Review',
+            questions: [
+              {
+                code: 'ncdreview010',
+                name: 'ncdreview010',
+                text: 'Total score',
+                type: 'CalculatedQuestion',
+                calculation: '=SUM(ncdreview001, ncdreview002)',
+              },
+            ],
+          },
+        ],
+      }).surveySheets[0].questions[0].calculation,
+    ).toBe('SUM(ncdreview001, ncdreview002)');
+  });
 });
