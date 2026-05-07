@@ -31,7 +31,7 @@ export const centralSettings = {
           name: 'Anthropic API key',
           description: 'API key for the Anthropic API',
           type: yup.string(),
-          defaultValue: '',
+          secret: true,
         },
         anthropicModel: {
           name: 'Anthropic model',

@@ -43,15 +43,15 @@ Encounter data
 `;
 
 export const patientSummaryProperties = {
-    name: 'Patient summary',
-    description: 'Settings for the patient summary',
-    properties: {
-        prompts: {
-            name: 'System prompt',
-            description: 'The system prompt to use for the patient summary',
-            type: yup.string(),
-            editor: SETTING_EDITORS.MARKDOWN,
-            defaultValue: PATIENT_SUMMARY_PROMPT,
-        },
+  name: 'Patient summary',
+  description: 'Settings for the patient summary',
+  properties: {
+    prompts: {
+      name: 'System prompt',
+      description: 'The system prompt to use for the patient summary',
+      type: yup.string(),
+      editor: SETTING_EDITORS.MARKDOWN,
+      defaultValue: PATIENT_SUMMARY_PROMPT,
     },
+  },
 };
