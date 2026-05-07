@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
@@ -114,6 +114,14 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [imagePath, setImagePath] = useState(null);
   const { models, centralServer } = useBackend();
 
+  // Use a ref so in-flight async callbacks (camera/library picker) always call the
+  // latest onChange even if the parent re-renders and passes a new handler while the
+  // picker is open (which happens when the SurveyFormInner resume handler fires setValues).
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
   const removeAttachment = useCallback(async (value, imagePath) => {
     if (value) {
       await models.Attachment.delete(value);
@@ -125,7 +133,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   }, []);
 
   const removePhotoCallback = useCallback(async () => {
-    onChange(null);
+    onChangeRef.current(null);
     setImageData(null);
     await removeAttachment(value, imagePath);
   }, [value, imagePath]);
@@ -182,7 +190,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         type: 'image/jpeg',
       });
 
-      onChange(id);
+      onChangeRef.current(id);
       setImagePath(path);
       setImageData(image.base64);
       setLoading(false);
