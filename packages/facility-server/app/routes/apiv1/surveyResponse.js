@@ -63,11 +63,14 @@ async function createPatientIssues(models, questions, patientId, recordedDate) {
     };
     if (recordedDate) issueData.recordedDate = recordedDate;
 
-    // Prevent duplicate issues when program responses are edited (PATCH re-runs actions)
-    const existing = await models.PatientIssue.findOne({ where: issueData });
-    if (existing) continue;
-
-    await models.PatientIssue.create(issueData);
+    await models.PatientIssue.sequelize.transaction(async () => {
+      const existing = await models.PatientIssue.findOne({
+        attributes: ['id'], // Arbitrary projection, just checking existence
+        where: issueData,
+      });
+      if (existing !== null) return; // Prevent duplicates when program responses are edited
+      await models.PatientIssue.create(issueData);
+    });
   }
 }
 
