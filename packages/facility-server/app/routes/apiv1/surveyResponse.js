@@ -539,13 +539,20 @@ surveyResponse.patch(
       });
       await responseRecord.update({ result, resultText });
 
+      const patientIdForActions = responseRecord.patientId ?? encounter?.patientId;
+      if (!patientIdForActions) {
+        throw new InvalidOperationError(
+          'Cannot re-run survey actions: survey response has no patient (missing patientId and encounter patient)',
+        );
+      }
+
       // Re-run actions without changing submission time
       await handleSurveyResponseActions(
         models,
         facilityId,
         components,
         mergedAnswerValues,
-        responseRecord.patientId,
+        patientIdForActions,
         responseRecord.surveyId,
         req.user.id,
         responseRecord.endTime,

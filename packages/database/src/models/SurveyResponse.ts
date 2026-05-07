@@ -440,7 +440,7 @@ export class SurveyResponse extends Model {
       encounterType: encounter.encounterType,
     });
     const record = await SurveyResponse.create({
-      patientId,
+      patientId: patientId ?? encounter.patientId,
       surveyId,
       encounterId: encounter.id,
       result,
