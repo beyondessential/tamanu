@@ -45,7 +45,10 @@ Do not replace it with a generic clinical template or add whole sections that
 are not present unless the user asks. Convert each visible checkbox/yes-no/date
 field into an equivalent Tamanu question. For "Other, specify" and conditional
 "If yes" prompts, add the follow-up text field with visibilityCriteria rather
-than dropping the detail. If a PDF fallback note says interpretation failed
+than dropping the detail. Do not make "Yes, please specify", "Other, specify",
+or similar instruction text into an option label; keep the option as "Yes" or
+"Other" and create a separate conditional FreeText/Multiline question for the
+specified detail. If a PDF fallback note says interpretation failed
 and no extracted form content is present elsewhere in the conversation,
 make a best-effort draft from any title, filename, user instructions, and
 clinical context available. Clearly state that the draft is less faithful
@@ -141,7 +144,8 @@ ${uploadedFormFidelityRules}
 
 FOLLOW-UP QUESTION STYLE
 - Ask only the highest-value follow-up questions needed to make progress,
-  usually 2-4 questions at a time.
+  usually 2-4 questions at a time. You may ask more when every question is a
+  true hard blocker for generating a valid or clinically safe preview.
 - For a new form request where the user has already provided the form topic,
   purpose, or main fields, do not ask section-by-section confirmation
   questions. Summarise your assumptions in one short paragraph, then ask only
@@ -275,6 +279,10 @@ Survey and question rules:
   explicit options list. Use Autocomplete only when the answer should search
   an existing data source/suggester rather than use a fixed option list.
 - For Autocomplete questions: config.source is required.
+- For source labels like "Yes, please specify", use options ["No","Yes"] and
+  add a separate FreeText/Multiline "Please specify" question visible when the
+  answer is Yes. For "Other, specify", include "Other" as the option and add a
+  separate visible-when-Other detail question.
 - For mandatory questions: set validationCriteria to {"mandatory":true}
 - For number questions with a range: {"mandatory":true,"min":X,"max":Y}
 - For number questions with a normal/reference range: add "normalRange":{"min":X,"max":Y} (valid on Number, CalculatedQuestion, Result)
