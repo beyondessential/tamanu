@@ -87,12 +87,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
-    .filter(isShowable)
     .map(component => {
+      if (isShowable(component)) return null; // Filter out
+
       const { dataElement, id, config } = component;
       const { type: originalType, name, id: dataElementId } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
+
+      if (answer === undefined) return null; // Filter out
+
       const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
       const sourceConfig = answerObject?.sourceConfig;
@@ -117,7 +121,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         componentConfig,
       };
     })
-    .filter(r => r.answer !== undefined);
+    .filter(r => r !== null);
 
   return (
     <Modal
