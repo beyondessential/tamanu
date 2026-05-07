@@ -26,7 +26,7 @@ const TableHeader = () => (
   </Header>
 );
 
-export const PatientProgramsPane = ({ endpoint, patient }) => {
+export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const navigate = useNavigate();
   const { category, patientId } = useParams();
   const { ability } = useAuth();
@@ -62,4 +62,4 @@ export const PatientProgramsPane = ({ endpoint, patient }) => {
       )}
     </ContentPane>
   );
-};
+});
