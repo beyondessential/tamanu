@@ -220,8 +220,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         title={
           <TranslatedText
             stringId="program.modal.selectSurvey.error.title"
-            fallback="Couldn’t load form response :id"
-            replacements={{ id: surveyResponseId }}
+            fallback="Couldn’t load form"
           />
         }
         error={error}
@@ -231,23 +230,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }
 
   if (surveyResponseId && isSurveyResponseError) {
-    const isNotFound = surveyResponseError?.status === 404;
     return (
       <ErrorMessage
         title={
           <TranslatedText
-            stringId="program.modal.selectSurvey.error.title"
+            stringId="program.modal.surveyResponse.error.title"
             fallback="Couldn’t load form response :id"
             replacements={{ id: surveyResponseId }}
           />
         }
-        error={
-          isNotFound
-            ? new Error(
-                'Coulnd’t load form response. It may have been deleted or you may not have access.',
-              )
-            : surveyResponseError
-        }
+        error={surveyResponseError}
         data-testid="errormessage-survey-edit"
       />
     );
