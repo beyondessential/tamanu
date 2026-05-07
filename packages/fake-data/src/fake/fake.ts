@@ -240,6 +240,7 @@ const FIELD_HANDLERS = {
   FLOAT: fakeFloat,
   'DOUBLE PRECISION': fakeFloat,
   DOUBLE: fakeFloat,
+  REAL: fakeFloat,
   DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
@@ -278,6 +279,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   LabTestPanel: () => ({
     availableFacilities: null,
+  }),
+  LabTest: () => ({
+    referenceRangeMin: null,
+    referenceRangeMax: null,
   }),
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
@@ -596,8 +601,14 @@ export const fake = (
       return Buffer.from('test');
     }
 
-    if (FIELD_HANDLERS[type]) {
-      return FIELD_HANDLERS[type](model, attribute, id);
+    const handlers = FIELD_HANDLERS as unknown as Record<
+      string,
+      (model: typeof Model, attribute: any, id: string) => any
+    >;
+    const handler =
+      (typeof type?.key === 'string' && handlers[type.key]) || handlers[type as keyof typeof handlers];
+    if (handler) {
+      return handler(model, attribute, id);
     }
 
     if (type.type && FIELD_HANDLERS[type.type]) {
