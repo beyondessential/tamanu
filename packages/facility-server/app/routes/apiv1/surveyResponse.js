@@ -174,12 +174,12 @@ async function handleSurveyResponseActions(
 }
 
 /**
- * @param {Record<string, unknown>} prev
- * @param {Record<string, unknown>} curr
+ * @param {Record<string, unknown> | null} prev
+ * @param {Record<string, unknown> | null} curr
  */
 function diffKeys(prev, curr) {
   if (!curr) return [];
-  const keys = new Set(Object.keys(prev).concat(Object.keys(curr)));
+  const keys = new Set(prev ? Object.keys(prev).concat(Object.keys(curr)) : Object.keys(curr));
 
   /** @type {{ fieldKey: string; from: any; to: any; }[]} */
   const out = [];
