@@ -1,7 +1,7 @@
 import { subject } from '@casl/ability';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { isEqual } from 'lodash';
+import { isEqual, isObject } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
 import {
@@ -455,13 +455,10 @@ surveyResponse.patch(
     req.checkPermission('write', survey);
 
     const facilityId = body?.facilityId;
-    if (!facilityId) {
-      throw new InvalidParameterError('facilityId is required');
-    }
+    if (!facilityId) throw new InvalidParameterError('facilityId is required');
+
     const patchedAnswers = body?.answers;
-    if (!patchedAnswers || typeof patchedAnswers !== 'object') {
-      throw new InvalidParameterError('answers is required');
-    }
+    if (!isObject(patchedAnswers)) throw new InvalidParameterError('answers is required');
 
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
     const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
