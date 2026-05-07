@@ -7,6 +7,7 @@ import { SystemMessage } from '@langchain/core/messages';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
+import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
@@ -64,8 +65,7 @@ export class AIService {
       historyMessagesKey: 'history',
     });
 
-    // TODO: Register context here so that it's only loaded once. 
-    // Eg: service.registerContext('developer', 'You are a senior backend developer.');
+    await service.registerAllContexts(settings);
 
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
@@ -73,6 +73,11 @@ export class AIService {
 
   close() {
     this.sessions.close();
+  }
+
+  async registerAllContexts(settings) {
+    const { patientSummarySystemPrompt } = await settings.get('ai');
+    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, patientSummarySystemPrompt);
   }
 
   /**
