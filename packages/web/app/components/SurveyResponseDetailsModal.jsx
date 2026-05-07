@@ -3,12 +3,11 @@ import PrintIcon from '@mui/icons-material/Print';
 import styled from 'styled-components';
 import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-
 import { Table } from './Table';
-import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
+import { useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
-import { isErrorUnknownAllow404s } from '../api/index.js';
+import { isErrorUnknownAllow404s } from '../api';
 
 const SectionSpacing = styled.div`
   height: 14px;
@@ -59,14 +58,35 @@ const COLUMNS = [
   },
 ];
 
-function shouldShow(component) {
-  switch (component.dataElement.type) {
-    case 'Instruction':
-      return false;
-    default:
-      return true;
+const isShowable = component => component.dataElement.type !== 'Instruction';
+
+const PendingMessage = ({ isLoading, isNotFound }) => {
+  if (isLoading) {
+    return (
+      <TranslatedText
+        stringId="general.table.loading"
+        fallback="Loading…"
+        data-testid="translatedtext-ec13"
+      />
+    );
   }
-}
+  if (isNotFound) {
+    return (
+      <TranslatedText
+        stringId="surveyResponse.modal.details.error.formDeleted"
+        fallback="This form has been deleted and is no longer available."
+        data-testid="translatedtext-b9js"
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="surveyResponse.modal.details.error.fetchErrorMessage"
+      fallback="Error fetching response details"
+      data-testid="translatedtext-b9js"
+    />
+  );
+};
 
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const {
@@ -75,50 +95,12 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     error,
   } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
 
-  if (isLoading || !surveyDetails || error) {
-    const isNotFound = error?.status === 404;
+  const isNotFound = error?.status === 404;
+  const isPending = isLoading || !surveyDetails || error;
 
-    return (
-      <Modal
-        title={
-          <TranslatedText
-            stringId="surveyResponse.modal.details.title"
-            fallback="Form response"
-            data-testid="translatedtext-0lad"
-          />
-        }
-        open={!!surveyResponseId}
-        onClose={onClose}
-        data-testid="modal-qnfv"
-      >
-        {isNotFound ? (
-          <TranslatedText
-            stringId={
-              isNotFound
-                ? 'surveyResponse.modal.details.error.formDeleted'
-                : 'surveyResponse.modal.details.error.fetchErrorMessage'
-            }
-            fallback={
-              isNotFound
-                ? 'This form has been deleted and is no longer available.'
-                : 'Error fetching response details'
-            }
-            data-testid="translatedtext-b9js"
-          />
-        ) : (
-          <TranslatedText
-            stringId="general.table.loading"
-            fallback="Loading…"
-            data-testid="translatedtext-ec13"
-          />
-        )}
-      </Modal>
-    );
-  }
-
-  const { components, answers } = surveyDetails;
+  const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
-    .filter(shouldShow)
+    .filter(isShowable)
     .map(component => {
       const { dataElement, id, config } = component;
       const { type: originalType, name, id: dataElementId } = dataElement;
@@ -163,37 +145,48 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       onClose={onClose}
       data-testid="modal-ag6a"
     >
-      {onPrint && (
-        <PrintButton
-          onClick={onPrint}
-          color="primary"
-          variant="outlined"
-          startIcon={<PrintIcon data-testid="printicon-t3sp" />}
-          size="small"
-          data-testid="printbutton-ywph"
-        >
-          <TranslatedText
-            stringId="general.action.print"
-            fallback="Print"
-            data-testid="translatedtext-gct8"
+      {isPending ? (
+        <PendingMessage isLoading={isLoading} isNotFound={isNotFound} />
+      ) : (
+        <>
+          {onPrint && (
+            <PrintButton
+              onClick={onPrint}
+              color="primary"
+              variant="outlined"
+              startIcon={<PrintIcon data-testid="printicon-t3sp" />}
+              size="small"
+              data-testid="printbutton-ywph"
+            >
+              <TranslatedText
+                stringId="general.action.print"
+                fallback="Print"
+                data-testid="translatedtext-gct8"
+              />
+            </PrintButton>
+          )}
+          <TableContainer data-testid="tablecontainer-csba">
+            <Table
+              data={answerRows}
+              columns={COLUMNS}
+              allowExport={false}
+              data-testid="table-3xqx"
+            />
+          </TableContainer>
+          <SectionSpacing data-testid="sectionspacing-gtmt" />
+          <ModalCancelRow
+            onConfirm={onClose}
+            confirmText={
+              <TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid="translatedtext-mhfm"
+              />
+            }
+            data-testid="modalcancelrow-dpsx"
           />
-        </PrintButton>
+        </>
       )}
-      <TableContainer data-testid="tablecontainer-csba">
-        <Table data={answerRows} columns={COLUMNS} allowExport={false} data-testid="table-3xqx" />
-      </TableContainer>
-      <SectionSpacing data-testid="sectionspacing-gtmt" />
-      <ModalCancelRow
-        onConfirm={onClose}
-        confirmText={
-          <TranslatedText
-            stringId="general.action.close"
-            fallback="Close"
-            data-testid="translatedtext-mhfm"
-          />
-        }
-        data-testid="modalcancelrow-dpsx"
-      />
     </Modal>
   );
 };
