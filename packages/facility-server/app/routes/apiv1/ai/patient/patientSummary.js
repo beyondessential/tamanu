@@ -76,7 +76,7 @@ patientSummaryRoute.post(
     const { Patient, AiDocument } = req.models;
     const patientExists = await Patient.count({ where: { id: patientId } });
     if (!patientExists) {
-      throw new NotFoundError(`Patient ${patientId} not found`);
+      throw new NotFoundError('Patient not found');
     }
 
     const patientData = await fetchPatientSummaryData(patientId, req.models);
@@ -103,7 +103,7 @@ patientSummaryRoute.post(
 patientSummaryRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
+    req.checkPermission('write', 'Patient');
 
     const { AiDocument } = req.models;
     const doc = await AiDocument.findByPk(req.params.id);
