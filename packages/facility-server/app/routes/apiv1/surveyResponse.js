@@ -401,11 +401,13 @@ surveyResponse.put(
     }
 
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
-    const responseAnswers = await models.SurveyResponseAnswer.findAll({
-      where: { responseId: params.id },
-    });
 
     await db.transaction(async () => {
+      const responseAnswers = await models.SurveyResponseAnswer.findAll({
+        attributes: ['id', 'dataElementId'],
+        where: { responseId: params.id },
+      });
+
       for (const [dataElementId, value] of Object.entries(body.answers)) {
         if (!components.some(c => c.dataElementId === dataElementId)) {
           throw new InvalidOperationError('Some components are missing from the survey');
@@ -464,22 +466,22 @@ surveyResponse.patch(
     const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
     const validDataElementIds = new Set(componentByDataElementId.keys());
 
-    const responseAnswers = await models.SurveyResponseAnswer.findAll({
-      where: { responseId: params.id },
-    });
-
-    const mergedAnswerValues = {};
-    for (const answer of responseAnswers) {
-      mergedAnswerValues[answer.dataElementId] = answer.body;
-    }
-
     await req.db.transaction(async () => {
+      const responseAnswers = await models.SurveyResponseAnswer.findAll({
+        attributes: ['id', 'dataElementId', 'body'],
+        where: { responseId: params.id },
+      });
+
+      const mergedAnswerValues = {};
+      for (const answer of responseAnswers) {
+        mergedAnswerValues[answer.dataElementId] = answer.body;
+      }
+
       for (const [dataElementId, value] of Object.entries(patchedAnswers)) {
         if (!validDataElementIds.has(dataElementId)) {
           throw new InvalidOperationError('Some components are missing from the survey');
         }
 
-        // Ignore null values
         if (value === null) continue;
 
         const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
