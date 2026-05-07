@@ -218,7 +218,11 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return (
       <ErrorMessage
         title={
-          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+          <TranslatedText
+            stringId="program.modal.selectSurvey.error.title"
+            fallback="Couldn’t load form response :id"
+            replacements={{ id: surveyResponseId }}
+          />
         }
         error={error}
         data-testid="errormessage-kl46"
@@ -233,7 +237,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         title={
           <TranslatedText
             stringId="program.modal.selectSurvey.error.title"
-            fallback="Coulnd’t find form response :id"
+            fallback="Couldn’t load form response :id"
             replacements={{ id: surveyResponseId }}
           />
         }
