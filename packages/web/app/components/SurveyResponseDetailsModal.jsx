@@ -52,7 +52,8 @@ const COLUMNS = [
   },
 ];
 
-const isShowable = component => component.dataElement.type !== 'Instruction';
+const isShowable = component =>
+  component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
   if (isLoading) {
