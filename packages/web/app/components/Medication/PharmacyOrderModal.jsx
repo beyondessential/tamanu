@@ -12,7 +12,11 @@ import {
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ENCOUNTER_TYPES, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
+  PHARMACY_PRESCRIPTION_TYPES,
+} from '@tamanu/constants';
 
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
@@ -173,13 +177,15 @@ export const PharmacyOrderModal = React.memo(
     );
 
     const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
+    const defaultPrescriptionType = getSetting(
+      'features.pharmacyOrder.defaultPrescriptionType',
+      PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+    );
 
     // Permission to edit repeats (only relevant for ongoing mode)
     const canEditRepeats = ability.can('write', 'Medication');
 
-    const [prescriptionType, setPrescriptionType] = useState(
-      PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
-    );
+    const [prescriptionType, setPrescriptionType] = useState(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
     // In ongoing mode, always use discharge/outpatient
     const isDischargeOrOutpatient =
       isOngoingMode || prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
@@ -234,17 +240,24 @@ export const PharmacyOrderModal = React.memo(
       setOrderingClinicianId(currentUser.id);
     }, [currentUser]);
 
-    // Set default prescription type based on encounter type when the modal opens
-    // Only applies in encounter mode
+    // Set default prescription type when the modal opens. Defaut is determined by the mode setting.
     useEffect(() => {
       if (!open || !encounter?.encounterType || isOngoingMode) return;
+
+      if (
+        defaultPrescriptionType ===
+        PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE
+      ) {
+        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
+        return;
+      }
 
       if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
       } else {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
       }
-    }, [open, encounter?.encounterType, isOngoingMode]);
+    }, [open, encounter?.encounterType, isOngoingMode, defaultPrescriptionType]);
 
     const handleSelectAll = useCallback(event => {
       const checked = event.target.checked;

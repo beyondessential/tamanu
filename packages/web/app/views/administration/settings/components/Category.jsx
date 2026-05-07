@@ -150,6 +150,7 @@ export const Category = ({
           unit,
           highRisk,
           suggesterEndpoint,
+          options,
           secret,
           editor,
         } = propertySchema;
@@ -179,6 +180,7 @@ export const Category = ({
               description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
+              options={options}
               disabled={disabled}
               facilityId={facilityId}
               isSecret={isSecret}

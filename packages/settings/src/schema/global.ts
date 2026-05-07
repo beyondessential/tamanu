@@ -29,6 +29,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   isValidAdditionalSearchField,
   SETTING_EDITORS,
+  PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
 } from '@tamanu/constants';
 import {
   medicationFrequencyDefault,
@@ -353,6 +354,21 @@ export const globalSettings = {
               description: 'Send pharmacy orders to mSupply (when an integration is configured)',
               type: yup.boolean(),
               defaultValue: false,
+            },
+            defaultPrescriptionType: {
+              description: 'Default prescription type in Pharmacy Order modal',
+              type: yup.string().oneOf(Object.values(PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES)),
+              defaultValue: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+              options: [
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+                  label: 'Existing encounter type',
+                },
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE,
+                  label: 'Outpatient/Discharge',
+                },
+              ],
             },
           },
         },
@@ -1644,8 +1660,7 @@ export const globalSettings = {
             .test(
               'no-duplicates',
               'additionalSearchFields must not contain duplicate entries',
-              value =>
-                !value || new Set(value).size === value.length,
+              value => !value || new Set(value).size === value.length,
             ),
           defaultValue: [],
         },
