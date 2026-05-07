@@ -1636,8 +1636,7 @@ export const globalSettings = {
             .test(
               'no-duplicates',
               'additionalSearchFields must not contain duplicate entries',
-              value =>
-                !value || new Set(value).size === value.length,
+              value => !value || new Set(value).size === value.length,
             ),
           defaultValue: [],
         },
