@@ -435,7 +435,7 @@ export function AiFormBuilderView() {
                         value={state.selectedProgramId}
                         onChange={handleSelectProgram}
                         programOptions={programOptions}
-                        disabled={isThinking && Boolean(state.selectedProgramId)}
+                        disabled={Boolean(state.selectedProgramId)}
                       />
                     );
                   }
