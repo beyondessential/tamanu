@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError, ValidationError } from '@tamanu/errors';
 import { CentralServerConnection } from '../../../../sync';
 import { fetchPatientSummaryData } from '../../../../services/patientSummaryData';
 
@@ -72,6 +72,7 @@ patientSummaryRoute.post(
     const { deviceId } = req;
 
     req.checkPermission('read', 'Patient');
+    req.checkPermission('create', 'PatientSummary');
 
     const { Patient, AiDocument } = req.models;
     const patientExists = await Patient.count({ where: { id: patientId } });
@@ -86,7 +87,7 @@ patientSummaryRoute.post(
     const aiResponse = await centralServer.fetch('ai/patient/summary', {
       method: 'POST',
       body: { patientData, editFeedback },
-      backoff: { maxAttempts: 3, maxWaitMs: 2000 },
+      backoff: { maxAttempts: 3, maxWaitMs: 5000 },
     });
 
     const doc = await AiDocument.create({
@@ -103,7 +104,7 @@ patientSummaryRoute.post(
 patientSummaryRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Patient');
+    req.checkPermission('write', 'PatientSummary');
 
     const { AiDocument } = req.models;
     const doc = await AiDocument.findByPk(req.params.id);
@@ -117,6 +118,9 @@ patientSummaryRoute.put(
       updateFields.status = 'discarded';
       updateFields.content = null;
     } else {
+      if (!content) {
+        throw new ValidationError('Content is required');
+      }
       updateFields.status = 'edited';
       updateFields.content = content;
     }

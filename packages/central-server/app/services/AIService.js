@@ -76,13 +76,10 @@ export class AIService {
   }
 
   async registerAllContexts(settings) {
-    const { patientSummarySystemPrompt } = await settings.get('ai');
-    const { prompts: patientSummaryDefaultPrompt } = await settings.get('patientSummary');
-    const systemPrompt = patientSummarySystemPrompt || patientSummaryDefaultPrompt;
-    if (!systemPrompt) {
-      log.warn('AIService: no patient summary system prompt configured');
+    const { prompts: patientSummaryPrompts } = await settings.get('patientSummary');
+    if (patientSummaryPrompts) {
+      this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, patientSummaryPrompts);
     }
-    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, systemPrompt ?? '');
   }
 
   /**
