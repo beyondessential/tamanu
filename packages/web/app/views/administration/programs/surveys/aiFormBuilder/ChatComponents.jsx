@@ -509,7 +509,7 @@ export function AssistantMessageContent({ text }) {
   return <MarkdownMessageContent text={text} />;
 }
 
-export function ThinkingMessage() {
+export function ThinkingMessage({ isTakingAWhile = false }) {
   return (
     <ThinkingWrap>
       <Ripple aria-hidden="true">
@@ -517,10 +517,17 @@ export function ThinkingMessage() {
         <RippleRing $delay="-0.75s" />
       </Ripple>
       <MessageText>
-        <TranslatedText
-          stringId="admin.programs.aiFormBuilder.thinking.label"
-          fallback="Building your form..."
-        />
+        {isTakingAWhile ? (
+          <TranslatedText
+            stringId="admin.programs.aiFormBuilder.thinking.longWait"
+            fallback="Still working on this. Larger forms can take a little while..."
+          />
+        ) : (
+          <TranslatedText
+            stringId="admin.programs.aiFormBuilder.thinking.label"
+            fallback="Building your form..."
+          />
+        )}
       </MessageText>
     </ThinkingWrap>
   );

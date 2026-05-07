@@ -44,6 +44,7 @@ const getProgramDefinitionFileName = programDefinition =>
   `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
 const CHAT_JOB_POLL_INTERVAL_MS = 2000;
 const CHAT_JOB_MAX_WAIT_MS = 10 * 60 * 1000;
+const LONG_WAIT_MESSAGE_DELAY_MS = 5000;
 
 const waitForChatJob = async ({ api, jobId, signal }) => {
   const startedAt = Date.now();
@@ -89,6 +90,7 @@ export function AiFormBuilderView() {
   const [inputValue, setInputValue] = useState('');
   const [pendingFile, setPendingFile] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
+  const [isTakingAWhile, setIsTakingAWhile] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(() =>
     Boolean(readSessionChatState(sessionKey).generatedForm),
@@ -129,7 +131,17 @@ export function AiFormBuilderView() {
     const messagesEl = messagesRef.current;
     if (!messagesEl) return;
     messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
-  }, [state.messages.length, isThinking]);
+  }, [state.messages.length, isThinking, isTakingAWhile]);
+
+  useEffect(() => {
+    if (!isThinking) {
+      setIsTakingAWhile(false);
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => setIsTakingAWhile(true), LONG_WAIT_MESSAGE_DELAY_MS);
+    return () => clearTimeout(timeout);
+  }, [isThinking]);
 
   useEffect(() => {
     setHasAiFormBuilderChat(hasExistingChat);
@@ -150,6 +162,7 @@ export function AiFormBuilderView() {
     setInputValue('');
     setPendingFile(null);
     setIsThinking(false);
+    setIsTakingAWhile(false);
     setIsPreviewOpen(false);
     setIsNewChatModalOpen(false);
   }, []);
@@ -177,6 +190,7 @@ export function AiFormBuilderView() {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       setIsThinking(true);
+      setIsTakingAWhile(false);
 
       try {
         const selectedProgramCode = getProgramCode(selectedProgramId);
@@ -241,6 +255,22 @@ export function AiFormBuilderView() {
         });
       } catch (error) {
         if (!abortController.signal.aborted && error.name !== 'AbortError') {
+          const errorMessage =
+            error.detail ||
+            error.message ||
+            getTranslation(
+              'admin.programs.aiFormBuilder.error.generate.unknown',
+              'Please try again.',
+            );
+
+          appendMessage({
+            type: 'assistant',
+            text: getTranslation(
+              'admin.programs.aiFormBuilder.error.generate.chatMessage',
+              'Sorry, I could not get a response from the form builder: :message',
+              { replacements: { message: errorMessage } },
+            ),
+          });
           notifyError(
             <TranslatedText
               stringId="admin.programs.aiFormBuilder.error.generate"
@@ -255,13 +285,14 @@ export function AiFormBuilderView() {
         }
       }
     },
-    [api, state.generatedForm, state.sessionId],
+    [api, appendMessage, getTranslation, state.generatedForm, state.sessionId],
   );
 
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
     setIsThinking(false);
+    setIsTakingAWhile(false);
     appendMessage({
       type: 'assistant',
       text: getTranslation(
@@ -456,7 +487,7 @@ export function AiFormBuilderView() {
                   return <AssistantMessageContent key={message.id} text={message.text} />;
                 })}
 
-                {isThinking && <ThinkingMessage />}
+                {isThinking && <ThinkingMessage isTakingAWhile={isTakingAWhile} />}
               </Messages>
 
               {pendingFile && (
