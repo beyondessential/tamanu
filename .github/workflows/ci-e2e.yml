@@ -20,7 +20,7 @@ env:
 
 jobs:
   node_modules_cache:
-    if: github.event_name == 'merge_group' || contains(github.event.pull_request.body, '- [x] E2E tests <!-- #e2e -->')
+    if: github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] Run E2E tests <!-- #e2e -->')
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
