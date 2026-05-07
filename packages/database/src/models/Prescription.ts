@@ -185,7 +185,10 @@ export class Prescription extends Model {
         OR
         (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
-      AND prescriptions.updated_at_sync_tick > :since
+      AND (
+        prescriptions.updated_at_sync_tick > :since
+        OR patient_ongoing_prescriptions.updated_at_sync_tick > :since
+      )
     `;
   }
 
@@ -200,6 +203,10 @@ export class Prescription extends Model {
         LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
         LEFT JOIN locations ON encounters.location_id = locations.id
         LEFT JOIN facilities ON locations.facility_id = facilities.id
+      `,
+      where: `
+        prescriptions.updated_at_sync_tick > :since
+        OR patient_ongoing_prescriptions.updated_at_sync_tick > :since
       `,
     };
   }
