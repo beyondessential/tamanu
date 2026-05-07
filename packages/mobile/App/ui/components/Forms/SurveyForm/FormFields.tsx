@@ -218,7 +218,7 @@ export const FormFields = ({
                       key={component.id}
                       component={component}
                       patient={patient}
-                      zIndex={components.length - index}
+                      zIndex={visibleComponents.length - index}
                       onLayout={getLayoutCallback(component.dataElement.code)}
                       setDisableSubmit={setDisableSubmit}
                     />
