@@ -1,5 +1,4 @@
-import React, { FunctionComponent } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { FunctionComponent, useRef } from 'react';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
@@ -33,44 +32,40 @@ export const Core: FunctionComponent<any> = () => {
   const { facilityId } = useFacility();
   const { isLoading, securityIssues, fetchSecurityInfo } = useSecurityInfo();
 
-  const securityScreen = (
-    <SecurityScreen
-      isLoading={isLoading}
-      securityIssues={securityIssues}
-      handleRetry={fetchSecurityInfo}
-    />
-  );
+  const hasPassedInitialCheck = useRef(false);
+  if (!isLoading && securityIssues.length === 0) {
+    hasPassedInitialCheck.current = true;
+  }
 
-  if (securityIssues.length > 0) {
-    return securityScreen;
+  if (securityIssues.length > 0 || !hasPassedInitialCheck.current) {
+    return (
+      <SecurityScreen
+        isLoading={isLoading}
+        securityIssues={securityIssues}
+        handleRetry={fetchSecurityInfo}
+      />
+    );
   }
 
   const initialRouteName = getSignInFlowRoute(signedIn, facilityId);
 
   return (
-    <>
-      <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
-        <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
-        <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
-        <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
-        <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
-        <Stack.Screen
-          name={Routes.SignUpStack.Index}
-          component={SignUpStack}
-          initialParams={{ signedOutFromInactivity: false }}
-        />
-        <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
-        <Stack.Screen
-          options={noSwipeGestureOnNavigator}
-          name={Routes.HomeStack.Index}
-          component={HomeStack}
-        />
-      </Stack.Navigator>
-      {isLoading && (
-        <View style={StyleSheet.absoluteFill}>
-          {securityScreen}
-        </View>
-      )}
-    </>
+    <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
+      <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
+      <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
+      <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
+      <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
+      <Stack.Screen
+        name={Routes.SignUpStack.Index}
+        component={SignUpStack}
+        initialParams={{ signedOutFromInactivity: false }}
+      />
+      <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
+      <Stack.Screen
+        options={noSwipeGestureOnNavigator}
+        name={Routes.HomeStack.Index}
+        component={HomeStack}
+      />
+    </Stack.Navigator>
   );
 };
