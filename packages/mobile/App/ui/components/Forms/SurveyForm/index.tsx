@@ -35,6 +35,8 @@ function computeVisibleKey(
     .join(',');
 }
 
+const EMPTY_CALCULATED_VALUES = {};
+
 interface SurveyFormInnerProps {
   components: ISurveyScreenComponent[];
   hasCalculations: boolean;
@@ -61,9 +63,10 @@ const SurveyFormInner = ({
   currentScreenIndex,
 }: SurveyFormInnerProps): ReactElement => {
   const { values, setValues, isSubmitting } = useFormikContext<any>();
+  const lastAppliedCalculatedValuesRef = useRef<Record<string, any>>({});
 
   const calculatedValues = useMemo(
-    () => (hasCalculations ? runCalculations(components, values) : {}),
+    () => (hasCalculations ? runCalculations(components, values) : EMPTY_CALCULATED_VALUES),
     [components, hasCalculations, values],
   );
 
@@ -78,8 +81,18 @@ const SurveyFormInner = ({
       ([key, value]) => values[key] !== value,
     );
     if (changes.length > 0) {
+      const changedCalculatedValues = Object.fromEntries(changes);
+      const hasNewCalculatedValue = changes.some(
+        ([key, value]) => lastAppliedCalculatedValuesRef.current[key] !== value,
+      );
+      if (!hasNewCalculatedValue) return;
+
+      lastAppliedCalculatedValuesRef.current = {
+        ...lastAppliedCalculatedValuesRef.current,
+        ...changedCalculatedValues,
+      };
       setValues(
-        prev => ({ ...prev, ...Object.fromEntries(changes) }),
+        { ...values, ...changedCalculatedValues },
         false,
       );
     }
