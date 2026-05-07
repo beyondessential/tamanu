@@ -45,22 +45,29 @@ async function getBodyForAnswer(dataElementType, value, models) {
   return getStringValue(dataElementType, value);
 }
 
-async function createPatientIssues(models, questions, patientId) {
+async function createPatientIssues(models, questions, patientId, recordedDate) {
   const issueQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
-    const config = safeJsonParse(question.config) ?? {};
-    if (!config.issueNote || !config.issueType) {
+    const config = safeJsonParse(question.config);
+    if (!config?.issueNote || !config.issueType) {
       throw new InvalidOperationError(
         `Ill-configured PatientIssue with config: ${question.config}`,
       );
     }
-    await models.PatientIssue.create({
+    const issueData = {
       patientId,
       type: config.issueType,
       note: config.issueNote,
-    });
+    };
+    if (recordedDate) issueData.recordedDate = recordedDate;
+
+    // Prevent duplicate issues when program responses are edited (PATCH re-runs actions)
+    const existing = await models.PatientIssue.findOne({ where: issueData });
+    if (existing) continue;
+
+    await models.PatientIssue.create(issueData);
   }
 }
 
@@ -160,7 +167,7 @@ async function handleSurveyResponseActions(
   submittedTime,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
-  await createPatientIssues(models, activeQuestions, patientId);
+  await createPatientIssues(models, activeQuestions, patientId, submittedTime);
   await writeToPatientFields(
     models,
     facilityId,

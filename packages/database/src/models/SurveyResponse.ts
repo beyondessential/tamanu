@@ -1,4 +1,5 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   CHARTING_SURVEY_TYPES,
@@ -7,7 +8,6 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -16,12 +16,20 @@ import {
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { Model } from './Model';
+import type { Patient } from './Patient';
+import type { PatientIssue } from './PatientIssue';
 
-async function createPatientIssues(models: Models, questions: any[], patientId: string) {
+async function createPatientIssues(
+  models: Models,
+  questions: any[],
+  patientId: Patient['id'],
+  recordedDate?: PatientIssue['recordedDate'],
+) {
   const issueQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
@@ -31,11 +39,17 @@ async function createPatientIssues(models: Models, questions: any[], patientId: 
     if (!config.issueNote || !config.issueType) {
       throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
     }
-    await models.PatientIssue.create({
+    const issueData: Partial<PatientIssue> = {
       patientId,
       type: config.issueType,
       note: config.issueNote,
-    });
+    };
+    if (recordedDate) issueData.recordedDate = recordedDate;
+
+    // Prevent duplicate issues when program responses are edited/re-saved
+    const existing = await models.PatientIssue.findOne({ where: issueData });
+    if (existing) return;
+    await models.PatientIssue.create(issueData);
   }
 }
 
@@ -156,7 +170,7 @@ async function handleSurveyResponseActions(
   submittedTime: string,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
-  await createPatientIssues(models, activeQuestions, patientId);
+  await createPatientIssues(models, activeQuestions, patientId, submittedTime);
   await writeToPatientFields(
     models,
     facilityId,
@@ -290,8 +304,9 @@ export class SurveyResponse extends Model {
     }
 
     // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
-    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
-      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
+    const dateRecordedValue =
+      answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded] ||
+      answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
 
     if (!forceNewEncounter) {
       // First, check for open encounter (active encounter takes precedence)
@@ -334,8 +349,10 @@ export class SurveyResponse extends Model {
 
     const { departmentId, examinerId, userId, locationId } = responseData;
 
-    const encounterStartDate = dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
-    const encounterEndDate = dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
+    const encounterStartDate =
+      dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
+    const encounterEndDate =
+      dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({

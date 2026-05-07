@@ -536,6 +536,53 @@ describe('Programs', () => {
         expect(afterIssue).toBeTruthy();
       });
 
+      it('should not create duplicate patient issues when a program response is patched', async () => {
+        const { pdeId, surveyId } = await createWithQuestion({
+          type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+          config: {
+            issueType: 'issue',
+            issueNote: 'patch-dup-test-note',
+          },
+        });
+
+        const createResult = await app.post(`/api/surveyResponse`).send({
+          answers: { [pdeId]: true },
+          surveyId,
+          encounterId: testEncounter.id,
+          facilityId,
+        });
+        expect(createResult).toHaveSucceeded();
+
+        const responseId = createResult.body.id;
+        expect(responseId).toBeTruthy();
+
+        const issuesAfterCreate = await models.PatientIssue.findAll({
+          where: { patientId: testPatient.id, note: 'patch-dup-test-note' },
+        });
+        expect(issuesAfterCreate).toHaveLength(1);
+
+        const patch1 = await app
+          .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
+          .send({
+            facilityId,
+            answers: { [pdeId]: true },
+          });
+        expect(patch1).toHaveSucceeded();
+
+        const patch2 = await app
+          .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
+          .send({
+            facilityId,
+            answers: { [pdeId]: true },
+          });
+        expect(patch2).toHaveSucceeded();
+
+        const issuesAfterPatches = await models.PatientIssue.findAll({
+          where: { patientId: testPatient.id, note: 'patch-dup-test-note' },
+        });
+        expect(issuesAfterPatches).toHaveLength(1);
+      });
+
       it('should write data to a patient record', async () => {
         const { pdeId, surveyId } = await createWithQuestion({
           type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
