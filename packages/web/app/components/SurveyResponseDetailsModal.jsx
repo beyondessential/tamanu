@@ -1,13 +1,14 @@
-import React from 'react';
 import PrintIcon from '@mui/icons-material/Print';
+import React from 'react';
 import styled from 'styled-components';
-import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Table } from './Table';
+import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
-import { isErrorUnknownAllow404s } from '../api';
+import { Table } from './Table';
 
 const SectionSpacing = styled.div`
   height: 14px;
