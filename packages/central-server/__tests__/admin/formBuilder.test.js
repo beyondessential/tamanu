@@ -194,6 +194,46 @@ describe('Form Builder Admin', () => {
     });
   });
 
+  it('strips unsupported config keys from generated program definitions', async () => {
+    aiService.sendFormBuilderMessage.mockResolvedValueOnce({
+      message: 'Your form is ready to generate.',
+      attach_to_program_code: 'ncd',
+      ready_to_export: false,
+      ready_to_generate: true,
+    });
+    aiService.invokeStructured.mockResolvedValueOnce({
+      ...programDefinition,
+      surveySheets: [
+        {
+          surveyName: 'Referral form',
+          questions: [
+            {
+              code: 'referral001',
+              name: 'referral001',
+              text: 'Referral date',
+              type: 'Date',
+              config: {
+                defaultToToday: true,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      message: 'Add referral date and default to today if possible',
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.programDefinition.surveySheets[0].questions[0]).toEqual({
+      code: 'referral001',
+      name: 'referral001',
+      text: 'Referral date',
+      type: 'Date',
+    });
+  });
+
   it('applies a fast patch when tweaking an existing preview', async () => {
     aiService.invokeStructured.mockResolvedValueOnce({
       message: 'Updated the patient name field.',
@@ -249,6 +289,42 @@ describe('Form Builder Admin', () => {
           },
         ],
       },
+    });
+  });
+
+  it('strips unsupported config keys from fast patch tweaks', async () => {
+    aiService.invokeStructured.mockResolvedValueOnce({
+      message: 'Updated the referral date field.',
+      operations: [
+        {
+          type: 'replaceQuestion',
+          surveyName: 'Referral form',
+          questionCode: 'referral001',
+          question: {
+            text: 'Referral date',
+            type: 'Date',
+            config: {
+              defaultToToday: true,
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      sessionId: 'existing-session-id',
+      message: 'Make referral date default to today if possible',
+      programDefinition,
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+    expect(response.body.programDefinition.surveySheets[0].questions[0]).toEqual({
+      code: 'referral001',
+      name: 'referral001',
+      newScreen: true,
+      text: 'Referral date',
+      type: 'Date',
     });
   });
 

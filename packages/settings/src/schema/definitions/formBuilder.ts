@@ -233,6 +233,16 @@ Survey and question rules:
 - isSensitive: set to true only if the implementer explicitly says the survey contains sensitive data; omit otherwise
 - visibilityStatus: omit unless removing a previously imported survey/question (set to "historical")
 - notifiable / notifyEmailAddresses: omit unless the implementer mentions notifiable disease reporting
+- Only include config keys that are explicitly supported for that question type:
+  Autocomplete: source, scope, where; UserData: column; PatientData: column,
+  source, where, writeToPatient; SurveyLink/SurveyResult/SurveyAnswer: source;
+  Number/CalculatedQuestion/Result: unit, rounding; PatientIssue: issueType,
+  issueNote. For ordinary Date, DateTime, FreeText, Multiline, Binary,
+  Checkbox, Select, Radio, MultiSelect, Instruction, Photo, Geolocate, and
+  ConditionQuestion questions, omit config unless a supported key is listed
+  here. Do not invent config keys. If the user asks for unsupported behaviour
+  such as defaulting a Date question to today, do not encode it in config; say
+  the behaviour is not currently supported.
 
 Patient registry rules:
 - Patient registry configuration is out of scope for this generated
@@ -285,7 +295,18 @@ Use existing code naming patterns and the next available 3-digit suffix.
 If the request changes references, calculations, visibilityCriteria, or
 validationCriteria, include replaceQuestion operations for every affected
 question. If the request is unclear, make the smallest safe change that matches
-the user's words rather than asking another broad question.`;
+the user's words rather than asking another broad question.
+
+Only include config keys that are explicitly supported for the question type:
+Autocomplete: source, scope, where; UserData: column; PatientData: column,
+source, where, writeToPatient; SurveyLink/SurveyResult/SurveyAnswer: source;
+Number/CalculatedQuestion/Result: unit, rounding; PatientIssue: issueType,
+issueNote. For ordinary Date, DateTime, FreeText, Multiline, Binary, Checkbox,
+Select, Radio, MultiSelect, Instruction, Photo, Geolocate, and
+ConditionQuestion questions, omit config unless a supported key is listed here.
+Do not invent config keys. If the user asks for unsupported behaviour such as
+defaulting a Date question to today, do not encode it in config; say the
+behaviour is not currently supported.`;
 
 const fixProgramErrorsDefault = `You are fixing validation errors in a Tamanu program form.
 
@@ -309,6 +330,8 @@ HOW TO FIX EACH ERROR TYPE
 - "visibilityCriteria is not valid JSON" → fix the JSON; if unrecoverable, clear the field
 - "validationCriteria is not valid JSON" → fix the JSON; if unrecoverable, clear the field
 - "config is not valid JSON" → fix the JSON; if unrecoverable, clear the field
+- "config has unknown keys" or unsupported config keys such as
+  "defaultToToday" → remove the unsupported keys; do not invent replacements
 - "duplicate question code" → rename the second occurrence to the next available
   3-digit number for that survey, leave the first one alone
 - Any other error → make the smallest change that satisfies the error message
