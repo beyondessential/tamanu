@@ -9,11 +9,11 @@ const StyledDraftStatusBadge = styled.span`
   border-radius: 999px;
   color: ${({ $saved }) => ($saved ? TAMANU_COLORS.white : TAMANU_COLORS.primary)};
   display: inline-flex;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 5px 10px;
   text-transform: uppercase;
   white-space: nowrap;
 `;

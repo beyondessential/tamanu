@@ -15,13 +15,13 @@ import {
   OutlinedButton,
   TAMANU_COLORS,
   TextInput,
+  ThemedTooltip,
   TranslatedText,
   useTranslation,
 } from '@tamanu/ui-components';
 import { ConfirmModal } from '../../../../../components/ConfirmModal';
 import { ClipIcon } from '../../../../../components/Icons';
 import { Article } from '../../components';
-import { DraftStatusBadge } from './DraftStatusBadge';
 
 export const BuilderArticle = styled(Article)`
   display: flex;
@@ -205,7 +205,7 @@ const UserMessage = styled.div`
 
 const AttachmentChip = styled.div`
   align-items: center;
-  background: ${TAMANU_COLORS.background2};
+  background: ${({ $sent }) => ($sent ? TAMANU_COLORS.background : TAMANU_COLORS.background2)};
   border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 8px;
   color: ${TAMANU_COLORS.darkestText};
@@ -415,6 +415,20 @@ const DownloadFileName = styled.span`
   font-size: 14px;
 `;
 
+const PreviewFileButton = styled.button`
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  min-inline-size: 0;
+  padding: 0;
+  text-align: left;
+
+  &:hover ${DownloadFileName} {
+    color: ${TAMANU_COLORS.primary};
+  }
+`;
+
 const SaveButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -457,7 +471,7 @@ export function Attachment({ file, sent = false, fullWidth = false, onRemove }) 
           />
         </AttachmentLabel>
       )}
-      <AttachmentChip $fullWidth={fullWidth}>
+      <AttachmentChip $fullWidth={fullWidth} $sent={sent}>
         <ClipIcon />
         {file.name}
         {onRemove && (
@@ -472,13 +486,13 @@ export function Attachment({ file, sent = false, fullWidth = false, onRemove }) 
 
 export function UserMessageContent({ message }) {
   if (!message.text && message.file) {
-    return <Attachment file={message.file} />;
+    return <Attachment file={message.file} sent />;
   }
 
   return (
     <UserMessage>
       {message.text && <MarkdownMessageContent text={message.text} />}
-      {message.file && <Attachment file={message.file} />}
+      {message.file && <Attachment file={message.file} sent />}
     </UserMessage>
   );
 }
@@ -512,7 +526,7 @@ export function ThinkingMessage() {
   );
 }
 
-export function ProgramQuestionMessage({ value, onChange, programOptions }) {
+export function ProgramQuestionMessage({ value, onChange, programOptions, disabled = false }) {
   const { getTranslation } = useTranslation();
 
   return (
@@ -529,6 +543,7 @@ export function ProgramQuestionMessage({ value, onChange, programOptions }) {
           value={value}
           onChange={event => onChange(event.target.value)}
           options={programOptions}
+          disabled={disabled}
           placeholder={getTranslation(
             'admin.programs.aiFormBuilder.program.placeholder',
             'Search for a program',
@@ -540,7 +555,7 @@ export function ProgramQuestionMessage({ value, onChange, programOptions }) {
   );
 }
 
-export function DownloadMessage({ fileName, isSaved, isSaving, iteration, onDownload, onSave }) {
+export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSave, onPreview }) {
   return (
     <>
       <MessageText>
@@ -551,33 +566,31 @@ export function DownloadMessage({ fileName, isSaved, isSaving, iteration, onDown
       </MessageText>
       <DownloadCard>
         <DownloadFileDetails>
-          <DownloadFileName>{fileName}</DownloadFileName>
-          <DraftStatusBadge isSaved={isSaved} iteration={iteration} />
+          <PreviewFileButton type="button" onClick={onPreview}>
+            <DownloadFileName>{fileName}</DownloadFileName>
+          </PreviewFileButton>
         </DownloadFileDetails>
         <DownloadButton size="small" startIcon={<DownloadIcon />} onClick={onDownload}>
           <TranslatedText stringId="general.action.download" fallback="Download" />
         </DownloadButton>
       </DownloadCard>
-      <SaveButtonRow>
-        <Button size="small" disabled={isSaving || isSaved} onClick={onSave}>
-          {isSaved ? (
-            <TranslatedText
-              stringId="admin.programs.aiFormBuilder.saveToDatabase.saved"
-              fallback="Saved"
-            />
-          ) : isSaving ? (
-            <TranslatedText
-              stringId="admin.programs.aiFormBuilder.saveToDatabase.saving"
-              fallback="Saving..."
-            />
-          ) : (
-            <TranslatedText
-              stringId="admin.programs.aiFormBuilder.saveToDatabase.action"
-              fallback="Save to database"
-            />
-          )}
-        </Button>
-      </SaveButtonRow>
+      {!isSaved && (
+        <SaveButtonRow>
+          <Button size="small" disabled={isSaving} onClick={onSave}>
+            {isSaving ? (
+              <TranslatedText
+                stringId="admin.programs.aiFormBuilder.saveToDatabase.saving"
+                fallback="Saving..."
+              />
+            ) : (
+              <TranslatedText
+                stringId="admin.programs.aiFormBuilder.saveToDatabase.action"
+                fallback="Save to database"
+              />
+            )}
+          </Button>
+        </SaveButtonRow>
+      )}
     </>
   );
 }
@@ -638,16 +651,16 @@ export function ChatComposer({
           onChange={handleFileSelected}
           hidden
         />
-        <AttachButton
-          type="button"
+        <ThemedTooltip
           title={getTranslation(
             'admin.programs.aiFormBuilder.attach.tooltip',
             'Attach pdf, png, jpg, jpeg, csv, xls or xlsx',
           )}
-          onClick={openFileDialog}
         >
-          <AddIcon />
-        </AttachButton>
+          <AttachButton type="button" onClick={openFileDialog}>
+            <AddIcon />
+          </AttachButton>
+        </ThemedTooltip>
         <SendButton
           type="button"
           disabled={!isThinking && sendDisabled}
@@ -668,10 +681,7 @@ export function NewChatConfirmModal({ open, onCancel, onConfirm }) {
       onCancel={onCancel}
       onConfirm={onConfirm}
       title={
-        <TranslatedText
-          stringId="admin.programs.aiFormBuilder.newChat.title"
-          fallback="New chat"
-        />
+        <TranslatedText stringId="admin.programs.aiFormBuilder.newChat.title" fallback="New chat" />
       }
       customContent={
         <NewChatModalBody>

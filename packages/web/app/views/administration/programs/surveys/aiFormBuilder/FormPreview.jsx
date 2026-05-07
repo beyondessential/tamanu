@@ -1,5 +1,4 @@
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { Tooltip } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -10,6 +9,7 @@ import {
   getFormInitialValues,
   SurveyScreenPaginator,
   TAMANU_COLORS,
+  ThemedTooltip,
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
@@ -98,6 +98,19 @@ const PreviewHeaderSpacer = styled.div`
   inline-size: 24px;
 `;
 
+const PreviewBackButton = styled.button`
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: ${TAMANU_COLORS.primary};
+  cursor: pointer;
+  display: inline-flex;
+  inline-size: 32px;
+  justify-content: center;
+  padding: 4px;
+`;
+
 const PreviewHeading = styled.div`
   align-items: center;
   color: ${TAMANU_COLORS.darkText};
@@ -144,6 +157,22 @@ const PreviewSubmitTooltipTarget = styled.div`
   display: inline-flex;
 `;
 
+const PreviewSubmitTooltip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    background-color: ${TAMANU_COLORS.darkText};
+    border-radius: 4px;
+    color: ${TAMANU_COLORS.white};
+    font-size: 16px;
+    font-weight: 600;
+    max-inline-size: none;
+    padding: 9px 16px;
+  }
+
+  .MuiTooltip-arrow {
+    display: none;
+  }
+`;
+
 const PreviewPatientDataValue = styled.div`
   color: ${TAMANU_COLORS.darkText};
   font-size: 14px;
@@ -156,7 +185,8 @@ function PreviewPatientDataField({ field, label, value }) {
 
   return (
     <PreviewPatientDataValue>
-      {label}: {displayValue ?? (
+      {label}:{' '}
+      {displayValue ?? (
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.preview.patientDataPlaceholder"
           fallback="Patient record value"
@@ -212,7 +242,9 @@ const getPreviewScreenCount = survey =>
 
 function PreviewSubmitButton() {
   return (
-    <Tooltip
+    <PreviewSubmitTooltip
+      arrow={false}
+      placement="bottom"
       title={
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.preview.submit.tooltip"
@@ -225,11 +257,11 @@ function PreviewSubmitButton() {
           <TranslatedText stringId="general.action.submit" fallback="Submit" />
         </Button>
       </PreviewSubmitTooltipTarget>
-    </Tooltip>
+    </PreviewSubmitTooltip>
   );
 }
 
-export function FormPreview({ form, isSaved, iteration }) {
+export function FormPreview({ form, isSaved, iteration, onBack }) {
   const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
@@ -267,7 +299,9 @@ export function FormPreview({ form, isSaved, iteration }) {
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
       <PreviewTitleHeader>
-        <ArrowBackIosNewIcon htmlColor={TAMANU_COLORS.primary} fontSize="small" />
+        <PreviewBackButton type="button" onClick={onBack}>
+          <ArrowBackIosNewIcon fontSize="small" />
+        </PreviewBackButton>
         <PreviewFormTitle>{form.title}</PreviewFormTitle>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewTitleHeader>

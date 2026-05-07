@@ -55,7 +55,7 @@ const waitForChatJob = async ({ api, jobId, signal }) => {
     const job = await api.get(
       `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
       {},
-      { signal },
+      { signal, showUnknownErrorToast: false },
     );
 
     if (job.status === 'complete') return job.result;
@@ -90,6 +90,9 @@ export function AiFormBuilderView() {
   const [pendingFile, setPendingFile] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(() =>
+    Boolean(readSessionChatState(sessionKey).generatedForm),
+  );
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const abortControllerRef = useRef(null);
   const inputFileRef = useRef(null);
@@ -109,11 +112,13 @@ export function AiFormBuilderView() {
     state.messages.length || state.generatedForm || inputValue.trim() || pendingFile,
   );
   const generatedForm = normaliseProgramDefinition(state.generatedForm);
-  const showPreview = Boolean(generatedForm);
+  const showPreview = Boolean(generatedForm && isPreviewOpen);
   const sendDisabled = !inputValue.trim() && !pendingFile;
 
   useEffect(() => {
-    setState(readSessionChatState(sessionKey));
+    const nextState = readSessionChatState(sessionKey);
+    setState(nextState);
+    setIsPreviewOpen(Boolean(nextState.generatedForm));
   }, [sessionKey]);
 
   useEffect(() => {
@@ -145,6 +150,7 @@ export function AiFormBuilderView() {
     setInputValue('');
     setPendingFile(null);
     setIsThinking(false);
+    setIsPreviewOpen(false);
     setIsNewChatModalOpen(false);
   }, []);
 
@@ -165,85 +171,92 @@ export function AiFormBuilderView() {
     }));
   }, []);
 
-  const sendChatMessage = useCallback(async ({ message, file, selectedProgramId }) => {
-    abortControllerRef.current?.abort();
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-    setIsThinking(true);
+  const sendChatMessage = useCallback(
+    async ({ message, file, selectedProgramId }) => {
+      abortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      setIsThinking(true);
 
-    try {
-      const selectedProgramCode = getProgramCode(selectedProgramId);
-      const body = {
-        async: true,
-        sessionId: state.sessionId,
-        programDefinition: state.generatedForm
-          ? normaliseProgramDefinition(state.generatedForm)
-          : undefined,
-        message: [
-          selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
-          message,
-        ]
-          .filter(Boolean)
-          .join('\n\n'),
-      };
-      const response = file
-        ? await api.postWithFileUpload('admin/form-builder/chat', file, body, {
-            signal: abortController.signal,
-          })
-        : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
-      const chatResponse = response.jobId
-        ? await waitForChatJob({ api, jobId: response.jobId, signal: abortController.signal })
-        : response;
-
-      setState(current => {
-        const generatedFormIteration = chatResponse.programDefinition
-          ? (current.generatedFormIteration ?? 0) + 1
-          : current.generatedFormIteration;
-
-        return {
-          ...current,
-          sessionId: chatResponse.sessionId,
-          readyToExport: Boolean(chatResponse.readyToExport),
-          readyToGenerate: Boolean(chatResponse.readyToGenerate),
-          generatedForm: chatResponse.programDefinition
-            ? normaliseProgramDefinition(chatResponse.programDefinition)
-            : current.generatedForm,
-          generatedFormIteration,
-          savedSurveyId: chatResponse.programDefinition ? null : current.savedSurveyId,
-          messages: [
-            ...current.messages,
-            createMessage({
-              type: 'assistant',
-              text: chatResponse.message,
-            }),
-            ...(chatResponse.programDefinition
-              ? [
-                  createMessage({
-                    type: 'download',
-                    fileName: getProgramDefinitionFileName(chatResponse.programDefinition),
-                    iteration: generatedFormIteration,
-                  }),
-                ]
-              : []),
-          ],
+      try {
+        const selectedProgramCode = getProgramCode(selectedProgramId);
+        const body = {
+          async: true,
+          sessionId: state.sessionId,
+          programDefinition: state.generatedForm
+            ? normaliseProgramDefinition(state.generatedForm)
+            : undefined,
+          message: [
+            selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
+            message,
+          ]
+            .filter(Boolean)
+            .join('\n\n'),
         };
-      });
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        notifyError(
-          <TranslatedText
-            stringId="admin.programs.aiFormBuilder.error.generate"
-            fallback="Unable to build the form"
-          />,
-        );
+        const response = file
+          ? await api.postWithFileUpload('admin/form-builder/chat', file, body, {
+              signal: abortController.signal,
+            })
+          : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
+        const chatResponse = response.jobId
+          ? await waitForChatJob({ api, jobId: response.jobId, signal: abortController.signal })
+          : response;
+
+        if (chatResponse.programDefinition) {
+          setIsPreviewOpen(true);
+        }
+
+        setState(current => {
+          const generatedFormIteration = chatResponse.programDefinition
+            ? (current.generatedFormIteration ?? 0) + 1
+            : current.generatedFormIteration;
+
+          return {
+            ...current,
+            sessionId: chatResponse.sessionId,
+            readyToExport: Boolean(chatResponse.readyToExport),
+            readyToGenerate: Boolean(chatResponse.readyToGenerate),
+            generatedForm: chatResponse.programDefinition
+              ? normaliseProgramDefinition(chatResponse.programDefinition)
+              : current.generatedForm,
+            generatedFormIteration,
+            savedSurveyId: chatResponse.programDefinition ? null : current.savedSurveyId,
+            messages: [
+              ...current.messages,
+              createMessage({
+                type: 'assistant',
+                text: chatResponse.message,
+              }),
+              ...(chatResponse.programDefinition
+                ? [
+                    createMessage({
+                      type: 'download',
+                      fileName: getProgramDefinitionFileName(chatResponse.programDefinition),
+                      iteration: generatedFormIteration,
+                    }),
+                  ]
+                : []),
+            ],
+          };
+        });
+      } catch (error) {
+        if (!abortController.signal.aborted && error.name !== 'AbortError') {
+          notifyError(
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.error.generate"
+              fallback="Unable to build the form"
+            />,
+          );
+        }
+      } finally {
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+          setIsThinking(false);
+        }
       }
-    } finally {
-      if (abortControllerRef.current === abortController) {
-        abortControllerRef.current = null;
-        setIsThinking(false);
-      }
-    }
-  }, [api, state.generatedForm, state.sessionId]);
+    },
+    [api, state.generatedForm, state.sessionId],
+  );
 
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -301,13 +314,7 @@ export function AiFormBuilderView() {
     }
 
     sendChatMessage({ ...submission, selectedProgramId: state.selectedProgramId });
-  }, [
-    inputValue,
-    isThinking,
-    pendingFile,
-    sendChatMessage,
-    state.selectedProgramId,
-  ]);
+  }, [inputValue, isThinking, pendingFile, sendChatMessage, state.selectedProgramId]);
 
   const setFileIfValid = file => {
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -354,16 +361,32 @@ export function AiFormBuilderView() {
 
     setIsSaving(true);
     try {
-      const { surveys } = await api.post(`admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`, {
-        form: generatedForm,
-      });
-      setState(current => ({ ...current, savedSurveyId: surveys[0]?.id }));
+      const { surveys } = await api.post(
+        `admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`,
+        {
+          form: generatedForm,
+        },
+      );
+      setState(current => ({
+        ...current,
+        savedSurveyId: surveys[0]?.id,
+        messages: [
+          ...current.messages,
+          createMessage({
+            type: 'assistant',
+            text: getTranslation(
+              'admin.programs.aiFormBuilder.save.successMessage',
+              'Survey has been saved to the database',
+            ),
+          }),
+        ],
+      }));
       await queryClient.invalidateQueries({ queryKey: ['programs'] });
 
       notifySuccess(
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.save.success"
-          fallback="Form saved to the database"
+          fallback="Survey has been saved to the database"
         />,
       );
     } catch (error) {
@@ -412,6 +435,7 @@ export function AiFormBuilderView() {
                         value={state.selectedProgramId}
                         onChange={handleSelectProgram}
                         programOptions={programOptions}
+                        disabled={isThinking && Boolean(state.selectedProgramId)}
                       />
                     );
                   }
@@ -425,6 +449,7 @@ export function AiFormBuilderView() {
                         onDownload={() => handleDownload(message.fileName)}
                         isSaving={isSaving}
                         onSave={handleSave}
+                        onPreview={() => setIsPreviewOpen(true)}
                       />
                     );
                   }
@@ -474,6 +499,7 @@ export function AiFormBuilderView() {
             form={generatedForm}
             isSaved={Boolean(state.savedSurveyId)}
             iteration={state.generatedFormIteration}
+            onBack={() => setIsPreviewOpen(false)}
           />
         )}
       </BuilderShell>
