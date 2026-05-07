@@ -178,7 +178,7 @@ export const PharmacyOrderModal = React.memo(
 
     const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
     const defaultPrescriptionType = getSetting(
-      'features.pharmacyOrder.defaultPrescriptionType',
+      'medications.pharmacyOrder.defaultPrescriptionType',
       PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
     );
 

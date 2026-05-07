@@ -194,6 +194,31 @@ export const facilitySettings = {
       name: 'Medication',
       description: 'Settings related to medication management and dispensing',
       properties: {
+        pharmacyOrder: {
+          name: 'Pharmacy orders',
+          description: 'Default prescription type behavior for pharmacy orders',
+          properties: {
+            defaultPrescriptionType: {
+              description: 'Default prescription type in Pharmacy Order modal',
+              type: yup.string().oneOf(Object.values(PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES)),
+              defaultValue: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+              options: [
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+                  label: 'Existing encounter type',
+                },
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE,
+                  label: 'Outpatient/Discharge',
+                },
+                {
+                  value: (PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES as Record<string, string>).INPATIENT,
+                  label: 'Inpatient',
+                },
+              ],
+            },
+          },
+        },
         medicationDispensing: {
           name: 'Medication dispensing',
           description:
@@ -214,36 +239,6 @@ export const facilitySettings = {
               type: yup.string().nullable(),
               defaultValue: null,
               suggesterEndpoint: 'department',
-            },
-          },
-        },
-      },
-    },
-    features: {
-      description: 'Facility-specific feature settings',
-      exposedToWeb: true,
-      properties: {
-        pharmacyOrder: {
-          description: 'Pharmacy order settings',
-          properties: {
-            defaultPrescriptionType: {
-              description: 'Default prescription type in Pharmacy Order modal',
-              type: yup.string().oneOf(Object.values(PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES)),
-              defaultValue: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
-              options: [
-                {
-                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
-                  label: 'Existing encounter type',
-                },
-                {
-                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE,
-                  label: 'Outpatient/Discharge',
-                },
-                {
-                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.INPATIENT,
-                  label: 'Inpatient',
-                },
-              ],
             },
           },
         },
