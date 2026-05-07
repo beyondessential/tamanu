@@ -146,7 +146,10 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       data-testid="modal-ag6a"
     >
       {isPending ? (
-        <PendingMessage isLoading={isLoading} isNotFound={isNotFound} />
+        <PendingMessage
+          isLoading={isLoading || (!surveyDetails && !error)}
+          isNotFound={isNotFound}
+        />
       ) : (
         <>
           {onPrint && (
