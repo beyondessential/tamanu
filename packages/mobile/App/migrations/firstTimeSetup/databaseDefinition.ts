@@ -1461,11 +1461,6 @@ const PatientTable = new Table({
       type: 'varchar',
     }),
     new TableColumn({
-      name: 'title',
-      type: 'varchar',
-      isNullable: true,
-    }),
-    new TableColumn({
       name: 'firstName',
       type: 'varchar',
       isNullable: true,
