@@ -69,7 +69,7 @@ function getSecurityIssues(
 export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(true);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
@@ -91,6 +91,8 @@ export const useSecurityInfo = () => {
   useEffect(() => {
     if (signedIn && isForeground) {
       fetchSecurityInfo();
+    } else {
+      setIsLoading(false);
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 
