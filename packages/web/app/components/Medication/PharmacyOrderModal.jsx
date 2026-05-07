@@ -251,6 +251,10 @@ export const PharmacyOrderModal = React.memo(
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
         return;
       }
+      if (defaultPrescriptionType === PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.INPATIENT) {
+        setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
+        return;
+      }
 
       if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);

@@ -308,6 +308,7 @@ export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
 export const PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES = {
   ENCOUNTER_TYPE: 'encounterType',
   OUTPATIENT_OR_DISCHARGE: 'outpatientOrDischarge',
+  INPATIENT: 'inpatient',
 };
 
 export const DRUG_STOCK_STATUSES = {
