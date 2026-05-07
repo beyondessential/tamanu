@@ -94,9 +94,7 @@ export const SettingInput = ({
   options,
 }) => {
   const { type } = typeSchema;
-  const oneOfOptions = typeSchema?.describe?.()?.oneOf || [];
-  const hasSelectOptions =
-    type === SETTING_TYPES.STRING && (Array.isArray(options) ? options.length > 0 : oneOfOptions.length > 0);
+  const hasSelectOptions = type === SETTING_TYPES.STRING && Array.isArray(options) && options.length > 0;
   const [error, setError] = useState(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
@@ -228,14 +226,7 @@ export const SettingInput = ({
               onChange={defaultHandleChange}
               isClearable={false}
               style={{ width: '353px' }}
-              options={
-                Array.isArray(options)
-                  ? options
-                  : oneOfOptions.map(value => ({
-                      value,
-                      label: value,
-                    }))
-              }
+              options={options}
               error={error}
               helperText={error?.message}
               disabled={disabled}
