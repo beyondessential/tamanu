@@ -74,10 +74,8 @@ export const SurveyResponseDetailsModal = ({
   });
   const editedAnswerIds = useMemo(() => {
     const ids = new Set();
-    for (const ch of changesData?.changes || []) {
-      if (ch.tableName === 'survey_response_answers') {
-        ids.add(ch.recordId);
-      }
+    for (const ch of changesData?.changes ?? []) {
+      if (ch.tableName === 'survey_response_answers') ids.add(ch.recordId);
     }
     return ids;
   }, [changesData]);
