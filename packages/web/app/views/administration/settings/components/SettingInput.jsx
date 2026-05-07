@@ -426,6 +426,7 @@ export const SettingInput = ({
             <SelectInput
               value={displayValue ?? ''}
               onChange={defaultHandleChange}
+              isClearable={false}
               style={{ width: '353px' }}
               options={
                 Array.isArray(options)
