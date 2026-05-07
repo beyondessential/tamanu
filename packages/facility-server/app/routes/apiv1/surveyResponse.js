@@ -179,7 +179,7 @@ async function handleSurveyResponseActions(
  */
 function diffKeys(prev, curr) {
   if (!curr) return [];
-  const keys = new Set(prev ? Object.keys(prev).concat(Object.keys(curr)) : Object.keys(curr));
+  const keys = new Set(prev ? [...Object.keys(prev), ...Object.keys(curr)] : Object.keys(curr));
 
   /** @type {{ fieldKey: string; from: any; to: any; }[]} */
   const out = [];
