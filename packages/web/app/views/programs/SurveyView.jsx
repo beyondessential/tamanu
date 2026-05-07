@@ -1,5 +1,3 @@
-import React, { useMemo, useEffect } from 'react';
-import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
@@ -10,11 +8,14 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
+import React, { useEffect, useMemo } from 'react';
+import { useMatch } from 'react-router';
+import styled from 'styled-components';
 import { getComponentForQuestionType } from '../../components/Surveys';
-import { useTranslation } from '../../contexts/Translation';
-import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useTranslation } from '../../contexts/Translation';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background-color: ${props => props.theme.palette.primary.main};
@@ -52,6 +53,19 @@ export const SurveyViewForm = ({
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
+
+  const patientProgramsEditMatch = Boolean(
+    useMatch('/patients/:category/:patientId/programs/:surveyResponseId/edit'),
+  );
+  const encounterProgramsEditMatch = Boolean(
+    useMatch(
+      '/patients/:category/:patientId/encounter/:encounterId/programs/:surveyResponseId/edit',
+    ),
+  );
+  const isEditingExistingSurveyResponse = Boolean(
+    patientProgramsEditMatch || encounterProgramsEditMatch,
+  );
+
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -134,7 +148,7 @@ export const SurveyViewForm = ({
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
-          completeButtonDisabled={!dirty}
+          completeButtonDisabled={isEditingExistingSurveyResponse ? !dirty : false}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
