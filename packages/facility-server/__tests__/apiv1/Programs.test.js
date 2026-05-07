@@ -285,6 +285,11 @@ describe('Programs', () => {
       });
       expect(patch).toHaveSucceeded();
 
+      const updatedAnswer = await models.SurveyResponseAnswer.findOne({
+        where: { responseId, dataElementId },
+      });
+      expect(updatedAnswer.body).toBe('patched-answer-value');
+
       const after = await models.SurveyResponse.findByPk(responseId);
       expect(after.endTime).toEqual(before.endTime);
 
