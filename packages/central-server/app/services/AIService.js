@@ -257,6 +257,38 @@ export class AIService {
   }
 
   /**
+   * Interpret an uploaded form PDF using the form builder image/document prompt setting.
+   *
+   * @param {object} options
+   * @param {string} options.pdfBase64
+   * @param {string} [options.fileName]
+   * @returns {Promise<string>}
+   */
+  async interpretFormBuilderPdf({ pdfBase64, fileName }) {
+    const response = await this.chatModel.invoke([
+      new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
+      new HumanMessage({
+        content: [
+          {
+            type: 'text',
+            text: `Interpret the uploaded form PDF${fileName ? ` "${fileName}"` : ''}.`,
+          },
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: pdfBase64,
+            },
+          },
+        ],
+      }),
+    ]);
+
+    return normalizeMessageContent(response.content);
+  }
+
+  /**
    * @param {string} sessionId
    * @returns {Promise<string>}
    */

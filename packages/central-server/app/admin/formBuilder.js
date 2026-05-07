@@ -167,7 +167,16 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
   }
 
   if (extension === '.pdf' || contentType === 'application/pdf') {
-    return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". Text extraction is not available yet; ask the implementer to confirm any details that are not already in the conversation.`;
+    try {
+      const interpretedPdf = await aiService.interpretFormBuilderPdf({
+        pdfBase64: (await fs.readFile(file)).toString('base64'),
+        fileName: sanitizeFileNameForPrompt(fileName),
+      });
+      return `[PDF DOCUMENT INTERPRETED]\n${interpretedPdf}`;
+    } catch (error) {
+      log.warn({ error }, 'AI form builder failed to interpret uploaded PDF');
+      return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed; make a best-effort draft from the filename and conversation, and explain that the PDF content could not be read.`;
+    }
   }
 
   const fileBuffer = await fs.readFile(file);

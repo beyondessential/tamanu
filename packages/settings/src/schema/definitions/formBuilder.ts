@@ -45,13 +45,15 @@ Do not replace it with a generic clinical template or add whole sections that
 are not present unless the user asks. Convert each visible checkbox/yes-no/date
 field into an equivalent Tamanu question. For "Other, specify" and conditional
 "If yes" prompts, add the follow-up text field with visibilityCriteria rather
-than dropping the detail. If a PDF upload only says text extraction is not
-available and no extracted form content is present elsewhere in the conversation,
-do not generate from the title alone; ask the user to paste the form text,
-upload an image, or provide another extractable file.`;
+than dropping the detail. If a PDF fallback note says interpretation failed
+and no extracted form content is present elsewhere in the conversation,
+make a best-effort draft from any title, filename, user instructions, and
+clinical context available. Clearly state that the draft is less faithful
+because the PDF content could not be interpreted, and invite the user to paste
+text or provide another file if they want a closer conversion.`;
 
-const interpretFormImageDefault = `Examine this image — it may be a paper form, whiteboard diagram, screenshot,
-or photograph related to a clinical program form.
+const interpretFormImageDefault = `Examine this image or PDF — it may be a paper form, whiteboard diagram, screenshot,
+photograph, or document related to a clinical program form.
 
 If the image does not appear to be a clinical form, diagram, or related
 document, return exactly one line and stop:
@@ -100,7 +102,8 @@ authoritative pre-filled context — do not re-ask for information already there
   [PROGRAM SELECTED] <code or __new__>   — user picked a program in the UI
   [EXISTING PROGRAM LOADED] …            — full summary of an uploaded Tamanu XLSX
   [FORM IMAGE INTERPRETED] …             — output of the image interpretation prompt
-  [PDF DOCUMENT LOADED] …                — text extracted from an uploaded PDF
+  [PDF DOCUMENT INTERPRETED] …           — output of the PDF interpretation prompt
+  [PDF DOCUMENT LOADED] …                — PDF fallback note if interpretation failed
   [CSV DOCUMENT LOADED] …                — rows extracted from an uploaded CSV
   [XLSX DOCUMENT LOADED] …               — non-Tamanu spreadsheet, treat as a form spec
   [TEXT DOCUMENT LOADED] …               — plain text uploaded by the user
@@ -411,7 +414,7 @@ export const formBuilderProperties = {
       properties: {
         interpretFormImage: {
           description:
-            'System prompt used when an image (png/jpg/jpeg) of a form is uploaded. PDFs and CSV/XLSX uploads use the conversational prompt directly — this prompt only runs for raster images. Note: the output of this prompt is fed back into the conversational prompt; changing the output shape may degrade downstream extraction.',
+            'System prompt used when an image (png/jpg/jpeg) or PDF of a form is uploaded. CSV/XLSX uploads use the conversational prompt directly. Note: the output of this prompt is fed back into the conversational prompt; changing the output shape may degrade downstream extraction.',
           type: yup.string(),
           editor: SETTING_EDITORS.MARKDOWN,
           defaultValue: interpretFormImageDefault,
