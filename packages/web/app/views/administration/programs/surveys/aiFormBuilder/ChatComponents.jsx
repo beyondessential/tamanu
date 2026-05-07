@@ -561,7 +561,7 @@ export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSav
       <MessageText>
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.readyMessage"
-          fallback="A draft form is ready for preview. Review it before saving to the database or downloading the xlsx."
+          fallback="A form is ready for preview. Review it before saving to the database or downloading the xlsx."
         />
       </MessageText>
       <DownloadCard>

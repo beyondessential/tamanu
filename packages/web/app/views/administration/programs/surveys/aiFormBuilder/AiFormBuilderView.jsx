@@ -497,8 +497,6 @@ export function AiFormBuilderView() {
         {showPreview && (
           <FormPreview
             form={generatedForm}
-            isSaved={Boolean(state.savedSurveyId)}
-            iteration={state.generatedFormIteration}
             onBack={() => setIsPreviewOpen(false)}
           />
         )}
