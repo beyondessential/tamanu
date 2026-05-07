@@ -32,20 +32,13 @@ const COLUMNS = [
       <TranslatedText
         stringId="surveyResponse.details.table.column.indicator"
         fallback="Indicator"
-        data-testid="translatedtext-62uq"
       />
     ),
     accessor: ({ name }) => name,
   },
   {
     key: 'value',
-    title: (
-      <TranslatedText
-        stringId="surveyResponse.details.table.column.value"
-        fallback="Value"
-        data-testid="translatedtext-fah5"
-      />
-    ),
+    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
     accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
       <SurveyAnswerResult
         answer={answer}
@@ -81,11 +74,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     return (
       <Modal
         title={
-          <TranslatedText
-            stringId="surveyResponse.modal.details.title"
-            fallback="Form response"
-            data-testid="translatedtext-0lad"
-          />
+          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
         }
         open={!!surveyResponseId}
         onClose={onClose}
@@ -93,24 +82,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       >
         {isNotFound ? (
           <TranslatedText
-            stringId={
-              isNotFound
-                ? 'surveyResponse.modal.details.error.formDeleted'
-                : 'surveyResponse.modal.details.error.fetchErrorMessage'
-            }
-            fallback={
-              isNotFound
-                ? 'This form has been deleted and is no longer available.'
-                : 'Error fetching response details'
-            }
-            data-testid="translatedtext-b9js"
+            stringId="surveyResponse.modal.details.error.formDeleted"
+            fallback="This form has been deleted and is no longer available."
+          />
+        ) : error ? (
+          <TranslatedText
+            stringId="surveyResponse.modal.details.error.fetchErrorMessage"
+            fallback="Error fetching response details"
           />
         ) : (
-          <TranslatedText
-            stringId="general.table.loading"
-            fallback="Loading…"
-            data-testid="translatedtext-ec13"
-          />
+          <TranslatedText stringId="general.table.loading" fallback="Loading…" />
         )}
       </Modal>
     );
@@ -153,11 +134,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   return (
     <Modal
       title={
-        <TranslatedText
-          stringId="surveyResponse.modal.details.title"
-          fallback="Form response"
-          data-testid="translatedtext-bnqe"
-        />
+        <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
       }
       open={!!surveyResponseId}
       onClose={onClose}
@@ -172,11 +149,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           size="small"
           data-testid="printbutton-ywph"
         >
-          <TranslatedText
-            stringId="general.action.print"
-            fallback="Print"
-            data-testid="translatedtext-gct8"
-          />
+          <TranslatedText stringId="general.action.print" fallback="Print" />
         </PrintButton>
       )}
       <TableContainer data-testid="tablecontainer-csba">
@@ -185,13 +158,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       <SectionSpacing data-testid="sectionspacing-gtmt" />
       <ModalCancelRow
         onConfirm={onClose}
-        confirmText={
-          <TranslatedText
-            stringId="general.action.close"
-            fallback="Close"
-            data-testid="translatedtext-mhfm"
-          />
-        }
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
         data-testid="modalcancelrow-dpsx"
       />
     </Modal>
