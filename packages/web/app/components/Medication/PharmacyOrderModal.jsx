@@ -240,7 +240,7 @@ export const PharmacyOrderModal = React.memo(
       setOrderingClinicianId(currentUser.id);
     }, [currentUser]);
 
-    // Set default prescription type when the modal opens. Defaut is determined by the mode setting.
+    // Set default prescription type when the modal opens. Default is determined by the mode setting.
     useEffect(() => {
       if (!open || !encounter?.encounterType || isOngoingMode) return;
 
