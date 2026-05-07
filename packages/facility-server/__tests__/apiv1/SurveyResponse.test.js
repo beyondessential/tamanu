@@ -80,7 +80,7 @@ describe('SurveyResponse', () => {
       body: answerBody,
     });
 
-    return { answer, response };
+    return { answer, response, facilityId: facility.id };
   };
 
   const setupComplexChartSurvey = async () => {
@@ -145,7 +145,7 @@ describe('SurveyResponse', () => {
       body: 'Initial answer',
     });
 
-    return { answer, response, dataElement, survey };
+    return { answer, response, dataElement, survey, facilityId: facility.id };
   };
 
   describe('autocomplete', () => {
@@ -161,7 +161,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).toHaveSucceeded();
@@ -187,7 +187,7 @@ describe('SurveyResponse', () => {
       const { response } = await setupAutocompleteSurvey('{}', facility.id);
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -208,7 +208,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -229,7 +229,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -250,7 +250,7 @@ describe('SurveyResponse', () => {
       );
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).not.toHaveSucceeded();
@@ -268,11 +268,13 @@ describe('SurveyResponse', () => {
       const oldValue = answer.body;
       const newValue = 'Updated answer';
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          [answer.dataElementId]: newValue,
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            [answer.dataElementId]: newValue,
+          },
+        });
       await answer.reload();
 
       expect(result).toHaveSucceeded();
@@ -295,11 +297,13 @@ describe('SurveyResponse', () => {
       });
       const newValue = 'New answer value';
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          [newDataElement.id]: newValue,
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            [newDataElement.id]: newValue,
+          },
+        });
       const newAnswer = await models.SurveyResponseAnswer.findOne({
         where: {
           responseId: response.id,
@@ -316,11 +320,13 @@ describe('SurveyResponse', () => {
       const { answer, response } = await setupComplexChartSurvey();
       const originalValue = answer.body;
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          [answer.dataElementId]: null,
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            [answer.dataElementId]: null,
+          },
+        });
       await answer.reload();
 
       expect(result).toHaveSucceeded();
@@ -364,13 +370,15 @@ describe('SurveyResponse', () => {
       });
       const newAnswerValue = 'New answer value';
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          [answer1.dataElementId]: newValue1,
-          [answer2.dataElementId]: newValue2,
-          [newAnswerDataElement.id]: newAnswerValue,
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            [answer1.dataElementId]: newValue1,
+            [answer2.dataElementId]: newValue2,
+            [newAnswerDataElement.id]: newAnswerValue,
+          },
+        });
       await answer1.reload();
       await answer2.reload();
 
@@ -384,11 +392,13 @@ describe('SurveyResponse', () => {
     it('should return 404 when survey response not found', async () => {
       const nonExistentId = 'non-existent-id';
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${nonExistentId}`).send({
-        answers: {
-          'some-data-element-id': 'some value',
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(nonExistentId)}`)
+        .send({
+          answers: {
+            'some-data-element-id': 'some value',
+          },
+        });
 
       expect(result).not.toHaveSucceeded();
       expect(result.status).toBe(404);
@@ -398,11 +408,13 @@ describe('SurveyResponse', () => {
       const { survey, response } = await setupComplexChartSurvey();
       await survey.update({ surveyType: SURVEY_TYPES.PROGRAMS });
 
-      const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          'some-data-element-id': 'some value',
-        },
-      });
+      const result = await app
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            'some-data-element-id': 'some value',
+          },
+        });
 
       expect(result).not.toHaveSucceeded();
       expect(result.status).toBe(422);
@@ -412,13 +424,181 @@ describe('SurveyResponse', () => {
       const { answer, response } = await setupComplexChartSurvey();
       const unauthorizedApp = await baseApp.asRole('reception');
 
-      const result = await unauthorizedApp.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
-        answers: {
-          [answer.dataElementId]: 'some value',
-        },
-      });
+      const result = await unauthorizedApp
+        .put(`/api/surveyResponse/complexChartInstance/${encodeURIComponent(response.id)}`)
+        .send({
+          answers: {
+            [answer.dataElementId]: 'some value',
+          },
+        });
 
       expect(result).toBeForbidden();
+    });
+  });
+
+  describe('program survey PATCH validation', () => {
+    it('should reject PATCH when facilityId is missing', async () => {
+      const { answer, response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const result = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({ answers: { [answer.dataElementId]: 'x' } });
+
+      expect(result).toHaveStatus(422);
+      expect(result.body.error.message).toBe('facilityId is required');
+    });
+
+    it('should reject PATCH when answers is missing, null, or not an object', async () => {
+      const { facilityId, response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const missing = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({ facilityId });
+      expect(missing).toHaveStatus(422);
+      expect(missing.body.error.message).toBe('answers is required');
+
+      const nullAnswers = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({ facilityId, answers: null });
+      expect(nullAnswers).toHaveStatus(422);
+      expect(nullAnswers.body.error.message).toBe('answers is required');
+
+      const stringAnswers = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({ facilityId, answers: 'not-an-object' });
+      expect(stringAnswers).toHaveStatus(422);
+      expect(stringAnswers.body.error.message).toBe('answers is required');
+    });
+
+    it('should reject PATCH for a non-program survey', async () => {
+      const { response, answer, facilityId } = await setupComplexChartSurvey();
+
+      const result = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: 'patched' },
+        });
+
+      expect(result).toHaveStatus(422);
+      expect(result.body.error.message).toBe('Cannot edit survey responses');
+    });
+  });
+
+  describe('program survey PATCH authorisation', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('should reject unauthenticated PATCH', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const result = await baseApp
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: 'x' },
+        });
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('should forbid PATCH when the role can read SurveyResponse but not write the survey', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const restrictedApp = await baseApp.asNewRole([
+        ['read', 'SurveyResponse'],
+        ['read', 'Survey', response.surveyId],
+      ]);
+
+      const result = await restrictedApp
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: 'x' },
+        });
+
+      expect(result).toBeForbidden();
+    });
+
+    it('should allow PATCH when the role can read SurveyResponse and write the survey', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const permittedApp = await baseApp.asNewRole([
+        ['read', 'SurveyResponse'],
+        ['write', 'Survey', response.surveyId],
+      ]);
+
+      const result = await permittedApp
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: 'patched-by-permitted-role' },
+        });
+
+      expect(result).toHaveSucceeded();
+      await answer.reload();
+      expect(answer.body).toBe('patched-by-permitted-role');
+    });
+  });
+
+  describe('survey response changelog authorisation', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('should reject unauthenticated GET /changes', async () => {
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const result = await baseApp.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+
+      expect(result).toHaveRequestError();
+    });
+
+    it('should forbid GET /changes when the role cannot read SurveyResponse', async () => {
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const noSurveyResponseRead = await baseApp.asNewRole([['read', 'Survey', response.surveyId]]);
+
+      const result = await noSurveyResponseRead.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+
+      expect(result).toBeForbidden();
+    });
+
+    it('should reject GET /changes for a non-program survey', async () => {
+      const { response } = await setupComplexChartSurvey();
+
+      const permittedApp = await baseApp.asNewRole([['read', 'SurveyResponse']]);
+
+      const result = await permittedApp.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+
+      expect(result).toHaveStatus(422);
+      expect(result.body.error.message).toBe(
+        'Changelog is only available for program survey responses',
+      );
     });
   });
 
@@ -444,7 +624,7 @@ describe('SurveyResponse', () => {
       app = await baseApp.asNewRole(permissions);
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).toHaveSucceeded();
@@ -466,7 +646,7 @@ describe('SurveyResponse', () => {
       app = await baseApp.asNewRole(permissions);
 
       // act
-      const result = await app.get(`/api/surveyResponse/${response.id}`);
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
 
       // assert
       expect(result).toHaveStatus(403);
