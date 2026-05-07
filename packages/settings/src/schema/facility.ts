@@ -238,6 +238,10 @@ export const facilitySettings = {
                   value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE,
                   label: 'Outpatient/Discharge',
                 },
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.INPATIENT,
+                  label: 'Inpatient',
+                },
               ],
             },
           },
