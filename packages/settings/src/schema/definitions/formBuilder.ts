@@ -5,6 +5,51 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 const protocolWarning =
   'Important: this prompt contains protocol used by the application. Do not rename bracketed input tags, response fields, or JSON format examples unless the calling code is updated too.';
 
+const supportedDataReadQuestionTypesSummary = `Supported data-reading question types: PatientData
+(patient/registration/custom patient fields via config.column), UserData
+(current user via config.column), SurveyAnswer (latest previous answer by
+config.source question code), SurveyLink (previous response by config.source
+survey id), and Autocomplete (Patient, ReferenceData, Facility, Location,
+Department, User, LocationGroup, Village, ProgramRegistryClinicalStatus).`;
+
+const supportedDataReadQuestionTypes = `SUPPORTED DATA-READING QUESTION TYPES
+- PatientData reads existing patient-related values into the form. Use
+  config.column, not config.fieldName. Supported built-in column values:
+  fullName, age, ageWithMonths, firstName, middleName, lastName, culturalName,
+  dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType,
+  primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown,
+  streetVillage, educationalLevel, socialMedia, title, birthCertificate,
+  drivingLicense, passport, emergencyContactName, emergencyContactNumber,
+  registeredById, motherId, fatherId, nationalityId, countryId, divisionId,
+  subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId,
+  occupationId, religionId, patientBillingTypeId, countryOfBirthId,
+  registrationClinicalStatus, programRegistrationStatus,
+  registrationClinician, registeringFacility, registrationCurrentlyAtVillage,
+  registrationCurrentlyAtFacility. Custom patient fields can also be read by
+  using the custom patient field definition id as config.column.
+- UserData reads the current logged-in user. Default column is displayName;
+  supported useful columns include id, email, displayName, role, phoneNumber.
+- SurveyAnswer reads the latest previous answer for the same patient from a
+  source question code. Use config.source with the source question code.
+- SurveyLink lets the user select one of the patient's previous responses for
+  a source survey. Use config.source with the source survey id.
+- Autocomplete selects existing entities from suggesters. Supported sources:
+  Patient, ReferenceData, Facility, Location, Department, User, LocationGroup,
+  Village, ProgramRegistryClinicalStatus. For ReferenceData, include
+  config.where.type, e.g. {"source":"ReferenceData","where":{"type":"village"}}.`;
+
+const uploadedFormFidelityRules = `UPLOADED FORM FIDELITY
+When the user supplies a PDF, image, CSV, XLSX, or text form spec, preserve the
+source form's labels, options, ordering, and sections as closely as possible.
+Do not replace it with a generic clinical template or add whole sections that
+are not present unless the user asks. Convert each visible checkbox/yes-no/date
+field into an equivalent Tamanu question. For "Other, specify" and conditional
+"If yes" prompts, add the follow-up text field with visibilityCriteria rather
+than dropping the detail. If a PDF upload only says text extraction is not
+available and no extracted form content is present elsewhere in the conversation,
+do not generate from the title alone; ask the user to paste the form text,
+upload an image, or provide another extractable file.`;
+
 const interpretFormImageDefault = `Examine this image — it may be a paper form, whiteboard diagram, screenshot,
 or photograph related to a clinical program form.
 
@@ -86,6 +131,10 @@ behaviour.
 Only use action/writeback question types when the requested behaviour is clear
 and the required config fields are known. Otherwise, ask a concise follow-up
 before generating or use a normal survey question type.
+
+${supportedDataReadQuestionTypesSummary}
+
+${uploadedFormFidelityRules}
 
 FOLLOW-UP QUESTION STYLE
 - Ask only the highest-value follow-up questions needed to make progress,
@@ -202,6 +251,10 @@ CalculatedQuestion, Result, SurveyAnswer, SurveyResult, SurveyLink,
 PatientData, UserData, Photo, Geolocate, PatientIssue, ConditionQuestion, and
 the complex chart types.
 
+${uploadedFormFidelityRules}
+
+${supportedDataReadQuestionTypes}
+
 Code naming rules (applied consistently across all sheets):
 - programCode: lowercase, no separators, from program name. e.g. "NCD Screening" → "ncdscreening"
 - survey code: lowercase, no separators, from survey name. e.g. "NCD Screening" → "ncdscreening"
@@ -218,11 +271,7 @@ Survey and question rules:
 - For fixed enum-like choices, prefer Select, Radio, or MultiSelect with an
   explicit options list. Use Autocomplete only when the answer should search
   an existing data source/suggester rather than use a fixed option list.
-- For Autocomplete questions: config.source is required. Supported sources
-  include ReferenceData, Facility, Location, Department, User, LocationGroup,
-  Village, and ProgramRegistryClinicalStatus. If source is ReferenceData,
-  config.where.type is required, e.g.
-  {"source":"ReferenceData","where":{"type":"diagnosis"}}.
+- For Autocomplete questions: config.source is required.
 - For mandatory questions: set validationCriteria to {"mandatory":true}
 - For number questions with a range: {"mandatory":true,"min":X,"max":Y}
 - For number questions with a normal/reference range: add "normalRange":{"min":X,"max":Y} (valid on Number, CalculatedQuestion, Result)
@@ -308,6 +357,8 @@ without a leading "=". Reference other answers by their question code only, not
 the "pde-" data element id. For example use "ncdreview001 + ncdreview002" or
 "sum(ncdreview001, ncdreview002, ncdreview003)", not "=SUM(...)" and not
 "pde-ncdreview001 + pde-ncdreview002".
+
+${supportedDataReadQuestionTypes}
 
 Only include config keys that are explicitly supported for the question type:
 Autocomplete: source, scope, where; UserData: column; PatientData: column,
