@@ -139,7 +139,7 @@ describe('Programs', () => {
     });
 
     it('should list surveys within a program', async () => {
-      const result = await app.get(`/api/program/${testProgram.id}/surveys`);
+      const result = await app.get(`/api/program/${encodeURIComponent(testProgram.id)}/surveys`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(4);
       expect(result.body.data).toEqual([
@@ -207,14 +207,16 @@ describe('Programs', () => {
           ['submit', 'Survey', forbiddenSurvey.id],
         ]);
 
-        const result = await appWithPermissions.get(`/api/program/${forbiddenProgram.id}/surveys`);
+        const result = await appWithPermissions.get(
+          `/api/program/${encodeURIComponent(forbiddenProgram.id)}/surveys`,
+        );
         expect(result).toBeForbidden();
       });
     });
   });
 
   it('should fetch a survey', async () => {
-    const result = await app.get(`/api/survey/${testSurvey.id}`);
+    const result = await app.get(`/api/survey/${encodeURIComponent(testSurvey.id)}`);
     expect(result).toHaveSucceeded();
 
     const { body } = result;
@@ -261,7 +263,7 @@ describe('Programs', () => {
       });
       expect(result).toHaveSucceeded();
 
-      const changelog = await app.get(`/api/surveyResponse/${result.body.id}/changes`);
+      const changelog = await app.get(`/api/surveyResponse/${encodeURIComponent(result.body.id)}/changes`);
       expect(changelog).toHaveSucceeded();
       expect(changelog.body.changes).toEqual([]);
     });
@@ -279,7 +281,7 @@ describe('Programs', () => {
       const [dataElementId] = Object.keys(responseData.answers);
       const before = await models.SurveyResponse.findByPk(responseId);
 
-      const patch = await app.patch(`/api/surveyResponse/${responseId}`).send({
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`).send({
         facilityId,
         answers: { [dataElementId]: 'patched-answer-value' },
       });
@@ -293,7 +295,7 @@ describe('Programs', () => {
       const after = await models.SurveyResponse.findByPk(responseId);
       expect(after.endTime).toEqual(before.endTime);
 
-      const changelog = await app.get(`/api/surveyResponse/${responseId}/changes`);
+      const changelog = await app.get(`/api/surveyResponse/${encodeURIComponent(responseId)}/changes`);
       expect(changelog).toHaveSucceeded();
       expect(Array.isArray(changelog.body.changes)).toBe(true);
       expect(changelog.body.changes.length).toBeGreaterThan(0);
@@ -327,7 +329,7 @@ describe('Programs', () => {
       );
 
       const programResponses = await app.get(
-        `/api/encounter/${encounter.id}/programResponses?rowsPerPage=100`,
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
       );
       expect(programResponses).toHaveSucceeded();
 
@@ -369,7 +371,9 @@ describe('Programs', () => {
         5,
       );
 
-      const result = await app.get(`/api/patient/${patient.id}/programResponses?rowsPerPage=10`);
+      const result = await app.get(
+        `/api/patient/${encodeURIComponent(patient.id)}/programResponses?rowsPerPage=10`,
+      );
       expect(result).toHaveSucceeded();
 
       // check pagination is coming through ok
@@ -390,7 +394,7 @@ describe('Programs', () => {
 
       // check page 2
       const result2 = await app.get(
-        `/api/patient/${patient.id}/programResponses?rowsPerPage=10&page=1`,
+        `/api/patient/${encodeURIComponent(patient.id)}/programResponses?rowsPerPage=10&page=1`,
       );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
@@ -466,7 +470,7 @@ describe('Programs', () => {
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
         const programResponses = await app.get(
-          `/api/patient/${patientId}/programResponses?rowsPerPage=100`,
+          `/api/patient/${encodeURIComponent(patientId)}/programResponses?rowsPerPage=100`,
         );
 
         expect(programResponses).toHaveSucceeded();
@@ -475,7 +479,7 @@ describe('Programs', () => {
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
         const programResponses = await app.get(
-          `/api/patient/${patientId}/programResponses?surveyId=${testSurvey2.id}`,
+          `/api/patient/${encodeURIComponent(patientId)}/programResponses?surveyId=${encodeURIComponent(testSurvey2.id)}`,
         );
 
         expect(programResponses).toHaveSucceeded();
