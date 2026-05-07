@@ -215,6 +215,15 @@ export const fakeInt = () => chance.integer({ min: 0, max: 10 });
 export const fakeFloat = () => chance.floating({ min: 0, max: 1000 });
 export const fakeBool = () => chance.bool();
 
+/** Matches Sequelize abstract float types without relying on handler map key coercion. */
+function isSequelizeApproximateNumericType(type: unknown): boolean {
+  if (!type || typeof type !== 'object') {
+    return false;
+  }
+  const ctor = (type as { constructor?: { name?: string } }).constructor?.name;
+  return ctor === 'FLOAT' || ctor === 'DOUBLE' || ctor === 'REAL' || ctor === 'DECIMAL';
+}
+
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   'TIMESTAMP WITHOUT TIME ZONE': fakeDate,
@@ -283,6 +292,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabTest: () => ({
     referenceRangeMin: null,
     referenceRangeMax: null,
+    reference_range_min: null,
+    reference_range_max: null,
   }),
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
@@ -601,12 +612,18 @@ export const fake = (
       return Buffer.from('test');
     }
 
+    if (isSequelizeApproximateNumericType(type)) {
+      return fakeFloat();
+    }
+
     const handlers = FIELD_HANDLERS as unknown as Record<
       string,
       (model: typeof Model, attribute: any, id: string) => any
     >;
     const handler =
-      (typeof type?.key === 'string' && handlers[type.key]) || handlers[type as keyof typeof handlers];
+      (typeof type?.key === 'string' && handlers[type.key]) ||
+      handlers[type as keyof typeof handlers] ||
+      (typeof type === 'object' && type !== null && handlers[String(type)]);
     if (handler) {
       return handler(model, attribute, id);
     }
