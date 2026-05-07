@@ -23,7 +23,25 @@ const DATA_ELEMENT_TYPES_REQUIRING_OPTIONS = [
   PROGRAM_DATA_ELEMENT_TYPES.RADIO,
   PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
 ];
+const DATA_ELEMENT_TYPES_WITH_NORMAL_RANGE = [
+  PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+  PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+  PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+];
 const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
+const SUPPORTED_CONFIG_KEYS_BY_QUESTION_TYPE = {
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: ['scope', 'source', 'where'],
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ['rounding', 'unit'],
+  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: ['rounding', 'unit'],
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ['column', 'source', 'where', 'writeToPatient'],
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: ['issueNote', 'issueType'],
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: ['rounding', 'unit'],
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: ['source'],
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: ['source'],
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: ['source'],
+  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ['column'],
+};
+const SUPPORTED_WRITE_TO_PATIENT_KEYS = ['fieldName', 'fieldType'];
 
 const normalizeOptions = options => {
   if (!options) return [];
@@ -38,6 +56,82 @@ const normalizeOptions = options => {
 };
 
 const hasOptions = options => normalizeOptions(options).length > 0;
+
+const parseObjectField = value => {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      const parsedValue = JSON.parse(value);
+      return parsedValue && typeof parsedValue === 'object' && !Array.isArray(parsedValue)
+        ? parsedValue
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return typeof value === 'object' && !Array.isArray(value) ? value : null;
+};
+
+const pickKnownKeys = (object, keys) =>
+  Object.fromEntries(Object.entries(object).filter(([key]) => keys.includes(key)));
+
+const sanitizeQuestionConfig = question => {
+  const config = parseObjectField(question.config);
+  if (!config) return question;
+
+  const sanitizedQuestion = { ...question };
+  const normalRange = config.normalRange;
+  if (normalRange && DATA_ELEMENT_TYPES_WITH_NORMAL_RANGE.includes(question.type)) {
+    const validationCriteria = parseObjectField(question.validationCriteria) || {};
+    sanitizedQuestion.validationCriteria = validationCriteria.normalRange
+      ? validationCriteria
+      : {
+          ...validationCriteria,
+          normalRange,
+        };
+  }
+
+  const supportedKeys = SUPPORTED_CONFIG_KEYS_BY_QUESTION_TYPE[question.type] || [];
+  const sanitizedConfig = pickKnownKeys(config, supportedKeys);
+  if (
+    sanitizedConfig.writeToPatient &&
+    typeof sanitizedConfig.writeToPatient === 'object' &&
+    !Array.isArray(sanitizedConfig.writeToPatient)
+  ) {
+    sanitizedConfig.writeToPatient = pickKnownKeys(
+      sanitizedConfig.writeToPatient,
+      SUPPORTED_WRITE_TO_PATIENT_KEYS,
+    );
+  }
+
+  if (Object.keys(sanitizedConfig).length === 0) {
+    delete sanitizedQuestion.config;
+    return sanitizedQuestion;
+  }
+
+  return {
+    ...sanitizedQuestion,
+    config: sanitizedConfig,
+  };
+};
+
+const sanitizeSurveyMetadata = survey => {
+  if (survey.status !== 'draft') return survey;
+
+  const sanitizedSurvey = { ...survey };
+  delete sanitizedSurvey.status;
+  return sanitizedSurvey;
+};
+
+export const sanitizeProgramDefinitionPreview = programDefinition => ({
+  ...programDefinition,
+  surveys: programDefinition.surveys.map(sanitizeSurveyMetadata),
+  surveySheets: programDefinition.surveySheets.map(surveySheet => ({
+    ...surveySheet,
+    questions: surveySheet.questions.map(sanitizeQuestionConfig),
+  })),
+});
 
 const programDefinitionQuestionSchema = z
   .object({

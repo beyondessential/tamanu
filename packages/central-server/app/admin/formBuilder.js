@@ -7,11 +7,13 @@ import NodeCache from 'node-cache';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
-import { programDefinitionSchema } from './programImporter/programDefinition';
+import {
+  programDefinitionSchema,
+  sanitizeProgramDefinitionPreview,
+} from './programImporter/programDefinition';
 
 const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
@@ -32,19 +34,6 @@ const CHAT_JOB_STATUSES = {
   COMPLETE: 'complete',
   FAILED: 'failed',
 };
-const SUPPORTED_CONFIG_KEYS_BY_QUESTION_TYPE = {
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: ['scope', 'source', 'where'],
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ['rounding', 'unit'],
-  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: ['rounding', 'unit'],
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ['column', 'source', 'where', 'writeToPatient'],
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: ['issueNote', 'issueType'],
-  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: ['rounding', 'unit'],
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: ['source'],
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: ['source'],
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: ['source'],
-  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ['column'],
-};
-const SUPPORTED_WRITE_TO_PATIENT_KEYS = ['fieldName', 'fieldType'];
 
 const chatJobs = new NodeCache({ stdTTL: CHAT_JOB_TTL_SECONDS, checkperiod: 60, useClones: false });
 
@@ -243,62 +232,6 @@ const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessag
 
 const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
 
-const parseConfigObject = config => {
-  if (!config) return null;
-  if (typeof config === 'string') {
-    try {
-      const parsedConfig = JSON.parse(config);
-      return parsedConfig && typeof parsedConfig === 'object' && !Array.isArray(parsedConfig)
-        ? parsedConfig
-        : null;
-    } catch {
-      return null;
-    }
-  }
-
-  return typeof config === 'object' && !Array.isArray(config) ? config : null;
-};
-
-const pickKnownKeys = (object, keys) =>
-  Object.fromEntries(Object.entries(object).filter(([key]) => keys.includes(key)));
-
-const sanitizeQuestionConfig = question => {
-  const config = parseConfigObject(question.config);
-  if (!config) return question;
-
-  const supportedKeys = SUPPORTED_CONFIG_KEYS_BY_QUESTION_TYPE[question.type] || [];
-  const sanitizedConfig = pickKnownKeys(config, supportedKeys);
-  if (
-    sanitizedConfig.writeToPatient &&
-    typeof sanitizedConfig.writeToPatient === 'object' &&
-    !Array.isArray(sanitizedConfig.writeToPatient)
-  ) {
-    sanitizedConfig.writeToPatient = pickKnownKeys(
-      sanitizedConfig.writeToPatient,
-      SUPPORTED_WRITE_TO_PATIENT_KEYS,
-    );
-  }
-
-  if (Object.keys(sanitizedConfig).length === 0) {
-    const questionWithoutConfig = { ...question };
-    delete questionWithoutConfig.config;
-    return questionWithoutConfig;
-  }
-
-  return {
-    ...question,
-    config: sanitizedConfig,
-  };
-};
-
-const sanitizeProgramDefinitionForFormBuilder = programDefinition => ({
-  ...programDefinition,
-  surveySheets: programDefinition.surveySheets.map(surveySheet => ({
-    ...surveySheet,
-    questions: surveySheet.questions.map(sanitizeQuestionConfig),
-  })),
-});
-
 const findSurveySheet = (programDefinition, surveyName) => {
   const surveySheet = programDefinition.surveySheets.find(sheet => sheet.surveyName === surveyName);
   if (!surveySheet) {
@@ -373,7 +306,7 @@ const applyProgramDefinitionTweak = async (currentProgramDefinition, tweakRespon
     }
   }
 
-  return programDefinitionSchema.parseAsync(sanitizeProgramDefinitionForFormBuilder(programDefinition));
+  return programDefinitionSchema.parseAsync(sanitizeProgramDefinitionPreview(programDefinition));
 };
 
 const serializeChatJobError = error => ({
@@ -447,7 +380,7 @@ const processChatRequest = async ({
     const programDefinition =
       response.ready_to_export || response.ready_to_generate
         ? await programDefinitionSchema.parseAsync(
-            sanitizeProgramDefinitionForFormBuilder(
+            sanitizeProgramDefinitionPreview(
               await aiService.invokeStructured(
                 FORM_BUILDER_BUILD_CONTEXT,
                 await buildProgramDefinitionInput({

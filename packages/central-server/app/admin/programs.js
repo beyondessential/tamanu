@@ -2,7 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { simplePatch, findRouteObject, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
-import { programDefinitionSchema, saveProgramDefinition } from './programImporter/programDefinition';
+import {
+  programDefinitionSchema,
+  sanitizeProgramDefinitionPreview,
+  saveProgramDefinition,
+} from './programImporter/programDefinition';
 
 /** `/admin/program` endpoint for CRUD-ing a single program */
 export const programRouter = express.Router();
@@ -25,7 +29,9 @@ programRouter.post(
     req.checkPermission('create', 'Survey');
     req.checkPermission('write', 'Survey');
 
-    const programDefinition = await programDefinitionSchema.parseAsync(req.body.form);
+    const programDefinition = await programDefinitionSchema.parseAsync(
+      sanitizeProgramDefinitionPreview(await programDefinitionSchema.parseAsync(req.body.form)),
+    );
     const surveys = await saveProgramDefinition({
       db: req.db,
       models: req.models,

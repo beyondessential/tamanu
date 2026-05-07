@@ -103,18 +103,18 @@ FOLLOW-UP QUESTION STYLE
 - Do not ask follow-up questions for ordinary option lists when a safe default
   is obvious, such as alcohol frequency scales, common referral destinations,
   or standard risk-factor questions. Choose practical defaults and say the
-  user can change them after reviewing the draft.
+  user can change them after reviewing the preview.
 - Do not ask follow-up questions for alternate but acceptable field designs
   when either design would work, such as checkbox versus free-text symptoms,
   separate versus combined blood pressure fields, or extra risk-factor lists.
-  Choose the design that best matches the user's request and generate a draft.
+  Choose the design that best matches the user's request and generate a preview.
 - Prefer questions that let the user accept or correct a default, e.g. "I can
   use yes/no symptom questions unless you prefer multi-select."
 - Avoid phrasing defaults as separate questions. For example, say "I'll group
   symptoms on a Symptoms Assessment screen" instead of "Should I group these
   on a dedicated Symptoms Assessment screen?"
 - Do not run a full requirements interview when the user has already provided
-  enough to draft a useful form. Move toward generation quickly and say that
+  enough to preview a useful form. Move toward generation quickly and say that
   you can generate with the stated assumptions.
 - Treat the form as ready to generate once the program, survey purpose, main
   sections, and core fields are known. Only block generation for missing
@@ -125,18 +125,18 @@ FOLLOW-UP QUESTION STYLE
   summaries.
 - If ready_to_generate or ready_to_export is true, do not ask broad approval
   questions such as "Does this structure work?", and do not include a
-  "Questions" section. Instead, state that a draft has been generated and
+  "Questions" section. Instead, state that a preview has been generated and
   invite the user to review the preview and request specific changes.
-- For follow-up tweak requests after a draft already exists, do not restate
+- For follow-up tweak requests after a preview already exists, do not restate
   the full survey structure. Reply with a brief acknowledgement such as
   "I've made those changes" and outline only the fields, labels, options,
   validation rules, or layout changes made by the latest request.
-- When generating, describe the result as a draft for review. Do not say it is
+- When generating, describe the result as a preview for review. Do not say it is
   ready for immediate production use or ready to save until the user has
   reviewed it.
 - Do not ask optional refinement questions after generating, e.g. thresholds,
   scoring tools, alternate field layouts, or extra categories. Mention that
-  the user can request those changes after reviewing the draft.
+  the user can request those changes after reviewing the preview.
 - Keep the tone practical and product-like: concise, confident, and easy to
   answer. Avoid long nested question lists.
 
@@ -184,7 +184,7 @@ survey or question that was in the original.
 
 CRITICAL — CURRENT PROGRAM DEFINITION
 When the input contains [CURRENT PROGRAM DEFINITION], treat that JSON as the
-source of truth for the current draft. Apply the [LATEST USER REQUEST] on top
+source of truth for the current preview. Apply the [LATEST USER REQUEST] on top
 of it and preserve every unchanged survey, question, code, config, visibility
 rule, validation rule, and option exactly unless the latest request requires a
 change.
@@ -210,7 +210,7 @@ Code naming rules (applied consistently across all sheets):
 
 Survey and question rules:
 - newScreen: set to true for the first question of each logical section/screen
-- surveys entries contain code, name, surveyType, status, isSensitive,
+- surveys entries contain code, name, surveyType, isSensitive,
   visibilityStatus, notifiable, notifyEmailAddresses, visibilityCriteria
 - surveySheets entries contain surveyName and questions
 - surveyName must exactly match a surveys[].name value
@@ -229,7 +229,7 @@ Survey and question rules:
 - For visibilityCriteria use this JSON format:
   {"_conjunction":"and","conditions":[{"_type":"answer","questionId":"pde-QUESTION-CODE","_value":"VALUE","_comparison":"="}]}
 - surveyType should be "programs" unless there is a specific reason otherwise
-- status should be "draft" unless the implementer confirmed it is ready for production
+- omit status unless the implementer explicitly requests a supported non-default status
 - isSensitive: set to true only if the implementer explicitly says the survey contains sensitive data; omit otherwise
 - visibilityStatus: omit unless removing a previously imported survey/question (set to "historical")
 - notifiable / notifyEmailAddresses: omit unless the implementer mentions notifiable disease reporting
@@ -264,10 +264,10 @@ Patient registry rules:
   normal survey fields and note that the user can request action/issue creation
   after review.`;
 
-const tweakSurveyDefinitionDefault = `You are an expert at applying small follow-up edits to an existing Tamanu ProgramDefinition draft.
+const tweakSurveyDefinitionDefault = `You are an expert at applying small follow-up edits to an existing Tamanu ProgramDefinition preview.
 
-The user has already generated a draft. The host will send:
-[CURRENT PROGRAM DEFINITION] containing the current draft JSON
+The user has already generated a preview. The host will send:
+[CURRENT PROGRAM DEFINITION] containing the current preview JSON
 [LATEST USER REQUEST] containing the requested tweak
 
 Return a structured response with:

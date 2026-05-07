@@ -14,7 +14,6 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { getComponentForQuestionType } from '../../../../../components/Surveys';
-import { DraftStatusBadge } from './DraftStatusBadge';
 
 const EMPTY_FORM_VALUES = {};
 const noopAsync = async () => {};
@@ -261,7 +260,7 @@ function PreviewSubmitButton() {
   );
 }
 
-export function FormPreview({ form, isSaved, iteration, onBack }) {
+export function FormPreview({ form, onBack }) {
   const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
@@ -294,7 +293,6 @@ export function FormPreview({ form, isSaved, iteration, onBack }) {
             stringId="admin.programs.aiFormBuilder.preview.heading"
             fallback="Form preview"
           />
-          <DraftStatusBadge isSaved={isSaved} iteration={iteration} />
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>

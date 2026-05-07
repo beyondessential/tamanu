@@ -29,6 +29,16 @@ const programDefinition = {
     },
   ],
 };
+const programDefinitionPreview = {
+  ...programDefinition,
+  surveys: [
+    {
+      code: 'referral',
+      name: 'Referral form',
+      surveyType: 'programs',
+    },
+  ],
+};
 
 describe('Form Builder Admin', () => {
   let ctx;
@@ -190,7 +200,27 @@ describe('Form Builder Admin', () => {
     );
     expect(response.body).toMatchObject({
       readyToExport: true,
-      programDefinition,
+      programDefinition: programDefinitionPreview,
+    });
+  });
+
+  it('strips draft status from generated program definition previews', async () => {
+    aiService.sendFormBuilderMessage.mockResolvedValueOnce({
+      message: 'Your form preview is ready.',
+      attach_to_program_code: 'ncd',
+      ready_to_export: false,
+      ready_to_generate: true,
+    });
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      message: 'Build a referral form',
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.programDefinition.surveys[0]).toEqual({
+      code: 'referral',
+      name: 'Referral form',
+      surveyType: 'programs',
     });
   });
 
@@ -377,7 +407,7 @@ describe('Form Builder Admin', () => {
       .mockRejectedValueOnce(new Error('Invalid patch'))
       .mockResolvedValueOnce(programDefinition);
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
-      message: 'Updated the draft.',
+      message: 'Updated the preview.',
       attach_to_program_code: 'ncd',
       ready_to_export: false,
       ready_to_generate: true,
@@ -402,14 +432,14 @@ describe('Form Builder Admin', () => {
         '[LATEST USER REQUEST]',
         'Make patient age read only',
         '[ASSISTANT RESPONSE]',
-        'Updated the draft.',
+        'Updated the preview.',
       ].join('\n\n'),
       expect.any(Object),
       { name: 'form_builder_program_definition' },
     );
     expect(response.body).toMatchObject({
       readyToGenerate: true,
-      programDefinition,
+      programDefinition: programDefinitionPreview,
     });
   });
 
