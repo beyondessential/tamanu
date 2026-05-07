@@ -7,6 +7,7 @@ import {
   AutocompleteInput,
   LargeBodyText,
   NumberInput,
+  SelectInput,
   TextButton,
   TextInput,
   TranslatedText,
@@ -90,8 +91,12 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
+  options,
 }) => {
   const { type } = typeSchema;
+  const oneOfOptions = typeSchema?.describe?.()?.oneOf || [];
+  const hasSelectOptions =
+    type === SETTING_TYPES.STRING && (Array.isArray(options) ? options.length > 0 : oneOfOptions.length > 0);
   const [error, setError] = useState(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
@@ -217,15 +222,35 @@ export const SettingInput = ({
     case SETTING_TYPES.STRING:
       return (
         <Flexbox data-testid="flexbox-wwbe">
-          <StyledTextInput
-            value={displayValue ?? ''}
-            onChange={defaultHandleChange}
-            style={{ width: '353px' }}
-            error={error}
-            helperText={error?.message}
-            disabled={disabled}
-            data-testid="styledtextinput-fpam"
-          />
+          {hasSelectOptions ? (
+            <SelectInput
+              value={displayValue ?? ''}
+              onChange={defaultHandleChange}
+              style={{ width: '353px' }}
+              options={
+                Array.isArray(options)
+                  ? options
+                  : oneOfOptions.map(value => ({
+                      value,
+                      label: value,
+                    }))
+              }
+              error={error}
+              helperText={error?.message}
+              disabled={disabled}
+              data-testid="selectinput-settings-string-enum"
+            />
+          ) : (
+            <StyledTextInput
+              value={displayValue ?? ''}
+              onChange={defaultHandleChange}
+              style={{ width: '353px' }}
+              error={error}
+              helperText={error?.message}
+              disabled={disabled}
+              data-testid="styledtextinput-fpam"
+            />
+          )}
           <DefaultButton data-testid="defaultbutton-iw4g" />
         </Flexbox>
       );

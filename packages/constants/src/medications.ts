@@ -305,6 +305,11 @@ export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
   [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
 };
 
+export const PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES = {
+  ENCOUNTER_TYPE: 'encounterType',
+  OUTPATIENT_OR_DISCHARGE: 'outpatientOrDischarge',
+};
+
 export const DRUG_STOCK_STATUSES = {
   IN_STOCK: 'in_stock',
   OUT_OF_STOCK: 'out_of_stock',
