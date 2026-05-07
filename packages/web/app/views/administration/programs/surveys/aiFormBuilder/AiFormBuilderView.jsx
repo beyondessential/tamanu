@@ -44,7 +44,7 @@ const getProgramDefinitionFileName = programDefinition =>
   `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
 const CHAT_JOB_POLL_INTERVAL_MS = 2000;
 const CHAT_JOB_MAX_WAIT_MS = 10 * 60 * 1000;
-const LONG_WAIT_MESSAGE_DELAY_MS = 5000;
+const LONG_WAIT_MESSAGE_DELAY_MS = 15000;
 
 const waitForChatJob = async ({ api, jobId, signal }) => {
   const startedAt = Date.now();

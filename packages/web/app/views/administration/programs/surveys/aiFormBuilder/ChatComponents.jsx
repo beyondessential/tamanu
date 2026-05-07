@@ -2,6 +2,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StopRoundedIcon from '@mui/icons-material/StopRounded';
 import { IconButton } from '@mui/material';
 import React from 'react';
@@ -269,19 +270,27 @@ const ProgramSelectWrap = styled.div`
 const ComposerWrap = styled.div`
   margin-block-start: auto;
   margin-inline: -14px;
+  position: relative;
 `;
 
 const StyledTextInput = styled(TextInput)`
   && .MuiOutlinedInput-root {
     align-items: flex-start;
+    background: ${({ $isDraggingFileOver }) =>
+      $isDraggingFileOver ? TAMANU_COLORS.primary10 : TAMANU_COLORS.white};
     border-radius: 10px;
     min-block-size: 118px;
     padding-block-end: 58px;
+    transition:
+      background 120ms ease-out,
+      box-shadow 120ms ease-out;
   }
 
   && .MuiOutlinedInput-notchedOutline,
   && .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
   && .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: ${({ $isDraggingFileOver }) =>
+      $isDraggingFileOver ? TAMANU_COLORS.primary : TAMANU_COLORS.outline};
     border-width: 1px;
   }
 
@@ -300,6 +309,25 @@ const StyledTextInput = styled(TextInput)`
     color: ${TAMANU_COLORS.softText};
     font-size: 14px;
     opacity: 1;
+  }
+`;
+
+const DragUploadOverlay = styled.div`
+  align-items: center;
+  color: ${TAMANU_COLORS.primary};
+  display: flex;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 8px;
+  inset: 0;
+  justify-content: center;
+  pointer-events: none;
+  position: absolute;
+  transform: translateY(-4px);
+  z-index: 2;
+
+  svg {
+    font-size: 20px;
   }
 `;
 
@@ -616,6 +644,38 @@ export function ChatComposer({
   sendDisabled,
   setInputValue,
 }) {
+  const [isDraggingFileOver, setIsDraggingFileOver] = React.useState(false);
+  const dragDepthRef = React.useRef(0);
+
+  const isFileDrag = event => Array.from(event.dataTransfer?.types ?? []).includes('Files');
+
+  const handleDragEnter = event => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDraggingFileOver(true);
+  };
+
+  const handleDragOver = event => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    setIsDraggingFileOver(true);
+  };
+
+  const handleDragLeave = event => {
+    if (!isFileDrag(event)) return;
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsDraggingFileOver(false);
+    }
+  };
+
+  const handleComposerDrop = event => {
+    dragDepthRef.current = 0;
+    setIsDraggingFileOver(false);
+    handleDrop(event);
+  };
+
   const handleKeyDown = event => {
     if (
       event.key !== 'Enter' ||
@@ -635,11 +695,17 @@ export function ChatComposer({
   };
 
   return (
-    <ComposerWrap onDragOver={event => event.preventDefault()} onDrop={handleDrop}>
+    <ComposerWrap
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleComposerDrop}
+    >
       <StyledTextInput
         multiline
         minRows={3}
         rowsMax={8}
+        $isDraggingFileOver={isDraggingFileOver}
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
         onKeyDown={handleKeyDown}
@@ -650,6 +716,15 @@ export function ChatComposer({
         enablePasting
         data-testid="ai-form-builder-input"
       />
+      {isDraggingFileOver && (
+        <DragUploadOverlay>
+          <UploadFileIcon />
+          <TranslatedText
+            stringId="admin.programs.aiFormBuilder.dropFile.label"
+            fallback="Drop to attach"
+          />
+        </DragUploadOverlay>
+      )}
       <ComposerActions>
         <input
           ref={inputFileRef}
