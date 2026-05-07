@@ -241,7 +241,7 @@ surveyResponse.get(
               AND (c.record_data ->> 'response_id') = :surveyResponseId))
         ORDER BY
           c.created_at ASC
-    `,
+      `,
       {
         replacements: { surveyResponseId: params.id },
         type: QueryTypes.SELECT,
