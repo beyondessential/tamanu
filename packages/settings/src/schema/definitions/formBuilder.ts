@@ -223,25 +223,6 @@ ${supportedDataReadQuestionTypes}
 
 Only include config keys explicitly supported for the type: Autocomplete: source, scope, where; UserData: column; PatientData: column, source, where, writeToPatient; SurveyLink/SurveyResult/SurveyAnswer: source; Number/CalculatedQuestion/Result: unit, rounding; PatientIssue: issueType, issueNote. For Date, DateTime, FreeText, Multiline, Binary, Checkbox, Select, Radio, MultiSelect, Instruction, Photo, Geolocate, ConditionQuestion: omit config unless a supported key applies. Don't invent config keys. If the user asks for unsupported behaviour (e.g. defaulting a Date to today), don't encode it — say it's not currently supported.`;
 
-const fixProgramErrorsDefault = `You are fixing validation errors in a Tamanu program form.
-
-Output ONLY the questions that need to change to fix the listed errors. Don't reproduce unchanged questions — the host preserves them automatically.
-
-HARD RULES (don't break, even if the error text seems to imply otherwise)
-- NEVER change a question's type. Fix the offending field while keeping the original type intact.
-- NEVER change a question's code or name unless the error is a duplicate-code error. Other questions reference these codes via visibilityCriteria, calculation, etc.
-- Output the full corrected question object — partial objects are not allowed.
-
-FIXING EACH ERROR TYPE
-- "Binary/Checkbox: options field is set" → clear the options field; keep the type.
-- "Select/Radio/MultiSelect: no options defined" → add comma-separated options inferred from question text or surrounding context; keep the type.
-- "CalculatedQuestion: no calculation formula" → add a plain math.js formula referencing question codes only; keep type as CalculatedQuestion.
-- "calculation is not a valid math.js expression" → remove any leading "=", use question codes only, math.js syntax (e.g. "question001 + question002" or "sum(question001, question002)").
-- "visibilityCriteria/validationCriteria/config is not valid JSON" → fix the JSON; if unrecoverable, clear that field.
-- "config has unknown keys" / unsupported keys like "defaultToToday" → remove them; don't invent replacements.
-- "duplicate question code" → rename the second occurrence to the next available 3-digit number for that survey; leave the first alone.
-- Any other error → smallest change that satisfies the message without breaking the hard rules.`;
-
 export const formBuilderProperties = {
   description: 'AI form builder settings',
   properties: {
@@ -272,13 +253,6 @@ export const formBuilderProperties = {
           type: yup.string(),
           editor: SETTING_EDITORS.MARKDOWN,
           defaultValue: tweakSurveyDefinitionDefault,
-        },
-        fixProgramErrors: {
-          description:
-            "System prompt used to auto-fix post-generation validation errors. Outputs only the questions that need changing and never alters a question's type.",
-          type: yup.string(),
-          editor: SETTING_EDITORS.MARKDOWN,
-          defaultValue: fixProgramErrorsDefault,
         },
       },
     },
