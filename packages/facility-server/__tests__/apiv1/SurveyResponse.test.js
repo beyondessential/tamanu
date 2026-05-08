@@ -555,6 +555,57 @@ describe('SurveyResponse', () => {
     });
   });
 
+  describe('programResponses list isEdited after PATCH', () => {
+    it('should set isEdited on encounter and patient programResponses lists after PATCH', async () => {
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        facility.id,
+      );
+      const encounter = await models.Encounter.findByPk(response.encounterId);
+      expect(encounter).toBeTruthy();
+
+      const encounterListBefore = await app.get(
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
+      );
+      expect(encounterListBefore).toHaveSucceeded();
+      const encounterRowBefore = encounterListBefore.body.data.find(r => r.id === response.id);
+      expect(encounterRowBefore).not.toBeUndefined();
+      expect(encounterRowBefore.isEdited).toBeFalsy();
+
+      const patientListBefore = await app.get(
+        `/api/patient/${encodeURIComponent(encounter.patientId)}/programResponses?rowsPerPage=100`,
+      );
+      expect(patientListBefore).toHaveSucceeded();
+      const patientRowBefore = patientListBefore.body.data.find(r => r.id === response.id);
+      expect(patientRowBefore).not.toBeUndefined();
+      expect(patientRowBefore.isEdited).toBeFalsy();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [answer.dataElementId]: 'patched-for-isEdited-test' },
+      });
+      expect(patch).toHaveSucceeded();
+
+      const encounterListAfter = await app.get(
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
+      );
+      expect(encounterListAfter).toHaveSucceeded();
+      const encounterRowAfter = encounterListAfter.body.data.find(r => r.id === response.id);
+      expect(encounterRowAfter).not.toBeUndefined();
+      expect(encounterRowAfter.isEdited).toBe(true);
+
+      const patientListAfter = await app.get(
+        `/api/patient/${encodeURIComponent(encounter.patientId)}/programResponses?rowsPerPage=100`,
+      );
+      expect(patientListAfter).toHaveSucceeded();
+      const patientRowAfter = patientListAfter.body.data.find(r => r.id === response.id);
+      expect(patientRowAfter).not.toBeUndefined();
+      expect(patientRowAfter.isEdited).toBe(true);
+    });
+  });
+
   describe('survey response changelog authorisation', () => {
     disableHardcodedPermissionsForSuite();
 

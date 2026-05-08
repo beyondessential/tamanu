@@ -42,19 +42,14 @@ const EditedOrnament = styled.span`
 `;
 
 /**
- * @param {{ surveyName: import('@tamanu/database').Survey['name'] } & Pick<
- * 	import('@tamanu/database').SurveyResponse,
- * 	'createdAt' | 'updatedAt'
- * >} props
+ * @param {{ surveyName: import('@tamanu/database').Survey['name']; isEdited?: boolean }} props
  */
-function SurveyNameAccessor({ surveyName, createdAt, updatedAt }) {
+function SurveyNameAccessor({ surveyName, isEdited }) {
   const { getTranslation } = useTranslation();
-  const hasBeenEdited =
-    createdAt && updatedAt && new Date(updatedAt).getTime() > new Date(createdAt).getTime();
   return (
     <>
       {surveyName}
-      {hasBeenEdited && <EditedOrnament altText={getTranslation('general.label.edited')} />}
+      {isEdited && <EditedOrnament altText={getTranslation('general.label.edited')} />}
     </>
   );
 }

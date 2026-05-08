@@ -29,6 +29,37 @@ import {
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
+export function surveyResponseChangelogScopeCondition(alias, responseIdSql) {
+  return `(
+    "${alias}"."migration_context" IS NULL
+    AND (("${alias}"."table_name" = 'survey_responses'
+        AND "${alias}"."record_id" = ${responseIdSql})
+        OR ("${alias}"."table_name" = 'survey_response_answers'
+          AND ("${alias}"."record_data" ->> 'response_id') = ${responseIdSql}))
+  )`;
+}
+
+export function buildSurveyResponseChangesExistsClause(responseIdSql) {
+  const scope = surveyResponseChangelogScopeCondition('later', responseIdSql);
+  return `
+    EXISTS (
+      SELECT 1
+      FROM logs.changes AS later
+      WHERE ${scope}
+      AND EXISTS (
+        SELECT 1
+        FROM logs.changes AS earlier
+        WHERE earlier.migration_context IS NULL
+          AND earlier.table_name = later.table_name
+          AND earlier.record_id = later.record_id
+          AND (
+            earlier.created_at < later.created_at
+            OR (earlier.created_at = later.created_at AND earlier.id < later.id)
+          )
+      )
+  )`;
+}
+
 export const surveyResponse = express.Router();
 
 async function getBodyForAnswer(dataElementType, value, models) {
@@ -250,11 +281,7 @@ surveyResponse.get(
           logs.changes c
           LEFT JOIN users u ON u.id = c.updated_by_user_id
         WHERE
-          c.migration_context IS NULL
-          AND ((c.table_name = 'survey_responses'
-              AND c.record_id = :surveyResponseId)
-            OR (c.table_name = 'survey_response_answers'
-              AND (c.record_data ->> 'response_id') = :surveyResponseId))
+          ${surveyResponseChangelogScopeCondition('c', ':surveyResponseId')}
         ORDER BY
           c.created_at ASC
       `,

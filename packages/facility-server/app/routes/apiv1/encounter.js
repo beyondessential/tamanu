@@ -28,6 +28,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
+import { buildSurveyResponseChangesExistsClause } from './surveyResponse';
 import {
   deleteChartInstance,
   fetchAnswersWithHistory,
@@ -673,7 +674,8 @@ encounterRelations.get(
           survey_responses.*,
           surveys.name as survey_name,
           programs.name as program_name,
-          COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
+          COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
+          ${buildSurveyResponseChangesExistsClause('survey_responses.id::text')} AS is_edited
         FROM
           survey_responses
           LEFT JOIN surveys
