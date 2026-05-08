@@ -33,11 +33,11 @@ export const Core: FunctionComponent<any> = () => {
   const { isLoading, securityIssues, fetchSecurityInfo } = useSecurityInfo();
 
   const hasPassedInitialCheck = useRef(false);
-  if (!isLoading && securityIssues.length === 0) {
+  if (signedIn && !isLoading && securityIssues.length === 0) {
     hasPassedInitialCheck.current = true;
   }
 
-  if (securityIssues.length > 0 || !hasPassedInitialCheck.current) {
+  if (securityIssues.length > 0 || (signedIn && !hasPassedInitialCheck.current)) {
     return (
       <SecurityScreen
         isLoading={isLoading}
