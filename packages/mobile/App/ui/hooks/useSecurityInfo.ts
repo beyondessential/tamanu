@@ -93,10 +93,11 @@ export const useSecurityInfo = () => {
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 
-  // Reset completed-check flag on sign-out so the next sign-in is always gated
+  // Reset to pre-check state on sign-out so the next sign-in shows loading, not a stale result
   useEffect(() => {
     if (!signedIn) {
       setHasCompletedInitialCheck(false);
+      setIsLoading(true);
     }
   }, [signedIn]);
 
