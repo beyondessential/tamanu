@@ -112,7 +112,8 @@ export function AiFormBuilderView() {
   );
   const generatedForm = normaliseProgramDefinition(state.generatedForm);
   const showPreview = Boolean(generatedForm && isPreviewOpen);
-  const sendDisabled = !inputValue.trim() && !pendingFile;
+  const isSaved = Boolean(state.savedSurveyId);
+  const sendDisabled = isSaved || (!inputValue.trim() && !pendingFile);
 
   useEffect(() => {
     const nextState = readSessionChatState(sessionKey);
@@ -302,7 +303,7 @@ export function AiFormBuilderView() {
   );
 
   const handleSubmit = useCallback(() => {
-    if (isThinking) return;
+    if (isThinking || state.savedSurveyId) return;
 
     const text = inputValue.trim();
     if (!text && !pendingFile) return;
@@ -333,7 +334,14 @@ export function AiFormBuilderView() {
     }
 
     sendChatMessage({ ...submission, selectedProgramId: state.selectedProgramId });
-  }, [inputValue, isThinking, pendingFile, sendChatMessage, state.selectedProgramId]);
+  }, [
+    inputValue,
+    isThinking,
+    pendingFile,
+    sendChatMessage,
+    state.savedSurveyId,
+    state.selectedProgramId,
+  ]);
 
   const setFileIfValid = file => {
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -352,6 +360,8 @@ export function AiFormBuilderView() {
   };
 
   const handleFileSelected = event => {
+    if (state.savedSurveyId) return;
+
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -361,6 +371,8 @@ export function AiFormBuilderView() {
 
   const handleDrop = event => {
     event.preventDefault();
+    if (state.savedSurveyId) return;
+
     const file = event.dataTransfer.files?.[0];
     if (file) setFileIfValid(file);
   };
@@ -463,7 +475,7 @@ export function AiFormBuilderView() {
                       <DownloadMessage
                         key={message.id}
                         fileName={message.fileName}
-                        isSaved={Boolean(state.savedSurveyId)}
+                        isSaved={isSaved}
                         iteration={message.iteration}
                         onDownload={() => handleDownload(message.fileName)}
                         isSaving={isSaving}
@@ -492,6 +504,7 @@ export function AiFormBuilderView() {
 
               <ChatComposer
                 acceptedFileExtensions={ACCEPTED_FILE_EXTENSIONS}
+                disabled={isSaved}
                 getTranslation={getTranslation}
                 handleDrop={handleDrop}
                 handleFileSelected={handleFileSelected}
@@ -511,12 +524,7 @@ export function AiFormBuilderView() {
             </Disclaimer>
           </ChatStack>
         </ChatColumn>
-        {showPreview && (
-          <FormPreview
-            form={generatedForm}
-            isSaved={Boolean(state.savedSurveyId)}
-          />
-        )}
+        {showPreview && <FormPreview form={generatedForm} isSaved={isSaved} />}
       </BuilderShell>
       <NewChatConfirmModal
         open={isNewChatModalOpen}

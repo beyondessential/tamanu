@@ -621,6 +621,7 @@ export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSav
 
 export function ChatComposer({
   acceptedFileExtensions,
+  disabled = false,
   getTranslation,
   handleDrop,
   handleFileSelected,
@@ -637,6 +638,7 @@ export function ChatComposer({
   const isFileDrag = event => Array.from(event.dataTransfer?.types ?? []).includes('Files');
 
   const handleDragEnter = event => {
+    if (disabled) return;
     if (!isFileDrag(event)) return;
     event.preventDefault();
     dragDepthRef.current += 1;
@@ -644,12 +646,14 @@ export function ChatComposer({
   };
 
   const handleDragOver = event => {
+    if (disabled) return;
     if (!isFileDrag(event)) return;
     event.preventDefault();
     setIsDraggingFileOver(true);
   };
 
   const handleDragLeave = event => {
+    if (disabled) return;
     if (!isFileDrag(event)) return;
     dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
     if (dragDepthRef.current === 0) {
@@ -660,6 +664,7 @@ export function ChatComposer({
   const handleComposerDrop = event => {
     dragDepthRef.current = 0;
     setIsDraggingFileOver(false);
+    if (disabled) return;
     handleDrop(event);
   };
 
@@ -676,7 +681,7 @@ export function ChatComposer({
     }
 
     event.preventDefault();
-    if (!isThinking && !sendDisabled) {
+    if (!disabled && !isThinking && !sendDisabled) {
       handleSubmit();
     }
   };
@@ -694,12 +699,20 @@ export function ChatComposer({
         rowsMax={8}
         $isDraggingFileOver={isDraggingFileOver}
         value={inputValue}
+        disabled={disabled}
         onChange={event => setInputValue(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={getTranslation(
-          'admin.programs.aiFormBuilder.input.placeholder',
-          'Start typing here or attach a file containing the form...',
-        )}
+        placeholder={
+          disabled
+            ? getTranslation(
+                'admin.programs.aiFormBuilder.input.savedPlaceholder',
+                'Survey saved. Start a new chat to make further changes.',
+              )
+            : getTranslation(
+                'admin.programs.aiFormBuilder.input.placeholder',
+                'Start typing here or attach a file containing the form...',
+              )
+        }
         enablePasting
         data-testid="ai-form-builder-input"
       />
@@ -719,10 +732,11 @@ export function ChatComposer({
             'Attach pdf, png, jpg, jpeg, csv, xls or xlsx',
           )}
         >
-          <AttachButton component="label">
+          <AttachButton component="label" disabled={disabled}>
             <AddIcon />
             <VisuallyHiddenFileInput
               type="file"
+              disabled={disabled}
               accept={acceptedFileExtensions.map(extension => `.${extension}`).join(',')}
               onChange={handleFileSelected}
             />
@@ -730,7 +744,7 @@ export function ChatComposer({
         </ThemedTooltip>
         <SendButton
           type="button"
-          disabled={!isThinking && sendDisabled}
+          disabled={disabled || (!isThinking && sendDisabled)}
           $isThinking={isThinking}
           onClick={isThinking ? handleStop : handleSubmit}
         >
