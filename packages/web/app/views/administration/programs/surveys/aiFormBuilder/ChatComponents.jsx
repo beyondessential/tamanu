@@ -516,7 +516,7 @@ export function Attachment({ file, sent = false, fullWidth = false, onRemove }) 
 
 export function UserMessageContent({ message }) {
   if (!message.text && message.file) {
-    return <Attachment file={message.file} sent />;
+    return <Attachment file={message.file} />;
   }
 
   return (
@@ -539,37 +539,13 @@ export function AssistantMessageContent({ text }) {
   return <MarkdownMessageContent text={text} />;
 }
 
-export function ThinkingMessage({ isTakingAWhile = false, message = null }) {
-  const longWaitMessage = (
-    <TranslatedText
-      stringId="admin.programs.aiFormBuilder.thinking.longWait"
-      fallback="This can take a little while"
-    />
-  );
-  const fallbackMessage = isTakingAWhile ? (
-    longWaitMessage
-  ) : (
-    <TranslatedText
-      stringId="admin.programs.aiFormBuilder.thinking.label"
-      fallback="Building your form..."
-    />
-  );
-
+export function ThinkingMessage() {
   return (
     <ThinkingWrap>
       <Ripple aria-hidden="true">
         <RippleRing $delay="0s" />
         <RippleRing $delay="-0.75s" />
       </Ripple>
-      <MessageText>
-        {message && isTakingAWhile ? (
-          <>
-            {message} {longWaitMessage}
-          </>
-        ) : (
-          message || fallbackMessage
-        )}
-      </MessageText>
     </ThinkingWrap>
   );
 }

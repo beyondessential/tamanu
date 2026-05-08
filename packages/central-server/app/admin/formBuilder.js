@@ -7,7 +7,6 @@ import NodeCache from 'node-cache';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
-import { WS_EVENTS } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
@@ -34,16 +33,6 @@ const CHAT_JOB_STATUSES = {
   PENDING: 'pending',
   COMPLETE: 'complete',
   FAILED: 'failed',
-};
-const CHAT_JOB_PROGRESS_STAGES = {
-  STARTING: 'starting',
-  READING_FILE: 'readingFile',
-  READING_PDF: 'readingPdf',
-  READING_IMAGE: 'readingImage',
-  READING_SPREADSHEET: 'readingSpreadsheet',
-  REVIEWING_FORM: 'reviewingForm',
-  APPLYING_CHANGES: 'applyingChanges',
-  BUILDING_PREVIEW: 'buildingPreview',
 };
 
 const chatJobs = new NodeCache({ stdTTL: CHAT_JOB_TTL_SECONDS, checkperiod: 60, useClones: false });
@@ -165,18 +154,16 @@ const sanitizeFileNameForPrompt = fileName => {
   return sanitized || undefined;
 };
 
-const getFileContext = async ({ aiService, file, fileName, fileContentType, onProgress }) => {
+const getFileContext = async ({ aiService, file, fileName, fileContentType }) => {
   if (!file) return '';
 
   const extension = extname(fileName || '').toLowerCase();
   const contentType = fileContentType?.split(';')[0].trim().toLowerCase();
   if (WORKBOOK_FILE_EXTENSIONS.has(extension)) {
-    onProgress?.(CHAT_JOB_PROGRESS_STAGES.READING_SPREADSHEET);
     return `[XLSX DOCUMENT LOADED]\n${truncateFileContext(readWorkbookContext(file))}`;
   }
 
   if (TEXT_FILE_EXTENSIONS.has(extension)) {
-    onProgress?.(CHAT_JOB_PROGRESS_STAGES.READING_FILE);
     const tag = extension === '.csv' ? 'CSV DOCUMENT LOADED' : 'TEXT DOCUMENT LOADED';
     return `[${tag}]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
   }
@@ -185,7 +172,6 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType, onPr
 
   if (extension === '.pdf' || contentType === 'application/pdf' || isPdfBuffer(fileBuffer)) {
     try {
-      onProgress?.(CHAT_JOB_PROGRESS_STAGES.READING_PDF);
       const interpretedPdf = await aiService.interpretFormBuilderPdf({
         pdfBase64: fileBuffer.toString('base64'),
         fileName: sanitizeFileNameForPrompt(fileName),
@@ -202,7 +188,6 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType, onPr
     IMAGE_MEDIA_TYPES_BY_EXTENSION[extension] ||
     getImageMediaTypeFromBuffer(fileBuffer);
   if (IMAGE_CONTENT_TYPES.has(mediaType)) {
-    onProgress?.(CHAT_JOB_PROGRESS_STAGES.READING_IMAGE);
     const interpretedImage = await aiService.interpretFormBuilderImage({
       imageBase64: fileBuffer.toString('base64'),
       mediaType,
@@ -211,7 +196,6 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType, onPr
     return `[FORM IMAGE INTERPRETED]\n${interpretedImage}`;
   }
 
-  onProgress?.(CHAT_JOB_PROGRESS_STAGES.READING_FILE);
   return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(fileBuffer.toString('utf8'))}`;
 };
 
@@ -352,7 +336,6 @@ const processChatRequest = async ({
   fileContentType,
   programDefinition: currentProgramDefinition,
   deleteFileAfterImport,
-  onProgress,
 }) => {
   try {
     const fileContext = await getFileContext({
@@ -360,7 +343,6 @@ const processChatRequest = async ({
       file,
       fileName,
       fileContentType,
-      onProgress,
     });
     const userMessage = buildUserMessage({ message, fileContext });
     const sessionId = existingSessionId || (await aiService.createSession(FORM_BUILDER_CONTEXT));
@@ -369,7 +351,6 @@ const processChatRequest = async ({
       let tweakResponse;
       let programDefinition;
       try {
-        onProgress?.(CHAT_JOB_PROGRESS_STAGES.APPLYING_CHANGES);
         tweakResponse = await aiService.invokeStructured(
           FORM_BUILDER_TWEAK_CONTEXT,
           buildProgramDefinitionTweakInput({
@@ -407,12 +388,10 @@ const processChatRequest = async ({
       }
     }
 
-    onProgress?.(CHAT_JOB_PROGRESS_STAGES.REVIEWING_FORM);
     const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
     const programDefinition =
       response.ready_to_export || response.ready_to_generate
         ? await (async () => {
-            onProgress?.(CHAT_JOB_PROGRESS_STAGES.BUILDING_PREVIEW);
             return programDefinitionSchema.parseAsync(
               sanitizeProgramDefinitionPreview(
                 await aiService.invokeStructured(
@@ -447,44 +426,21 @@ const processChatRequest = async ({
   }
 };
 
-const getChatJobProgressEventName = jobId => `${WS_EVENTS.FORM_BUILDER_CHAT_PROGRESS}:${jobId}`;
-const emitChatJobUpdate = ({ websocketService, jobId, payload }) => {
-  websocketService?.emit(getChatJobProgressEventName(jobId), { jobId, ...payload });
-};
-
-const startChatJob = ({ aiService, userId, payload, websocketService }) => {
+const startChatJob = ({ aiService, userId, payload }) => {
   const jobId = nanoid();
   chatJobs.set(jobId, {
     id: jobId,
     userId,
     status: CHAT_JOB_STATUSES.PENDING,
-    progressStage: CHAT_JOB_PROGRESS_STAGES.STARTING,
   });
 
-  const onProgress = progressStage => {
-    emitChatJobUpdate({
-      websocketService,
-      jobId,
-      payload: { status: CHAT_JOB_STATUSES.PENDING, progressStage },
-    });
-    chatJobs.set(jobId, {
-      ...chatJobs.get(jobId),
-      progressStage,
-    });
-  };
-
-  processChatRequest({ aiService, ...payload, onProgress })
+  processChatRequest({ aiService, ...payload })
     .then(result => {
       chatJobs.set(jobId, {
         id: jobId,
         userId,
         status: CHAT_JOB_STATUSES.COMPLETE,
         result,
-      });
-      emitChatJobUpdate({
-        websocketService,
-        jobId,
-        payload: { status: CHAT_JOB_STATUSES.COMPLETE, result },
       });
     })
     .catch(error => {
@@ -495,11 +451,6 @@ const startChatJob = ({ aiService, userId, payload, websocketService }) => {
         userId,
         status: CHAT_JOB_STATUSES.FAILED,
         error: serializedError,
-      });
-      emitChatJobUpdate({
-        websocketService,
-        jobId,
-        payload: { status: CHAT_JOB_STATUSES.FAILED, error: serializedError },
       });
     });
 
@@ -522,7 +473,6 @@ formBuilderRouter.post(
         aiService: req.aiService,
         userId: req.user.id,
         payload,
-        websocketService: req.ctx.websocketService,
       });
       res.status(202).send({ jobId, status: CHAT_JOB_STATUSES.PENDING });
       return;
