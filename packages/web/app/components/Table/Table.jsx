@@ -678,13 +678,7 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: (
-    <TranslatedText
-      stringId="general.table.noDataMessage"
-      fallback="No data found"
-      data-testid="translatedtext-d4jv"
-    />
-  ),
+  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
   count: 0,
   hideHeader: false,
   isLoading: false,
