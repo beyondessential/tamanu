@@ -31,12 +31,11 @@ const formBuilderChatResponseSchema = z.object({
     .string()
     .nullable()
     .describe('The selected program code, "__new__", or null if not yet selected.'),
-  ready_to_export: z
+  ready: z
     .boolean()
-    .describe('True when the conversation is ready for a human-readable export.'),
-  ready_to_generate: z
-    .boolean()
-    .describe('True when the conversation is ready to generate an importable ProgramDefinition.'),
+    .describe(
+      'True when the conversation has gathered enough information to generate a ProgramDefinition preview (or to export the current questions for human review).',
+    ),
 });
 
 const normalizeMessageContent = content => {

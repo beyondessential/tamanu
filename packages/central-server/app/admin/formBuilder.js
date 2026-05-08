@@ -376,15 +376,13 @@ const processChatRequest = async ({
           sessionId,
           message: tweakResponse.message,
           attachToProgramCode: null,
-          readyToExport: false,
-          readyToGenerate: true,
           programDefinition,
         };
       }
     }
 
     const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
-    const isReady = response.ready_to_export || response.ready_to_generate;
+    const isReady = response.ready;
 
     let programDefinition = null;
     if (isReady) {
@@ -409,8 +407,6 @@ const processChatRequest = async ({
       sessionId,
       message: response.message,
       attachToProgramCode: response.attach_to_program_code,
-      readyToExport: response.ready_to_export,
-      readyToGenerate: response.ready_to_generate,
       programDefinition,
     };
   } finally {

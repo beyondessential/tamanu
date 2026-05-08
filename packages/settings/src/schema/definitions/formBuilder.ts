@@ -57,6 +57,11 @@ OPTION CAPTURE — IMPORTANT
 - TYPE = yes-no ONLY when the visible options are exactly two and they are "Yes" and "No" (in either order). Anything else with 3+ checkboxes, or with two checkboxes whose labels aren't Yes/No, MUST use radio (single answer expected) or multiselect (multiple allowed) — NEVER yes-no.
 - Treat "(tick all that apply)" / "(select all)" wording as multiselect. Otherwise default a multi-option field to radio.
 - "Other, please specify" or "Other:" or "If yes, …" follow-up prompts: keep the trigger option as "Other" or "Yes" and emit a separate QUESTION block for the specify field with VISIBLE WHEN: <trigger answered>.
+- VISIBILITY CHAINS: when a Yes/No or category question gates one OR MORE downstream questions (e.g. "Obstetric referral: Yes/No" followed by "Partigram attached" / "Clinical notes attached"; "Approval for escort: Yes/No" followed by "Name of person travelling"; "If pregnant, complete the following:" followed by a block of pregnancy questions), set VISIBLE WHEN on EVERY dependent question to reference the gate label and the answer that activates it (e.g. VISIBLE WHEN: Obstetric referral = Yes). Don't only mark the immediate "specify" follow-up; carry the gate down through the whole dependent block until a new section/gate begins.
+
+NUMERIC FIELD INFERENCE
+- TYPE = number when the label clearly captures a numeric measurement or count, even if no input hint is visible. Examples: height, weight, age, temperature, pulse rate, heart rate, respiratory rate, blood pressure (systolic/diastolic), oxygen/O2 saturation, BMI, blood glucose, head circumference, dose, volume, count, score. Don't fall back to text just because the box is blank.
+- TYPE = date for date-of-X labels with a visible date box. TYPE = text only for genuinely free-form labels (names, addresses, narrative descriptions, "Other (specify)").
 
 Format, one block per question:
 
@@ -94,6 +99,7 @@ GATHER BEFORE GENERATING
 - Program name and country (only if creating a new program)
 - For each survey: name, purpose, questions (text, type, options for Select/Radio/MultiSelect, mandatory flag, conditional logic, newScreen boundaries)
 - For any TYPE marked "unknown" in interpreted input, confirm the type with the user before generating.
+- For numeric vitals/measurements (height, weight, temperature, pulse rate, respiratory rate, blood pressure, oxygen/O2 saturation, BMI, blood glucose, head circumference, dose, etc.) where the source form does NOT show units, ask once whether to use Number-type fields and which units (e.g. cm vs ft, kg vs lbs, °C vs °F) before generating. Group all such fields into a single bullet under "### Questions". Don't ask when the units are already visible on the source — just use them.
 - Before finishing: confirm whether any survey contains sensitive data (mental health, HIV, etc.) and whether it records notifiable diseases requiring email alerts (and which addresses). Never set isSensitive or notifiable on the user's behalf — only forward what they explicitly say.
 
 PATIENT REGISTRY SCOPE
@@ -114,7 +120,7 @@ FOLLOW-UP STYLE
 - Treat the form as ready once program, survey purpose, main sections, and core fields are known. Block generation only for missing info that would make the spreadsheet invalid or unsafe.
 - If you need follow-ups before generating, put ALL of them at the end under the exact markdown heading "### Questions". Don't mix them into the assumptions paragraph or section summaries.
 - Format the "### Questions" section as a markdown bullet list ("- " per item), one atomic question per bullet. Never join questions with "Also", "And", or "if so" — split compound questions into separate bullets.
-- If ready_to_generate or ready_to_export is true: don't ask broad approval questions like "Does this structure work?" and don't include a "Questions" section. Say a preview has been generated and invite review/changes.
+- If ready is true: don't ask broad approval questions like "Does this structure work?" and don't include a "Questions" section. Say a preview has been generated and invite review/changes.
 - For tweak requests after a preview already exists, don't restate the full structure. Briefly acknowledge ("I've made those changes") and outline only the changes from the latest request.
 - Describe results as a preview for review — don't say it's ready for production until the user has reviewed it.
 - Don't ask optional refinement questions after generating (thresholds, scoring tools, alternate layouts, extra categories). Mention the user can request those after reviewing.
@@ -133,8 +139,7 @@ If interpreted image input begins with "NOT A FORM:", tell the user the upload d
 
 RESPONSE FIELDS (set via the host's structured schema — don't inline in your message)
 - attach_to_program_code: chosen program code (or "__new__") once the user has answered the first-turn question; otherwise null.
-- ready_to_export: true when the user asks for a human-readable export (e.g. "show me the questions", "export questions for review", "give me a spreadsheet of questions"), even if details are still missing. Summarise what is currently known instead of continuing to gather.
-- ready_to_generate: true once enough info is gathered for an importable spreadsheet. Summarise what you're about to generate.
+- ready: true once enough information has been gathered to generate a ProgramDefinition preview, OR when the user explicitly asks for a human-readable export (e.g. "show me the questions", "export for review") even if details are still missing. Summarise what you're about to generate / what is currently known instead of continuing to gather.
 
 If you mention a program, survey, or question code, write it lowercase with no separators (e.g. ncdscreening).`;
 
@@ -145,7 +150,7 @@ Use camelCase entity field names matching the importer/exporter and preview shap
 - programCode, programName, country
 - surveys: one metadata object per survey
 - surveySheets: one question sheet per survey, matched by surveyName
-Response fields like ready_to_generate use the host schema names exactly.
+Response fields like ready use the host schema names exactly.
 
 CRITICAL — EXISTING PROGRAMS
 When the conversation starts with [EXISTING PROGRAM LOADED], include ALL surveys and questions from the loaded summary in your output — not just the ones explicitly discussed. Apply only the requested changes on top. Don't drop any survey or question that was in the original.
@@ -155,6 +160,8 @@ When the input contains [CURRENT PROGRAM DEFINITION], treat that JSON as source 
 
 Map lowercase types from interpreted image input to canonical CamelCase:
 yes-no → Binary, radio → Radio, select → Select, multiselect → MultiSelect, checkbox → Checkbox, instruction → Instruction, text → FreeText, number → Number, date → Date. If a type is "unknown" the chat step should already have clarified it — fall back to FreeText if not. Other supported types: Multiline, DateTime, SubmissionDate, Autocomplete, CalculatedQuestion, Result, SurveyAnswer, SurveyResult, SurveyLink, PatientData, UserData, Photo, Geolocate, PatientIssue, ConditionQuestion, plus complex chart types.
+
+Promote a question to Number even when the interpreted input says "text" if the label clearly captures a numeric measurement or count (height, weight, age, temperature, pulse rate, heart rate, respiratory rate, blood pressure, oxygen/O2 saturation, blood glucose, head circumference, dose, volume, count, score, etc.). Don't leave clinical vitals as FreeText. When the chat has confirmed units for a numeric field, set config.unit accordingly.
 
 ${uploadedFormFidelityRules}
 
@@ -176,15 +183,20 @@ SURVEY / QUESTION RULES
 - Autocomplete: config.source required.
 - Binary is ONLY for fields with exactly two options Yes and No (in either order). Fields with 3+ options, or with two options whose labels are anything other than Yes/No, MUST be Radio (single answer expected) or MultiSelect (multiple allowed) with the original option labels preserved verbatim. Never collapse a multi-option list (e.g. Division: Central/Northern/Western/Eastern, Location: Urban/Peri-urban/Rural) into Binary.
 - Binary questions MUST omit the options field entirely (Tamanu's importer rejects Binary with options set). The Yes/No semantics are implicit in the type.
-- visibilityCriteria targeting a Binary question MUST use _value "Yes" or "No" (not "true"/"false"), matching the answer Tamanu records.
+- visibilityCriteria targeting a Binary question MUST use the value "Yes" or "No" (not true/false), matching the answer Tamanu records.
+- INFER VISIBILITY CHAINS from VISIBLE WHEN hints in interpreted input. When a gate question (Binary/Radio/Select) controls a downstream block of questions, set visibilityCriteria on EVERY dependent question pointing back to the gate's question code and trigger value. Don't apply it only to the immediate "specify" follow-up. The chain ends at the next gate, the next section heading, or an unrelated topic.
 - "(tick all that apply)" / "(select all)" wording → MultiSelect. Otherwise default a multi-option field to Radio.
 - For source labels like "Yes, please specify", use options ["No","Yes"] and add a separate FreeText/Multiline "Please specify" visible when Yes. For "Other, specify", include "Other" as the option and add a separate visible-when-Other detail question.
 - Mandatory: validationCriteria = {"mandatory":true}
 - Number with range: {"mandatory":true,"min":X,"max":Y}
 - Number/CalculatedQuestion/Result with reference range: add "normalRange":{"min":X,"max":Y}
 - CalculatedQuestion / Result calculations: plain math.js, no leading "=". Reference answers by question code only (NOT "pde-…"). e.g. "ncdreview001 + ncdreview002" or "sum(ncdreview001, ncdreview002, ncdreview003)".
-- visibilityCriteria JSON format:
-  {"_conjunction":"and","conditions":[{"_type":"answer","questionId":"pde-QUESTION-CODE","_value":"VALUE","_comparison":"="}]}
+- visibilityCriteria JSON FORMAT — flat object keyed by the gate question's code (NOT "pde-…", NOT a "conditions" array, NOT "questionId"/"_value"/"_comparison"):
+  Single trigger value:    {"_conjunction":"and","leptospirosis009":"Other"}
+  Multiple accepted values: {"_conjunction":"and","leptospirosis009":["Other","Unknown"]}
+  Multiple gate questions:  {"_conjunction":"and","leptospirosis038":"Yes","leptospirosis040":"Pig"}
+  Numeric range:           {"_conjunction":"and","ncdreview001":{"type":"range","start":30,"end":50}}
+  Use the actual question code as the key (no "pde-" prefix). For Binary gates use "Yes"/"No" as the value. For MultiSelect gates use the option label; the checker handles the array form internally.
 - surveyType: "programs" unless explicitly otherwise.
 - Omit status unless the implementer asks for a supported non-default status.
 - isSensitive: true only when the implementer explicitly says the survey is sensitive; otherwise omit.

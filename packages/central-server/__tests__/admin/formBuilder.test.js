@@ -58,8 +58,7 @@ describe('Form Builder Admin', () => {
       sendFormBuilderMessage: jest.fn().mockResolvedValue({
         message: 'AI response',
         attach_to_program_code: 'ncd',
-        ready_to_export: false,
-        ready_to_generate: false,
+        ready: false,
       }),
       getSessionTranscript: jest.fn().mockResolvedValue('[human]\nBuild a referral form'),
       invokeStructured: jest.fn().mockResolvedValue(programDefinition),
@@ -85,8 +84,6 @@ describe('Form Builder Admin', () => {
       sessionId: 'new-session-id',
       message: 'AI response',
       attachToProgramCode: 'ncd',
-      readyToExport: false,
-      readyToGenerate: false,
       programDefinition: null,
     });
     expect(aiService.createSession).toHaveBeenCalledWith('formBuilder');
@@ -116,8 +113,6 @@ describe('Form Builder Admin', () => {
         sessionId: 'new-session-id',
         message: 'AI response',
         attachToProgramCode: 'ncd',
-        readyToExport: false,
-        readyToGenerate: false,
         programDefinition: null,
       },
     });
@@ -218,12 +213,11 @@ describe('Form Builder Admin', () => {
     );
   });
 
-  it('generates a program definition for the ready to export state', async () => {
+  it('generates a program definition when the chat reports ready', async () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Your form is ready to export.',
       attach_to_program_code: 'ncd',
-      ready_to_export: true,
-      ready_to_generate: false,
+      ready: true,
     });
 
     const response = await app.post('/v1/admin/form-builder/chat').send({
@@ -239,7 +233,6 @@ describe('Form Builder Admin', () => {
       { name: 'form_builder_program_definition' },
     );
     expect(response.body).toMatchObject({
-      readyToExport: true,
       programDefinition: programDefinitionPreview,
     });
   });
@@ -248,8 +241,7 @@ describe('Form Builder Admin', () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Your form preview is ready.',
       attach_to_program_code: 'ncd',
-      ready_to_export: false,
-      ready_to_generate: true,
+      ready: true,
     });
 
     const response = await app.post('/v1/admin/form-builder/chat').send({
@@ -268,8 +260,7 @@ describe('Form Builder Admin', () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Your form is ready to generate.',
       attach_to_program_code: 'ncd',
-      ready_to_export: false,
-      ready_to_generate: true,
+      ready: true,
     });
     aiService.invokeStructured.mockResolvedValueOnce({
       ...programDefinition,
@@ -345,7 +336,6 @@ describe('Form Builder Admin', () => {
       assistantMessage: 'Updated the patient name field.',
     });
     expect(response.body).toMatchObject({
-      readyToGenerate: true,
       programDefinition: {
         surveySheets: [
           {
@@ -425,7 +415,6 @@ describe('Form Builder Admin', () => {
     expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
     expect(response.body).toMatchObject({
       message: 'Updated the patient name field.',
-      readyToGenerate: true,
       programDefinition: {
         surveySheets: [
           {
@@ -449,8 +438,7 @@ describe('Form Builder Admin', () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Updated the preview.',
       attach_to_program_code: 'ncd',
-      ready_to_export: false,
-      ready_to_generate: true,
+      ready: true,
     });
 
     const response = await app.post('/v1/admin/form-builder/chat').send({
@@ -478,7 +466,6 @@ describe('Form Builder Admin', () => {
       { name: 'form_builder_program_definition' },
     );
     expect(response.body).toMatchObject({
-      readyToGenerate: true,
       programDefinition: programDefinitionPreview,
     });
   });
