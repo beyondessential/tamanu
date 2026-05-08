@@ -187,7 +187,7 @@ jobs:
 
   e2e_failure_report:
     name: E2E Failure Report
-    if: always() && github.event_name == 'merge_group' && needs.e2e.result != 'success'
+    if: "always() && (github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] **Run E2E tests** <!-- #e2e -->')) && needs.e2e.result != 'success'"
     needs: [e2e]
     runs-on: ubuntu-latest
     steps:
@@ -226,10 +226,9 @@ jobs:
           ARTIFACT_URL: ${{ steps.e2e-report-upload.outputs.artifact-url }}
           RUN_NUMBER: ${{ github.run_number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          SHA: ${{ github.sha }}
         with:
           script: |
-            const { ARTIFACT_URL, RUN_NUMBER, RUN_URL, SHA } = process.env;
+            const { ARTIFACT_URL, RUN_NUMBER, RUN_URL } = process.env;
             const { repo, owner } = context.repo;
             const headRef = context.payload.merge_group?.head_ref ?? '';
             const prNumber =
@@ -245,13 +244,11 @@ jobs:
               owner,
               repo,
             };
-            const headerContent = '**E2E merge queue failure report**';
+            const headerContent = '**E2E failure report**';
             const body = [
               headerContent,
               '',
-              context.eventName === 'pull_request'
-                ? `Temporary PR mechanics test: E2E failed for run **${RUN_NUMBER}** (${SHA.slice(0, 7)}).`
-                : `E2E failed in the merge queue for run **${RUN_NUMBER}** (${SHA.slice(0, 7)}).`,
+              `E2E failed for run **${RUN_NUMBER}**.`,
               '',
               `- [View workflow run](${RUN_URL})`,
               `- [Download Playwright failure report](${ARTIFACT_URL})`,
