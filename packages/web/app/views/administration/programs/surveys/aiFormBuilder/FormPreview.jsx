@@ -243,25 +243,19 @@ function PreviewSubmitButton() {
   );
 }
 
-function FormPreviewStatusChip({ isSaved, iteration }) {
+function FormPreviewStatusChip({ isSaved }) {
   return (
     <PreviewStatusChip $saved={isSaved}>
       {isSaved ? (
         <TranslatedText stringId="general.status.saved" fallback="Saved" />
-      ) : iteration > 1 ? (
-        <TranslatedText
-          stringId="admin.programs.aiFormBuilder.status.draftIteration.lowercase"
-          fallback="draft :iteration"
-          replacements={{ iteration }}
-        />
       ) : (
-        <TranslatedText stringId="admin.programs.aiFormBuilder.status.draft" fallback="draft" />
+        <TranslatedText stringId="general.status.draft" fallback="Draft" />
       )}
     </PreviewStatusChip>
   );
 }
 
-export function FormPreview({ form, isSaved, iteration }) {
+export function FormPreview({ form, isSaved }) {
   const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
@@ -294,7 +288,7 @@ export function FormPreview({ form, isSaved, iteration }) {
             stringId="admin.programs.aiFormBuilder.preview.heading"
             fallback="Form preview"
           />
-          <FormPreviewStatusChip isSaved={isSaved} iteration={iteration} />
+          <FormPreviewStatusChip isSaved={isSaved} />
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>

@@ -596,7 +596,6 @@ export function AiFormBuilderView() {
           <FormPreview
             form={generatedForm}
             isSaved={Boolean(state.savedSurveyId)}
-            iteration={state.generatedFormIteration}
           />
         )}
       </BuilderShell>
