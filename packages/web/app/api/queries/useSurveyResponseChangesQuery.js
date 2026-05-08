@@ -7,7 +7,8 @@ export const useSurveyResponseChangesQuery = (surveyResponseId, options = {}) =>
   return useQuery({
     ...options,
     queryKey: ['surveyResponseChanges', surveyResponseId],
-    queryFn: async () => await api.get(`surveyResponse/${surveyResponseId}/changes`),
+    queryFn: async () =>
+      await api.get(`surveyResponse/${encodeURIComponent(surveyResponseId)}/changes`),
     enabled: enabled && Boolean(surveyResponseId),
   });
 };
