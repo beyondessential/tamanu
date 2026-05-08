@@ -11,6 +11,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 - [ ] Synthetic test <!-- #deployopt %synthetic -->
 - [ ] Generate fake data <!-- #deployopt %fakedata=1 -->
+- [ ] More data (20Gi) <!-- #deployopt %dbstorage=20 -->
 - [ ] Stay up for 8 hours <!-- #deployopt %ttlhours=8 -->
 - [ ] Stay up for 24 hours <!-- #deployopt %ttlhours=24 -->
 - [ ] Stay up (no TTL) <!-- #deployopt %ttlhours=0 -->
