@@ -88,7 +88,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
     .map(component => {
-      if (isShowable(component)) return null; // Filter out
+      if (!isShowable(component)) return null; // Filter out
 
       const { dataElement, id, config } = component;
       const { type: originalType, name, id: dataElementId } = dataElement;
