@@ -160,9 +160,9 @@ export class FhirObservation extends FhirResource {
       );
     }
 
+    const labTestMethodId = await this.getLabTestMethodId();
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
-    const labTestMethodId = await this.getLabTestMethodId();
 
     await labTest.update({
       result: value,
@@ -269,23 +269,34 @@ export class FhirObservation extends FhirResource {
     }
 
     const validatedMethod = FhirCodeableConcept.SCHEMA().validateSync(this.method);
-    const methodCode = validatedMethod.coding?.[0]?.code;
-    if (!methodCode) {
-      throw new Invalid('Invalid method, must provide at least one coding with a code', {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
+    const methodCodings =
+      validatedMethod.coding?.filter(
+        (coding: Record<string, any>) =>
+          coding?.code && coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+      ) ?? [];
+    if (methodCodings.length === 0) {
+      throw new Invalid(
+        `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
     }
 
+    const methodCodes = methodCodings.map((coding: Record<string, any>) => coding.code);
     const labTestMethod = await ReferenceData.findOne({
       where: {
         type: REFERENCE_TYPES.LAB_TEST_METHOD,
-        code: methodCode,
+        code: methodCodes,
       },
     });
     if (!labTestMethod) {
-      throw new Invalid(`Invalid method, no lab test method found with code '${methodCode}'`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
+      throw new Invalid(
+        `Invalid method, no lab test method found with any provided codes: ${methodCodes.join(', ')}`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
     }
 
     return labTestMethod.id;

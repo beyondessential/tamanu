@@ -247,6 +247,7 @@ describe('Create Observation', () => {
         method: {
           coding: [
             {
+              system: config.hl7.dataDictionaries.observationMethodCodeSystem,
               code: labTestMethod.code,
             },
           ],
@@ -403,6 +404,66 @@ describe('Create Observation', () => {
               details: {
                 text: expect.stringContaining(
                   `Cannot create reflex test, no lab test type found with code '${invalidCode}'`,
+                ),
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
+
+      it('returns invalid value if Observation method does not contain a code in the configured method system', async () => {
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          false,
+          {
+            status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          },
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        const testCode = mat.orderDetail[0];
+
+        const body = {
+          resourceType: 'Observation',
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              reference: `ServiceRequest/${serviceRequestId}`,
+            },
+          ],
+          status: FHIR_OBSERVATION_STATUS.FINAL,
+          code: {
+            coding: testCode.coding.filter(
+              ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+            ),
+          },
+          method: {
+            coding: [
+              {
+                system: 'http://example.org/alternate-method-system',
+                code: 'RTPCR',
+              },
+            ],
+          },
+          valueString: '100',
+        };
+
+        const response = await app.post(endpoint).send(body);
+
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'value',
+              diagnostics: expect.any(String),
+              details: {
+                text: expect.stringContaining(
+                  `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
                 ),
               },
             },
