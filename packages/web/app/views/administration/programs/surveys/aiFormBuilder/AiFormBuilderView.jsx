@@ -3,10 +3,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
+import { WS_EVENTS } from '@tamanu/constants';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../../../../../api';
 import { notifyError, notifySuccess } from '../../../../../utils';
 import { saveFile } from '../../../../../utils/fileSystemAccess';
+import { useSocket } from '../../../../../utils/useSocket';
 import {
   Attachment,
   AttachmentLabel,
@@ -42,48 +44,101 @@ import { useProgramsQuery } from '../queries';
 const getProgramCode = programId => programId?.replace(/^program-/, '');
 const getProgramDefinitionFileName = programDefinition =>
   `${programDefinition?.surveys?.[0]?.name || programDefinition?.title || 'Generated form'}.xlsx`;
-const CHAT_JOB_POLL_INTERVAL_MS = 2000;
+const getChatJobProgressEventName = jobId => `${WS_EVENTS.FORM_BUILDER_CHAT_PROGRESS}:${jobId}`;
 const CHAT_JOB_MAX_WAIT_MS = 10 * 60 * 1000;
-const LONG_WAIT_MESSAGE_DELAY_MS = 30000;
+const LONG_WAIT_MESSAGE_DELAY_MS = 15000;
 
-const waitForChatJob = async ({ api, jobId, signal }) => {
-  const startedAt = Date.now();
-  while (!signal.aborted) {
-    if (Date.now() - startedAt > CHAT_JOB_MAX_WAIT_MS) {
-      throw new Error('The form builder response took too long. Please try again.');
-    }
+const THINKING_MESSAGES = {
+  starting: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.starting',
+    fallback: 'Starting the form builder...',
+  },
+  readingFile: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.readingFile',
+    fallback: 'Reading the uploaded file...',
+  },
+  readingPdf: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.readingPdf',
+    fallback: 'Reading the PDF...',
+  },
+  readingImage: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.readingImage',
+    fallback: 'Reading the image...',
+  },
+  readingSpreadsheet: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.readingSpreadsheet',
+    fallback: 'Reading the spreadsheet...',
+  },
+  reviewingForm: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.reviewingForm',
+    fallback: 'Working out the next questions...',
+  },
+  applyingChanges: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.applyingChanges',
+    fallback: 'Applying your changes...',
+  },
+  buildingPreview: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.buildingPreview',
+    fallback: 'Building the form preview...',
+  },
+  uploadingFile: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.uploadingFile',
+    fallback: 'Uploading the file...',
+  },
+  sendingMessage: {
+    stringId: 'admin.programs.aiFormBuilder.thinking.sendingMessage',
+    fallback: 'Sending your message...',
+  },
+};
 
-    const job = await api.get(
-      `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
-      {},
-      { signal, showUnknownErrorToast: false },
-    );
+const getThinkingMessage = (getTranslation, stage) => {
+  const message = THINKING_MESSAGES[stage];
+  if (!message) return null;
+  return getTranslation(message.stringId, message.fallback);
+};
 
-    if (job.status === 'complete') return job.result;
-    if (job.status === 'failed') {
-      throw new Error(job.error?.detail || job.error?.message || 'Unable to build the form');
-    }
-
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(resolve, CHAT_JOB_POLL_INTERVAL_MS);
-      signal.addEventListener(
-        'abort',
-        () => {
-          clearTimeout(timeout);
-          reject(new DOMException('The request was aborted.', 'AbortError'));
-        },
-        { once: true },
-      );
-    });
+const waitForChatJob = ({ socket, jobId, signal, onProgress }) => {
+  if (!socket) {
+    throw new Error('The form builder socket is not connected. Please try again.');
   }
 
-  throw new DOMException('The request was aborted.', 'AbortError');
+  return new Promise((resolve, reject) => {
+    const eventName = getChatJobProgressEventName(jobId);
+    const cleanup = () => {
+      clearTimeout(timeout);
+      socket.off(eventName, handleJobUpdate);
+      signal.removeEventListener('abort', handleAbort);
+    };
+    const handleAbort = () => {
+      cleanup();
+      reject(new DOMException('The request was aborted.', 'AbortError'));
+    };
+    const handleJobUpdate = job => {
+      if (job.progressStage) onProgress?.(job.progressStage);
+      if (job.status === 'complete') {
+        cleanup();
+        resolve(job.result);
+      }
+      if (job.status === 'failed') {
+        cleanup();
+        reject(new Error(job.error?.detail || job.error?.message || 'Unable to build the form'));
+      }
+    };
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('The form builder response took too long. Please try again.'));
+    }, CHAT_JOB_MAX_WAIT_MS);
+
+    signal.addEventListener('abort', handleAbort, { once: true });
+    socket.on(eventName, handleJobUpdate);
+  });
 };
 
 export function AiFormBuilderView() {
   const { newChatRequestId, setHasAiFormBuilderChat } = useOutletContext();
   const { getTranslation } = useTranslation();
   const api = useApi();
+  const { socket } = useSocket();
   const queryClient = useQueryClient();
   const sessionKey = useSelector(state => state.auth.token);
   const [state, setState] = useState(() => readSessionChatState(sessionKey));
@@ -91,13 +146,13 @@ export function AiFormBuilderView() {
   const [pendingFile, setPendingFile] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isTakingAWhile, setIsTakingAWhile] = useState(false);
+  const [thinkingMessage, setThinkingMessage] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(() =>
     Boolean(readSessionChatState(sessionKey).generatedForm),
   );
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const abortControllerRef = useRef(null);
-  const inputFileRef = useRef(null);
   const messagesRef = useRef(null);
   const previousNewChatRequestIdRef = useRef(newChatRequestId);
 
@@ -131,11 +186,12 @@ export function AiFormBuilderView() {
     const messagesEl = messagesRef.current;
     if (!messagesEl) return;
     messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
-  }, [state.messages.length, isThinking, isTakingAWhile]);
+  }, [state.messages.length, isThinking, isTakingAWhile, thinkingMessage]);
 
   useEffect(() => {
     if (!isThinking) {
       setIsTakingAWhile(false);
+      setThinkingMessage(null);
       return undefined;
     }
 
@@ -163,6 +219,7 @@ export function AiFormBuilderView() {
     setPendingFile(null);
     setIsThinking(false);
     setIsTakingAWhile(false);
+    setThinkingMessage(null);
     setIsPreviewOpen(false);
     setIsNewChatModalOpen(false);
   }, []);
@@ -191,6 +248,9 @@ export function AiFormBuilderView() {
       abortControllerRef.current = abortController;
       setIsThinking(true);
       setIsTakingAWhile(false);
+      setThinkingMessage(
+        getThinkingMessage(getTranslation, file ? 'uploadingFile' : 'sendingMessage'),
+      );
 
       try {
         const selectedProgramCode = getProgramCode(selectedProgramId);
@@ -213,7 +273,13 @@ export function AiFormBuilderView() {
             })
           : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
         const chatResponse = response.jobId
-          ? await waitForChatJob({ api, jobId: response.jobId, signal: abortController.signal })
+          ? await waitForChatJob({
+              socket,
+              jobId: response.jobId,
+              signal: abortController.signal,
+              onProgress: progressStage =>
+                setThinkingMessage(getThinkingMessage(getTranslation, progressStage)),
+            })
           : response;
 
         if (chatResponse.programDefinition) {
@@ -285,7 +351,7 @@ export function AiFormBuilderView() {
         }
       }
     },
-    [api, appendMessage, getTranslation, state.generatedForm, state.sessionId],
+    [api, appendMessage, getTranslation, socket, state.generatedForm, state.sessionId],
   );
 
   const handleStop = useCallback(() => {
@@ -293,6 +359,7 @@ export function AiFormBuilderView() {
     abortControllerRef.current = null;
     setIsThinking(false);
     setIsTakingAWhile(false);
+    setThinkingMessage(null);
     appendMessage({
       type: 'assistant',
       text: getTranslation(
@@ -487,7 +554,9 @@ export function AiFormBuilderView() {
                   return <AssistantMessageContent key={message.id} text={message.text} />;
                 })}
 
-                {isThinking && <ThinkingMessage isTakingAWhile={isTakingAWhile} />}
+                {isThinking && (
+                  <ThinkingMessage isTakingAWhile={isTakingAWhile} message={thinkingMessage} />
+                )}
               </Messages>
 
               {pendingFile && (
@@ -509,10 +578,8 @@ export function AiFormBuilderView() {
                 handleFileSelected={handleFileSelected}
                 handleStop={handleStop}
                 handleSubmit={handleSubmit}
-                inputFileRef={inputFileRef}
                 inputValue={inputValue}
                 isThinking={isThinking}
-                openFileDialog={() => inputFileRef.current?.click()}
                 sendDisabled={sendDisabled}
                 setInputValue={setInputValue}
               />
@@ -528,7 +595,8 @@ export function AiFormBuilderView() {
         {showPreview && (
           <FormPreview
             form={generatedForm}
-            onBack={() => setIsPreviewOpen(false)}
+            isSaved={Boolean(state.savedSurveyId)}
+            iteration={state.generatedFormIteration}
           />
         )}
       </BuilderShell>

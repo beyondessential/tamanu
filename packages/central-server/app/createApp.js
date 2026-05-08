@@ -29,7 +29,8 @@ export async function createApp(ctx) {
   });
 
   if (config["socket.io"].enabled) {
-    await createWebsocket(api.httpServer, ctx, dbNotifier);
+    const { websocketService } = await createWebsocket(api.httpServer, ctx, dbNotifier);
+    Reflect.set(ctx, 'websocketService', websocketService);
   }
 
   // Release the connection back to the pool when the server is closed

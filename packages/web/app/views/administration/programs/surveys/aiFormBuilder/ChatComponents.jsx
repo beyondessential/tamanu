@@ -361,6 +361,16 @@ const AttachButton = styled(ComposerIconButton)`
   }
 `;
 
+const VisuallyHiddenFileInput = styled.input`
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+`;
+
 const SendButton = styled(ComposerIconButton)`
   &&,
   &&.Mui-disabled {
@@ -491,14 +501,6 @@ const normaliseAssistantMarkdown = text =>
 export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
     <AttachmentPanel $sent={sent} $fullWidth={fullWidth}>
-      {sent && (
-        <AttachmentLabel>
-          <TranslatedText
-            stringId="admin.programs.aiFormBuilder.attachmentSent.label"
-            fallback="The form is attached"
-          />
-        </AttachmentLabel>
-      )}
       <AttachmentChip $fullWidth={fullWidth} $sent={sent}>
         <ClipIcon />
         {file.name}
@@ -537,7 +539,22 @@ export function AssistantMessageContent({ text }) {
   return <MarkdownMessageContent text={text} />;
 }
 
-export function ThinkingMessage({ isTakingAWhile = false }) {
+export function ThinkingMessage({ isTakingAWhile = false, message = null }) {
+  const longWaitMessage = (
+    <TranslatedText
+      stringId="admin.programs.aiFormBuilder.thinking.longWait"
+      fallback="This can take a little while"
+    />
+  );
+  const fallbackMessage = isTakingAWhile ? (
+    longWaitMessage
+  ) : (
+    <TranslatedText
+      stringId="admin.programs.aiFormBuilder.thinking.label"
+      fallback="Building your form..."
+    />
+  );
+
   return (
     <ThinkingWrap>
       <Ripple aria-hidden="true">
@@ -545,16 +562,12 @@ export function ThinkingMessage({ isTakingAWhile = false }) {
         <RippleRing $delay="-0.75s" />
       </Ripple>
       <MessageText>
-        {isTakingAWhile ? (
-          <TranslatedText
-            stringId="admin.programs.aiFormBuilder.thinking.longWait"
-            fallback="Still working on this. Larger forms can take a little while..."
-          />
+        {message && isTakingAWhile ? (
+          <>
+            {message} {longWaitMessage}
+          </>
         ) : (
-          <TranslatedText
-            stringId="admin.programs.aiFormBuilder.thinking.label"
-            fallback="Building your form..."
-          />
+          message || fallbackMessage
         )}
       </MessageText>
     </ThinkingWrap>
@@ -637,10 +650,8 @@ export function ChatComposer({
   handleFileSelected,
   handleStop,
   handleSubmit,
-  inputFileRef,
   inputValue,
   isThinking,
-  openFileDialog,
   sendDisabled,
   setInputValue,
 }) {
@@ -726,21 +737,19 @@ export function ChatComposer({
         </DragUploadOverlay>
       )}
       <ComposerActions>
-        <input
-          ref={inputFileRef}
-          type="file"
-          accept={acceptedFileExtensions.map(extension => `.${extension}`).join(',')}
-          onChange={handleFileSelected}
-          hidden
-        />
         <ThemedTooltip
           title={getTranslation(
             'admin.programs.aiFormBuilder.attach.tooltip',
             'Attach pdf, png, jpg, jpeg, csv, xls or xlsx',
           )}
         >
-          <AttachButton type="button" onClick={openFileDialog}>
+          <AttachButton component="label">
             <AddIcon />
+            <VisuallyHiddenFileInput
+              type="file"
+              accept={acceptedFileExtensions.map(extension => `.${extension}`).join(',')}
+              onChange={handleFileSelected}
+            />
           </AttachButton>
         </ThemedTooltip>
         <SendButton

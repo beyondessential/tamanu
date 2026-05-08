@@ -1,4 +1,3 @@
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import React, { useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -97,19 +96,6 @@ const PreviewHeaderSpacer = styled.div`
   inline-size: 24px;
 `;
 
-const PreviewBackButton = styled.button`
-  align-items: center;
-  appearance: none;
-  background: transparent;
-  border: 0;
-  color: ${TAMANU_COLORS.primary};
-  cursor: pointer;
-  display: inline-flex;
-  inline-size: 32px;
-  justify-content: center;
-  padding: 4px;
-`;
-
 const PreviewHeading = styled.div`
   align-items: center;
   color: ${TAMANU_COLORS.darkText};
@@ -118,6 +104,20 @@ const PreviewHeading = styled.div`
   font-weight: 500;
   gap: 8px;
   justify-self: center;
+`;
+
+const PreviewStatusChip = styled.span`
+  background: ${({ $saved }) => ($saved ? TAMANU_COLORS.safe : TAMANU_COLORS.primary10)};
+  border: 1px solid ${({ $saved }) => ($saved ? TAMANU_COLORS.safe : TAMANU_COLORS.primary30)};
+  border-radius: 999px;
+  color: ${({ $saved }) => ($saved ? TAMANU_COLORS.white : TAMANU_COLORS.primary)};
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 5px 10px;
+  white-space: nowrap;
 `;
 
 const PreviewFormTitle = styled.h2`
@@ -243,7 +243,25 @@ function PreviewSubmitButton() {
   );
 }
 
-export function FormPreview({ form, onBack }) {
+function FormPreviewStatusChip({ isSaved, iteration }) {
+  return (
+    <PreviewStatusChip $saved={isSaved}>
+      {isSaved ? (
+        <TranslatedText stringId="general.status.saved" fallback="Saved" />
+      ) : iteration > 1 ? (
+        <TranslatedText
+          stringId="admin.programs.aiFormBuilder.status.draftIteration.lowercase"
+          fallback="draft :iteration"
+          replacements={{ iteration }}
+        />
+      ) : (
+        <TranslatedText stringId="admin.programs.aiFormBuilder.status.draft" fallback="draft" />
+      )}
+    </PreviewStatusChip>
+  );
+}
+
+export function FormPreview({ form, isSaved, iteration }) {
   const { getCurrentDateTime } = useDateTime();
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const previewSurvey = useMemo(() => (form ? createPreviewSurvey(form) : null), [form]);
@@ -276,13 +294,12 @@ export function FormPreview({ form, onBack }) {
             stringId="admin.programs.aiFormBuilder.preview.heading"
             fallback="Form preview"
           />
+          <FormPreviewStatusChip isSaved={isSaved} iteration={iteration} />
         </PreviewHeading>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewHeader>
       <PreviewTitleHeader>
-        <PreviewBackButton type="button" onClick={onBack}>
-          <ArrowBackIosNewIcon fontSize="small" />
-        </PreviewBackButton>
+        <PreviewHeaderSpacer aria-hidden="true" />
         <PreviewFormTitle>{form.title}</PreviewFormTitle>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewTitleHeader>
