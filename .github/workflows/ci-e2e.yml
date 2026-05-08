@@ -228,7 +228,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           script: |
-            const { ARTIFACT_URL, RUN_NUMBER, RUN_URL, SHA } = process.env;
+            const { ARTIFACT_URL, RUN_NUMBER, RUN_URL } = process.env;
             const { repo, owner } = context.repo;
             const headRef = context.payload.merge_group?.head_ref ?? '';
             const prNumber =
