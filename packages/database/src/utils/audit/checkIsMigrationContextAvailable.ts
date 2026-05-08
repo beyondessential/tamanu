@@ -1,22 +1,17 @@
-import type { Sequelize } from 'sequelize';
+import type { Sequelize } from "sequelize";
 
-// Migration context requires set_session_config (defined by the baseline).
-// Probe inside a savepoint so the outer migration transaction isn't aborted
-// when the function is unavailable (e.g. pre-baseline installs).
-export const checkIsMigrationContextAvailable = async (sequelize: Sequelize): Promise<boolean> => {
-  try {
-    await sequelize.query('SAVEPOINT _migration_context_probe');
-    await sequelize.query(
-      "SELECT public.set_session_config('tamanu._migration_probe', '', true)",
-    );
-    await sequelize.query('RELEASE SAVEPOINT _migration_context_probe');
-    return true;
-  } catch {
-    try {
-      await sequelize.query('ROLLBACK TO SAVEPOINT _migration_context_probe');
-    } catch {
-      // Savepoint may not exist if the connection is in a bad state.
-    }
-    return false;
-  }
-};
+// Adding migration context depends on the presence of session config functions.
+// Also, we don't need to add context to the migration that 
+// creates the session config functions as it will error.
+export const checkIsMigrationContextAvailable = async (sequelize: Sequelize, migrationName: string): Promise<boolean> => {
+  const [result] = await sequelize.query(`
+    SELECT COUNT(*) as count
+    FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public'
+    AND p.proname IN ('get_session_config', 'set_session_config');
+  `);
+
+  const count = parseInt((result[0] as { count: string }).count, 10);
+  return count === 2 && !migrationName.includes('1739969510355-sessionConfigFunctions');
+}

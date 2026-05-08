@@ -15,18 +15,15 @@ The local server time when the migration run happened.
 {% enddocs %}
 
 {% docs logs__migrations__record_sync_tick %}
-The sync tick at the time the migration log row was created, read from the
-`local_system_fact` function. Used to order events relative to sync state.
+TODO
 {% enddocs %}
 
 {% docs logs__migrations__device_id %}
-The device identifier of the server that ran the migrations, read from the
-`local_system_fact` function at insert time.
+TODO
 {% enddocs %}
 
 {% docs logs__migrations__version %}
-The Tamanu version of the server that ran the migrations, read from the
-`local_system_fact` function at insert time.
+TODO
 {% enddocs %}
 
 {% docs logs__migrations__direction %}
@@ -37,35 +34,6 @@ What kind of migration operation this was (typically `up`).
 The list of migrations applied during this operation.
 {% enddocs %}
 
-{% docs logs__migrations__batch_duration_ms %}
-Wall-clock duration (milliseconds) of the entire migration batch, including
-pre-migration hooks, the migrations themselves, and post-migration hooks.
-Nullable; absent on rows written before the stats columns were added.
-{% enddocs %}
-
-{% docs logs__migrations__upgrade_run_id %}
-A UUID generated once per `upgrade` CLI invocation. All migration batch rows
-produced during the same upgrade share this value, allowing them to be
-correlated. Null when migrations are run via `just-migrate` (no upgrade context).
-{% enddocs %}
-
-{% docs logs__migrations__stats %}
-JSONB object with per-batch diagnostics. Current shape:
-
-- `durationMsPerMigration` — object mapping each migration file name to its
-  individual duration in milliseconds (Umzug-reported wall time).
-- `totalMigrationsDurationMs` — sum of all values in `durationMsPerMigration`.
-- `preSnapshot` (optional) — approximate database state captured before the
-  batch ran:
-  - `databaseSizeBytes` — result of `pg_database_size`; `-1` if unavailable.
-  - `tableRowEstimates` — array of `{ tableName, estimatedRowCount }`, largest
-    tables first by `pg_class.reltuples`. Tables with no planner estimate yet
-    (negative `reltuples`, common before `ANALYZE`) are omitted. At most 500
-    catalog rows are read; entries without a usable estimate are skipped.
-
-Nullable; absent on rows written before the stats columns were added.
-{% enddocs %}
-
 {% docs logs__migrations__updated_at_sync_tick %}
-The sync tick recorded when the row was last updated. Maintained by a trigger.
+TODO
 {% enddocs %}

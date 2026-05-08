@@ -230,6 +230,8 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
     return asNewRole(baseApp, models, permissions, roleOverrides);
   };
 
+  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
+
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({
       ...acc,

@@ -5,6 +5,7 @@ import { IReferenceData } from './IReferenceData';
 export interface IPatient {
   id: string;
   displayId: string;
+  title?: string;
   firstName?: string;
   lastName?: string;
   middleName?: string;
