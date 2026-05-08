@@ -42,6 +42,9 @@ export class FhirObservation extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
+        method: {
+          type: DataTypes.JSONB,
+        },
         valueQuantity: {
           type: DataTypes.JSONB,
         },
