@@ -3,9 +3,7 @@ import NodeCache from 'node-cache';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
-import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
@@ -15,7 +13,6 @@ const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
-const FORM_BUILDER_FIX_CONTEXT = 'formBuilderFixProgramErrors';
 
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
@@ -25,7 +22,6 @@ const FORM_BUILDER_FIX_CONTEXT = 'formBuilderFixProgramErrors';
 const FAST_MODEL_CONTEXTS = new Set([
   FORM_BUILDER_IMAGE_CONTEXT,
   FORM_BUILDER_TWEAK_CONTEXT,
-  FORM_BUILDER_FIX_CONTEXT,
   FORM_BUILDER_BUILD_CONTEXT,
 ]);
 
@@ -70,9 +66,6 @@ export class AIService {
   /** @type {import('@langchain/anthropic').ChatAnthropic} */
   fastChatModel;
 
-  /** @type {RunnableWithMessageHistory} */
-  conversationChain;
-
   /**
    * @param {object} options
    * @param {import('@tamanu/settings').ReadSettings} options.settings
@@ -110,24 +103,6 @@ export class AIService {
     service.fastChatModel = fastModelName
       ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
       : service.chatModel;
-
-    const prompt = ChatPromptTemplate.fromMessages([
-      new MessagesPlaceholder('history'),
-      ['human', '{input}'],
-    ]);
-
-    service.conversationChain = new RunnableWithMessageHistory({
-      runnable: prompt.pipe(service.chatModel),
-      getMessageHistory: sessionId => {
-        const session = service.sessions.get(sessionId);
-        if (!session) {
-          throw new Error(`AI session "${sessionId}" not found`);
-        }
-        return session;
-      },
-      inputMessagesKey: 'input',
-      historyMessagesKey: 'history',
-    });
 
     await service.registerFormBuilderContext(settings);
 
@@ -206,22 +181,6 @@ export class AIService {
     await history.addMessage(new SystemMessage(this.getContext(contextName)));
     this.sessions.set(sessionId, history);
     return sessionId;
-  }
-
-  /**
-   * Send a user message within an existing session.
-   * History is managed automatically by RunnableWithMessageHistory.
-   *
-   * @param {string} sessionId
-   * @param {string} userMessage
-   * @returns {Promise<import('@langchain/core/messages').AIMessage>}
-   */
-  async sendMessage(sessionId, userMessage) {
-    if (!this.sessions.has(sessionId)) {
-      throw new Error(`AI session "${sessionId}" not found`);
-    }
-    this.sessions.ttl(sessionId, SESSION_TTL_SECONDS); // refresh TTL on access
-    return this.conversationChain.invoke({ input: userMessage }, { configurable: { sessionId } });
   }
 
   /**
@@ -351,41 +310,16 @@ export class AIService {
    * @param {import('zod').ZodTypeAny} schema
    * @param {object} [options]
    * @param {string} [options.name]
-   * @param {object} [invokeOptions]
-   * @param {AbortSignal} [invokeOptions.signal]
    * @returns {Promise<unknown>}
    */
-  async invokeStructured(contextName, userMessage, schema, options = {}, invokeOptions = {}) {
+  async invokeStructured(contextName, userMessage, schema, options = {}) {
     const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
       schema,
       options,
     );
-    return structuredModel.invoke(
-      [new SystemMessage(this.getContext(contextName)), new HumanMessage(userMessage)],
-      invokeOptions,
-    );
-  }
-
-  /**
-   * Delete a session and free its history.
-   *
-   * @param {string} sessionId
-   */
-  deleteSession(sessionId) {
-    this.sessions.del(sessionId);
-  }
-
-  /**
-   * Stateless one-shot invocation using a registered context.
-   *
-   * @param {string} contextName
-   * @param {string} userMessage
-   * @returns {Promise<import('@langchain/core/messages').AIMessage>}
-   */
-  async invoke(contextName, userMessage) {
-    return this.getModelForContext(contextName).invoke([
+    return structuredModel.invoke([
       new SystemMessage(this.getContext(contextName)),
-      ['human', userMessage],
+      new HumanMessage(userMessage),
     ]);
   }
 }
