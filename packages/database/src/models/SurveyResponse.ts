@@ -54,7 +54,7 @@ async function createPatientIssues(
       where: issueData,
     });
 
-    if (existing !== null) return; // Prevent duplicates when program responses are edited
+    if (existing !== null) continue; // Prevent duplicates when program responses are edited
     await models.PatientIssue.create(issueData);
   }
 }
