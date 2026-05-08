@@ -31,7 +31,6 @@ import { Task } from '~/models/Task';
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
   return {
-    title: 'Ms.',
     id: `patient-id-${uuid}`,
     displayId: `patient_displayId-${uuid}`,
     firstName: `patient_firstName-${uuid}`,
