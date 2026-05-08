@@ -32,7 +32,7 @@ export const Core: FunctionComponent<any> = () => {
   const { facilityId } = useFacility();
   const { isLoading, securityIssues, hasCompletedInitialCheck, fetchSecurityInfo } = useSecurityInfo();
 
-  if (securityIssues.length > 0 || (signedIn && !hasCompletedInitialCheck)) {
+  if (signedIn && (securityIssues.length > 0 || !hasCompletedInitialCheck)) {
     return (
       <SecurityScreen
         isLoading={isLoading}

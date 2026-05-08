@@ -93,7 +93,7 @@ export const useSecurityInfo = () => {
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 
-  // Reset to pre-check state on sign-out so the next sign-in shows loading, not a stale result
+  // Reset to pre-check state on sign-out so the next sign-in shows loading, not a stale result.
   useEffect(() => {
     if (!signedIn) {
       setHasCompletedInitialCheck(false);
