@@ -208,6 +208,7 @@ const createPreviewSurvey = form => {
         visibilityCriteria: stringifyField(question.visibilityCriteria),
         validationCriteria: stringifyField(question.validationCriteria),
         config: stringifyField(question.config),
+        calculation: question.calculation,
         dataElement: {
           id,
           code: question.code,
