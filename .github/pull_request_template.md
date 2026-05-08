@@ -20,6 +20,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Stay up for 8 hours <!-- #deployopt %ttlhours=8 -->
 - [ ] Stay up for 24 hours <!-- #deployopt %ttlhours=24 -->
 - [ ] Stay up (no TTL) <!-- #deployopt %ttlhours=0 -->
+- [ ] Build images only (don't deploy) <!-- #deployopt %imagesonly -->
 
 </details>
 
