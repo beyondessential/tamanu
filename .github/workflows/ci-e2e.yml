@@ -288,7 +288,7 @@ jobs:
     needs: [e2e]
     runs-on: ubuntu-latest
     steps:
-      - if: github.event_name == 'merge_group'
+      - if: github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] **Run E2E tests** <!-- #e2e -->')
         name: Enforce passing E2E workflow (in merge queue)
         run: |
           if [ "${{ needs.e2e.result }}" != "success" ]; then
