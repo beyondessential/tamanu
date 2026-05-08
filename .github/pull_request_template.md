@@ -10,9 +10,18 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 <summary>Options</summary>
 
 - [ ] Synthetic test <!-- #deployopt %synthetic -->
+- [ ] Generate fake data <!-- #deployopt %fakedata=1 -->
+- [ ] More data (20Gi) <!-- #deployopt %dbstorage=20 -->
+- [ ] No facility servers (central-only) <!-- #deployopt %facilities=0 -->
+- [ ] No sync (facility tasks scaled to zero) <!-- #deployopt %facilitytasks=0 -->
+- [ ] AMD64 architecture (default is arm64) <!-- #deployopt %arch=amd64 -->
+- [ ] Skip mobile build <!-- #deployopt %mobile=never -->
+- [ ] Always build mobile <!-- #deployopt %mobile=always -->
 - [ ] Stay up for 8 hours <!-- #deployopt %ttlhours=8 -->
 - [ ] Stay up for 24 hours <!-- #deployopt %ttlhours=24 -->
 - [ ] Stay up (no TTL) <!-- #deployopt %ttlhours=0 -->
+- [ ] Build images only (don't deploy) <!-- #deployopt %imagesonly -->
+- [ ] Pause this deploy <!-- #deployopt %pause -->
 
 </details>
 
