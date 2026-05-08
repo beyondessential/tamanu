@@ -250,6 +250,8 @@ test.describe('Basic tests', () => {
     await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(
       patientDetails.residentialLandmark as string,
     );
+    // TEMP: intentional failure to test e2e_failure_report job
+    expect('fake failure').toBe('this will fail');
   });
 
   test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({
