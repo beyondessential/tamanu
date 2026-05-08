@@ -1301,11 +1301,14 @@ suggestions.get(
   }),
 );
 
+// Named wildcard for Express 5 / path-to-regexp v8, so multi-segment IDs like
+// "Africa/Algiers" match the whole path.
 suggestions.get(
-  '/timeZone/:id',
+  '/timeZone/*id',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const tz = TIME_ZONES.find(t => t.id === req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id.join('/') : req.params.id;
+    const tz = TIME_ZONES.find(t => t.id === id);
     if (!tz) throw new NotFoundError();
     res.send(tz);
   }),

@@ -379,7 +379,7 @@
     <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
    </Row>
    <Row>
-    <Cell><Data ss:Type="String">Fail-PatientDataConfisAdditionalDataPresent</Data></Cell>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfIsAdditionalDataPresent</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Old "isAdditionalDataField" field present</Data></Cell>
     <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;isAdditionalDataField&quot;: &quot;false&quot; }}</Data></Cell>

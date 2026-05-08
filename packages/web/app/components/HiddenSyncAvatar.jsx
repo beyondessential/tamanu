@@ -93,7 +93,7 @@ export const HiddenSyncAvatar = forwardRef(({ children, onClick, onMetaClick, im
         toast.info(
           <TranslatedText
             stringId="sidebar.avatar.notification.startingManualSync"
-            fallback="Starting manual sync..."
+            fallback="Starting manual sync…"
             data-testid="translatedtext-9n4z"
           />,
         );

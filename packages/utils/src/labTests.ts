@@ -24,7 +24,7 @@ const hasValue = (value?: number | string) => value || value === 0;
 
 interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
   labTestType?: T;
-  sex?: keyof typeof SEX_VALUES | null,
+  sex?: keyof typeof SEX_VALUES | null;
   getTranslation: getTranslation;
 }
 
@@ -38,7 +38,7 @@ export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetRefer
 
   let baseRange: string;
   if (hasMin && hasMax)
-    baseRange = getTranslation('general.fallback.range', ':min - :max', {
+    baseRange = getTranslation('general.fallback.range', ':min–:max', {
       replacements: { min, max },
     });
   else if (hasMin)

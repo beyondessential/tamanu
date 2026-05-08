@@ -278,6 +278,19 @@ export class TamanuApi extends ApiClient {
     return { settings };
   }
 
+  async fetchFrontEndSettings(facilityId) {
+    const { settings } = await this.get('settings/frontEnd', { facilityId }, {
+      showUnknownErrorToast: false,
+    });
+    return settings ?? null;
+  }
+
+  // Caller is responsible for deciding whether the settings are still fresh
+  // (e.g. facility hasn't changed since the request was issued) before persisting.
+  persistSettings(settings) {
+    saveToLocalStorage({ settings });
+  }
+
   async fetch(endpoint, query, config) {
     const {
       isErrorUnknown = isErrorUnknownDefault,

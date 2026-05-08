@@ -102,9 +102,10 @@ export const SettingsView = () => {
     try {
       await validateSettings({ settings, scope });
       await api.put('admin/settings', { settings, facilityId, scope });
+      const savedSettings = applyDefaults(await api.get('admin/settings', { scope, facilityId }), scope);
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
-      return true;
+      return { settings: savedSettings };
     } catch (error) {
       if (error instanceof ValidationError) {
         error?.inner?.forEach(e => {

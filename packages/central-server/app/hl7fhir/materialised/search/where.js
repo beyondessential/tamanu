@@ -90,14 +90,21 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
       // while #>> works regardless of the jsonb path, using
       // explicit function names needs different treatment.
       const selector = Sequelize.fn('any', Sequelize.fn('select', getJsonbQueryFn(entirePath)));
-      return Sequelize.and([
-        // actual comparison
-        Sequelize.where(Sequelize.literal(escaped), inverseOp, selector),
-        Sequelize.literal(optimisingCondition),
-      ]);
+      // Use a plain `{[Op.and]: [...]}` object rather than `Sequelize.and([...])` so the
+      // resulting array is flat — `Sequelize.and(args)` rest-spreads into `{[Op.and]: [args]}`,
+      // which forces sequelize to bottom out on a `[Where, Literal]` array that only passes its
+      // canTreatArrayAsAnd check via `instanceof Where`. That fails when sequelize is loaded
+      // twice (e.g. case-different paths in require.cache on Windows).
+      return {
+        [Op.and]: [
+          // actual comparison
+          Sequelize.where(Sequelize.literal(escaped), inverseOp, selector),
+          Sequelize.literal(optimisingCondition),
+        ],
+      };
     });
 
-    return matches.length === 1 ? matches[0] : Sequelize.and(matches);
+    return matches.length === 1 ? matches[0] : { [Op.and]: matches };
   });
 }
 function typedMatch(value, query, def) {

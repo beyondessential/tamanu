@@ -1,6 +1,6 @@
 import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep, keyBy } from 'lodash';
+import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'lodash';
 import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 import fs from 'node:fs';
@@ -13,6 +13,12 @@ import {
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { extractSecretPaths, getScopedSchema } from '@tamanu/settings';
+import {
+  encryptSecret,
+  getSettingsPskKeyBuffer,
+  isEncryptedSecret,
+} from '@tamanu/shared/utils/crypto';
 
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
@@ -56,6 +62,36 @@ const parseDefaultProvisioningJsonSheets = dir => {
   return wb;
 };
 
+const sleep = ms =>
+  new Promise(resolveSleep => {
+    setTimeout(resolveSleep, ms);
+  });
+
+const initialiseDatabaseWithRetry = async () => {
+  const maxAttempts = 30;
+  const delayMs = 5000;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await initDatabase({ testMode: false });
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        throw error;
+      }
+
+      log.warn('Database not ready for provisioning, retrying', {
+        attempt,
+        maxAttempts,
+        delayMs,
+        error: error.message,
+      });
+      await sleep(delayMs);
+    }
+  }
+
+  throw new Error('Unreachable: exhausted database initialisation attempts');
+};
+
 /**
  * Validates that a reference data file contains all sheets importable through the reference data importer
  * @param {string} file - File path
@@ -85,8 +121,30 @@ function validateFullReferenceDataImport(workbook) {
   log.info('Reference data file validation passed - all required sheets contain data');
 }
 
+async function encryptSecretSettings(settings, scope) {
+  const schema = getScopedSchema(scope);
+  const secretPaths = extractSecretPaths(schema);
+  if (secretPaths.length === 0) return;
+
+  let keyBuffer;
+  for (const path of secretPaths) {
+    const value = getAtPath(settings, path);
+    if (value === undefined) continue;
+
+    if (value === null || value === '') {
+      unset(settings, path);
+      continue;
+    }
+
+    if (isEncryptedSecret(value)) continue;
+
+    if (!keyBuffer) keyBuffer = await getSettingsPskKeyBuffer();
+    setAtPath(settings, path, await encryptSecret(keyBuffer, String(value)));
+  }
+}
+
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
-  const store = await initDatabase({ testMode: false });
+  const store = await initialiseDatabaseWithRetry();
   const userCount = await store.models.User.count({
     where: {
       id: { [Op.ne]: SYSTEM_USER_UUID },
@@ -215,6 +273,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const combineSettings = async (settingData, scope, facilityId) => {
     const existing = await store.models.Setting.get('', facilityId, scope);
     const combined = defaultsDeep(settingData, existing);
+    await encryptSecretSettings(combined, scope);
     return store.models.Setting.set('', combined, scope, facilityId);
   };
 

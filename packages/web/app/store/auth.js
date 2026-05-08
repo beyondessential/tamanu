@@ -36,9 +36,11 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   try {
     const loginInfo = await api.login(email, password);
     await handleLoginSuccess(dispatch, loginInfo);
+    return true;
   } catch (error) {
     const message = getLoginErrorMessage(error);
     dispatch({ type: LOGIN_FAILURE, error: message });
+    return false;
   }
 };
 
@@ -109,6 +111,24 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
     });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
+  }
+};
+
+export const refreshSettings = () => async (dispatch, getState, { api }) => {
+  // Best-effort: the next change event or login will reconcile if this fails.
+  const facilityIdAtStart = getState().auth.facilityId;
+  if (!facilityIdAtStart) return;
+  try {
+    const settings = await api.fetchFrontEndSettings(facilityIdAtStart);
+    if (!settings) return;
+    // If the user switched facility (or logged out) while the request was in flight,
+    // the response is for the previous facility - drop it so we don't clobber the
+    // freshly-loaded settings in redux/localStorage.
+    if (getState().auth.facilityId !== facilityIdAtStart) return;
+    api.persistSettings(settings);
+    dispatch({ type: SET_SETTINGS, settings });
+  } catch (e) {
+    // ignore
   }
 };
 
