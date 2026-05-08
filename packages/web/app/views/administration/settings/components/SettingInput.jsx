@@ -164,7 +164,7 @@ const MarkdownSettingInput = ({
       </MarkdownEditorButton>
       {hasUnsavedChange && (
         <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
-          <TranslatedText stringId="admin.settings.status.unsavedChange" fallback="Edited" />
+          <TranslatedText stringId="general.label.edited" fallback="Edited" />
         </MarkdownEditorStatus>
       )}
       <DefaultButton data-testid="defaultbutton-5efq" />

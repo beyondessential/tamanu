@@ -54,7 +54,7 @@ function SurveyNameAccessor({ surveyName, createdAt, updatedAt }) {
   return (
     <>
       {surveyName}
-      {hasBeenEdited && <EditedOrnament altText={getTranslation('program.table.badge.edited')} />}
+      {hasBeenEdited && <EditedOrnament altText={getTranslation('general.label.edited')} />}
     </>
   );
 }

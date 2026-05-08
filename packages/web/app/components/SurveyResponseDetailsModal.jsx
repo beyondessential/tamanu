@@ -97,11 +97,7 @@ export const SurveyResponseDetailsModal = ({
             {wasEdited ? (
               <>
                 {' '}
-                <TranslatedText
-                  stringId="surveyResponse.details.edited.label"
-                  fallback="Edited"
-                  data-testid="surveyresponse-details-edited"
-                />
+                <TranslatedText stringId="general.label.edited" fallback="Edited" />
                 {onViewChangeLog ? (
                   <>
                     {' '}
