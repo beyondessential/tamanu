@@ -13,6 +13,10 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 </details>
 
+### Tests
+
+- [ ] **Run E2E tests** <!-- #e2e -->
+
 ### Review Hero
 
 - [x] **Run Review Hero** <!-- #ai-review -->
