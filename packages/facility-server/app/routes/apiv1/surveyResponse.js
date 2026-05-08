@@ -10,7 +10,12 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
+import {
+  InvalidOperationError,
+  InvalidParameterError,
+  NotFoundError,
+  UsageError,
+} from '@tamanu/errors';
 import {
   getPatientDataFieldAssociationData,
   transformAnswers,
@@ -46,6 +51,9 @@ async function getBodyForAnswer(dataElementType, value, models) {
 }
 
 async function createPatientIssues(models, questions, patientId, recordedDate) {
+  if (!models.PatientIssue.sequelize.isInsideTransaction()) {
+    throw new UsageError('createPatientIssues must always run inside a transaction!');
+  }
   const issueQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
@@ -63,14 +71,12 @@ async function createPatientIssues(models, questions, patientId, recordedDate) {
     };
     if (recordedDate) issueData.recordedDate = recordedDate;
 
-    await models.PatientIssue.sequelize.transaction(async () => {
-      const existing = await models.PatientIssue.findOne({
-        attributes: ['id'], // Arbitrary projection, just checking existence
-        where: issueData,
-      });
-      if (existing !== null) return; // Prevent duplicates when program responses are edited
-      await models.PatientIssue.create(issueData);
+    const existing = await models.PatientIssue.findOne({
+      attributes: ['id'], // Arbitrary projection, just checking existence
+      where: issueData,
     });
+    if (existing !== null) return; // Prevent duplicates when program responses are edited
+    await models.PatientIssue.create(issueData);
   }
 }
 
