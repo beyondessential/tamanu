@@ -242,6 +242,9 @@ const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessag
     userMessage,
   ].join('\n\n');
 
+const finaliseProgramDefinition = rawProgramDefinition =>
+  programDefinitionSchema.parseAsync(sanitizeProgramDefinitionPreview(rawProgramDefinition));
+
 const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
 
 const findSurveySheet = (programDefinition, surveyName) => {
@@ -338,12 +341,7 @@ const processChatRequest = async ({
   deleteFileAfterImport,
 }) => {
   try {
-    const fileContext = await getFileContext({
-      aiService,
-      file,
-      fileName,
-      fileContentType,
-    });
+    const fileContext = await getFileContext({ aiService, file, fileName, fileContentType });
     const userMessage = buildUserMessage({ message, fileContext });
     const sessionId = existingSessionId || (await aiService.createSession(FORM_BUILDER_CONTEXT));
 
@@ -353,10 +351,7 @@ const processChatRequest = async ({
       try {
         tweakResponse = await aiService.invokeStructured(
           FORM_BUILDER_TWEAK_CONTEXT,
-          buildProgramDefinitionTweakInput({
-            currentProgramDefinition,
-            userMessage,
-          }),
+          buildProgramDefinitionTweakInput({ currentProgramDefinition, userMessage }),
           formBuilderTweakResponseSchema,
           { name: 'form_builder_tweak_response' },
         );
@@ -389,27 +384,26 @@ const processChatRequest = async ({
     }
 
     const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
-    const programDefinition =
-      response.ready_to_export || response.ready_to_generate
-        ? await (async () => {
-            return programDefinitionSchema.parseAsync(
-              sanitizeProgramDefinitionPreview(
-                await aiService.invokeStructured(
-                  FORM_BUILDER_BUILD_CONTEXT,
-                  await buildProgramDefinitionInput({
-                    aiService,
-                    currentProgramDefinition,
-                    responseMessage: response.message,
-                    sessionId,
-                    userMessage,
-                  }),
-                  programDefinitionSchema,
-                  { name: 'form_builder_program_definition' },
-                ),
-              ),
-            );
-          })()
-        : null;
+    const isReady = response.ready_to_export || response.ready_to_generate;
+
+    let programDefinition = null;
+    if (isReady) {
+      const buildInput = await buildProgramDefinitionInput({
+        aiService,
+        currentProgramDefinition,
+        responseMessage: response.message,
+        sessionId,
+        userMessage,
+      });
+      programDefinition = await finaliseProgramDefinition(
+        await aiService.invokeStructured(
+          FORM_BUILDER_BUILD_CONTEXT,
+          buildInput,
+          programDefinitionSchema,
+          { name: 'form_builder_program_definition' },
+        ),
+      );
+    }
 
     return {
       sessionId,

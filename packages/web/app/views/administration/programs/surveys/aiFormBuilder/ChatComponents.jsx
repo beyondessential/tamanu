@@ -15,6 +15,7 @@ import {
   Button,
   OutlinedButton,
   TAMANU_COLORS,
+  TextButton,
   TextInput,
   ThemedTooltip,
   TranslatedText,
@@ -537,6 +538,47 @@ function MarkdownMessageContent({ text }) {
 
 export function AssistantMessageContent({ text }) {
   return <MarkdownMessageContent text={text} />;
+}
+
+const ErrorMessageWrap = styled.div`
+  align-items: flex-start;
+  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.alert};
+  border-radius: 8px;
+  color: ${TAMANU_COLORS.darkestText};
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  gap: 6px;
+  line-height: 1.4;
+  padding: 12px 14px;
+`;
+
+const ErrorRetryButton = styled(TextButton)`
+  && {
+    align-self: flex-start;
+    color: ${TAMANU_COLORS.alert};
+    font-size: 13px;
+  }
+  &&:hover {
+    color: ${TAMANU_COLORS.alert};
+  }
+`;
+
+export function ErrorMessage({ text, onRetry, retryDisabled = false }) {
+  return (
+    <ErrorMessageWrap>
+      <MessageText>{text}</MessageText>
+      {onRetry && (
+        <ErrorRetryButton onClick={onRetry} disabled={retryDisabled}>
+          <TranslatedText
+            stringId="admin.programs.aiFormBuilder.error.retry"
+            fallback="Try again"
+          />
+        </ErrorRetryButton>
+      )}
+    </ErrorMessageWrap>
+  );
 }
 
 export function ThinkingMessage() {

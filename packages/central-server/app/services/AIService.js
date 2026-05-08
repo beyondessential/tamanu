@@ -18,12 +18,15 @@ const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 const FORM_BUILDER_FIX_CONTEXT = 'formBuilderFixProgramErrors';
 
 // Contexts routed to the optional faster Anthropic model when configured.
-// Keep these to non-conversational structured/extraction tasks where a smaller
-// model is generally sufficient and latency dominates user experience.
+// Keep these to non-conversational structured/extraction/generation tasks
+// where a smaller model is generally sufficient and latency dominates user
+// experience. The build context generates a large structured response so it
+// gets the biggest wall-time win from a faster model.
 const FAST_MODEL_CONTEXTS = new Set([
   FORM_BUILDER_IMAGE_CONTEXT,
   FORM_BUILDER_TWEAK_CONTEXT,
   FORM_BUILDER_FIX_CONTEXT,
+  FORM_BUILDER_BUILD_CONTEXT,
 ]);
 
 const formBuilderChatResponseSchema = z.object({
@@ -179,15 +182,16 @@ export class AIService {
   }
 
   /**
-   * Pick the right chat model for the given context. Non-conversational tasks
-   * (image/PDF interpretation, structured tweaks/fixes) route to the fast model
-   * when one is configured; everything else stays on the main model.
+   * Pick the right chat model for the given context. Non-conversational
+   * structured/extraction/generation tasks route to the fast model when one is
+   * configured; everything else stays on the main conversational model.
    *
    * @param {string} contextName
    * @returns {import('@langchain/anthropic').ChatAnthropic}
    */
   getModelForContext(contextName) {
-    return FAST_MODEL_CONTEXTS.has(contextName) ? this.fastChatModel : this.chatModel;
+    if (FAST_MODEL_CONTEXTS.has(contextName)) return this.fastChatModel;
+    return this.chatModel;
   }
 
   /**
@@ -347,17 +351,19 @@ export class AIService {
    * @param {import('zod').ZodTypeAny} schema
    * @param {object} [options]
    * @param {string} [options.name]
+   * @param {object} [invokeOptions]
+   * @param {AbortSignal} [invokeOptions.signal]
    * @returns {Promise<unknown>}
    */
-  async invokeStructured(contextName, userMessage, schema, options = {}) {
+  async invokeStructured(contextName, userMessage, schema, options = {}, invokeOptions = {}) {
     const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
       schema,
       options,
     );
-    return structuredModel.invoke([
-      new SystemMessage(this.getContext(contextName)),
-      new HumanMessage(userMessage),
-    ]);
+    return structuredModel.invoke(
+      [new SystemMessage(this.getContext(contextName)), new HumanMessage(userMessage)],
+      invokeOptions,
+    );
   }
 
   /**

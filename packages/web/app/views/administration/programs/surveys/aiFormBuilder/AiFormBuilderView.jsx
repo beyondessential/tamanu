@@ -19,6 +19,7 @@ import {
   ChatStack,
   Disclaimer,
   DownloadMessage,
+  ErrorMessage,
   IntroText,
   Messages,
   NewChatConfirmModal,
@@ -177,6 +178,7 @@ export function AiFormBuilderView() {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       setIsThinking(true);
+      const submission = { message, file, selectedProgramId };
 
       try {
         const selectedProgramCode = getProgramCode(selectedProgramId);
@@ -254,12 +256,13 @@ export function AiFormBuilderView() {
             );
 
           appendMessage({
-            type: 'assistant',
+            type: 'error',
             text: getTranslation(
               'admin.programs.aiFormBuilder.error.generate.chatMessage',
               'Sorry, I could not get a response from the form builder: :message',
               { replacements: { message: errorMessage } },
             ),
+            submission,
           });
           notifyError(
             <TranslatedText
@@ -276,6 +279,20 @@ export function AiFormBuilderView() {
       }
     },
     [api, appendMessage, getTranslation, state.generatedForm, state.sessionId],
+  );
+
+  const handleRetryError = useCallback(
+    errorMessageId => {
+      if (isThinking) return;
+      const errorMessage = state.messages.find(message => message.id === errorMessageId);
+      if (!errorMessage?.submission) return;
+      setState(current => ({
+        ...current,
+        messages: current.messages.filter(message => message.id !== errorMessageId),
+      }));
+      sendChatMessage(errorMessage.submission);
+    },
+    [isThinking, sendChatMessage, state.messages],
   );
 
   const handleStop = useCallback(() => {
@@ -467,6 +484,18 @@ export function AiFormBuilderView() {
                         onChange={handleSelectProgram}
                         programOptions={programOptions}
                         disabled={Boolean(state.selectedProgramId)}
+                      />
+                    );
+                  }
+                  if (message.type === 'error') {
+                    return (
+                      <ErrorMessage
+                        key={message.id}
+                        text={message.text}
+                        retryDisabled={isThinking}
+                        onRetry={
+                          message.submission ? () => handleRetryError(message.id) : undefined
+                        }
                       />
                     );
                   }
