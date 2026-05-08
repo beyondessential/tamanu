@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent } from 'react';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
@@ -30,16 +30,9 @@ function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {
 export const Core: FunctionComponent<any> = () => {
   const { signedIn } = useAuth();
   const { facilityId } = useFacility();
-  const { isLoading, securityIssues, fetchSecurityInfo } = useSecurityInfo();
+  const { isLoading, securityIssues, hasCompletedInitialCheck, fetchSecurityInfo } = useSecurityInfo();
 
-  const hasPassedInitialCheck = useRef(false);
-  if (!signedIn) {
-    hasPassedInitialCheck.current = false;
-  } else if (signedIn && !isLoading && securityIssues.length === 0) {
-    hasPassedInitialCheck.current = true;
-  }
-
-  if (securityIssues.length > 0 || (signedIn && !hasPassedInitialCheck.current)) {
+  if (securityIssues.length > 0 || (signedIn && !hasCompletedInitialCheck)) {
     return (
       <SecurityScreen
         isLoading={isLoading}

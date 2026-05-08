@@ -65,6 +65,7 @@ export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(true);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasCompletedInitialCheck, setHasCompletedInitialCheck] = useState<boolean>(false);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
@@ -83,6 +84,7 @@ export const useSecurityInfo = () => {
     setIsStorageEncrypted(isStorageEncryptedValue);
     setIsDeviceSecure(isDeviceSecureValue);
     setIsLoading(false);
+    setHasCompletedInitialCheck(true);
   }, []);
 
   useEffect(() => {
@@ -91,11 +93,19 @@ export const useSecurityInfo = () => {
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 
+  // Reset completed-check flag on sign-out so the next sign-in is always gated
+  useEffect(() => {
+    if (!signedIn) {
+      setHasCompletedInitialCheck(false);
+    }
+  }, [signedIn]);
+
   const isStorageCompliant = allowUnencryptedStorage ? true : isStorageEncrypted;
   const isPasscodeCompliant = allowUnprotected ? true : isDeviceSecure;
   return {
     securityIssues: getSecurityIssues(getTranslation, { isStorageCompliant, isPasscodeCompliant }),
     isLoading,
+    hasCompletedInitialCheck,
     fetchSecurityInfo,
   };
 };
