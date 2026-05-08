@@ -26,7 +26,7 @@ async function getStorageEncryptionStatus(): Promise<StorageEncryptionStatus> {
     return {
       status: 6,
       statusText: 'UNKNOWN',
-    }
+    };
   }
 }
 
@@ -42,10 +42,7 @@ async function checkIsDeviceSecure(): Promise<boolean> {
 // Statuses 0, 1, 2 are not encrypted, 4 is encrypted but less secure
 // so we're only going to trust status 3 and 5.
 function checkIsStorageEncrypted(status: StorageEncryptionStatus): boolean {
-  return [
-    ENCRYPTION_STATUS.ACTIVE,
-    ENCRYPTION_STATUS.ACTIVE_PER_USER
-  ].includes(status.status);
+  return [ENCRYPTION_STATUS.ACTIVE, ENCRYPTION_STATUS.ACTIVE_PER_USER].includes(status.status);
 }
 
 function getSecurityIssues(
@@ -59,9 +56,7 @@ function getSecurityIssues(
     );
   }
   if (!isPasscodeCompliant) {
-    issues.push(
-      getTranslation('general.device.security.issues.passcode', 'No passcode is set'),
-    );
+    issues.push(getTranslation('general.device.security.issues.passcode', 'No passcode is set'));
   }
   return issues;
 }
@@ -75,7 +70,9 @@ export const useSecurityInfo = () => {
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
 
-  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
+  const allowUnencryptedStorage = getSetting(
+    SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE,
+  );
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   const fetchSecurityInfo = useCallback(async () => {
@@ -91,8 +88,6 @@ export const useSecurityInfo = () => {
   useEffect(() => {
     if (signedIn && isForeground) {
       fetchSecurityInfo();
-    } else {
-      setIsLoading(false);
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 

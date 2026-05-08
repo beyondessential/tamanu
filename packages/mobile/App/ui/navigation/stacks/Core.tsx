@@ -33,7 +33,9 @@ export const Core: FunctionComponent<any> = () => {
   const { isLoading, securityIssues, fetchSecurityInfo } = useSecurityInfo();
 
   const hasPassedInitialCheck = useRef(false);
-  if (signedIn && !isLoading && securityIssues.length === 0) {
+  if (!signedIn) {
+    hasPassedInitialCheck.current = false;
+  } else if (signedIn && !isLoading && securityIssues.length === 0) {
     hasPassedInitialCheck.current = true;
   }
 
@@ -54,7 +56,10 @@ export const Core: FunctionComponent<any> = () => {
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
-      <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
+      <Stack.Screen
+        name={Routes.Forms.FrequencySearchModal}
+        component={FrequencySearchModalScreen}
+      />
       <Stack.Screen
         name={Routes.SignUpStack.Index}
         component={SignUpStack}
