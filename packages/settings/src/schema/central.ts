@@ -41,7 +41,7 @@ export const centralSettings = {
         anthropicFastModel: {
           name: 'Anthropic fast model',
           description:
-            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks/fixes, ProgramDefinition build). Falls back to anthropicModel when empty.',
+            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty.',
           type: yup.string(),
           defaultValue: '',
         },
