@@ -159,8 +159,13 @@ export class FhirObservation extends FhirResource {
 
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
+    const labTestMethodId = await this.getLabTestMethodId();
 
-    await labTest.update({ result: value, completedDate: getCurrentDateTimeString() });
+    await labTest.update({
+      result: value,
+      completedDate: getCurrentDateTimeString(),
+      ...(labTestMethodId ? { labTestMethodId } : {}),
+    });
     return labTest;
   }
 
@@ -247,7 +252,6 @@ export class FhirObservation extends FhirResource {
       labTest = await LabTest.create({
         labRequestId: labRequest.id,
         labTestTypeId: labTestType.id,
-        labTestMethodId: await this.getLabTestMethodId(),
         date: getCurrentDateString(),
       });
     }

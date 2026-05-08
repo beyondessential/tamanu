@@ -200,6 +200,67 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
     });
 
+    it('Will set lab test method on an existing lab test when Observation.method is provided', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType, ReferenceData } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+      const labTestMethod = await ReferenceData.create({
+        code: 'FHIR_EXISTING_TEST_METHOD',
+        name: 'FHIR Existing Test Method',
+        type: 'labTestMethod',
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        method: {
+          coding: [
+            {
+              code: labTestMethod.code,
+            },
+          ],
+        },
+        valueString: result,
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+      expect(labTest.labTestMethodId).toBe(labTestMethod.id);
+    });
+
     it('Will add a reflex test if the lab test code is not in the original request', async () => {
       const result = '100';
 
@@ -248,69 +309,6 @@ describe('Create Observation', () => {
         },
       });
       expect(labTest.result).toBe(result);
-    });
-
-    it('Will set lab test method on a newly created reflex test when Observation.method is provided', async () => {
-      const result = '100';
-
-      const { FhirServiceRequest, LabTest, LabTestType, ReferenceData } = ctx.store.models;
-      const { labRequest, category } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        false,
-        {
-          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
-        },
-      );
-      const [newTestType] = await fakeTestTypes(10, LabTestType, category.id);
-      const labTestMethod = await ReferenceData.create({
-        code: 'FHIR_TEST_METHOD',
-        name: 'FHIR Test Method',
-        type: 'labTestMethod',
-      });
-
-      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-      const serviceRequestId = mat.id;
-
-      const body = {
-        resourceType: 'Observation',
-        basedOn: [
-          {
-            type: 'ServiceRequest',
-            reference: `ServiceRequest/${serviceRequestId}`,
-          },
-        ],
-        status: FHIR_OBSERVATION_STATUS.FINAL,
-        code: {
-          coding: [
-            {
-              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-              code: newTestType.code,
-            },
-          ],
-        },
-        method: {
-          coding: [
-            {
-              code: labTestMethod.code,
-            },
-          ],
-        },
-        valueString: result,
-      };
-
-      const response = await app.post(endpoint).send(body);
-      expect(response).toHaveSucceeded();
-
-      const labTest = await LabTest.findOne({
-        include: [{ model: LabTestType, as: 'labTestType' }],
-        where: {
-          labRequestId: labRequest.id,
-          '$labTestType.id$': newTestType.id,
-        },
-      });
-      expect(labTest.result).toBe(result);
-      expect(labTest.labTestMethodId).toBe(labTestMethod.id);
     });
 
     describe('errors', () => {
