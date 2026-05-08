@@ -218,33 +218,20 @@ const NoteContent = ({
         {contentIsClipped && !contentIsExpanded && (
           <ReadMoreSpan onClick={handleReadMore} data-testid="readmorespan-dpwv">
             ...
-            <TranslatedText
-              stringId="note.table.item.readMore"
-              fallback="read more"
-              data-testid="translatedtext-fpqt"
-            />
+            <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
           </ReadMoreSpan>
         )}
         {contentIsExpanded && (
           <ShowLessSpan onClick={handleReadLess} data-testid="showlessspan-7kuw">
             {' '}
-            <TranslatedText
-              stringId="note.table.item.showLess"
-              fallback="Show less"
-              data-testid="translatedtext-frql"
-            />
+            <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
           </ShowLessSpan>
         )}
       </NoteExpandControlContainer>
       <NoteFooterContainer data-testid="notefootercontainer-byhv">
         {showNoteMetaPrefix && (
           <NoteFooterTextElement data-testid="notefootertextelement-sujh">
-            <TranslatedText
-              stringId="general.lastUpdated.label"
-              fallback="Last updated"
-              data-testid="translatedtext-ncvx"
-            />
-            :
+            <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? (
@@ -258,7 +245,6 @@ const NoteContent = ({
               stringId="note.table.onBehalfOfText"
               fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ changeOnBehalfOfName: noteOnBehalfOfName }}
-              data-testid="translatedtext-9x5v"
             />
           </NoteFooterTextElement>
         )}
@@ -385,13 +371,11 @@ const NoteTable = ({
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
-                data-testid="translatedtext-tkm5"
               />
             ) : (
               <TranslatedText
                 stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
-                data-testid="translatedtext-9ih8"
               />
             )}
           </NoDataMessage>
