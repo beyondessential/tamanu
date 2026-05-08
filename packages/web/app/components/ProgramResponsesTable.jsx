@@ -1,8 +1,11 @@
-import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { VisuallyHidden } from '@tamanu/ui-components';
+import { subject } from '@casl/ability';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-import { subject } from '@casl/ability';
+import styled from 'styled-components';
+
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { useTranslation, VisuallyHidden } from '@tamanu/ui-components';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
@@ -15,7 +18,6 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
 import { TranslatedText } from './Translation/TranslatedText';
-import { PATIENT_PATHS } from '../constants/patientPaths';
 
 function DateAccessor({ endTime }) {
   return <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
@@ -33,22 +35,27 @@ function ProgramNameAccessor({ programName }) {
   return programName;
 }
 
+const EditedOrnament = styled.span`
+  &::after {
+    content: '*' / '${p => p.altText}';
+  }
+`;
+
+/**
+ * @param {{ surveyName: import('@tamanu/database').Survey['name'] } & Pick<
+ * 	import('@tamanu/database').SurveyResponse,
+ * 	'createdAt' | 'updatedAt'
+ * >} props
+ */
 function SurveyNameAccessor({ surveyName, createdAt, updatedAt }) {
+  const { getTranslation } = useTranslation();
   const hasBeenEdited =
-    createdAt &&
-    updatedAt &&
-    new Date(updatedAt).getTime() > new Date(createdAt).getTime();
+    createdAt && updatedAt && new Date(updatedAt).getTime() > new Date(createdAt).getTime();
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-      <span>{surveyName}</span>
-      {hasBeenEdited ? (
-        <TranslatedText
-          stringId="program.table.badge.edited"
-          fallback="Edited"
-          data-testid="program-edited-badge"
-        />
-      ) : null}
-    </span>
+    <>
+      {surveyName}
+      {hasBeenEdited && <EditedOrnament altText={getTranslation('program.table.badge.edited')} />}
+    </>
   );
 }
 
