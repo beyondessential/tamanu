@@ -133,7 +133,7 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
-  const { migrations: umzug } = createMigrationInterface(console, sequelize);
+  const umzug = createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();
 

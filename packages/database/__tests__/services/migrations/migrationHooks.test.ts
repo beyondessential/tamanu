@@ -57,7 +57,7 @@ describe('migrationHooks', () => {
 
   beforeEach(async () => {
     database = await initDatabase();
-    ({ migrations: umzug } = createMigrationInterface(log, database.sequelize));
+    umzug = createMigrationInterface(log, database.sequelize);
     await runPreMigration(log, database.sequelize);
     await umzug.up();
     await runPostMigration(log, database.sequelize);

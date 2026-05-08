@@ -50,15 +50,6 @@ sources:
             description: "{{ doc('logs__migrations__migrations') }}"
             data_tests:
               - not_null
-          - name: batch_duration_ms
-            data_type: bigint
-            description: "{{ doc('logs__migrations__batch_duration_ms') }}"
-          - name: upgrade_run_id
-            data_type: uuid
-            description: "{{ doc('logs__migrations__upgrade_run_id') }}"
-          - name: stats
-            data_type: jsonb
-            description: "{{ doc('logs__migrations__stats') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('logs__generic__updated_at_sync_tick') }} in migrations."
