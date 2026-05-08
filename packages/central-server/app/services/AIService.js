@@ -15,6 +15,16 @@ const FORM_BUILDER_CONTEXT = 'formBuilder';
 const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
+const FORM_BUILDER_FIX_CONTEXT = 'formBuilderFixProgramErrors';
+
+// Contexts routed to the optional faster Anthropic model when configured.
+// Keep these to non-conversational structured/extraction tasks where a smaller
+// model is generally sufficient and latency dominates user experience.
+const FAST_MODEL_CONTEXTS = new Set([
+  FORM_BUILDER_IMAGE_CONTEXT,
+  FORM_BUILDER_TWEAK_CONTEXT,
+  FORM_BUILDER_FIX_CONTEXT,
+]);
 
 const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
@@ -54,6 +64,9 @@ export class AIService {
   /** @type {import('@langchain/anthropic').ChatAnthropic} */
   chatModel;
 
+  /** @type {import('@langchain/anthropic').ChatAnthropic} */
+  fastChatModel;
+
   /** @type {RunnableWithMessageHistory} */
   conversationChain;
 
@@ -62,7 +75,7 @@ export class AIService {
    * @param {import('@tamanu/settings').ReadSettings} options.settings
    */
   static async init({ settings }) {
-    const { enabled, anthropicModel } = await settings.get('ai');
+    const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
 
     if (!enabled) {
       log.info('AIService: disabled, skipping initialisation');
@@ -90,6 +103,10 @@ export class AIService {
       anthropicApiKey,
       model: anthropicModel,
     });
+    const fastModelName = anthropicFastModel?.trim();
+    service.fastChatModel = fastModelName
+      ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
+      : service.chatModel;
 
     const prompt = ChatPromptTemplate.fromMessages([
       new MessagesPlaceholder('history'),
@@ -111,7 +128,13 @@ export class AIService {
 
     await service.registerFormBuilderContext(settings);
 
-    log.info(`AIService: initialised with model "${anthropicModel}"`);
+    if (fastModelName && fastModelName !== anthropicModel) {
+      log.info(
+        `AIService: initialised with model "${anthropicModel}" (fast model "${fastModelName}")`,
+      );
+    } else {
+      log.info(`AIService: initialised with model "${anthropicModel}"`);
+    }
     return service;
   }
 
@@ -153,6 +176,18 @@ export class AIService {
       throw new Error(`AI context "${contextName}" is not registered`);
     }
     return this.contexts.get(contextName);
+  }
+
+  /**
+   * Pick the right chat model for the given context. Non-conversational tasks
+   * (image/PDF interpretation, structured tweaks/fixes) route to the fast model
+   * when one is configured; everything else stays on the main model.
+   *
+   * @param {string} contextName
+   * @returns {import('@langchain/anthropic').ChatAnthropic}
+   */
+  getModelForContext(contextName) {
+    return FAST_MODEL_CONTEXTS.has(contextName) ? this.fastChatModel : this.chatModel;
   }
 
   /**
@@ -235,7 +270,7 @@ export class AIService {
    * @returns {Promise<string>}
    */
   async interpretFormBuilderImage({ imageBase64, mediaType, fileName }) {
-    const response = await this.chatModel.invoke([
+    const response = await this.getModelForContext(FORM_BUILDER_IMAGE_CONTEXT).invoke([
       new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
       new HumanMessage({
         content: [
@@ -265,7 +300,7 @@ export class AIService {
    * @returns {Promise<string>}
    */
   async interpretFormBuilderPdf({ pdfBase64, fileName }) {
-    const response = await this.chatModel.invoke([
+    const response = await this.getModelForContext(FORM_BUILDER_IMAGE_CONTEXT).invoke([
       new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
       new HumanMessage({
         content: [
@@ -315,8 +350,14 @@ export class AIService {
    * @returns {Promise<unknown>}
    */
   async invokeStructured(contextName, userMessage, schema, options = {}) {
-    const structuredModel = this.chatModel.withStructuredOutput(schema, options);
-    return structuredModel.invoke([new SystemMessage(this.getContext(contextName)), new HumanMessage(userMessage)]);
+    const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
+      schema,
+      options,
+    );
+    return structuredModel.invoke([
+      new SystemMessage(this.getContext(contextName)),
+      new HumanMessage(userMessage),
+    ]);
   }
 
   /**
@@ -336,7 +377,7 @@ export class AIService {
    * @returns {Promise<import('@langchain/core/messages').AIMessage>}
    */
   async invoke(contextName, userMessage) {
-    return this.chatModel.invoke([
+    return this.getModelForContext(contextName).invoke([
       new SystemMessage(this.getContext(contextName)),
       ['human', userMessage],
     ]);
