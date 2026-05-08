@@ -3,7 +3,7 @@ import config from 'config';
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, REFERENCE_TYPES } from '@tamanu/constants';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   FhirCodeableConcept,
@@ -22,6 +22,7 @@ export class FhirObservation extends FhirResource {
   declare basedOn: { type: string; reference: string }[];
   declare status: string;
   declare code: Record<string, any>;
+  declare method?: FhirCodeableConcept;
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
@@ -65,6 +66,7 @@ export class FhirObservation extends FhirResource {
       basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
+      method: FhirCodeableConcept.asYup(),
       valueQuantity: FhirQuantity.asYup(),
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
@@ -245,11 +247,41 @@ export class FhirObservation extends FhirResource {
       labTest = await LabTest.create({
         labRequestId: labRequest.id,
         labTestTypeId: labTestType.id,
+        labTestMethodId: await this.getLabTestMethodId(),
         date: getCurrentDateString(),
       });
     }
 
     return labTest;
+  }
+
+  async getLabTestMethodId() {
+    const { ReferenceData } = this.sequelize.models;
+    if (!this.method) {
+      return undefined;
+    }
+
+    const validatedMethod = FhirCodeableConcept.SCHEMA().validateSync(this.method);
+    const methodCode = validatedMethod.coding?.[0]?.code;
+    if (!methodCode) {
+      throw new Invalid('Invalid method, must provide at least one coding with a code', {
+        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      });
+    }
+
+    const labTestMethod = await ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.LAB_TEST_METHOD,
+        code: methodCode,
+      },
+    });
+    if (!labTestMethod) {
+      throw new Invalid(`Invalid method, no lab test method found with code '${methodCode}'`, {
+        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      });
+    }
+
+    return labTestMethod.id;
   }
 
   getValue() {
