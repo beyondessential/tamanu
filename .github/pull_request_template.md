@@ -15,6 +15,8 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] No facility servers (central-only) <!-- #deployopt %facilities=0 -->
 - [ ] No sync (facility tasks scaled to zero) <!-- #deployopt %facilitytasks=0 -->
 - [ ] AMD64 architecture (default is arm64) <!-- #deployopt %arch=amd64 -->
+- [ ] Skip mobile build <!-- #deployopt %mobile=never -->
+- [ ] Always build mobile <!-- #deployopt %mobile=always -->
 - [ ] Stay up for 8 hours <!-- #deployopt %ttlhours=8 -->
 - [ ] Stay up for 24 hours <!-- #deployopt %ttlhours=24 -->
 - [ ] Stay up (no TTL) <!-- #deployopt %ttlhours=0 -->
