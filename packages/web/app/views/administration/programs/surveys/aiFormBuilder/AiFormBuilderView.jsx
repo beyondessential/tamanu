@@ -97,40 +97,57 @@ const getThinkingMessage = (getTranslation, stage) => {
   return getTranslation(message.stringId, message.fallback);
 };
 
-const waitForChatJob = ({ socket, jobId, signal, onProgress }) => {
+const waitForChatJob = ({ api, socket, jobId, signal, onProgress }) => {
   if (!socket) {
     throw new Error('The form builder socket is not connected. Please try again.');
   }
 
   return new Promise((resolve, reject) => {
     const eventName = getChatJobProgressEventName(jobId);
+    let settled = false;
     const cleanup = () => {
       clearTimeout(timeout);
       socket.off(eventName, handleJobUpdate);
       signal.removeEventListener('abort', handleAbort);
     };
-    const handleAbort = () => {
+    const settle = callback => {
+      if (settled) return;
+      settled = true;
       cleanup();
-      reject(new DOMException('The request was aborted.', 'AbortError'));
+      callback();
+    };
+    const handleAbort = () => {
+      settle(() => reject(new DOMException('The request was aborted.', 'AbortError')));
     };
     const handleJobUpdate = job => {
       if (job.progressStage) onProgress?.(job.progressStage);
       if (job.status === 'complete') {
-        cleanup();
-        resolve(job.result);
+        settle(() => resolve(job.result));
       }
       if (job.status === 'failed') {
-        cleanup();
-        reject(new Error(job.error?.detail || job.error?.message || 'Unable to build the form'));
+        settle(() =>
+          reject(new Error(job.error?.detail || job.error?.message || 'Unable to build the form')),
+        );
       }
     };
     const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error('The form builder response took too long. Please try again.'));
+      settle(() => reject(new Error('The form builder response took too long. Please try again.')));
     }, CHAT_JOB_MAX_WAIT_MS);
 
     signal.addEventListener('abort', handleAbort, { once: true });
     socket.on(eventName, handleJobUpdate);
+    api
+      .get(
+        `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
+        {},
+        { signal, showUnknownErrorToast: false },
+      )
+      .then(handleJobUpdate)
+      .catch(error => {
+        if (!signal.aborted) {
+          settle(() => reject(error));
+        }
+      });
   });
 };
 
@@ -274,6 +291,7 @@ export function AiFormBuilderView() {
           : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
         const chatResponse = response.jobId
           ? await waitForChatJob({
+              api,
               socket,
               jobId: response.jobId,
               signal: abortController.signal,
