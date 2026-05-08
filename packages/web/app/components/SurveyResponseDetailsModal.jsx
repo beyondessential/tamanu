@@ -19,7 +19,13 @@ const TableContainer = styled.div`
   overflow: auto;
 `;
 
-const PrintButton = styled(Button)`
+const PrintButton = styled(Button).attrs({
+  'data-testid': 'printbutton-ywph',
+  color: 'primary',
+  size: 'small',
+  startIcon: <PrintIcon data-testid="printicon-t3sp" />,
+  variant: 'outlined',
+})`
   position: absolute;
   right: 70px;
   top: 21px;
@@ -140,14 +146,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       ) : (
         <>
           {onPrint && (
-            <PrintButton
-              onClick={onPrint}
-              color="primary"
-              variant="outlined"
-              startIcon={<PrintIcon data-testid="printicon-t3sp" />}
-              size="small"
-              data-testid="printbutton-ywph"
-            >
+            <PrintButton onClick={onPrint}>
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
