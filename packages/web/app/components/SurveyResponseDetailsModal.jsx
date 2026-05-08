@@ -125,11 +125,7 @@ export const SurveyResponseDetailsModal = ({
       {
         key: 'value',
         title: (
-          <TranslatedText
-            stringId="surveyResponse.details.table.column.value"
-            fallback="Value"
-            data-testid="translatedtext-fah5"
-          />
+          <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
         ),
         accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
           <SurveyAnswerResult
