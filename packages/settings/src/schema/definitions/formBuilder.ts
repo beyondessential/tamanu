@@ -67,7 +67,11 @@ QUESTION: <label>
   MANDATORY: <yes|no|unknown>
   VISIBLE WHEN: <condition in plain English, or "always">
 
-Repeat SECTION when a new heading or page/screen boundary appears.`;
+SECTION RULES — IMPORTANT
+- Only emit a SECTION line for a heading that clearly introduces a group of related questions (e.g. "Demographics", "Household environment", "Symptoms").
+- Do NOT emit a SECTION for the form/document title, page running headers or footers, organisation/logo banner text, page numbers, watermarks, generic words like "Header"/"Form"/"Page 1", or any text that just happens to be visually styled as a header but doesn't actually label a group of questions.
+- Do NOT start a new SECTION just because of a page or column break — only when an in-form group heading changes.
+- If the form has no clear group headings, use SECTION: Untitled once at the top and don't repeat it.`;
 
 const processMessageDefault = `You are an expert assistant helping implementers build Tamanu program forms (surveys for collecting clinical data).
 
@@ -164,7 +168,7 @@ CODE NAMING (apply consistently across all sheets)
 
 SURVEY / QUESTION RULES
 - newScreen: true on the first question of each logical section/screen.
-- For every section that has a visible heading in the source form (e.g. "Personal information and Contact details", "Household environment", "Work"), insert an Instruction question as the FIRST question of that screen with text = the heading verbatim and newScreen=true. Place the section's data questions immediately after, with newScreen omitted on them. Skip this only when the source has no visible section headings.
+- Section heading Instructions are OPTIONAL. Only insert one when the source has a meaningful in-form group heading that adds context for the screen (e.g. "Personal information and Contact details", "Household environment", "Work"). When you do insert one, use the heading verbatim, set newScreen=true on it, and omit newScreen on the section's data questions that follow. Do NOT insert an Instruction for the form/document title, page running headers/footers, organisation banner text, page numbers, or generic words like "Header"/"Form"/"Untitled". When in doubt, skip the Instruction and just start the screen with its first data question (with newScreen=true on that question instead).
 - surveys entries: code, name, surveyType, isSensitive, visibilityStatus, notifiable, notifyEmailAddresses, visibilityCriteria.
 - surveySheets entries: surveyName + questions. surveyName must exactly match a surveys[].name value.
 - Select/Radio/MultiSelect: always include options.
