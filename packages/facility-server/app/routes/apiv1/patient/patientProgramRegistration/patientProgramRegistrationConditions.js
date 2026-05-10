@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
-import { NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
 import { Op } from 'sequelize';
 
@@ -24,6 +24,14 @@ patientProgramRegistrationConditions.put(
     if (!existingCondition) {
       throw new NotFoundError('Patient program registration condition not found');
     }
+    const hasCategoryChanged =
+      body.programRegistryConditionCategoryId &&
+      body.programRegistryConditionCategoryId !== existingCondition.programRegistryConditionCategoryId;
+
+    if (!hasCategoryChanged) {
+      throw new InvalidOperationError('Condition category must be changed');
+    }
+
     const updatedCondition = await existingCondition.update(body);
     res.send(updatedCondition);
   }),
