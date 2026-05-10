@@ -6,6 +6,7 @@ export * from './DateDisplay';
 export * from './Dialog';
 export * from './Field';
 export * from './Form';
+export * from './JSONEditor';
 export * from './Modal';
 export * from './PatientNameDisplay';
 export * from './Suggester';
