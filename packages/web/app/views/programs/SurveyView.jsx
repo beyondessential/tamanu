@@ -97,20 +97,18 @@ export const SurveyViewForm = ({
     [survey, getTranslation],
   );
 
-  const renderSurvey = props => {
-    const {
-      submitForm,
-      values,
-      setFieldValue,
-      setValues,
-      validateForm,
-      setErrors,
-      errors,
-      setStatus,
-      status,
-      dirty,
-    } = props;
-
+  const renderSurvey = ({
+    dirty,
+    errors,
+    setErrors,
+    setFieldValue,
+    setStatus,
+    setValues,
+    status,
+    submitForm,
+    validateForm,
+    values,
+  }) => {
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
       const visibleFields = new Set(
