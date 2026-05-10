@@ -76,6 +76,13 @@ const themeConfig = {
         borderColor: Colors.outline,
       },
     },
+    MuiFormHelperText: {
+      root: {
+        color: Colors.midText,
+        fontSize: '11px',
+        lineHeight: '1.4',
+      },
+    },
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
@@ -87,6 +94,15 @@ const themeConfig = {
     MuiOutlinedInput: {
       notchedOutline: {
         borderColor: Colors.outline,
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: Colors.midText,
+          fontSize: '11px',
+          lineHeight: '1.4',
+        },
       },
     },
     MuiTab: {

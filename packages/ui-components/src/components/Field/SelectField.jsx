@@ -24,14 +24,6 @@ const ExpandMoreIcon = styled(ChevronIcon)`
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
-
-  // helper text
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
 `;
 
 const SelectTag = styled(FormFieldTag)`

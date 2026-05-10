@@ -1,5 +1,4 @@
 import { Box, Typography } from '@material-ui/core';
-import FormHelperText from '@mui/material/FormHelperText';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -126,13 +125,25 @@ export const SurveyQuestion = ({
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = componentDetail && (
+
+  const detail = componentDetail && (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
   );
+  const helperText = isEdited ? (
+    <>
+      {detail}
+      <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
+        <TranslatedText stringId="general.label.edited" fallback="Edited" />
+      </span>
+    </>
+  ) : (
+    detail
+  );
+
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(() => {
     // if the question is a patient data question with a select field type,
@@ -179,19 +190,8 @@ export const SurveyQuestion = ({
   });
   const tooltip = getTooltip(type, configObject, getTranslation);
 
-  const editedIndicator = isEdited ? (
-    <FormHelperText data-testid="survey-question-edited-indicator">
-      <TranslatedText stringId="general.label.edited" fallback="Edited" />
-    </FormHelperText>
-  ) : null;
-
   if (!FieldComponent) {
-    return (
-      <>
-        <Text data-testid="text-k0tb">{text}</Text>
-        {editedIndicator}
-      </>
-    );
+    return <Text data-testid="text-k0tb">{text}</Text>;
   }
 
   const WrapperFieldComponent = tooltip ? FieldWithTooltip : Field;
@@ -213,19 +213,5 @@ export const SurveyQuestion = ({
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
-  if (customComponent) {
-    return (
-      <>
-        {customComponent}
-        {editedIndicator}
-      </>
-    );
-  }
-
-  return (
-    <>
-      {fieldComponent}
-      {editedIndicator}
-    </>
-  );
+  return customComponent ?? fieldComponent;
 };
