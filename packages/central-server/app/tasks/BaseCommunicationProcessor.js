@@ -2,6 +2,7 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
+import { getDefaultFromAddress } from '../services/mailConfig';
 
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
 const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
@@ -61,7 +62,7 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
     const result = await this.context.emailService.sendEmail({
       to: toAddress,
-      from: config.mailgun.from,
+      from: getDefaultFromAddress(),
       subject: emailPlain.subject,
       text: transformedContent,
       attachment: emailPlain.attachment,

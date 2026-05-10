@@ -12,7 +12,7 @@ const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
 export const reports = express.Router();
 
 reports.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked(); // check happens in getAvailableReports
     const { models, user, ability } = req;

@@ -144,6 +144,28 @@
     "apiKey": "",
     "from": ""
   },
+  // `mail.from` is the default sender address. It replaces the legacy `mailgun.from` key;
+  // if `mail.from` is unset we fall back to `mailgun.from`, so existing deployments keep
+  // working unchanged.
+  //
+  // `mail.transport` is preferred over `mailgun` when set. The value is passed through to
+  // nodemailer's createTransport() unchanged, so any SMTP option (host/port/secure/auth,
+  // service shortcuts, pooling, etc.) or nodemailer transport plugin can be used.
+  // See https://nodemailer.com/transports/. Example:
+  //   "mail": {
+  //     "from": "Tamanu <no-reply@example.com>",
+  //     "transport": {
+  //       "host": "smtp.example.com",
+  //       "port": 587,
+  //       "secure": false,
+  //       "pool": true,
+  //       "auth": { "user": "...", "pass": "..." }
+  //     }
+  //   }
+  "mail": {
+    "from": "",
+    "transport": null
+  },
   "cors": {
     "allowedOrigin": ""
   },

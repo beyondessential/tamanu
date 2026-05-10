@@ -150,7 +150,12 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 
   if (isLoading) {
-    return <DataStatusMessage message="Loading..." data-testid="datastatusmessage-yo4j" />;
+    return (
+      <DataStatusMessage
+        message={<TranslatedText stringId="general.status.loading" fallback="Loading…" />}
+        data-testid="datastatusmessage-yo4j"
+      />
+    );
   }
 
   if (error) {
@@ -265,13 +270,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
   if (isLoading) {
     return (
       <DataStatusMessage
-        message={
-          <TranslatedText
-            stringId="general.status.loading"
-            fallback="Loading…"
-            data-testid="translatedtext-jp7h"
-          />
-        }
+        message={<TranslatedText stringId="general.status.loading" fallback="Loading…" />}
         data-testid="datastatusmessage-8kxn"
       />
     );

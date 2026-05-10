@@ -147,7 +147,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
           <ActionLink onClick={onViewAll} data-testid="actionlink-spki">
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.viewAll"
-              fallback="View all..."
+              fallback="View all…"
               data-testid="translatedtext-auyo"
             />
           </ActionLink>

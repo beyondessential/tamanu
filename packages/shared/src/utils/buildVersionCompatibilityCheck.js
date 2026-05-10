@@ -1,5 +1,4 @@
-import compareVersions from 'semver-compare';
-import semverDiff from 'semver-diff';
+import semver from 'semver';
 import config from 'config';
 import {
   VERSION_COMPATIBILITY_ERRORS,
@@ -39,7 +38,7 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
     return;
   }
 
-  if (min && compareVersions(clientVersion, min) < 0) {
+  if (min && semver.compare(clientVersion, min) < 0) {
     throw new ClientIncompatibleError(VERSION_COMPATIBILITY_ERRORS.LOW).withExtraData({
       ...getUpdateInformation(req, min),
       [VERSION_MINIMUM_PROBLEM_KEY]: min,
@@ -47,8 +46,8 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
     });
   }
 
-  if (max && compareVersions(clientVersion, max) > 0) {
-    if (semverDiff(max, clientVersion) === 'patch') {
+  if (max && semver.compare(clientVersion, max) > 0) {
+    if (semver.diff(max, clientVersion) === 'patch') {
       log.error(
         `Allowing client v${clientVersion} with higher patch than max supported v${max} to connect`,
       );

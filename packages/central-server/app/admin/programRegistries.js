@@ -1,31 +1,6 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler';
 
-import { NotFoundError } from '@tamanu/errors';
-import { simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
-
-const getProgramRegistryHandler = asyncHandler(async (req, res) => {
-  req.checkPermission('read', 'ProgramRegistry');
-
-  const { ProgramRegistry, Program } = req.models;
-  const programRegistry = await ProgramRegistry.findByPk(req.params.id, {
-    include: [
-      {
-        model: Program,
-        as: 'program',
-        attributes: ['id', 'name'],
-      },
-    ],
-  });
-  if (!programRegistry) throw new NotFoundError();
-
-  res.send({
-    ...programRegistry.forResponse(),
-    program: programRegistry.program
-      ? { id: programRegistry.program.id, name: programRegistry.program.name }
-      : null,
-  });
-});
+import { simpleGet, simpleGetList, simplePatch } from '@tamanu/shared/utils/crudHelpers';
 
 /** `/admin/programRegistry` endpoint when dealing with a single program registry */
 export const programRegistryRouter = express.Router();
@@ -45,7 +20,7 @@ programRegistryRouter.get(
   simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId'),
 );
 
-programRegistryRouter.get('/:id', getProgramRegistryHandler);
+programRegistryRouter.get('/:id', simpleGet('ProgramRegistry'));
 programRegistryRouter.patch(
   '/:id',
   simplePatch('ProgramRegistry', {

@@ -48,11 +48,13 @@ export class FhirResource extends Model {
           set(utcDate) {
             // Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
             if (!(utcDate instanceof Date)) {
-              return utcDate;
+              // Sequelize 6+ may pass defaults (e.g. NOW) or literals that are not Date
+              // instances; returning without setDataValue left the column unset (null).
+              this.setDataValue('lastUpdated', utcDate as unknown);
+              return;
             }
             const localOffsetMinutes = new Date().getTimezoneOffset();
             this.setDataValue('lastUpdated', subMinutes(utcDate, localOffsetMinutes));
-            return (this as FhirResource).lastUpdated;
           },
         },
         isLive: {

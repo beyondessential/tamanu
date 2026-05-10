@@ -3,6 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } fro
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
+import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -56,6 +57,8 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        // Synchronous in-process invalidation; raw SQL / cross-process is covered
+        // by the NOTIFY listener (see `registerSettingsCacheInvalidator`).
         hooks: {
           afterSave() {
             settingsCache.reset();
@@ -67,6 +70,9 @@ export class Setting extends Model {
             settingsCache.reset();
           },
           afterBulkDestroy() {
+            settingsCache.reset();
+          },
+          afterBulkRestore() {
             settingsCache.reset();
           },
         },
@@ -107,7 +113,7 @@ export class Setting extends Model {
    */
   static async get(
     key: SettingPath | '' = '',
-    facilityId = null,
+    facilityId: string | null = null,
     scopeOverride: (typeof SETTINGS_SCOPES_VALUES)[number] | null = null,
   ) {
     const determineScope = () => {
@@ -168,9 +174,9 @@ export class Setting extends Model {
 
   static async set(
     key: SettingPath | '' = '',
-    value: object,
+    value: unknown,
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-    facilityId = null,
+    facilityId: string | null = null,
   ) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
     const schema = getScopedSchema(scope);
@@ -178,7 +184,7 @@ export class Setting extends Model {
 
     const existingSettings = await this.findAll({
       where: {
-        key: records.map((r) => r.key),
+        key: records.map(r => r.key),
         scope,
         facilityId,
       },
@@ -188,7 +194,7 @@ export class Setting extends Model {
     const existingByKey = keyBy(existingSettings, 'key');
 
     await Promise.all(
-      records.map(async (record) => {
+      records.map(async record => {
         const existing = existingByKey[record.key];
         if (existing) {
           if (existing.deletedAt) {
@@ -226,7 +232,7 @@ export class Setting extends Model {
           key: {
             [Op.and]: {
               ...keyWhere,
-              [Op.notIn]: records.map((r) => r.key),
+              [Op.notIn]: records.map(r => r.key),
             },
           },
           scope,
@@ -247,16 +253,50 @@ export class Setting extends Model {
       }),
     };
   }
+
+  /**
+   * Sets an encrypted secret in the settings table.
+   */
+  static async setSecret(
+    name: string,
+    value: string,
+    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    facilityId: string | null = null,
+  ): Promise<void> {
+    const keyBuffer = await getSettingsPskKeyBuffer();
+    const encryptedValue = await encryptSecret(keyBuffer, value);
+    await this.set(name as SettingPath, encryptedValue, scope, facilityId);
+  }
+
+  /**
+   * Removes a secret from the settings table. Used when an admin clears a
+   * secret field — without this, the cleared value would be encrypted-and-
+   * stored as an empty string and the UI would show the placeholder again on
+   * reload, making it look like the secret was still set.
+   */
+  static async unsetSecret(
+    name: string,
+    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    facilityId: string | null = null,
+  ): Promise<void> {
+    await this.destroy({
+      where: {
+        key: name,
+        scope,
+        facilityId,
+      },
+    });
+  }
 }
 
 function buildSettingsRecords(
   keyPrefix: string,
-  value: object,
+  value: unknown,
   facilityId: string | null,
   scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-): { key: string; value: object; facilityId: string | null; scope: string }[] {
+): { key: string; value: unknown; facilityId: string | null; scope: string }[] {
   if (isPlainObject(value)) {
-    return Object.entries(value).flatMap(([k, v]) =>
+    return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
       buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
     );
   }

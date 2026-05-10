@@ -197,7 +197,6 @@ const StyledTextButton = styled(Button)`
   min-block-size: auto;
   min-inline-size: auto;
   padding: 0;
-  text-transform: capitalize;
   :hover {
     background: transparent;
     color: #23476b;
@@ -319,6 +318,7 @@ export const UnstyledHtmlButton = styled.button`
   font-size: inherit;
   font-style: inherit;
   line-height: inherit;
+  padding: 0;
   text-align: inherit;
   text-decoration-thickness: from-font;
   touch-action: manipulation;
