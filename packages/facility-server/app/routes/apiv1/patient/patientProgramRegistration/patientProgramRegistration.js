@@ -154,32 +154,51 @@ patientProgramRegistration.put(
       return acc;
     }, {});
 
-    const conditionsData = conditions
-      .filter(condition => {
-        // New conditions should always be created.
-        if (!condition.id) {
-          return true;
+    const conditionsData = conditions.flatMap(condition => {
+      const existingCondition = condition.id ? existingConditionMap[condition.id] : null;
+      const hasLegacyNewConditionShape = !!condition.id && !condition.conditionId;
+
+      // Existing row update: only persist if the category actually changed.
+      if (existingCondition) {
+        if (
+          existingCondition.programRegistryConditionCategoryId === condition.conditionCategoryId
+        ) {
+          return [];
         }
 
-        const existingCondition = existingConditionMap[condition.id];
-        // Ignore stale/foreign records and unchanged categories.
-        if (!existingCondition) {
-          return false;
-        }
+        return [
+          {
+            id: condition.id,
+            patientProgramRegistrationId: existingRegistration.id,
+            clinicianId: registrationData.clinicianId,
+            date: condition.date,
+            programRegistryConditionId:
+              condition.conditionId || existingCondition.programRegistryConditionId,
+            programRegistryConditionCategoryId: condition.conditionCategoryId,
+            reasonForChange: condition.reasonForChange,
+          },
+        ];
+      }
 
-        return (
-          existingCondition.programRegistryConditionCategoryId !== condition.conditionCategoryId
-        );
-      })
-      .map(condition => ({
-        id: condition.id,
-        patientProgramRegistrationId: existingRegistration.id,
-        clinicianId: registrationData.clinicianId,
-        date: condition.date,
-        programRegistryConditionId: condition.conditionId,
-        programRegistryConditionCategoryId: condition.conditionCategoryId,
-        reasonForChange: condition.reasonForChange,
-      }));
+      // New rows can come in either modern shape (conditionId) or legacy shape (id).
+      const programRegistryConditionId = hasLegacyNewConditionShape
+        ? condition.id
+        : condition.conditionId;
+      if (!programRegistryConditionId || !condition.conditionCategoryId) {
+        return [];
+      }
+
+      return [
+        {
+          patientProgramRegistrationId: existingRegistration.id,
+          clinicianId: registrationData.clinicianId,
+          date: condition.date,
+          programRegistryConditionId,
+          programRegistryConditionCategoryId: condition.conditionCategoryId,
+          reasonForChange: condition.reasonForChange,
+        },
+      ];
+    });
 
     const updatedRegistrationData = {
       ...registrationData,
