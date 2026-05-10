@@ -653,6 +653,51 @@ describe('SurveyResponse', () => {
     });
   });
 
+  describe('survey response changelog edit semantics', () => {
+    it('should still surface an answer as edited after editing it away from and back to the original value', async () => {
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const otherFacility = await Facility.create(fake(Facility));
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        facility.id,
+      );
+      const originalBody = answer.body;
+      expect(originalBody).toBe(facility.id);
+
+      // Edit away from the original value
+      const editAway = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: otherFacility.id },
+        });
+      expect(editAway).toHaveSucceeded();
+
+      // Edit back to the original value
+      const editBack = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          answers: { [answer.dataElementId]: originalBody },
+        });
+      expect(editBack).toHaveSucceeded();
+
+      await answer.reload();
+      expect(answer.body).toBe(originalBody);
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+
+      const answerChanges = changelog.body.changes.filter(
+        c => c.tableName === 'survey_response_answers' && c.recordId === answer.id,
+      );
+      expect(answerChanges).toHaveLength(2);
+    });
+  });
+
   describe('permissions', () => {
     disableHardcodedPermissionsForSuite();
 

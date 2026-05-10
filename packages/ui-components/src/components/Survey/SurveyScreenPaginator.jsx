@@ -74,6 +74,7 @@ export const SurveyScreenPaginator = ({
   encounterType,
   getComponentForQuestionType,
   completeButtonDisabled = false,
+  editedDataElementIds = null,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -107,6 +108,7 @@ export const SurveyScreenPaginator = ({
         showCancelButton={showCancelButton}
         encounterType={encounterType}
         getComponentForQuestionType={getComponentForQuestionType}
+        editedDataElementIds={editedDataElementIds}
         data-testid="surveyscreen-2tj0"
       />
     );
