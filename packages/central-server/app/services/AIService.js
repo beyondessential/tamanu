@@ -9,10 +9,10 @@ import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
-const FORM_BUILDER_CONTEXT = 'formBuilder';
-const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
-const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
-const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
+export const FORM_BUILDER_CONTEXT = 'formBuilder';
+export const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
+export const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
+export const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
@@ -296,8 +296,8 @@ export class AIService {
     }
 
     return (await history.getMessages())
-      .filter(message => message._getType?.() !== 'system')
-      .map(message => `[${message._getType?.() ?? 'message'}]\n${normalizeMessageContent(message.content)}`)
+      .filter(message => message._getType() !== 'system')
+      .map(message => `[${message._getType()}]\n${normalizeMessageContent(message.content)}`)
       .join('\n\n');
   }
 

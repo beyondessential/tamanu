@@ -7,17 +7,19 @@ import NodeCache from 'node-cache';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
-import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import {
+  FORM_BUILDER_BUILD_CONTEXT,
+  FORM_BUILDER_CONTEXT,
+  FORM_BUILDER_TWEAK_CONTEXT,
+} from '../services/AIService';
 import {
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
 } from './programImporter/programDefinition';
 
-const FORM_BUILDER_CONTEXT = 'formBuilder';
-const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
-const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 const MAX_FILE_CONTEXT_LENGTH = 200_000;
 const TEXT_FILE_EXTENSIONS = new Set(['.txt', '.csv']);
 const WORKBOOK_FILE_EXTENSIONS = new Set(['.xls', '.xlsx']);
@@ -35,6 +37,10 @@ const CHAT_JOB_STATUSES = {
   FAILED: 'failed',
 };
 
+// Async chat jobs are kept in this single-process cache: they don't survive
+// API restarts and won't be visible to other workers if the API ever runs in a
+// multi-worker config. The form builder is admin-only and low traffic so this
+// is acceptable; revisit if those assumptions change.
 const chatJobs = new NodeCache({ stdTTL: CHAT_JOB_TTL_SECONDS, checkperiod: 60, useClones: false });
 
 const partialSurveySchema = z
@@ -325,10 +331,68 @@ const applyProgramDefinitionTweak = async (currentProgramDefinition, tweakRespon
 };
 
 const serializeChatJobError = error => ({
-  message: error?.message || 'AI form builder chat failed',
+  message: error?.message ?? 'AI form builder chat failed',
   detail: error?.detail,
   status: error?.status,
 });
+
+const generateProgramDefinition = async ({
+  aiService,
+  currentProgramDefinition,
+  response,
+  sessionId,
+  userMessage,
+}) => {
+  const buildInput = await buildProgramDefinitionInput({
+    aiService,
+    currentProgramDefinition,
+    responseMessage: response.message,
+    sessionId,
+    userMessage,
+  });
+  return finaliseProgramDefinition(
+    await aiService.invokeStructured(
+      FORM_BUILDER_BUILD_CONTEXT,
+      buildInput,
+      programDefinitionSchema,
+      { name: 'form_builder_program_definition' },
+    ),
+  );
+};
+
+// Attempt a targeted patch against the current program definition. Returns the
+// tweak result on success, or null when the LLM produced operations that don't
+// apply to the current definition (e.g. references a non-existent survey or
+// question) — the caller falls back to a full regeneration. Anything else
+// (network, auth, unexpected) propagates so the user gets a real error.
+const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, userMessage }) => {
+  let tweakResponse;
+  try {
+    tweakResponse = await aiService.invokeStructured(
+      FORM_BUILDER_TWEAK_CONTEXT,
+      buildProgramDefinitionTweakInput({ currentProgramDefinition, userMessage }),
+      formBuilderTweakResponseSchema,
+      { name: 'form_builder_tweak_response' },
+    );
+  } catch (error) {
+    log.warn({ error }, 'AI form builder tweak structured output failed, falling back to full generation');
+    return null;
+  }
+
+  try {
+    const programDefinition = await applyProgramDefinitionTweak(
+      currentProgramDefinition,
+      tweakResponse,
+    );
+    return { message: tweakResponse.message, programDefinition };
+  } catch (error) {
+    if (error instanceof InvalidParameterError || error instanceof z.ZodError) {
+      log.warn({ error }, 'AI form builder tweak patch did not apply, falling back to full generation');
+      return null;
+    }
+    throw error;
+  }
+};
 
 const processChatRequest = async ({
   aiService,
@@ -346,62 +410,40 @@ const processChatRequest = async ({
     const sessionId = existingSessionId || (await aiService.createSession(FORM_BUILDER_CONTEXT));
 
     if (currentProgramDefinition) {
-      let tweakResponse;
-      let programDefinition;
-      try {
-        tweakResponse = await aiService.invokeStructured(
-          FORM_BUILDER_TWEAK_CONTEXT,
-          buildProgramDefinitionTweakInput({ currentProgramDefinition, userMessage }),
-          formBuilderTweakResponseSchema,
-          { name: 'form_builder_tweak_response' },
-        );
-        programDefinition = await applyProgramDefinitionTweak(
-          currentProgramDefinition,
-          tweakResponse,
-        );
-      } catch (error) {
-        log.warn({ error }, 'AI form builder tweak patch failed, falling back to full generation');
-      }
+      const tweakResult = await tryTweakProgramDefinition({
+        aiService,
+        currentProgramDefinition,
+        userMessage,
+      });
 
-      if (tweakResponse && programDefinition) {
+      if (tweakResult) {
         // History persistence should not discard a valid tweak result.
         await aiService.addSessionMessages(sessionId, {
           userMessage,
-          assistantMessage: tweakResponse.message,
+          assistantMessage: tweakResult.message,
         }).catch(error => {
           log.warn({ error }, 'AI form builder failed to persist tweak chat history');
         });
 
         return {
           sessionId,
-          message: tweakResponse.message,
+          message: tweakResult.message,
           attachToProgramCode: null,
-          programDefinition,
+          programDefinition: tweakResult.programDefinition,
         };
       }
     }
 
     const response = await aiService.sendFormBuilderMessage(sessionId, userMessage);
-    const isReady = response.ready;
-
-    let programDefinition = null;
-    if (isReady) {
-      const buildInput = await buildProgramDefinitionInput({
-        aiService,
-        currentProgramDefinition,
-        responseMessage: response.message,
-        sessionId,
-        userMessage,
-      });
-      programDefinition = await finaliseProgramDefinition(
-        await aiService.invokeStructured(
-          FORM_BUILDER_BUILD_CONTEXT,
-          buildInput,
-          programDefinitionSchema,
-          { name: 'form_builder_program_definition' },
-        ),
-      );
-    }
+    const programDefinition = response.ready
+      ? await generateProgramDefinition({
+          aiService,
+          currentProgramDefinition,
+          response,
+          sessionId,
+          userMessage,
+        })
+      : null;
 
     return {
       sessionId,
@@ -487,7 +529,8 @@ formBuilderRouter.get(
     }
 
     if (job.userId !== req.user.id) {
-      throw new InvalidParameterError('AI form builder chat job was not found');
+      // Don't reveal that the job exists for another user.
+      throw new NotFoundError('AI form builder chat job was not found');
     }
 
     res.send(job);

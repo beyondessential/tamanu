@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
@@ -46,11 +46,16 @@ const getProgramDefinitionFileName = programDefinition =>
 const CHAT_JOB_POLL_INTERVAL_MS = 2000;
 const CHAT_JOB_MAX_WAIT_MS = 10 * 60 * 1000;
 
-const waitForChatJob = async ({ api, jobId, signal }) => {
+const waitForChatJob = async ({ api, jobId, signal, getTranslation }) => {
   const startedAt = Date.now();
   while (!signal.aborted) {
     if (Date.now() - startedAt > CHAT_JOB_MAX_WAIT_MS) {
-      throw new Error('The form builder response took too long. Please try again.');
+      throw new Error(
+        getTranslation(
+          'admin.programs.aiFormBuilder.error.generate.timeout',
+          'The form builder response took too long. Please try again.',
+        ),
+      );
     }
 
     const job = await api.get(
@@ -61,7 +66,14 @@ const waitForChatJob = async ({ api, jobId, signal }) => {
 
     if (job.status === 'complete') return job.result;
     if (job.status === 'failed') {
-      throw new Error(job.error?.detail || job.error?.message || 'Unable to build the form');
+      throw new Error(
+        job.error?.detail ??
+          job.error?.message ??
+          getTranslation(
+            'admin.programs.aiFormBuilder.error.generate.failed',
+            'Unable to build the form',
+          ),
+      );
     }
 
     await new Promise((resolve, reject) => {
@@ -111,7 +123,10 @@ export function AiFormBuilderView() {
   const hasExistingChat = Boolean(
     state.messages.length || state.generatedForm || inputValue.trim() || pendingFile,
   );
-  const generatedForm = normaliseProgramDefinition(state.generatedForm);
+  const generatedForm = useMemo(
+    () => normaliseProgramDefinition(state.generatedForm),
+    [state.generatedForm],
+  );
   const showPreview = Boolean(generatedForm && isPreviewOpen);
   const isSaved = Boolean(state.savedSurveyId);
   const sendDisabled = isSaved || (!inputValue.trim() && !pendingFile);
@@ -134,11 +149,8 @@ export function AiFormBuilderView() {
 
   useEffect(() => {
     setHasAiFormBuilderChat(hasExistingChat);
-  }, [hasExistingChat, setHasAiFormBuilderChat]);
-
-  useEffect(() => {
     return () => setHasAiFormBuilderChat(false);
-  }, [setHasAiFormBuilderChat]);
+  }, [hasExistingChat, setHasAiFormBuilderChat]);
 
   useEffect(() => {
     return () => abortControllerRef.current?.abort();
@@ -155,6 +167,9 @@ export function AiFormBuilderView() {
     setIsNewChatModalOpen(false);
   }, []);
 
+  // Parent bumps newChatRequestId every time the "New chat" header action is
+  // clicked. We track the previous value with a ref so we only react to a
+  // change (not on mount), since the initial bump shouldn't trigger a confirm.
   useEffect(() => {
     if (previousNewChatRequestIdRef.current === newChatRequestId) return;
     previousNewChatRequestIdRef.current = newChatRequestId;
@@ -185,9 +200,7 @@ export function AiFormBuilderView() {
         const body = {
           async: true,
           sessionId: state.sessionId,
-          programDefinition: state.generatedForm
-            ? normaliseProgramDefinition(state.generatedForm)
-            : undefined,
+          programDefinition: generatedForm ?? undefined,
           message: [
             selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
             message,
@@ -205,6 +218,7 @@ export function AiFormBuilderView() {
               api,
               jobId: response.jobId,
               signal: abortController.signal,
+              getTranslation,
             })
           : response;
 
@@ -268,7 +282,7 @@ export function AiFormBuilderView() {
         }
       }
     },
-    [api, appendMessage, getTranslation, state.generatedForm, state.sessionId],
+    [api, appendMessage, generatedForm, getTranslation, state.sessionId],
   );
 
   const handleRetryError = useCallback(
@@ -523,11 +537,10 @@ export function AiFormBuilderView() {
               <ChatComposer
                 acceptedFileExtensions={ACCEPTED_FILE_EXTENSIONS}
                 disabled={isSaved}
-                getTranslation={getTranslation}
-                handleDrop={handleDrop}
-                handleFileSelected={handleFileSelected}
-                handleStop={handleStop}
-                handleSubmit={handleSubmit}
+                onDrop={handleDrop}
+                onFileSelected={handleFileSelected}
+                onStop={handleStop}
+                onSubmit={handleSubmit}
                 inputValue={inputValue}
                 isThinking={isThinking}
                 sendDisabled={sendDisabled}

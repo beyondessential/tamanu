@@ -491,6 +491,10 @@ const NewChatModalBody = styled.div`
   text-align: left;
 `;
 
+// Anthropic's chat models sometimes emit list items without a preceding
+// newline (e.g. "Here are the options: - first - second"). Markdown won't
+// render those as a list, so we insert a newline before each bullet/number
+// marker that isn't already on its own line.
 const normaliseAssistantMarkdown = text =>
   text
     .trim()
@@ -664,17 +668,20 @@ export function DownloadMessage({ fileName, isSaved, isSaving, onDownload, onSav
 export function ChatComposer({
   acceptedFileExtensions,
   disabled = false,
-  getTranslation,
-  handleDrop,
-  handleFileSelected,
-  handleStop,
-  handleSubmit,
+  onDrop,
+  onFileSelected,
+  onStop,
+  onSubmit,
   inputValue,
   isThinking,
   sendDisabled,
   setInputValue,
 }) {
+  const { getTranslation } = useTranslation();
   const [isDraggingFileOver, setIsDraggingFileOver] = React.useState(false);
+  // dragenter/dragleave fire on every child element as the cursor moves over
+  // them, so we count nesting depth to know when the drag has truly left the
+  // composer.
   const dragDepthRef = React.useRef(0);
 
   const isFileDrag = event => Array.from(event.dataTransfer?.types ?? []).includes('Files');
@@ -707,7 +714,7 @@ export function ChatComposer({
     dragDepthRef.current = 0;
     setIsDraggingFileOver(false);
     if (disabled) return;
-    handleDrop(event);
+    onDrop(event);
   };
 
   const handleKeyDown = event => {
@@ -724,7 +731,7 @@ export function ChatComposer({
 
     event.preventDefault();
     if (!disabled && !isThinking && !sendDisabled) {
-      handleSubmit();
+      onSubmit();
     }
   };
 
@@ -780,7 +787,7 @@ export function ChatComposer({
               type="file"
               disabled={disabled}
               accept={acceptedFileExtensions.map(extension => `.${extension}`).join(',')}
-              onChange={handleFileSelected}
+              onChange={onFileSelected}
             />
           </AttachButton>
         </ThemedTooltip>
@@ -788,7 +795,7 @@ export function ChatComposer({
           type="button"
           disabled={disabled || (!isThinking && sendDisabled)}
           $isThinking={isThinking}
-          onClick={isThinking ? handleStop : handleSubmit}
+          onClick={isThinking ? onStop : onSubmit}
         >
           {isThinking ? <StopRoundedIcon /> : <ArrowUpwardIcon />}
         </SendButton>

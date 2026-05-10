@@ -41,8 +41,8 @@ const PREVIEW_PATIENT_PROGRAM_REGISTRATION = {
   registrationStatus: 'active',
 };
 
-const normalizeOptions = options => {
-  if (!options || Array.isArray(options) || typeof options === 'object') return options;
+const parseOptionList = options => {
+  if (typeof options !== 'string') return options;
   return options
     .split(',')
     .map(option => option.trim())
@@ -163,13 +163,11 @@ const PreviewPatientDataValue = styled.div`
   margin-block-end: 10px;
 `;
 
-function PreviewPatientDataField({ field, label, value }) {
-  const displayValue = value ?? field?.value;
-
+function PreviewPatientDataField({ label, value }) {
   return (
     <PreviewPatientDataValue>
       {label}:{' '}
-      {displayValue ?? (
+      {value ?? (
         <TranslatedText
           stringId="admin.programs.aiFormBuilder.preview.patientDataPlaceholder"
           fallback="Patient record value"
@@ -214,7 +212,7 @@ const createPreviewSurvey = form => {
           code: question.code,
           type: question.type || PROGRAM_DATA_ELEMENT_TYPES.TEXT,
           defaultText: question.text,
-          defaultOptions: normalizeOptions(question.options),
+          defaultOptions: parseOptionList(question.options),
         },
       };
     }),
@@ -278,6 +276,8 @@ export function FormPreview({ form, isSaved }) {
   if (!form) return null;
 
   const screenCount = getPreviewScreenCount(previewSurvey);
+  // Remount the preview Form when the set of questions changes so initial
+  // values and field state don't carry over from a previous AI revision.
   const previewFormKey = previewSurvey.components.map(({ id }) => id).join('|');
 
   return (

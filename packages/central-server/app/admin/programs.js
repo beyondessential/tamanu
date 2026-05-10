@@ -30,7 +30,7 @@ programRouter.post(
     req.checkPermission('write', 'Survey');
 
     const programDefinition = await programDefinitionSchema.parseAsync(
-      sanitizeProgramDefinitionPreview(await programDefinitionSchema.parseAsync(req.body.form)),
+      sanitizeProgramDefinitionPreview(req.body.form),
     );
     const surveys = await saveProgramDefinition({
       db: req.db,
