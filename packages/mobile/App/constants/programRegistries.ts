@@ -23,7 +23,7 @@ export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [RegistrationStatus.Active]: 'Active',
   [RegistrationStatus.Inactive]: 'Removed',
   [RegistrationStatus.RecordedInError]: 'Delete',
-};
+} as const;
 
 // Categories are now added as reference data in their own table, however,
 // these constants are mandatory on import and will be used to define UI behavior
@@ -32,16 +32,18 @@ export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   DISPROVEN: 'disproven',
   RESOLVED: 'resolved',
   RECORDED_IN_ERROR: 'recordedInError',
-};
+} as const;
 
 export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN]: 'Unknown',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN]: 'Disproven',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED]: 'Resolved',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
-};
+} as const;
 
-// This exists for backwards compatibility with the old enum values
+/**
+ * @deprecated This exists for backwards compatibility with the old enum values
+ */
 export const DEPRECATED_PRCC_LABELS = {
   suspected: 'Suspected',
   underInvestigation: 'Under investigation',
@@ -53,5 +55,3 @@ export const DEPRECATED_PRCC_LABELS = {
   notApplicable: 'Not applicable',
   recordedInError: 'Recorded in error',
 };
-
-// ########################################################################################################

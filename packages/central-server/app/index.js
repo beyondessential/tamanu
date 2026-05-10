@@ -1,3 +1,9 @@
+// aborts on Windows path-casing mismatch that would otherwise duplicate modules
+// in require.cache and break `instanceof` checks across the duplicates
+import { assertConsistentPathCasing } from '@tamanu/utils/assertConsistentPathCasing';
+
+assertConsistentPathCasing();
+
 // serverInfo must be imported before any shared modules
 // so that it can set globals
 // eslint-disable-next-line sort-imports

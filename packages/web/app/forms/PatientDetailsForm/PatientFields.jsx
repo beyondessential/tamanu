@@ -1,10 +1,5 @@
 import React, { Fragment } from 'react';
-import {
-  Field,
-  NumberField,
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components';
+import { Field, NumberField, TranslatedReferenceData, TranslatedText } from '../../components';
 import { TextField, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
@@ -80,7 +75,7 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
   return (
     <div>
       {groupedFieldDefs.map(([categoryId, defs]) => (
-        <Fragment key={categoryId} data-testid="fragment-e981">
+        <Fragment key={categoryId}>
           <StyledHeading data-testid="styledheading-5shc">
             <TranslatedReferenceData
               category="patientFieldDefinitionCategory"

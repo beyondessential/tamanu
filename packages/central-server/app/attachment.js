@@ -34,7 +34,7 @@ attachmentRoutes.get(
 );
 
 attachmentRoutes.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { settings } = req;
     req.checkPermission('create', 'Attachment');

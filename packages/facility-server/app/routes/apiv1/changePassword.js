@@ -7,7 +7,7 @@ import { CentralServerConnection } from '../../sync';
 export const changePassword = express.Router();
 
 changePassword.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     // no permission needed
     req.flagPermissionChecked();

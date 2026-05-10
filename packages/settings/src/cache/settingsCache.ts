@@ -1,53 +1,36 @@
 type Cache = Record<string, string | number | object>;
 
 export class SettingsCache {
-  // Map of facilityId (or 'central' for no facility) to cache objects
+  // Map of facilityId (or 'central' for no facility) to cache objects.
+  // Invalidated by the settings-table NOTIFY listener; no TTL.
   allSettingsCache: Map<string, Cache | null> = new Map();
-
-  // Map of facilityId to expiration timestamps
-  expirationTimestamps: Map<string, number> = new Map();
-
-  // TTL in milliseconds
-  ttl = 60000;
 
   private getCacheKey(facilityId?: string): string {
     return facilityId ?? 'central';
   }
 
-  getAllSettings(facilityId: string) {
-    const key = this.getCacheKey(facilityId);
-
-    // If cache is expired, reset it.
-    if (!this.isValid(facilityId)) {
-      this.reset(facilityId);
-    }
-
-    return this.allSettingsCache.get(key) || null;
+  getAllSettings(facilityId?: string) {
+    return this.allSettingsCache.get(this.getCacheKey(facilityId)) ?? null;
   }
 
   setAllSettings(value: Cache, facilityId?: string) {
-    const key = this.getCacheKey(facilityId);
-    this.allSettingsCache.set(key, value);
-    // Calculate expiration timestamp based on ttl
-    this.expirationTimestamps.set(key, Date.now() + this.ttl);
+    this.allSettingsCache.set(this.getCacheKey(facilityId), value);
   }
 
   reset(facilityId?: string) {
     if (facilityId === undefined) {
       this.allSettingsCache.clear();
-      this.expirationTimestamps.clear();
     } else {
-      // Clear specific facility cache
-      const key = this.getCacheKey(facilityId);
-      this.allSettingsCache.delete(key);
-      this.expirationTimestamps.delete(key);
+      this.allSettingsCache.delete(this.getCacheKey(facilityId));
     }
   }
 
-  isValid(facilityId?: string) {
-    const key = this.getCacheKey(facilityId);
-    const expirationTimestamp = this.expirationTimestamps.get(key);
-    return expirationTimestamp && Date.now() < expirationTimestamp;
+  // No-arg form returns whether ANY bucket is cached (used by tests).
+  has(facilityId?: string) {
+    if (facilityId === undefined) {
+      return this.allSettingsCache.size > 0;
+    }
+    return this.allSettingsCache.has(this.getCacheKey(facilityId));
   }
 }
 
