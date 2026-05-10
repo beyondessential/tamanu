@@ -359,6 +359,51 @@ describe('PatientProgramRegistration', () => {
       expect(updatedConditions.length).toBe(2);
     });
 
+    it('adds a new condition when payload uses id as programRegistryConditionId (legacy shape)', async () => {
+      const condition2 = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId: registry.id }),
+      );
+      const condition1Before = await models.PatientProgramRegistrationCondition.findByPk(
+        condition1.id,
+      );
+
+      const result = await app.put(`/api/patient/programRegistration/${registration.id}`).send({
+        conditions: [
+          {
+            id: condition2.id,
+            conditionCategoryId: conditionCategory.id,
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const newRow = await models.PatientProgramRegistrationCondition.findOne({
+        where: {
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: condition2.id,
+        },
+      });
+      expect(newRow).toBeTruthy();
+      expect(newRow.id).not.toBe(condition1.id);
+      expect(newRow.programRegistryConditionCategoryId).toBe(conditionCategory.id);
+
+      const condition1After = await models.PatientProgramRegistrationCondition.findByPk(
+        condition1.id,
+      );
+      expect(condition1After.programRegistryConditionCategoryId).toBe(
+        condition1Before.programRegistryConditionCategoryId,
+      );
+      expect(condition1After.programRegistryConditionId).toBe(
+        condition1Before.programRegistryConditionId,
+      );
+
+      const updatedConditions = await models.PatientProgramRegistrationCondition.findAll({
+        where: { patientProgramRegistrationId: registration.id },
+      });
+      expect(updatedConditions.length).toBe(2);
+    });
+
     it('updates multiple fields at once', async () => {
       const status2 = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {

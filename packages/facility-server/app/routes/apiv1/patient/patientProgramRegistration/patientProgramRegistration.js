@@ -140,14 +140,17 @@ patientProgramRegistration.put(
     }
 
     const existingConditionIds = conditions.map(({ id: conditionId }) => conditionId).filter(Boolean);
-    const existingConditions = await models.PatientProgramRegistrationCondition.findAll({
-      where: {
-        id: {
-          [Op.in]: existingConditionIds,
-        },
-        patientProgramRegistrationId: existingRegistration.id,
-      },
-    });
+    const existingConditions =
+      existingConditionIds.length > 0
+        ? await models.PatientProgramRegistrationCondition.findAll({
+            where: {
+              id: {
+                [Op.in]: existingConditionIds,
+              },
+              patientProgramRegistrationId: existingRegistration.id,
+            },
+          })
+        : [];
 
     const existingConditionMap = existingConditions.reduce((acc, condition) => {
       acc[condition.id] = condition;
