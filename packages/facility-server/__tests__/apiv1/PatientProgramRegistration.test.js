@@ -589,6 +589,45 @@ describe('PatientProgramRegistration', () => {
         });
       });
 
+      it('errors on unchanged condition category updates', async () => {
+        const changeLogCountBefore = await models.ChangeLog.count({
+          where: {
+            tableName: 'patient_program_registration_conditions',
+            recordId: patientProgramRegistrationCondition.id,
+            migrationContext: null,
+          },
+        });
+
+        const result = await app
+          .put(
+            `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}`,
+          )
+          .send({
+            programRegistryConditionCategoryId:
+              patientProgramRegistrationCondition.programRegistryConditionCategoryId,
+            reasonForChange: 'Should be ignored',
+            patientProgramRegistrationId: registration.id,
+          });
+
+        expect(result).toHaveStatus(422);
+
+        const unchangedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+          patientProgramRegistrationCondition.id,
+        );
+        expect(unchangedCondition.reasonForChange).toBe(
+          patientProgramRegistrationCondition.reasonForChange,
+        );
+
+        const changeLogCountAfter = await models.ChangeLog.count({
+          where: {
+            tableName: 'patient_program_registration_conditions',
+            recordId: patientProgramRegistrationCondition.id,
+            migrationContext: null,
+          },
+        });
+        expect(changeLogCountAfter).toBe(changeLogCountBefore);
+      });
+
       it('Errors if condition not found', async () => {
         const result = await app
           .put(
