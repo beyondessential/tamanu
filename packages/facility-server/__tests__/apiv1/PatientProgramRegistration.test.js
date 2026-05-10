@@ -299,6 +299,43 @@ describe('PatientProgramRegistration', () => {
       expect(updatedCondition.programRegistryConditionCategoryId).toBe(conditionCategory.id);
     });
 
+    it('ignores unchanged condition category updates', async () => {
+      const changeLogCountBefore = await models.ChangeLog.count({
+        where: {
+          tableName: 'patient_program_registration_conditions',
+          recordId: condition1.id,
+          migrationContext: null,
+        },
+      });
+
+      const result = await app.put(`/api/patient/programRegistration/${registration.id}`).send({
+        conditions: [
+          {
+            id: condition1.id,
+            conditionId: condition1.programRegistryConditionId,
+            conditionCategoryId: condition1.programRegistryConditionCategoryId,
+            reasonForChange: 'Should be ignored',
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const unchangedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+        condition1.id,
+      );
+      expect(unchangedCondition.reasonForChange).toBe(condition1.reasonForChange);
+
+      const changeLogCountAfter = await models.ChangeLog.count({
+        where: {
+          tableName: 'patient_program_registration_conditions',
+          recordId: condition1.id,
+          migrationContext: null,
+        },
+      });
+      expect(changeLogCountAfter).toBe(changeLogCountBefore);
+    });
+
     // Check that a condition can be added to a registration
     it('adds a new condition', async () => {
       const condition2 = await models.ProgramRegistryCondition.create(
