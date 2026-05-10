@@ -25,7 +25,7 @@ module.exports = defineConfig({
   use: {
     // Keep failure media in CI so merge queue reports contain useful debugging context.
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
-    video: 'retain-on-failure',
+    video: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Slow down each browser action to make local debugging easier.
     launchOptions: process.env.CI ? undefined : { slowMo: 200 },
