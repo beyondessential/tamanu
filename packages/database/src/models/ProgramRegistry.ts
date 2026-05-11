@@ -12,6 +12,18 @@ export class ProgramRegistry extends Model {
   declare visibilityStatus: string;
   declare programId?: string;
 
+  static getFullReferenceAssociations() {
+    const { models } = this.sequelize;
+
+    return [
+      {
+        model: models.Program,
+        as: 'program',
+        attributes: ['id', 'name'],
+      },
+    ];
+  }
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
@@ -39,10 +51,11 @@ export class ProgramRegistry extends Model {
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         validate: {
           mustHaveValidCurrentlyAtType() {
-            const values = Object.values(CURRENTLY_AT_TYPES);
+            const values: string[] = Object.values(CURRENTLY_AT_TYPES);
             if (!values.includes(this.currentlyAtType as string)) {
+              const formatter = new Intl.ListFormat('en-AU', { type: 'disjunction' });
               throw new InvalidOperationError(
-                `The currentlyAtType must be one of ${values.join(', ')}`,
+                `The currentlyAtType must be one of ${formatter.format(values)}`,
               );
             }
           },

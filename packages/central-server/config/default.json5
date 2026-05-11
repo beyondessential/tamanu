@@ -124,7 +124,6 @@
     "secret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "reportNoUserError": false,
     "useHardcodedPermissions": true,
     "refreshToken": {
       "secret": null,
@@ -144,6 +143,28 @@
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  // `mail.from` is the default sender address. It replaces the legacy `mailgun.from` key;
+  // if `mail.from` is unset we fall back to `mailgun.from`, so existing deployments keep
+  // working unchanged.
+  //
+  // `mail.transport` is preferred over `mailgun` when set. The value is passed through to
+  // nodemailer's createTransport() unchanged, so any SMTP option (host/port/secure/auth,
+  // service shortcuts, pooling, etc.) or nodemailer transport plugin can be used.
+  // See https://nodemailer.com/transports/. Example:
+  //   "mail": {
+  //     "from": "Tamanu <no-reply@example.com>",
+  //     "transport": {
+  //       "host": "smtp.example.com",
+  //       "port": 587,
+  //       "secure": false,
+  //       "pool": true,
+  //       "auth": { "user": "...", "pass": "..." }
+  //     }
+  //   }
+  "mail": {
+    "from": "",
+    "transport": null
   },
   "cors": {
     "allowedOrigin": ""
@@ -250,6 +271,15 @@
       "enabled": true,
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
+    },
+    "snapshotTableCleaner": {
+      "enabled": true,
+      // Once a minute between 01:00 and 05:59 server-local time, which is
+      // usually low-use hours since facility timezones follow their users.
+      "schedule": "* 1-5 * * *",
+      "retentionHours": 24,
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 100
     },
     "processSyncQueue": {
       "enabled": true,
@@ -434,6 +464,7 @@
       "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
       "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
       "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
+      "observationMethodCodeSystem": "http://snomed.info/sct",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
@@ -471,6 +502,27 @@
   "notifications": {
     "certificates": {
       "labTestCategoryIds": []
+    }
+  },
+  "rateLimit": {
+    // Set `enabled: false` to disable express-rate-limit entirely.
+    // Rate limit counters key off `req.ip` and therefore respect the
+    // `proxy.trusted` setting below.
+    "enabled": true,
+    // Permissive global limit applied to every request as a DoS backstop.
+    "global": {
+      // window in milliseconds
+      "windowMs": 60000,
+      // maximum requests per window per IP
+      "max": 600
+    },
+    // Stricter limit applied to unauthenticated / expensive endpoints
+    // (login, refresh, setFacility, password reset, patient-portal login).
+    // Successful requests are not counted, so only failed/abusive traffic
+    // accumulates toward this limit.
+    "auth": {
+      "windowMs": 900000,
+      "max": 30
     }
   },
   "proxy": {

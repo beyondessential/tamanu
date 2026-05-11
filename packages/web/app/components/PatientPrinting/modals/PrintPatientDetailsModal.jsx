@@ -455,7 +455,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
             <div>
               <TranslatedText
                 stringId="patientDetails.resources.idCard.modal.submitting.loading"
-                fallback="Preparing ID card..."
+                fallback="Preparing ID card…"
                 data-testid="translatedtext-4b5u"
               />
             </div>

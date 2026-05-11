@@ -86,6 +86,7 @@ const FixedTileRow = styled(TileContainer)`
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.REJECTED,
   LAB_REQUEST_STATUSES.INVALIDATED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
@@ -374,7 +375,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-hhx8"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             data-testid="tile-gjdv"
@@ -485,7 +486,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-b4nb"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}
@@ -522,7 +523,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-tqow"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}

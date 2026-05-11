@@ -1,9 +1,10 @@
 // Copied from Tupaia
 
+import AddIcon from '@mui/icons-material/Add';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedText, TextButton as BaseTextButton} from '@tamanu/ui-components';
+import { TranslatedText, TextButton as BaseTextButton } from '@tamanu/ui-components';
 
 const TextButton = styled(BaseTextButton)`
   font-weight: 500;
@@ -20,15 +21,17 @@ export const ParameterList = ({ children, onAdd }) => {
   return (
     <div>
       <div>{children}</div>
-      <TextButton color="primary" onClick={onAdd} data-testid="textbutton-4yah">
-        +{' '}
-        {
-          <TranslatedText
-            stringId="general.action.add"
-            fallback="Add"
-            data-testid="translatedtext-j9jy"
-          />
-        }
+      <TextButton
+        color="primary"
+        data-testid="textbutton-4yah"
+        onClick={onAdd}
+        startIcon={<AddIcon />}
+      >
+        <TranslatedText
+          stringId="general.action.add"
+          fallback="Add"
+          data-testid="translatedtext-j9jy"
+        />
       </TextButton>
     </div>
   );

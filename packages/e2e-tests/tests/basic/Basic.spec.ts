@@ -288,7 +288,7 @@ test.describe('Basic tests', () => {
     const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
     expect(requestId[0]).toBe(imagingRequestCode);
     const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-    expect(requestedAtTime[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+    expect(requestedAtTime[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
     const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
     expect(requestedBy[0]).toBe(formValues.requestingClinician);
     const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
@@ -323,7 +323,7 @@ test.describe('Basic tests', () => {
     const department = await getTableItems(documentsPane.page, 1, 'department.name');
     expect(department[0]).toBe(formValues.department);
     const dateUploaded = await getTableItems(documentsPane.page, 1, 'documentUploadedAt');
-    expect(dateUploaded[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+    expect(dateUploaded[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
   });
   test.skip('[BT-0010][AT-2008]add a document and download it', async () => {
     // we can't inspect the download document modal, a blocker to write this test
@@ -342,7 +342,7 @@ test.describe('Basic tests', () => {
     const sidebarPage = new SidebarPage(patientDetailsPage.page);
     expect(encounterValues.facilityName).toBe(await sidebarPage.getFacilityName());
     expect(encounterValues.area).toBe(formValues.area);
-    expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
+    expect(encounterValues.startDate).toBe(`${format(new Date(), 'dd/MM/yyyy')} – Current`);
   });
   test.skip('[BT-0019][AT-2013]Change diet', async ({
     newPatientWithHospitalAdmission,

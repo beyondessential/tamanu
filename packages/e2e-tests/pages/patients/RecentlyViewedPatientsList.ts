@@ -1,6 +1,7 @@
 import { Locator, Page } from '@playwright/test';
-import { convertDateFormat } from '../../utils/testHelper';
+import { parseTamanuDate } from '../../utils/testHelper';
 import { RecentlyViewedPatient } from '../../types/Patient';
+import { format } from 'date-fns';
 
 export class RecentlyViewedPatientsList {
   readonly firstRecentlyViewedName!: Locator;
@@ -31,11 +32,9 @@ export class RecentlyViewedPatientsList {
   }
 
   static formatDateForRecentlyViewed(dateOfBirth: string): string {
-    const formatted = dateOfBirth.includes('/') ? dateOfBirth : convertDateFormat(dateOfBirth);
-
-    const [month, day, year] = formatted.split('/');
-    const shortYear = year.slice(-2);
-    return `${month}/${day}/${shortYear}`;
+    const parsed = parseTamanuDate(dateOfBirth);
+    if (!parsed) return '';
+    return format(parsed, 'dd/MM/yy');
   }
 
   async getRecentlyViewedPatientNameColor(): Promise<string> {

@@ -61,7 +61,7 @@ const DefaultSuccessScreen = ({ onClose }) => (
     <StyledAlert severity="success" data-testid="styledalert-nkjs">
       <TranslatedText
         stringId="paginatedForm.success.heading"
-        fallback="Your response has been successfully submitted."
+        fallback="Your response has been successfully submitted"
         data-testid="translatedtext-jbfk"
       />
     </StyledAlert>

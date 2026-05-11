@@ -1,16 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { set } from 'date-fns';
 
-import { DateDisplay, useDateTime } from '@tamanu/ui-components';
-
-import { TranslatedText } from '../../Translation';
-import { ConfirmRowDivider } from '../../ConfirmRowDivider';
-import { ButtonRow } from '../../ButtonRow';
+import { DateDisplay, TimeRangeDisplay, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants';
 import { Button } from '../../Button';
+import { ButtonRow } from '../../ButtonRow';
+import { ConfirmRowDivider } from '../../ConfirmRowDivider';
 import { Modal } from '../../Modal';
 import { BodyText } from '../../Typography';
-import { Colors } from '../../../constants';
 
 const StyledModal = styled(Modal)`
   & .MuiPaper-root {
@@ -19,12 +16,12 @@ const StyledModal = styled(Modal)`
 `;
 
 const Content = styled.div`
-  padding-top: 16px;
-  padding-bottom: 4px;
+  padding-block-start: 16px;
+  padding-block-end: 4px;
 `;
 
 const AssignmentsWrapper = styled.div`
-  padding-top: 4px;
+  padding-block-start: 4px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -34,7 +31,8 @@ const AssignmentContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   background-color: ${Colors.white};
-  padding: 12px 20px;
+  padding-block: 12px;
+  padding-inline: 20px;
   display: flex;
   justify-content: space-between;
 `;
@@ -50,22 +48,13 @@ const RightDetails = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-left: 20px;
-  border-left: 1px solid ${Colors.outline};
+  padding-inline-start: 20px;
+  border-inline-start: 1px solid ${Colors.outline};
   flex: 1;
   height: fit-content;
 `;
 
 const AssignmentDetails = ({ assignment }) => {
-  const { formatTime } = useDateTime();
-
-  const getDisplayTime = time => {
-    const parsedTime = time.split(':');
-    const hour = parseInt(parsedTime[0]);
-    const minute = parseInt(parsedTime[1]) || 0;
-    return formatTime(set(new Date(), { hours: hour, minutes: minute, seconds: 0 }));
-  };
-
   const leftDetails = [
     {
       label: (
@@ -83,7 +72,14 @@ const AssignmentDetails = ({ assignment }) => {
           fallback="Time"
         />
       ),
-      value: getDisplayTime(assignment.startTime) + ' - ' + getDisplayTime(assignment.endTime),
+      value: (
+        <TimeRangeDisplay
+          range={{
+            start: `${assignment.date} ${assignment.startTime}`,
+            end: `${assignment.date} ${assignment.endTime}`,
+          }}
+        />
+      ),
     },
   ];
 

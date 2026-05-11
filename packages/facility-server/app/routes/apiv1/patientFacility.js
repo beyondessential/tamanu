@@ -3,7 +3,7 @@ import { NotFoundError } from '@tamanu/errors';
 
 export const patientFacility = express.Router();
 
-patientFacility.post('/$', async (req, res) => {
+patientFacility.post('/', async (req, res) => {
   const { syncConnection, models, body } = req;
   const { patientId, facilityId } = body;
 

@@ -1,7 +1,6 @@
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
@@ -98,7 +97,7 @@ describe('Programs import - Program Registry', () => {
     });
 
     expect(errors[0].message).toEqual(
-      'Validation error: The currentlyAtType must be one of village, facility on Registry at row 0',
+      'Validation error: The currentlyAtType must be one of village or facility on Registry at row 0',
     );
   });
 

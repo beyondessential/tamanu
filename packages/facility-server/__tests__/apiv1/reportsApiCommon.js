@@ -1,6 +1,10 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
-import { REPORT_DEFAULT_DATE_RANGES, REPORT_STATUSES } from '@tamanu/constants';
+import {
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
+  REPORT_DEFAULT_DATE_RANGES,
+  REPORT_STATUSES,
+} from '@tamanu/constants';
 
 export function testReportPermissions(getCtx, makeRequest) {
   let ctx;
@@ -64,14 +68,14 @@ export function testReportPermissions(getCtx, makeRequest) {
       });
 
       app = await baseApp.asNewRole([
-        ['run', 'StaticReport', 'generic-survey-export-line-list'],
+        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', survey.id],
       ]);
     });
 
     it('should be able to run permitted static reports with "run" permissions', async () => {
       // Act
-      const res = await makeRequest(app, 'generic-survey-export-line-list', {
+      const res = await makeRequest(app, GENERIC_SURVEY_EXPORT_REPORT_ID, {
         parameters: { surveyId: survey.id },
       });
 

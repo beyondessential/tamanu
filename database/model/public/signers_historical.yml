@@ -9,7 +9,11 @@ sources:
         config:
           tags: []
           meta:
-            triggers: []
+            triggers:
+              - notify_signers_changed
+              - record_signers_changelog
+              - set_signers_updated_at
+              - set_signers_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -77,3 +81,8 @@ sources:
           - name: working_period_end
             data_type: timestamp with time zone
             description: "{{ doc('signers_historical__working_period_end') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in signers_historical."
+            data_tests:
+              - not_null
