@@ -39,15 +39,28 @@ module.exports = defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: /setup\.ts/,
+      testMatch: '**/setup/auth.setup.ts',
       // Auth setup hits a cold Vite + app bundle on CI; default 30s is often too tight.
+      timeout: 120 * 1000,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'admin-setup',
+      testMatch: '**/setup/adminAuth.setup.ts',
       timeout: 120 * 1000,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
+      testIgnore: '**/admin/**',
       dependencies: ['setup'],
+    },
+    {
+      name: 'chromium-admin',
+      use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/admin.json') },
+      testMatch: '**/admin/**',
+      dependencies: ['admin-setup'],
     },
 
     // {
