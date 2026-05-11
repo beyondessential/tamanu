@@ -84,6 +84,7 @@ export const WARNING_LOGS = {
 
 export const ERROR_LOGS = {
   ERROR_POSTING_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: Error posting dataValueSet to DHIS2',
+  ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
 };
 
 export const AUDIT_STATUSES = {
@@ -316,7 +317,11 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     for (const reportId of reportIds) {
-      await this.processReport(reportId);
+      try {
+        await this.processReport(reportId);
+      } catch (error) {
+        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, { reportId, error: error.message });
+      }
     }
   }
 }
