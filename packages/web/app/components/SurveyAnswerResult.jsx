@@ -36,7 +36,10 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
-      return parseFloat(answer).toFixed(1);
+      return parseFloat(answer).toLocaleString(getCurrentLanguageCode(), {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      });
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return <ViewPhotoLink imageId={answer} data-testid="viewphotolink-w78m" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
