@@ -21,7 +21,7 @@ const cssReset = {
     touchAction: 'manipulation',
   },
   ':where(table, time)': {
-    fontVariantNumeric: 'slashed-zero tabular-nums',
+    fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
 };
 
