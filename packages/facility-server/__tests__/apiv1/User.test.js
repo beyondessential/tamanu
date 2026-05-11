@@ -1,5 +1,6 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
+import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 
@@ -222,6 +223,25 @@ describe('User', () => {
         expect(cache).toMatchObject({
           localisation: JSON.stringify(localisation),
         });
+      });
+
+      it.each([
+        [ERROR_TYPE.CLIENT_INCOMPATIBLE],
+        [ERROR_TYPE.REMOTE_INCOMPATIBLE],
+      ])('should fall back to local login when central login fails with %s', async errorType => {
+        centralServer.login.mockRejectedValueOnce(
+          new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
+        );
+
+        const result = await baseApp.post('/api/login').send({
+          email: authUser.email,
+          password: rawPassword,
+          deviceId: 'test-device-id',
+        });
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.central).toBe(false);
+        expect(result.body).toHaveProperty('token');
       });
 
       it('should include permissions in the data returned by a successful login', async () => {
