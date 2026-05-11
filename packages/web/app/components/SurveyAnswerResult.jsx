@@ -31,7 +31,9 @@ export const SurveyAnswerResult = ({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
-  if (!answer) return 'Answer not submitted';
+  if (answer === null || answer === undefined || answer === '') {
+    return <TranslatedText stringId="surveyResponse.details.noAnswer" fallback="No answer" />;
+  }
 
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:

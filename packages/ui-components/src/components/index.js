@@ -4,6 +4,7 @@ export { ContentUnavailableView } from './ContentUnavailableView';
 export * from './CustomToastContainer';
 export * from './DateDisplay';
 export * from './Dialog';
+export { EditedOrnament } from './EditedOrnament';
 export * from './Field';
 export * from './Form';
 export * from './Modal';

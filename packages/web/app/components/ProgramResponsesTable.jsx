@@ -1,10 +1,9 @@
 import { subject } from '@casl/ability';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-import styled from 'styled-components';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { useTranslation, VisuallyHidden } from '@tamanu/ui-components';
+import { EditedOrnament, useTranslation, VisuallyHidden } from '@tamanu/ui-components';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
@@ -35,21 +34,14 @@ function ProgramNameAccessor({ programName }) {
   return programName;
 }
 
-const EditedOrnament = styled.span`
-  &::after {
-    content: '*' / '${p => p.altText}';
-  }
-`;
-
 /**
  * @param {{ surveyName: import('@tamanu/database').Survey['name']; isEdited?: boolean }} props
  */
 function SurveyNameAccessor({ surveyName, isEdited }) {
-  const { getTranslation } = useTranslation();
   return (
     <>
       {surveyName}
-      {isEdited && <EditedOrnament altText={getTranslation('general.label.edited')} />}
+      {isEdited && <EditedOrnament />}
     </>
   );
 }

@@ -3,7 +3,13 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import {
+  Button,
+  EditedOrnament,
+  Modal,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
 import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
@@ -79,6 +85,7 @@ export const SurveyResponseDetailsModal = ({
     }
     return ids;
   }, [changesData]);
+  const hasChanges = Boolean(changesData?.changes?.length);
 
   const columns = useMemo(
     () => [
@@ -90,55 +97,29 @@ export const SurveyResponseDetailsModal = ({
             fallback="Indicator"
           />
         ),
-        accessor: ({ name, wasEdited }) => (
-          <span>
-            {name}
-            {wasEdited ? (
-              <>
-                {' '}
-                <TranslatedText stringId="general.label.edited" fallback="Edited" />
-                {onViewChangeLog ? (
-                  <>
-                    {' '}
-                    <Button
-                      variant="text"
-                      size="small"
-                      onClick={e => {
-                        e.stopPropagation();
-                        onViewChangeLog(surveyResponseId);
-                      }}
-                      data-testid="surveyresponse-details-view-changelog"
-                    >
-                      <TranslatedText
-                        stringId="surveyResponse.details.viewChangeLog"
-                        fallback="View change log"
-                      />
-                    </Button>
-                  </>
-                ) : null}
-              </>
-            ) : null}
-          </span>
-        ),
+        accessor: ({ name }) => name,
       },
       {
         key: 'value',
         title: (
           <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
         ),
-        accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
-          <SurveyAnswerResult
-            answer={answer}
-            type={type}
-            data-testid="surveyanswerresult-dhnv"
-            originalBody={originalBody}
-            componentConfig={componentConfig}
-            dataElementId={dataElementId}
-          />
+        accessor: ({ answer, type, originalBody, componentConfig, dataElementId, wasEdited }) => (
+          <>
+            <SurveyAnswerResult
+              answer={answer}
+              type={type}
+              data-testid="surveyanswerresult-dhnv"
+              originalBody={originalBody}
+              componentConfig={componentConfig}
+              dataElementId={dataElementId}
+            />
+            {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
+          </>
         ),
       },
     ],
-    [onViewChangeLog, surveyResponseId],
+    [],
   );
 
   const { components = [], answers = [] } = surveyDetails ?? {};
@@ -212,6 +193,19 @@ export const SurveyResponseDetailsModal = ({
               data-testid="table-3xqx"
             />
           </TableContainer>
+          {onViewChangeLog && hasChanges ? (
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => onViewChangeLog(surveyResponseId)}
+              data-testid="surveyresponse-details-view-changelog"
+            >
+              <TranslatedText
+                stringId="surveyResponse.details.viewChangeLog"
+                fallback="View change log"
+              />
+            </Button>
+          ) : null}
           <SectionSpacing data-testid="sectionspacing-gtmt" />
           <ModalCancelRow
             onConfirm={onClose}
