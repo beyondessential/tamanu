@@ -37,7 +37,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 
   // Group rows by their composite key (period + orgunit + attributeoptioncombo)
   const createGroupingKey = ({ period = '', orgunit = '', attributeoptioncombo = '' }) =>
-    JSON.stringify([period, orgunit, attributeoptioncombo]);
+    `${period}|${orgunit}|${attributeoptioncombo}`;
 
   const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
 
