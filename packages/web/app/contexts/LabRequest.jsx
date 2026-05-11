@@ -1,7 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
+import { useUserPreferencesQuery } from '../api/queries';
+import { useUserPreferencesMutation } from '../api/mutations';
+import { useAuth } from './Auth';
 
 const LabRequestContext = createContext({
   labRequest: {},
@@ -37,6 +40,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 
 export const LabRequestProvider = ({ children }) => {
   const { getCurrentDateTime } = (useDateTimeIfAvailable() || {})
+  const { facilityId } = useAuth();
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({
@@ -45,7 +49,27 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Other]: {},
   });
 
+  const { data: userPreferences } = useUserPreferencesQuery();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+
   const api = useApi();
+
+  useEffect(() => {
+    if (userPreferences?.labRequestSearchParameters) {
+      setSearchParameters(userPreferences.labRequestSearchParameters);
+    }
+  }, [userPreferences]);
+
+  const setSearchParametersWithPersist = useCallback(
+    (newSearchParameters) => {
+      setSearchParameters(newSearchParameters);
+      mutateUserPreferences({
+        key: USER_PREFERENCES_KEYS.LAB_REQUEST_SEARCH_PARAMETERS,
+        value: newSearchParameters,
+      });
+    },
+    [mutateUserPreferences],
+  );
 
   const loadLabRequest = useCallback(
     async (labRequestId) => {
@@ -78,7 +102,7 @@ export const LabRequestProvider = ({ children }) => {
         loadLabRequest,
         updateLabRequest,
         searchParameters,
-        setSearchParameters,
+        setSearchParameters: setSearchParametersWithPersist,
       }}
     >
       {children}

@@ -1,5 +1,9 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
+import { useUserPreferencesQuery } from '../api/queries';
+import { useUserPreferencesMutation } from '../api/mutations';
+import { useAuth } from './Auth';
 
 const ImagingRequestsContext = createContext({});
 
@@ -31,16 +35,37 @@ export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE
 };
 
 export const ImagingRequestsProvider = ({ children }) => {
+  const { facilityId } = useAuth();
   const [searchParameters, setSearchParameters] = useState({
     [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
 
+  const { data: userPreferences } = useUserPreferencesQuery();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+
+  useEffect(() => {
+    if (userPreferences?.imagingRequestSearchParameters) {
+      setSearchParameters(userPreferences.imagingRequestSearchParameters);
+    }
+  }, [userPreferences]);
+
+  const setSearchParametersWithPersist = useCallback(
+    (newSearchParameters) => {
+      setSearchParameters(newSearchParameters);
+      mutateUserPreferences({
+        key: USER_PREFERENCES_KEYS.IMAGING_REQUEST_SEARCH_PARAMETERS,
+        value: newSearchParameters,
+      });
+    },
+    [mutateUserPreferences],
+  );
+
   return (
     <ImagingRequestsContext.Provider
       value={{
         searchParameters,
-        setSearchParameters,
+        setSearchParameters: setSearchParametersWithPersist,
       }}
     >
       {children}
