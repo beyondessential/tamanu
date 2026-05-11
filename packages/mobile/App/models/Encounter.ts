@@ -255,7 +255,7 @@ export class Encounter extends BaseModel implements IEncounter {
     const encounters = await repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
-      order: { startDate: 'DESC' },
+      order: { startDate: 'DESC', id: 'ASC' },
     });
 
     const notes = await Note.find({
