@@ -162,6 +162,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .where('patientId = :patientId', { patientId })
       .andWhere('endDate IS NULL')
       .orderBy('startDate', 'DESC')
+      .addOrderBy('id', 'ASC')
       .getOne();
   }
 
