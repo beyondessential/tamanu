@@ -182,11 +182,7 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
               onClick={() => setTooltipOpen(true)}
               data-testid="styledviewchangelogwrapper-bl80"
             >
-              <TranslatedText
-                stringId="note.action.viewChangeLog"
-                fallback="View change log"
-                data-testid="translatedtext-view-changelog"
-              />
+              <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
             </StyledViewChangeLogWrapper>
           </StyledTooltip>
         </>

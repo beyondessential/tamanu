@@ -200,10 +200,7 @@ export const SurveyResponseDetailsModal = ({
               onClick={() => onViewChangeLog(surveyResponseId)}
               data-testid="surveyresponse-details-view-changelog"
             >
-              <TranslatedText
-                stringId="surveyResponse.details.viewChangeLog"
-                fallback="View change log"
-              />
+              <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
             </Button>
           ) : null}
           <SectionSpacing data-testid="sectionspacing-gtmt" />
