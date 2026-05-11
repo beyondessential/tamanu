@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
@@ -48,6 +48,7 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Published]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
+  const hasLoadedPreferences = useRef(false);
 
   const { data: userPreferences } = useUserPreferencesQuery();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
@@ -55,8 +56,9 @@ export const LabRequestProvider = ({ children }) => {
   const api = useApi();
 
   useEffect(() => {
-    if (userPreferences?.labRequestSearchParameters) {
+    if (userPreferences?.labRequestSearchParameters && !hasLoadedPreferences.current) {
       setSearchParameters(userPreferences.labRequestSearchParameters);
+      hasLoadedPreferences.current = true;
     }
   }, [userPreferences]);
 
