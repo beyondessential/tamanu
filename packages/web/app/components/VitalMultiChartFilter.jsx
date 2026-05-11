@@ -78,7 +78,7 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
-  const { chartKeys, setChartKeys, visualisationConfigs, allGraphedChartKeys } =
+  const { allGraphedChartKeys, chartKeys, setChartKeys, visualisationConfigs } =
     useVitalChartData();
   const userPreferencesMutation = useUserPreferencesMutation();
   const { selectedChartTypeId } = useChartData();
