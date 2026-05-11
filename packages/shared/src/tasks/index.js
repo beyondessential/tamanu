@@ -6,4 +6,7 @@ export { createFhirCommand } from './fhir/fhirCommand';
 export { prepareQuery } from './fhir/prepareQuery';
 export { sortResourcesInDependencyOrder } from './fhir/resolver';
 export { allFromUpstream } from './fhir/refresh/allFromUpstream';
+export { entireResource } from './fhir/refresh/entireResource';
+export { fromUpstream } from './fhir/refresh/fromUpstream';
+export { resolver } from './fhir/resolver';
 export { FhirMissingResources } from './fhir/FhirMissingResources';
