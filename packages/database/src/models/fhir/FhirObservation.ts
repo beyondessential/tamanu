@@ -263,15 +263,16 @@ export class FhirObservation extends FhirResource {
       return undefined;
     }
 
+    const dd = getFhirDataDictionaries();
     const validatedMethod = FhirCodeableConcept.SCHEMA().validateSync(this.method);
     const methodCodings =
       validatedMethod.coding?.filter(
         (coding: Record<string, any>) =>
-          coding?.code && coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+          coding?.code && coding?.system === dd.observationMethodCodeSystem,
       ) ?? [];
     if (methodCodings.length === 0) {
       throw new Invalid(
-        `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
+        `Invalid method, must provide at least one coding with a code and system '${dd.observationMethodCodeSystem}'`,
         {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
         },
