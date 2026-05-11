@@ -15,33 +15,61 @@ export const parseInvoiceInsurancePlanIds = (rawInsurancePlanIds) => {
   return undefined;
 };
 
-export const savePatientInsurancePlans = async (PatientInvoiceInsurancePlanModel, patientId, invoiceInsurancePlanIds) => {
+export const savePatientInsurancePlans = async (
+  PatientInvoiceInsurancePlanModel,
+  patientId,
+  invoiceInsurancePlanIds,
+) => {
   if (invoiceInsurancePlanIds == null) {
     return;
   }
 
+  const desiredInvoiceInsurancePlanIds = [...new Set(invoiceInsurancePlanIds)];
+  const desiredPlanIds = new Set(desiredInvoiceInsurancePlanIds);
   const existingPlans = await PatientInvoiceInsurancePlanModel.findAll({
     where: { patientId },
+    paranoid: false,
+    order: [['createdAt', 'ASC']],
   });
 
-  const desiredPlanIds = new Set(invoiceInsurancePlanIds);
-  const activePlanIds = new Set(existingPlans.map(plan => plan.invoiceInsurancePlanId));
+  const activePlanIds = new Set(
+    existingPlans
+      .filter(plan => !plan.deletedAt)
+      .map(plan => plan.invoiceInsurancePlanId),
+  );
 
-  const toCreate = invoiceInsurancePlanIds.filter(id => !activePlanIds.has(id));
-  const toDelete = [...activePlanIds].filter(id => !desiredPlanIds.has(id));
+  const firstDeletedPlanByPlanId = existingPlans
+    .filter(plan => plan.deletedAt && desiredPlanIds.has(plan.invoiceInsurancePlanId))
+    .reduce((deletedPlans, plan) => {
+      if (!deletedPlans.has(plan.invoiceInsurancePlanId)) {
+        deletedPlans.set(plan.invoiceInsurancePlanId, plan);
+      }
+      return deletedPlans;
+    }, new Map());
 
-  const promises = [];
-  if (toCreate.length > 0) {
-    promises.push(PatientInvoiceInsurancePlanModel.bulkCreate(
-      toCreate.map(id => ({ patientId, invoiceInsurancePlanId: id }))
-    ));
+  const planIdsToDelete = [...activePlanIds].filter(planId => !desiredPlanIds.has(planId));
+  const planIdsToRestore = desiredInvoiceInsurancePlanIds
+    .filter(planId => !activePlanIds.has(planId) && firstDeletedPlanByPlanId.has(planId))
+    .map(planId => firstDeletedPlanByPlanId.get(planId).id);
+  const planIdsToCreate = desiredInvoiceInsurancePlanIds.filter(
+    planId => !activePlanIds.has(planId) && !firstDeletedPlanByPlanId.has(planId),
+  );
+
+  if (planIdsToDelete.length > 0) {
+    await PatientInvoiceInsurancePlanModel.destroy({
+      where: { patientId, invoiceInsurancePlanId: { [Op.in]: planIdsToDelete } },
+    });
   }
 
-  if (toDelete.length > 0) {
-    promises.push(PatientInvoiceInsurancePlanModel.destroy({
-      where: { patientId, invoiceInsurancePlanId: { [Op.in]: toDelete } },
-    }));
+  if (planIdsToRestore.length > 0) {
+    await PatientInvoiceInsurancePlanModel.restore({
+      where: { id: { [Op.in]: planIdsToRestore } },
+    });
   }
 
-  await Promise.all(promises);
+  if (planIdsToCreate.length > 0) {
+    await PatientInvoiceInsurancePlanModel.bulkCreate(
+      planIdsToCreate.map(invoiceInsurancePlanId => ({ patientId, invoiceInsurancePlanId })),
+    );
+  }
 };
