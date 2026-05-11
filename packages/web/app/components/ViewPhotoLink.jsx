@@ -3,7 +3,14 @@ import styled from 'styled-components';
 import { subject } from '@casl/ability';
 import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
-import { Button, OutlinedButton, TextButton, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
+import {
+  Button,
+  ButtonRow,
+  Modal,
+  OutlinedButton,
+  TextButton,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useTranslation } from '../contexts/Translation';
@@ -33,19 +40,12 @@ const TextDisplay = ({ isChartView }) => {
         <TranslatedText
           stringId="program.modal.view.action.viewImage.label.short"
           fallback="View"
-          data-testid="translatedtext-ta3g"
         />
       </ChartViewText>
     );
   }
 
-  return (
-    <TranslatedText
-      stringId="program.modal.view.action.viewImage"
-      fallback="View Image"
-      data-testid="translatedtext-wagq"
-    />
-  );
+  return <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View Image" />;
 };
 
 const Footer = ({ hasError, onDelete, onClose }) => {
@@ -96,8 +96,6 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
-
-
 
   const openModalCallback = useCallback(async () => {
     setIsPhotoModalOpen(true);
