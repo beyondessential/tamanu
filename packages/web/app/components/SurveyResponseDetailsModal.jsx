@@ -70,7 +70,7 @@ const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
   ),
 })`
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration-line: underline;
 `;
 
 export const SurveyResponseDetailsModal = ({
