@@ -134,6 +134,7 @@ export const EditReportView = () => {
             <VersionInfo version={version} data-testid="versioninfo-1dbs" />
           </Box>
           <ReportEditor
+            key={params.versionId}
             isEdit
             onSubmit={handleSave}
             initialValues={getInitialValues(version, version.reportDefinition)}

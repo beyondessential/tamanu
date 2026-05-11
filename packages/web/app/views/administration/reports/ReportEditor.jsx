@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
@@ -69,29 +69,13 @@ const StyledAccordionSummary = styled(AccordionSummary)`
 const AdvancedConfigField = ({ field, form }) => {
   const { name, value } = field;
   const { setFieldValue, errors, touched } = form;
-  const [jsonString, setJsonString] = useState('');
+  const [jsonString, setJsonString] = useState(value ? JSON.stringify(value, null, 2) : '');
   const [jsonError, setJsonError] = useState(null);
-
-  useEffect(() => {
-    // Convert object to JSON string for display
-    if (value && typeof value === 'object') {
-      try {
-        setJsonString(JSON.stringify(value, null, 2));
-      } catch (err) {
-        setJsonString('');
-      }
-    } else if (typeof value === 'string') {
-      setJsonString(value || '');
-    } else {
-      setJsonString('');
-    }
-  }, [value]);
 
   const handleChange = (newValue) => {
     setJsonString(newValue);
     setJsonError(null);
 
-    // Try to parse and update the form value
     if (!newValue || newValue.trim() === '') {
       setFieldValue(name, null);
       return;
@@ -101,7 +85,7 @@ const AdvancedConfigField = ({ field, form }) => {
       const parsed = JSON.parse(newValue);
       setFieldValue(name, parsed);
     } catch (err) {
-      // Invalid JSON - store the error but don't update the form value
+      // Invalid JSON — keep the string in the editor but don't update Formik
       setJsonError(err);
     }
   };
