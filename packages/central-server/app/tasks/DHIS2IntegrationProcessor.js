@@ -289,7 +289,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         });
         log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
           reportId,
-          dataValueSet: JSON.stringify(dataValueSet),
+          period: dataValueSet.period,
+          orgUnit: dataValueSet.orgUnit,
+          dataValueCount: dataValueSet.dataValues?.length,
           error: error.message,
         });
       }
