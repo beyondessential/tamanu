@@ -238,14 +238,12 @@ export const FileChooserInput = ({
                     stringId="chooseFile.hint.maxSize.label"
                     fallback="Max. :maxFileSizeInMB&nbsp;MB"
                     replacements={{ maxFileSizeInMB }}
-                    data-testid="translatedtext-u0s3"
                   />
                 </Box>
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
                   fallback="Supported file types"
-                  data-testid="translatedtext-k2w3"
                 />
                 : {getFilterNames(filters)}
               </HintText>
