@@ -1,4 +1,5 @@
 import { Box, IconButton } from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
 import CameraAlt from '@mui/icons-material/CameraAlt';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -126,6 +127,8 @@ const getFilterNames = filters => {
 };
 
 export const FileChooserInput = ({
+  error,
+  helperText,
   value = '',
   label,
   name,
@@ -278,6 +281,11 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
+      {helperText ? (
+        <FormHelperText error={Boolean(error)} data-testid="filechooserfield-formhelpertext">
+          {helperText}
+        </FormHelperText>
+      ) : null}
       {WebcamCaptureModalComponent && (
         <WebcamCaptureModalComponent
           open={isWebcamModalOpen}
