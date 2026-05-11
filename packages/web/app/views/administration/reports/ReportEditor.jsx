@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
@@ -71,6 +71,11 @@ const AdvancedConfigField = ({ field, form }) => {
   const { setFieldValue, errors, touched } = form;
   const [jsonString, setJsonString] = useState(value ? JSON.stringify(value, null, 2) : '');
   const [jsonError, setJsonError] = useState(null);
+
+  useEffect(() => {
+    setJsonString(value ? JSON.stringify(value, null, 2) : '');
+    setJsonError(null);
+  }, [value]);
 
   const handleChange = (newValue) => {
     setJsonString(newValue);
