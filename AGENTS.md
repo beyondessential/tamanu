@@ -13,7 +13,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
-- **Translate Strings**: See @llm/project-rules/translate-hardcoded-strings.md for internationalization
+- **Translations**: See @llm/project-rules/translations.md for the TranslatedText / TranslatedEnum / TranslatedReferenceData system and string ID conventions
 - **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
 - **Endpoint (integration) tests**: See @llm/project-rules/endpoint-integration-tests.md for central/facility HTTP route tests (supertest, auth, CRUD, validation)
 - **Playwright E2E**: See @llm/project-rules/playwright-e2e.md for E2E test structure, page objects, and Playwright best practices (`packages/e2e-tests`)

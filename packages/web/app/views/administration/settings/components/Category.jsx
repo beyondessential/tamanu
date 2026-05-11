@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Alert } from '@material-ui/lab';
+import KeyIcon from '@mui/icons-material/Key';
 
 import { isSetting } from '@tamanu/settings';
 
@@ -14,8 +15,15 @@ import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
-  font-size: 1.125rem;
-  margin-inline-start: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+`;
+
+const StyledSecretIcon = styled(KeyIcon)`
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
 `;
 
 const StyledRestartIcon = styled(RefreshIcon)`
@@ -43,7 +51,10 @@ const SettingLine = styled(BodyText)`
 
 const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
-  // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
+  // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
   font-size: 15px;
@@ -75,16 +86,22 @@ const CategoryTitle = memo(({ name, path, description }) => {
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled, requiresRestart }) => (
+const SettingName = memo(({ name, path, description, disabled, isSecret, requiresRestart }) => (
   <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
     <ThemedTooltip
-      disableHoverListener={!description && !disabled}
+      disableHoverListener={!description && !disabled && !isSecret}
       title={
         disabled ? (
           <TranslatedText
             stringId="admin.settings.highRiskSettingTooltip"
-            fallback="User does not have required permissions to update this setting"
+            fallback="User does not required permissions to update this setting"
             data-testid="translatedtext-2xq4"
+          />
+        ) : isSecret ? (
+          <TranslatedText
+            stringId="admin.settings.secretSettingTooltip"
+            fallback="This is a secret setting. The current value is hidden."
+            data-testid="translatedtext-secret"
           />
         ) : (
           description
@@ -92,10 +109,14 @@ const SettingName = memo(({ name, path, description, disabled, requiresRestart }
       }
       data-testid="themedtooltip-2qoa"
     >
-      <span>
+      <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
         {formatSettingName(name, path.split('.').pop())}
-        {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
-      </span>
+        {disabled ? (
+          <StyledLockIcon data-testid="styledlockicon-x3w0" />
+        ) : (
+          isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
+        )}
+      </SettingNameLabel>
     </ThemedTooltip>
     {requiresRestart && (
       <ThemedTooltip
@@ -131,6 +152,7 @@ export const Category = ({
   path = '',
   getSettingValue,
   getGlobalSettingValue,
+  resolveSettingsPath,
   handleChangeSetting,
   facilityId,
 }) => {
@@ -164,10 +186,13 @@ export const Category = ({
           highRisk,
           requiresRestart,
           suggesterEndpoint,
+          secret,
+          editor,
         } = propertySchema;
 
-        const isHighRisk = schema.highRisk || highRisk;
         const needsRestart = schema.requiresRestart || requiresRestart;
+        const isSecret = Boolean(secret);
+        const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
@@ -178,19 +203,25 @@ export const Category = ({
               path={newPath}
               name={name}
               description={description}
+              isSecret={isSecret}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
               typeSchema={type}
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
+              settingsPath={resolveSettingsPath(newPath)}
               defaultValue={defaultValue}
               globalValue={getGlobalSettingValue?.(newPath)}
               path={newPath}
+              name={name}
+              description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
               facilityId={facilityId}
+              isSecret={isSecret}
+              editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -205,7 +236,7 @@ export const Category = ({
               requiresRestart: needsRestart,
             }}
             getSettingValue={getSettingValue}
-            getGlobalSettingValue={getGlobalSettingValue}
+            resolveSettingsPath={resolveSettingsPath}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

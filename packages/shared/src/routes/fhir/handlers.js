@@ -50,7 +50,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   };
 
   routes.get(
-    `/Patient/:id/([$])summary`,
+    `/Patient/:id/$summary`,
     checkFhirReadPermission({ fhirName: 'Patient' }),
     flagPermissionChecked,
     patientSummaryHandler(),

@@ -1,15 +1,14 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, ButtonRow, FormSubmitButton, useDateTime } from '@tamanu/ui-components';
+import { ButtonRow, Form, FormGrid, FormSubmitButton, useDateTime } from '@tamanu/ui-components';
+import React, { memo, useCallback } from 'react';
+import * as yup from 'yup';
 
 import { useApi } from '../../../api';
-import { AutocompleteField, Field } from '../../../components/Field';
 import { TranslatedText } from '../../../components';
-import { saveFile } from '../../../utils/fileSystemAccess';
-import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from '../../../contexts/Translation.jsx';
+import { AutocompleteField, Field } from '../../../components/Field';
 import { notifySuccess } from '../../../utils';
+import { saveFile } from '../../../utils/fileSystemAccess';
+import { useProgramsQuery } from '../programs/surveys/queries';
 
 const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1} data-testid="formgrid-hbbc">
@@ -28,26 +27,23 @@ const ExportForm = ({ options = [] }) => (
       data-testid="field-mrcx"
     />
     <ButtonRow alignment="left" data-testid="buttonrow-zx6c">
-      <FormSubmitButton text="Export" data-testid="formsubmitbutton-uyje" />
+      <FormSubmitButton
+        text={<TranslatedText stringId="general.action.export" fallback="Export" />}
+        data-testid="formsubmitbutton-uyje"
+      />
     </ButtonRow>
   </FormGrid>
 );
 
+function programsToOptions(programs) {
+  return programs.map(p => ({ label: p.name, value: p.id }));
+}
+
 export const ProgramExporterView = memo(({ setIsLoading }) => {
   const api = useApi();
-  const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
 
-  const { data: programs } = useQuery(['programs'], () => api.get('admin/programs'));
-
-  const programOptions = useMemo(
-    () =>
-      programs?.data?.map(program => ({
-        label: program.name,
-        value: program.id,
-      })),
-    [programs],
-  );
+  const { data: programOptions } = useProgramsQuery({ select: programsToOptions });
 
   const onSubmit = useCallback(
     async ({ programId }) => {
@@ -60,13 +56,16 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
           extension: 'xlsx',
         });
         notifySuccess(
-          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+          <TranslatedText
+            stringId="document.notification.downloadSuccess"
+            fallback="Successfully downloaded file"
+          />,
         );
       } finally {
         setIsLoading(false);
       }
     },
-    [api, programOptions],
+    [api, getCurrentDateTime, programOptions, setIsLoading],
   );
 
   const renderForm = useCallback(

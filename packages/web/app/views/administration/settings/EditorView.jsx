@@ -186,10 +186,16 @@ export const EditorView = memo(
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
       delete parsedSettings.uncategorised;
-      setValues({ ...values, settings: parsedSettings });
-      const success = await submitForm(event);
-      if (success) {
-        resetForm({ values });
+      const submittedValues = { ...values, settings: parsedSettings };
+      setValues(submittedValues);
+      const result = await submitForm(event);
+      if (result) {
+        resetForm({
+          values: {
+            ...submittedValues,
+            settings: result.settings ?? submittedValues.settings,
+          },
+        });
       }
     };
 
@@ -263,6 +269,7 @@ export const EditorView = memo(
               schema={schemaForCategory}
               getSettingValue={getSettingValue}
               getGlobalSettingValue={getGlobalSettingValue}
+              resolveSettingsPath={getSettingPath}
               handleChangeSetting={handleChangeSetting}
               facilityId={facilityId}
               data-testid="category-cbjk"

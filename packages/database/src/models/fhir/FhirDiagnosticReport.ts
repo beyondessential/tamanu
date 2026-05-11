@@ -166,7 +166,7 @@ export class FhirDiagnosticReport extends FhirResource {
     }
 
     if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
-      return LAB_REQUEST_STATUSES.CANCELLED;
+      return LAB_REQUEST_STATUSES.REJECTED;
     }
 
     if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {

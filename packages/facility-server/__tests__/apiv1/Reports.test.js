@@ -2,7 +2,7 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { fake } from '@tamanu/fake-data/fake';
 
 import config from 'config';
-import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -122,7 +122,7 @@ describe('Reports', () => {
     disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
-      const result = await app.post('/api/reports/generic-survey-export-line-list', {});
+      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`, {});
       expect(result).toBeForbidden();
     });
 
@@ -144,10 +144,10 @@ describe('Reports', () => {
       });
 
       const app = await baseApp.asNewRole([
-        ['run', 'StaticReport', 'generic-survey-export-line-list'],
+        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', survey.id],
       ]);
-      const res = await app.post('/api/reports/generic-survey-export-line-list').send({
+      const res = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
         parameters: {
           surveyId: survey.id,
           fromDate: '2020-01-01',

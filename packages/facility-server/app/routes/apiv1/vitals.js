@@ -6,4 +6,4 @@ export const vitals = express.Router();
 // Notes: vitals table is legacy. You should read vitals from surveys
 vitals.get('/:id', simpleGet('Vitals', { auditAccess: true }));
 vitals.put('/:id', simplePut('Vitals'));
-vitals.post('/$', simplePost('Vitals'));
+vitals.post('/', simplePost('Vitals'));

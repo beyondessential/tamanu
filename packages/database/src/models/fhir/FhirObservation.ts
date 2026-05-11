@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, REFERENCE_TYPES } from '@tamanu/constants';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -20,6 +21,7 @@ export class FhirObservation extends FhirResource {
   declare basedOn: { type: string; reference: string }[];
   declare status: string;
   declare code: Record<string, any>;
+  declare method?: FhirCodeableConcept;
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
@@ -38,6 +40,9 @@ export class FhirObservation extends FhirResource {
         code: {
           type: DataTypes.JSONB,
           allowNull: false,
+        },
+        method: {
+          type: DataTypes.JSONB,
         },
         valueQuantity: {
           type: DataTypes.JSONB,
@@ -63,6 +68,7 @@ export class FhirObservation extends FhirResource {
       basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
+      method: FhirCodeableConcept.asYup(),
       valueQuantity: FhirQuantity.asYup(),
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
@@ -152,10 +158,15 @@ export class FhirObservation extends FhirResource {
       );
     }
 
+    const labTestMethodId = await this.getLabTestMethodId();
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
 
-    await labTest.update({ result: value });
+    await labTest.update({
+      result: value,
+      completedDate: getCurrentDateTimeString(),
+      ...(labTestMethodId ? { labTestMethodId } : {}),
+    });
     return labTest;
   }
 
@@ -193,7 +204,7 @@ export class FhirObservation extends FhirResource {
       });
     }
 
-    const labTest =
+    let labTest =
       (labTestCode &&
         (await LabTest.findOne({
           include: [{ model: LabTestType, as: 'labTestType' }],
@@ -209,15 +220,81 @@ export class FhirObservation extends FhirResource {
         })));
 
     if (!labTest) {
+      const labTestType =
+        (labTestCode &&
+          (await LabTestType.findOne({
+            where: { code: labTestCode },
+          }))) ||
+        (labTestExternalCode &&
+          (await LabTestType.findOne({
+            where: { externalCode: labTestExternalCode },
+          })));
+
+      if (!labTestType) {
+        const identifiers = [];
+        if (labTestCode) {
+          identifiers.push(`code '${labTestCode}'`);
+        }
+        if (labTestExternalCode) {
+          identifiers.push(`externalCode '${labTestExternalCode}'`);
+        }
+        throw new Invalid(
+          `Cannot create reflex test, no lab test type found with ${identifiers.join(' or ')}`,
+          {
+            code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+          },
+        );
+      }
+
+      // No pre-existing lab test found, this must be a reflex test, so create a new test to track that
+      labTest = await LabTest.create({
+        labRequestId: labRequest.id,
+        labTestTypeId: labTestType.id,
+        date: getCurrentDateString(),
+      });
+    }
+
+    return labTest;
+  }
+
+  async getLabTestMethodId() {
+    const { ReferenceData } = this.sequelize.models;
+    if (!this.method) {
+      return undefined;
+    }
+
+    const validatedMethod = FhirCodeableConcept.SCHEMA().validateSync(this.method);
+    const methodCodings =
+      validatedMethod.coding?.filter(
+        (coding: Record<string, any>) =>
+          coding?.code && coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+      ) ?? [];
+    if (methodCodings.length === 0) {
       throw new Invalid(
-        `No LabTest with code: '${labTestCode}' found for LabRequest: '${labRequest.id}'`,
+        `Invalid method, must provide at least one coding with a code and system '${config.hl7.dataDictionaries.observationMethodCodeSystem}'`,
         {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
         },
       );
     }
 
-    return labTest;
+    const methodCodes = methodCodings.map((coding: Record<string, any>) => coding.code);
+    const labTestMethod = await ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.LAB_TEST_METHOD,
+        code: methodCodes,
+      },
+    });
+    if (!labTestMethod) {
+      throw new Invalid(
+        `Invalid method, no lab test method found with any provided codes: ${methodCodes.join(', ')}`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
+    }
+
+    return labTestMethod.id;
   }
 
   getValue() {

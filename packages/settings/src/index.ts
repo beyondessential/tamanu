@@ -15,6 +15,11 @@ export {
   fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
+  extractSecretPaths,
+  maskSecrets,
+  isSecretPath,
+  getSettingAtPath,
+  SECRET_PLACEHOLDER,
 } from './schema';
 export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

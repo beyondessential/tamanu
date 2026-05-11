@@ -8,12 +8,16 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {
   const today = getCurrentDateString();
+  // Compare against start of today as a full ISO9075 datetime. Comparing
+  // `startDate` (YYYY-MM-DD HH:mm:ss) to `today` (YYYY-MM-DD) alone is ambiguous
+  // across DB/Sequelize casting and can miss classify encounters near midnight.
+  const startOfToday = `${today} 00:00:00`;
 
   return {
     encounterType: 'clinic',
     endDate: null,
     startDate: {
-      [Op.lt]: today,
+      [Op.lt]: startOfToday,
     },
   };
 };

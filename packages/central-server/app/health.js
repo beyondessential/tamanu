@@ -42,7 +42,7 @@ function sanitise(object) {
 
 async function getMigrations(sequelize) {
   try {
-    const migrationManager = createMigrationInterface(log, sequelize);
+    const { migrations: migrationManager } = createMigrationInterface(log, sequelize);
     const migrations = (await migrationManager.executed()).map((x) => x.file);
     return {
       migrations,

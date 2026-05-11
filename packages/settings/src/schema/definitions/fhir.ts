@@ -184,6 +184,7 @@ export const fhirDataDictionariesSchema = {
     serviceRequestLabPanelExternalCodeSystem: fhirDataDictionaryString('Lab panel external code system', 'http://loinc.org'),
     serviceRequestLabTestCodeSystem: fhirDataDictionaryString('Lab test code system', 'https://www.senaite.com/testCodes.html'),
     serviceRequestLabTestExternalCodeSystem: fhirDataDictionaryString('Lab test external code system', 'http://loinc.org'),
+    observationMethodCodeSystem: fhirDataDictionaryString('Lab test method code system', 'http://snomed.info/sct'),
     imagingStudyAccessionId: fhirDataDictionaryString('Imaging study accession ID system', 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html'),
     ethnicityId: fhirDataDictionaryString('Ethnicity code system', 'http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html'),
     locationPhysicalType: fhirDataDictionaryString('Location physical type system', 'http://terminology.hl7.org/CodeSystem/location-physical-type'),
