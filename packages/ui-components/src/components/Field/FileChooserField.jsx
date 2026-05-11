@@ -51,10 +51,25 @@ const getSmallFileName = (value, maxLength) => {
   const middlePoint = Math.floor(maxLength / 2);
   const ellipsisOffset = 3;
   const lastHalfIndex = value.length - middlePoint + ellipsisOffset;
-  return value.slice(0, middlePoint) + '...' + value.slice(lastHalfIndex, value.length);
+  return value.slice(0, middlePoint) + '…' + value.slice(lastHalfIndex, value.length);
 };
 
-const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
+const ValueSection = ({ onClear, showFileDialog, smallDisplay, value, ViewPhotoLinkComponent }) => {
+  if (typeof value === 'string') {
+    // Editing a survey response; `value` is an attachment ID, not a File-like object
+    if (ViewPhotoLinkComponent) return <ViewPhotoLinkComponent imageId={value} />;
+    // Shouldn’t be reached in practice, but just in case
+    return (
+      <span style={{ fontVariantNumeric: 'slashed-zero tabular-nums' }}>
+        <TranslatedText
+          stringId="attachment.photo.previewNotAvailable"
+          fallback="Photo :id (preview not available)"
+          replacements={{ id: value }}
+        />
+      </span>
+    );
+  }
+
   if (smallDisplay) {
     const maxLength = 50;
     const needEllipsis = value.name.length > maxLength;
@@ -108,6 +123,7 @@ export const FileChooserInput = ({
   onChange,
   smallDisplay = false,
   WebcamCaptureModalComponent,
+  ViewPhotoLinkComponent,
   buttonText = (
     <TranslatedText
       stringId="chooseFile.button.label"
@@ -205,6 +221,7 @@ export const FileChooserInput = ({
               smallDisplay={smallDisplay}
               showFileDialog={showFileDialog}
               onClear={onClear}
+              ViewPhotoLinkComponent={ViewPhotoLinkComponent}
             />
           ) : (
             <>
