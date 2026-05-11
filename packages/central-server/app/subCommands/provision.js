@@ -13,14 +13,13 @@ import {
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { extractSecretPaths, getScopedSchema } from '@tamanu/settings';
+import { extractSecretPaths, getScopedSchema, ReadSettings } from '@tamanu/settings';
 import {
   encryptSecret,
   getSettingsPskKeyBuffer,
   isEncryptedSecret,
 } from '@tamanu/shared/utils/crypto';
 
-import { ReadSettings } from '@tamanu/settings';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
