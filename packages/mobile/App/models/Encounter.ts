@@ -149,6 +149,8 @@ export class Encounter extends BaseModel implements IEncounter {
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
+      .orderBy('startDate', 'DESC')
+      .addOrderBy('id', 'ASC')
       .getOne();
   }
 
