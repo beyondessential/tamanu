@@ -20,6 +20,9 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  ':where(table, time)': {
+    fontVariantNumeric: 'slashed-zero tabular-nums',
+  },
 };
 
 const themeConfig = {
