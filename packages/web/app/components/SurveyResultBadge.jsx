@@ -42,7 +42,7 @@ export const SurveyResultBadge = ({ resultText }) => {
   }
   const { color, strippedResultText } = separateColorText(resultText);
   return (
-    <Badge data-testid="coloredbadge-y3r7" style={{ background: color }}>
+    <Badge data-testid="coloredbadge-y3r7" style={{ backgroundColor: color }}>
       {strippedResultText}
     </Badge>
   );
