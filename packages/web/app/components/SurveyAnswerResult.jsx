@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
+import { Button, getCurrentLanguageCode, PatientDataDisplayField } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
@@ -45,6 +45,8 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+      return Number.parseFloat(answer).toLocaleString(getCurrentLanguageCode());
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>
