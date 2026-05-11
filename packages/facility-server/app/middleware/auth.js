@@ -22,8 +22,20 @@ const { tokenDuration, secret } = config.auth;
 
 const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
 
+const CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES = new Set([
+  ERROR_TYPE.CLIENT_INCOMPATIBLE,
+  ERROR_TYPE.REMOTE_INCOMPATIBLE,
+]);
+
 function shouldThrowCentralLoginError(error) {
   return error.type?.startsWith(ERROR_TYPE.AUTH);
+}
+
+function getCentralLoginFallbackReason(error) {
+  if (CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES.has(error.type)) {
+    return 'central server is incompatible';
+  }
+  return 'central server login failed';
 }
 
 export async function buildToken({
@@ -177,7 +189,7 @@ async function centralServerLoginWithLocalFallback({
       throw e;
     }
 
-    log.warn(`centralServerLoginWithLocalFallback: falling back to local login: ${e}`);
+    log.warn(`centralServerLoginWithLocalFallback: ${getCentralLoginFallbackReason(e)}: ${e}`);
     return await localLogin({ models, settings, email, password, deviceId });
   }
 }
