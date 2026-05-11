@@ -77,12 +77,7 @@ const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
   }
 `;
 
-export const SurveyResponseDetailsModal = ({
-  surveyResponseId,
-  onClose,
-  onPrint,
-  onViewChangeLog = null,
-}) => {
+export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const {
     data: surveyDetails,
     isLoading,
@@ -209,14 +204,7 @@ export const SurveyResponseDetailsModal = ({
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {onViewChangeLog && hasChanges && (
-            <EditedReference style={{ marginBlockStart: 4, textAlign: 'end' }}>
-              <ViewChangeLogButton
-                onClick={() => onViewChangeLog(surveyResponseId)}
-                data-testid="surveyresponse-details-view-changelog"
-              />
-            </EditedReference>
-          )}
+          {hasChanges && <EditedReference style={{ marginBlockStart: 4, textAlign: 'end' }} />}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { EditedOrnament, useTranslation, VisuallyHidden } from '@tamanu/ui-components';
+import { EditedOrnament, VisuallyHidden } from '@tamanu/ui-components';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
@@ -12,7 +12,6 @@ import { DateDisplay } from './DateDisplay';
 import { MenuButton } from './MenuButton';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
-import { SurveyResponseChangelogModal } from './SurveyResponseChangelogModal';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
@@ -64,11 +63,9 @@ export const DataFetchingProgramsTable = ({
   const params = useParams();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
-  const [changelogOpen, setChangelogOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
-  const [changelogResponseId, setChangelogResponseId] = useState(null);
 
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -96,11 +93,6 @@ export const DataFetchingProgramsTable = ({
     },
     [navigate, params],
   );
-
-  const openChangelog = useCallback(id => {
-    setChangelogResponseId(id);
-    setChangelogOpen(true);
-  }, []);
 
   const buildRowActions = useCallback(
     data => {
@@ -132,14 +124,9 @@ export const DataFetchingProgramsTable = ({
         });
       }
 
-      rowActions.push({
-        label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
-        action: () => openChangelog(data.id),
-      });
-
       return rowActions;
     },
-    [ability, navigateToEdit, openChangelog],
+    [ability, navigateToEdit],
   );
 
   const columns = useMemo(
@@ -198,17 +185,7 @@ export const DataFetchingProgramsTable = ({
         surveyResponseId={selectedResponseId}
         onClose={cancelResponse}
         onPrint={() => setPrintModalOpen(true)}
-        onViewChangeLog={id => openChangelog(id)}
         data-testid="surveyresponsedetailsmodal-lsuo"
-      />
-      <SurveyResponseChangelogModal
-        open={changelogOpen}
-        surveyResponseId={changelogResponseId}
-        onClose={() => {
-          setChangelogOpen(false);
-          setChangelogResponseId(null);
-        }}
-        data-testid="surveyresponsechangelogmodal"
       />
       <SurveyResponsesPrintModal
         open={printModalOpen}
