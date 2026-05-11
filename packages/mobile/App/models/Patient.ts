@@ -29,9 +29,6 @@ export class Patient extends BaseModel implements IPatient {
   displayId: string;
 
   @Column({ nullable: true })
-  title?: string;
-
-  @Column({ nullable: true })
   firstName?: string;
 
   @Column({ nullable: true })

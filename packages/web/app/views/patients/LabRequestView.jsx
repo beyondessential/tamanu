@@ -375,7 +375,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-hhx8"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             data-testid="tile-gjdv"
@@ -486,7 +486,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-b4nb"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}
@@ -523,7 +523,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-tqow"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}

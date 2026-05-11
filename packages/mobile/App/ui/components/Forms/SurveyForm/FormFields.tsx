@@ -76,7 +76,7 @@ export const FormFields = ({
   onGoBack,
 }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } =
+  const { errors, validateForm, setStatus, submitForm, values } =
     useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
@@ -167,7 +167,6 @@ export const FormFields = ({
   const onSubmit = async (): Promise<void> => {
     await submitScreen(async () => {
       await submitForm();
-      resetForm();
     });
   };
 
@@ -218,7 +217,7 @@ export const FormFields = ({
                       key={component.id}
                       component={component}
                       patient={patient}
-                      zIndex={components.length - index}
+                      zIndex={visibleComponents.length - index}
                       onLayout={getLayoutCallback(component.dataElement.code)}
                       setDisableSubmit={setDisableSubmit}
                     />
