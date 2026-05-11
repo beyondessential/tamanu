@@ -6,9 +6,11 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   Button,
   EditedOrnament,
+  EditedReference,
   Modal,
   TranslatedReferenceData,
   TranslatedText,
+  UnstyledHtmlButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
@@ -16,10 +18,6 @@ import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseC
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
-
-const SectionSpacing = styled.div`
-  height: 14px;
-`;
 
 const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
@@ -60,6 +58,20 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
     />
   );
 };
+
+/** @privateRemarks Looks like an `<a>`, but has `<button>` semantics. */
+const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
+  children: (
+    <TranslatedText
+      stringId="general.action.viewChangeLog"
+      fallback="View change log"
+      casing="lower"
+    />
+  ),
+})`
+  cursor: pointer;
+  text-decoration: underline;
+`;
 
 export const SurveyResponseDetailsModal = ({
   surveyResponseId,
@@ -193,17 +205,14 @@ export const SurveyResponseDetailsModal = ({
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {onViewChangeLog && hasChanges ? (
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => onViewChangeLog(surveyResponseId)}
-              data-testid="surveyresponse-details-view-changelog"
-            >
-              <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
-            </Button>
-          ) : null}
-          <SectionSpacing data-testid="sectionspacing-gtmt" />
+          {onViewChangeLog && hasChanges && (
+            <EditedReference style={{ marginBlockStart: 4, textAlign: 'end' }}>
+              <ViewChangeLogButton
+                onClick={() => onViewChangeLog(surveyResponseId)}
+                data-testid="surveyresponse-details-view-changelog"
+              />
+            </EditedReference>
+          )}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
