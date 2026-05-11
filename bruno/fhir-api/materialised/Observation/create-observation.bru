@@ -40,7 +40,25 @@ body:json {
         }
       ]
     },
-    "valueString": "Negative"
+    "method": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "GeneXpert"
+        }
+      ]
+    },
+    "valueString": "Negative",
+    "referenceRange": [
+      {
+        "low": {
+          "value": 5
+        },
+        "high": {
+          "value": 10
+        }
+      }
+    ]
   }
 }
 
@@ -54,6 +72,10 @@ docs {
     `serviceRequestLabTestExternalCodeSystem` (LOINC) and whose `code`
     matches a LabTest on that LabRequest
   - one of `valueString`, `valueQuantity`, or `valueCodeableConcept`
+  - optional `method.coding` using `observationMethodCodeSystem`
+    (`http://snomed.info/sct`) with a code matching a `labTestMethod`
+    reference data record, e.g. the default `GeneXpert`
+  - optional `referenceRange[0].low.value` and/or `referenceRange[0].high.value`
   
   Run `bootstrap/Discover Lab ServiceRequest` first - it auto-populates the
   `labServiceRequestId`, `labTestCode`, and `labTestExternalCode` from a
