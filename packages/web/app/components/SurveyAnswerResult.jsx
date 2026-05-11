@@ -5,6 +5,7 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { MultiSelectResult } from './MultiSelectResult';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions';
@@ -71,16 +72,7 @@ export const SurveyAnswerResult = ({
         />
       );
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(element => (
-        <>
-          <TranslatedOption
-            value={element}
-            referenceDataId={dataElementId}
-            referenceDataCategory="programDataElement"
-          />
-          <br />
-        </>
-      ));
+      return <MultiSelectResult answerBody={answer} dataElementId={dataElementId} />;
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       return (
         <PatientDataDisplayField
