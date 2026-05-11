@@ -18,6 +18,19 @@ const createUser = overrides => ({
   ...overrides,
 });
 
+const enableCentralLoginForTest = () => {
+  const previous = process.env.IS_PLAYWRIGHT_TEST;
+  process.env.IS_PLAYWRIGHT_TEST = 'true';
+
+  return () => {
+    if (previous === undefined) {
+      delete process.env.IS_PLAYWRIGHT_TEST;
+    } else {
+      process.env.IS_PLAYWRIGHT_TEST = previous;
+    }
+  };
+};
+
 // N.B. there were formerly a well written extra suite of tests here for functionality like creating
 // users and changing passwords, which is functionality that isn't supported on the facility server
 // If reimplementing the same functionality on the facility or central server, see this file at
@@ -229,16 +242,24 @@ describe('User', () => {
         [ERROR_TYPE.CLIENT_INCOMPATIBLE],
         [ERROR_TYPE.REMOTE_INCOMPATIBLE],
       ])('should fall back to local login when central login fails with %s', async errorType => {
+        centralServer.login.mockClear();
         centralServer.login.mockRejectedValueOnce(
           new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
         );
 
-        const result = await baseApp.post('/api/login').send({
-          email: authUser.email,
-          password: rawPassword,
-          deviceId: 'test-device-id',
-        });
+        const restoreCentralLoginShortcut = enableCentralLoginForTest();
+        let result;
+        try {
+          result = await baseApp.post('/api/login').send({
+            email: authUser.email,
+            password: rawPassword,
+            deviceId: 'test-device-id',
+          });
+        } finally {
+          restoreCentralLoginShortcut();
+        }
 
+        expect(centralServer.login).toHaveBeenCalledTimes(1);
         expect(result).toHaveSucceeded();
         expect(result.body.central).toBe(false);
         expect(result.body).toHaveProperty('token');
