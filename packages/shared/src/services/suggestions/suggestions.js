@@ -112,7 +112,7 @@ function createSuggesterRoute(
   },
 ) {
   suggestions.get(
-    `/${endpoint}$`,
+    `/${endpoint}`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -214,7 +214,7 @@ function createAllRecordsRoute(
   { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
-    `/${endpoint}/all$`,
+    `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -447,15 +447,31 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     typeName,
     'ReferenceData',
     ({ endpoint, modelName, req }) => {
+      const { parentId } = req.query;
+
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
 
+      // Filter by parent using subquery to avoid self-join ambiguity issues
+      if (parentId) {
+        baseWhere.id = {
+          [Op.in]: Sequelize.literal(`(
+            SELECT reference_data_id
+            FROM reference_data_relations
+            WHERE reference_data_parent_id = $parentId
+              AND type = $relationType
+              AND deleted_at IS NULL
+          )`),
+        };
+      }
+
       const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
 
       if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: Sequelize.literal(`
             (SELECT DISTINCT(rdr.reference_data_parent_id)
             FROM reference_data_relations rdr
@@ -503,6 +519,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
       if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
         };
       }
@@ -539,22 +556,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             ReferenceDrug,
             ReferenceDrugFacility,
           },
-          query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
         const result = [
-          parentId && {
-            model: ReferenceData,
-            as: 'parent',
-            required: true,
-            through: {
-              attributes: ['id'],
-              where: {
-                referenceDataParentId: parentId,
-                type: relationType,
-              },
-            },
-          },
           typeName === REFERENCE_TYPES.DRUG && {
             model: ReferenceDrug,
             as: 'referenceDrug',
@@ -611,6 +615,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
           ? { subQuery: false }
           : {},
+      extraReplacementsBuilder: ({ parentId, relationType = DEFAULT_HIERARCHY_TYPE }) => ({
+        parentId,
+        relationType,
+      }),
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
@@ -624,8 +632,6 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           ];
         }
       },
-      shouldSkipDefaultOrder: req =>
-        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
@@ -1284,7 +1290,7 @@ const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
 const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
 suggestions.get(
-  '/timeZone$',
+  '/timeZone',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const searchQuery = (req.query.q || '').trim().toLowerCase();
@@ -1295,11 +1301,14 @@ suggestions.get(
   }),
 );
 
+// Named wildcard for Express 5 / path-to-regexp v8, so multi-segment IDs like
+// "Africa/Algiers" match the whole path.
 suggestions.get(
-  '/timeZone/:id',
+  '/timeZone/*id',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const tz = TIME_ZONES.find(t => t.id === req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id.join('/') : req.params.id;
+    const tz = TIME_ZONES.find(t => t.id === id);
     if (!tz) throw new NotFoundError();
     res.send(tz);
   }),

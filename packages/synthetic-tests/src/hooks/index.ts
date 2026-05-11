@@ -2,4 +2,10 @@
 
 export * from './authenticate';
 export * from './createPatient';
+export * from './createPatientCheckDuplicates';
 export * from './createEncounter';
+export * from './createImagingRequest';
+export * from './createLabRequest';
+export * from './createVitalsSurveyResponse';
+export * from './createMedicationWorkflow';
+export * from './createReportWorkflow';

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/upgrade",
-  "version": "2.54.0",
+  "version": "2.56.0",
   "private": true,
   "description": "Tamanu upgrade files",
   "main": "dist/cjs/index.js",
@@ -43,7 +43,7 @@
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
     "lodash": "^4.17.21",
-    "sequelize": "^6.21.3",
+    "sequelize": "^6.37.8",
     "toposort": "^2.0.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }

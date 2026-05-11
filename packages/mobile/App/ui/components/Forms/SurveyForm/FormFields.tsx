@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -22,37 +23,27 @@ import { FullView, RowView, StyledText, StyledView } from '../../../styled/commo
 import { theme } from '../../../styled/theme';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { BackHandler } from 'react-native';
-import { useBackendEffect } from '~/ui/hooks';
-import { LoadingScreen } from '../../LoadingScreen';
-import { ErrorScreen } from '../../ErrorScreen';
 import { TranslatedText } from '../../Translations/TranslatedText';
 
-interface UseScrollToFirstError {
-  setQuestionPosition: (questionCode: string) => (yPosition: number)  => void;
-  scrollToQuestion: (scrollViewRef: any, questionCode: string) => void;
-}
+const useScrollToFirstError = () => {
+  const questionPositionsRef = useRef<Record<string, number>>({});
 
-const useScrollToFirstError = (): UseScrollToFirstError => {
-  const questionPositionsRef = useRef({});
-
-  const scrollToQuestion = (
+  const scrollToQuestion = useCallback((
     scrollViewRef: MutableRefObject<ScrollView>,
     questionCode: string,
   ): void => {
     const yPosition = questionPositionsRef.current[questionCode];
-
     if (scrollViewRef.current !== null) {
-      // Allow a bit of space at the top of the form field for the form label text
       const offset = 20;
       scrollViewRef.current?.scrollTo({ x: 0, y: yPosition - offset, animated: true });
     }
-  };
+  }, []);
 
-  const setQuestionPosition = (questionCode: string) => (yPosition: string) => {
+  const setQuestionPosition = useCallback((questionCode: string, yPosition: number) => {
     if (yPosition) {
       questionPositionsRef.current[questionCode] = yPosition;
     }
-  };
+  }, []);
 
   return { setQuestionPosition, scrollToQuestion };
 };
@@ -66,6 +57,7 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
+  encounter?: { encounterType?: string };
   isSubmitting: boolean;
   onCancel?: () => Promise<void>;
   onGoBack?: () => void;
@@ -79,31 +71,32 @@ export const FormFields = ({
   setCurrentScreenIndex,
   isSubmitting,
   patient,
+  encounter,
   onCancel,
   onGoBack,
 }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } =
+  const { errors, validateForm, setStatus, submitForm, values } =
     useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
-  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
-    async ({ models }) => {
-      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
-      return {
-        encounter,
-      };
-    },
-    [patient.id],
-  );
 
   const [disableSubmit, setDisableSubmit] = useState(false);
+
+  // Stable per-question onLayout callbacks keyed by component code.
+  // Uses a ref-map so SurveyQuestion receives the same function identity across renders.
+  const layoutCallbacksRef = useRef<Record<string, (y: number) => void>>({});
+  const getLayoutCallback = useCallback((code: string) => {
+    if (!layoutCallbacksRef.current[code]) {
+      layoutCallbacksRef.current[code] = (y: number) => setQuestionPosition(code, y);
+    }
+    return layoutCallbacksRef.current[code];
+  }, [setQuestionPosition]);
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
     [components, values],
   );
 
-  // Handle back button press or swipe right gesture
   useEffect(() => {
     const backAction = () => {
       if (!onGoBack) {
@@ -116,25 +109,29 @@ export const FormFields = ({
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, [onGoBack, currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+  }, [onGoBack, currentScreenIndex]);
 
-  if (encounterError) {
-    return <ErrorScreen error={encounterError} />;
-  }
+  const maxIndex = useMemo(
+    () => components.reduce((max, x) => Math.max(max, x.screenIndex), 0),
+    [components],
+  );
 
-  if (isEncounterLoading) {
-    return <LoadingScreen />;
-  }
+  const screenComponents = useMemo(
+    () => components
+      .filter((x) => x.screenIndex === currentScreenIndex)
+      .sort((a, b) => a.componentIndex - b.componentIndex),
+    [components, currentScreenIndex],
+  );
 
-  const { encounter } = encounterResult || {};
-  const maxIndex = components
-    .map((x) => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
+  const visibleComponents = useMemo(
+    () => screenComponents.filter(shouldShow),
+    [screenComponents, shouldShow],
+  );
 
-  const screenComponents = components
-    .filter((x) => x.screenIndex === currentScreenIndex)
-    .sort((a, b) => a.componentIndex - b.componentIndex);
-  const visibleComponents = screenComponents.filter(shouldShow);
+  const screenCodeSet = useMemo(
+    () => new Set(screenComponents.map((c) => c.dataElement.code)),
+    [screenComponents],
+  );
 
   const emptyStateMessage = (
     <TranslatedText
@@ -144,19 +141,14 @@ export const FormFields = ({
   );
 
   const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
-    // Validate form on screen before moving to the next one
     const formErrors = await validateForm();
 
-    // Only include components that are on this page
-    const pageErrors = Object.keys(formErrors).filter((x) =>
-      screenComponents.map((c) => c.dataElement.code).includes(x),
-    );
+    const pageErrors = Object.keys(formErrors).filter((x) => screenCodeSet.has(x));
 
     if (pageErrors.length === 0) {
       setStatus(null);
       await handleSubmit();
     } else {
-      // Only show error messages once the user has attempted to submit the form
       setStatus(SUBMIT_ATTEMPTED_STATUS);
 
       const firstErroredQuestion = components.find(({ dataElement }) =>
@@ -175,7 +167,6 @@ export const FormFields = ({
   const onSubmit = async (): Promise<void> => {
     await submitScreen(async () => {
       await submitForm();
-      resetForm();
     });
   };
 
@@ -226,8 +217,8 @@ export const FormFields = ({
                       key={component.id}
                       component={component}
                       patient={patient}
-                      zIndex={components.length - index}
-                      setPosition={setQuestionPosition(component.dataElement.code)}
+                      zIndex={visibleComponents.length - index}
+                      onLayout={getLayoutCallback(component.dataElement.code)}
                       setDisableSubmit={setDisableSubmit}
                     />
                   </ErrorBoundary>

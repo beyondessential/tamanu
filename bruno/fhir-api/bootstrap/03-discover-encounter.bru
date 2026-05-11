@@ -1,0 +1,33 @@
+meta {
+  name: Discover Encounter
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/Encounter
+  body: none
+  auth: bearer
+}
+
+params:query {
+  _count: 1
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
+  bru.setVar("encounterId", id || "");
+}
+
+tests {
+
+  test("Encounter record found", function() {
+    expect(bru.getVar("encounterId"), "No Encounter found in this environment").to.be.a("string").and.not.empty;
+  });
+}

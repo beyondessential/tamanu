@@ -3,8 +3,20 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 const RESERVED_KEYS = ['_conjunction', 'hidden'];
 
+const parsedCriteriaCache = new Map<string, any>();
+const componentsByCodeCache = new WeakMap<Component[], Map<string, Component>>();
+
 interface Component {
   dataElement?: { code?: string; type?: string };
+}
+
+function getComponentsByCode(allComponents: Component[]): Map<string, Component> {
+  let map = componentsByCodeCache.get(allComponents);
+  if (!map) {
+    map = new Map(allComponents.map(c => [c.dataElement?.code ?? '', c]));
+    componentsByCodeCache.set(allComponents, map);
+  }
+  return map;
 }
 
 export function checkJSONCriteria(
@@ -14,17 +26,21 @@ export function checkJSONCriteria(
 ): boolean {
   if (!criteria) return true;
 
-  const criteriaObject = JSON.parse(criteria);
+  let criteriaObject = parsedCriteriaCache.get(criteria);
+  if (criteriaObject === undefined) {
+    criteriaObject = JSON.parse(criteria);
+    parsedCriteriaCache.set(criteria, criteriaObject);
+  }
   if (!criteriaObject) return true;
 
-  const conjunction = criteriaObject._conjunction;
-  delete criteriaObject._conjunction;
-  delete criteriaObject.hidden;
+  const { _conjunction: conjunction, hidden: _hidden, ...restOfCriteria } = criteriaObject;
 
-  if (Object.keys(criteriaObject).length === 0) return true;
+  if (Object.keys(restOfCriteria).length === 0) return true;
+
+  const byCode = getComponentsByCode(allComponents);
 
   const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]: [string, any]): boolean => {
-    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+    const matchingComponent = byCode.get(questionCode);
     const value = values[questionCode];
     if (answersEnablingFollowUp.type === 'range') {
       if (!value && value !== 0) return false;
@@ -55,8 +71,8 @@ export function checkJSONCriteria(
   };
 
   return conjunction === 'and'
-    ? Object.entries(criteriaObject).every(checkIfQuestionMeetsCriteria)
-    : Object.entries(criteriaObject).some(checkIfQuestionMeetsCriteria);
+    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
+    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
 }
 
 /**

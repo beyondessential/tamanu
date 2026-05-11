@@ -33,13 +33,11 @@ import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '..
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 
 const StyledDisplayTabs = styled(TabDisplay)`
+  border-bottom: 1px solid ${Colors.softOutline};
   overflow: initial;
-  .MuiTabs-root {
-    z-index: 9;
-    position: sticky;
-    top: ${NAVIGATION_CONTAINER_HEIGHT};
-    border-bottom: 1px solid ${Colors.softOutline};
-  }
+  position: sticky;
+  top: ${NAVIGATION_CONTAINER_HEIGHT};
+  z-index: 9;
 `;
 
 const TABS = [

@@ -76,7 +76,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('encounter.admission.label', 'Admission')}
             value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]}
           />
-          {enablePatientInsurer && !hasInvoicePlans && (
+          {enablePatientInsurer && (
             <DataItem
               label={getTranslation('invoice.policyNumber.label', 'Policy number')}
               value={insurerPolicyNumber}

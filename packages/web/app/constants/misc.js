@@ -1,4 +1,4 @@
-export const LOCAL_STORAGE_KEYS = {
+export const LOCAL_STORAGE_KEYS = /** @type {const} */ ({
   TOKEN: 'apiToken',
   LOCALISATION: 'localisation',
   SERVER: 'server',
@@ -10,7 +10,7 @@ export const LOCAL_STORAGE_KEYS = {
   ROLE: 'role',
   LANGUAGE: 'language',
   SETTINGS: 'settings',
-};
+});
 
 export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless

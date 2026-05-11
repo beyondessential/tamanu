@@ -4,7 +4,11 @@ export { TranslatedSex } from './TranslatedSex';
 export { TranslatedText } from './TranslatedText';
 export { isTranslatedText, extractTranslationFromComponent } from './utils';
 export { getTranslatedOptions } from './getTranslatedOptions';
-export { TranslatedEnumField } from './TranslatedEnumIInput';
+export { TranslatedEnumField } from './TranslatedEnumInput';
 export { DebugTooltip } from './DebugTooltip';
 export { TranslatedOptionSelectField, TranslatedOption } from './TranslatedOptions';
 export * from './getCurrentLanguageCode';
+export {
+  TranslatedVisibilityStatus,
+  VISIBILITY_STATUS_TRANSLATIONS,
+} from './TranslatedVisibilityStatus';

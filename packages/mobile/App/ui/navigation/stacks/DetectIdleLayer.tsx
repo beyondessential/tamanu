@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   AppState,
   AppStateStatus,
@@ -19,77 +19,74 @@ const ONE_MINUTE = 1000 * 60;
 const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
-  const [idle, setIdle] = useState(0);
-  const [screenOffTime, setScreenOffTime] = useState<number|null>(null);
-  const appState = useRef(AppState.currentState);
+  const lastActivityRef = useRef(Date.now());
+  const screenOffTimeRef = useRef<number | null>(null);
+  const appStateRef = useRef(AppState.currentState);
   const { signOutClient, signedIn } = useAuth();
+  const signOutClientRef = useRef(signOutClient);
+  signOutClientRef.current = signOutClient;
 
-  const resetIdle = (): void => {
-    setIdle(0);
-  };
+  const resetIdle = useCallback((): void => {
+    lastActivityRef.current = Date.now();
+  }, []);
 
-  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), []);
+  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), [resetIdle]);
 
-  const handleResetIdle = (): boolean => {
+  const handleResetIdleRef = useRef((): boolean => {
     debouncedResetIdle();
-    // Returns false to indicate that this component
-    // shouldn't block native components from becoming the JS responder
+    return false;
+  });
+  handleResetIdleRef.current = (): boolean => {
+    debouncedResetIdle();
     return false;
   };
 
-  const handleIdleLogout = (): void => {
-    signOutClient(true);
-  };
-
-  const handleStateChange = (nextAppState: AppStateStatus): void => {
-    if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
-      // App has moved to the background
-      setScreenOffTime(Date.now());
-    } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-      // App has moved to the foreground
-      if (screenOffTime) {
-        const timeDiff = Date.now() - screenOffTime;
-        const newIdle = idle + timeDiff;
-        setIdle(newIdle);
-        setScreenOffTime(null);
-        if (newIdle >= UI_EXPIRY_TIME) {
-          handleIdleLogout();
-        }
-      }
-    }
-    appState.current = nextAppState;
-  };
+  const stableHandleResetIdle = useCallback(
+    (): boolean => handleResetIdleRef.current(),
+    [],
+  );
 
   useEffect(() => {
-    let intervalId: NodeJS.Timer;
-    let subscriptions: (EmitterSubscription|NativeEventSubscription)[] = [];
-    if (signedIn) {
-      subscriptions = [
-        AppState.addEventListener('change', handleStateChange),
-        Keyboard.addListener('keyboardDidHide', handleResetIdle),
-        Keyboard.addListener('keyboardDidShow', handleResetIdle),
-      ];
-      intervalId = setInterval(() => {
-        const newIdle = idle + ONE_MINUTE;
-        setIdle(newIdle);
-        if (newIdle >= UI_EXPIRY_TIME) {
-          handleIdleLogout();
+    if (!signedIn) return;
+
+    const handleStateChange = (nextAppState: AppStateStatus): void => {
+      if (appStateRef.current === 'active' && nextAppState.match(/^(inactive|background)$/)) {
+        screenOffTimeRef.current = Date.now();
+      } else if (appStateRef.current.match(/^(inactive|background)$/) && nextAppState === 'active') {
+        if (screenOffTimeRef.current) {
+          screenOffTimeRef.current = null;
+          if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
+            signOutClientRef.current(true);
+          }
         }
-      }, ONE_MINUTE);
-    }
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
       }
-      subscriptions.forEach(subscription => subscription?.remove());
+      appStateRef.current = nextAppState;
     };
-  }, [idle, signedIn, screenOffTime]);
+
+    const subscriptions: (EmitterSubscription | NativeEventSubscription)[] = [
+      AppState.addEventListener('change', handleStateChange),
+      Keyboard.addListener('keyboardDidHide', stableHandleResetIdle),
+      Keyboard.addListener('keyboardDidShow', stableHandleResetIdle),
+    ];
+
+    const intervalId = setInterval(() => {
+      if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
+        signOutClientRef.current(true);
+      }
+    }, ONE_MINUTE);
+
+    return () => {
+      clearInterval(intervalId);
+      subscriptions.forEach(subscription => subscription?.remove());
+      debouncedResetIdle.cancel();
+    };
+  }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponderCapture: handleResetIdle,
-      onStartShouldSetPanResponderCapture: handleResetIdle,
-      onPanResponderTerminationRequest: handleResetIdle,
+      onMoveShouldSetPanResponderCapture: stableHandleResetIdle,
+      onStartShouldSetPanResponderCapture: stableHandleResetIdle,
+      onPanResponderTerminationRequest: stableHandleResetIdle,
     }),
   );
 

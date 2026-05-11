@@ -1,21 +1,29 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEqual, isString, isUndefined } from 'lodash';
+import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
 import styled from 'styled-components';
-import { Switch } from '@material-ui/core';
-
+import { Switch, IconButton, InputAdornment } from '@material-ui/core';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { SECRET_PLACEHOLDER } from '@tamanu/settings';
+import EditIcon from '@mui/icons-material/Edit';
+import { useFormikContext } from 'formik';
 import {
   AutocompleteInput,
+  Button,
   LargeBodyText,
   NumberInput,
+  SelectInput,
   TextButton,
   TextInput,
   TranslatedText,
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
+import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
+import { formatSettingName } from '../EditorView';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -59,29 +67,128 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
+const MarkdownEditorButton = styled(Button)`
+  align-self: center;
+`;
+
+const MarkdownEditorStatus = styled.div`
+  color: ${Colors.primary};
+  font-size: 13px;
+  font-weight: 500;
+`;
+
 const Flexbox = styled.div`
   align-items: center;
   display: flex;
   gap: 0.5rem;
 `;
 
+const SecretHelpText = styled.span`
+  color: ${Colors.midText};
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  margin-block-start: 0.25rem;
+`;
+
+const LongTextFlexbox = styled(Flexbox)`
+  align-items: flex-start;
+`;
+
+const LongTextActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-block-start: 13px;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
   NUMBER: 'number',
-  LONG_TEXT: 'longText',
+  MULTILINE: 'multiline',
+  MARKDOWN: 'markdown',
   OBJECT: 'object',
   ARRAY: 'array',
 };
 
-const TYPE_OVERRIDES_BY_KEY = {
-  ['body']: SETTING_TYPES.LONG_TEXT,
-};
-
 const normalize = val => (val === null || val === '' ? '' : val);
+
+const formatCategoryPath = path =>
+  path
+    .split('.')
+    .slice(0, -1)
+    .map(part => startCase(part))
+    .join(' / ');
+
+const MarkdownSettingInput = ({
+  path,
+  settingsPath,
+  name,
+  description,
+  displayValue,
+  defaultValue,
+  disabled,
+  onChange,
+  DefaultButton,
+  'data-testid': dataTestId,
+}) => {
+  const { initialValues } = useFormikContext();
+  const [markdownModalOpen, setMarkdownModalOpen] = useState(false);
+  const initialFieldValue = get(initialValues?.settings, settingsPath);
+  const initialDisplayValue = isUndefined(initialFieldValue) ? defaultValue : initialFieldValue;
+  const hasUnsavedChange = !isEqual(normalize(displayValue), normalize(initialDisplayValue));
+  const modalTitle = formatSettingName(name, path.split('.').pop());
+  const category = formatCategoryPath(path);
+  const markdownDisplayText = displayValue == null ? '' : String(displayValue);
+
+  return (
+    <Flexbox data-testid={dataTestId ?? 'flexbox-markdowneditor'}>
+      <MarkdownEditorButton
+        onClick={() => setMarkdownModalOpen(true)}
+        startIcon={
+          disabled ? (
+            <VisibilityIcon style={{ fontSize: 14 }} />
+          ) : (
+            <EditIcon style={{ fontSize: 14 }} />
+          )
+        }
+        size="small"
+        data-testid="editbutton-markdowneditor"
+      >
+        {disabled ? (
+          <TranslatedText stringId="general.action.view" fallback="View" />
+        ) : (
+          <TranslatedText stringId="general.action.edit" fallback="Edit" />
+        )}
+      </MarkdownEditorButton>
+      {hasUnsavedChange && (
+        <MarkdownEditorStatus data-testid="markdowneditorstatus-unsaved">
+          <TranslatedText stringId="admin.settings.status.unsavedChange" fallback="Edited" />
+        </MarkdownEditorStatus>
+      )}
+      <DefaultButton data-testid="defaultbutton-5efq" />
+      {markdownModalOpen && (
+        <MarkdownEditorModal
+          open={markdownModalOpen}
+          onClose={() => setMarkdownModalOpen(false)}
+          title={modalTitle}
+          category={category}
+          description={description}
+          value={markdownDisplayText}
+          onSave={onChange}
+          readOnly={disabled}
+        />
+      )}
+    </Flexbox>
+  );
+};
 
 export const SettingInput = ({
   path,
+  settingsPath,
+  name,
+  description,
   value,
   defaultValue,
   handleChangeSetting,
@@ -90,17 +197,47 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
+  isSecret = false,
+  editor,
+  'data-testid': dataTestId,
+  options,
 }) => {
   const { type } = typeSchema;
+  const hasSelectOptions =
+    type === SETTING_TYPES.STRING && Array.isArray(options) && options.length > 0;
   const [error, setError] = useState(null);
+  const [showSecretValue, setShowSecretValue] = useState(false);
+  const [secretEdited, setSecretEdited] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
-    value,
-    defaultValue,
-  ]);
+
+  const isMaskedSecret = isSecret && value === SECRET_PLACEHOLDER;
+
+  const isUnchangedFromDefault = useMemo(() => {
+    if (isSecret) {
+      // For secrets, we can't compare to default since value is hidden
+      return !secretEdited;
+    }
+    return isEqual(normalize(value), normalize(defaultValue));
+  }, [value, defaultValue, isSecret, secretEdited]);
 
   useEffect(() => {
+    if (isMaskedSecret && secretEdited) {
+      setSecretEdited(false);
+      setShowSecretValue(false);
+      return;
+    }
+
+    // Don't validate the mask that represents an existing hidden secret.
+    if (isMaskedSecret) {
+      setError(null);
+      return;
+    }
+    if (isSecret && value === null) {
+      setError(null);
+      return;
+    }
+
     try {
       if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
         typeSchema.validateSync(JSON.parse(value));
@@ -111,10 +248,13 @@ export const SettingInput = ({
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema, type]);
+  }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
 
   const DefaultButton = () => {
     if (disabled) return null;
+    // Don't show reset button for secrets - they can only be set, not reset
+    if (isSecret) return null;
+
     return (
       <ConditionalTooltip
         visible={isUnchangedFromDefault}
@@ -123,7 +263,6 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault.unchangedTooltip"
               fallback="This setting is already at its default value"
-              data-testid="translatedtext-1kr8"
             />
           )
         }
@@ -138,7 +277,6 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault"
               fallback="Reset to default"
-              data-testid="translatedtext-8elp"
             />
           </DefaultSettingButton>
         </div>
@@ -146,16 +284,82 @@ export const SettingInput = ({
     );
   };
 
-  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
-  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
-  const handleChangeJSON = e => handleChangeSetting(path, e);
+  const handleChangeValue = newValue => handleChangeSetting(path, newValue);
+  const defaultHandleChange = e => handleChangeValue(e.target.value);
+  const handleChangeSwitch = e => handleChangeValue(e.target.checked);
+  const handleChangeNumber = e => handleChangeValue(Number(e.target.value));
+  const handleChangeJSON = e => handleChangeValue(e);
+
+  const handleSecretChange = e => {
+    const newValue = e.target.value ?? '';
+    setSecretEdited(true);
+    handleChangeSetting(path, newValue);
+  };
+
+  const toggleShowSecret = () => {
+    setShowSecretValue(prev => !prev);
+  };
 
   const displayValue = isUndefined(value) ? defaultValue : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
-  const key = path.split('.').pop();
-  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+  const typeKey = type === SETTING_TYPES.STRING && editor ? editor : type;
+
+  // Handle secret fields with password-style input
+  if (isSecret) {
+    // For secrets, we only support string type
+    const secretDisplayValue = displayValue ?? '';
+    const secretInputType = showSecretValue || isMaskedSecret ? 'text' : 'password';
+    const secretInputName = `setting-secret-${path.replace(/\./g, '-')}`;
+
+    return (
+      <Flexbox data-testid="flexbox-secret">
+        <div>
+          <StyledTextInput
+            id={secretInputName}
+            name={secretInputName}
+            value={secretDisplayValue}
+            onChange={handleSecretChange}
+            style={{ width: '353px' }}
+            error={error}
+            helperText={error?.message}
+            disabled={disabled}
+            type={secretInputType}
+            autoComplete="new-password"
+            placeholder="Enter secret value"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle secret visibility"
+                    onClick={toggleShowSecret}
+                    edge="end"
+                    size="small"
+                  >
+                    {showSecretValue ? <VisibilityOff /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{
+              autoComplete: 'new-password',
+            }}
+            data-testid="styledtextinput-secret"
+          />
+          {isMaskedSecret && (
+            <SecretHelpText data-testid="secret-help-text">
+              <TranslatedText
+                stringId="admin.settings.secretExistsHint"
+                fallback="A secret value is set. Enter a new value to change it."
+                data-testid="translatedtext-secret-hint"
+              />
+            </SecretHelpText>
+          )}
+        </div>
+      </Flexbox>
+    );
+  }
+
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
@@ -193,7 +397,6 @@ export const SettingInput = ({
               stringId="admin.settings.error.noSuggesterComponent"
               fallback="No suggester component for this type: :type (default: :defaultValue)"
               replacements={{ type, defaultValue }}
-              data-testid="translatedtext-ah4n"
             />
           </LargeBodyText>
         );
@@ -217,15 +420,29 @@ export const SettingInput = ({
     case SETTING_TYPES.STRING:
       return (
         <Flexbox data-testid="flexbox-wwbe">
-          <StyledTextInput
-            value={displayValue ?? ''}
-            onChange={defaultHandleChange}
-            style={{ width: '353px' }}
-            error={error}
-            helperText={error?.message}
-            disabled={disabled}
-            data-testid="styledtextinput-fpam"
-          />
+          {hasSelectOptions ? (
+            <SelectInput
+              value={displayValue ?? ''}
+              onChange={defaultHandleChange}
+              isClearable={false}
+              style={{ width: '353px' }}
+              options={options}
+              error={error}
+              helperText={error?.message}
+              disabled={disabled}
+              data-testid="selectinput-settings-string-enum"
+            />
+          ) : (
+            <StyledTextInput
+              value={displayValue ?? ''}
+              onChange={defaultHandleChange}
+              style={{ width: '353px' }}
+              error={error}
+              helperText={error?.message}
+              disabled={disabled}
+              data-testid="styledtextinput-fpam"
+            />
+          )}
           <DefaultButton data-testid="defaultbutton-iw4g" />
         </Flexbox>
       );
@@ -245,22 +462,42 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
-    case SETTING_TYPES.LONG_TEXT:
+    case SETTING_TYPES.MULTILINE: {
       return (
-        <Flexbox data-testid="flexbox-r6sr">
+        <LongTextFlexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
+            rows={6}
             error={error}
             helperText={error?.message}
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-          <DefaultButton data-testid="defaultbutton-5efq" />
-        </Flexbox>
+          <LongTextActions data-testid="longtextactions-y1pc">
+            <DefaultButton data-testid="defaultbutton-5efq" />
+          </LongTextActions>
+        </LongTextFlexbox>
       );
+    }
+    case SETTING_TYPES.MARKDOWN: {
+      return (
+        <MarkdownSettingInput
+          path={path}
+          settingsPath={settingsPath}
+          name={name}
+          description={description}
+          displayValue={displayValue}
+          defaultValue={defaultValue}
+          disabled={disabled}
+          onChange={handleChangeValue}
+          DefaultButton={DefaultButton}
+          data-testid={dataTestId}
+        />
+      );
+    }
     case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
       return (
@@ -284,7 +521,6 @@ export const SettingInput = ({
             stringId="admin.settings.error.noComponent"
             fallback="No component for this type: :type (default: :defaultValue)"
             replacements={{ type, defaultValue }}
-            data-testid="translatedtext-ah4n"
           />
         </LargeBodyText>
       );

@@ -11,16 +11,21 @@ import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
 import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
-const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
+const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
-const initialiseFetchState = (lastUpdatedAt = '') => ({
-  page: 0,
-  count: 0,
-  data: [],
-  lastUpdatedAt,
-  sorting: DEFAULT_SORT,
-  fetchOptions: {},
-});
+/**
+ * @template {string} T
+ * @param {T} lastUpdatedAt
+ */
+const initialiseFetchState = (lastUpdatedAt = '') =>
+  /** @type {const} */ ({
+    page: 0,
+    count: 0,
+    data: [],
+    lastUpdatedAt,
+    sorting: DEFAULT_SORT,
+    fetchOptions: {},
+  });
 
 export const DataFetchingTable = memo(
   ({
@@ -81,8 +86,8 @@ export const DataFetchingTable = memo(
       [sorting],
     );
 
-    const fetchData = async () => {
-      const { data, count, ...rest } = await api.get(
+    const fetchData = async () =>
+      await api.get(
         endpoint,
         {
           page,
@@ -90,12 +95,8 @@ export const DataFetchingTable = memo(
           ...sorting,
           ...fetchOptions,
         },
-        {
-          showUnknownErrorToast: false,
-        },
+        { showUnknownErrorToast: false },
       );
-      return { data, count, ...rest };
-    };
 
     const highlightDataRows = (data, newRows) => {
       const highlightedData = data.map((row, i) => {
@@ -144,13 +145,7 @@ export const DataFetchingTable = memo(
         updateFetchState(data, count);
 
         // Use custom function on data if provided
-        if (onDataFetched) {
-          onDataFetched({
-            data,
-            count,
-            otherData,
-          });
-        }
+        onDataFetched?.({ data, count, otherData });
       },
       [onDataFetched, updateFetchState],
     );

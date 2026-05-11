@@ -9,6 +9,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { ReportRunner } from '../report/ReportRunner';
 import { getLocalisation } from '../localisation';
+import { getDefaultFromAddress } from '../services/mailConfig';
 
 export class ReportRequestProcessor extends ScheduledTask {
   getName() {
@@ -180,7 +181,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     for (const request of requests) {
       const reportId = request.getReportId();
 
-      if (!config.mailgun.from) {
+      if (!getDefaultFromAddress()) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
