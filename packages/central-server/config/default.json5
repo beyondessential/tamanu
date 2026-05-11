@@ -442,6 +442,7 @@
       "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
       "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
       "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
+      "observationMethodCodeSystem": "http://snomed.info/sct",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
