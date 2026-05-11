@@ -249,7 +249,6 @@ export const FileChooserInput = ({
                   <TranslatedText
                     stringId="general.questionComponent.photoField.takePhotoButtonText"
                     fallback="Take photo with camera"
-                    data-testid="translatedtext-webcam"
                   />
                 </Button>
               )}

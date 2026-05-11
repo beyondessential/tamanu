@@ -52,11 +52,7 @@ export const SurveyAnswerResult = ({
             color="primary"
             data-testid="button-rzll"
           >
-            <TranslatedText
-              stringId="survey.action.showForm"
-              fallback="Show Form"
-              data-testid="translatedtext-show-form"
-            />
+            <TranslatedText stringId="survey.action.showForm" fallback="Show form" />
           </Button>
           <SurveyResponseDetailsModal
             surveyResponseId={surveyLink}

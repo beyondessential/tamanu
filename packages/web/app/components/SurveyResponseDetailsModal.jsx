@@ -88,7 +88,6 @@ export const SurveyResponseDetailsModal = ({
           <TranslatedText
             stringId="surveyResponse.details.table.column.indicator"
             fallback="Indicator"
-            data-testid="translatedtext-62uq"
           />
         ),
         accessor: ({ name, wasEdited }) => (
