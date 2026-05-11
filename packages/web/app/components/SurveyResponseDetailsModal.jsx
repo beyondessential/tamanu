@@ -71,6 +71,9 @@ const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
 })`
   cursor: pointer;
   text-decoration-line: underline;
+  &:is(:focus-visible, :hover) {
+    color: ${p => p.theme.palette.primary.main};
+  }
 `;
 
 export const SurveyResponseDetailsModal = ({
