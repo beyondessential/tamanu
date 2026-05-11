@@ -36,7 +36,7 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 
   return (
     // Notice that ClickAwayListener only accepts one child element.
-    <ClickAwayListener onClickAway={handleOnClose} data-testid="clickawaylistener-j6m2">
+    <ClickAwayListener onClickAway={handleOnClose}>
       <div>
         <GreyOutlinedButton onClick={handleClick} data-testid="greyoutlinedbutton-a2al">
           <FilterListIcon color="primary" data-testid="filterlisticon-ansb" />
@@ -78,12 +78,8 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
-  const {
-    chartKeys,
-    setChartKeys,
-    visualisationConfigs,
-    allGraphedChartKeys,
-  } = useVitalChartData();
+  const { chartKeys, setChartKeys, visualisationConfigs, allGraphedChartKeys } =
+    useVitalChartData();
   const userPreferencesMutation = useUserPreferencesMutation();
   const { selectedChartTypeId } = useChartData();
 
