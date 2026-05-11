@@ -173,33 +173,15 @@ export class FhirObservation extends FhirResource {
     const labTestMethodId = await this.getLabTestMethodId();
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
+    const firstReferenceRange = this.referenceRange?.[0];
 
     const updatePayload: Record<string, any> = {
       result: value,
       completedDate: getCurrentDateTimeString(),
+      referenceRangeMin: firstReferenceRange?.low?.value ?? null,
+      referenceRangeMax: firstReferenceRange?.high?.value ?? null,
+      labTestMethodId: labTestMethodId ?? null,
     };
-
-    if (
-      this.referenceRange &&
-      Array.isArray(this.referenceRange) &&
-      this.referenceRange.length > 0
-    ) {
-      const first = this.referenceRange[0];
-      const lowValue =
-        first?.low != null && typeof first.low === 'object' && 'value' in first.low
-          ? first.low.value
-          : null;
-      const highValue =
-        first?.high != null && typeof first.high === 'object' && 'value' in first.high
-          ? first.high.value
-          : null;
-      updatePayload.referenceRangeMin = lowValue ?? null;
-      updatePayload.referenceRangeMax = highValue ?? null;
-    }
-
-    if (labTestMethodId) {
-      updatePayload.labTestMethodId = labTestMethodId;
-    }
 
     await labTest.update(updatePayload);
     return labTest;

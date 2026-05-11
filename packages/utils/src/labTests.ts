@@ -1,19 +1,20 @@
 import { SEX_VALUES } from '@tamanu/constants';
+import { isNil } from 'lodash';
 
 // These types are structurally compatible with the Database models but defined here
 // to avoid circular dependencies between utils and database packages.
 export type LabTestTypeLike = {
-  maleMax?: number;
-  femaleMax?: number;
-  maleMin?: number;
-  femaleMin?: number;
-  rangeText?: string;
-  unit?: string;
+  maleMax?: number | null;
+  femaleMax?: number | null;
+  maleMin?: number | null;
+  femaleMin?: number | null;
+  rangeText?: string | null;
+  unit?: string | null;
 };
 
 export type LabTestReferenceRangeOverride = {
-  referenceRangeMin?: number;
-  referenceRangeMax?: number;
+  referenceRangeMin?: number | null;
+  referenceRangeMax?: number | null;
 };
 
 type getTranslation = (
@@ -25,12 +26,12 @@ type getTranslation = (
   },
 ) => string;
 
-const hasValue = (value?: number | string) => value || value === 0;
+type SexValue = (typeof SEX_VALUES)[keyof typeof SEX_VALUES];
 
 interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
   labTestType?: T;
   labTest?: LabTestReferenceRangeOverride | null;
-  sex?: keyof typeof SEX_VALUES | null;
+  sex?: SexValue | null;
   getTranslation: getTranslation;
 }
 
@@ -42,20 +43,14 @@ export const getReferenceRange = ({
 }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
-  const hasOverride =
-    labTest && (hasValue(labTest.referenceRangeMin) || hasValue(labTest.referenceRangeMax));
-  const max = hasOverride
-    ? labTest.referenceRangeMax
-    : sex === SEX_VALUES.MALE
-      ? labTestType.maleMax
-      : labTestType.femaleMax;
-  const min = hasOverride
-    ? labTest.referenceRangeMin
-    : sex === SEX_VALUES.MALE
-      ? labTestType.maleMin
-      : labTestType.femaleMin;
-  const hasMax = hasValue(max);
-  const hasMin = hasValue(min);
+  const defaultMax = sex === SEX_VALUES.MALE ? labTestType.maleMax : labTestType.femaleMax;
+  const defaultMin = sex === SEX_VALUES.MALE ? labTestType.maleMin : labTestType.femaleMin;
+  const overrideMax = labTest?.referenceRangeMax;
+  const overrideMin = labTest?.referenceRangeMin;
+  const max = isNil(overrideMax) ? defaultMax : overrideMax;
+  const min = isNil(overrideMin) ? defaultMin : overrideMin;
+  const hasMax = !isNil(max);
+  const hasMin = !isNil(min);
 
   let baseRange: string;
   if (hasMin && hasMax)
