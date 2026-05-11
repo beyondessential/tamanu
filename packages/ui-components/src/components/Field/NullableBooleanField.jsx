@@ -23,13 +23,6 @@ const ControlLabel = styled(FormLabel)`
   }
 `;
 
-const StyledFormHelperText = styled(FormHelperText)`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 15px;
-  margin: 4px 2px 2px;
-`;
-
 const RequiredLabel = styled.span`
   color: ${TAMANU_COLORS.alert};
   padding-left: 3px;
@@ -105,9 +98,7 @@ export const NullableBooleanInput = React.memo(
         data-testid="controllabel-q0hy"
       />
       {helperText && (
-        <StyledFormHelperText data-testid="styledformhelpertext-y0km">
-          {helperText}
-        </StyledFormHelperText>
+        <FormHelperText data-testid="styledformhelpertext-y0km">{helperText}</FormHelperText>
       )}
     </FormControl>
   ),
