@@ -71,7 +71,8 @@ const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
 })`
   cursor: pointer;
   text-decoration-line: underline;
-  &:is(:focus-visible, :hover) {
+  &:focus-visible,
+  &:hover {
     color: ${p => p.theme.palette.primary.main};
   }
 `;
