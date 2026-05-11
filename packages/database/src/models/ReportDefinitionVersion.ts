@@ -133,10 +133,7 @@ export class ReportDefinitionVersion extends Model {
   }
 
   getAdvancedConfig() {
-    if (!this.advancedConfig) return {};
-    return typeof this.advancedConfig === 'string'
-      ? JSON.parse(this.advancedConfig)
-      : this.advancedConfig;
+    return this.advancedConfig ?? {};
   }
 
   getParameters() {
