@@ -12,9 +12,14 @@ const COLORS = {
   purple: '#971a1a',
 };
 
-const Badge = styled.div`
-  border-radius: 0.5rem;
+const Badge = styled.span`
+  border-radius: calc(infinity * 1px);
+  display: inline-block;
+  min-inline-size: 4em;
+  padding-block: 6px;
+  padding-inline: 11px;
   text-align: center;
+  text-box-trim: both;
   text-wrap: balance;
 `;
 
