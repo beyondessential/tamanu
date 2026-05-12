@@ -16,10 +16,11 @@ import { LimitedLinesCell } from '../../../../components/FormattedTableCell';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { Colors } from '../../../../constants';
 import { useAuth } from '../../../../contexts/Auth';
-import { AdminViewContainer } from '../../components/AdminViewContainer';
+import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
 import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
 import { UserProfileModal } from './UserProfileModal';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -38,10 +39,12 @@ const StatusInactiveDot = styled(StatusActiveDot)`
   background-color: ${Colors.softText};
 `;
 
-const TableContainer = styled.div`
+const TableContainer = styled.article`
   padding: 24px 30px;
-  background-color: ${Colors.background};
   border-top: 1px solid ${Colors.outline};
+  ${ContentContainer}:has(&) {
+    background-color: ${TAMANU_COLORS.background2};
+  }
 `;
 
 const UserSearchTitle = styled.div`
@@ -78,22 +81,6 @@ const TableHeaderActions = styled.div`
   justify-content: flex-start;
   align-items: center;
   margin-bottom: 7px;
-`;
-
-const AddUserButton = styled(Button)`
-  background-color: ${Colors.primary};
-  color: ${Colors.white};
-  font-size: 14px;
-  padding: 8px 16px;
-  min-width: auto;
-  width: 124px;
-  height: 44px;
-
-  svg {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-  }
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -202,10 +189,9 @@ export const UserProfilesAdminView = React.memo(() => {
   const title = <TranslatedText stringId="adminSidebar.user-profiles" fallback="User profiles" />;
 
   const titleActions = canCreateUser && (
-    <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
-      <PlusIcon aria-hidden fill={Colors.white} className="plus-icon" />
+    <Button onClick={handleAddUserClick} data-testid="add-user-button" startIcon={<PlusIcon />}>
       <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
-    </AddUserButton>
+    </Button>
   );
 
   if (!hasPermission) {

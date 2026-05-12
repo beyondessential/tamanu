@@ -1,5 +1,9 @@
 import React from 'react';
-import { TamanuApi as ApiClient } from '@tamanu/api-client';
+import {
+  TamanuApi as ApiClient,
+  readPersistedAuthToken,
+  writePersistedAuthToken,
+} from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -20,6 +24,16 @@ const {
   LANGUAGE,
 } = LOCAL_STORAGE_KEYS;
 
+function getImpersonateRoleIdFromToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded.impersonateRoleId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function safeGetStoredJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key));
@@ -28,8 +42,7 @@ function safeGetStoredJSON(key) {
   }
 }
 
-function restoreFromLocalStorage() {
-  const token = localStorage.getItem(TOKEN);
+function restoreNonTokenFieldsFromLocalStorage() {
   const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
@@ -40,7 +53,6 @@ function restoreFromLocalStorage() {
   const settings = safeGetStoredJSON(SETTINGS);
 
   return {
-    token,
     localisation,
     server,
     availableFacilities,
@@ -134,18 +146,14 @@ export class TamanuApi extends ApiClient {
 
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
-      config.headers['language'] = language;
+      config.headers.set('language', language);
       return config;
     });
   }
 
-  setToken(token) {
-    if (token) {
-      localStorage.setItem(TOKEN, token);
-    } else {
-      localStorage.removeItem(TOKEN);
-    }
-    return super.setToken(token);
+  async setToken(token, refreshToken = null) {
+    super.setToken(token, refreshToken);
+    await writePersistedAuthToken(TOKEN, token, this.deviceId, 'webapp');
   }
 
   // Overwrite base method to integrate with the facility-server refresh endpoint which just
@@ -159,12 +167,22 @@ export class TamanuApi extends ApiClient {
       config,
     );
     const { token } = response;
-    this.setToken(token);
+    await this.setToken(token);
+  }
+
+  async fetchImpersonatedRole(impersonateRoleId, config) {
+    try {
+      const roles = await this.get('admin/roles', {}, config);
+      const matched = roles.find(r => r.id === impersonateRoleId);
+      return matched ?? { id: impersonateRoleId, name: impersonateRoleId };
+    } catch {
+      return { id: impersonateRoleId, name: impersonateRoleId };
+    }
   }
 
   async restoreSession() {
+    const { token } = await readPersistedAuthToken(TOKEN, this.deviceId, 'webapp');
     const {
-      token,
       localisation,
       server,
       availableFacilities,
@@ -173,26 +191,53 @@ export class TamanuApi extends ApiClient {
       permissions,
       role,
       settings,
-    } = restoreFromLocalStorage();
+    } = restoreNonTokenFieldsFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
 
-    this.setToken(token);
+    await this.setToken(token);
     const config = { showUnknownErrorToast: false };
     const { user, ability } = await this.fetchUserData(permissions, config);
 
+    const impersonateRoleId = getImpersonateRoleIdFromToken(token);
+    const impersonatedRole =
+      impersonateRoleId && user.role === 'admin'
+        ? await this.fetchImpersonatedRole(impersonateRoleId, config)
+        : null;
+
+    let activeToken = token;
+    let activePermissions = permissions;
+    let restoredImpersonatedRole = impersonatedRole;
+    if (impersonatedRole) {
+      try {
+        const resp = await this.get('user/permissions', {}, config);
+        activePermissions = resp.permissions;
+      } catch {
+        try {
+          const { token: cleanToken } = await this.post('admin/impersonate', { roleId: null }, config);
+          this.setToken(cleanToken);
+          activeToken = cleanToken;
+        } catch {
+          // If we can't clear impersonation either, the token is stale — let it fall through to re-auth
+        }
+        restoredImpersonatedRole = null;
+      }
+    }
+
     return {
       user,
-      token,
+      token: activeToken,
       localisation,
       server,
       availableFacilities,
       facilityId,
       primaryTimeZone,
       ability,
+      permissions: activePermissions,
       role,
       settings,
+      impersonatedRole: restoredImpersonatedRole,
     };
   }
 
@@ -224,13 +269,26 @@ export class TamanuApi extends ApiClient {
     // This new token is stored and used for subsequent authenticated requests to facility-scoped endpoints.
     const { settings, token } = await this.post('setFacility', { facilityId });
 
-    this.setToken(token);
+    await this.setToken(token);
 
     saveToLocalStorage({
       facilityId,
       settings,
     });
     return { settings };
+  }
+
+  async fetchFrontEndSettings(facilityId) {
+    const { settings } = await this.get('settings/frontEnd', { facilityId }, {
+      showUnknownErrorToast: false,
+    });
+    return settings ?? null;
+  }
+
+  // Caller is responsible for deciding whether the settings are still fresh
+  // (e.g. facility hasn't changed since the request was issued) before persisting.
+  persistSettings(settings) {
+    saveToLocalStorage({ settings });
   }
 
   async fetch(endpoint, query, config) {

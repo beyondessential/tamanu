@@ -41,13 +41,17 @@ export const LoginView = () => {
       navigate('/');
     }
 
+    const success = await dispatch(login(email, password));
     if (rememberMe) {
-      localStorage.setItem(REMEMBER_EMAIL, email);
+      // Only remember the email on a successful login, otherwise the
+      // LoginForm header would flip to "Welcome back" before the auth
+      // result is known.
+      if (success) localStorage.setItem(REMEMBER_EMAIL, email);
     } else {
+      // Honour the unchecked preference even on failure: forgetting a
+      // saved email doesn't require a successful auth.
       localStorage.removeItem(REMEMBER_EMAIL);
     }
-
-    await dispatch(login(email, password));
     dispatch(restartPasswordResetFlow());
   };
 
@@ -66,19 +70,17 @@ export const LoginView = () => {
         />
       )}
       {screen === 'resetPassword' && (
-        <>
-          <ResetPasswordForm
-            onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
-            onRestartFlow={() => dispatch(restartPasswordResetFlow())}
-            errorMessage={requestPasswordResetError}
-            success={requestPasswordResetSuccess}
-            initialEmail={rememberEmail}
-            resetPasswordEmail={resetPasswordEmail}
-            onNavToChangePassword={() => setScreen('changePassword')}
-            onNavToLogin={() => setScreen('login')}
-            data-testid="resetpasswordform-eka3"
-          />
-        </>
+        <ResetPasswordForm
+          onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
+          onRestartFlow={() => dispatch(restartPasswordResetFlow())}
+          errorMessage={requestPasswordResetError}
+          success={requestPasswordResetSuccess}
+          initialEmail={rememberEmail}
+          resetPasswordEmail={resetPasswordEmail}
+          onNavToChangePassword={() => setScreen('changePassword')}
+          onNavToLogin={() => setScreen('login')}
+          data-testid="resetpasswordform-eka3"
+        />
       )}
       {screen === 'changePassword' && (
         <ChangePasswordForm

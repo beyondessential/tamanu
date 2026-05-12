@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
@@ -230,7 +230,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
         {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
         {taskType === TASK_TYPES.MEDICATION_DUE_TASK && (
           <Box display={'flex'} position={'absolute'} left={'-6px'} top={'13px'}>
-            <DrugIcon />
+            <DrugIcon aria-hidden />
           </Box>
         )}
         {taskName()}

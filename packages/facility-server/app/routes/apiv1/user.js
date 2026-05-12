@@ -396,5 +396,5 @@ user.get(
 user.get('/:id', simpleGet('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
-globalUserRequests.get('/$', paginatedGetList('User'));
+globalUserRequests.get('/', paginatedGetList('User'));
 user.use(globalUserRequests);

@@ -9,7 +9,7 @@ import {
   NOTE_TYPES,
   MAX_REPEATS,
 } from '@tamanu/constants';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
   TextField,

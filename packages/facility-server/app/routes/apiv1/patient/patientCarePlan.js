@@ -14,7 +14,7 @@ export const patientCarePlan = express.Router();
 patientCarePlan.get('/:id', simpleGet('PatientCarePlan'));
 patientCarePlan.put('/:id', simplePut('PatientCarePlan'));
 patientCarePlan.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { PatientCarePlan },

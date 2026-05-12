@@ -29,7 +29,7 @@ export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb
   Survey: [Read, Write, Submit],
   StaticReport: [Run],
   ReportDefinition: [Read, Write, Run],
-  ProgramRegistry: [Read],
+  ProgramRegistry: [Read, Write],
 };
 
 export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
@@ -57,7 +57,7 @@ const FHIR_INTEGRATION_NOUN_SCHEMA: Record<string, PermissionVerb[]> = Object.fr
 // Display names for nouns that should appear differently in the UI.
 // The noun itself (the key) is what gets stored in the database.
 export const PERMISSION_NOUN_DISPLAY_NAMES: Partial<Record<string, string>> = Object.fromEntries(
-  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration — ${k}`]),
+  Object.keys(FHIR_INTEGRATION_NOUN_SCHEMA).map(k => [k, `Integration – ${k}`]), // en dash
 );
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -94,7 +94,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   LabRequestStatus: [Write],
   LabTest: [List, Read, Write, Create],
   LabTestPanel: [List, Read, Write, Create],
-  LabTestResult: [Read, Write],
+  LabTestResult: [List, Read, Write],
   LabTestType: [List, Read, Write, Create],
   Location: [List, Read, Write, Create],
   LocationAssignment: [List, Read],
@@ -127,10 +127,10 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Permission: [List, Read, Write, Create, Delete],
   Procedure: [List, Read, Write, Create],
   Program: [List, Read, Write, Create],
-  ProgramRegistry: [List, Read],
-  ProgramRegistryClinicalStatus: [List, Read],
-  ProgramRegistryCondition: [List, Read],
-  ProgramRegistryConditionCategory: [List, Read],
+  ProgramRegistry: [List, Read, Write],
+  ProgramRegistryClinicalStatus: [List, Read, Write],
+  ProgramRegistryCondition: [List, Read, Write],
+  ProgramRegistryConditionCategory: [List, Read, Write],
   ReferenceData: [List, Read, Write, Create, Delete],
   ReferenceDataRelation: [List, Read, Write, Create],
   Referral: [List, Read, Write, Create, Delete],

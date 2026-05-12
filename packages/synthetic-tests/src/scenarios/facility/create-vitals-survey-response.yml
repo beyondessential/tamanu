@@ -1,0 +1,16 @@
+scenarios:
+  - name: Submit patient vitals (survey response)
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateVitalsSurveyResponsePayload
+      - post:
+          url: '/api/surveyResponse'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{vitalsSurveyResponsePayload}}'
+      - get:
+          url: '/api/encounter/{{vitalsEncounterId}}/vitals'
+          headers:
+            Authorization: 'Bearer {{token}}'

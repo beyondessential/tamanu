@@ -13,7 +13,7 @@ Contains generic LLM agent rules that can be shared across multiple projects. Th
 Contains rules that are specific to this project, including:
 
 - `important-project-rules.md` - Essential project information and conventions
-- `translate-hardcoded-strings.md` - Project's TranslatedText system (if applicable)
+- `translations.md` - Project's TranslatedText / TranslatedEnum / TranslatedReferenceData system and string ID conventions
 - `update-copy.md` - Project-specific copy update workflows
 
 ### `/docs` - Project Documentation

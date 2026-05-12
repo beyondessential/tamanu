@@ -3,7 +3,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   SEX_VALUES,
   BLOOD_TYPES,
-  MARTIAL_STATUS_VALUES,
+  MARITAL_STATUS_VALUES,
   TITLES,
   BIRTH_TYPES,
   EDUCATIONAL_ATTAINMENT_TYPES,
@@ -48,7 +48,7 @@ export const createPatientSchema = z.object({
 
   // Personal Information (from GenericPersonalFields)
   title: z.enum(TITLES).optional(),
-  maritalStatus: z.enum(MARTIAL_STATUS_VALUES).optional(),
+  maritalStatus: z.enum(MARITAL_STATUS_VALUES).optional(),
   bloodType: z.enum(BLOOD_TYPES).optional(),
   placeOfBirth: stringWithMaxLength.optional(),
   countryOfBirthId: foreignKey.optional(),

@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { addHours, isSameDay } from 'date-fns';
-import CancelIcon from '@material-ui/icons/Cancel';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import CancelIcon from '@mui/icons-material/Cancel';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import {
   ADMINISTRATION_STATUS,
   DRUG_UNIT_SHORT_LABELS,

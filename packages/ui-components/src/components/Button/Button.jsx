@@ -9,11 +9,14 @@ import {
   CircularProgress,
   IconButton,
 } from '@material-ui/core';
-import { ChevronLeft, Lock } from '@material-ui/icons';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import Lock from '@mui/icons-material/Lock';
+import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { TAMANU_COLORS } from '../../constants';
+import { useTranslation } from '../../contexts';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 import { TranslatedText } from '../Translation';
@@ -42,15 +45,15 @@ const StyledButton = styled(({ ...props }) => {
   this is only to visually make it more obvious that the button is disabled */
   ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
-  .MuiSvgIcon-root {
+  /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
+  & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
     width: 19.5px;
     height: auto;
     margin-right: 10px;
   }
 
   &.MuiButton-sizeSmall {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-inline: 14px;
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
@@ -145,12 +148,12 @@ export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
-export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled(StyledButton)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled(StyledButton)`
   border: 1px solid ${TAMANU_COLORS.alert};
   color: ${TAMANU_COLORS.alert};
 `;
@@ -194,7 +197,6 @@ const StyledTextButton = styled(Button)`
   min-block-size: auto;
   min-inline-size: auto;
   padding: 0;
-  text-transform: capitalize;
   :hover {
     background: transparent;
     color: #23476b;
@@ -217,21 +219,24 @@ const StyledNavButton = styled(TextButton)`
   }
 `;
 
-export const BackButton = ({ to, text = true, ...props }) => (
-  <StyledNavButton to={to} {...props}>
-    <ChevronLeft />
-    {text && (
-      <>
-        {' '}
-        <TranslatedText stringId="general.action.back" fallback="Back" />
-      </>
-    )}
-  </StyledNavButton>
-);
+export const BackButton = ({ ['aria-label']: ariaLabel, text = true, ...props }) => {
+  const { getTranslation } = useTranslation();
+  const label = ariaLabel ?? (text ? undefined : getTranslation('general.action.back', 'Back'));
+
+  return text ? (
+    <StyledNavButton aria-label={label} startIcon={<ChevronLeft />} {...props}>
+      <TranslatedText stringId="general.action.back" fallback="Back" />
+    </StyledNavButton>
+  ) : (
+    <IconButton aria-label={label} size="small" {...props}>
+      <ChevronLeft />
+    </IconButton>
+  );
+};
 
 export const FormSubmitButton = ({
   children,
-  text = 'Confirm',
+  text = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   color = 'primary',
   onSubmit,
   ...props
@@ -253,7 +258,7 @@ export const FormSubmitButton = ({
   );
 };
 
-export const FormCancelButton = ({ ...props }) => {
+export const FormCancelButton = props => {
   const { isSubmitting } = useFormikContext();
 
   return (
@@ -283,11 +288,9 @@ export const LargeSubmitButton = props => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props} data-testid="iconbutton-zsiq">
-    {children}
-  </IconButton>
-))`
+export const DefaultIconButton = styled(IconButton).attrs({
+  'data-testid': 'iconbutton-zsiq',
+})`
   border-radius: 20%;
   padding: 0px;
 `;
@@ -315,6 +318,7 @@ export const UnstyledHtmlButton = styled.button`
   font-size: inherit;
   font-style: inherit;
   line-height: inherit;
+  padding: 0;
   text-align: inherit;
   text-decoration-thickness: from-font;
   touch-action: manipulation;

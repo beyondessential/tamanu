@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ClickAwayListener, Popover } from '@material-ui/core';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import styled from 'styled-components';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
@@ -62,7 +62,11 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
           data-testid="popover-5s9v"
         >
           <ExpandedMultiSelectField
-            selectAllOptionLabel={<small>Select All</small>}
+            selectAllOptionLabel={
+              <small>
+                <TranslatedText stringId="general.action.selectAll" fallback="Select all" />
+              </small>
+            }
             options={optionsWithSmallLabel}
             field={field}
             data-testid="expandedmultiselectfield-rekh"

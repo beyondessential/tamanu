@@ -20,6 +20,9 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  ':where(table, time)': {
+    fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
+  },
 };
 
 const themeConfig = {
@@ -84,6 +87,14 @@ const themeConfig = {
     MuiOutlinedInput: {
       notchedOutline: {
         borderColor: Colors.outline,
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: '48px',
+          textTransform: 'none',
+        },
       },
     },
   },

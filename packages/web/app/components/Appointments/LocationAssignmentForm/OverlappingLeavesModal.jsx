@@ -72,7 +72,7 @@ export const OverlappingLeavesModal = ({ open, onClose, onConfirm, overlappingLe
             </BodyText>
             {overlappingLeaves?.map(leave => (
               <BodyText color={Colors.darkestText} fontWeight={500} key={leave.id}>
-                <DateDisplay date={leave.startDate} /> - <DateDisplay date={leave.endDate} />
+                <DateDisplay date={leave.startDate} /> &ndash; <DateDisplay date={leave.endDate} />
               </BodyText>
             ))}
           </ScheduledLeaveWrapper>

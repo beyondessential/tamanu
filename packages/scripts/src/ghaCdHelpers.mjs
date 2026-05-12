@@ -194,6 +194,15 @@ const OPTIONS = [
     defaultValue: 0,
     parse: input => intBounds(input, [0, 100]),
   },
+  {
+    /*
+     * Hours after the latest `pulumi up` before the deployment auto-suspends.
+     * Set to 0 to disable the TTL and keep the deployment running.
+     */
+    key: 'ttlhours',
+    defaultValue: 4,
+    parse: input => intBounds(input, [0, 720]),
+  },
 ];
 
 function stripPercent(str) {
@@ -254,6 +263,7 @@ export function configMap(deployName, imageTag, options) {
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
       facilityNames: options.facilitynames && JSON.stringify(options.facilitynames),
+      ttlHours: options.ttlhours,
       timezone: options.timezone,
       ipAllowList: options.ip,
       nodeEnv: options.env,
@@ -403,6 +413,99 @@ export async function findControlText(context, github) {
 
   // if nothing is available, no control text == no deploys
   return;
+}
+
+function untickDeployBoxByName(body, ref, deployName) {
+  if (!body) return null;
+  const baseName = stackName(ref);
+  const lines = body.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = RX_DEPLOY_LINE.exec(lines[i]);
+    if (!match) continue;
+    if (match.groups.enabled !== 'x') continue;
+
+    const computed = [baseName, match.groups.name].filter(Boolean).join('-');
+    if (computed !== deployName) continue;
+
+    lines[i] = lines[i].replace(/^(\s*-\s+)\[x\]/, '$1[ ]');
+    return lines.join('\n');
+  }
+  return null;
+}
+
+export async function findStaleDeploys(controlList, ttlDays = 7, context, github) {
+  const now = new Date();
+  const ttlAgo = new Date(now - ttlDays * 24 * 60 * 60 * 1000);
+  const controls = controlList
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(control => control.split('='))
+    .map(([core, ns, type, number]) => ({ core, ns, type, number }));
+
+  const owner = process.env.GITHUB_REPOSITORY_OWNER;
+  const repo = context.payload.repository.name;
+  const todo = [];
+
+  for (const { core, ns, type, number } of controls) {
+    console.log('Checking control:', { core, ns, type, number });
+
+    if (type !== 'pr') {
+      // Issue-controlled deploys are typically long-lived and managed manually.
+      console.log('Not a PR-controlled deploy; skipping');
+      continue;
+    }
+
+    const deployName = ns.replace(/^tamanu-/, '');
+
+    try {
+      const pr = (await github.rest.pulls.get({ owner, repo, pull_number: number }))?.data;
+      if (!pr) continue;
+      if (pr.state !== 'open') {
+        console.log('PR is closed; leaving for cleanup-auto-deploy workflow');
+        continue;
+      }
+
+      const updatedAt = new Date(pr.updated_at);
+      if (updatedAt > ttlAgo) {
+        console.log('PR has recent activity:', updatedAt);
+        continue;
+      }
+
+      const matched = parseDeployConfig({
+        body: pr.body,
+        ref: pr.head.ref,
+        control: `pr=${number}`,
+      }).find(d => d.name === deployName);
+      if (!matched) {
+        console.log('No deploy line found for', deployName, 'on PR', number,
+          '— leaving the orphaned namespace for manual investigation');
+        continue;
+      }
+      if (!matched.enabled) {
+        console.log('Deploy box already unticked for', deployName, 'on PR', number,
+          '— leaving teardown to the regular CD path');
+        continue;
+      }
+
+      const newBody = untickDeployBoxByName(pr.body, pr.head.ref, deployName);
+      if (!newBody || newBody === pr.body) {
+        console.log('Failed to untick deploy box for', deployName, 'on PR', number);
+        continue;
+      }
+
+      await github.rest.pulls.update({ owner, repo, pull_number: number, body: newBody });
+      console.log('Unticked deploy box for PR', number);
+
+      todo.push({ name: deployName, options: matched.options });
+    } catch (err) {
+      console.error('Error processing control:', err);
+    }
+  }
+
+  return todo.map(({ name, options }) => ({
+    name,
+    options: JSON.stringify(options),
+  }));
 }
 
 export async function findDeploysToCleanUp(controlList, ttl = 24, context, github) {

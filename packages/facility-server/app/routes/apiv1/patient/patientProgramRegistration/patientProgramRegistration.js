@@ -260,7 +260,7 @@ patientProgramRegistration.get(
 );
 
 patientProgramRegistration.get(
-  '/:patientId/programRegistration/:programRegistryId/history$',
+  '/:patientId/programRegistration/:programRegistryId/history',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;

@@ -1,7 +1,11 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import {
+  compareDisplayDates,
+  convertDateFormat,
+  STYLED_TABLE_CELL_PREFIX,
+} from '../../utils/testHelper';
 import { PatientTable } from './PatientTable';
 import { Patient } from '../../types/Patient';
 import { ERROR_RED_RGB } from '../../utils/testColors';
@@ -129,10 +133,9 @@ export abstract class BasePatientListPage extends BasePage {
     await this.patientTable.waitForTableToLoad();
   }
 
-  // Validate that at least one row is displayed after search
+  // Validate that at least one data row is displayed (not an empty/loading status row)
   async validateAtLeastOneSearchResult() {
-    const count = await this.tableRows.count();
-    await expect(count).toBeGreaterThanOrEqual(1);
+    await expect(this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`)).toBeVisible();
   }
 
   // Abstract method for field validation - each page has different fields
@@ -182,60 +185,53 @@ export abstract class BasePatientListPage extends BasePage {
 
   // Validate that a specific row appears
   async validateFirstRowContainsNHN(expectedText: string) {
-    const firstRowNHN = this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`);
+    const firstRowNHN = this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`);
     await expect(firstRowNHN).toHaveText(expectedText);
   }
 
-  // Validate that there is only one row displayed after search
+  // Validate that there is only one data row displayed after search
   async validateOneSearchResult() {
-    const rowCount = await this.tableRows.count();
-    await expect(rowCount).toBe(1);
+    await expect(this.tableBody.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`)).toBeVisible();
+    await expect(this.tableRows).toHaveCount(1);
   }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {
-    const rowCount = await this.tableRows.count();
-    const Values: string[] = [];
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const Values: string[] = [];
 
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) Values.push(cellText);
-    }
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-' + columnName;
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) Values.push(cellText);
+      }
 
-    const sortedValues = [...Values].sort((a, b) => {
-      return isAscending ? a.localeCompare(b) : b.localeCompare(a);
-    });
+      const sortedValues = [...Values].sort((a, b) => {
+        return isAscending ? a.localeCompare(b) : b.localeCompare(a);
+      });
 
-    expect(Values).toEqual(sortedValues);
+      expect(Values).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
 
   async validateDateSortOrder(isAscending: boolean) {
-    const rowCount = await this.tableRows.count();
-    const dateValues: string[] = [];
+    await expect(async () => {
+      const rowCount = await this.tableRows.count();
+      const dateValues: string[] = [];
 
-    for (let i = 0; i < rowCount; i++) {
-      const row = this.tableRows.nth(i);
-      const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
-      const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
-      const cellText = await cellLocator.textContent();
-      if (cellText) dateValues.push(cellText);
-    }
+      for (let i = 0; i < rowCount; i++) {
+        const row = this.tableRows.nth(i);
+        const locatorText = STYLED_TABLE_CELL_PREFIX + i + '-dateOfBirth';
+        const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
+        const cellText = await cellLocator.textContent();
+        if (cellText) dateValues.push(cellText);
+      }
 
-    const sortedValues = [...dateValues].sort((a, b) => {
-      // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const [monthA, dayA, yearA] = a.split('/');
-      const [monthB, dayB, yearB] = b.split('/');
-      const dateA = new Date(
-        `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`,
-      ).getTime();
-      const dateB = new Date(
-        `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`,
-      ).getTime();
-      return isAscending ? dateA - dateB : dateB - dateA;
-    });
-    expect(dateValues).toEqual(sortedValues);
+      const sortedValues = [...dateValues].sort(compareDisplayDates(isAscending ? 'asc' : 'desc'));
+      expect(dateValues).toEqual(sortedValues);
+    }).toPass({ timeout: 10000 });
   }
 
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
@@ -299,14 +295,6 @@ export abstract class BasePatientListPage extends BasePage {
 
   async sortByNHN() {
     await this.sortByColumn('displayId');
-  }
-
-  async sortByFirstName() {
-    await this.sortByColumn('firstName');
-  }
-
-  async sortByLastName() {
-    await this.sortByColumn('lastName');
   }
 
   async sortByDOB() {

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
 import { FormControl, IconButton } from '@material-ui/core';
-import { Close as CloseIcon } from '@material-ui/icons';
+import CloseIcon from '@mui/icons-material/Close';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Colors } from '../../constants';
 

@@ -12,7 +12,7 @@ export const reportRequest = express.Router();
 const REPORT_REQUEST_LOG_NAME = 'ReportRequest';
 
 reportRequest.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, body, user, getLocalisation } = req;
     const { ReportRequest, ReportDefinitionVersion } = models;

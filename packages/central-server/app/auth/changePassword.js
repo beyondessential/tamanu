@@ -19,7 +19,7 @@ const schema = yup.object({
 });
 
 changePassword.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { store, body } = req;
 

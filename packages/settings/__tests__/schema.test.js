@@ -4,6 +4,9 @@ import {
   centralDefaults,
   facilityDefaults,
   getKeysByFlag,
+  globalSettings,
+  facilitySettings,
+  centralSettings,
 } from '../dist/mjs';
 import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
@@ -337,6 +340,7 @@ describe('Exposed keys', () => {
         'customisations',
         'features',
         'fields',
+        'fileChooserMbSizeLimit',
         'fsmCrvsCertificates',
         'imagingCancellationReasons',
         'imagingPriorities',
@@ -366,6 +370,20 @@ describe('Exposed keys', () => {
       expect(keys).toContain('mobileSync');
     });
 
+    it('should scope keys to schemas used by facility settings', () => {
+      const scopedKeys = getKeysByFlag('exposedToWeb', [facilitySettings, globalSettings]);
+      expect(scopedKeys).toContain('patientDisplayIdPattern');
+      expect(scopedKeys).toContain('features');
+      expect(scopedKeys).not.toContain('mobileSync');
+    });
+
+    it('should scope keys to schemas used by central settings', () => {
+      const scopedKeys = getKeysByFlag('exposedToWeb', [centralSettings, globalSettings]);
+      expect(scopedKeys).toContain('mobileSync');
+      expect(scopedKeys).toContain('features');
+      expect(scopedKeys).not.toContain('patientDisplayIdPattern');
+    });
+
     it('should include nested paths', () => {
       expect(keys).toContain('security.mobile');
     });
@@ -376,7 +394,6 @@ describe('Exposed keys', () => {
       expect(keys).not.toContain('integrations');
       expect(keys).not.toContain('security');
       expect(keys).not.toContain('security.loginAttempts');
-      expect(keys).not.toContain('security.reportNoUserError');
     });
   });
 

@@ -30,6 +30,66 @@
       "code": "asap",
       "name": "asap",
       "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-Symptomatic",
+      "code": "Symptomatic",
+      "name": "Symptomatic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-PrimaryContact",
+      "code": "PrimaryContact",
+      "name": "Primary contact",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-SecondaryContact",
+      "code": "SecondaryContact",
+      "name": "Secondary contact",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-HighRiskGroup",
+      "code": "HighRiskGroup",
+      "name": "High risk group",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-Traveller",
+      "code": "Traveller",
+      "name": "Traveller",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-Other",
+      "code": "Other",
+      "name": "Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-RDTNegativefurthertestingrequired",
+      "code": "RDTNegativefurthertestingrequired",
+      "name": "AgRDT Negative, further testing needed",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-AgRDTPositivefurthertestingrequired",
+      "code": "AgRDTPositivefurthertestingrequired",
+      "name": "AgRDT Positive, further testing needed",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-AgRDTNegativenofurthertestingrequired",
+      "code": "AgRDTNegativenofurthertestingrequired",
+      "name": "AgRDT Negative, no further testing needed",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-AgRDTPositivenofurthertestingrequired",
+      "code": "AgRDTPositivenofurthertestingrequired",
+      "name": "AgRDT Positive, no further testing needed",
+      "visibilityStatus": "current"
     }
   ]
 }

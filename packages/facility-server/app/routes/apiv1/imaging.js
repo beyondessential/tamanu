@@ -72,7 +72,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
-  '/areas$',
+  '/areas',
   asyncHandler(async (req, res) => {
     const {
       models: { ReferenceData },
@@ -258,7 +258,7 @@ imagingRequest.put(
 );
 
 imagingRequest.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { ImagingRequest, ImagingRequestArea },
@@ -318,7 +318,7 @@ const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest')
 
 // Route used on ImagingRequestsTable component
 globalImagingRequests.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, query, settings } = req;
     const {
