@@ -290,8 +290,9 @@ export class SurveyResponse extends Model {
     }
 
     // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
-    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
-      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
+    const dateRecordedValue =
+      answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded] ||
+      answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
 
     if (!forceNewEncounter) {
       // First, check for open encounter (active encounter takes precedence)
@@ -334,8 +335,10 @@ export class SurveyResponse extends Model {
 
     const { departmentId, examinerId, userId, locationId } = responseData;
 
-    const encounterStartDate = dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
-    const encounterEndDate = dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
+    const encounterStartDate =
+      dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
+    const encounterEndDate =
+      dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
