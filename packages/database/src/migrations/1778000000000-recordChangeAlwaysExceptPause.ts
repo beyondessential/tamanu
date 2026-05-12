@@ -3,7 +3,7 @@ import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled ()
+    CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled()
       RETURNS boolean
       LANGUAGE plpgsql
       STABLE PARALLEL SAFE
@@ -20,7 +20,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled ()
+    CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled()
       RETURNS boolean
       LANGUAGE plpgsql
       STABLE PARALLEL SAFE
