@@ -280,11 +280,11 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
-      {helperText ? (
+      {helperText && (
         <FormHelperText error={Boolean(error)} data-testid="filechooserfield-formhelpertext">
           {helperText}
         </FormHelperText>
-      ) : null}
+      )}
       {WebcamCaptureModalComponent && (
         <WebcamCaptureModalComponent
           open={isWebcamModalOpen}
