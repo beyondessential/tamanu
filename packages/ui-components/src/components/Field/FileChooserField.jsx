@@ -70,7 +70,7 @@ const ValueSection = ({ onClear, showFileDialog, smallDisplay, value, ViewPhotoL
           <ViewPhotoLinkComponent imageId={value} />
         ) : (
           // Shouldn’t be reached in practice, but just in case
-          <span style={{ fontVariantNumeric: 'slashed-zero tabular-nums' }}>
+          <span style={{ fontVariantNumeric: 'lining-nums slashed-zero tabular-nums' }}>
             <TranslatedText
               stringId="attachment.photo.previewNotAvailable"
               fallback="Photo :id (preview not available)"
