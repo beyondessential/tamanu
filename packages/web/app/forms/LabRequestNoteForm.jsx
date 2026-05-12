@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import NotesIcon from '@material-ui/icons/Notes';
+import NotesIcon from '@mui/icons-material/Notes';
 import { Box } from '@material-ui/core';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';

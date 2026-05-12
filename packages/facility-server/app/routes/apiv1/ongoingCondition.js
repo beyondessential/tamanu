@@ -8,7 +8,7 @@ export const ongoingCondition = express.Router();
 
 ongoingCondition.get('/:id', simpleGet('PatientCondition', { auditAccess: true }));
 ongoingCondition.put('/:id', simplePut('PatientCondition'));
-ongoingCondition.post('/$', simplePost('PatientCondition'));
+ongoingCondition.post('/', simplePost('PatientCondition'));
 
 ongoingCondition.delete('/:id', asyncHandler(async (req, res) => {
   const { models, params } = req;

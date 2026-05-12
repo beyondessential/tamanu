@@ -91,4 +91,4 @@ referenceData.get(
 
 referenceData.get('/:id', simpleGet('ReferenceData'));
 referenceData.put('/:id', simplePut('ReferenceData'));
-referenceData.post('/$', simplePost('ReferenceData'));
+referenceData.post('/', simplePost('ReferenceData'));

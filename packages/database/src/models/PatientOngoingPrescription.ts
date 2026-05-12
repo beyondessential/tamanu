@@ -1,20 +1,42 @@
+import { DataTypes, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 import type { Prescription } from './Prescription';
-import { Op } from 'sequelize';
 
 export class PatientOngoingPrescription extends Model {
   declare id: string;
   declare patientId?: string;
   declare prescriptionId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // Deterministic id from (patient_id, prescription_id), same pattern as patient_facilities
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("prescription_id", ';', ':')) STORED`,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
+        },
+        patientId: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+          references: {
+            model: 'patients',
+            key: 'id',
+          },
+        },
+        prescriptionId: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+          references: {
+            model: 'prescriptions',
+            key: 'id',
+          },
+        },
       },
       {
         ...options,

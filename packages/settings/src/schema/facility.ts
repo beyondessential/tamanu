@@ -1,4 +1,8 @@
 import * as yup from 'yup';
+import {
+  PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
+  DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
+} from '@tamanu/constants';
 
 import { extractDefaults } from './utils';
 import {
@@ -148,7 +152,7 @@ export const facilitySettings = {
         Wrapping characters in [] will allow static characters to be used. For example,
         '[B]AAAA000000' will generate an 11 character ID with a static B followed by 4 letter and 6 numbers.`,
       type: yup.string().matches(/^(?:(?:\[.+?\])(?=\[|[A0]|$)|[A0])+$/, 'Invalid pattern'),
-      defaultValue: 'AAAA000000',
+      defaultValue: DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
     },
     questionCodeIds: {
       deprecated: true,
@@ -192,6 +196,32 @@ export const facilitySettings = {
       name: 'Medication',
       description: 'Settings related to medication management and dispensing',
       properties: {
+        pharmacyOrder: {
+          name: 'Pharmacy orders',
+          description: 'Default prescription type behavior for pharmacy orders',
+          properties: {
+            defaultPrescriptionType: {
+              description: 'Default prescription type in Pharmacy Order modal',
+              type: yup.string().oneOf(Object.values(PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES)),
+              defaultValue: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+              options: [
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.ENCOUNTER_TYPE,
+                  label: 'Existing encounter type',
+                },
+                {
+                  value: PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES.OUTPATIENT_OR_DISCHARGE,
+                  label: 'Outpatient/Discharge',
+                },
+                {
+                  value: (PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES as Record<string, string>)
+                    .INPATIENT,
+                  label: 'Inpatient',
+                },
+              ],
+            },
+          },
+        },
         medicationDispensing: {
           name: 'Medication dispensing',
           description:

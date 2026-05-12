@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useId } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
@@ -427,6 +427,7 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
+      id,
       'data-testid': dataTestId,
       ...other
     } = inputProps;
@@ -434,6 +435,7 @@ export class AutocompleteInput extends Component {
     return (
       <OuterLabelFieldWrapper
         label={label}
+        htmlFor={id}
         required={required}
         className={className}
         infoTooltip={infoTooltip}
@@ -441,6 +443,7 @@ export class AutocompleteInput extends Component {
         data-testid={`${dataTestId}-outerlabelfieldwrapper`}
       >
         <StyledAutocompleteInput
+          id={id}
           variant="outlined"
           size={size}
           InputProps={{
@@ -473,9 +476,15 @@ export class AutocompleteInput extends Component {
                   }}
                 >
                   {suggestions.length > 0 ? (
-                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon` } htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
+                    <ExpandLessIcon
+                      data-testid={`${dataTestId}-expandlessicon`}
+                      htmlColor={disabled ? TAMANU_COLORS.softText : undefined}
+                    />
                   ) : (
-                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
+                    <ExpandMoreIcon
+                      data-testid={`${dataTestId}-expandmoreicon`}
+                      htmlColor={disabled ? TAMANU_COLORS.softText : undefined}
+                    />
                   )}
                 </Icon>
               </>
@@ -515,6 +524,7 @@ export class AutocompleteInput extends Component {
       label,
       required,
       name,
+      id,
       infoTooltip,
       disabled,
       size,
@@ -544,6 +554,7 @@ export class AutocompleteInput extends Component {
             className,
             label,
             required,
+            id,
             disabled,
             error,
             helperText,
@@ -571,6 +582,7 @@ AutocompleteInput.propTypes = {
   error: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
+  id: PropTypes.string,
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
@@ -601,6 +613,7 @@ AutocompleteInput.defaultProps = {
   error: false,
   disabled: false,
   name: undefined,
+  id: undefined,
   helperText: '',
   className: '',
   value: '',
@@ -612,11 +625,16 @@ AutocompleteInput.defaultProps = {
   filterer: () => true,
 };
 
-export const AutocompleteField = ({ field, ...props }) => (
-  <AutocompleteInput
-    name={field.name}
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
-);
+export const AutocompleteField = ({ field, id: idProp, ...props }) => {
+  const generatedId = useId();
+  const ensuredId = idProp ?? generatedId;
+  return (
+    <AutocompleteInput
+      name={field.name}
+      value={field.value || ''}
+      onChange={field.onChange}
+      id={ensuredId}
+      {...props}
+    />
+  );
+};

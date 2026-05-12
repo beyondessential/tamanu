@@ -2,6 +2,7 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { selectAutocompleteFieldOption, selectFieldOption } from '../../../../utils/fieldHelpers';
+import { fillMuiDateField } from '@utils/testHelper';
 
 
 export interface PatientDetails {
@@ -181,7 +182,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       await this.culturalNameInput.fill(patientDetails.culturalName);
     }
     if (patientDetails.dateOfBirth) {
-      await this.dateOfBirthInput.locator('input').fill(patientDetails.dateOfBirth);
+      await fillMuiDateField(this.dateOfBirthInput, patientDetails.dateOfBirth);
     }
     if (patientDetails.sex) {
       if (patientDetails.sex === 'female') {

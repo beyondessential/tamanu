@@ -1,0 +1,83 @@
+meta {
+  name: Create Observation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/integration/fhir/mat/Observation
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "resourceType": "Observation",
+    "basedOn": [
+      {
+        "type": "ServiceRequest",
+        "reference": "ServiceRequest/{{labServiceRequestId}}"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://www.senaite.com/testCodes.html",
+          "code": "{{labTestCode}}"
+        },
+        {
+          "system": "http://loinc.org",
+          "code": "{{labTestExternalCode}}"
+        }
+      ]
+    },
+    "method": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "GeneXpert"
+        }
+      ]
+    },
+    "valueString": "Negative",
+    "referenceRange": [
+      {
+        "low": {
+          "value": 5
+        },
+        "high": {
+          "value": 10
+        }
+      }
+    ]
+  }
+}
+
+docs {
+  Records a single lab test result against a LabTest belonging to the
+  ServiceRequest. Required by server validation (FhirObservation):
+  - `basedOn[0]` referencing an existing FHIR ServiceRequest with an upstream LabRequest
+  - `status`
+  - `code.coding` containing at least one coding whose `system` matches
+    `serviceRequestLabTestCodeSystem` (senaite) OR
+    `serviceRequestLabTestExternalCodeSystem` (LOINC) and whose `code`
+    matches a LabTest on that LabRequest
+  - one of `valueString`, `valueQuantity`, or `valueCodeableConcept`
+  - optional `method.coding` using `observationMethodCodeSystem`
+    (`http://snomed.info/sct`) with a code matching a `labTestMethod`
+    reference data record, e.g. the default `GeneXpert`
+  - optional `referenceRange[0].low.value` and/or `referenceRange[0].high.value`
+  
+  Run `bootstrap/Discover Lab ServiceRequest` first - it auto-populates the
+  `labServiceRequestId`, `labTestCode`, and `labTestExternalCode` from a
+  resolvable ServiceRequest's `orderDetail`.
+}

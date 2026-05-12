@@ -10,6 +10,7 @@ import { BadAuthenticationError } from '@tamanu/errors';
 import { buildToken } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { getDefaultFromAddress } from '../../services/mailConfig';
 
 const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const template = await settings.get('templates.patientPortalLoginEmail');
@@ -22,7 +23,7 @@ const getOneTimeTokenEmail = async ({ email, token, settings }) => {
 
   return {
     to: email,
-    from: config.mailgun.from,
+    from: getDefaultFromAddress(),
     subject,
     text: content,
   };

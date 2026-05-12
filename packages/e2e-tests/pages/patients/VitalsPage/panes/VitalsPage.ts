@@ -26,17 +26,19 @@ export class VitalsPage {
    * @returns A record of the vital values
    */
   async getLatestVitalValues(): Promise<Record<typeof VITALS_FIELD_KEYS[number], string>> {
+    // Wait for at least one data cell (second column) to be visible before reading values
+    const firstRowRegex = new RegExp(`^${STYLED_TABLE_CELL_PREFIX}0-`);
+    await this.page.getByTestId(firstRowRegex).nth(1).waitFor({ state: 'visible', timeout: 30000 });
+
     const vitalValues: any = {};
     for (let i = 0; i < VITALS_FIELD_KEYS.length; i++) {    
       const regex = new RegExp(`^${STYLED_TABLE_CELL_PREFIX}${i}-`);
-      // Get the second cell (index 1) - first is measure label, second is the value
       const cell = this.page.getByTestId(regex).nth(1);
       const text = await cell.textContent();
-      // Strip common units and normalize empty values
       let normalizedValue = text?.trim() || '';
       normalizedValue = normalizedValue
-        .replace(/cm$|kg$|°C$|%$/g, '')  // Remove common units
-        .replace(/^—$/, '')               // Replace em-dash with empty string
+        .replace(/cm$|kg$|°C$|%$/g, '')
+        .replace(/^—$/, '')
         .trim();
       vitalValues[VITALS_FIELD_KEYS[i]] = normalizedValue;
     }

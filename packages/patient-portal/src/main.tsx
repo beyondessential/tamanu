@@ -26,26 +26,37 @@ const queryClient = new QueryClient({
   },
 });
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ApiContext.Provider value={new TamanuApi(__VERSION__)}>
-        <TranslationProvider>
-          <StylesProvider injectFirst>
-            <MuiLatestThemeProvider theme={theme}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <MuiThemeProvider theme={theme}>
-                  <ThemeProvider theme={theme}>
-                    <CustomToastContainer />
-                    <CssBaseline />
-                    <App />
-                  </ThemeProvider>
-                </MuiThemeProvider>
-              </LocalizationProvider>
-            </MuiLatestThemeProvider>
-          </StylesProvider>
-        </TranslationProvider>
-      </ApiContext.Provider>
-    </QueryClientProvider>
-  </StrictMode>,
-);
+async function bootstrap() {
+  const api = new TamanuApi(__VERSION__);
+  try {
+    await api.restoreSession();
+  } catch (e) {
+    console.error('[Tamanu patient-portal] Session restore failed', e);
+  }
+
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ApiContext.Provider value={api}>
+          <TranslationProvider>
+            <StylesProvider injectFirst>
+              <MuiLatestThemeProvider theme={theme}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <MuiThemeProvider theme={theme}>
+                    <ThemeProvider theme={theme}>
+                      <CustomToastContainer />
+                      <CssBaseline />
+                      <App />
+                    </ThemeProvider>
+                  </MuiThemeProvider>
+                </LocalizationProvider>
+              </MuiLatestThemeProvider>
+            </StylesProvider>
+          </TranslationProvider>
+        </ApiContext.Provider>
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+}
+
+void bootstrap();

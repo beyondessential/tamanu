@@ -125,8 +125,9 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
-    .length;
+  const totalSeenAppointments = appointments.filter(
+    appointment => appointment.status === 'Seen',
+  ).length;
 
   const onViewAll = () => {
     navigate(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
@@ -146,7 +147,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
           <ActionLink onClick={onViewAll} data-testid="actionlink-spki">
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.viewAll"
-              fallback="View all..."
+              fallback="View all…"
               data-testid="translatedtext-auyo"
             />
           </ActionLink>
@@ -174,39 +175,37 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
           </Box>
         </NoDataContainer>
       ) : (
-        <>
-          <StyledContentContainer data-testid="styledcontentcontainer-rym9">
-            <StyledProgressBarContainer data-testid="styledprogressbarcontainer-iqy2">
-              <Box
-                display={'flex'}
-                justifyContent={'space-between'}
-                fontSize={'14px'}
-                data-testid="box-174y"
-              >
-                <TranslatedText
-                  stringId="dashboard.appointments.todayAppointments.seen"
-                  fallback="Seen"
-                  data-testid="translatedtext-91gu"
-                />
-                <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
-              </Box>
-              <ProgressBar
-                percentage={Math.floor((totalSeenAppointments / (appointments.length || 1)) * 100)}
-                data-testid="progressbar-cva4"
+        <StyledContentContainer data-testid="styledcontentcontainer-rym9">
+          <StyledProgressBarContainer data-testid="styledprogressbarcontainer-iqy2">
+            <Box
+              display={'flex'}
+              justifyContent={'space-between'}
+              fontSize={'14px'}
+              data-testid="box-174y"
+            >
+              <TranslatedText
+                stringId="dashboard.appointments.todayAppointments.seen"
+                fallback="Seen"
+                data-testid="translatedtext-91gu"
               />
-            </StyledProgressBarContainer>
-            <AppointmentListContainer data-testid="appointmentlistcontainer-v5hv">
-              {appointments.map((appointment, index) => (
-                <StyledAppointmentTile
-                  key={appointment.id}
-                  appointment={appointment}
-                  allowViewDetail={false}
-                  data-testid={`styledappointmenttile-8yd8-${index}`}
-                />
-              ))}
-            </AppointmentListContainer>
-          </StyledContentContainer>
-        </>
+              <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
+            </Box>
+            <ProgressBar
+              percentage={Math.floor((totalSeenAppointments / (appointments.length || 1)) * 100)}
+              data-testid="progressbar-cva4"
+            />
+          </StyledProgressBarContainer>
+          <AppointmentListContainer data-testid="appointmentlistcontainer-v5hv">
+            {appointments.map((appointment, index) => (
+              <StyledAppointmentTile
+                key={appointment.id}
+                appointment={appointment}
+                allowViewDetail={false}
+                data-testid={`styledappointmenttile-8yd8-${index}`}
+              />
+            ))}
+          </AppointmentListContainer>
+        </StyledContentContainer>
       )}
     </Container>
   );

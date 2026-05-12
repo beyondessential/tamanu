@@ -32,7 +32,7 @@ const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = value.type;
+      acc[fullKey] = value.secret ? value.type.nullable() : value.type;
     } else {
       Object.assign(acc, flattenSchema(value, fullKey));
     }

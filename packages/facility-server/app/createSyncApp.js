@@ -8,6 +8,7 @@ import { sync as syncRoutes } from './routes/sync/sync';
 
 export async function createSyncApp({ sequelize, syncManager, models, deviceId }) {
   const express = defineExpress();
+  express.set('query parser', 'extended');
   const server = createServer(express);
 
   express.use(
@@ -28,7 +29,7 @@ export async function createSyncApp({ sequelize, syncManager, models, deviceId }
   });
 
   // index route for debugging connectivity
-  express.get('/$', (req, res) => {
+  express.get('/', (req, res) => {
     res.send({
       index: true,
     });
@@ -38,7 +39,7 @@ export async function createSyncApp({ sequelize, syncManager, models, deviceId }
   express.use('/sync', syncRoutes);
 
   // Dis-allow all other routes
-  express.get('*', (req, res) => {
+  express.get('/{*splat}', (req, res) => {
     res.status(404).end();
   });
 

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
+import AssignmentLate from '@mui/icons-material/AssignmentLate';
+import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
+import Business from '@mui/icons-material/Business';
+import ScienceIcon from '@mui/icons-material/Science';
+import Timelapse from '@mui/icons-material/Timelapse';
 import {
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUS_LABELS,
@@ -19,8 +23,6 @@ import {
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
-import BeakerIcon from '../../assets/images/beaker.svg';
-import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useSettings } from '../../contexts/Settings';
 import {
@@ -84,6 +86,7 @@ const FixedTileRow = styled(TileContainer)`
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.REJECTED,
   LAB_REQUEST_STATUSES.INVALIDATED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
@@ -355,7 +358,7 @@ export const LabRequestView = () => {
         />
         <FixedTileRow data-testid="fixedtilerow-xxmq">
           <Tile
-            Icon={() => <img src={TestCategoryIcon} alt="test category" />}
+            Icon={AutoAwesomeMotionIcon}
             text={
               <TranslatedText
                 stringId="lab.testCategory.label"
@@ -372,7 +375,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-hhx8"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             data-testid="tile-gjdv"
@@ -445,7 +448,7 @@ export const LabRequestView = () => {
             data-testid="tile-pczb"
           />
           <Tile
-            Icon={() => <img src={BeakerIcon} alt="beaker" />}
+            Icon={ScienceIcon}
             text={
               <TranslatedText
                 stringId="lab.view.tile.sampleTime.label"
@@ -455,14 +458,12 @@ export const LabRequestView = () => {
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
-              <>
-                <DateDisplay
-                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
-                  date={labRequest.sampleTime}
-                  timeFormat="default"
-                  data-testid="datedisplay-h6el"
-                />
-              </>
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                timeFormat="default"
+                data-testid="datedisplay-h6el"
+              />
             }
             actions={actions}
             data-testid="tile-v8kr"
@@ -485,7 +486,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-b4nb"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}
@@ -522,7 +523,7 @@ export const LabRequestView = () => {
                   data-testid="translatedreferencedata-tqow"
                 />
               ) : (
-                '-'
+                <>&mdash;</>
               )
             }
             isReadOnly={areLabRequestsReadOnly}

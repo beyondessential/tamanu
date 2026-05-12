@@ -10,11 +10,15 @@ export class RandomEntityFetcher {
     this.api = api;
   }
 
-  async getRandom(entity: string) {
-    if (CACHEABLE_ENTITIES.has(entity)) {
+  /**
+   * @param query Optional query string params for `/api/random/:entity` — JSON `where` / `include`
+   *   (string model names in include are resolved server-side). See facility-server `random.js`.
+   */
+  async getRandom(entity: string, query: Record<string, string> = {}) {
+    if (CACHEABLE_ENTITIES.has(entity) && Object.keys(query).length === 0) {
       return this.getRandomCached(entity);
     }
-    return this.api.get(`random/${entity}`);
+    return this.api.get(`random/${entity}`, query);
   }
 
   private async getRandomCached(entity: string) {

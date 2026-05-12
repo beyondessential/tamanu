@@ -43,7 +43,6 @@ export class ProcedurePane extends BasePatientPane {
     const testIds = {
       tabPane: 'tabpane-q1xp',
       styledForm: 'styledform-5o5i',
-      newProcedureButton: 'component-enxe',
       tableContainer: 'styledtablecontainer-3ttp',
       table: 'styledtable-1dlu',
       tableHead: 'styledtablehead-ays3',
@@ -70,6 +69,11 @@ export class ProcedurePane extends BasePatientPane {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = this.page.getByTestId(id);
     }
+
+    // `withPermissionCheck` forces `data-testid="component-enxe"` (same as Prepare discharge / Move patient).
+    this.newProcedureButton = this.page
+      .getByTestId('tabpane-q1xp')
+      .getByRole('button', { name: 'New procedure' });
   }
 
   /**

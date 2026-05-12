@@ -1,0 +1,13 @@
+scenarios:
+  - name: Run facility report (generic survey line list)
+    weight: 0.1
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: prepareLineListReportPayload
+      - post:
+          url: '/api/reports/{{lineListReportId}}'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{lineListReportPayload}}'
