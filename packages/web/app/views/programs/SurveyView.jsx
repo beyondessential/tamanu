@@ -80,10 +80,7 @@ export const SurveyViewForm = ({
       patientProgramRegistration,
       getCurrentDateTime,
     });
-    if (!initialAnswerOverrides) {
-      return base;
-    }
-    return { ...base, ...initialAnswerOverrides };
+    return initialAnswerOverrides ? { ...base, ...initialAnswerOverrides } : base;
   }, [
     currentComponents,
     patientAdditionalData,
