@@ -9,6 +9,7 @@ export interface ISurveyResponse {
   endTime?: string;
   result?: number;
   resultText?: string;
+  editedAt?: string;
   encounter?: IEncounter | string;
   survey?: ISurvey | string;
 }

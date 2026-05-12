@@ -28,7 +28,6 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { buildSurveyResponseChangesExistsClause } from './surveyResponse';
 import {
   deleteChartInstance,
   fetchAnswersWithHistory,
@@ -339,7 +338,14 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query, db, settings } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate, facilityId } = query;
+    const {
+      order = 'ASC',
+      orderBy = 'medication.name',
+      rowsPerPage,
+      page,
+      marDate,
+      facilityId,
+    } = query;
 
     req.checkPermission('list', 'Medication');
 
@@ -675,7 +681,7 @@ encounterRelations.get(
           surveys.name as survey_name,
           programs.name as program_name,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
-          ${buildSurveyResponseChangesExistsClause('survey_responses.id::text')} AS is_edited
+          survey_responses.edited_at IS NOT NULL AS is_edited
         FROM
           survey_responses
           LEFT JOIN surveys

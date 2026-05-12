@@ -83,6 +83,64 @@ describe('SurveyResponse', () => {
     return { answer, response, facilityId: facility.id };
   };
 
+  const setupAutocompleteSurveyWithoutAnswer = async sscConfig => {
+    const {
+      Facility,
+      Location,
+      Department,
+      Patient,
+      User,
+      Encounter,
+      Program,
+      Survey,
+      SurveyResponse,
+      ProgramDataElement,
+      SurveyScreenComponent,
+    } = models;
+
+    const facility = await Facility.create(fake(Facility));
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+    const examiner = await User.create(fake(User));
+    const patient = await Patient.create(fake(Patient));
+    const encounter = await Encounter.create({
+      ...fake(Encounter),
+      patientId: patient.id,
+      departmentId: department.id,
+      locationId: location.id,
+      examinerId: examiner.id,
+    });
+    const program = await Program.create(fake(Program));
+    const survey = await Survey.create({
+      ...fake(Survey),
+      programId: program.id,
+    });
+    const response = await SurveyResponse.create({
+      ...fake(SurveyResponse),
+      surveyId: survey.id,
+      encounterId: encounter.id,
+    });
+    const dataElement = await ProgramDataElement.create({
+      ...fake(ProgramDataElement),
+      type: 'Autocomplete',
+    });
+    await SurveyScreenComponent.create({
+      ...fake(SurveyScreenComponent),
+      responseId: response.id,
+      dataElementId: dataElement.id,
+      surveyId: survey.id,
+      config: sscConfig,
+    });
+
+    return { dataElement, response, facilityId: facility.id };
+  };
+
   const setupComplexChartSurvey = async () => {
     const {
       Facility,
@@ -588,6 +646,9 @@ describe('SurveyResponse', () => {
       });
       expect(patch).toHaveSucceeded();
 
+      await response.reload();
+      expect(response.editedAt).toBeTruthy();
+
       const encounterListAfter = await app.get(
         `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
       );
@@ -603,6 +664,24 @@ describe('SurveyResponse', () => {
       const patientRowAfter = patientListAfter.body.data.find(r => r.id === response.id);
       expect(patientRowAfter).not.toBeUndefined();
       expect(patientRowAfter.isEdited).toBe(true);
+    });
+
+    it('should not mark a response as edited when PATCH does not change any values', async () => {
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        facility.id,
+      );
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [answer.dataElementId]: facility.id },
+      });
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedAt).toBeFalsy();
     });
   });
 
@@ -654,6 +733,63 @@ describe('SurveyResponse', () => {
   });
 
   describe('survey response changelog edit semantics', () => {
+    it('should mark a newly answered question as edited when it was unanswered on first submit', async () => {
+      const { Facility } = models;
+      const selectedFacility = await Facility.create(fake(Facility));
+      const { dataElement, response, facilityId } = await setupAutocompleteSurveyWithoutAnswer(
+        JSON.stringify({ source: 'Facility' }),
+      );
+      const encounter = await models.Encounter.findByPk(response.encounterId);
+
+      const encounterListBefore = await app.get(
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
+      );
+      expect(encounterListBefore).toHaveSucceeded();
+      const encounterRowBefore = encounterListBefore.body.data.find(r => r.id === response.id);
+      expect(encounterRowBefore).not.toBeUndefined();
+      expect(encounterRowBefore.isEdited).toBeFalsy();
+
+      const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [dataElement.id]: selectedFacility.id },
+      });
+      expect(edit).toHaveSucceeded();
+
+      const createdAnswer = await models.SurveyResponseAnswer.findOne({
+        where: {
+          responseId: response.id,
+          dataElementId: dataElement.id,
+        },
+      });
+      expect(createdAnswer).toBeTruthy();
+      expect(createdAnswer.body).toBe(selectedFacility.id);
+
+      const encounterListAfter = await app.get(
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
+      );
+      expect(encounterListAfter).toHaveSucceeded();
+      const encounterRowAfter = encounterListAfter.body.data.find(r => r.id === response.id);
+      expect(encounterRowAfter).not.toBeUndefined();
+      expect(encounterRowAfter.isEdited).toBe(true);
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+
+      const answerChanges = changelog.body.changes.filter(
+        c => c.tableName === 'survey_response_answers' && c.recordId === createdAnswer.id,
+      );
+      expect(answerChanges).toHaveLength(1);
+      expect(answerChanges[0].fieldChanges).toEqual([
+        {
+          fieldKey: 'body',
+          from: null,
+          to: selectedFacility.id,
+        },
+      ]);
+    });
+
     it('should still surface an answer as edited after editing it away from and back to the original value', async () => {
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));

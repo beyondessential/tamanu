@@ -39,28 +39,20 @@ export function surveyResponseChangelogScopeCondition(alias, responseIdSql) {
   )`;
 }
 
-export function buildSurveyResponseChangesExistsClause(responseIdSql) {
-  const scope = surveyResponseChangelogScopeCondition('later', responseIdSql);
-  return `
-    EXISTS (
-      SELECT 1
-      FROM logs.changes AS later
-      WHERE ${scope}
-      AND EXISTS (
-        SELECT 1
-        FROM logs.changes AS earlier
-        WHERE earlier.migration_context IS NULL
-          AND earlier.table_name = later.table_name
-          AND earlier.record_id = later.record_id
-          AND (
-            earlier.created_at < later.created_at
-            OR (earlier.created_at = later.created_at AND earlier.id < later.id)
-          )
-      )
-  )`;
-}
-
 export const surveyResponse = express.Router();
+
+const changelogIgnoreList = new Set([
+  'created_at',
+  'createdAt',
+  'deleted_at',
+  'deletedAt',
+  'edited_at',
+  'editedAt',
+  'updated_at_sync_tick',
+  'updated_at',
+  'updatedAt',
+  'updatedAtSyncTick',
+]);
 
 async function getBodyForAnswer(dataElementType, value, models) {
   if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
@@ -231,6 +223,7 @@ function diffKeys(prev, curr) {
   /** @type {{ fieldKey: string; from: any; to: any; }[]} */
   const out = [];
   for (const k of keys) {
+    if (changelogIgnoreList.has(k)) continue;
     const a = prev ? prev[k] : undefined;
     const b = curr[k];
     if (!isEqual(a, b)) {
@@ -242,6 +235,17 @@ function diffKeys(prev, curr) {
     }
   }
   return out;
+}
+
+function isEditedAnswerCreateRow(row, responseCreatedAtMs) {
+  return (
+    row.tableName === 'survey_response_answers' &&
+    row._seq === 1 &&
+    row.recordData?.body !== null &&
+    row.recordData?.body !== '' &&
+    responseCreatedAtMs !== null &&
+    new Date(row.loggedAt).getTime() > responseCreatedAtMs
+  );
 }
 
 /**
@@ -283,7 +287,8 @@ surveyResponse.get(
         WHERE
           ${surveyResponseChangelogScopeCondition('c', ':surveyResponseId')}
         ORDER BY
-          c.created_at ASC
+          c.created_at ASC,
+          c.id ASC
       `,
       {
         replacements: { surveyResponseId: params.id },
@@ -298,28 +303,47 @@ surveyResponse.get(
       return { ...row, _seq: seqByKey[key] };
     });
 
-    const editRowsOnly = rowsWithSeq.filter(r => r._seq > 1);
+    const responseCreatedRow = rowsWithSeq.find(
+      row => row.tableName === 'survey_responses' && row.recordId === params.id && row._seq === 1,
+    );
+    const responseCreatedAtMs = responseCreatedRow
+      ? new Date(responseCreatedRow.loggedAt).getTime()
+      : null;
 
-    const changes = editRowsOnly.map(row => {
-      const prevRow = rowsWithSeq.find(
-        r =>
-          r.tableName === row.tableName && r.recordId === row.recordId && r._seq === row._seq - 1,
-      );
-      const prevData = prevRow?.recordData ?? null;
-      const fieldChanges = diffKeys(prevData, row.recordData);
-      return {
-        id: row.id,
-        loggedAt: row.loggedAt,
-        tableName: row.tableName,
-        recordId: row.recordId,
-        recordData: row.recordData,
-        changedBy: {
-          id: row.updatedByUserId,
-          displayName: row.changedByDisplayName,
-        },
-        fieldChanges,
-      };
-    });
+    const editRowsOnly = rowsWithSeq.filter(
+      row => row._seq > 1 || isEditedAnswerCreateRow(row, responseCreatedAtMs),
+    );
+
+    const changes = editRowsOnly
+      .map(row => {
+        const prevRow = rowsWithSeq.find(
+          r =>
+            r.tableName === row.tableName && r.recordId === row.recordId && r._seq === row._seq - 1,
+        );
+        const prevData = prevRow?.recordData ?? null;
+        const fieldChanges = isEditedAnswerCreateRow(row, responseCreatedAtMs)
+          ? [
+              {
+                fieldKey: 'body',
+                from: null,
+                to: row.recordData?.body ?? null,
+              },
+            ]
+          : diffKeys(prevData, row.recordData);
+        return {
+          id: row.id,
+          loggedAt: row.loggedAt,
+          tableName: row.tableName,
+          recordId: row.recordId,
+          recordData: row.recordData,
+          changedBy: {
+            id: row.updatedByUserId,
+            displayName: row.changedByDisplayName,
+          },
+          fieldChanges,
+        };
+      })
+      .filter(change => change.fieldChanges.length > 0);
 
     changes.reverse();
 
@@ -515,6 +539,7 @@ surveyResponse.patch(
         where: { responseId: params.id },
       });
       const answerByDataElementId = new Map(responseAnswers.map(a => [a.dataElementId, a]));
+      let hasMeaningfulChanges = false;
 
       const mergedAnswerValues = {};
       for (const answer of responseAnswers) {
@@ -534,7 +559,10 @@ surveyResponse.patch(
 
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
-          await existingAnswer.update({ body });
+          if (existingAnswer.body !== body) {
+            await existingAnswer.update({ body });
+            hasMeaningfulChanges = true;
+          }
         } else {
           const createdAnswer = await models.SurveyResponseAnswer.create({
             dataElementId,
@@ -542,6 +570,9 @@ surveyResponse.patch(
             responseId: params.id,
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
+          if (body !== '') {
+            hasMeaningfulChanges = true;
+          }
         }
         mergedAnswerValues[dataElementId] = body;
       }
@@ -554,7 +585,10 @@ surveyResponse.patch(
         const bodyValue = getStringValue(dataElementType, value) ?? '';
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
-          await existingAnswer.update({ body: bodyValue });
+          if (existingAnswer.body !== bodyValue) {
+            await existingAnswer.update({ body: bodyValue });
+            hasMeaningfulChanges = true;
+          }
         } else {
           const createdAnswer = await models.SurveyResponseAnswer.create({
             dataElementId,
@@ -562,6 +596,9 @@ surveyResponse.patch(
             responseId: params.id,
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
+          if (bodyValue !== '') {
+            hasMeaningfulChanges = true;
+          }
         }
         mergedAnswerValues[dataElementId] = bodyValue;
       }
@@ -570,7 +607,21 @@ surveyResponse.patch(
       const { result, resultText } = getResultValue(components, mergedAnswerValues, {
         encounterType: encounter?.encounterType,
       });
-      await responseRecord.update({ result, resultText });
+      const normalizedResult = result ?? null;
+      const normalizedResultText = resultText ?? null;
+      const responseUpdates = {};
+      if (!isEqual(responseRecord.result, normalizedResult)) {
+        responseUpdates.result = normalizedResult;
+      }
+      if (!isEqual(responseRecord.resultText, normalizedResultText)) {
+        responseUpdates.resultText = normalizedResultText;
+      }
+      if (hasMeaningfulChanges) {
+        responseUpdates.editedAt = new Date();
+      }
+      if (Object.keys(responseUpdates).length > 0) {
+        await responseRecord.update(responseUpdates);
+      }
 
       const patientIdForActions = responseRecord.patientId ?? encounter?.patientId;
       if (!patientIdForActions) {

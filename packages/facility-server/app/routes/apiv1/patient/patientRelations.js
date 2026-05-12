@@ -16,7 +16,6 @@ import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
-import { buildSurveyResponseChangesExistsClause } from '../surveyResponse';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -353,7 +352,7 @@ patientRelations.get(
           encounters.examiner_id,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
           programs.name as program_name,
-          ${buildSurveyResponseChangesExistsClause('survey_responses.id::text')} AS is_edited
+          survey_responses.edited_at IS NOT NULL AS is_edited
         FROM
           survey_responses
           LEFT JOIN encounters
