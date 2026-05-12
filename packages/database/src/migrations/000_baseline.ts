@@ -4,6 +4,7 @@ import type { QueryInterface } from 'sequelize';
 
 const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
 const FROZEN_MIGRATIONS_PATH = path.join(__dirname, '000_baseline_frozen_migrations.json');
+const BASELINE_APPLIED_COMMENT = 'tamanu:baseline-applied';
 
 export async function up(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`
@@ -54,9 +55,25 @@ export async function up(query: QueryInterface): Promise<void> {
     `INSERT INTO "SequelizeMeta" (name) SELECT unnest($1::text[]) ON CONFLICT DO NOTHING`,
     { bind: [frozenMigrations] },
   );
+
+  await query.sequelize.query(`
+    COMMENT ON TABLE "SequelizeMeta" IS '${BASELINE_APPLIED_COMMENT}'
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  const [results] = await query.sequelize.query(`
+    SELECT COALESCE(
+      obj_description(to_regclass('public."SequelizeMeta"')::oid, 'pg_class') = '${BASELINE_APPLIED_COMMENT}',
+      false
+    ) AS baseline_applied
+  `);
+
+  if (!(results as any[])[0]?.baseline_applied) {
+    return;
+  }
+
+  // DESTRUCTIVE: Only the baseline-created schema can be reverted; all data is dropped.
   await query.sequelize.query('DROP SCHEMA IF EXISTS fhir CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS logs CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS sync_snapshots CASCADE');
