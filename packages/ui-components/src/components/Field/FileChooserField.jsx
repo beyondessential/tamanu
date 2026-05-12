@@ -51,7 +51,7 @@ const getSmallFileName = (value, maxLength) => {
   const middlePoint = Math.floor(maxLength / 2);
   const ellipsisOffset = 3;
   const lastHalfIndex = value.length - middlePoint + ellipsisOffset;
-  return value.slice(0, middlePoint) + '...' + value.slice(lastHalfIndex, value.length);
+  return value.slice(0, middlePoint) + '…' + value.slice(lastHalfIndex, value.length);
 };
 
 const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
