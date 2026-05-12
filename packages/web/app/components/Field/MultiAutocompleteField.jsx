@@ -173,12 +173,12 @@ const MultiValue = props => {
     isAllOptionsSelected && allowSelectAll
       ? getTranslation('general.multiAutocompleteField.allSelected', 'All selected')
       : selected.length === 1
-      ? label
-      : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
-          replacements: {
-            items: selected.length,
-          },
-        });
+        ? label
+        : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
+            replacements: {
+              items: selected.length,
+            },
+          });
 
   return (
     <components.MultiValue

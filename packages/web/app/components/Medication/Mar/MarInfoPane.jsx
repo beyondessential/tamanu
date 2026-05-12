@@ -3,7 +3,12 @@ import styled from 'styled-components';
 
 import { useTranslation } from '../../../contexts/Translation';
 import { Box } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, DateDisplay, useDateTime } from '@tamanu/ui-components';
+import {
+  DateDisplay,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
@@ -150,7 +155,9 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             <Label>
               <TranslatedText stringId="general.date.label" fallback="Date" />
             </Label>
-            <Value><DateDisplay date={dueAt} format="long" /></Value>
+            <Value>
+              <DateDisplay date={dueAt} format="long" />
+            </Value>
           </Box>
           <VerticalDivider />
           <Box flex={1}>
