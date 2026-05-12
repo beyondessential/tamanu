@@ -133,15 +133,15 @@ export const SurveyQuestion = ({
       fallback={componentDetail}
     />
   );
-  const helperText = isEdited ? (
+  const helperText = (
     <>
       {detail}
-      <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
-        <TranslatedText stringId="general.label.edited" fallback="Edited" />
-      </span>
+      {isEdited && (
+        <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
+          <TranslatedText stringId="general.label.edited" fallback="Edited" />
+        </span>
+      )}
     </>
-  ) : (
-    detail
   );
 
   const options = mapOptionsToValues(componentOptions || defaultOptions);
