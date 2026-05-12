@@ -4,8 +4,7 @@ import type { QueryInterface } from 'sequelize';
 
 const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
 const FROZEN_MIGRATIONS_PATH = path.join(__dirname, '000_baseline_frozen_migrations.json');
-const BASELINE_STATE_SCHEMA = 'tamanu_baseline';
-const BASELINE_APPLIED_TABLE = 'applied';
+const BASELINE_APPLIED_COMMENT = 'tamanu:baseline-applied';
 
 export async function up(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`
@@ -57,23 +56,17 @@ export async function up(query: QueryInterface): Promise<void> {
     { bind: [frozenMigrations] },
   );
 
-  await query.sequelize.query(`CREATE SCHEMA IF NOT EXISTS ${BASELINE_STATE_SCHEMA}`);
   await query.sequelize.query(`
-    CREATE TABLE IF NOT EXISTS ${BASELINE_STATE_SCHEMA}.${BASELINE_APPLIED_TABLE} (
-      id boolean PRIMARY KEY DEFAULT true CHECK (id),
-      applied_at timestamptz NOT NULL DEFAULT now()
-    )
-  `);
-  await query.sequelize.query(`
-    INSERT INTO ${BASELINE_STATE_SCHEMA}.${BASELINE_APPLIED_TABLE} (id)
-    VALUES (true)
-    ON CONFLICT DO NOTHING
+    COMMENT ON TABLE "SequelizeMeta" IS '${BASELINE_APPLIED_COMMENT}'
   `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`
-    SELECT to_regclass('"${BASELINE_STATE_SCHEMA}"."${BASELINE_APPLIED_TABLE}"') IS NOT NULL AS baseline_applied
+    SELECT COALESCE(
+      obj_description(to_regclass('public."SequelizeMeta"')::oid, 'pg_class') = '${BASELINE_APPLIED_COMMENT}',
+      false
+    ) AS baseline_applied
   `);
 
   if (!(results as any[])[0]?.baseline_applied) {
@@ -85,6 +78,5 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query('DROP SCHEMA IF EXISTS logs CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS sync_snapshots CASCADE');
   await query.sequelize.query('DROP SCHEMA IF EXISTS public CASCADE');
-  await query.sequelize.query(`DROP SCHEMA IF EXISTS ${BASELINE_STATE_SCHEMA} CASCADE`);
   await query.sequelize.query('CREATE SCHEMA public');
 }
