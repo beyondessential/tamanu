@@ -44,11 +44,11 @@ const Dialog = styled(MuiDialog)`
 export const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
-    ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
+    ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
 `;
 
-const ModalContainer = styled.div`
-  background: ${(props) => props.$color};
+export const ModalContainer = styled.div`
+  background: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
 
@@ -195,7 +195,7 @@ const Loader = styled(Box)`
     font-weight: 500;
     font-size: 16px;
     line-height: 21px;
-    color: ${(props) => props.theme.palette.text.secondary};
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 

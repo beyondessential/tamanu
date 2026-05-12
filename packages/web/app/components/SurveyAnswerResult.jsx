@@ -33,7 +33,7 @@ export const SurveyAnswerResult = ({
   const [surveyLink, setSurveyLink] = useState(null);
 
   if (answer === null || answer === undefined || answer === '') {
-    return <TranslatedText stringId="surveyResponse.details.noAnswer" fallback="No answer" />;
+    return <>&mdash;</>;
   }
 
   switch (type) {
