@@ -203,12 +203,14 @@ export const SurveyResponseDetailsModal = ({
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {onViewChangeLog && hasChanges && (
-            <EditedLegend style={{ marginBlockStart: 4, textAlign: 'end' }}>
-              <ViewChangeLogButton
-                onClick={() => onViewChangeLog(surveyResponseId)}
-                data-testid="surveyresponse-details-view-changelog"
-              />
+          {hasChanges && (
+            <EditedLegend>
+              {onViewChangeLog && (
+                <ViewChangeLogButton
+                  onClick={() => onViewChangeLog(surveyResponseId)}
+                  data-testid="surveyresponse-details-view-changelog"
+                />
+              )}
             </EditedLegend>
           )}
           <ModalCancelRow
