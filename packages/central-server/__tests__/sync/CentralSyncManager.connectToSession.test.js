@@ -88,39 +88,35 @@ describe('CentralSyncManager.connectToSession', () => {
   });
 
   it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
+    // waitForSession → checkSessionReady → connectToSession, so syncSessionTimeoutMs applies
+    // during polling. Use 1000ms so normal session prep stays under the limit.
+    const syncSessionTimeoutMs = 1000;
     const centralSyncManager = initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: false,
         },
-        syncSessionTimeoutMs: 200,
+        syncSessionTimeoutMs,
         maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
       },
     });
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
-    // Reset timestamps so this test doesn't depend on how long session preparation
-    // took on CI. The first connect call below should always be within timeout.
+    // Timeout is based on ORM (DB) createdAt/updatedAt, not on Jest's clock — advancing fake
+    // timers does not move Postgres timestamps. Pin both to the same moment in the past so
+    // the first connect sees zero age; that connect refreshes updatedAt, opening a gap > limit.
+    const baseline = new Date(Date.now() - syncSessionTimeoutMs * 5);
     await models.SyncSession.update(
-      { createdAt: new Date(), updatedAt: new Date() },
+      { createdAt: baseline, updatedAt: baseline },
       {
         where: { id: sessionId },
         silent: true,
       },
     );
 
-    // Wait long enough to exceed syncSessionTimeoutMs from the reset baseline.
-    // We intentionally do this *before* the first connect call because the timeout
-    // check uses (updatedAt - createdAt), not wall-clock time directly.
-    await sleepAsync(500);
-
-    // First call should succeed, and it updates lastConnectionTime (therefore updatedAt).
-    // This validates the "can still connect" path after setup.
     await centralSyncManager.connectToSession(sessionId);
 
-    // Second call should now fail because updatedAt has moved further away from createdAt,
-    // so the timeout predicate evaluates true.
     await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
       `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
     );
