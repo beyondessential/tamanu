@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { Colors, PATIENT_STATUS } from '../../constants';
 import {
   TextField,
   ConfirmCancelBackRow,
@@ -21,7 +21,6 @@ import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { getPatientStatus } from '../../utils/getPatientStatus';
-import { PATIENT_STATUS } from '../../constants';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 

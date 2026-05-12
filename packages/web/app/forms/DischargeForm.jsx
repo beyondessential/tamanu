@@ -25,7 +25,7 @@ import {
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-import { Colors } from '../constants';
+import { Colors, PATIENT_STATUS } from '../constants';
 import {
   AutocompleteField,
   DefaultFormScreen,
@@ -46,7 +46,6 @@ import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
 import { getPatientStatus } from '../utils/getPatientStatus';
-import { PATIENT_STATUS } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
