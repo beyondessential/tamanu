@@ -22,8 +22,10 @@ const columns = (getTranslation, getEnumTranslation) => [
     title: getTranslation('pdf.table.column.medication', 'Medication'),
     accessor: ({ medication, notes, indication }) => (
       <View>
-        <Text>{medication?.name + `\n`}</Text>
-        {notes && <Text style={{ fontFamily: 'Helvetica-Oblique' }}>{notes + `\n`}</Text>}
+        <Text style={{ marginBottom: 4 }}>{medication?.name}</Text>
+        {notes && (
+          <Text style={{ fontFamily: 'Helvetica-Oblique', marginBottom: 4 }}>{notes}</Text>
+        )}
         {indication && (
           <Text>
             <Text style={{ fontFamily: 'Helvetica-Bold' }}>

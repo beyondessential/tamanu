@@ -25,7 +25,9 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
-import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+} from '@tamanu/constants';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
