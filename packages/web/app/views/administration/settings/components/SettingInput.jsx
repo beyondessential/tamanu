@@ -7,7 +7,6 @@ import {
   AutocompleteInput,
   LargeBodyText,
   NumberInput,
-  SelectInput,
   TextButton,
   TextInput,
   TranslatedText,
@@ -91,10 +90,8 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
-  options,
 }) => {
   const { type } = typeSchema;
-  const hasSelectOptions = type === SETTING_TYPES.STRING && Array.isArray(options) && options.length > 0;
   const [error, setError] = useState(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
@@ -220,29 +217,15 @@ export const SettingInput = ({
     case SETTING_TYPES.STRING:
       return (
         <Flexbox data-testid="flexbox-wwbe">
-          {hasSelectOptions ? (
-            <SelectInput
-              value={displayValue ?? ''}
-              onChange={defaultHandleChange}
-              isClearable={false}
-              style={{ width: '353px' }}
-              options={options}
-              error={error}
-              helperText={error?.message}
-              disabled={disabled}
-              data-testid="selectinput-settings-string-enum"
-            />
-          ) : (
-            <StyledTextInput
-              value={displayValue ?? ''}
-              onChange={defaultHandleChange}
-              style={{ width: '353px' }}
-              error={error}
-              helperText={error?.message}
-              disabled={disabled}
-              data-testid="styledtextinput-fpam"
-            />
-          )}
+          <StyledTextInput
+            value={displayValue ?? ''}
+            onChange={defaultHandleChange}
+            style={{ width: '353px' }}
+            error={error}
+            helperText={error?.message}
+            disabled={disabled}
+            data-testid="styledtextinput-fpam"
+          />
           <DefaultButton data-testid="defaultbutton-iw4g" />
         </Flexbox>
       );

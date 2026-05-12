@@ -114,35 +114,6 @@ export const noteListHandler = recordType =>
       where,
     });
 
-    const editChains = [...new Set(rows.map(n => n.revisedById ?? n.id))];
-    if (editChains.length > 0) {
-      const chainCounts = await models.Note.sequelize.query(
-        `
-        SELECT
-          CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END AS chain_id,
-          COUNT(*) AS count
-        FROM notes
-        WHERE record_type = :recordType
-          AND record_id = :recordId
-          AND deleted_at IS NULL
-          AND (CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END) IN (:editChains)
-        GROUP BY chain_id
-        `,
-        {
-          type: QueryTypes.SELECT,
-          replacements: { recordType, recordId, editChains },
-        },
-      );
-      const countByChain = Object.fromEntries(
-        chainCounts.map(({ chain_id, count }) => [chain_id, Number(count)]),
-      );
-      rows.forEach(note => {
-        const chainId = note.revisedById ?? note.id;
-        const totalInChain = countByChain[chainId] ?? 1;
-        note.setDataValue('editCount', Math.max(0, totalInChain - 1));
-      });
-    }
-
     res.send({ data: rows, count: totalCount });
   });
 

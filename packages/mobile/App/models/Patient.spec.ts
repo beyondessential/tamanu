@@ -22,6 +22,7 @@ describe('findRecentlyViewed', () => {
     culturalName: 'Fredde',
     village: null,
     villageId: null,
+    title: null,
     additionalData: null,
   };
   const patients: IPatient[] = [
