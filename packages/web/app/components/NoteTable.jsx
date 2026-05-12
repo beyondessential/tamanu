@@ -2,7 +2,12 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import styled from 'styled-components';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
+import {
+  NOTE_PERMISSION_TYPES,
+  NOTE_TYPES,
+  REFERENCE_TYPES,
+  NON_EDITABLE_NOTE_TYPES,
+} from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -261,7 +266,7 @@ const NoteContent = ({
             onClick={() => handleViewNoteChangeLog(note)}
             data-testid="editedbuttoncontainer-1q1r"
           >
-            <span>(</span>
+            (
             <EditedButton data-testid="editedbutton-jn5i">
               <TranslatedText
                 stringId="note.table.footer.edited"
@@ -269,7 +274,7 @@ const NoteContent = ({
                 data-testid="translatedtext-ud3f"
               />
             </EditedButton>
-            <span>)</span>
+            )
           </EditedButtonContainer>
         )}
       </NoteFooterContainer>
