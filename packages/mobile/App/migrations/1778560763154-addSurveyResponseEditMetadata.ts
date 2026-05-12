@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 const tableName = 'survey_responses';
 
-export class addSurveyResponseEditMetadata1778201000000 implements MigrationInterface {
+export class addSurveyResponseEditMetadata1778560763154 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.addColumn(
       tableName,
