@@ -199,9 +199,5 @@ export const SurveyQuestion = ({
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
-  if (customComponent) {
-    return customComponent;
-  }
-
-  return fieldComponent;
+  return customComponent ?? fieldComponent;
 };
