@@ -10,7 +10,6 @@ import {
   Modal,
   TranslatedReferenceData,
   TranslatedText,
-  UnstyledHtmlButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
@@ -35,6 +34,14 @@ const PrintButton = styled(Button).attrs({
   right: 70px;
   top: 21px;
 `;
+
+const indicatorColumn = {
+  key: 'text',
+  title: (
+    <TranslatedText stringId="surveyResponse.details.table.column.indicator" fallback="Indicator" />
+  ),
+  accessor: ({ name }) => name,
+};
 
 const isShowable = component =>
   component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
@@ -82,16 +89,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
 
   const columns = useMemo(
     () => [
-      {
-        key: 'text',
-        title: (
-          <TranslatedText
-            stringId="surveyResponse.details.table.column.indicator"
-            fallback="Indicator"
-          />
-        ),
-        accessor: ({ name }) => name,
-      },
+      indicatorColumn,
       {
         key: 'value',
         title: (
