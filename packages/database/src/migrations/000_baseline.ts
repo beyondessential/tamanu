@@ -40,6 +40,9 @@ export async function up(query: QueryInterface): Promise<void> {
       );
     }
 
+    await (pgClient as any).query(`
+      COMMENT ON TABLE public."SequelizeMeta" IS '${BASELINE_APPLIED_COMMENT}'
+    `);
     await (pgClient as any).query(sql);
     await (pgClient as any).query('RESET search_path');
   } finally {
@@ -55,10 +58,6 @@ export async function up(query: QueryInterface): Promise<void> {
     `INSERT INTO "SequelizeMeta" (name) SELECT unnest($1::text[]) ON CONFLICT DO NOTHING`,
     { bind: [frozenMigrations] },
   );
-
-  await query.sequelize.query(`
-    COMMENT ON TABLE "SequelizeMeta" IS '${BASELINE_APPLIED_COMMENT}'
-  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
@@ -70,6 +69,10 @@ export async function down(query: QueryInterface): Promise<void> {
   `);
 
   if (!(results as any[])[0]?.baseline_applied) {
+    console.warn(
+      'Skipping 000_baseline down migration because the baseline-applied marker is absent. ' +
+        'This usually means 000_baseline.up exited early for a pre-existing schema.',
+    );
     return;
   }
 
