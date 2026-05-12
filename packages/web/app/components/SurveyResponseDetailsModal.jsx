@@ -59,24 +59,6 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-/** @privateRemarks Looks like an `<a>`, but has `<button>` semantics. */
-const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
-  children: (
-    <TranslatedText
-      stringId="general.action.viewChangeLog"
-      fallback="View change log"
-      casing="lower"
-    />
-  ),
-})`
-  cursor: pointer;
-  text-decoration-line: underline;
-  &:focus-visible,
-  &:hover {
-    color: ${p => p.theme.palette.primary.main};
-  }
-`;
-
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const {
     data: surveyDetails,
