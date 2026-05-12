@@ -1,5 +1,8 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 import { REFERENCE_TYPES } from '@tamanu/constants';
+
+const NOTES_BATCH_SIZE = 10000;
+const NOTES_NOTE_TYPE_ID_FKEY = 'notes_note_type_id_fkey';
 
 /**
  * Hardcoded note types to create in reference_data.
@@ -105,6 +108,38 @@ const NOTE_TYPE_REFERENCE_DATA = [
   },
 ];
 
+const noteTypeIds = NOTE_TYPE_REFERENCE_DATA.map(({ id }) => `'${id}'`).join(', ');
+
+async function updateNotesInBatches(
+  query: QueryInterface,
+  column: 'note_type' | 'note_type_id',
+  filter: string,
+  caseExpression: string,
+  fallbackValue: string,
+) {
+  let updatedCount = 0;
+  do {
+    const [updatedRows] = await query.sequelize.query(`
+      WITH batch AS (
+        SELECT id
+        FROM notes
+        WHERE ${filter}
+        ORDER BY id
+        LIMIT ${NOTES_BATCH_SIZE}
+      )
+      UPDATE notes
+      SET ${column} = CASE ${column}
+          ${caseExpression}
+          ELSE '${fallbackValue}'
+      END
+      FROM batch
+      WHERE notes.id = batch.id
+      RETURNING notes.id
+    `);
+    updatedCount = (updatedRows as unknown[]).length;
+  } while (updatedCount > 0);
+}
+
 export async function up(query: QueryInterface) {
   for (const noteType of NOTE_TYPE_REFERENCE_DATA) {
     await query.sequelize.query(
@@ -128,59 +163,45 @@ export async function up(query: QueryInterface) {
     );
   }
 
-  await query.addColumn('notes', 'note_type_id', {
-    type: DataTypes.STRING(255),
-    allowNull: true,
-    references: {
-      model: 'reference_data',
-      key: 'id',
-    },
-  });
-
   const otherNoteType = NOTE_TYPE_REFERENCE_DATA.find(({ code }) => code === 'other')!;
   const upCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${code}' THEN '${id}'`,
   ).join('\n        ');
-  await query.sequelize.query(`
-    UPDATE notes
-    SET note_type_id = CASE note_type
-        ${upCaseExpression}
-        ELSE '${otherNoteType.id}'
-    END
-  `);
-
-  await query.changeColumn('notes', 'note_type_id', {
-    type: DataTypes.STRING(255),
-    allowNull: false,
+  await updateNotesInBatches(
+    query,
+    'note_type',
+    `note_type NOT IN (${noteTypeIds})`,
+    upCaseExpression,
+    otherNoteType.id,
+  );
+  await query.renameColumn('notes', 'note_type', 'note_type_id');
+  await query.addConstraint('notes', {
+    fields: ['note_type_id'],
+    type: 'foreign key',
+    name: NOTES_NOTE_TYPE_ID_FKEY,
+    references: {
+      table: 'reference_data',
+      field: 'id',
+    },
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
   });
-
-  await query.removeColumn('notes', 'note_type');
 }
 
 export async function down(query: QueryInterface) {
-  await query.addColumn('notes', 'note_type', {
-    type: DataTypes.STRING(255),
-    allowNull: true,
-  });
-
+  await query.removeConstraint('notes', NOTES_NOTE_TYPE_ID_FKEY);
   const otherNoteType = NOTE_TYPE_REFERENCE_DATA.find(({ code }) => code === 'other')!;
   const downCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${id}' THEN '${code}'`,
   ).join('\n        ');
-  await query.sequelize.query(`
-    UPDATE notes
-    SET note_type = CASE note_type_id
-        ${downCaseExpression}
-        ELSE '${otherNoteType.code}'
-    END
-  `);
-
-  await query.changeColumn('notes', 'note_type', {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  });
-
-  await query.removeColumn('notes', 'note_type_id');
+  await updateNotesInBatches(
+    query,
+    'note_type_id',
+    `note_type_id IN (${noteTypeIds})`,
+    downCaseExpression,
+    otherNoteType.code,
+  );
+  await query.renameColumn('notes', 'note_type_id', 'note_type');
 
   await query.sequelize.query(`DELETE FROM reference_data WHERE type = :noteType`, {
     replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
