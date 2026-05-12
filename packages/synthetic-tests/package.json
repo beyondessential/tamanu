@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.52.13",
+  "version": "2.52.14",
   "private": true,
   "dependencies": {
     "@tamanu/fake-data": "*",
