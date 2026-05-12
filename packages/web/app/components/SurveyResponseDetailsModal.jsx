@@ -10,6 +10,7 @@ import {
   Modal,
   TranslatedReferenceData,
   TranslatedText,
+  UnstyledHtmlButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
@@ -67,7 +68,30 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+/** @privateRemarks Looks like an `<a>`, but has `<button>` semantics. */
+const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
+  children: (
+    <TranslatedText
+      stringId="general.action.viewChangeLog"
+      fallback="View change log"
+      casing="lower"
+    />
+  ),
+})`
+  cursor: pointer;
+  text-decoration-line: underline;
+  &:focus-visible,
+  &:hover {
+    color: ${p => p.theme.palette.primary.main};
+  }
+`;
+
+export const SurveyResponseDetailsModal = ({
+  surveyResponseId,
+  onClose,
+  onPrint,
+  onViewChangeLog = null,
+}) => {
   const {
     data: surveyDetails,
     isLoading,
@@ -179,7 +203,14 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {hasChanges && <EditedLegend />}
+          {onViewChangeLog && hasChanges && (
+            <EditedLegend style={{ marginBlockStart: 4, textAlign: 'end' }}>
+              <ViewChangeLogButton
+                onClick={() => onViewChangeLog(surveyResponseId)}
+                data-testid="surveyresponse-details-view-changelog"
+              />
+            </EditedLegend>
+          )}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
