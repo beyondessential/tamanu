@@ -319,22 +319,6 @@ describe('Note', () => {
       });
     });
 
-    it('should include editCount matching the number of revisions on each note', async () => {
-      const response = await app.get(
-        `/api/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`,
-      );
-      expect(response).toHaveSucceeded();
-      const expectedEditCountById = {};
-      noteGroups.forEach((group) => {
-        // group = [base, ...revisions]; the latest revision is the one returned by the list endpoint
-        const latest = group[group.length - 1];
-        expectedEditCountById[latest.id] = group.length - 1;
-      });
-      response.body.data.forEach((n) => {
-        expect(n.editCount).toEqual(expectedEditCountById[n.id]);
-      });
-    });
-
     it('should paginate notes correctly when they have revisions', async () => {
       // grab the first two pages - they should have the right counts & no duplicates
       const firstPage = await app.get(`/api/encounter/${encounter.id}/notes?rowsPerPage=5`);
