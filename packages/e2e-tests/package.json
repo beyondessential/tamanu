@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.52.8",
+  "version": "2.52.13",
   "private": true,
   "scripts": {
     "test": "playwright test",
