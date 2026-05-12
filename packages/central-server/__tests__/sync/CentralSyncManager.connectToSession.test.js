@@ -100,11 +100,27 @@ describe('CentralSyncManager.connectToSession', () => {
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
+    // Reset timestamps so this test doesn't depend on how long session preparation
+    // took on CI. The first connect call below should always be within timeout.
+    await models.SyncSession.update(
+      { createdAt: new Date(), updatedAt: new Date() },
+      {
+        where: { id: sessionId },
+        silent: true,
+      },
+    );
+
+    // Wait long enough to exceed syncSessionTimeoutMs from the reset baseline.
+    // We intentionally do this *before* the first connect call because the timeout
+    // check uses (updatedAt - createdAt), not wall-clock time directly.
     await sleepAsync(500);
 
-    // updated_at will be set to timestamp that is 500ms later
+    // First call should succeed, and it updates lastConnectionTime (therefore updatedAt).
+    // This validates the "can still connect" path after setup.
     await centralSyncManager.connectToSession(sessionId);
 
+    // Second call should now fail because updatedAt has moved further away from createdAt,
+    // so the timeout predicate evaluates true.
     await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
       `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
     );
