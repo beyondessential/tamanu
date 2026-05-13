@@ -117,27 +117,34 @@ async function updateNotesInBatches(
   caseExpression: string,
   fallbackValue: string,
 ) {
-  let updatedCount = 0;
+  let lastId: string | null = null;
   do {
-    const [updatedRows] = await query.sequelize.query(`
+    const queryResults = await query.sequelize.query(
+      `
       WITH batch AS (
         SELECT id
         FROM notes
-        WHERE ${filter}
+        WHERE ${lastId ? 'id > :lastId AND' : ''} ${filter}
         ORDER BY id
         LIMIT ${NOTES_BATCH_SIZE}
+      ),
+      updated AS (
+        UPDATE notes
+        SET ${column} = CASE ${column}
+            ${caseExpression}
+            ELSE '${fallbackValue}'
+        END
+        FROM batch
+        WHERE notes.id = batch.id
+        RETURNING notes.id
       )
-      UPDATE notes
-      SET ${column} = CASE ${column}
-          ${caseExpression}
-          ELSE '${fallbackValue}'
-      END
-      FROM batch
-      WHERE notes.id = batch.id
-      RETURNING notes.id
-    `);
-    updatedCount = (updatedRows as unknown[]).length;
-  } while (updatedCount > 0);
+      SELECT max(id)::text AS max_id FROM batch
+    `,
+      { replacements: { lastId } },
+    );
+    const results = queryResults[0] as { max_id: string | null }[];
+    lastId = (results as { max_id: string | null }[])[0]?.max_id ?? null;
+  } while (lastId);
 }
 
 export async function up(query: QueryInterface) {
@@ -167,14 +174,20 @@ export async function up(query: QueryInterface) {
   const upCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${code}' THEN '${id}'`,
   ).join('\n        ');
-  await updateNotesInBatches(
-    query,
-    'note_type',
-    `note_type NOT IN (${noteTypeIds})`,
-    upCaseExpression,
-    otherNoteType.id,
-  );
-  await query.renameColumn('notes', 'note_type', 'note_type_id');
+  try {
+    await query.sequelize.query('ALTER TABLE notes DISABLE TRIGGER USER');
+    await updateNotesInBatches(
+      query,
+      'note_type',
+      `note_type NOT IN (${noteTypeIds})`,
+      upCaseExpression,
+      otherNoteType.id,
+    );
+    await query.renameColumn('notes', 'note_type', 'note_type_id');
+  } finally {
+    await query.sequelize.query('ALTER TABLE notes ENABLE TRIGGER USER');
+  }
+
   await query.addConstraint('notes', {
     fields: ['note_type_id'],
     type: 'foreign key',
@@ -194,14 +207,19 @@ export async function down(query: QueryInterface) {
   const downCaseExpression = NOTE_TYPE_REFERENCE_DATA.map(
     ({ id, code }) => `WHEN '${id}' THEN '${code}'`,
   ).join('\n        ');
-  await updateNotesInBatches(
-    query,
-    'note_type_id',
-    `note_type_id IN (${noteTypeIds})`,
-    downCaseExpression,
-    otherNoteType.code,
-  );
-  await query.renameColumn('notes', 'note_type_id', 'note_type');
+  try {
+    await query.sequelize.query('ALTER TABLE notes DISABLE TRIGGER USER');
+    await updateNotesInBatches(
+      query,
+      'note_type_id',
+      `note_type_id IN (${noteTypeIds})`,
+      downCaseExpression,
+      otherNoteType.code,
+    );
+    await query.renameColumn('notes', 'note_type_id', 'note_type');
+  } finally {
+    await query.sequelize.query('ALTER TABLE notes ENABLE TRIGGER USER');
+  }
 
   await query.sequelize.query(`DELETE FROM reference_data WHERE type = :noteType`, {
     replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
