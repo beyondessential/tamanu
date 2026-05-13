@@ -121,9 +121,12 @@ export function getActiveActionComponents(components, originalValues) {
 
 export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
-  const resultComponents = components
-    .filter(c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT)
-    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
+  const mergedValues = { ...values, ...specialValues };
+  const resultComponents = components.filter(
+    c =>
+      c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT &&
+      checkVisibilityCriteria(c, components, mergedValues),
+  );
 
   const component = resultComponents.pop();
 
