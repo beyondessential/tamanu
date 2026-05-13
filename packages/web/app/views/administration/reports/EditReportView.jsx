@@ -25,17 +25,20 @@ const StyledButton = styled(OutlinedButton)`
 `;
 
 const getInitialValues = (version, report) => {
-  const { query, status, queryOptions, notes } = version;
-  const { dataSources, ...options } = queryOptions;
+  const { query, status, queryOptions, advancedConfig, notes } = version;
+  const { dataSources, parameters, dateRangeLabel, defaultDateRange } = queryOptions;
   const { name, dbSchema } = report;
   return {
     name,
     query,
     status,
     dbSchema,
-    ...options,
+    parameters,
+    dateRangeLabel,
+    defaultDateRange,
     dataSources,
     notes,
+    advancedConfig: advancedConfig && Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
   };
 };
 
@@ -57,20 +60,33 @@ export const EditReportView = () => {
     navigate('/admin/reports');
   };
 
-  const handleSave = async ({ query, status, dbSchema, notes, ...queryOptions }) => {
-    const { dataSources } = queryOptions;
-    const { reportDefinition } = version;
+  const handleSave = async ({
+    query,
+    status,
+    dbSchema,
+    notes,
+    parameters,
+    dateRangeLabel,
+    defaultDateRange,
+    dataSources,
+    advancedConfig = {},
+  }) => {
     const payload = {
       queryOptions: {
-        ...queryOptions,
+        parameters,
+        dateRangeLabel,
+        defaultDateRange,
         dataSources,
       },
+      advancedConfig,
       query,
       status,
       dbSchema,
       notes,
     };
+
     try {
+      const { reportDefinition } = version;
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
         <TranslatedText
@@ -118,6 +134,7 @@ export const EditReportView = () => {
             <VersionInfo version={version} data-testid="versioninfo-1dbs" />
           </Box>
           <ReportEditor
+            key={params.versionId}
             isEdit
             onSubmit={handleSave}
             initialValues={getInitialValues(version, version.reportDefinition)}

@@ -18,7 +18,7 @@ import {
   TranslatedText,
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
-import { JSONEditor } from './JSONEditor';
+import { JSONEditor } from '@tamanu/ui-components';
 import { MarkdownEditorModal } from './MarkdownEditorModal';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';

@@ -2,6 +2,7 @@ import { test as base, APIRequestContext, Page } from '@playwright/test';
 
 import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
 import {
+  AdminLoginPage,
   DashboardPage,
   LoginPage,
   SidebarPage,
@@ -30,6 +31,7 @@ type BaseFixtures = {
   newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithClinicAdmission: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithTriageAdmission: Awaited<ReturnType<typeof createPatient>>;
+  adminLoginPage: AdminLoginPage;
   dashboardPage: DashboardPage;
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
@@ -95,6 +97,10 @@ export const test = base.extend<BaseFixtures>({
 
   dashboardPage: async ({ page }, use) => {
     await use(new DashboardPage(page));
+  },
+
+  adminLoginPage: async ({ page }, use) => {
+    await use(new AdminLoginPage(page));
   },
 
   loginPage: async ({ page }, use) => {
