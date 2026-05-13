@@ -311,7 +311,9 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
-    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+    // Fallback to global settings when facilityId is undefined (multi-facility servers)
+    const settingsReader = settings?.[req.facilityId] ?? settings.global ?? settings;
+    const auditSettings = await settingsReader?.get('audit');
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates

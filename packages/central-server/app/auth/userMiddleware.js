@@ -37,7 +37,9 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
   req.sessionId = sessionId;
   /* eslint-enable require-atomic-updates */
 
-  const auditSettings = await settings?.[req.facilityId]?.get('audit');
+  // Fallback to global settings when facilityId is undefined (multi-facility servers)
+  const settingsReader = settings?.[req.facilityId] ?? settings.global ?? settings;
+  const auditSettings = await settingsReader?.get('audit');
 
     // Auditing middleware
     req.audit = initAuditActions(req, {
