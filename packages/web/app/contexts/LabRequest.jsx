@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
@@ -48,21 +48,21 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Published]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
-  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
+  const hasLoadedPreferences = useRef(false);
 
-  const { data: userPreferences, isLoading: isLoadingPreferences } = useUserPreferencesQuery();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  const { data: userPreferences } = useUserPreferencesQuery();
+  const { mutate: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const api = useApi();
 
   useEffect(() => {
-    if (!isLoadingPreferences && !hasLoadedPreferences) {
-      if (userPreferences?.labRequestSearchParameters) {
+    if (userPreferences && !hasLoadedPreferences.current) {
+      if (userPreferences.labRequestSearchParameters) {
         setSearchParameters(userPreferences.labRequestSearchParameters);
       }
-      setHasLoadedPreferences(true);
+      hasLoadedPreferences.current = true;
     }
-  }, [userPreferences, isLoadingPreferences, hasLoadedPreferences]);
+  }, [userPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
     (newSearchParameters) => {

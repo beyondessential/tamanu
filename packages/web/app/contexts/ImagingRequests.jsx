@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import { useUserPreferencesQuery } from '../api/queries';
@@ -40,19 +40,19 @@ export const ImagingRequestsProvider = ({ children }) => {
     [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
-  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
+  const hasLoadedPreferences = useRef(false);
 
-  const { data: userPreferences, isLoading: isLoadingPreferences } = useUserPreferencesQuery();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  const { data: userPreferences } = useUserPreferencesQuery();
+  const { mutate: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   useEffect(() => {
-    if (!isLoadingPreferences && !hasLoadedPreferences) {
-      if (userPreferences?.imagingRequestSearchParameters) {
+    if (userPreferences && !hasLoadedPreferences.current) {
+      if (userPreferences.imagingRequestSearchParameters) {
         setSearchParameters(userPreferences.imagingRequestSearchParameters);
       }
-      setHasLoadedPreferences(true);
+      hasLoadedPreferences.current = true;
     }
-  }, [userPreferences, isLoadingPreferences, hasLoadedPreferences]);
+  }, [userPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
     (newSearchParameters) => {
