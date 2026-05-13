@@ -37,5 +37,12 @@ export const SYNC_STREAM_MESSAGE_KIND = {
 // To bump: add a new shim file under packages/database/src/sync/wireShims, then
 // raise CURRENT_WIRE_SCHEMA by one. MIN_SUPPORTED_WIRE_SCHEMA moves up only when
 // dropping support for an older version (which retires its shims from the registry).
+//
+// PoC floor: version 0 represents the wire-shape as it stood before the
+// addExtraDataFieldToPatientDeathData migration (which added patient_death_data.extra_data
+// as a nullable JSONB). Version 1 is the current shape. The shim between them lives in
+// packages/database/src/sync/wireShimsRegistry.ts. Future wire-impacting migrations bump
+// CURRENT_WIRE_SCHEMA and add a new shim entry; the floor moves up only when retiring
+// support for an older facility version.
 export const CURRENT_WIRE_SCHEMA = 1;
-export const MIN_SUPPORTED_WIRE_SCHEMA = 1;
+export const MIN_SUPPORTED_WIRE_SCHEMA = 0;

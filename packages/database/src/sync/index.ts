@@ -24,3 +24,5 @@ export * from './sanitizeRecord';
 export * from './transactions';
 export * from './withDeferredSyncSafeguards';
 export * from './wireShims';
+// Import for side-effect: registers the shim chain at module load time.
+import './wireShimsRegistry';
