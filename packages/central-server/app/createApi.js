@@ -107,11 +107,17 @@ export async function createApi(ctx) {
     next();
   });
 
-  // Sync routes negotiate version compatibility via their own wire-schema handshake
-  // when sync.allowVersionSkew is enabled, so they need to bypass the strict semver
-  // gate (which otherwise rejects any facility one minor version off).
+  // When sync.allowVersionSkew is enabled, version compatibility for facility clients
+  // is delegated to the wire-schema handshake on session open (see buildSyncRoutes).
+  // We have to bypass the strict semver gate for *all* facility endpoints — not just
+  // /api/sync — because an old facility also hits /api/login, /api/refresh, and other
+  // pre-sync routes during normal operation. Web and mobile clients keep the strict
+  // gate so admin and clinical UIs continue to refuse incompatible versions.
   express.use((req, res, next) => {
-    if (config.sync?.allowVersionSkew === true && req.path.startsWith('/api/sync')) {
+    if (
+      config.sync?.allowVersionSkew === true &&
+      req.header('X-Tamanu-Client') === SERVER_TYPES.FACILITY
+    ) {
       next();
       return;
     }
