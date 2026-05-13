@@ -43,16 +43,12 @@ export const getReferenceRange = ({
 }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
-  let defaultMax: number | null | undefined;
-  let defaultMin: number | null | undefined;
-  if (sex === SEX_VALUES.MALE) {
-    defaultMax = labTestType.maleMax;
-    defaultMin = labTestType.maleMin;
-  } else if (sex === SEX_VALUES.FEMALE) {
-    defaultMax = labTestType.femaleMax;
-    defaultMin = labTestType.femaleMin;
-  }
-  // For 'other' or unknown sex, defaultMax/defaultMin remain undefined and we fall through to rangeText or N/A
+  const { defaultMax, defaultMin } =
+    sex === SEX_VALUES.MALE
+      ? { defaultMax: labTestType.maleMax, defaultMin: labTestType.maleMin }
+      : sex === SEX_VALUES.FEMALE
+        ? { defaultMax: labTestType.femaleMax, defaultMin: labTestType.femaleMin }
+        : ({} as { defaultMax?: number | null; defaultMin?: number | null });
   const overrideMax = labTest?.referenceRangeMax;
   const overrideMin = labTest?.referenceRangeMin;
   const max = isNil(overrideMax) ? defaultMax : overrideMax;
