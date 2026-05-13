@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Box, Collapse, IconButton } from '@material-ui/core';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SyncIcon from '@mui/icons-material/Sync';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
 import { Button, TextButton } from '@tamanu/ui-components';
 
 import { Colors } from '../constants';
@@ -81,8 +82,12 @@ const Disclaimer = styled.p`
   font-weight: 500;
 `;
 
+const EditedText = styled.span`
+  display: block;
+`;
+
 const StyledEditIcon = styled(EditIcon)`
-  font-size: 18px;
+  font-size: 10px;
   color: ${Colors.primary};
 `;
 
@@ -133,7 +138,7 @@ const DiscardButton = styled(TextButton)`
 
 const SaveButton = styled(Button)`
   font-size: 14px;
-  padding: 6px 16px;
+  padding: 10px 16px;
   text-transform: none;
   min-width: 0;
 `;
@@ -148,8 +153,11 @@ const CancelButton = styled(TextButton)`
 const LoadingContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  justify-content: center;
+  background: ${Colors.background2};
+  border: 1px solid ${Colors.softOutline};
+  border-radius: 4px;
+  min-height: 96px;
 `;
 
 const ErrorText = styled(BodyText)`
@@ -188,6 +196,7 @@ export const AiPatientSummary = ({ patient }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
+  const attemptedRegenerationDocumentId = useRef(null);
 
   const {
     data: existingData,
@@ -203,24 +212,52 @@ export const AiPatientSummary = ({ patient }) => {
     isLoading: isGenerating,
     error,
   } = useGenerateAiPatientSummary(patient.id);
+  const generatedAiDocument = generatedData?.recordId === patient.id ? generatedData : null;
 
   const { mutate: saveSummary, isLoading: isSaving } = useSaveAiPatientSummary(patient.id);
 
   const { mutate: discardSummary, isLoading: isDiscarding } = useDiscardAiPatientSummary(patient.id);
 
-  // Auto-generate only after confirming no existing summary on the server
+  // Auto-generate only after confirming the server has no summary, or that it is stale.
   useEffect(() => {
-    if (hasCheckedForExisting && !existingData?.aiDocument) {
+    if (!hasCheckedForExisting || isGenerating || error) {
+      return;
+    }
+
+    if (!existingData?.aiDocument) {
+      if (generatedAiDocument) {
+        return;
+      }
+
+      generateSummary();
+      return;
+    }
+
+    if (
+      existingData.requiresRegeneration &&
+      attemptedRegenerationDocumentId.current !== existingData.aiDocument.id
+    ) {
+      attemptedRegenerationDocumentId.current = existingData.aiDocument.id;
       generateSummary();
     }
-  }, [hasCheckedForExisting, existingData?.aiDocument]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    error,
+    generateSummary,
+    generatedAiDocument,
+    hasCheckedForExisting,
+    existingData?.aiDocument,
+    existingData?.requiresRegeneration,
+    isGenerating,
+  ]);
 
   const hasExisting = existingData?.aiDocument && !isDiscarded;
   const noExistingSummary = hasCheckedForExisting && !existingData?.aiDocument;
-  const pendingGeneration = noExistingSummary && !generatedData && !error;
+  const pendingGeneration = noExistingSummary && !generatedAiDocument && !error;
   const isLoading = isLoadingExisting || isGenerating || pendingGeneration;
-  const documentId = existingData?.aiDocument?.id ?? generatedData?.id;
-  const summary = (hasExisting ? existingData.aiDocument.content : null) ?? generatedData?.content;
+  const aiDocument = generatedAiDocument ?? existingData?.aiDocument;
+  const documentId = generatedAiDocument?.id ?? existingData?.aiDocument?.id;
+  const summary = generatedAiDocument?.content ?? (hasExisting ? existingData.aiDocument.content : null);
+  const isHumanEdited = aiDocument?.source === 'human' && aiDocument?.status === 'edited';
 
   const handleEdit = () => {
     setEditContent(summary);
@@ -270,12 +307,6 @@ export const AiPatientSummary = ({ patient }) => {
           {isLoading && (
             <LoadingContainer>
               <CircularProgress size={20} />
-              <BodyText color="textTertiary">
-                <TranslatedText
-                  stringId="ai.patientSummary.generating"
-                  fallback="Generating summary..."
-                />
-              </BodyText>
             </LoadingContainer>
           )}
           {!isLoading && error && !isDiscarded && (
@@ -317,6 +348,11 @@ export const AiPatientSummary = ({ patient }) => {
                     stringId="ai.patientSummary.disclaimer"
                     fallback="This is AI generated and may contain inaccuracies."
                   />
+                  {isHumanEdited && (
+                    <EditedText>
+                      <TranslatedText stringId="ai.patientSummary.edited" fallback="(edited)" />
+                    </EditedText>
+                  )}
                 </Disclaimer>
                 <IconButton size="small" onClick={handleEdit} data-testid="ai-summary-edit">
                   <StyledEditIcon />
