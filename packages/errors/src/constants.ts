@@ -15,6 +15,7 @@ export const ERROR_TYPE = {
   REMOTE_INCOMPATIBLE: 'remote-incompatible',
   REMOTE_UNREACHABLE: 'remote-unreachable',
   STORAGE_INSUFFICIENT: 'storage-insufficient',
+  SYNC_WIRE_SCHEMA_INCOMPATIBLE: 'sync-wire-schema-incompatible',
   UNKNOWN: 'unknown',
   UNIMPLEMENTED: 'unimplemented',
   VALIDATION: 'validation',

@@ -25,3 +25,17 @@ export const SYNC_STREAM_MESSAGE_KIND = {
   PULL_WAITING: 0x0002,
   PULL_CHANGE: 0x0003,
 };
+
+// Wire-schema version: a monotonically incrementing integer that's bumped only when a
+// sync-impacting migration lands (one that changes the JSON shape of a synced record).
+//
+// CURRENT is what this build emits and accepts as canonical. MIN_SUPPORTED is the
+// oldest wire-schema version this build's shim registry can upcast/downcast through.
+// When the central server has `sync.allowVersionSkew` enabled, an incoming sync
+// session can declare any version in [MIN_SUPPORTED_WIRE_SCHEMA, CURRENT_WIRE_SCHEMA].
+//
+// To bump: add a new shim file under packages/database/src/sync/wireShims, then
+// raise CURRENT_WIRE_SCHEMA by one. MIN_SUPPORTED_WIRE_SCHEMA moves up only when
+// dropping support for an older version (which retires its shims from the registry).
+export const CURRENT_WIRE_SCHEMA = 1;
+export const MIN_SUPPORTED_WIRE_SCHEMA = 1;

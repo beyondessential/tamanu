@@ -5,6 +5,7 @@ export { ForbiddenError } from './ForbiddenError';
 export { InsufficientStorageError } from './InsufficientStorageError';
 export { NotFoundError } from './NotFoundError';
 export { RateLimitedError } from './RateLimitedError';
+export { SyncWireSchemaIncompatibleError } from './SyncWireSchemaIncompatibleError';
 export { UnimplementedError } from './UnimplementedError';
 export { UnknownError } from './UnknownError';
 export { UsageError } from './UsageError';
