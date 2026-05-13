@@ -46,7 +46,7 @@ export const ImagingRequestsProvider = ({ children }) => {
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   useEffect(() => {
-    if (!isLoadingPreferences && !hasLoadedPreferences) {
+    if (!isLoadingPreferences && !hasLoadedPreferences && userPreferences) {
       if (userPreferences?.imagingRequestSearchParameters) {
         setSearchParameters(userPreferences.imagingRequestSearchParameters);
       }

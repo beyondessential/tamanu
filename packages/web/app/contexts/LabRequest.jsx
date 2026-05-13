@@ -56,7 +56,7 @@ export const LabRequestProvider = ({ children }) => {
   const api = useApi();
 
   useEffect(() => {
-    if (!isLoadingPreferences && !hasLoadedPreferences) {
+    if (!isLoadingPreferences && !hasLoadedPreferences && userPreferences) {
       if (userPreferences?.labRequestSearchParameters) {
         setSearchParameters(userPreferences.labRequestSearchParameters);
       }
