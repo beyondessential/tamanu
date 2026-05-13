@@ -265,6 +265,7 @@ const FormFields = ({ encounterType }) => {
     case ENCOUNTER_TYPES.ADMISSION:
       return <HospitalAdmissionFields />;
     case ENCOUNTER_TYPES.CLINIC:
+    case ENCOUNTER_TYPES.IMAGING:
       return <ClinicFields />;
     case ENCOUNTER_TYPES.TRIAGE:
     case ENCOUNTER_TYPES.EMERGENCY:
@@ -299,6 +300,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
         estimatedEndDate,
       };
     case ENCOUNTER_TYPES.CLINIC:
+    case ENCOUNTER_TYPES.IMAGING:
       return {
         ...baseInitialValues,
         referralSourceId,
