@@ -23,3 +23,4 @@ export * from './incomingSyncHook';
 export * from './sanitizeRecord';
 export * from './transactions';
 export * from './withDeferredSyncSafeguards';
+export * from './wireShims';

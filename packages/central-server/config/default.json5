@@ -82,6 +82,11 @@
     "maxRecordsPerSnapshotChunk": 1000000000,
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
+    // When true, central accepts sync sessions from facility servers running an older
+    // wire-schema version (within the supported window). Records are upcast/downcast
+    // through the shim registry as they flow. When false (default), only sessions
+    // declaring the current wire-schema version are accepted.
+    "allowVersionSkew": false,
     "lookupTable": {
       "enabled": true,
       "perModelUpdateTimeoutMs": null,

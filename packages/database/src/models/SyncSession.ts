@@ -19,6 +19,7 @@ export class SyncSession extends Model {
   declare errors?: string;
   declare debugInfo?: Record<string, object>;
   declare parameters?: Record<string, object>;
+  declare wireSchemaVersion?: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -37,6 +38,7 @@ export class SyncSession extends Model {
         errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
         parameters: { type: DataTypes.JSONB, allowNull: false, defaultValue: {} },
+        wireSchemaVersion: { type: DataTypes.INTEGER, allowNull: true },
       },
       {
         ...options,
