@@ -1,51 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { Op } from 'sequelize';
 
-import { NotFoundError, ValidationError } from '@tamanu/errors';
-import { CentralServerConnection } from '../../../../sync';
-import { fetchPatientSummaryData } from '../../../../services/patientSummaryData';
-
-/**
- * Query logs.changes for ai_documents that were edited by a human for a given patient.
- * Returns pairs of { aiGenerated, userEdited } content so the AI can learn from corrections.
- */
-async function getEditFeedback(patientId, sequelize) {
-  // Find ai_documents for this patient that were edited (source = 'human', status = 'edited')
-  // Then look up the change log to find the original AI-generated content before the edit
-  const editedDocs = await sequelize.query(
-    `SELECT id, content FROM ai_documents
-     WHERE record_type = 'Patient' AND record_id = :patientId
-     AND status = 'edited' AND source = 'human'
-     ORDER BY updated_at DESC
-     LIMIT 5`,
-    { replacements: { patientId }, type: QueryTypes.SELECT },
-  );
-
-  if (editedDocs.length === 0) return [];
-
-  const feedback = [];
-  for (const doc of editedDocs) {
-    // Get the earliest change log entry for this record (the original AI-generated version)
-    const [originalLog] = await sequelize.query(
-      `SELECT record_data->>'content' AS content FROM logs.changes
-       WHERE table_name = 'ai_documents' AND record_id = :recordId
-       AND (record_data->>'source') = 'ai'
-       ORDER BY logged_at ASC
-       LIMIT 1`,
-      { replacements: { recordId: doc.id }, type: QueryTypes.SELECT },
-    );
-
-    if (originalLog?.content && doc.content && originalLog.content !== doc.content) {
-      feedback.push({
-        aiGenerated: originalLog.content,
-        userEdited: doc.content,
-      });
-    }
-  }
-
-  return feedback;
-}
+import { NotFoundError } from '@tamanu/errors';
+import { regenerateAiPatientSummary } from '../../../../services/patientSummary';
 
 export const patientSummaryRoute = express.Router();
 
@@ -53,15 +11,33 @@ patientSummaryRoute.get(
   '/:patientId',
   asyncHandler(async (req, res) => {
     const { patientId } = req.params;
-    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'PatientSummary');
 
-    const { AiDocument } = req.models;
+    const { AiDocument, Encounter } = req.models;
     const existing = await AiDocument.findOne({
-      where: { recordType: 'Patient', recordId: patientId },
-      order: [['createdAt', 'DESC']],
+      where: { recordType: 'Patient', recordId: patientId, summaryType: 'patient' },
     });
 
-    res.send({ aiDocument: existing?.forResponse() ?? null });
+    if (!existing) {
+      res.send({ aiDocument: null, requiresRegeneration: false });
+      return;
+    }
+
+    const newActiveEncounterSinceSummary = await Encounter.findOne({
+      attributes: ['id'],
+      where: {
+        patientId,
+        endDate: null,
+        updatedAtSyncTick: { [Op.gt]: existing.updatedAtSyncTick },
+      },
+    });
+
+    if (!newActiveEncounterSinceSummary) {
+      res.send({ aiDocument: existing.forResponse(), requiresRegeneration: false });
+      return;
+    }
+
+    res.send({ aiDocument: existing.forResponse(), requiresRegeneration: true });
   }),
 );
 
@@ -71,30 +47,19 @@ patientSummaryRoute.post(
     const { patientId } = req.params;
     const { deviceId } = req;
 
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('create', 'PatientSummary');
+    req.checkPermission('read', 'PatientSummary');
 
-    const { Patient, AiDocument } = req.models;
+    const { Patient } = req.models;
     const patientExists = await Patient.count({ where: { id: patientId } });
     if (!patientExists) {
       throw new NotFoundError('Patient not found');
     }
 
-    const patientData = await fetchPatientSummaryData(patientId, req.models);
-    const editFeedback = await getEditFeedback(patientId, req.db);
-
-    const centralServer = new CentralServerConnection({ deviceId });
-    const aiResponse = await centralServer.fetch('ai/patient/summary', {
-      method: 'POST',
-      body: { patientData, editFeedback },
-      backoff: { maxAttempts: 3, maxWaitMs: 5000 },
-    });
-
-    const doc = await AiDocument.create({
-      summaryType: 'patient',
-      recordType: 'Patient',
-      recordId: patientId,
-      content: aiResponse.content,
+    const doc = await regenerateAiPatientSummary({
+      patientId,
+      models: req.models,
+      db: req.db,
+      deviceId,
     });
 
     res.send(doc.forResponse());
@@ -118,9 +83,6 @@ patientSummaryRoute.put(
       updateFields.status = 'discarded';
       updateFields.content = null;
     } else {
-      if (!content) {
-        throw new ValidationError('Content is required');
-      }
       updateFields.status = 'edited';
       updateFields.content = content;
     }
