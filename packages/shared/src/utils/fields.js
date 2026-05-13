@@ -1,7 +1,4 @@
-import {
-  ACTION_DATA_ELEMENT_TYPES,
-  PROGRAM_DATA_ELEMENT_TYPES,
-} from '@tamanu/constants';
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
@@ -125,7 +122,7 @@ export function getActiveActionComponents(components, originalValues) {
 export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
   const resultComponents = components
-    .filter(c => c.dataElement.type === 'Result')
+    .filter(c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT)
     .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
 
   const component = resultComponents.pop();
