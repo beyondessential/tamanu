@@ -66,7 +66,8 @@ describe('DHIS2 integration processor', () => {
           parameters: [],
           defaultDateRange: 'allTime',
         }),
-        query: 'SELECT id, email from users;',
+        query:
+          "SELECT '202401' AS period, 'OU_TEST' AS orgunit, '' AS attributeoptioncombo, 'DE_TEST' AS dataelement, '' AS categoryoptioncombo, '10' AS value, '' AS comment;",
         status: REPORT_STATUSES.PUBLISHED,
       }),
     );
