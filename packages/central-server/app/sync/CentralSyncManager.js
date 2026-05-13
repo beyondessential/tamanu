@@ -786,7 +786,7 @@ export class CentralSyncManager {
   #modelMap = null;
   async addIncomingChanges(sessionId, changes) {
     const { sequelize, models } = this.store;
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     if (!this.#modelMap) {
       this.#modelMap = new Map(
@@ -795,6 +795,12 @@ export class CentralSyncManager {
           .map(m => [m.tableName, m]),
       );
     }
+
+    // Upcast incoming records' data through the shim chain forward to the canonical
+    // wire-schema this central is running, before any validation or persistence.
+    // No-op when the facility is at the current version.
+    const sourceWireSchema = session.wireSchemaVersion ?? CURRENT_WIRE_SCHEMA;
+    changes = applyChainToBatch(changes, sourceWireSchema, CURRENT_WIRE_SCHEMA);
 
     for (const change of changes) {
       const model = this.#modelMap.get(change.recordType);
