@@ -252,22 +252,6 @@ test.describe('Basic tests', () => {
     await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(
       patientDetails.residentialLandmark as string,
     );
-    });
-    await newImagingRequestModal.finaliseButton.click();
-    await imagingRequestPane.waitForPageToLoad();
-
-    const imagingType = await getTableItems(imagingRequestPane.page, 1, 'imagingType');
-    expect(imagingType[0]).toBe(formValues.imagingRequestType);
-    const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
-    expect(requestId[0]).toBe(imagingRequestCode);
-    const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-    expect(requestedAtTime[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
-    const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
-    expect(requestedBy[0]).toBe(formValues.requestingClinician);
-    const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
-    expect(priority[0]).toBe(formValues.priority);
-    const status = await getTableItems(imagingRequestPane.page, 1, 'status');
-    expect(status[0]).toBe('Pending');
   });
   test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
   test.skip('[BT-0010][AT-2007]add a document and view it', async ({
