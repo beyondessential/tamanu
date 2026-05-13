@@ -67,7 +67,10 @@ async function updateNotesInBatches(
         WHERE notes.id = batch.id
         RETURNING notes.id
       )
-      SELECT max(id)::text AS max_id FROM batch
+      SELECT id::text AS max_id
+      FROM batch
+      ORDER BY id DESC
+      LIMIT 1
     `,
       { replacements: { lastId } },
     );
