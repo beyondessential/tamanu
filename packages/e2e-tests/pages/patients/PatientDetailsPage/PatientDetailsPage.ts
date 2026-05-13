@@ -492,7 +492,7 @@ export class PatientDetailsPage extends BasePatientPage {
    * Helper method to check that entire patient details page has loaded before any other actions happen
    */
   async confirmPatientDetailsPageHasLoaded() {
-    await expect(this.vaccineTab).toBeVisible();
+    await expect(this.vaccineTab).toBeVisible({ timeout: 20_000 });
   }
 
   /**

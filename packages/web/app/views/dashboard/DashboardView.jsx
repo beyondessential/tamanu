@@ -255,7 +255,11 @@ export const DashboardView = () => {
   const showWelcomeMessage = !showTasks && !showAppointments && !showBookings;
 
   if (showWelcomeMessage) {
-    return <WelcomePane patientPerPage={patientPerPage} data-testid="welcomepane-ryx6" />;
+    return (
+      <div data-testid="welcomepane-ryx6" style={{ display: 'contents' }}>
+        <WelcomePane patientPerPage={patientPerPage} />
+      </div>
+    );
   }
 
   let subtitle = (
