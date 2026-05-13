@@ -82,6 +82,12 @@ body:json {
             ]
           },
           "valueString": "Negative",
+          "performer": [
+            {
+              "reference": "Practitioner/external-Practitioner",
+              "display": "External Practitioner"
+            }
+          ],
           "referenceRange": [
             {
               "low": {
@@ -108,8 +114,9 @@ docs {
   - each entry needs `resource`, `request.method = POST`, and `request.url`
   - resourceType must be one of the create-supported types
     (DiagnosticReport, Observation, ImagingStudy)
-  - Observation examples include optional `method` and `referenceRange`
-    fields; `method.coding[0].code` must match an existing `labTestMethod`
+  - Observation examples include optional `method`, `referenceRange`, and
+    `performer` (first `display` maps to `LabTest.laboratoryOfficer`);
+    `method.coding[0].code` must match an existing `labTestMethod`
   - all entries are processed inside one DB transaction; any failure rolls
     back the entire bundle and returns an OperationOutcome
   
