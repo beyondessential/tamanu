@@ -40,15 +40,19 @@ export const ImagingRequestsProvider = ({ children }) => {
     [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isLoadingPreferences } = useUserPreferencesQuery();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   useEffect(() => {
-    if (userPreferences?.imagingRequestSearchParameters) {
-      setSearchParameters(userPreferences.imagingRequestSearchParameters);
+    if (!isLoadingPreferences && !hasLoadedPreferences) {
+      if (userPreferences?.imagingRequestSearchParameters) {
+        setSearchParameters(userPreferences.imagingRequestSearchParameters);
+      }
+      setHasLoadedPreferences(true);
     }
-  }, [userPreferences]);
+  }, [userPreferences, isLoadingPreferences, hasLoadedPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
     (newSearchParameters) => {

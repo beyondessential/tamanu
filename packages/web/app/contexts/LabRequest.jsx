@@ -48,17 +48,21 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Published]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isLoadingPreferences } = useUserPreferencesQuery();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const api = useApi();
 
   useEffect(() => {
-    if (userPreferences?.labRequestSearchParameters) {
-      setSearchParameters(userPreferences.labRequestSearchParameters);
+    if (!isLoadingPreferences && !hasLoadedPreferences) {
+      if (userPreferences?.labRequestSearchParameters) {
+        setSearchParameters(userPreferences.labRequestSearchParameters);
+      }
+      setHasLoadedPreferences(true);
     }
-  }, [userPreferences]);
+  }, [userPreferences, isLoadingPreferences, hasLoadedPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
     (newSearchParameters) => {
