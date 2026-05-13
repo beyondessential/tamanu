@@ -2,7 +2,6 @@ import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
 import {
-  assertRecentDateTime,
   convertDateFormat,
   formatDateTimeForTable,
   formatForMuiDatePicker,
@@ -14,7 +13,6 @@ import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
-import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
 import { getUser, createApiContext } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import path from 'path';
