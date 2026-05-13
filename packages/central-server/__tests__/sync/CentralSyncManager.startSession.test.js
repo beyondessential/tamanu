@@ -67,6 +67,24 @@ describe('CentralSyncManager.startSession', () => {
     expect(syncSession).not.toBeUndefined();
   });
 
+  it('persists wireSchemaVersion when supplied so push/pull can apply the right shims', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession({ wireSchemaVersion: 0 });
+    await waitForSession(centralSyncManager, sessionId);
+
+    const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
+    expect(syncSession.wireSchemaVersion).toBe(0);
+  });
+
+  it('leaves wireSchemaVersion null when the caller does not declare one (backwards compatible)', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
+    expect(syncSession.wireSchemaVersion).toBeNull();
+  });
+
   it('tick-tocks the global clock', async () => {
     const centralSyncManager = initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();

@@ -1,5 +1,3 @@
-import { CURRENT_WIRE_SCHEMA, MIN_SUPPORTED_WIRE_SCHEMA } from '@tamanu/constants';
-
 // A WireShim translates a single record's JSON payload between two adjacent
 // wire-schema versions. Each shim covers exactly one bump: `versionFrom -> versionFrom + 1`.
 // The registry holds shims keyed by (recordType, versionFrom) and `applyChain` walks
@@ -26,11 +24,6 @@ export type Direction = 'upcast' | 'downcast';
 const shims: WireShim[] = [];
 
 export function registerWireShim(shim: WireShim): void {
-  if (shim.versionFrom < MIN_SUPPORTED_WIRE_SCHEMA || shim.versionFrom >= CURRENT_WIRE_SCHEMA) {
-    throw new Error(
-      `WireShim versionFrom=${shim.versionFrom} for ${shim.recordType} is outside the supported window [${MIN_SUPPORTED_WIRE_SCHEMA}, ${CURRENT_WIRE_SCHEMA - 1}]`,
-    );
-  }
   shims.push(shim);
 }
 
