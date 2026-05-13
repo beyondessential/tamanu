@@ -263,14 +263,16 @@ describe('Programs', () => {
       });
       expect(result).toHaveSucceeded();
 
-      const changelog = await app.get(`/api/surveyResponse/${encodeURIComponent(result.body.id)}/changes`);
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(result.body.id)}/changes`,
+      );
       expect(changelog).toHaveSucceeded();
       expect(changelog.body.changes).toEqual([]);
     });
 
     it('should list changelog after PATCH and keep end_time unchanged', async () => {
       const responseData = createDummySurveyResponse(testSurvey);
-      const post = await app.post(`/api/surveyResponse`).send({
+      const post = await app.post('/api/surveyResponse').send({
         ...responseData,
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
@@ -295,7 +297,9 @@ describe('Programs', () => {
       const after = await models.SurveyResponse.findByPk(responseId);
       expect(after.endTime).toEqual(before.endTime);
 
-      const changelog = await app.get(`/api/surveyResponse/${encodeURIComponent(responseId)}/changes`);
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(responseId)}/changes`,
+      );
       expect(changelog).toHaveSucceeded();
       expect(Array.isArray(changelog.body.changes)).toBe(true);
       expect(changelog.body.changes.length).toBeGreaterThan(0);
