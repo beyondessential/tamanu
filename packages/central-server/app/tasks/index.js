@@ -30,6 +30,7 @@ import { AutoDeleteMedicationRequests } from './AutoDeleteMedicationRequests';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
+import { ProgramRegistryPltfuFlagger } from './ProgramRegistryPltfuFlagger';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -61,6 +62,7 @@ export async function startScheduledTasks(context) {
     MedicationDiscontinuer,
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
+    ProgramRegistryPltfuFlagger,
     SendStatusToMetaServer,
   ];
 
