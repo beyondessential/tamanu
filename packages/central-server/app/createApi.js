@@ -107,7 +107,16 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(versionCompatibility);
+  // Sync routes negotiate version compatibility via their own wire-schema handshake
+  // when sync.allowVersionSkew is enabled, so they need to bypass the strict semver
+  // gate (which otherwise rejects any facility one minor version off).
+  express.use((req, res, next) => {
+    if (config.sync?.allowVersionSkew === true && req.path.startsWith('/api/sync')) {
+      next();
+      return;
+    }
+    versionCompatibility(req, res, next);
+  });
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
