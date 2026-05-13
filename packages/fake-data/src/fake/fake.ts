@@ -281,6 +281,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
       reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
     };
   },
+  LabTest: () => ({
+    referenceRangeMin: null,
+    referenceRangeMax: null,
+  }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     const nameGender: 'male' | 'female' =
