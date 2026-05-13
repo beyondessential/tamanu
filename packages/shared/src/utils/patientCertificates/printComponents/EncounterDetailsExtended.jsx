@@ -22,7 +22,7 @@ export const EncounterDetailsExtended = ({ encounter, discharge }) => {
       <Col>
         <DataItem
           label={getTranslation('general.localisedField.facility.label', 'Facility')}
-          value={location.facility.name}
+          value={location?.facility?.name}
           key="facility"
         />
         <DataItem
@@ -31,7 +31,7 @@ export const EncounterDetailsExtended = ({ encounter, discharge }) => {
               clinician: clinicianText,
             },
           })}
-          value={examiner.displayName}
+          value={examiner?.displayName}
           key="supervisingClinician"
         />
         <DataItem
@@ -57,7 +57,7 @@ export const EncounterDetailsExtended = ({ encounter, discharge }) => {
       <Col>
         <DataItem
           label={getTranslation('general.department.label', 'Department')}
-          value={department.name}
+          value={department?.name}
           key="department"
         />
         <DataItem
