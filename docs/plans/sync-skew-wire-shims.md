@@ -119,6 +119,86 @@ The flag belongs on **central** (since central is the side that holds the shim r
 
 The PoC framing means the first deliverable is self-contained, low-risk, and demonstrates the approach end-to-end without committing to the full 6-minor window.
 
+## Deployable PoC: pre-notes-migration facility ↔ post-migration central
+
+The unit and integration tests prove the mechanism. To convert that into something the team can demonstrate live — and the most persuasive case for investment — stand it up in staging with two facility builds talking to one central.
+
+### Branches involved
+
+| Role | Branch | What it gives you |
+|---|---|---|
+| Central + current facility build | `feat/sync/notes-skew-poc` | Current-version Tamanu (v2.56-class) with the wire-shim infrastructure, the notes shim, and the broadened legacy-gate bypass. |
+| Old facility build | `poc/sync/old-facility-2.45` | `release/2.45` plus a single 5-line patch that hardcodes `wireSchemaVersion: 0` in the session-open call. Otherwise stock v2.45 — pre-`migrateNoteTypesToReferenceData`. |
+
+Both branches are pushable through the existing per-commit build pipeline. No release cuts needed.
+
+### Topology
+
+```
+        ┌─────────────────────────────┐
+        │  Central (notes-skew-poc)   │   sync.allowVersionSkew = true
+        │  Postgres (current schema)  │
+        └──────┬─────────────────┬────┘
+               │                 │
+   sync (v0)   │                 │   sync (v1)
+               │                 │
+        ┌──────┴─────────┐    ┌──┴────────────────────┐
+        │ Facility A     │    │ Facility B             │
+        │ old-facility-  │    │ notes-skew-poc         │
+        │ 2.45 patched   │    │ (current build)        │
+        │ Postgres (old  │    │ Postgres (new schema)  │
+        │ schema, has    │    │                        │
+        │ notes.note_type│    │                        │
+        └────────────────┘    └────────────────────────┘
+```
+
+The two facilities run completely independent Postgres instances. They share users through central. Facility A holds the **old** notes schema (`notes.note_type` column, no FK); Facility B holds the **new** schema (`notes.note_type_id`).
+
+### Central configuration (the key bit)
+
+In central's config (e.g. `packages/central-server/config/local.json5` in the deployed artifact), set:
+
+```json5
+{
+  sync: {
+    allowVersionSkew: true,
+  },
+}
+```
+
+Everything else stays default. The flag is off by default in the shippable branch.
+
+### Demo flow
+
+1. **Bring up central**, run migrations (this is a current-version central, so it has all the post-v2.45 migrations, including `migrateNoteTypesToReferenceData`). Verify the `reference_data` table has the 16 `notetype-*` rows the migration creates.
+2. **Bring up Facility A** (old-facility-2.45). Run its migrations (it'll only have pre-2.45 migrations, so `notes.note_type` exists, `notes.note_type_id` does not).
+3. **Bring up Facility B** (current build) against the same central.
+4. **First sync from each facility** to bootstrap the shared reference data and users.
+5. **Create a note on Facility A** with `note_type = 'treatmentPlan'` against an encounter or patient record. Sync it.
+6. **Observe on central**: the row in `notes` has `note_type_id = 'notetype-treatmentPlan'`. The upcast worked.
+7. **Sync Facility B**: it pulls the note. Inspect Facility B's `notes` table — the same record is there with `note_type_id = 'notetype-treatmentPlan'`. No translation needed for B since it's already on the new schema.
+8. **Create a note on Facility B** with `note_type_id = 'notetype-medical'`. Sync it.
+9. **Observe on central** then on **Facility A**: A receives the record and stores it with `note_type = 'medical'`. The downcast worked.
+10. **Verify the negative test**: turn `sync.allowVersionSkew` off on central, restart, retry Facility A's sync. It should now fail at the legacy semver gate with the old `client-incompatible` error — proving the flag actually controls the feature.
+
+### Caveats for the demo
+
+- **Test data must avoid `patient_ongoing_prescriptions`.** That model has a separate wire-breaking change at ~v2.48 (id determinism) that this PoC doesn't shim and structurally can't shim cleanly. If the demo creates ongoing prescriptions on Facility A, sync will produce mismatched ids and confusing behaviour. Easiest fix: don't create prescriptions on Facility A during the demo.
+- **Other wire-breakers in the 2.45→2.56 range haven't been catalogued exhaustively.** The audit covered the three nearest, going back 13 minors; the full audit between 2.45 and 2.56 may turn up other shimmable ones. If unexpected sync failures occur on specific models, that's a candidate. The simplest workaround for the demo is to focus on notes, encounters, patients, users — the bread-and-butter clinical entities, all of which have been wire-stable.
+- **Old facility doesn't get a Sequelize-level error from the new central's missing `note_type` column.** Pulls work because the downcast translates `note_type_id` → `note_type` before the wire. The old facility's model expects `note_type`, which is what it receives. Pushes from old facility include `note_type`; the upcast translates to `note_type_id` before Sequelize's `bulkCreate` ever sees the record. Sequelize on central will silently drop the extra `note_type` key after the upcast.
+
+### What the demo proves
+
+- A facility on a real older version (not a unit-test mock) syncs reads and writes against a current central with no production-side rebuild of the facility.
+- The mechanism is opt-in (flag off → identical to current production).
+- The migration that hurt in production is the demonstration target — not a synthetic example.
+
+### What it doesn't prove (and follow-ups)
+
+- Long-running stability under sync load — that's a follow-up performance test.
+- Coverage of every wire-breaking migration in the window — a CI audit step is the right next step.
+- Mobile — out of scope; same mechanism applies later.
+
 ## Verification
 
 - Unit tests per shim: `upcast` then `downcast` round-trip on representative records; field-level invariants.
