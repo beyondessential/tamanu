@@ -200,6 +200,64 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
     });
 
+    it('post an Observation with referenceRange updates labTest referenceRangeMin/Max', async () => {
+      const result = '100';
+      const referenceRangeMin = 5;
+      const referenceRangeMax = 10;
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [
+          {
+            low: { value: referenceRangeMin },
+            high: { value: referenceRangeMax },
+          },
+        ],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+      expect(labTest.referenceRangeMin).toBe(referenceRangeMin);
+      expect(labTest.referenceRangeMax).toBe(referenceRangeMax);
+    });
+
     it('Will set lab test method on an existing lab test when Observation.method is provided', async () => {
       const result = '100';
 
@@ -260,6 +318,68 @@ describe('Create Observation', () => {
       expect(response).toHaveSucceeded();
       expect(labTest.result).toBe(result);
       expect(labTest.labTestMethodId).toBe(labTestMethod.id);
+    });
+
+    it('Will clear lab test method and reference range if omitted in a new Observation', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType, ReferenceData } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+      const labTestMethod = await ReferenceData.create({
+        code: 'FHIR_CLEAR_TEST_METHOD',
+        name: 'FHIR Clear Test Method',
+        type: 'labTestMethod',
+      });
+      await labTest.update({
+        labTestMethodId: labTestMethod.id,
+        referenceRangeMin: 5,
+        referenceRangeMax: 10,
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        referenceRange: [],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+      expect(labTest.labTestMethodId).toBeNull();
+      expect(labTest.referenceRangeMin).toBeNull();
+      expect(labTest.referenceRangeMax).toBeNull();
     });
 
     it('Will add a reflex test if the lab test code is not in the original request', async () => {
@@ -437,7 +557,8 @@ describe('Create Observation', () => {
           status: FHIR_OBSERVATION_STATUS.FINAL,
           code: {
             coding: testCode.coding.filter(
-              ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              ({ system }) =>
+                system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
             ),
           },
           method: {

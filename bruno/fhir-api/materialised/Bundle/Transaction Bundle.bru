@@ -64,7 +64,25 @@ body:json {
               }
             ]
           },
-          "valueString": "Negative"
+          "method": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "GeneXpert"
+              }
+            ]
+          },
+          "valueString": "Negative",
+          "referenceRange": [
+            {
+              "low": {
+                "value": 5
+              },
+              "high": {
+                "value": 10
+              }
+            }
+          ]
         },
         "request": {
           "method": "POST",
