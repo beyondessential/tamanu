@@ -49,6 +49,12 @@ body:json {
       ]
     },
     "valueString": "Negative",
+    "performer": [
+      {
+        "reference": "Practitioner/external-Practitioner",
+        "display": "External Practitioner"
+      }
+    ],
     "referenceRange": [
       {
         "low": {
@@ -76,7 +82,10 @@ docs {
     (`http://snomed.info/sct`) with a code matching a `labTestMethod`
     reference data record, e.g. the default `GeneXpert`
   - optional `referenceRange[0].low.value` and/or `referenceRange[0].high.value`
-  
+  - optional `performer` (FHIR Reference array): first entry with a non-empty
+    `display` is written to the upstream `LabTest.laboratoryOfficer`; omit or
+    omit `display` to clear it on update
+
   Run `bootstrap/Discover Lab ServiceRequest` first - it auto-populates the
   `labServiceRequestId`, `labTestCode`, and `labTestExternalCode` from a
   resolvable ServiceRequest's `orderDetail`.
