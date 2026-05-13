@@ -116,6 +116,11 @@ export class CentralServerConnection extends TamanuApi {
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
+        // PoC: declare this facility's wire shape (pre-migrateNoteTypesToReferenceData,
+        // ~v2.41 / release/2.45) so a skew-enabled central can apply the right shims.
+        // Hardcoded for the demo build; production work would compile this in from a
+        // constant matched to the build's actual schema state.
+        wireSchemaVersion: 0,
       },
     });
 
