@@ -3,11 +3,17 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 import { isNil } from 'lodash';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  CURRENT_WIRE_SCHEMA,
+  DEBUG_LOG_TYPES,
+  SETTINGS_SCOPES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
+  applyChainToBatch,
   bumpSyncTickForRepull,
   incomingSyncHook,
   completeSyncSession,
@@ -128,7 +134,13 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
+  async startSession({
+    deviceId,
+    facilityIds,
+    isMobile,
+    wireSchemaVersion,
+    ...debugInfo
+  } = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
@@ -146,6 +158,7 @@ export class CentralSyncManager {
         lastConnectionTime: startTime,
         debugInfo,
         parameters,
+        wireSchemaVersion,
       });
     } catch (error) {
       // If the session creation fails, we need to release the lock otherwise it will hold up
@@ -671,13 +684,23 @@ export class CentralSyncManager {
     );
     const { minSourceTick, maxSourceTick, isMobile } = session.parameters;
 
+    // Downcast each record's JSON payload through the shim chain back to the
+    // wire-schema version this facility speaks. When the facility is at the current
+    // version (or didn't declare one), this is a no-op.
+    const targetWireSchema = session.wireSchemaVersion ?? CURRENT_WIRE_SCHEMA;
+    const downcastedRecords = applyChainToBatch(
+      snapshotRecords,
+      CURRENT_WIRE_SCHEMA,
+      targetWireSchema,
+    );
+
     // Currently on mobile we don't need to attach changelog to snapshot records
     // as changelog data is not stored on mobile. We can also skip if the source tick range is not available.
     if (isMobile || !minSourceTick || !maxSourceTick) {
-      return snapshotRecords;
+      return downcastedRecords;
     }
 
-    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, downcastedRecords, {
       minSourceTick,
       maxSourceTick,
     });

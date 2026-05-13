@@ -1,7 +1,12 @@
 import config from 'config';
 
 import { TamanuApi } from '@tamanu/api-client';
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
+import {
+  CURRENT_WIRE_SCHEMA,
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  DEVICE_SCOPES,
+} from '@tamanu/constants';
 
 import { ERROR_TYPE } from '@tamanu/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -116,6 +121,7 @@ export class CentralServerConnection extends TamanuApi {
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
+        wireSchemaVersion: CURRENT_WIRE_SCHEMA,
       },
     });
 

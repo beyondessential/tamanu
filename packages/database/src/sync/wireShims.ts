@@ -70,6 +70,29 @@ export function applyChain(
   return current;
 }
 
+// Apply the shim chain in place to the `data` field of a list of snapshot records.
+// Snapshot rows carry `recordType` (the model's tableName) and `data` (the JSON payload),
+// matching the shape `findSyncSnapshotRecords` returns and the shape `addIncomingChanges`
+// receives. The caller passes the session's wire-schema version vs the current one to
+// pick the direction; `applyChain` short-circuits when they are equal so this is safe
+// (and effectively free) to call unconditionally.
+interface SnapshotRecordLike {
+  recordType: string;
+  data: Record<string, unknown>;
+}
+
+export function applyChainToBatch<T extends SnapshotRecordLike>(
+  records: T[],
+  fromVersion: number,
+  toVersion: number,
+): T[] {
+  if (fromVersion === toVersion) return records;
+  return records.map(record => ({
+    ...record,
+    data: applyChain(record.recordType, record.data, fromVersion, toVersion),
+  }));
+}
+
 // Helper combinators for common shim shapes. Each returns a partial WireShim that the
 // caller composes with `recordType` and `versionFrom`.
 

@@ -1,12 +1,21 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import {
+  ForbiddenError,
+  InvalidParameterError,
+  SyncWireSchemaIncompatibleError,
+} from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
-import { DEVICE_SCOPES } from '@tamanu/constants';
+import {
+  CURRENT_WIRE_SCHEMA,
+  DEVICE_SCOPES,
+  MIN_SUPPORTED_WIRE_SCHEMA,
+} from '@tamanu/constants';
 
 import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
@@ -44,12 +53,30 @@ export const buildSyncRoutes = ctx => {
         store,
         user,
         device,
-        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile },
+        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile, wireSchemaVersion },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
       if (!facilityIds || facilityIds.length === 0) {
         throw new InvalidParameterError('No facilities provided');
+      }
+
+      // The facility declares which wire-schema version it speaks. When the skew
+      // feature flag is on we enforce the supported window; when it's off we require
+      // the facility to be at exactly the current version (i.e. behave as before),
+      // but still accept an absent header for backwards compatibility with any
+      // pre-feature client that hasn't been updated to send it.
+      const negotiatedWireSchema =
+        typeof wireSchemaVersion === 'number' ? wireSchemaVersion : CURRENT_WIRE_SCHEMA;
+      const allowSkew = config.sync.allowVersionSkew === true;
+      const lowerBound = allowSkew ? MIN_SUPPORTED_WIRE_SCHEMA : CURRENT_WIRE_SCHEMA;
+      if (negotiatedWireSchema < lowerBound || negotiatedWireSchema > CURRENT_WIRE_SCHEMA) {
+        throw new SyncWireSchemaIncompatibleError(
+          `Facility declared wire schema ${negotiatedWireSchema}; this central supports [${lowerBound}, ${CURRENT_WIRE_SCHEMA}]`,
+        ).withExtraData({
+          minSupportedWireSchema: lowerBound,
+          maxSupportedWireSchema: CURRENT_WIRE_SCHEMA,
+        });
       }
 
       const userInstance = await store.models.User.findByPk(user.id);
@@ -132,6 +159,7 @@ export const buildSyncRoutes = ctx => {
           deviceId: device.id,
           facilityIds,
           isMobile,
+          wireSchemaVersion: negotiatedWireSchema,
         });
 
         res.json({ status: 'goodToGo', sessionId, tick });
