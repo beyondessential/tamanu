@@ -68,25 +68,28 @@ const StyledAccordionSummary = styled(AccordionSummary)`
 
 const AdvancedConfigField = ({ field, form }) => {
   const { name, value } = field;
-  const { setFieldValue, errors, touched } = form;
+  const { setFieldValue, setFieldError, errors, touched } = form;
   const [jsonString, setJsonString] = useState(value ? JSON.stringify(value, null, 2) : '');
   const [jsonError, setJsonError] = useState(null);
 
-  const handleChange = (newValue) => {
+  const handleChange = newValue => {
     setJsonString(newValue);
     setJsonError(null);
 
     if (!newValue || newValue.trim() === '') {
       setFieldValue(name, null);
+      setFieldError(name, undefined);
       return;
     }
 
     try {
       const parsed = JSON.parse(newValue);
       setFieldValue(name, parsed);
+      setFieldError(name, undefined);
     } catch (err) {
       // Invalid JSON — keep the string in the editor but don't update Formik
       setJsonError(err);
+      setFieldError(name, err.message);
     }
   };
 
@@ -348,10 +351,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             },
           )
           .required(),
-        defaultDateRange: yup
-          .string()
-          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
-          .required(),
+        defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
         dbSchema: yup
           .string()
           .nullable()
