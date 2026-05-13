@@ -1,6 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
@@ -278,7 +279,7 @@ export const OutpatientsView = () => {
         data-testid="topbar-a2n3"
       />
       <RecentlyViewedPatientsList
-        encounterType="clinic"
+        encounterType={[ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.IMAGING]}
         data-testid="recentlyviewedpatientslist-ymdi"
       />
       <ContentPane data-testid="contentpane-szs6">
