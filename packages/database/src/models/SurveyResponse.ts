@@ -71,7 +71,7 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
-    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName] ??= {};
     recordValuesByModel[modelName][fieldName] = value;
   }
   return recordValuesByModel;
