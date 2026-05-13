@@ -11,9 +11,13 @@ import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
+const CONTEXT_SETTINGS_KEY = {
+  [AI_CONTEXT_NAMES.PATIENT_SUMMARY]: 'patientSummary',
+};
+
 export class AIService {
-  /** @type {Map<string, string>} */
-  contexts = new Map();
+  /** @type {import('@tamanu/settings').ReadSettings} */
+  settings;
 
   /** @type {NodeCache} */
   sessions = new NodeCache({ stdTTL: SESSION_TTL_SECONDS, checkperiod: 300, useClones: false });
@@ -42,6 +46,7 @@ export class AIService {
     }
 
     const service = new AIService();
+    service.settings = settings;
     service.chatModel = new ChatAnthropic({
       anthropicApiKey,
       model: anthropicModel,
@@ -65,8 +70,6 @@ export class AIService {
       historyMessagesKey: 'history',
     });
 
-    await service.registerAllContexts(settings);
-
     log.info(`AIService: initialised with model "${anthropicModel}"`);
     return service;
   }
@@ -75,35 +78,20 @@ export class AIService {
     this.sessions.close();
   }
 
-  async registerAllContexts(settings) {
-    const { patientSummarySystemPrompt } = await settings.get('ai');
-    const { prompts: patientSummaryDefaultPrompt } = await settings.get('patientSummary');
-    const systemPrompt = patientSummarySystemPrompt || patientSummaryDefaultPrompt;
-    if (!systemPrompt) {
-      log.warn('AIService: no patient summary system prompt configured');
-    }
-    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, systemPrompt ?? '');
-  }
-
   /**
-   * Register a named context (system prompt). Call once per feature at startup.
+   * Resolve the system prompt for a context by reading from settings,
+   * so admin changes take effect without a restart.
    *
-   * @param {string} name
-   * @param {string} systemPrompt
-   */
-  registerContext(name, systemPrompt) {
-    this.contexts.set(name, systemPrompt);
-  }
-
-  /**
    * @param {string} contextName
-   * @returns {string}
+   * @returns {Promise<string>}
    */
-  getContext(contextName) {
-    if (!this.contexts.has(contextName)) {
+  async getContext(contextName) {
+    const settingsKey = CONTEXT_SETTINGS_KEY[contextName];
+    if (!settingsKey) {
       throw new Error(`AI context "${contextName}" is not registered`);
     }
-    return this.contexts.get(contextName);
+    const { prompts } = await this.settings.get(settingsKey);
+    return prompts;
   }
 
   /**
@@ -115,7 +103,7 @@ export class AIService {
   async createSession(contextName) {
     const sessionId = nanoid();
     const history = new InMemoryChatMessageHistory();
-    await history.addMessage(new SystemMessage(this.getContext(contextName)));
+    await history.addMessage(new SystemMessage(await this.getContext(contextName)));
     this.sessions.set(sessionId, history);
     return sessionId;
   }
@@ -154,7 +142,7 @@ export class AIService {
    */
   async invoke(contextName, userMessage) {
     return this.chatModel.invoke([
-      new SystemMessage(this.getContext(contextName)),
+      new SystemMessage(await this.getContext(contextName)),
       ['human', userMessage],
     ]);
   }

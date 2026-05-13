@@ -39,12 +39,6 @@ export const centralSettings = {
           type: yup.string(),
           defaultValue: 'claude-sonnet-4-20250514',
         },
-        patientSummarySystemPrompt: {
-          name: 'Patient summary system prompt',
-          description: 'The system prompt to use for the patient summary',
-          type: yup.string(),
-          defaultValue: '',
-        },
       },
     },
     disk: {
