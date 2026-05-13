@@ -277,18 +277,15 @@ const NoteFooter = ({ note }) => {
     </Text>
   );
 };
-const NotesMultipageCellPadding = () => {
-  let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
+const NoteTypeHeading = ({ note }) => {
+  const { getTranslation } = useLanguageContext();
   return (
-    <View
-      fixed
-      render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurrence && subPageNumber) {
-          firstPageOccurrence = pageNumber;
-        }
-        return pageNumber !== firstPageOccurrence && <View style={{ paddingBottom: 7 }} />;
-      }}
-    />
+    <Text bold style={textStyles.tableColumnHeader}>
+      {getTranslation(
+        getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
+        note.noteTypeReference?.name || note.noteTypeId,
+      )}
+    </Text>
   );
 };
 
@@ -301,43 +298,18 @@ const NotesSection = ({ notes }) => {
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
           {notes.map(note => (
-            <>
+            <React.Fragment key={note.id}>
               <View minPresenceAhead={80} />
-              <View style={tableStyles.notesRow} key={note.id}>
-                <View
-                  style={{
-                    borderTop: borderStyle,
-                    position: 'absolute',
-                    top: -1,
-                    right: 0,
-                    left: 0,
-                  }}
-                  fixed
-                />
+              <View style={tableStyles.notesRow}>
                 <NotesCell>
-                  <NotesMultipageCellPadding />
-                  <MultipageTableHeading
-                    title={getTranslation(
-                      getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
-                      note.noteTypeReference?.name || note.noteTypeId,
-                    )}
-                    style={textStyles.tableColumnHeader}
-                  />
-                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <NoteTypeHeading note={note} />
+                  <View style={{ width: '100%', marginBottom: 10 }}>
+                    <Text style={textStyles.tableCellContent}>{note.content}</Text>
+                  </View>
                   <NoteFooter note={note} />
-                  <View
-                    style={{
-                      borderBottom: borderStyle,
-                      position: 'absolute',
-                      bottom: -1,
-                      right: -1,
-                      left: -1,
-                    }}
-                    fixed
-                  />
                 </NotesCell>
               </View>
-            </>
+            </React.Fragment>
           ))}
         </Table>
       </View>
