@@ -458,8 +458,8 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .nullable()
           .translatedLabel(
             <TranslatedText
-              stringId="admin.report.validation.rule.invalidJson"
-              fallback="Invalid JSON format"
+              stringId="admin.report.advancedConfig.label"
+              fallback="Advanced Config"
               data-testid="translatedtext-invalid-json"
             />,
           ),
