@@ -68,8 +68,9 @@ const StyledAccordionSummary = styled(AccordionSummary)`
 
 const AdvancedConfigField = ({ field, form }) => {
   const { name, value } = field;
-  const { setFieldValue, setFieldError, errors } = form;
+  const { setFieldValue, errors, touched } = form;
   const [jsonString, setJsonString] = useState(value ? JSON.stringify(value, null, 2) : '');
+  const [jsonError, setJsonError] = useState(null);
   // Prevents the sync effect from reformatting the string after our own setFieldValue calls.
   const skipNextSync = useRef(false);
 
@@ -83,24 +84,28 @@ const AdvancedConfigField = ({ field, form }) => {
 
   const handleChange = (newValue) => {
     setJsonString(newValue);
+    // Always set — we call setFieldValue in every branch below.
+    skipNextSync.current = true;
 
     if (!newValue || newValue.trim() === '') {
-      skipNextSync.current = true;
       setFieldValue(name, null);
-      setFieldError(name, null);
+      setJsonError(null);
       return;
     }
 
     try {
       const parsed = JSON.parse(newValue);
-      skipNextSync.current = true;
       setFieldValue(name, parsed);
-      setFieldError(name, null);
+      setJsonError(null);
     } catch (err) {
-      // Don't update Formik value; set a field error to block submission.
-      setFieldError(name, err.message);
+      // Store the raw string so yup's .object() check fails and blocks submission.
+      setFieldValue(name, newValue);
+      setJsonError(err);
     }
   };
+
+  const fieldError = touched[name] && errors[name];
+  const displayError = jsonError || (fieldError ? new Error(fieldError) : null);
 
   return (
     <JSONEditorWrapper>
@@ -108,7 +113,7 @@ const AdvancedConfigField = ({ field, form }) => {
         value={jsonString}
         onChange={handleChange}
         editMode={true}
-        error={errors[name] ? new Error(errors[name]) : null}
+        error={displayError}
         placeholder="{}"
         height="200px"
         fontSize={14}

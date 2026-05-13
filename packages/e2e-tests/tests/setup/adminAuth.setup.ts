@@ -12,9 +12,6 @@ setup('authenticate admin', async ({ adminLoginPage }) => {
   await adminLoginPage.goto();
   await adminLoginPage.login(email, password);
 
-  // Ensure state is persisted
-  await adminLoginPage.page.waitForTimeout(1000);
-
   const authStatePath = path.join(__dirname, '../../.auth/admin.json');
   await adminLoginPage.page.context().storageState({ path: authStatePath });
 });

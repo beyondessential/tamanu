@@ -5,7 +5,8 @@ import { fetch } from 'undici';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import {
   getConfigSecret,
@@ -15,6 +16,7 @@ import {
 
 // https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_sending_bulks_data_values
 const convertToDHIS2DataValueSets = (reportData, dataSet) => {
+  if (!Array.isArray(reportData) || reportData.length === 0) return [];
   const [headers, ...rows] = reportData;
   const reportJSON = rows.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
 
@@ -25,12 +27,10 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
 
   // Transform each group of rows into a DHIS2 data value set object
-  return groupedRows.map(rows => {
-    // Extract common metadata from the first row (all rows in a group share these values)
-    const { period, orgunit: orgUnit, attributeoptioncombo: attributeOptionCombo } = rows[0];
+  return groupedRows.map(group => {
+    const { period, orgunit: orgUnit, attributeoptioncombo: attributeOptionCombo } = group[0];
 
-    // Map each row from the group to a data value object containing the actual data element values
-    const dataValues = rows.map(row => ({
+    const dataValues = group.map(row => ({
       dataElement: row.dataelement,
       categoryOptionCombo: row.categoryoptioncombo,
       value: row.value,
@@ -39,7 +39,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 
     // Construct the DHIS2 data value set object
     return {
-      ...(dataSet && { dataSet, completeDate: getCurrentDateString() }),
+      ...(dataSet && { dataSet, completeDate: getCurrentDateStringInTimezone(getPrimaryTimeZone(config)) }),
       period,
       orgUnit,
       attributeOptionCombo,
@@ -237,11 +237,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     for (const dataValueSet of dhis2DataValueSets) {
       try {
         const dhis2Response = await this.postToDHIS2(dataValueSet);
-        const {
-          message,
-          httpStatusCode,
-          response: { importCount, conflicts = [] } = {},
-        } = dhis2Response;
+        const { message, httpStatusCode, response } = dhis2Response;
+        const { importCount, conflicts = [] } = response ?? {};
 
         if (httpStatusCode === 200) {
           const successLog = await this.logDHIS2Push({
