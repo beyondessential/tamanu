@@ -2,6 +2,13 @@ import { QueryInterface } from 'sequelize';
 
 const NOTES_BATCH_SIZE = 10000;
 
+const NOTES_DERIVED_SIDE_EFFECT_TRIGGERS = [
+  'notify_notes_changed',
+  'record_notes_changelog',
+  'fhir_refresh',
+  'fhir_refresh_notes',
+];
+
 const NOTE_TYPE_REFERENCE_DATA = [
   { id: 'notetype-treatmentPlan', code: 'treatmentPlan' },
   { id: 'notetype-discharge', code: 'discharge' },
@@ -38,6 +45,35 @@ async function columnExists(query: QueryInterface, columnName: string): Promise<
     { replacements: { columnName } },
   );
   return Boolean((results as { exists: boolean }[])[0]?.exists);
+}
+
+async function triggerExists(query: QueryInterface, triggerName: string): Promise<boolean> {
+  const [results] = await query.sequelize.query(
+    `
+    SELECT EXISTS (
+      SELECT 1
+      FROM information_schema.triggers
+      WHERE event_object_schema = 'public'
+      AND event_object_table = 'notes'
+      AND trigger_name = :triggerName
+    ) AS exists
+  `,
+    { replacements: { triggerName } },
+  );
+  return Boolean((results as { exists: boolean }[])[0]?.exists);
+}
+
+async function setKnownDerivedSideEffectTriggersEnabled(
+  query: QueryInterface,
+  enabled: boolean,
+): Promise<void> {
+  for (const triggerName of NOTES_DERIVED_SIDE_EFFECT_TRIGGERS) {
+    if (await triggerExists(query, triggerName)) {
+      await query.sequelize.query(
+        `ALTER TABLE notes ${enabled ? 'ENABLE' : 'DISABLE'} TRIGGER ${triggerName}`,
+      );
+    }
+  }
 }
 
 async function updateNotesInBatches(
@@ -90,7 +126,7 @@ export async function up(query: QueryInterface): Promise<void> {
   ).join('\n        ');
 
   try {
-    await query.sequelize.query('ALTER TABLE notes DISABLE TRIGGER USER');
+    await setKnownDerivedSideEffectTriggersEnabled(query, false);
     await updateNotesInBatches(
       query,
       `note_type NOT IN (${noteTypeIds})`,
@@ -98,7 +134,7 @@ export async function up(query: QueryInterface): Promise<void> {
       otherNoteType.id,
     );
   } finally {
-    await query.sequelize.query('ALTER TABLE notes ENABLE TRIGGER USER');
+    await setKnownDerivedSideEffectTriggersEnabled(query, true);
   }
 }
 
@@ -113,7 +149,7 @@ export async function down(query: QueryInterface): Promise<void> {
   ).join('\n        ');
 
   try {
-    await query.sequelize.query('ALTER TABLE notes DISABLE TRIGGER USER');
+    await setKnownDerivedSideEffectTriggersEnabled(query, false);
     await updateNotesInBatches(
       query,
       `note_type NOT IN (${noteTypeCodes})`,
@@ -121,6 +157,6 @@ export async function down(query: QueryInterface): Promise<void> {
       otherNoteType.code,
     );
   } finally {
-    await query.sequelize.query('ALTER TABLE notes ENABLE TRIGGER USER');
+    await setKnownDerivedSideEffectTriggersEnabled(query, true);
   }
 }
