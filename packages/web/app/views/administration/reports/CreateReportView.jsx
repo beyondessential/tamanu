@@ -85,9 +85,7 @@ export const CreateReportView = () => {
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
           dbSchema: canEditSchema ? REPORT_DB_CONNECTIONS.RAW : null,
           parameters: [],
-          advancedConfig: {
-            dhis2DataSet: '',
-          },
+          advancedConfig: null,
         }}
         onSubmit={onSubmit}
         data-testid="reporteditor-kh3x"

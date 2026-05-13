@@ -1,12 +1,11 @@
 import { test, expect } from '../../fixtures/baseFixture';
 
 import { selectFieldOption } from '@utils/fieldHelpers';
+import { constructAdminUrl } from '@utils/navigation';
 
-const ADMIN_URL = process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:5174';
-
-// Admin panel auth is included in the shared storageState via auth.setup.ts.
+// Admin panel auth is included in the shared storageState via adminAuth.setup.ts.
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${ADMIN_URL}/admin/reports`);
+  await page.goto(constructAdminUrl('/admin/reports'));
 });
 
 test.setTimeout(90000);

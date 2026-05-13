@@ -1,7 +1,6 @@
 import config from 'config';
 import { pick, groupBy } from 'lodash';
 import { fetch } from 'undici';
-import { utils } from 'xlsx';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -14,26 +13,10 @@ import {
   SecretNotConfiguredError,
 } from '@tamanu/shared/utils/crypto';
 
-// DHIS2 dataValueSet object format:
-// {
-//   "dataSet": "dataSetID",
-//   "completeDate": "date",
-//   "period": "period",
-//   "orgUnit": "orgUnitID",
-//   "attributeOptionCombo": "aocID",
-//   "dataValues": [
-//     {
-//       "dataElement": "dataElementID",
-//       "categoryOptionCombo": "cocID",
-//       "value": "1",
-//       "comment": "comment1"
-//     },
-//     ...
-//   ]
-// }
+// https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_sending_bulks_data_values
 const convertToDHIS2DataValueSets = (reportData, dataSet) => {
-  // Convert 2D array report data to JSON format
-  const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
+  const [headers, ...rows] = reportData;
+  const reportJSON = rows.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
 
   // Group rows by their composite key (period + orgunit + attributeoptioncombo)
   const createGroupingKey = ({ period = '', orgunit = '', attributeoptioncombo = '' }) =>
