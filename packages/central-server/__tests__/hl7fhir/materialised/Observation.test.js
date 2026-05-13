@@ -258,6 +258,62 @@ describe('Create Observation', () => {
       expect(labTest.referenceRangeMax).toBe(referenceRangeMax);
     });
 
+    it('sets laboratoryOfficer from Observation.performer display when present', async () => {
+      const result = '100';
+      const performerDisplay = 'Dr FHIR Performer';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      const testCode = mat.orderDetail[0];
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.code$': testCode.coding.find(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          )?.code,
+        },
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: testCode.coding.filter(
+            ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+          ),
+        },
+        valueString: result,
+        performer: [
+          {
+            reference: 'Practitioner/example',
+            display: performerDisplay,
+          },
+        ],
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+      expect(labTest.laboratoryOfficer).toBe(performerDisplay);
+    });
+
     it('Will set lab test method on an existing lab test when Observation.method is provided', async () => {
       const result = '100';
 
