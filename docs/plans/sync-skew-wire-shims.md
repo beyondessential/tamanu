@@ -1,5 +1,10 @@
 # Cross-version sync via per-release wire shims
 
+## Branches
+
+- **`feat/sync/wire-shims`**: the shippable infrastructure stack. Plumbing only, with a small demonstration shim. Safe to merge under the `sync.allowVersionSkew=false` default flag.
+- **`feat/sync/notes-skew-poc`**: a high-impact demonstration on top of the infra branch. Implements a real shim for migration `1759894448776-migrateNoteTypesToReferenceData` (~v2.41) so a pre-migration facility can sync with a current central. This is the migration that hurt in production, and the PoC proves the mechanism handles it cleanly.
+
 ## Context
 
 Major upgrades cause cascading downtime: central upgrades → all facilities lose sync (the version gate rejects them) → each facility must be migrated → during migration the facility app can't run either. The previously-planned "best-effort read-only mode on facility during its own migration" addresses only the *second* downtime, is complex, and still leaves a sync outage during central's upgrade.
@@ -7,6 +12,19 @@ Major upgrades cause cascading downtime: central upgrades → all facilities los
 A better win is **skew-tolerant sync**: central can upgrade without taking facilities offline, and facilities upgrade on their own cadence within a defined window. We want this with reads *and writes*. The target window is **~3 months, i.e. up to 6 minor versions**.
 
 This is independent of online facility-side migrations (still desirable, separate work).
+
+## Audit findings: nearest wire-breaking migrations
+
+A thorough audit going back 15+ minor releases turned up only three real wire-breakers on synced models:
+
+| Migration | Approx version | Affected model | Shimmability |
+|---|---|---|---|
+| `1770250000001-makePatientOngoingPrescriptionIdDeterministic` | ~v2.48 (8 minors back) | PatientOngoingPrescription | **Hard** — id moved from random UUID to a deterministic composite; no way to reconstruct old ids on downcast |
+| `1764037831379-renameInvoiceItemSavedFieldsAddPriceFinal` | ~v2.45 (11 minors back) | InvoiceItem | Clean — pure rename + drop, fits `renameField` + `removeField` combinators |
+| `1761600704418-updateChangeTypeToArray` | ~v2.43 (13 minors back) | EncounterHistory | Clean — wrap/unwrap scalar↔singleton-array |
+| `1759894448776-migrateNoteTypesToReferenceData` | ~v2.41 (15 minors back) | Note | Clean — closed 16-entry mapping, with `'other'` as a sensible fallback for unknown values |
+
+The team's expand-contract discipline really shows here. **For the stated 3-month / 6-minor target there are zero wire-breakers.** The PoC focuses on the notes migration because (a) it caused real production pain, (b) it's the most demonstrative case (real value translation, not just a rename), and (c) all its mappings are deterministic and bounded.
 
 ## Direction (chosen)
 
