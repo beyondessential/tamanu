@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
@@ -68,30 +68,39 @@ const StyledAccordionSummary = styled(AccordionSummary)`
 
 const AdvancedConfigField = ({ field, form }) => {
   const { name, value } = field;
-  const { setFieldValue, errors, touched } = form;
+  const { setFieldValue, setFieldError, errors } = form;
   const [jsonString, setJsonString] = useState(value ? JSON.stringify(value, null, 2) : '');
-  const [jsonError, setJsonError] = useState(null);
+  // Prevents the sync effect from reformatting the string after our own setFieldValue calls.
+  const skipNextSync = useRef(false);
+
+  useEffect(() => {
+    if (skipNextSync.current) {
+      skipNextSync.current = false;
+      return;
+    }
+    setJsonString(value ? JSON.stringify(value, null, 2) : '');
+  }, [value]);
 
   const handleChange = (newValue) => {
     setJsonString(newValue);
-    setJsonError(null);
 
     if (!newValue || newValue.trim() === '') {
+      skipNextSync.current = true;
       setFieldValue(name, null);
+      setFieldError(name, null);
       return;
     }
 
     try {
       const parsed = JSON.parse(newValue);
+      skipNextSync.current = true;
       setFieldValue(name, parsed);
+      setFieldError(name, null);
     } catch (err) {
-      // Invalid JSON — keep the string in the editor but don't update Formik
-      setJsonError(err);
+      // Don't update Formik value; set a field error to block submission.
+      setFieldError(name, err.message);
     }
   };
-
-  const fieldError = touched[name] && errors[name];
-  const displayError = jsonError || (fieldError ? new Error(fieldError) : null);
 
   return (
     <JSONEditorWrapper>
@@ -99,7 +108,7 @@ const AdvancedConfigField = ({ field, form }) => {
         value={jsonString}
         onChange={handleChange}
         editMode={true}
-        error={displayError}
+        error={errors[name] ? new Error(errors[name]) : null}
         placeholder="{}"
         height="200px"
         fontSize={14}
