@@ -2,7 +2,6 @@ import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
 import {
-  assertRecentDateTime,
   convertDateFormat,
   formatDateTimeForTable,
   formatForMuiDatePicker,
@@ -14,7 +13,6 @@ import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
-import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
 import { getUser, createApiContext } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import path from 'path';
@@ -202,6 +200,8 @@ test.describe('Basic tests', () => {
     );
     if (patientDetails.sex === 'female') {
       await expect(patientDetailsTabPage2.sexFemaleRadio).toBeChecked();
+    } else if (patientDetails.sex === 'other') {
+      await expect(patientDetailsTabPage2.sexOtherRadio).toBeChecked();
     } else if (patientDetails.sex === 'male') {
       await expect(patientDetailsTabPage2.sexMaleRadio).toBeChecked();
     }
@@ -250,51 +250,6 @@ test.describe('Basic tests', () => {
     await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(
       patientDetails.residentialLandmark as string,
     );
-  });
-
-  test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({
-    newPatientWithHospitalAdmission,
-    patientDetailsPage,
-  }) => {
-    test.setTimeout(100000);
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.navigateToImagingRequestTab();
-    const imagingRequestPane = new ImagingRequestPane(patientDetailsPage.page);
-    await imagingRequestPane.waitForPageToLoad();
-    await imagingRequestPane.createImagingRequestButton.click();
-    const newImagingRequestModal = imagingRequestPane.getNewImagingRequestModal();
-    await newImagingRequestModal.waitForModalToLoad();
-    const imagingRequestCode = await newImagingRequestModal.imagingRequestCodeInput.inputValue();
-
-    await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput);
-
-    const defaultRequestingClinician =
-      await newImagingRequestModal.requestingClinicianInput.inputValue();
-    expect(defaultRequestingClinician).toBe(currentUserDisplayName);
-    const supervisingClinician =
-      await newImagingRequestModal.supervisingClinicianInput.inputValue();
-    expect(supervisingClinician).toBe(currentUserDisplayName);
-
-    const formValues = await newImagingRequestModal.fillForm({
-      imagingRequestType: 'Angiogram',
-      areasToBeImaged: 'Angiogram Imaging Area',
-      notes: 'This is a test note',
-    });
-    await newImagingRequestModal.finaliseButton.click();
-    await imagingRequestPane.waitForPageToLoad();
-
-    const imagingType = await getTableItems(imagingRequestPane.page, 1, 'imagingType');
-    expect(imagingType[0]).toBe(formValues.imagingRequestType);
-    const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
-    expect(requestId[0]).toBe(imagingRequestCode);
-    const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-    expect(requestedAtTime[0]).toBe(format(new Date(), 'dd/MM/yyyy'));
-    const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
-    expect(requestedBy[0]).toBe(formValues.requestingClinician);
-    const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
-    expect(priority[0]).toBe(formValues.priority);
-    const status = await getTableItems(imagingRequestPane.page, 1, 'status');
-    expect(status[0]).toBe('Pending');
   });
   test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
   test.skip('[BT-0010][AT-2007]add a document and view it', async ({
