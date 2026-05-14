@@ -64,6 +64,16 @@ sources:
             description: "{{ doc('program_registries__program_id') }}"
             data_tests:
               - not_null
+          - name: loss_to_follow_up_enabled
+            data_type: boolean
+            description: "{{ doc('program_registries__loss_to_follow_up_enabled') }}"
+            data_tests:
+              - not_null
+          - name: loss_to_follow_up_threshold_days
+            data_type: integer
+            description: "{{ doc('program_registries__loss_to_follow_up_threshold_days') }}"
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in program_registries."
