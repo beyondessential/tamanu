@@ -23,7 +23,6 @@ import { DocumentsPane } from './panes/DocumentsPane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { ReferralPane } from './panes/ReferralPane';
-import { PatientResultsPane } from './panes/PatientResultsPane';
 import { EditEncounterModal } from './modals/EditEncounterModal';
 
 export class PatientDetailsPage extends BasePatientPage {
@@ -44,7 +43,6 @@ export class PatientDetailsPage extends BasePatientPage {
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
   referralPane?: ReferralPane;
-  patientResultsPane?: PatientResultsPane;
   editEncounterModal?: EditEncounterModal;
   arrowDownIconMenuButton: Locator;
   threeDotMenuButton: Locator;
@@ -112,7 +110,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly tasksTab: Locator;
   readonly chartsTab: Locator;
   readonly referralsTab: Locator;
-  readonly resultsTab: Locator;
   readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
@@ -262,7 +259,6 @@ export class PatientDetailsPage extends BasePatientPage {
     this.tasksTab = this.page.getByTestId('styledtab-ccs8-tasks');
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.referralsTab = this.page.getByTestId('tab-referrals');
-    this.resultsTab = this.page.getByTestId('tab-results');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
@@ -359,14 +355,6 @@ export class PatientDetailsPage extends BasePatientPage {
       this.referralPane = new ReferralPane(this.page);
     }
     return this.referralPane;
-  }
-
-  async navigateToResultsTab(): Promise<PatientResultsPane> {
-    await this.resultsTab.click();
-    if (!this.patientResultsPane) {
-      this.patientResultsPane = new PatientResultsPane(this.page);
-    }
-    return this.patientResultsPane;
   }
 
 

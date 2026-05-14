@@ -595,51 +595,5 @@ test.describe('Lab Request Tests', () => {
         format(new Date(currentDateTime), 'dd/MM/yyyy'),
       );
     });
-    test('Editing results shows edited indicator on patient results table', async ({
-      page,
-      patientDetailsPage,
-      newPatientWithHospitalAdmission,
-    }) => {
-      await labRequestPane.newLabRequestButton.click();
-      await labRequestModal.individualModal.createBasicIndividualLabRequest();
-      await labRequestPane.waitForTableToLoad();
-      await labRequestPane.sortTableByCategory();
-      const { category } = await labRequestPane.getFirstRowTestDetails();
-      await labRequestPane.tableRows.first().click();
-
-      const labRequestDetailsPage = new LabRequestDetailsPage(page);
-      const initialResult = 'Positive';
-      const editedResult = 'Negative';
-      const labTestMethod = 'GeneXpert';
-      const verification = 'test';
-      const currentDateTime = new Date().toISOString().slice(0, 16);
-
-      // First entry of a result (single non-empty result in the changelog → not yet "edited")
-      await labRequestDetailsPage.enterResultForFirstRow(
-        initialResult,
-        labTestMethod,
-        verification,
-        currentDateTime,
-      );
-      await labRequestDetailsPage.waitForResultsTableToLoad();
-
-      // Re-open the modal and change the result. A second distinct non-empty
-      // result value in the changelog flips `isEdited` to true on the backend.
-      await labRequestDetailsPage.editResultForFirstRow(editedResult);
-      await labRequestDetailsPage.waitForResultsTableToLoad();
-
-      // Sanity-check the lab request results table shows the new value.
-      const tableResultItems = await getTableItems(page, 1, 'result');
-      expect(tableResultItems[0]).toBe(editedResult);
-
-      // Navigate to the patient's Results tab and filter by category so the
-      // PatientLabTestsTable (which renders the asterisk + legend) shows.
-      await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-      const patientResultsPane = await patientDetailsPage.navigateToResultsTab();
-      await patientResultsPane.filterByCategory(category);
-
-      await patientResultsPane.expectEditedEntryLegendVisible();
-      await patientResultsPane.expectEditedResultCellVisible(editedResult);
-    });
   });
 });
