@@ -1,4 +1,5 @@
 export { DashboardPage } from './DashboardPage';
+export * from './dashboard';
 export { LoginPage } from './LoginPage';
 export { SidebarPage } from './SidebarPage';
 

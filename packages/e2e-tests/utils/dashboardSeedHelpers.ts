@@ -1,13 +1,4 @@
-import {
-  add,
-  addMilliseconds,
-  addDays,
-  differenceInMilliseconds,
-  format,
-  isValid,
-  parse,
-  startOfDay,
-} from 'date-fns';
+import { add, format, startOfDay } from 'date-fns';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
@@ -17,96 +8,51 @@ import { testData } from './testData';
 /** Matches facility datetime strings used in server tests (e.g. Appointments.test.js). */
 const toFacilityDateTimeString = (d: Date) => format(d, 'yyyy-MM-dd HH:mm:ss');
 
-/** Defaults match `packages/settings/src/schema/facility.ts` (`appointments.bookingSlots`). */
-const DEFAULT_BOOKING_SLOT_SETTINGS = {
-  startTime: '09:00',
-  endTime: '17:00',
-  slotDuration: '30min',
-} as const;
-
-export type AppointmentBookingSlotSettings = {
-  startTime: string;
-  endTime: string;
-  slotDuration: string;
-};
+const THIRTY_MINUTES = { minutes: 30 } as const;
 
 /**
- * Same duration subset as `durationStringSchema` / `ms()` used in `useBookingSlots.jsx`.
+ * Fixed 30-minute candidate windows for `POST /api/appointments/locationBooking` retries, restricted to
+ * the **same local calendar day** as `referenceTime` so dashboard "today" panes (e.g. AT-2109) stay valid.
+ * Does not add next-day fallbacks — callers that need "today" visibility should get a clear error instead.
  */
-function parseSlotDurationToMilliseconds(slotDuration: string): number {
-  const m = slotDuration
-    .trim()
-    .match(/^(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h)$/i);
-  if (!m) {
-    throw new Error(`Unsupported booking slotDuration for E2E: ${slotDuration}`);
-  }
-  const n = parseFloat(m[1]);
-  const unit = m[2].toLowerCase();
-  if (unit.startsWith('h')) {
-    return Math.round(n * 60 * 60 * 1000);
-  }
-  if (unit === 's' || unit.startsWith('sec')) {
-    return Math.round(n * 1000);
-  }
-  return Math.round(n * 60 * 1000);
-}
+function buildTodayLocationBookingTimeWindowAttempts(referenceTime: Date): { start: Date; end: Date }[] {
+  const windows: { start: Date; end: Date }[] = [];
 
-/**
- * Mirrors `calculateTimeSlots` in `packages/web/app/hooks/useBookingSlots.jsx` (Book location modal slices).
- */
-export function calculateLocationBookingTimeSlots(
-  bookingSlotSettings: AppointmentBookingSlotSettings,
-  calendarDay: Date,
-): { start: Date; end: Date }[] {
-  if (!isValid(calendarDay)) {
-    throw new Error('calculateLocationBookingTimeSlots: invalid calendar day');
+  const cushion = add(referenceTime, { minutes: 2 });
+  const alignedToNextHalfHour = new Date(cushion);
+  alignedToNextHalfHour.setSeconds(0, 0);
+  const remainder = alignedToNextHalfHour.getMinutes() % 30;
+  const firstFromNowAligned = add(alignedToNextHalfHour, {
+    minutes: remainder === 0 ? 0 : 30 - remainder,
+  });
+  for (let i = 0; i < 6; i += 1) {
+    const start = add(firstFromNowAligned, { minutes: i * 30 });
+    windows.push({ start, end: add(start, THIRTY_MINUTES) });
   }
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDayBoundary = parse(startTime, 'HH:mm', calendarDay);
-  const endOfDayBoundary = parse(endTime, 'HH:mm', calendarDay);
-  const durationMs = parseSlotDurationToMilliseconds(slotDuration);
-  const slotCount = differenceInMilliseconds(endOfDayBoundary, startOfDayBoundary) / durationMs;
-  const slots: { start: Date; end: Date }[] = [];
-  for (let i = 0; i < slotCount; i++) {
-    const start = addMilliseconds(startOfDayBoundary, i * durationMs);
-    const end = addMilliseconds(start, durationMs);
-    slots.push({ start, end });
-  }
-  return slots;
-}
 
-/** Prefer slots that still end after `now`, then earlier same-day slots (same ordering strategy as picking “next” slices). */
-function orderBookingSlotsForAttempts(
-  slots: { start: Date; end: Date }[],
-  now: Date,
-): { start: Date; end: Date }[] {
-  const firstWithFutureEnd = slots.findIndex(s => s.end > now);
-  if (firstWithFutureEnd <= 0) {
-    return [...slots];
+  const nextFullHour = new Date(referenceTime);
+  nextFullHour.setMinutes(0, 0, 0);
+  nextFullHour.setHours(nextFullHour.getHours() + 1);
+  for (let i = 0; i < 8; i += 1) {
+    const start = add(nextFullHour, { minutes: i * 30 });
+    windows.push({ start, end: add(start, THIRTY_MINUTES) });
   }
-  return [...slots.slice(firstWithFutureEnd), ...slots.slice(0, firstWithFutureEnd)];
-}
 
-/**
- * Reads `appointments.bookingSlots` from `GET /api/settings/frontEnd` when present; otherwise defaults.
- * Aligns with what the facility UI uses for the Book location time toggles (`useBookingSlots`).
- */
-export async function fetchAppointmentBookingSlotSettings(
-  api: APIRequestContext,
-): Promise<AppointmentBookingSlotSettings> {
-  const res = await api.get(constructFacilityUrl('/api/settings/frontEnd'));
-  if (!res.ok()) {
-    throw new Error(`fetchAppointmentBookingSlotSettings failed: ${res.status()} ${await res.text()}`);
-  }
-  const body = (await res.json()) as {
-    settings?: { appointments?: { bookingSlots?: Partial<AppointmentBookingSlotSettings> } };
-  };
-  const raw = body.settings?.appointments?.bookingSlots;
-  return {
-    startTime: raw?.startTime ?? DEFAULT_BOOKING_SLOT_SETTINGS.startTime,
-    endTime: raw?.endTime ?? DEFAULT_BOOKING_SLOT_SETTINGS.endTime,
-    slotDuration: raw?.slotDuration ?? DEFAULT_BOOKING_SLOT_SETTINGS.slotDuration,
-  };
+  const calendarDayStart = startOfDay(referenceTime);
+  const calendarDayEnd = add(calendarDayStart, { days: 1 });
+
+  const seen = new Set<number>();
+  return windows.filter((w) => {
+    const key = w.start.getTime();
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  }).filter(
+    (w) =>
+      w.start.getTime() >= calendarDayStart.getTime() && w.start.getTime() < calendarDayEnd.getTime(),
+  );
 }
 
 export type CreatedAppointment = Record<string, unknown>;
@@ -186,9 +132,11 @@ export async function fetchBookableLocationsForLocationBookingsTab(
 }
 
 /**
- * Creates a location booking overlapping “now”, assigned to the clinician, using any **bookable**
- * location returned for the current facility (same list as the scheduling → location bookings tab).
- * Retries staggered time windows per location on 409 (slot conflict).
+ * Creates a location booking for the clinician using any **bookable** location for the current facility
+ * (same list as scheduling → location bookings). Tries fixed 30-minute windows **on the current local
+ * calendar day only** (half-hour alignment + next-hour series), advancing on **409** conflicts only.
+ * Does not book into the next day: a tomorrow booking would not show in the dashboard "today" pane
+ * (e.g. AT-2109) and would fail later with a misleading "element not found".
  */
 export async function createTodayLocationBookingViaApi(
   api: APIRequestContext,
@@ -207,18 +155,16 @@ export async function createTodayLocationBookingViaApi(
     );
   }
 
-  const bookingSlotSettings = await fetchAppointmentBookingSlotSettings(api);
   const now = new Date();
-  const today = startOfDay(now);
-  const todaySlots = calculateLocationBookingTimeSlots(bookingSlotSettings, today);
-  const tomorrowSlots = calculateLocationBookingTimeSlots(bookingSlotSettings, addDays(today, 1));
-  const slotAttempts = [
-    ...orderBookingSlotsForAttempts(todaySlots, now),
-    ...orderBookingSlotsForAttempts(tomorrowSlots, now),
-  ];
+  const timeWindowAttempts = buildTodayLocationBookingTimeWindowAttempts(now);
+  if (timeWindowAttempts.length === 0) {
+    throw new Error(
+      'createTodayLocationBookingViaApi: no candidate windows left on the current local calendar day (e.g. near midnight with no remaining same-day slots). Cannot seed a booking visible in the "today" bookings pane.',
+    );
+  }
 
   for (const { id: locationId } of locations) {
-    for (const { start, end } of slotAttempts) {
+    for (const { start, end } of timeWindowAttempts) {
       const body = {
         patientId: params.patientId,
         clinicianId: params.clinicianId,
@@ -239,7 +185,7 @@ export async function createTodayLocationBookingViaApi(
   }
 
   throw new Error(
-    `createTodayLocationBookingViaApi: no free slot after trying ${locations.length} bookable location(s) and ${slotAttempts.length} booking-slot-aligned window(s) per location`,
+    `createTodayLocationBookingViaApi: no free slot on the current local calendar day after trying ${locations.length} bookable location(s) and ${timeWindowAttempts.length} same-day 30-minute window(s) per location (409 conflicts exhausted). A next-day fallback is intentionally omitted so dashboard "today" booking assertions (e.g. AT-2109) do not fail with a missing element.`,
   );
 }
 

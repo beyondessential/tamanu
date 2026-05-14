@@ -163,7 +163,7 @@ const TopBar = ({ subtitle }) => {
   );
 };
 
-const WelcomePane = ({ patientPerPage }) => {
+const WelcomePane = ({ patientPerPage, ...rest }) => {
   const api = useApi();
   const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
     ['recentlyViewedPatients'],
@@ -188,9 +188,9 @@ const WelcomePane = ({ patientPerPage }) => {
   }
 
   return (
-    <WelcomePageContainer data-testid="welcomepagecontainer-gsx9">
+    <WelcomePageContainer {...rest} data-testid="welcomepane-ryx6">
       <TopBar subtitle={subtitle} data-testid="topbar-e90j" />
-      <WelcomePaneContainer data-testid="welcomepanecontainer-2y20">
+      <WelcomePaneContainer data-testid="welcomepagecontainer-gsx9">
         <RecentlyViewedPatientsList
           isDashboard
           patientPerPage={patientPerPage}
@@ -255,11 +255,7 @@ export const DashboardView = () => {
   const showWelcomeMessage = !showTasks && !showAppointments && !showBookings;
 
   if (showWelcomeMessage) {
-    return (
-      <div data-testid="welcomepane-ryx6" style={{ display: 'contents' }}>
-        <WelcomePane patientPerPage={patientPerPage} />
-      </div>
-    );
+    return <WelcomePane patientPerPage={patientPerPage} />;
   }
 
   let subtitle = (
