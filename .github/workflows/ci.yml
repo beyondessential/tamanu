@@ -402,8 +402,8 @@ jobs:
           pip3 install \
             "dbt-core==1.10.13" \
             "dbt-postgres==1.10.0" \
-            "dbt-adapters==1.15.5" \
-            "dbt-common==1.27.0"
+            "dbt-adapters==1.16.7" \
+            "dbt-common==1.35.0"
           npm run dbt-generate-docs
 
   dbt-todos:
