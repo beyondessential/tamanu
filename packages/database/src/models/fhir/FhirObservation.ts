@@ -26,6 +26,8 @@ export class FhirObservation extends FhirResource {
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
+  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number } }>;
+  declare performer?: Array<{ display?: string | null }>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -54,6 +56,12 @@ export class FhirObservation extends FhirResource {
         valueString: {
           type: DataTypes.TEXT,
         },
+        referenceRange: {
+          type: DataTypes.JSONB,
+        },
+        performer: {
+          type: DataTypes.JSONB,
+        },
       },
       options,
     );
@@ -73,6 +81,13 @@ export class FhirObservation extends FhirResource {
       valueQuantity: FhirQuantity.asYup(),
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
+      referenceRange: yup.array().of(
+        yup.object({
+          low: FhirQuantity.asYup(),
+          high: FhirQuantity.asYup(),
+        }),
+      ),
+      performer: yup.array().of(FhirReference.asYup()),
     });
   }
 
@@ -163,12 +178,18 @@ export class FhirObservation extends FhirResource {
     const labTestMethodId = await this.getLabTestMethodId();
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
+    const firstReferenceRange = this.referenceRange?.[0];
 
-    await labTest.update({
+    const updatePayload: Record<string, any> = {
       result: value,
       completedDate: getCurrentDateTimeString(),
-      ...(labTestMethodId ? { labTestMethodId } : {}),
-    });
+      referenceRangeMin: firstReferenceRange?.low?.value ?? null,
+      referenceRangeMax: firstReferenceRange?.high?.value ?? null,
+      labTestMethodId: labTestMethodId ?? null,
+      laboratoryOfficer: this.getLaboratoryOfficerFromPerformer(),
+    };
+
+    await labTest.update(updatePayload);
     return labTest;
   }
 
@@ -272,7 +293,8 @@ export class FhirObservation extends FhirResource {
     const methodCodings =
       validatedMethod.coding?.filter(
         (coding: Record<string, any>) =>
-          coding?.code && coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+          coding?.code &&
+          coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
       ) ?? [];
     if (methodCodings.length === 0) {
       throw new Invalid(
@@ -330,5 +352,21 @@ export class FhirObservation extends FhirResource {
       );
     }
     return this.valueString;
+  }
+
+  getLaboratoryOfficerFromPerformer(): string | null {
+    const performers = this.performer;
+    if (!Array.isArray(performers) || performers.length === 0) {
+      return null;
+    }
+    for (const p of performers) {
+      if (p && typeof p === 'object' && 'display' in p) {
+        const display = (p as { display?: string | null }).display;
+        if (display != null && String(display).trim() !== '') {
+          return String(display).trim();
+        }
+      }
+    }
+    return null;
   }
 }
