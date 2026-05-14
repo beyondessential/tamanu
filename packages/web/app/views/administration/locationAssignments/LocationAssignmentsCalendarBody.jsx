@@ -1,15 +1,15 @@
+import { toDateString } from '@tamanu/utils/dateTime';
 import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
-import { toDateString } from '@tamanu/utils/dateTime';
 
+import { TimeRangeDisplay, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
-import { Colors } from '../../../constants';
-import { useAuth } from '../../../contexts/Auth';
-import { useDateTime, TranslatedReferenceData } from '@tamanu/ui-components';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};
@@ -38,27 +38,23 @@ const AssignmentUser = styled.div`
 `;
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
-  const { formatTime } = useDateTime();
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
   const hasReadPermission = ability?.can?.('read', 'LocationSchedule');
-  
+
   return (
     <AssignmentTile
-      className="assignment-tile"
-      onClick={(e) => {
+      onClick={e => {
         e.stopPropagation();
         if (hasReadPermission) {
           onClick?.(assignment);
         }
       }}
-      style={{
-        cursor: hasReadPermission ? 'pointer' : 'default',
-      }}
+      style={{ cursor: hasReadPermission ? 'pointer' : undefined }}
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        {`${formatTime(startTime)} - ${formatTime(endTime)}`}
+        <TimeRangeDisplay range={{ start: startTime, end: endTime }} />
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}
@@ -71,7 +67,6 @@ const LocationHeader = styled.div`
 `;
 
 const LocationGroupName = styled.span`
-
   color: ${Colors.darkestText};
 `;
 

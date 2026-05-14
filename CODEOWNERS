@@ -34,12 +34,17 @@
 pm2*.config.js  @beyondessential/kamaka
 
 #
-# Kamaka owns the Github Actions workflows, for verification as breakage affects
-# the deployment processes and may have non-local effects.
+# Kamaka gates the deployment workflows (Tailscale, Pulumi, release & deploy
+# infrastructure) since changes to these have external implications.
 #
-/.github/actions/    @beyondessential/kamaka
-/.github/scripts/    @beyondessential/kamaka
-/.github/workflows/  @beyondessential/kamaka
+/.github/workflows/cd.yml                      @beyondessential/kamaka
+/.github/workflows/cd-up.yml                   @beyondessential/kamaka
+/.github/workflows/cd-down.yml                 @beyondessential/kamaka
+/.github/workflows/cd-fake-data.yml            @beyondessential/kamaka
+/.github/workflows/cleanup-auto-deploy.yml     @beyondessential/kamaka
+/.github/workflows/stale-auto-deploy.yml       @beyondessential/kamaka
+/.github/workflows/publish-release-version.yml @beyondessential/kamaka
+/.github/actions/setup-cd/                     @beyondessential/kamaka
 
 #
 # Maui needs to be across any changes to database tables

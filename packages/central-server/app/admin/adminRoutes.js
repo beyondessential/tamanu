@@ -1,10 +1,18 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { unset, get as getAtPath, set as setAtPath } from 'lodash';
 
-import { NotFoundError } from '@tamanu/errors';
-import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
-import { settingsCache } from '@tamanu/settings';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { InvalidParameterError, NotFoundError } from '@tamanu/errors';
+import { simplePatch } from '@tamanu/shared/utils/crudHelpers';
+import {
+  settingsCache,
+  getScopedSchema,
+  extractSecretPaths,
+  maskSecrets,
+  SECRET_PLACEHOLDER,
+} from '@tamanu/settings';
+import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -116,23 +124,100 @@ adminRoutes.patch(
   }),
 );
 
-// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
+// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel.
+// Both endpoints require an explicit `scope` so that we can resolve the schema
+// and mask/encrypt secret fields. Without a scope we have no way to know which
+// fields are secret, so allowing the call would silently bypass masking on read
+// and encryption on write.
+const requireScope = scope => {
+  if (!scope) {
+    throw new InvalidParameterError('scope is required');
+  }
+  const schema = getScopedSchema(scope);
+  if (!schema) {
+    throw new InvalidParameterError(`unknown scope: ${scope}`);
+  }
+  return schema;
+};
+
 adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Setting');
     const { Setting } = req.store.models;
-    const data = await Setting.get('', req.query.facilityId, req.query.scope);
-    res.send(data);
+    const { facilityId, scope } = req.query;
+    const schema = requireScope(scope);
+
+    const data = await Setting.get('', facilityId, scope);
+
+    if (!data || typeof data !== 'object') {
+      res.send(data);
+      return;
+    }
+
+    const secretPaths = extractSecretPaths(schema);
+    res.send(maskSecrets(data, secretPaths));
   }),
 );
+
+/**
+ * Resolves secret fields in `settings` so the object can be safely passed to
+ * Setting.set('', ...) as a single bulk write. Setting.set with an empty key
+ * soft-deletes any row in scope that isn't in its records, so handling secrets
+ * via separate setSecret/unsetSecret calls around the bulk write would lose
+ * the freshly-written secret rows. Instead, for each schema-declared secret
+ * path we mutate `settings` in place:
+ *   - encrypt new plaintext values
+ *   - replace SECRET_PLACEHOLDER (unchanged) with the existing encrypted DB
+ *     value, so the bulk write's isEqual check leaves the row alone
+ *   - remove empty/null entries so the bulk cleanup soft-deletes them
+ */
+async function resolveSecretsForSave(Setting, settings, schema, scope, facilityId) {
+  const secretPaths = extractSecretPaths(schema);
+  if (secretPaths.length === 0) return;
+
+  let keyBuffer;
+  for (const path of secretPaths) {
+    const value = getAtPath(settings, path);
+    if (value === undefined) continue;
+
+    if (value === SECRET_PLACEHOLDER) {
+      const existing = await Setting.findOne({
+        where: { key: path, scope, facilityId },
+      });
+      if (existing) {
+        setAtPath(settings, path, existing.value);
+      } else {
+        unset(settings, path);
+      }
+      continue;
+    }
+
+    if (value === null || value === '') {
+      unset(settings, path);
+      continue;
+    }
+
+    if (!keyBuffer) keyBuffer = await getSettingsPskKeyBuffer();
+    setAtPath(settings, path, await encryptSecret(keyBuffer, String(value)));
+  }
+}
 
 adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
-    await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
+    const { settings, scope, facilityId = null } = req.body;
+    const schema = requireScope(scope);
+
+    if (!settings || typeof settings !== 'object') {
+      res.json({ code: 200 });
+      return;
+    }
+
+    await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
+    await Setting.set('', settings, scope, facilityId);
     res.json({ code: 200 });
   }),
 );

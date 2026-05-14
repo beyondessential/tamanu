@@ -3,6 +3,7 @@ import defineExpress from 'express';
 import helmet from 'helmet';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
@@ -27,12 +28,17 @@ export async function createApiApp({
   deviceId,
 }) {
   const express = defineExpress();
+  // Match Express 4 query parsing (qs) — Express 5 defaults to "simple" and does
+  // not parse bracket/array query keys into nested objects.
+  express.set('query parser', 'extended');
   const server = createServer(express);
 
   const dbNotifier = await defineDbNotifier(sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
     NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
   ]);
+
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
 
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
@@ -69,7 +75,7 @@ export async function createApiApp({
   express.use(settingsReaderMiddleware);
 
   // index route for debugging connectivity
-  express.get('/$', (req, res) => {
+  express.get('/', (req, res) => {
     res.send({
       index: true,
     });
@@ -85,7 +91,7 @@ export async function createApiApp({
   express.use('/', createRoutes(limiters));
 
   // Dis-allow all other routes
-  express.get('*', (req, res) => {
+  express.get('/{*splat}', (req, res) => {
     res.status(404).end();
   });
 

@@ -43,9 +43,25 @@ export const usePatientRoutes = () => {
     {
       path: 'programs/new',
       component: ProgramsView,
-      breadcrumbs: [<Breadcrumb key="new-form" title="New Form" />],
+      breadcrumbs: [
+        <Breadcrumb
+          key="new-form"
+          title={<TranslatedText stringId="program.action.newForm" fallback="New form" />}
+        />,
+      ],
     },
-    { path: 'referrals/new', component: ReferralsView, breadcrumbs: 'New Referral' },
+    {
+      path: 'referrals/new',
+      component: ReferralsView,
+      breadcrumbs: [
+        <Breadcrumb
+          key="new-referral"
+          title={
+            <TranslatedText stringId="patient.referral.action.create" fallback="New referral" />
+          }
+        />,
+      ],
+    },
     {
       path: 'encounter/:encounterId/:modal?',
       component: EncounterView,
@@ -93,7 +109,10 @@ export const usePatientRoutes = () => {
       component: ProgramsView,
       breadcrumbs: [
         <EncounterBreadcrumb key="encounter" />,
-        <Breadcrumb key="new-form" title="New Form" />,
+        <Breadcrumb
+          key="new-form"
+          title={<TranslatedText stringId="program.action.newForm" fallback="New form" />}
+        />,
       ],
     },
     {
@@ -122,7 +141,10 @@ export const usePatientRoutes = () => {
       component: ProgramRegistrySurveyView,
       breadcrumbs: [
         <ProgramRegistryBreadcrumb key="program-registry" />,
-        <Breadcrumb key="new-form" title="New Form" />,
+        <Breadcrumb
+          key="new-form"
+          title={<TranslatedText stringId="program.action.newForm" fallback="New form" />}
+        />,
       ],
     },
   ];

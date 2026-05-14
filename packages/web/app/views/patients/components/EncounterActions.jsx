@@ -11,6 +11,8 @@ import { EncounterRecordModal } from '../../../components/PatientPrinting/modals
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { PATIENT_STATUS } from '../../../constants';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -76,8 +78,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
             data-testid="styledbutton-00iz"
           >
             <TranslatedText
-              stringId="patient.encounter.action.encounterSummary"
-              fallback="Encounter summary"
+              stringId="patient.encounter.action.encounterRecord"
+              fallback="Encounter record"
               data-testid="translatedtext-ftbh"
             />
           </StyledButton>
@@ -153,7 +155,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       condition: () =>
         canWriteEncounter &&
         (isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
-          encounter.encounterType === ENCOUNTER_TYPES.CLINIC),
+          getPatientStatus(encounter.encounterType) === PATIENT_STATUS.OUTPATIENT),
     },
     {
       label: (
@@ -188,8 +190,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
               onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
             >
               <TranslatedText
-                stringId="encounter.action.encounterSummary"
-                fallback="Encounter summary"
+                stringId="encounter.action.encounterRecord"
+                fallback="Encounter record"
               />
             </Button>
             <Button size="small" onClick={() => navigateToSummary()}>

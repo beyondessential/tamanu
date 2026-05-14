@@ -86,6 +86,12 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
             value={getInvoicePaymentStatus(invoice)}
           />
+          {invoice?.discount?.reason && (
+            <DataItem
+              label={getTranslation('invoice.discountReason.label', 'Discount reason')}
+              value={invoice.discount.reason}
+            />
+          )}
         </Col>
       </DataSection>
     </>

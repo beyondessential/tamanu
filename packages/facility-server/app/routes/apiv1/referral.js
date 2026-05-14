@@ -8,7 +8,7 @@ export const referral = express.Router();
 referral.get('/:id', simpleGet('Referral', { auditAccess: true }));
 referral.put('/:id', simplePut('Referral'));
 referral.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models,

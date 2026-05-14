@@ -181,7 +181,7 @@ const sendAppointmentReminder = async ({
 };
 
 appointments.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
     const {
@@ -365,7 +365,7 @@ const buildPatientNameOrIdQuery = patientNameOrId => {
 };
 
 appointments.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkListOrReadPermission('Appointment');
 

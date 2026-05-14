@@ -6,4 +6,4 @@ export const familyHistory = express.Router();
 
 familyHistory.get('/:id', simpleGet('PatientFamilyHistory', { auditAccess: true }));
 familyHistory.put('/:id', simplePut('PatientFamilyHistory'));
-familyHistory.post('/$', simplePost('PatientFamilyHistory'));
+familyHistory.post('/', simplePost('PatientFamilyHistory'));

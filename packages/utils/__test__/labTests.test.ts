@@ -25,7 +25,7 @@ describe('getReferenceRange', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('5 - 20');
+    ).toBe('5–20');
   });
 
   it('uses an override minimum with the test type maximum', () => {
@@ -36,7 +36,7 @@ describe('getReferenceRange', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('5 - 20');
+    ).toBe('5–20');
   });
 
   it('uses the test type minimum with an override maximum', () => {
@@ -47,7 +47,7 @@ describe('getReferenceRange', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('5 - 10');
+    ).toBe('5–10');
   });
 
   it('keeps zero-valued override bounds', () => {
@@ -58,7 +58,7 @@ describe('getReferenceRange', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('0 - 10');
+    ).toBe('0–10');
   });
 
   it('falls back to one-sided ranges when neither source has the other bound', () => {
@@ -69,7 +69,7 @@ describe('getReferenceRange', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('5 - 20');
+    ).toBe('5–20');
 
     expect(
       getReferenceRange({
@@ -102,6 +102,6 @@ describe('getReferenceRangeWithUnit', () => {
         sex: SEX_VALUES.MALE,
         getTranslation,
       }),
-    ).toBe('5 - 10 mmol/L');
+    ).toBe('5–10 mmol/L');
   });
 });

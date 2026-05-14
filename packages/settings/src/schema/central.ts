@@ -4,6 +4,7 @@ import {
   durationStringSchema,
   dhis2IdSchemeSchema,
   emailSchema,
+  formBuilderProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
@@ -218,6 +219,7 @@ export const centralSettings = {
         },
       },
     },
+    formBuilder: formBuilderProperties,
     integrations: {
       description: 'Integrations with external services',
       properties: {
@@ -230,6 +232,18 @@ export const centralSettings = {
                 .string()
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
+            },
+            username: {
+              name: 'Username',
+              description: 'Username for DHIS2 API authentication',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            password: {
+              name: 'Password',
+              description: 'Password for DHIS2 API authentication',
+              type: yup.string(),
+              secret: true,
             },
             reportIds: {
               name: 'Reports',

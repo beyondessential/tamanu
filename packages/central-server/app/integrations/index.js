@@ -22,6 +22,13 @@ const integrations = {
 export const integrationRoutes = express.Router();
 export const publicIntegrationRoutes = express.Router();
 
+const isExpressRouter = routeCandidate =>
+  !!routeCandidate &&
+  typeof routeCandidate === 'function' &&
+  typeof routeCandidate.use === 'function' &&
+  typeof routeCandidate.handle === 'function' &&
+  Array.isArray(routeCandidate.stack);
+
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
     if (config.integrations[key].enabled) {
@@ -31,7 +38,7 @@ export const initIntegrations = async ctx => {
         await initAppContext(ctx);
       }
       if (routes) {
-        const isRouter = Object.getPrototypeOf(routes) === express.Router;
+        const isRouter = isExpressRouter(routes);
         const actualRoutes = isRouter ? routes : routes(ctx);
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
