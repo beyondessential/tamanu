@@ -297,4 +297,15 @@ export class LabRequestDetailsPage {
     await fillMuiDateTimeField(this.enterResultsModal.completedDateFirstRow, dateToUse);
     await this.enterResultsModal.confirmButton.click();
   }
+
+  /**
+   * Re-open the enter results modal (preloaded with the existing values) and
+   * change the first row's result to `newResult`, then submit.
+   */
+  async editResultForFirstRow(newResult: string): Promise<void> {
+    await this.enterResultsButton.click();
+    await this.enterResultsModal.waitForModalToLoad();
+    await this.enterResultsModal.selectResult(newResult);
+    await this.enterResultsModal.confirmButton.click();
+  }
 }
