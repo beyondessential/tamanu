@@ -1,12 +1,36 @@
-import React, { useCallback } from 'react';
-import styled from 'styled-components';
-import FormLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import MuiButton from '@material-ui/core/Button';
-import MuiButtonGroup from '@material-ui/core/ButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import React from 'react';
+import styled from 'styled-components';
 import { TAMANU_COLORS } from '../../constants';
 import { TranslatedText } from '../Translation';
+import { useTranslation } from '../../contexts';
+
+const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
+  const handleChange = (e, value) => void onChange({ ...e, target: { ...e.target, name, value } });
+  return (
+    <ToggleButtonGroup
+      color="primary"
+      data-testid="muitogglebuttongroup-6w6p"
+      exclusive
+      name={name}
+      onChange={handleChange}
+      size="small"
+      value={value}
+      {...props}
+    >
+      <ToggleButton key="true" value="true">
+        <TranslatedText stringId="general.action.yes" fallback="Yes" />
+      </ToggleButton>
+      <ToggleButton key="false" value="false">
+        <TranslatedText stringId="general.action.no" fallback="No" />
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
+};
 
 const ControlLabel = styled(FormLabel)`
   width: max-content;
@@ -25,60 +49,24 @@ const ControlLabel = styled(FormLabel)`
 
 const RequiredLabel = styled.span`
   color: ${TAMANU_COLORS.alert};
-  padding-left: 3px;
+  padding-inline-start: 3px;
+  &::after {
+    content: '*' / ${p => p.altText};
+  }
 `;
 
-const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) => {
-  const onClickTrue = useCallback(() => {
-    const newValue = value === true ? undefined : true;
-    onChange({ target: { name, value: newValue } });
-  }, [value, onChange, name]);
-
-  const onClickFalse = useCallback(() => {
-    const newValue = value === false ? undefined : false;
-    onChange({ target: { name, value: newValue } });
-  }, [value, onChange, name]);
-
-  const yesColor = value === true ? 'primary' : '';
-  const noColor = value === false ? 'primary' : '';
-
+export const NullableBooleanInput = ({
+  className,
+  error,
+  helperText,
+  inputRef,
+  label,
+  required,
+  style,
+  ...props
+}) => {
+  const { getTranslation } = useTranslation();
   return (
-    <MuiButtonGroup
-      size="small"
-      variant="contained"
-      disableElevation
-      data-testid="muibuttongroup-6w6p"
-    >
-      <MuiButton
-        disabled={disabled}
-        onClick={onClickTrue}
-        color={yesColor}
-        data-testid="muibutton-ys2a"
-      >
-        <TranslatedText
-          stringId="general.action.yes"
-          fallback="Yes"
-          data-testid="translatedtext-3qw1"
-        />
-      </MuiButton>
-      <MuiButton
-        disabled={disabled}
-        onClick={onClickFalse}
-        color={noColor}
-        data-testid="muibutton-bif9"
-      >
-        <TranslatedText
-          stringId="general.action.no"
-          fallback="No"
-          data-testid="translatedtext-02o7"
-        />
-      </MuiButton>
-    </MuiButtonGroup>
-  );
-});
-
-export const NullableBooleanInput = React.memo(
-  ({ label, helperText, className, style, error, required, inputRef, ...props }) => (
     <FormControl
       style={style}
       error={error}
@@ -92,7 +80,9 @@ export const NullableBooleanInput = React.memo(
         label={
           <div>
             {label}
-            {required && <RequiredLabel>*</RequiredLabel>}
+            {required && (
+              <RequiredLabel altText={getTranslation('general.label.required', 'Required')} />
+            )}
           </div>
         }
         data-testid="controllabel-q0hy"
@@ -101,14 +91,14 @@ export const NullableBooleanInput = React.memo(
         <FormHelperText data-testid="styledformhelpertext-y0km">{helperText}</FormHelperText>
       )}
     </FormControl>
-  ),
-);
+  );
+};
 
-export const NullableBooleanField = React.memo(({ field, ...props }) => (
+export const NullableBooleanField = ({ field, ...props }) => (
   <NullableBooleanInput
     name={field.name}
     value={field.value}
     onChange={field.onChange}
     {...props}
   />
-));
+);
