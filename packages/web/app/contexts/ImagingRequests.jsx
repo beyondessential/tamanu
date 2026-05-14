@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import { useUserPreferencesQuery } from '../api/queries';
@@ -22,7 +22,7 @@ export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    (value) => {
+    value => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -40,22 +40,24 @@ export const ImagingRequestsProvider = ({ children }) => {
     [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
-  const hasLoadedPreferences = useRef(false);
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading } = useUserPreferencesQuery();
   const { mutate: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   useEffect(() => {
-    if (userPreferences && !hasLoadedPreferences.current) {
+    if (!isLoading && userPreferences && !hasLoadedPreferences) {
       if (userPreferences.imagingRequestSearchParameters) {
         setSearchParameters(userPreferences.imagingRequestSearchParameters);
       }
-      hasLoadedPreferences.current = true;
+      setHasLoadedPreferences(true);
+    } else if (!isLoading && !userPreferences && !hasLoadedPreferences) {
+      setHasLoadedPreferences(true);
     }
-  }, [userPreferences]);
+  }, [userPreferences, isLoading, hasLoadedPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
-    (newSearchParameters) => {
+    newSearchParameters => {
       setSearchParameters(newSearchParameters);
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.IMAGING_REQUEST_SEARCH_PARAMETERS,

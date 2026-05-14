@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
@@ -26,7 +26,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    (value) => {
+    value => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -39,7 +39,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 };
 
 export const LabRequestProvider = ({ children }) => {
-  const { getCurrentDateTime } = (useDateTimeIfAvailable() || {})
+  const { getCurrentDateTime } = useDateTimeIfAvailable() || {};
   const { facilityId } = useAuth();
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -48,24 +48,26 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Published]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
-  const hasLoadedPreferences = useRef(false);
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isLoadingPreferences } = useUserPreferencesQuery();
   const { mutate: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const api = useApi();
 
   useEffect(() => {
-    if (userPreferences && !hasLoadedPreferences.current) {
+    if (!isLoadingPreferences && userPreferences && !hasLoadedPreferences) {
       if (userPreferences.labRequestSearchParameters) {
         setSearchParameters(userPreferences.labRequestSearchParameters);
       }
-      hasLoadedPreferences.current = true;
+      setHasLoadedPreferences(true);
+    } else if (!isLoadingPreferences && !userPreferences && !hasLoadedPreferences) {
+      setHasLoadedPreferences(true);
     }
-  }, [userPreferences]);
+  }, [userPreferences, isLoadingPreferences, hasLoadedPreferences]);
 
   const setSearchParametersWithPersist = useCallback(
-    (newSearchParameters) => {
+    newSearchParameters => {
       setSearchParameters(newSearchParameters);
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.LAB_REQUEST_SEARCH_PARAMETERS,
@@ -76,7 +78,7 @@ export const LabRequestProvider = ({ children }) => {
   );
 
   const loadLabRequest = useCallback(
-    async (labRequestId) => {
+    async labRequestId => {
       setIsLoading(true);
       const data = await api.get(`labRequest/${labRequestId}`);
       setLabRequest({ ...data });
