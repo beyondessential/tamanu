@@ -284,7 +284,13 @@ export const PatientLabTestsTable = React.memo(
           data-testid="styledtable-u2v9"
         />
         {showEditedEntryLegend && (
-          <EditedEntryLegend data-testid="box-q7pq">*Edited entry</EditedEntryLegend>
+          <EditedEntryLegend data-testid="box-q7pq">
+            <TranslatedText
+              stringId="lab.result.editedEntry.label"
+              fallback="*Edited entry"
+              data-testid="translatedtext-editedentry"
+            />
+          </EditedEntryLegend>
         )}
         <LabTestResultModal
           open={modalOpen}

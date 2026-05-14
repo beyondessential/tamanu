@@ -24,9 +24,15 @@ patientProgramRegistrationConditions.put(
     if (!existingCondition) {
       throw new NotFoundError('Patient program registration condition not found');
     }
+    if (!body.programRegistryConditionCategoryId) {
+      throw new InvalidOperationError(
+        'programRegistryConditionCategoryId is required to update a condition',
+      );
+    }
+
     const hasCategoryChanged =
-      body.programRegistryConditionCategoryId &&
-      body.programRegistryConditionCategoryId !== existingCondition.programRegistryConditionCategoryId;
+      body.programRegistryConditionCategoryId !==
+      existingCondition.programRegistryConditionCategoryId;
 
     if (!hasCategoryChanged) {
       throw new InvalidOperationError('Condition category must be changed');
