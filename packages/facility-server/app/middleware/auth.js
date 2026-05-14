@@ -22,20 +22,35 @@ const { tokenDuration, secret } = config.auth;
 
 const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
 
-const CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES = new Set([
+const CENTRAL_LOGIN_INCOMPATIBLE_ERROR_TYPES = new Set([
   ERROR_TYPE.CLIENT_INCOMPATIBLE,
   ERROR_TYPE.REMOTE_INCOMPATIBLE,
 ]);
 
+const CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES = new Set([
+  ERROR_TYPE.FORBIDDEN,
+  ERROR_TYPE.RATE_LIMITED,
+]);
+
 function shouldThrowCentralLoginError(error) {
-  return error.type?.startsWith(ERROR_TYPE.AUTH);
+  return (
+    error.type?.startsWith(ERROR_TYPE.AUTH) || CENTRAL_LOGIN_NON_FALLBACK_ERROR_TYPES.has(error.type)
+  );
 }
 
 function getCentralLoginFallbackReason(error) {
-  if (CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES.has(error.type)) {
+  if (CENTRAL_LOGIN_INCOMPATIBLE_ERROR_TYPES.has(error.type)) {
     return 'central server is incompatible';
   }
   return 'central server login failed';
+}
+
+function shouldSkipCentralLoginForTest() {
+  return (
+    process.env.NODE_ENV === 'test' &&
+    !process.env.IS_PLAYWRIGHT_TEST &&
+    !process.env.ENABLE_CENTRAL_LOGIN_IN_TEST
+  );
 }
 
 export async function buildToken({
@@ -169,7 +184,7 @@ async function centralServerLoginWithLocalFallback({
   facilityDeviceId,
 }) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
+  if (shouldSkipCentralLoginForTest()) {
     return await localLogin({ models, settings, email, password, deviceId });
   }
 
