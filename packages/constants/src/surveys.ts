@@ -40,7 +40,10 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
   COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
-};
+} as const;
+
+export type DataElementType =
+  (typeof PROGRAM_DATA_ELEMENT_TYPES)[keyof typeof PROGRAM_DATA_ELEMENT_TYPES];
 
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
