@@ -27,6 +27,7 @@ import {
   getStringValue,
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
 export function surveyResponseChangelogScopeCondition(alias, responseIdSql) {
@@ -617,7 +618,7 @@ surveyResponse.patch(
         responseUpdates.resultText = normalizedResultText;
       }
       if (hasMeaningfulChanges) {
-        responseUpdates.editedAt = new Date();
+        responseUpdates.editedAt = getCurrentDateTimeString();
       }
       if (Object.keys(responseUpdates).length > 0) {
         await responseRecord.update(responseUpdates);
