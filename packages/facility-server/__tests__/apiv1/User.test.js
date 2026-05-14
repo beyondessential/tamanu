@@ -19,14 +19,14 @@ const createUser = overrides => ({
 });
 
 const enableCentralLoginForTest = () => {
-  const previous = process.env.IS_PLAYWRIGHT_TEST;
-  process.env.IS_PLAYWRIGHT_TEST = 'true';
+  const previous = process.env.ENABLE_CENTRAL_LOGIN_IN_TEST;
+  process.env.ENABLE_CENTRAL_LOGIN_IN_TEST = 'true';
 
   return () => {
     if (previous === undefined) {
-      delete process.env.IS_PLAYWRIGHT_TEST;
+      delete process.env.ENABLE_CENTRAL_LOGIN_IN_TEST;
     } else {
-      process.env.IS_PLAYWRIGHT_TEST = previous;
+      process.env.ENABLE_CENTRAL_LOGIN_IN_TEST = previous;
     }
   };
 };
@@ -264,6 +264,31 @@ describe('User', () => {
         expect(result.body.central).toBe(false);
         expect(result.body).toHaveProperty('token');
       });
+
+      it.each([[ERROR_TYPE.FORBIDDEN], [ERROR_TYPE.RATE_LIMITED]])(
+        'should not fall back to local login when central login fails with %s',
+        async errorType => {
+          centralServer.login.mockClear();
+          centralServer.login.mockRejectedValueOnce(
+            new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
+          );
+
+          const restoreCentralLoginShortcut = enableCentralLoginForTest();
+          let result;
+          try {
+            result = await baseApp.post('/api/login').send({
+              email: authUser.email,
+              password: rawPassword,
+              deviceId: 'test-device-id',
+            });
+          } finally {
+            restoreCentralLoginShortcut();
+          }
+
+          expect(centralServer.login).toHaveBeenCalledTimes(1);
+          expect(result).toHaveRequestError();
+        },
+      );
 
       it('should include permissions in the data returned by a successful login', async () => {
         const result = await baseApp.post('/api/login').send({
