@@ -9,29 +9,6 @@ import { TAMANU_COLORS } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts';
 
-const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
-  const handleChange = (e, value) => void onChange({ ...e, target: { ...e.target, name, value } });
-  return (
-    <ToggleButtonGroup
-      color="primary"
-      data-testid="muitogglebuttongroup-6w6p"
-      exclusive
-      name={name}
-      onChange={handleChange}
-      size="small"
-      value={value}
-      {...props}
-    >
-      <ToggleButton key="true" value="true">
-        <TranslatedText stringId="general.action.yes" fallback="Yes" />
-      </ToggleButton>
-      <ToggleButton key="false" value="false">
-        <TranslatedText stringId="general.action.no" fallback="No" />
-      </ToggleButton>
-    </ToggleButtonGroup>
-  );
-};
-
 const ControlLabel = styled(FormLabel)`
   width: max-content;
   align-items: flex-start;
@@ -54,6 +31,29 @@ const RequiredLabel = styled.span`
     content: '*' / ${p => p.altText};
   }
 `;
+
+const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
+  const handleChange = (e, value) => void onChange({ ...e, target: { ...e.target, name, value } });
+  return (
+    <ToggleButtonGroup
+      color="primary"
+      data-testid="muitogglebuttongroup-6w6p"
+      exclusive
+      name={name}
+      onChange={handleChange}
+      size="small"
+      value={value}
+      {...props}
+    >
+      <ToggleButton key="true" value="true">
+        <TranslatedText stringId="general.action.yes" fallback="Yes" />
+      </ToggleButton>
+      <ToggleButton key="false" value="false">
+        <TranslatedText stringId="general.action.no" fallback="No" />
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
+};
 
 export const NullableBooleanInput = ({
   className,
