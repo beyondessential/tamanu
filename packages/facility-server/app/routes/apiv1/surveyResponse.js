@@ -1,5 +1,6 @@
 /**
  * @typedef {import('@tamanu/database').ChangeLog} ChangeLog
+ * @typedef {import('@tamanu/database').ProgramDataElement} ProgramDataElement
  * @typedef {import('@tamanu/database').SurveyResponse} SurveyResponse
  * @typedef {import('@tamanu/database').User} User
  */
@@ -7,7 +8,7 @@
 import { subject } from '@casl/ability';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { isEqual, isPlainObject } from 'lodash';
+import { isEqual, isPlainObject, omit } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
 import {
@@ -287,7 +288,8 @@ surveyResponse.get(
      *   tableName: 'survey_responses' | 'survey_response_answers';
      *   recordId: ChangeLog['recordId'];
      *   recordData: SurveyResponse;
-     *   updatedByUser: { id: ChangeLog['updatedByUserId']; displayName: User['displayName'] };
+     *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
+     *   updatedByUser: Pick<User, 'id' | 'displayName'>;
      * }} Change
      * @type {Change[]}
      */
@@ -299,6 +301,15 @@ surveyResponse.get(
           c.table_name AS "tableName",
           c.record_id AS "recordId",
           c.record_data AS "recordData",
+          CASE
+            WHEN c.table_name = 'survey_response_answers' THEN
+              jsonb_build_object(
+                'id', pde.id,
+                'name', pde.name,
+                'type', pde.type
+              )
+            ELSE NULL
+          END AS "programDataElement",
           jsonb_build_object(
             'id', c.updated_by_user_id::text,
             'displayName', u.display_name
@@ -306,6 +317,9 @@ surveyResponse.get(
         FROM
           logs.changes c
           LEFT JOIN users u ON u.id = c.updated_by_user_id
+          LEFT JOIN program_data_elements pde ON
+            c.table_name = 'survey_response_answers'
+            AND pde.id = (c.record_data ->> 'data_element_id')
         WHERE
           c.migration_context IS NULL
           AND (
@@ -369,15 +383,7 @@ surveyResponse.get(
               },
             ]
           : diffKeys(prevData, row.recordData);
-        return {
-          id: row.id,
-          loggedAt: row.loggedAt,
-          tableName: row.tableName,
-          recordId: row.recordId,
-          recordData: row.recordData,
-          updatedByUser: row.updatedByUser,
-          fieldChanges,
-        };
+        return { ...omit(row, '_revision'), fieldChanges };
       })
       .filter(change => change.fieldChanges.length > 0);
 

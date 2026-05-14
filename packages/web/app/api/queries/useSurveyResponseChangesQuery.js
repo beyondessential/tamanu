@@ -8,7 +8,8 @@
  *   tableName: 'survey_responses' | 'survey_response_answers';
  *   recordId: ChangeLog['recordId'];
  *   recordData: SurveyResponse;
- *   updatedByUser: { id: ChangeLog['updatedByUserId']; displayName: User['displayName'] };
+ *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
+ *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  * }} Change
  */
 
@@ -17,7 +18,9 @@ import { useApi } from '../useApi';
 
 /**
  * @param {import('@tamanu/database').SurveyResponse['id']} surveyResponseId
- * @param {import('@tanstack/react-query').UseQueryOptions<Change[]>} options
+ * @param {Omit<
+ *   import('@tanstack/react-query').UseQueryOptions<Change[]>, 'queryKey' | 'queryFn'
+ * >} options
  * @returns {import('@tanstack/react-query').UseQueryResult<Change[]>}
  */
 export const useSurveyResponseChangesQuery = (surveyResponseId, options = {}) => {
