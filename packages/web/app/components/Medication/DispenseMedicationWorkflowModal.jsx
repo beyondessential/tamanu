@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useMemo, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -45,8 +45,7 @@ const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: ${({ $step }) =>
-      $step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px'};
+    max-width: ${({ $step }) => ($step === MODAL_STEPS.REVIEW ? REVIEW_MODAL_MAX_WIDTH : '1322px')};
   }
 
   .MuiDialogActions-root {
@@ -64,6 +63,28 @@ const HeaderRow = styled(Box)`
   gap: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
+`;
+
+const DispenseHeaderToolbarRow = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+`;
+
+const DispenseHeaderPatientSlot = styled(Box)`
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 260px;
+  margin-left: auto;
+`;
+
+const DispensedByField = styled(Box)`
+  width: 365px;
+  max-width: 100%;
+  flex-shrink: 0;
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
@@ -121,6 +142,47 @@ const ReviewFooterTrailing = styled.div`
     flex: 0 0 auto;
     white-space: nowrap;
   }
+`;
+
+const PatientSummaryPanel = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 260px;
+`;
+
+const PatientSummarySection = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+`;
+
+const PatientSummaryDivider = styled.div`
+  width: 1px;
+  flex-shrink: 0;
+  background-color: ${Colors.outline};
+  align-self: stretch;
+`;
+
+const PatientSummaryLabel = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: ${Colors.midText};
+  margin-bottom: 3px;
+  line-height: 1.25;
+`;
+
+const PatientSummaryValue = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${Colors.darkText};
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.3;
 `;
 
 const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
@@ -612,12 +674,50 @@ export const DispenseMedicationWorkflowModal = memo(
         <TranslatedText stringId="medication.dispense.title" fallback="Dispense medication" />
       );
 
+    const patientSummaryBanner = useMemo(() => {
+      if (!patient) return null;
+      const name = [patient.firstName, patient.lastName].filter(Boolean).join(' ').trim();
+      const patientIdentifier = patient.displayId ?? patient.id;
+      if (!name && !patientIdentifier) return null;
+      return (
+        <PatientSummaryPanel data-testid="dispense-modal-patient-context">
+          <PatientSummarySection>
+            <PatientSummaryLabel>
+              <TranslatedText stringId="general.patientName.label" fallback="Patient name" />
+            </PatientSummaryLabel>
+            <PatientSummaryValue>
+              {name || (
+                <TranslatedText
+                  stringId="general.fallback.notApplicable"
+                  fallback="N/A"
+                  casing="lower"
+                />
+              )}
+            </PatientSummaryValue>
+          </PatientSummarySection>
+          <PatientSummaryDivider />
+          <PatientSummarySection>
+            <PatientSummaryLabel>
+              <TranslatedText stringId="general.patientId.label" fallback="Patient ID" />
+            </PatientSummaryLabel>
+            <PatientSummaryValue>
+              {patientIdentifier || (
+                <TranslatedText
+                  stringId="general.fallback.notApplicable"
+                  fallback="N/A"
+                  casing="lower"
+                />
+              )}
+            </PatientSummaryValue>
+          </PatientSummarySection>
+        </PatientSummaryPanel>
+      );
+    }, [patient]);
+
     const dispenseWithoutLabelsButton = (
       <OutlinedButton
         onClick={handleDispenseWithoutLabels}
-        disabled={
-          isLoadingFacility || isLoadingDispensables || selectedItems.length === 0
-        }
+        disabled={isLoadingFacility || isLoadingDispensables || selectedItems.length === 0}
         data-testid="dispense-without-labels-button"
       >
         <TranslatedText
@@ -687,28 +787,33 @@ export const DispenseMedicationWorkflowModal = memo(
                   fallback="Select the medications you'd like to dispense below. You'll be able to review and print labels on the next screen."
                 />
               </BodyText>
-              <Box width="365px">
-                <AutocompleteInput
-                  name="dispensedByUserId"
-                  label={
-                    <TranslatedText
-                      stringId="medication.dispense.dispensedBy"
-                      fallback="Dispensed by"
-                    />
-                  }
-                  suggester={practitionerSuggester}
-                  value={dispensedByUserId}
-                  onChange={e => setDispensedByUserId(e.target.value)}
-                  required
-                  error={showValidationErrors && !dispensedByUserId}
-                  helperText={
-                    showValidationErrors && !dispensedByUserId
-                      ? getTranslation('validation.required.inline', '*Required')
-                      : ''
-                  }
-                  data-testid="dispense-dispensed-by"
-                />
-              </Box>
+              <DispenseHeaderToolbarRow>
+                <DispensedByField>
+                  <AutocompleteInput
+                    name="dispensedByUserId"
+                    label={
+                      <TranslatedText
+                        stringId="medication.dispense.dispensedBy"
+                        fallback="Dispensed by"
+                      />
+                    }
+                    suggester={practitionerSuggester}
+                    value={dispensedByUserId}
+                    onChange={e => setDispensedByUserId(e.target.value)}
+                    required
+                    error={showValidationErrors && !dispensedByUserId}
+                    helperText={
+                      showValidationErrors && !dispensedByUserId
+                        ? getTranslation('validation.required.inline', '*Required')
+                        : ''
+                    }
+                    data-testid="dispense-dispensed-by"
+                  />
+                </DispensedByField>
+                {patientSummaryBanner ? (
+                  <DispenseHeaderPatientSlot>{patientSummaryBanner}</DispenseHeaderPatientSlot>
+                ) : null}
+              </DispenseHeaderToolbarRow>
             </HeaderRow>
 
             {isLoadingDispensables ? (
@@ -725,7 +830,16 @@ export const DispenseMedicationWorkflowModal = memo(
           </>
         )}
 
-        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+        {step === MODAL_STEPS.REVIEW && (
+          <>
+            {patientSummaryBanner ? (
+              <Box display="flex" justifyContent="flex-end" mb={2} mt={1}>
+                {patientSummaryBanner}
+              </Box>
+            ) : null}
+            <MedicationLabelPrintPreview labels={labelsForPrint} />
+          </>
+        )}
       </StyledModal>
     );
   },
