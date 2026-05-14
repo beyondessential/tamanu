@@ -20,7 +20,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { notifySuccess, singularize } from '../../utils';
+import { notifyError, notifySuccess, singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
 import { trimToDate } from '@tamanu/utils/dateTime';
@@ -266,6 +266,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const [itemErrors, setItemErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
+    const [isDispensing, setIsDispensing] = useState(false);
 
     const patientId = patient?.id;
 
@@ -296,6 +297,7 @@ export const DispenseMedicationWorkflowModal = memo(
       setStep(MODAL_STEPS.DISPENSE);
       setShowValidationErrors(false);
       setLabelsForPrint([]);
+      setIsDispensing(false);
     }, [open]);
 
     useEffect(() => {
@@ -463,21 +465,29 @@ export const DispenseMedicationWorkflowModal = memo(
         return false;
       }
 
-      await api.post('medication/dispense', {
-        dispensedByUserId,
-        facilityId,
-        items: selectedItems.map(({ id, quantity, instructions }) => ({
-          pharmacyOrderPrescriptionId: id,
-          quantity,
-          instructions,
-        })),
-      });
+      setIsDispensing(true);
+      try {
+        await api.post('medication/dispense', {
+          dispensedByUserId,
+          facilityId,
+          items: selectedItems.map(({ id, quantity, instructions }) => ({
+            pharmacyOrderPrescriptionId: id,
+            quantity,
+            instructions,
+          })),
+        });
 
-      await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
+        await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
 
-      if (onDispenseSuccess) onDispenseSuccess();
+        if (onDispenseSuccess) onDispenseSuccess();
 
-      return true;
+        return true;
+      } catch (err) {
+        notifyError(err?.message);
+        return false;
+      } finally {
+        setIsDispensing(false);
+      }
     };
 
     const handleDispenseAndPrint = async () => {
@@ -717,7 +727,12 @@ export const DispenseMedicationWorkflowModal = memo(
     const dispenseWithoutLabelsButton = (
       <OutlinedButton
         onClick={handleDispenseWithoutLabels}
-        disabled={isLoadingFacility || isLoadingDispensables || selectedItems.length === 0}
+        disabled={
+          isDispensing ||
+          isLoadingFacility ||
+          isLoadingDispensables ||
+          selectedItems.length === 0
+        }
         data-testid="dispense-without-labels-button"
       >
         <TranslatedText
@@ -746,7 +761,9 @@ export const DispenseMedicationWorkflowModal = memo(
             <Button
               color="primary"
               onClick={handleDispenseAndPrint}
-              disabled={isLoadingFacility || isLoadingDispensables}
+              disabled={
+                isDispensing || isLoadingFacility || isLoadingDispensables
+              }
               data-testid="dispense-and-print-button"
             >
               <TranslatedText
