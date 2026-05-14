@@ -848,14 +848,7 @@ export const DispenseMedicationWorkflowModal = memo(
         )}
 
         {step === MODAL_STEPS.REVIEW && (
-          <>
-            {patientSummaryBanner ? (
-              <Box display="flex" justifyContent="flex-end" mb={2} mt={1}>
-                {patientSummaryBanner}
-              </Box>
-            ) : null}
-            <MedicationLabelPrintPreview labels={labelsForPrint} />
-          </>
+          <MedicationLabelPrintPreview labels={labelsForPrint} />
         )}
       </StyledModal>
     );
