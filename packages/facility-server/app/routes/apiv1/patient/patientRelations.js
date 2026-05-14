@@ -92,7 +92,7 @@ patientRelations.get(
           ORDER BY encounter_id, (discharger_id IS NULL), discharger_id
         ) AS discharge
           ON discharge.encounter_id = encounters.id
-        LEFT JOIN users AS dischargingClinician 
+        LEFT JOIN users AS dischargingClinician
           ON dischargingClinician.id = discharge.discharger_id`;
 
     const whereClause = `
