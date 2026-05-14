@@ -103,11 +103,13 @@ const ChangelogValue = ({ value }) => {
 };
 
 export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }) => {
-  const { data, isLoading, isError } = useSurveyResponseChangesQuery(surveyResponseId, {
+  const {
+    data: changes,
+    isLoading,
+    isError,
+  } = useSurveyResponseChangesQuery(surveyResponseId, {
     enabled: open && Boolean(surveyResponseId),
   });
-
-  const changes = data?.changes ?? null;
 
   return (
     <StyledModal open={open} onClose={onClose}>
