@@ -45,7 +45,7 @@ const TextDisplay = ({ isChartView }) => {
     );
   }
 
-  return <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View Image" />;
+  return <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View image" />;
 };
 
 const Footer = ({ hasError, onDelete, onClose }) => {
