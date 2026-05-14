@@ -5,7 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { TranslatedText, EditedOrnament, VisuallyHidden } from '@tamanu/ui-components';
+import { EditedOrnament, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
