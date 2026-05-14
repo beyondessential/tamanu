@@ -29,6 +29,13 @@ export const useRenderPDF = (props) => {
     },
   );
 
-  useEffect(() => (url ? () => URL.revokeObjectURL(url) : undefined), [url]);
+  useEffect(() => {
+    if (!url) {
+      return undefined;
+    }
+
+    return () => URL.revokeObjectURL(url);
+  }, [url]);
+
   return { url, isFetching, error };
 };
