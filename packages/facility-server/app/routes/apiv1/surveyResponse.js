@@ -1,3 +1,9 @@
+/**
+ * @typedef {import('@tamanu/database').ChangeLog} ChangeLog
+ * @typedef {import('@tamanu/database').SurveyResponse} SurveyResponse
+ * @typedef {import('@tamanu/database').User} User
+ */
+
 import { subject } from '@casl/ability';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
@@ -262,6 +268,17 @@ surveyResponse.get(
 
     req.checkPermission('read', survey);
 
+    /**
+     * @type {{
+     *   id: ChangeLog['id'];
+     *   loggedAt: ChangeLog['loggedAt'];
+     *   tableName: 'survey_responses' | 'survey_response_answers';
+     *   recordId: ChangeLog['recordId'];
+     *   recordData: SurveyResponse;
+     *   updatedByUserId: ChangeLog['updatedByUserId'];
+     *   changedByDisplayName: User['displayName'];
+     * }[]}
+     */
     const rawRows = await db.query(
       `
         SELECT
