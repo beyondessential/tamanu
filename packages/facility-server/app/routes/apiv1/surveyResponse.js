@@ -30,16 +30,6 @@ import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbL
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
-export function surveyResponseChangelogScopeCondition(alias, responseIdSql) {
-  return `(
-    "${alias}"."migration_context" IS NULL
-    AND (("${alias}"."table_name" = 'survey_responses'
-        AND "${alias}"."record_id" = ${responseIdSql})
-        OR ("${alias}"."table_name" = 'survey_response_answers'
-          AND ("${alias}"."record_data" ->> 'response_id') = ${responseIdSql}))
-  )`;
-}
-
 export const surveyResponse = express.Router();
 
 const changelogIgnoreList = new Set([
@@ -286,10 +276,17 @@ surveyResponse.get(
           logs.changes c
           LEFT JOIN users u ON u.id = c.updated_by_user_id
         WHERE
-          ${surveyResponseChangelogScopeCondition('c', ':surveyResponseId')}
+          c.migration_context IS NULL
+          AND (
+            (c.table_name = 'survey_responses' AND c.record_id = :surveyResponseId)
+            OR (
+              c.table_name = 'survey_response_answers'
+              AND (c.record_data ->> 'response_id') = :surveyResponseId
+            )
+          )
         ORDER BY
-          c.created_at ASC,
-          c.id ASC
+          c.created_at,
+          c.id
       `,
       {
         replacements: { surveyResponseId: params.id },
