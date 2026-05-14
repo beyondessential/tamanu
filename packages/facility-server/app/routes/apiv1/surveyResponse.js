@@ -234,12 +234,24 @@ function diffKeys(prev, curr) {
   return out;
 }
 
-function isEditedAnswerCreateRow(row, responseCreatedAtMs) {
+/**
+ * `{ _revision: 1 }` can either mean this answer:
+ * - was provided with the original survey submission; or
+ * - has been given a nonempty value for the first time in a subsequent edit.
+ *
+ * This is needed to flag the first empty → nonempty edit as an edit, otherwise it would appear to
+ * be an original answer, despite being added after the original survey response submission.
+ */
+function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
   return (
+    // This concept doesn’t apply to `survey_responses` records
     row.tableName === 'survey_response_answers' &&
-    row._seq === 1 &&
+    // If this isn’t the first revision, it’s not the first empty → nonempty edit.
+    row._revision === 1 &&
+    // Answer has been edited to some nonempty value
     row.recordData?.body !== null &&
     row.recordData?.body !== '' &&
+    // Answer was provided after original survey response submission
     responseCreatedAtMs !== null &&
     new Date(row.loggedAt).getTime() > responseCreatedAtMs
   );
@@ -247,7 +259,7 @@ function isEditedAnswerCreateRow(row, responseCreatedAtMs) {
 
 /**
  * Survey response changelog for facility (logs.changes).
- * Response: { changes: Array<{ id, loggedAt, tableName, recordId, changedBy, fieldChanges, recordData }> }
+ * Response: { changes: Array<{ id, loggedAt, tableName, recordId, updatedByUser, fieldChanges, recordData }> }
  * fieldChanges: { fieldKey, from, to }[] — only rows after the first snapshot per DB record (edit history only).
  */
 surveyResponse.get(
@@ -269,15 +281,15 @@ surveyResponse.get(
     req.checkPermission('read', survey);
 
     /**
-     * @type {{
+     * @typedef {{
      *   id: ChangeLog['id'];
      *   loggedAt: ChangeLog['loggedAt'];
      *   tableName: 'survey_responses' | 'survey_response_answers';
      *   recordId: ChangeLog['recordId'];
      *   recordData: SurveyResponse;
-     *   updatedByUserId: ChangeLog['updatedByUserId'];
-     *   changedByDisplayName: User['displayName'];
-     * }[]}
+     *   updatedByUser: { id: ChangeLog['updatedByUserId']; displayName: User['displayName'] };
+     * }} Change
+     * @type {Change[]}
      */
     const rawRows = await db.query(
       `
@@ -287,8 +299,10 @@ surveyResponse.get(
           c.table_name AS "tableName",
           c.record_id AS "recordId",
           c.record_data AS "recordData",
-          c.updated_by_user_id AS "updatedByUserId",
-          u.display_name AS "changedByDisplayName"
+          jsonb_build_object(
+            'id', c.updated_by_user_id::text,
+            'displayName', u.display_name
+          ) AS "updatedByUser"
         FROM
           logs.changes c
           LEFT JOIN users u ON u.id = c.updated_by_user_id
@@ -311,32 +325,42 @@ surveyResponse.get(
       },
     );
 
-    const seqByKey = {};
-    const rowsWithSeq = rawRows.map(row => {
-      const key = `${row.tableName}\0${row.recordId}`;
-      seqByKey[key] = (seqByKey[key] || 0) + 1;
-      return { ...row, _seq: seqByKey[key] };
+    /**
+     * @privateRemarks Revision numbers (`_revision`) are scoped to the updated record. i.e. The
+     * oldest row for a given question of a survey is always assigned revision 1. Its first edit is
+     * revision 2, etc. Revision numbers for another question also start at 1.
+     * @type {{ [recordId: ChangeLog['recordId']]: number }}
+     */
+    const revisionDict = {};
+    /** @type {(Change & { _revision: number })[]} */
+    const rowsWithRevisions = rawRows.map(row => {
+      const key = row.recordId;
+      revisionDict[key] = (revisionDict[key] ?? 0) + 1;
+      return { ...row, _revision: revisionDict[key] };
     });
 
-    const responseCreatedRow = rowsWithSeq.find(
-      row => row.tableName === 'survey_responses' && row.recordId === params.id && row._seq === 1,
+    const responseCreatedRow = rowsWithRevisions.find(
+      row =>
+        row.tableName === 'survey_responses' && row.recordId === params.id && row._revision === 1,
     );
     const responseCreatedAtMs = responseCreatedRow
       ? new Date(responseCreatedRow.loggedAt).getTime()
       : null;
 
-    const editRowsOnly = rowsWithSeq.filter(
-      row => row._seq > 1 || isEditedAnswerCreateRow(row, responseCreatedAtMs),
+    const editRowsOnly = rowsWithRevisions.filter(
+      row => row._revision > 1 || isEditToNonemptyAnswer(row, responseCreatedAtMs),
     );
 
     const changes = editRowsOnly
       .map(row => {
-        const prevRow = rowsWithSeq.find(
+        const prevRow = rowsWithRevisions.find(
           r =>
-            r.tableName === row.tableName && r.recordId === row.recordId && r._seq === row._seq - 1,
+            r.tableName === row.tableName &&
+            r.recordId === row.recordId &&
+            r._revision === row._revision - 1,
         );
         const prevData = prevRow?.recordData ?? null;
-        const fieldChanges = isEditedAnswerCreateRow(row, responseCreatedAtMs)
+        const fieldChanges = isEditToNonemptyAnswer(row, responseCreatedAtMs)
           ? [
               {
                 fieldKey: 'body',
@@ -351,10 +375,7 @@ surveyResponse.get(
           tableName: row.tableName,
           recordId: row.recordId,
           recordData: row.recordData,
-          changedBy: {
-            id: row.updatedByUserId,
-            displayName: row.changedByDisplayName,
-          },
+          updatedByUser: row.updatedByUser,
           fieldChanges,
         };
       })
