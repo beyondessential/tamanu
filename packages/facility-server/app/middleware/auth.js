@@ -22,6 +22,22 @@ const { tokenDuration, secret } = config.auth;
 
 const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
 
+const CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES = new Set([
+  ERROR_TYPE.CLIENT_INCOMPATIBLE,
+  ERROR_TYPE.REMOTE_INCOMPATIBLE,
+]);
+
+function shouldThrowCentralLoginError(error) {
+  return error.type?.startsWith(ERROR_TYPE.AUTH);
+}
+
+function getCentralLoginFallbackReason(error) {
+  if (CENTRAL_LOGIN_LOCAL_FALLBACK_ERROR_TYPES.has(error.type)) {
+    return 'central server is incompatible';
+  }
+  return 'central server login failed';
+}
+
 export async function buildToken({
   user,
   expiresIn = tokenDuration ?? '1h',
@@ -167,17 +183,13 @@ async function centralServerLoginWithLocalFallback({
       settings,
     });
   } catch (e) {
-    // if we get an authentication or forbidden error when login to central server,
-    // throw the error instead of proceeding to local login
-    if (
-      e.type &&
-      (e.type.startsWith(ERROR_TYPE.AUTH) ||
-        [ERROR_TYPE.FORBIDDEN, ERROR_TYPE.RATE_LIMITED].includes(e.type))
-    ) {
+    // if we get an authentication error from central server, throw instead of
+    // falling back to local — bad credentials shouldn't silently succeed locally
+    if (shouldThrowCentralLoginError(e)) {
       throw e;
     }
 
-    log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
+    log.warn(`centralServerLoginWithLocalFallback: ${getCentralLoginFallbackReason(e)}: ${e}`);
     return await localLogin({ models, settings, email, password, deviceId });
   }
 }
