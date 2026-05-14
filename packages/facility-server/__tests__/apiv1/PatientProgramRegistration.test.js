@@ -710,6 +710,43 @@ describe('PatientProgramRegistration', () => {
         expect(changeLogCountAfter).toBe(changeLogCountBefore);
       });
 
+      it('errors when programRegistryConditionCategoryId is not provided', async () => {
+        const changeLogCountBefore = await models.ChangeLog.count({
+          where: {
+            tableName: 'patient_program_registration_conditions',
+            recordId: patientProgramRegistrationCondition.id,
+            migrationContext: null,
+          },
+        });
+
+        const result = await app
+          .put(
+            `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}`,
+          )
+          .send({
+            reasonForChange: 'Should be ignored',
+            patientProgramRegistrationId: registration.id,
+          });
+
+        expect(result).toHaveRequestError();
+
+        const unchangedCondition = await models.PatientProgramRegistrationCondition.findByPk(
+          patientProgramRegistrationCondition.id,
+        );
+        expect(unchangedCondition.reasonForChange).toBe(
+          patientProgramRegistrationCondition.reasonForChange,
+        );
+
+        const changeLogCountAfter = await models.ChangeLog.count({
+          where: {
+            tableName: 'patient_program_registration_conditions',
+            recordId: patientProgramRegistrationCondition.id,
+            migrationContext: null,
+          },
+        });
+        expect(changeLogCountAfter).toBe(changeLogCountBefore);
+      });
+
       it('Errors if condition not found', async () => {
         const result = await app
           .put(
