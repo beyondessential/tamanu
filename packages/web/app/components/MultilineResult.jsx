@@ -7,7 +7,10 @@ const Pre = styled.pre`
   white-space-collapse: preserve;
 `;
 
-/** @param {Omit<React.ComponentPropsWithRef<typeof Pre>, 'children'> & { answer: string }} props */
-export default function MultilineResult({ answer, ...props }) {
+/**
+ * @param {Omit<React.ComponentPropsWithRef<typeof Pre>, 'children'> & {
+ *   answer: string
+ * }} props
+ */ export default function MultilineResult({ answer, ...props }) {
   return <Pre {...props}>{answer}</Pre>;
 }
