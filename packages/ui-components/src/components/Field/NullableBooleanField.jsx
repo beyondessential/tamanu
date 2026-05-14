@@ -32,8 +32,17 @@ const RequiredLabel = styled.span`
   }
 `;
 
+/**
+ * @param {Omit<
+ *   import('@mui/material/ToggleButtonGroup').ToggleButtonGroupProps, 'onChange' | 'value'
+ * > & {
+ *   value: 'true' | 'false';
+ *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+ *   name: string;
+ * }} props
+ */
 const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
-  const handleChange = (e, value) => void onChange({ ...e, target: { ...e.target, name, value } });
+  const handleChange = (e, next) => onChange({ ...e, target: { ...e.target, name, value: next } });
   return (
     <ToggleButtonGroup
       color="primary"
