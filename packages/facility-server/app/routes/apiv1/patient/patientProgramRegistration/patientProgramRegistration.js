@@ -159,7 +159,7 @@ patientProgramRegistration.put(
 
     const conditionsData = conditions.flatMap(condition => {
       const existingCondition = condition.id ? existingConditionMap[condition.id] : null;
-      const hasLegacyNewConditionShape = !!condition.id && !condition.conditionId;
+      const hasLegacyNewConditionShape = Boolean(condition.id) && !condition.conditionId;
 
       // Existing row update: only persist if the category actually changed.
       if (existingCondition) {
