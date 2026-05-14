@@ -67,9 +67,10 @@ export const SurveyScreenPaginator = ({
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
 
-  const maxIndex = currentComponents
-    .map(x => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
+  const maxIndex = currentComponents.reduce(
+    (max, current) => Math.max(max, current.screenIndex),
+    0,
+  );
 
   if (screenIndex <= maxIndex) {
     const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
