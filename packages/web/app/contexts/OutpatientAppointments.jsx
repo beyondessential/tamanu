@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 
 import { useUserPreferencesQuery } from '../api/queries';
@@ -14,16 +14,16 @@ export const OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE = {
 };
 
 export const OutpatientAppointmentsContextProvider = ({ children }) => {
-  const { data: userPreferences, isLoading } = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
   const location = useLocation();
   const defaultGroupBy =
     new URLSearchParams(location.search).get('groupBy') || APPOINTMENT_GROUP_BY.LOCATION_GROUP;
   const [filters, setFilters] = useState(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
   const [groupBy, setGroupBy] = useState(null);
-  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
+  const hasLoadedPreferences = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && userPreferences && !hasLoadedPreferences) {
+    if (userPreferences && !hasLoadedPreferences.current) {
       if (userPreferences?.outpatientAppointmentGroupBy) {
         setGroupBy(userPreferences.outpatientAppointmentGroupBy);
       } else {
@@ -32,13 +32,12 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
       if (userPreferences?.outpatientAppointmentFilters) {
         setFilters(userPreferences.outpatientAppointmentFilters);
       }
-      setHasLoadedPreferences(true);
-    } else if (!isLoading && !userPreferences && !hasLoadedPreferences) {
-      // No saved preferences, use defaults
+      hasLoadedPreferences.current = true;
+    } else if (!userPreferences && !hasLoadedPreferences.current) {
       setGroupBy(defaultGroupBy);
-      setHasLoadedPreferences(true);
+      hasLoadedPreferences.current = true;
     }
-  }, [userPreferences, isLoading, hasLoadedPreferences, defaultGroupBy]);
+  }, [userPreferences, defaultGroupBy]);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters, groupBy, setGroupBy }}>
