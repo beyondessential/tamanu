@@ -6,8 +6,8 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import styled from 'styled-components';
 import { TAMANU_COLORS } from '../../constants';
-import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts';
+import { TranslatedText } from '../Translation';
 
 const ControlLabel = styled(FormLabel)`
   width: max-content;
