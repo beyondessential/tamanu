@@ -1,7 +1,9 @@
 import { subject } from '@casl/ability';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
+import styled from 'styled-components';
 
+import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { EditedOrnament, VisuallyHidden } from '@tamanu/ui-components';
 import { PATIENT_PATHS } from '../constants/patientPaths';
@@ -16,6 +18,18 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
 import { TranslatedText } from './Translation/TranslatedText';
+
+const EditedEntryLegend = styled(FormHelperText).attrs({
+  children: <TranslatedText stringId="program.table.editedEntry" fallback="Edited entry" />,
+})`
+  &.${formHelperTextClasses.root} {
+    margin-block-start: 4px;
+    text-align: end;
+  }
+  &::before {
+    content: '*';
+  }
+`;
 
 function DateAccessor({ endTime }) {
   return <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
@@ -219,6 +233,7 @@ export const DataFetchingProgramsTable = ({
         className={className}
         data-testid="datafetchingtable-58ck"
       />
+      <EditedEntryLegend />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}
