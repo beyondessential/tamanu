@@ -129,7 +129,7 @@ describe('Programs', () => {
 
   describe('Listing', () => {
     it('should list available programs', async () => {
-      const result = await app.get(`/api/program`);
+      const result = await app.get('/api/program');
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -231,7 +231,7 @@ describe('Programs', () => {
   describe('Survey responses', () => {
     it('should submit a survey response against an encounter', async () => {
       const responseData = createDummySurveyResponse(testSurvey);
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...responseData,
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
@@ -255,7 +255,7 @@ describe('Programs', () => {
 
     it('should return no changelog entries before any edit', async () => {
       const responseData = createDummySurveyResponse(testSurvey);
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...responseData,
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
@@ -415,7 +415,7 @@ describe('Programs', () => {
       expect(patient).toBeTruthy();
       expect(existingEncounter).toHaveProperty('patientId', patient.id);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: patient.id,
         facilityId,
@@ -433,7 +433,7 @@ describe('Programs', () => {
     it('should automatically create an encounter if none exists', async () => {
       const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,
@@ -526,7 +526,7 @@ describe('Programs', () => {
         });
         expect(beforeIssue).toBeFalsy();
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
@@ -600,7 +600,7 @@ describe('Programs', () => {
         const TEST_EMAIL = 'updated-email@tamanu.io';
         expect(testPatient.email).not.toEqual(TEST_EMAIL);
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_EMAIL },
           surveyId,
           encounterId: testEncounter.id,
@@ -626,7 +626,7 @@ describe('Programs', () => {
         const padRecord = await models.PatientAdditionalData.getOrCreateForPatient(testPatient.id);
         expect(padRecord.passport).not.toEqual(TEST_PASSPORT);
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           encounterId: testEncounter.id,
@@ -654,7 +654,7 @@ describe('Programs', () => {
         const noPadRecord = await models.PatientAdditionalData.getForPatient(freshPatient.id);
         expect(noPadRecord).toBeFalsy();
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           patientId: freshPatient.id,
@@ -674,7 +674,7 @@ describe('Programs', () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,
@@ -690,7 +690,7 @@ describe('Programs', () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,
