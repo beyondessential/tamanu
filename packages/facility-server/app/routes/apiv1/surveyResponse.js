@@ -259,7 +259,7 @@ function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
 
 /**
  * Survey response changelog for facility (logs.changes).
- * Response: { changes: Array<{ id, loggedAt, tableName, recordId, updatedByUser, fieldChanges, recordData }> }
+ * Response: Array<{ id, loggedAt, tableName, recordId, updatedByUser, fieldChanges, recordData }>
  * fieldChanges: { fieldKey, from, to }[] — only rows after the first snapshot per DB record (edit history only).
  */
 surveyResponse.get(
@@ -390,7 +390,7 @@ surveyResponse.get(
       facilityId: req.query.facilityId,
     });
 
-    res.send({ changes });
+    res.send(changes);
   }),
 );
 

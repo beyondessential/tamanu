@@ -267,7 +267,7 @@ describe('Programs', () => {
         `/api/surveyResponse/${encodeURIComponent(result.body.id)}/changes`,
       );
       expect(changelog).toHaveSucceeded();
-      expect(changelog.body.changes).toEqual([]);
+      expect(changelog.body).toEqual([]);
     });
 
     it('should list changelog after PATCH and keep end_time unchanged', async () => {
@@ -301,9 +301,9 @@ describe('Programs', () => {
         `/api/surveyResponse/${encodeURIComponent(responseId)}/changes`,
       );
       expect(changelog).toHaveSucceeded();
-      expect(Array.isArray(changelog.body.changes)).toBe(true);
-      expect(changelog.body.changes.length).toBeGreaterThan(0);
-      const first = changelog.body.changes[0];
+      expect(Array.isArray(changelog.body)).toBe(true);
+      expect(changelog.body.length).toBeGreaterThan(0);
+      const first = changelog.body[0];
       expect(first).toMatchObject({
         tableName: expect.any(String),
         fieldChanges: expect.any(Array),

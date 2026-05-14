@@ -188,7 +188,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   const editedDataElementIds = useMemo(() => {
     if (!existingSurveyResponse?.answers?.length) return null;
-    const changes = surveyResponseChangesData?.changes;
+    const changes = surveyResponseChangesData;
     if (!changes?.length) return new Set();
     const dataElementIdByAnswerId = new Map(
       existingSurveyResponse.answers.map(a => [a.id, a.dataElementId]),
