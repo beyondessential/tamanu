@@ -549,7 +549,7 @@ describe('Programs', () => {
           },
         });
 
-        const createResult = await app.post(`/api/surveyResponse`).send({
+        const createResult = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
