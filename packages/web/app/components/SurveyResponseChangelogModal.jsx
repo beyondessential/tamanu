@@ -147,7 +147,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
                   );
                 })}{' '}
                 <FormHelperText>
-                  {row.changedBy.displayName} &middot;{' '}
+                  {row.updatedByUser?.displayName} &middot;{' '}
                   <DateDisplay date={row.loggedAt} format="short" noTooltip timeFormat="default" />
                 </FormHelperText>
               </ListItem>
