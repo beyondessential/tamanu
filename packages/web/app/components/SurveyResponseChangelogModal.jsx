@@ -8,10 +8,12 @@ import {
   MODAL_PADDING_TOP_AND_BOTTOM,
   ModalContent,
   TranslatedText,
+  VisuallyHidden,
 } from '@tamanu/ui-components';
 import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
 import { DateDisplay } from './DateDisplay';
 import { ModalCancelRow } from './ModalActionRow';
+import { SurveyAnswerResult } from './SurveyAnswerResult';
 
 function EmptyState() {
   return (
@@ -63,15 +65,27 @@ const ListItem = styled.li`
 
 const Heading = styled.h3`
   font: inherit;
-  margin-block: 0;
+  margin-block: 0 0.25em;
 `;
 
-const Paragraph = styled.p`
-  margin-block: 0.25em 0;
-`;
+function TableHead() {
+  return (
+    <VisuallyHidden as="thead">
+      <tr>
+        <th scope="col" />
+        <th scope="col">
+          <TranslatedText stringId="general.answer.label" fallback="Answer" />
+        </th>
+      </tr>
+    </VisuallyHidden>
+  );
+}
 
-const Muted = styled.em`
-  color: ${p => p.theme.palette.text.tertiary};
+const RowHeader = styled.th.attrs({ scope: 'row' })`
+  font-weight: 400;
+  min-inline-size: 5.6em; /* HACK: Tuned to avoid line break when rendering ’Edited from:’ in English */
+  padding-inline-end: 0.2em;
+  vertical-align: top;
 `;
 
 const Footer = styled(ModalCancelRow).attrs({
@@ -87,21 +101,6 @@ const Footer = styled(ModalCancelRow).attrs({
   position: sticky;
 `;
 
-const ChangelogValue = ({ value }) => {
-  if (value === null || value === undefined || value === '') return <Muted>&mdash;</Muted>;
-  if (Array.isArray(value)) {
-    return (
-      <ul>
-        {value.map((entry, i) => (
-          <li key={i}>{typeof entry === 'object' ? JSON.stringify(entry) : String(entry)}</li>
-        ))}
-      </ul>
-    );
-  }
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
-};
-
 export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }) => {
   const {
     data: changes,
@@ -110,6 +109,8 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
   } = useSurveyResponseChangesQuery(surveyResponseId, {
     enabled: open && Boolean(surveyResponseId),
   });
+
+  console.log(changes);
 
   return (
     <StyledModal open={open} onClose={onClose}>
@@ -127,27 +128,46 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
           <ul data-testid="response-changelog-list" role="list">
             {changes.map(row => (
               <ListItem key={row.id} data-testid={`changelog-item-${row.id}`}>
-                {row.fieldChanges?.map(change => {
-                  return (
-                    <>
-                      <Heading>{/*change.fieldKey*/}Question text goes here. Foo bar baz.</Heading>
-                      <Paragraph>
-                        <TranslatedText
-                          stringId="surveyResponse.changelog.from"
-                          fallback="Edited from:"
-                        />{' '}
-                        <ChangelogValue value={change.from} />
-                      </Paragraph>
-                      <Paragraph>
-                        <TranslatedText
-                          stringId="surveyResponse.changelog.to"
-                          fallback="Edited to:"
-                        />{' '}
-                        <ChangelogValue value={change.to} />
-                      </Paragraph>
-                    </>
-                  );
-                })}{' '}
+                {row.fieldChanges?.map(change => (
+                  <React.Fragment key={change.id}>
+                    <Heading>{row.programDataElement?.name}</Heading>
+                    <table>
+                      <TableHead />
+                      <tbody>
+                        <tr>
+                          <RowHeader>
+                            <TranslatedText
+                              stringId="surveyResponse.changelog.from"
+                              fallback="Edited from:"
+                            />
+                          </RowHeader>
+                          <td>
+                            <SurveyAnswerResult
+                              answer={change.from}
+                              dataElementId={row.programDataElement?.id}
+                              type={row.programDataElement?.type}
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <RowHeader>
+                            <TranslatedText
+                              stringId="surveyResponse.changelog.to"
+                              fallback="Edited to:"
+                            />
+                          </RowHeader>
+                          <td>
+                            <SurveyAnswerResult
+                              answer={change.to}
+                              dataElementId={row.programDataElement?.id}
+                              type={row.programDataElement?.type}
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </React.Fragment>
+                ))}
                 <FormHelperText>
                   {row.updatedByUser?.displayName} &middot;{' '}
                   <DateDisplay date={row.loggedAt} format="short" noTooltip timeFormat="default" />

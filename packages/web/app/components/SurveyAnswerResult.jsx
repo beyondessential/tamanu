@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
@@ -11,6 +12,13 @@ import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedOption } from './Translation/TranslatedOptions';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
+
+const EmptyState = styled.span.attrs({
+  'data-testid': 'empty-state-n4wk',
+  children: <>&mdash;</>,
+})`
+  color: ${p => p.theme.palette.text.tertiary};
+`;
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
@@ -33,7 +41,7 @@ export const SurveyAnswerResult = ({
   const [surveyLink, setSurveyLink] = useState(null);
 
   if (answer === null || answer === undefined || answer === '') {
-    return <>&mdash;</>;
+    return <EmptyState />;
   }
 
   switch (type) {
