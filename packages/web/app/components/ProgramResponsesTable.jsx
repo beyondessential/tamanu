@@ -1,11 +1,11 @@
 import { subject } from '@casl/ability';
+import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { EditedOrnament, VisuallyHidden } from '@tamanu/ui-components';
+import { TranslatedText, EditedOrnament, VisuallyHidden } from '@tamanu/ui-components';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
@@ -17,7 +17,6 @@ import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyRespon
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
-import { TranslatedText } from './Translation/TranslatedText';
 
 const EditedEntryLegend = styled(FormHelperText).attrs({
   children: <TranslatedText stringId="program.table.editedEntry" fallback="Edited entry" />,
