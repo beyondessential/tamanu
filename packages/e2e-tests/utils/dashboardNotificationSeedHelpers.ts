@@ -1,5 +1,4 @@
-import { expect } from '@playwright/test';
-import type { APIRequestContext, Page } from '@playwright/test';
+import { expect, type APIRequestContext, type Page } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
