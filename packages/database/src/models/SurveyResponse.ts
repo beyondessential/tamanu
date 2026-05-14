@@ -229,7 +229,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: DataTypes.FLOAT, allowNull: true },
         resultText: { type: DataTypes.TEXT, allowNull: true },
-        editedAt: { type: DataTypes.DATE, allowNull: true },
+        editedAt: dateTimeType('editedAt', { allowNull: true }),
         notified: { type: DataTypes.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
         metadata: { type: DataTypes.JSONB, allowNull: true },
       },
