@@ -8,6 +8,7 @@ const EmptyState = styled.span`
 `;
 
 const UnorderedList = styled.ul`
+  list-style-position: inside;
   margin-block: 0;
   padding-inline-start: 0;
 `;
