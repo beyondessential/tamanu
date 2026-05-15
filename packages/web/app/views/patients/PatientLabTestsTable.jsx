@@ -1,6 +1,6 @@
 import { Button } from '@material-ui/core';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import {
   EditedEntryLegend,
@@ -38,15 +38,15 @@ const StyledTable = styled(Table)`
     ${props =>
       COLUMN_WIDTHS.slice(0, props.$stickyColumns)
         .map(
-          (width, index) => `
-      thead tr th:nth-child(${index + 1}),
-      tbody tr td:nth-child(${index + 1}) {
-        width: ${width}px;
-        min-width: ${width}px;
-        max-width: ${width}px;
-        left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
-      }
-    `,
+          (width, index) => css`
+            thead tr th:nth-child(${index + 1}),
+            tbody tr td:nth-child(${index + 1}) {
+              width: ${width}px;
+              min-width: ${width}px;
+              max-width: ${width}px;
+              left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
+            }
+          `,
         )
         .join('\n')}
 
