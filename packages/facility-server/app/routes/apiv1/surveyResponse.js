@@ -212,17 +212,6 @@ function diffAnswerBody(prevRecordData, currRecordData) {
 }
 
 /**
- * @privateRemarks Revision 1 is the first logs.changes row for that answer id. Submit-created
- * answers have `edited_at` null on insert. PATCH-created answers are inserted with `edited_at` set
- * immediately, and that snapshot is present in `record_data`.
- * @param {Change & { _revision: number }} change
- * @returns {boolean} True if this change entry represents an edit, not a create.
- */
-function isEditChange(change) {
-  return change._revision > 1 || Boolean(change.recordData.editedAt);
-}
-
-/**
  * Survey response changelog for facility (logs.changes).
  * Response: Array<{ id, loggedAt, tableName, recordId, updatedByUser, from, to, recordData, programDataElement }>
  * `from` / `to`: answer `body` before and after this change log row.
@@ -310,7 +299,7 @@ surveyResponse.get(
 
     const changes = revisions
       .map(revision => {
-        if (!isEditChange(revision)) return null; // Edits only, no creates
+        if (!revision.recordData.editedAt) return null; // Edits only, no creates
 
         const prevRevision = revisions.find(
           r => r.recordId === revision.recordId && r._revision === revision._revision - 1,
