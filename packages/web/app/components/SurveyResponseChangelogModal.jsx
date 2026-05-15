@@ -83,7 +83,7 @@ function TableHead() {
 
 const RowHeader = styled.th.attrs({ scope: 'row' })`
   font-weight: 400;
-  min-inline-size: 5.6em; /* HACK: Tuned to avoid line break when rendering ’Edited from:’ in English */
+  min-inline-size: 5.6em;
   padding-inline-end: 0.2em;
   vertical-align: top;
 `;
