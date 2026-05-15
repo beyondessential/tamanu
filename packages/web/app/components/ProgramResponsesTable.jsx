@@ -1,13 +1,11 @@
 import { subject } from '@casl/ability';
-import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-import styled from 'styled-components';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
-  EditedOrnament,
   EditedEntryLegend,
+  EditedOrnament,
   TranslatedText,
   VisuallyHidden,
 } from '@tamanu/ui-components';
