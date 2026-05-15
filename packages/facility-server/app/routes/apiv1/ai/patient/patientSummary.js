@@ -16,6 +16,7 @@ patientSummaryRoute.get(
     const { AiDocument, Encounter } = req.models;
     const existing = await AiDocument.findOne({
       where: { recordType: 'Patient', recordId: patientId, summaryType: 'patient' },
+      order: [['createdAt', 'DESC']],
     });
 
     if (!existing) {
@@ -23,16 +24,15 @@ patientSummaryRoute.get(
       return;
     }
 
-    const newActiveEncounterSinceSummary = await Encounter.findOne({
+    const newEncounterSinceSummary = await Encounter.findOne({
       attributes: ['id'],
       where: {
         patientId,
-        endDate: null,
         updatedAtSyncTick: { [Op.gt]: existing.updatedAtSyncTick },
       },
     });
 
-    if (!newActiveEncounterSinceSummary) {
+    if (!newEncounterSinceSummary) {
       res.send({ aiDocument: existing.forResponse(), requiresRegeneration: false });
       return;
     }
@@ -72,7 +72,8 @@ patientSummaryRoute.put(
     req.checkPermission('write', 'PatientSummary');
 
     const { AiDocument } = req.models;
-    const doc = await AiDocument.findByPk(req.params.id);
+    // ai_documents has a composite primary key, so look up by the unique generated id
+    const doc = await AiDocument.findOne({ where: { id: req.params.id } });
     if (!doc) {
       throw new NotFoundError('AI document not found');
     }

@@ -3,21 +3,24 @@ import { DataTypes, type QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('ai_documents', {
     id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
+      // ai documents use a generated id derived from (summary_type, record_type, record_id)
+      // so two facilities independently generating a summary for the same logical record
+       type: `TEXT GENERATED ALWAYS AS (summary_type || ';' || record_type || ';' || REPLACE("record_id", ';', ':')) STORED`,
     },
     summary_type: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     record_type: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     record_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     status: {
       type: DataTypes.STRING,
@@ -49,10 +52,11 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex('ai_documents', ['record_type', 'record_id', 'summary_type'], {
-    unique: true,
-    name: 'ai_documents_record_type_record_id_summary_type_unique',
-  });
+  // unique constraint on the generated id so single-id lookups (e.g. PUT /:id) are
+  // indexed; the composite primary key already enforces logical uniqueness.
+  await query.sequelize.query(
+    `ALTER TABLE ai_documents ADD CONSTRAINT ai_documents_id_key UNIQUE (id);`,
+  );
 }
 
 export async function down(query: QueryInterface): Promise<void> {

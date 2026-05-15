@@ -43,8 +43,8 @@ describe('PatientSummary', () => {
         source: 'ai',
       });
 
-      // Verify persistence
-      const doc = await models.AiDocument.findByPk(result.body.id);
+      // Verify persistence (composite primary key, so look up by the unique generated id)
+      const doc = await models.AiDocument.findOne({ where: { id: result.body.id } });
       expect(doc).not.toBeNull();
       expect(doc.content).toBe(mockAiContent);
     });

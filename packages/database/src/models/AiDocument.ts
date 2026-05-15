@@ -19,13 +19,23 @@ export class AiDocument extends Model {
   declare content: string | null;
   declare source: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // ai_documents use a generated id derived from (summary_type, record_type, record_id),
+          // so the same logical document produces the same primary key on every facility/central,
+          // simplifying sync and avoiding cross-facility id conflicts.
+          // REPLACE on record_id avoids ambiguity if the source id contains the ';' separator.
+          type: `TEXT GENERATED ALWAYS AS (summary_type || ';' || record_type || ';' || REPLACE("record_id", ';', ':')) STORED`,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored, so do nothing here
+          },
+        },
         summaryType: {
           type: DataTypes.STRING,
           allowNull: false,
+          primaryKey: true,
           validate: {
             isIn: [AI_DOCUMENT_SUMMARY_TYPES as unknown as string[]],
           },
@@ -33,6 +43,7 @@ export class AiDocument extends Model {
         recordType: {
           type: DataTypes.STRING,
           allowNull: false,
+          primaryKey: true,
           validate: {
             isIn: [AI_DOCUMENT_RECORD_TYPES as unknown as string[]],
           },
@@ -40,6 +51,7 @@ export class AiDocument extends Model {
         recordId: {
           type: DataTypes.STRING,
           allowNull: false,
+          primaryKey: true,
         },
         status: {
           type: DataTypes.STRING,
