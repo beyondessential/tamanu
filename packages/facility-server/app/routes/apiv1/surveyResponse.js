@@ -615,7 +615,7 @@ surveyResponse.patch(
       );
     });
 
-    res.send({ ok: true });
+    res.status(204).send();
   }),
 );
 
