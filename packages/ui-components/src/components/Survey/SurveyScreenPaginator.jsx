@@ -41,7 +41,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisab
       <div>
         <StyledButtonRow data-testid="styledbuttonrow-ljfc">
           <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
-            <TranslatedText stringId="general.action.prev" fallback="Prev" />
+            <TranslatedText stringId="general.action.previous" fallback="Prev" />
           </OutlinedButton>
           <FormSubmitButton
             color="primary"
