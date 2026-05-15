@@ -1,6 +1,7 @@
-import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { VisuallyHidden } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
+
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
@@ -11,7 +12,6 @@ import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyRespon
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
-import { TranslatedText } from './Translation/TranslatedText';
 
 function DateAccessor({ endTime }) {
   return <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
