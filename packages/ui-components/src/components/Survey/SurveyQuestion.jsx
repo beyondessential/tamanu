@@ -1,5 +1,7 @@
+import { Box, Typography } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PATIENT_DATA_FIELD_LOCATIONS,
@@ -7,12 +9,11 @@ import {
   SEX_VALUES,
 } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
-import { Box, Typography } from '@material-ui/core';
-import { TAMANU_COLORS } from '../../constants/colors';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useSettings, useTranslation } from '../../contexts';
 
 const Text = styled.div`
   margin-bottom: 10px;
