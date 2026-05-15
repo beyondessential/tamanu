@@ -200,22 +200,16 @@ async function handleSurveyResponseActions(
 /**
  * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.
  *
- * @param {SurveyResponseAnswer | undefined | null} prevBody
- * @param {SurveyResponseAnswer | undefined | null} currBody
+ * @param {SurveyResponseAnswer | undefined | null} prevRecordData
+ * @param {SurveyResponseAnswer} currRecordData
  * @returns {{ from: SurveyResponseAnswer['body']; to: SurveyResponseAnswer['body'] } | null}
  */
 function diffAnswerBody(prevRecordData, currRecordData) {
-  if (!currRecordData) return null;
   const from = prevRecordData?.body ?? null;
   const to = currRecordData.body ?? null;
   return from === to ? null : { from, to };
 }
 
-/**
- * Survey response changelog for facility (logs.changes).
- * Response: Array<{ id, loggedAt, tableName, recordId, updatedByUser, from, to, recordData, programDataElement }>
- * `from` / `to`: answer `body` before and after this change log row.
- */
 surveyResponse.get(
   '/:id/changes',
   asyncHandler(async (req, res) => {
@@ -237,10 +231,8 @@ surveyResponse.get(
     /**
      * @typedef {{
      *   id: ChangeLog['id'];
-     *   loggedAt: ChangeLog['loggedAt'];
-     *   tableName: 'survey_response_answers';
      *   recordId: ChangeLog['recordId'];
-     *   recordData: Record<string, unknown>;
+     *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
      *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
      *   updatedByUser: Pick<User, 'id' | 'displayName'>;
      *   from: SurveyResponseAnswer['body'];
@@ -252,10 +244,12 @@ surveyResponse.get(
       `
         SELECT
           c.id,
-          c.created_at AS "loggedAt",
-          c.table_name AS "tableName",
           c.record_id AS "recordId",
-          c.record_data AS "recordData",
+          jsonb_build_object(
+            'id', c.record_data->>'id',
+            'body', c.record_data->>'body',
+            'editedAt', c.record_data->>'edited_at'
+          ) AS "recordData",
           jsonb_build_object(
             'id', pde.id,
             'name', pde.name,
@@ -304,7 +298,7 @@ surveyResponse.get(
         const prevRevision = revisions.find(
           r => r.recordId === revision.recordId && r._revision === revision._revision - 1,
         );
-        const diff = diffAnswerBody(prevRevision?.recordData ?? null, revision.recordData);
+        const diff = diffAnswerBody(prevRevision?.recordData, revision.recordData);
 
         if (!diff) return null; // No meaningful change (shouldn’t really happen)
 
