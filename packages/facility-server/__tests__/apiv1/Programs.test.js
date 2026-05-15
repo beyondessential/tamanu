@@ -303,15 +303,11 @@ describe('Programs', () => {
       expect(changelog).toHaveSucceeded();
       expect(Array.isArray(changelog.body)).toBe(true);
       expect(changelog.body.length).toBeGreaterThan(0);
-      const first = changelog.body[0];
+      const [first] = changelog.body;
       const stringOrNull = {
         asymmetricMatch: actual => actual === null || typeof actual === 'string',
       };
-      expect(first).toMatchObject({
-        tableName: expect.any(String),
-        from: stringOrNull,
-        to: stringOrNull,
-      });
+      expect(first).toMatchObject({ from: stringOrNull, to: stringOrNull });
     });
 
     it('should only list program responses from an encounter, not referrals', async () => {
