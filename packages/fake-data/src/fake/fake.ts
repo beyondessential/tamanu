@@ -445,6 +445,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // editedAt implies “patched after original survey response submission”; must start as NULL
     editedAt: null,
   }),
+  SurveyResponseAnswer: () => ({
+    // editedAt implies “patched after original survey response submission”; must start as NULL
+    editedAt: null,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {
