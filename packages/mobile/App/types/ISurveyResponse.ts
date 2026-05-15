@@ -30,4 +30,5 @@ export interface ISurveyResponseAnswer {
 
   name?: string;
   body?: string;
+  editedAt?: string;
 }

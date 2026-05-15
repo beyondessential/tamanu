@@ -216,24 +216,14 @@ function diffAnswerBody(prevRecordData, currRecordData) {
 }
 
 /**
- * `{ _revision: 1 }` can either mean this answer:
- * - was provided with the original survey submission; or
- * - has been given a nonempty value for the first time in a subsequent edit.
- *
- * This is needed to flag the first empty → nonempty edit as an edit, otherwise it would appear to
- * be an original answer, despite being added after the original survey response submission.
+ * @privateRemarks Revision 1 is the first logs.changes row for that answer id. Submit-created
+ * answers have `edited_at` null on insert. PATCH-created answers are inserted with `edited_at` set
+ * immediately, and that snapshot is present in `record_data`.
+ * @param {Change & { _revision: number }} change
+ * @returns {boolean} True if this change entry represents an edit, not a create.
  */
-function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
-  return (
-    // If this isn’t the first revision, it’s not the first empty → nonempty edit.
-    row._revision === 1 &&
-    // Answer has been edited to some nonempty value
-    row.recordData?.body !== null &&
-    row.recordData?.body !== '' &&
-    // Answer was provided after original survey response submission
-    responseCreatedAtMs !== null &&
-    new Date(row.loggedAt).getTime() > responseCreatedAtMs
-  );
+function isEditChange(change) {
+  return change._revision > 1 || Boolean(change.recordData.editedAt);
 }
 
 /**
@@ -322,28 +312,21 @@ surveyResponse.get(
       return { ...row, _revision: revisionDict[key] };
     });
 
-    const responseCreatedAtMs = surveyResponseRecord.createdAt
-      ? new Date(surveyResponseRecord.createdAt).getTime()
-      : null;
+    const changes = rowsWithRevisions
+      .map(change => {
+        if (!isEditChange(change)) return null; // Edits only, no creates
 
-    const editRowsOnly = rowsWithRevisions.filter(
-      row => row._revision > 1 || isEditToNonemptyAnswer(row, responseCreatedAtMs),
-    );
-
-    const changes = editRowsOnly
-      .map(row => {
         const prevRow = rowsWithRevisions.find(
-          r =>
-            r.tableName === row.tableName &&
-            r.recordId === row.recordId &&
-            r._revision === row._revision - 1,
+          r => r.recordId === change.recordId && r._revision === change._revision - 1,
         );
         const prevData = prevRow?.recordData ?? null;
-        const bodyDiff = diffAnswerBody(prevData, row.recordData);
-        if (!bodyDiff) return null;
-        return { ...omit(row, '_revision'), ...bodyDiff };
+        const diff = diffAnswerBody(prevData, change.recordData);
+
+        if (!diff) return null;
+
+        return { ...omit(change, '_revision'), ...diff };
       })
-      .filter(Boolean);
+      .filter(change => change !== null);
 
     changes.reverse();
 
@@ -560,7 +543,10 @@ surveyResponse.patch(
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
           if (existingAnswer.body !== body) {
-            await existingAnswer.update({ body });
+            await existingAnswer.update({
+              body,
+              editedAt: getCurrentDateTimeString(),
+            });
             hasMeaningfulChanges = true;
           }
         } else {
@@ -568,6 +554,7 @@ surveyResponse.patch(
             dataElementId,
             body,
             responseId: params.id,
+            editedAt: getCurrentDateTimeString(),
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
           if (body !== '') {
@@ -586,19 +573,26 @@ surveyResponse.patch(
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
           if (existingAnswer.body !== bodyValue) {
-            await existingAnswer.update({ body: bodyValue });
+            await existingAnswer.update({
+              body: bodyValue,
+              editedAt: getCurrentDateTimeString(),
+            });
             hasMeaningfulChanges = true;
           }
         } else {
-          const createdAnswer = await models.SurveyResponseAnswer.create({
-            dataElementId,
+          const newAnswer = await models.SurveyResponseAnswer.create({
             body: bodyValue,
+            /**
+             * This is the first time this question has been answered for this survey response, but
+             * immediately give it an `edited_at` timestamp so we know that it was edited from the
+             * original non-answer.
+             */
+            editedAt: getCurrentDateTimeString(),
+            dataElementId,
             responseId: params.id,
           });
-          answerByDataElementId.set(dataElementId, createdAnswer);
-          if (bodyValue !== '') {
-            hasMeaningfulChanges = true;
-          }
+          answerByDataElementId.set(dataElementId, newAnswer);
+          if (bodyValue !== '') hasMeaningfulChanges = true;
         }
         mergedAnswerValues[dataElementId] = bodyValue;
       }

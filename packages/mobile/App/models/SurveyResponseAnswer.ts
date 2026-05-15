@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
+import { DateTimeStringColumn } from './DateColumns';
 import { ProgramDataElement } from './ProgramDataElement';
 import { SurveyResponse } from './SurveyResponse';
 import { VitalLog } from './VitalLog';
@@ -17,6 +18,9 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
 
   @Column({ nullable: true })
   body?: string;
+
+  @DateTimeStringColumn({ nullable: true })
+  editedAt?: string;
 
   @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
   response: SurveyResponse;

@@ -214,6 +214,10 @@ export class SurveyResponse extends Model {
   declare endTime?: string;
   declare result?: number;
   declare resultText?: string;
+  /**
+   * Not to be confused with metadata attribute `updated_at`. `edited_at` is non-NULL if and only if
+   * this survey response has been meaningfully edited by a user via `PATCH /surveyResponse`.
+   */
   declare editedAt?: string;
   declare notified?: boolean;
   declare metadata?: Record<string, any>;

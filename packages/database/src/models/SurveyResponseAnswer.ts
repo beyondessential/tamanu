@@ -5,7 +5,7 @@ import { Model } from './Model';
 import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
-import type { InitOptions, ModelProperties, Models } from '../types/model';
+import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
@@ -21,6 +21,13 @@ export class SurveyResponseAnswer extends Model {
   declare body?: string;
   declare dataElementId?: string;
   declare responseId?: string;
+  /**
+   * Not to be confused with metadata attribute `updated_at`. NULL when this record originates from
+   * initial survey response submission. Non-null if this answer has been meaningfully edited by a
+   * user via `PATCH /surveyResponse`. NB: PATCH-created record is created with an `editedAt`
+   * timestamp so even its first revision is picked up as an edit.
+   */
+  declare editedAt?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -28,6 +35,7 @@ export class SurveyResponseAnswer extends Model {
         id: primaryKey,
         name: DataTypes.STRING,
         body: DataTypes.TEXT,
+        editedAt: dateTimeType('editedAt', { allowNull: true }),
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
