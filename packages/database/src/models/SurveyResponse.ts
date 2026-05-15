@@ -1,4 +1,5 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   CHARTING_SURVEY_TYPES,
@@ -7,7 +8,6 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -16,10 +16,11 @@ import {
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { Model } from './Model';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
