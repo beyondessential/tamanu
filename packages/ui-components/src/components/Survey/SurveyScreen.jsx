@@ -137,12 +137,12 @@ export const SurveyScreen = ({
           />
         )),
     [
+      editedDataElementIds,
       encounterType,
       getComponentForQuestionType,
       patient,
       setQuestionToRef,
       values,
-      editedDataElementIds,
     ],
   );
 
