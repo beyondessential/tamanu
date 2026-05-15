@@ -6,10 +6,8 @@
  * @typedef {import('@tamanu/database').User} User
  * @typedef {{
  *   id: ChangeLog['id'];
- *   loggedAt: ChangeLog['loggedAt'];
- *   tableName: 'survey_response_answers';
  *   recordId: ChangeLog['recordId'];
- *   recordData: SurveyResponseAnswer;
+ *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];
