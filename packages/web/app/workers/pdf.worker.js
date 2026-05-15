@@ -7,3 +7,6 @@ const renderPDFInWorker = async (props) => {
 };
 
 expose({ renderPDFInWorker });
+Promise.resolve().then(() => {
+  self.postMessage({ type: 'pdf-render-ready' });
+});
