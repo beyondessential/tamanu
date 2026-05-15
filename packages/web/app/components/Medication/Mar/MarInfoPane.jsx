@@ -1,7 +1,7 @@
+import { Box } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,

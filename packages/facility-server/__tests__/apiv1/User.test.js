@@ -1,5 +1,6 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
+import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 
@@ -16,6 +17,19 @@ const createUser = overrides => ({
   password: chance.word(),
   ...overrides,
 });
+
+const enableCentralLoginForTest = () => {
+  const previous = process.env.ENABLE_CENTRAL_LOGIN_IN_TEST;
+  process.env.ENABLE_CENTRAL_LOGIN_IN_TEST = 'true';
+
+  return () => {
+    if (previous === undefined) {
+      delete process.env.ENABLE_CENTRAL_LOGIN_IN_TEST;
+    } else {
+      process.env.ENABLE_CENTRAL_LOGIN_IN_TEST = previous;
+    }
+  };
+};
 
 // N.B. there were formerly a well written extra suite of tests here for functionality like creating
 // users and changing passwords, which is functionality that isn't supported on the facility server
@@ -223,6 +237,58 @@ describe('User', () => {
           localisation: JSON.stringify(localisation),
         });
       });
+
+      it.each([
+        [ERROR_TYPE.CLIENT_INCOMPATIBLE],
+        [ERROR_TYPE.REMOTE_INCOMPATIBLE],
+      ])('should fall back to local login when central login fails with %s', async errorType => {
+        centralServer.login.mockClear();
+        centralServer.login.mockRejectedValueOnce(
+          new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
+        );
+
+        const restoreCentralLoginShortcut = enableCentralLoginForTest();
+        let result;
+        try {
+          result = await baseApp.post('/api/login').send({
+            email: authUser.email,
+            password: rawPassword,
+            deviceId: 'test-device-id',
+          });
+        } finally {
+          restoreCentralLoginShortcut();
+        }
+
+        expect(centralServer.login).toHaveBeenCalledTimes(1);
+        expect(result).toHaveSucceeded();
+        expect(result.body.central).toBe(false);
+        expect(result.body).toHaveProperty('token');
+      });
+
+      it.each([[ERROR_TYPE.FORBIDDEN], [ERROR_TYPE.RATE_LIMITED]])(
+        'should not fall back to local login when central login fails with %s',
+        async errorType => {
+          centralServer.login.mockClear();
+          centralServer.login.mockRejectedValueOnce(
+            new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
+          );
+
+          const restoreCentralLoginShortcut = enableCentralLoginForTest();
+          let result;
+          try {
+            result = await baseApp.post('/api/login').send({
+              email: authUser.email,
+              password: rawPassword,
+              deviceId: 'test-device-id',
+            });
+          } finally {
+            restoreCentralLoginShortcut();
+          }
+
+          expect(centralServer.login).toHaveBeenCalledTimes(1);
+          expect(result).toHaveRequestError();
+        },
+      );
 
       it('should include permissions in the data returned by a successful login', async () => {
         const result = await baseApp.post('/api/login').send({
