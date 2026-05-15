@@ -47,7 +47,7 @@ export const ModalContent = styled.div`
     ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
 `;
 
-export const ModalContainer = styled.div`
+const ModalContainer = styled.div`
   background: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
