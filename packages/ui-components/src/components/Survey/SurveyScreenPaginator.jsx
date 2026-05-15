@@ -1,15 +1,15 @@
+import { Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Typography } from '@material-ui/core';
-import { FormSubmitButton, OutlinedButton, ButtonRow } from '../Button';
-import { SurveyScreen } from './SurveyScreen';
+import { ButtonRow, FormSubmitButton, OutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { SurveyScreen } from './SurveyScreen';
 import { usePaginatedForm } from './usePaginatedForm';
 
 const Text = styled.p`
-  margin-block-start: 0;
-  margin-block-end: 10px;
+  margin-block: 0 10px;
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
