@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   Button,
+  EditedLegend,
   EditedOrnament,
-  EditedReference,
   Modal,
   TranslatedReferenceData,
   TranslatedText,
@@ -177,7 +177,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {hasChanges && <EditedReference style={{ marginBlockStart: 4, textAlign: 'end' }} />}
+          {hasChanges && <EditedLegend />}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

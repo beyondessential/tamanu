@@ -1,17 +1,19 @@
+import { Button } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+
 import {
-  TranslatedText,
-  TranslatedReferenceData,
+  EditedEntryLegend,
   TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { Table } from '../../components/Table';
-import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
-import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText } from '../../components';
+import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
+import { Table } from '../../components/Table';
+import { Colors } from '../../constants/styles';
+import { LabTestResultModal } from './LabTestResultModal';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -105,13 +107,6 @@ const StyledButton = styled(Button)`
   &:hover {
     background-color: transparent;
   }
-`;
-
-const EditedEntryLegend = styled.div`
-  text-align: end;
-  margin-top: 4px;
-  font-size: 12px;
-  color: ${Colors.midText};
 `;
 
 export const PatientLabTestsTable = React.memo(
@@ -283,15 +278,7 @@ export const PatientLabTestsTable = React.memo(
           rowIdKey="testType"
           data-testid="styledtable-u2v9"
         />
-        {showEditedEntryLegend && (
-          <EditedEntryLegend data-testid="box-q7pq">
-            <TranslatedText
-              stringId="lab.result.editedEntry.label"
-              fallback="*Edited entry"
-              data-testid="translatedtext-editedentry"
-            />
-          </EditedEntryLegend>
-        )}
+        {showEditedEntryLegend && <EditedEntryLegend data-testid="box-q7pq" />}
         <LabTestResultModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
