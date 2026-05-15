@@ -74,7 +74,7 @@ const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
 const StyledTooltip = styled(props => (
-  <ClickAwayListener onClickAway={props.onClickAway} data-testid="clickawaylistener-ttee">
+  <ClickAwayListener onClickAway={props.onClickAway}>
     <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-o9f3">
       {props.children}
     </Tooltip>

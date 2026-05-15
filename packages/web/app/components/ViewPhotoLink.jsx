@@ -45,7 +45,7 @@ const TextDisplay = ({ isChartView }) => {
     );
   }
 
-  return <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View Image" />;
+  return <TranslatedText stringId="program.modal.view.action.viewImage" fallback="View image" />;
 };
 
 const Footer = ({ hasError, onDelete, onClose }) => {
@@ -57,19 +57,11 @@ const Footer = ({ hasError, onDelete, onClose }) => {
       <RowComponent>
         {showDeleteButton && (
           <OutlinedButton onClick={onDelete} data-testid="outlinedbutton-y5xo">
-            <TranslatedText
-              stringId="photo.action.deleteImage"
-              fallback="Delete image"
-              data-testid="translatedtext-ka8c"
-            />
+            <TranslatedText stringId="photo.action.deleteImage" fallback="Delete image" />
           </OutlinedButton>
         )}
         <Button onClick={onClose} data-testid="button-lsea">
-          <TranslatedText
-            stringId="general.action.close"
-            fallback="Close"
-            data-testid="translatedtext-9fgw"
-          />
+          <TranslatedText stringId="general.action.close" fallback="Close" />
         </Button>
       </RowComponent>
     </>
