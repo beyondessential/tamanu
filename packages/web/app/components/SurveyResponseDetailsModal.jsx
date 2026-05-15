@@ -75,17 +75,11 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const isNotFound = error?.status === 404;
   const isPending = isLoading || !surveyDetails || error;
 
-  const { data: changesData } = useSurveyResponseChangesQuery(surveyResponseId, {
+  const { data: changes } = useSurveyResponseChangesQuery(surveyResponseId, {
     enabled: Boolean(surveyResponseId && surveyDetails && !error),
   });
-  const editedAnswerIds = useMemo(() => {
-    const ids = new Set();
-    for (const ch of changesData ?? []) {
-      if (ch.tableName === 'survey_response_answers') ids.add(ch.recordId);
-    }
-    return ids;
-  }, [changesData]);
-  const hasChanges = Boolean(changesData?.length);
+  const editedAnswerIds = useMemo(() => new Set(changes?.map(c => c.recordId)), [changes]);
+  const hasChanges = Boolean(editedAnswerIds.size);
 
   const columns = useMemo(
     () => [
@@ -133,8 +127,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       const type =
         originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
 
-      const wasEdited =
-        answerObject?.id && editedAnswerIds.size > 0 && editedAnswerIds.has(answerObject.id);
+      const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
 
       return {
         id,
