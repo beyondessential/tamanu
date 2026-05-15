@@ -88,6 +88,53 @@ const RowHeader = styled.th.attrs({ scope: 'row' })`
   vertical-align: top;
 `;
 
+/** @param {React.ComponentProps<typeof ListItem> & { change: Change }} props */
+function ChangeLogListItem({ change, ...props }) {
+  return (
+    <ListItem data-testid={`changelog-item-${change.id}`} {...props}>
+      <Heading>{change.programDataElement?.name}</Heading>
+      <table>
+        <TableHead />
+        <tbody>
+          <tr>
+            <RowHeader>
+              <TranslatedText stringId="surveyResponse.changelog.from" fallback="Edited from:" />
+            </RowHeader>
+            <td>
+              <SurveyAnswerResult
+                answer={change.from}
+                dataElementId={change.programDataElement?.id}
+                type={change.programDataElement?.type}
+              />
+            </td>
+          </tr>
+          <tr>
+            <RowHeader>
+              <TranslatedText stringId="surveyResponse.changelog.to" fallback="Edited to:" />
+            </RowHeader>
+            <td>
+              <SurveyAnswerResult
+                answer={change.to}
+                dataElementId={change.programDataElement?.id}
+                type={change.programDataElement?.type}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <FormHelperText>
+        {change.updatedByUser?.displayName} &middot;{' '}
+        <DateDisplay
+          date={change.recordData.editedAt}
+          format="short"
+          noTooltip
+          timeFormat="default"
+        />
+      </FormHelperText>
+    </ListItem>
+  );
+}
+
 const Footer = styled(ModalCancelRow).attrs({
   confirmText: <TranslatedText stringId="general.action.close" fallback="Close" />,
 })`
@@ -115,6 +162,8 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
     enabled: open && Boolean(surveyResponseId),
   });
 
+  console.log(changes);
+
   return (
     <StyledModal open={open} onClose={onClose} {...props}>
       <ScrollView data-testid="response-changelog-scrollview">
@@ -129,53 +178,8 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
           <EmptyState />
         ) : (
           <ul data-testid="response-changelog-list" role="list">
-            {changes.map(row => (
-              <ListItem key={row.id} data-testid={`changelog-item-${row.id}`}>
-                {row.fieldChanges?.map(change => (
-                  <React.Fragment key={change.id}>
-                    <Heading>{row.programDataElement?.name}</Heading>
-                    <table>
-                      <TableHead />
-                      <tbody>
-                        <tr>
-                          <RowHeader>
-                            <TranslatedText
-                              stringId="surveyResponse.changelog.from"
-                              fallback="Edited from:"
-                            />
-                          </RowHeader>
-                          <td>
-                            <SurveyAnswerResult
-                              answer={change.from}
-                              dataElementId={row.programDataElement?.id}
-                              type={row.programDataElement?.type}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <RowHeader>
-                            <TranslatedText
-                              stringId="surveyResponse.changelog.to"
-                              fallback="Edited to:"
-                            />
-                          </RowHeader>
-                          <td>
-                            <SurveyAnswerResult
-                              answer={change.to}
-                              dataElementId={row.programDataElement?.id}
-                              type={row.programDataElement?.type}
-                            />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </React.Fragment>
-                ))}
-                <FormHelperText>
-                  {row.updatedByUser?.displayName} &middot;{' '}
-                  <DateDisplay date={row.loggedAt} format="short" noTooltip timeFormat="default" />
-                </FormHelperText>
-              </ListItem>
+            {changes.map(change => (
+              <ChangeLogListItem change={change} key={change.id} />
             ))}
           </ul>
         )}
