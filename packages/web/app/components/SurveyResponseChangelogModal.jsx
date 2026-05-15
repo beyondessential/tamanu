@@ -101,7 +101,12 @@ const Footer = styled(ModalCancelRow).attrs({
   position: sticky;
 `;
 
-export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }) => {
+/**
+ * @param {React.ComponentProps<typeof StyledModal> & {
+ *   surveyResponseId: import('@tamanu/database').SurveyResponse['id'];
+ * }} props
+ */
+export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, ...props }) => {
   const {
     data: changes,
     isLoading,
@@ -111,7 +116,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose }
   });
 
   return (
-    <StyledModal open={open} onClose={onClose}>
+    <StyledModal open={open} onClose={onClose} {...props}>
       <ScrollView data-testid="response-changelog-scrollview">
         {isLoading ? (
           <TranslatedText stringId="general.table.loading" fallback="Loading…" />
