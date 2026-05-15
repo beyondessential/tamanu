@@ -8,6 +8,6 @@ export const useAiPatientSummaryQuery = patientId => {
   return useQuery(
     [AI_PATIENT_SUMMARY_QUERY_KEY, patientId],
     () => api.get(`ai/patient/summary/${encodeURIComponent(patientId)}`),
-    { enabled: !!patientId },
+    { enabled: !!patientId, staleTime: 0 },
   );
 };
