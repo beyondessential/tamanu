@@ -19,6 +19,13 @@ const tamanuPackagesPath = getTamanuPackagesPath();
 
 const fileTypes = ['.ts', '.tsx', '.js', '.jsx'];
 
+/** Skip each package's top-level `dist` dir (relative path `<pkg>/dist` under packages). */
+const isTopLevelPackageDistDir = (fullPath: string) => {
+  const relative = path.relative(tamanuPackagesPath, fullPath);
+  const segments = relative.split(path.sep);
+  return segments.length === 2 && segments[1] === 'dist';
+};
+
 const readAllFilesRecursive = (directoryPath: string) => {
   const filePaths: string[] = [];
 
@@ -28,6 +35,9 @@ const readAllFilesRecursive = (directoryPath: string) => {
     for (const item of items) {
       const fullPath = path.join(currentPath, item.name);
       if (item.isDirectory()) {
+        if (isTopLevelPackageDistDir(fullPath)) {
+          continue;
+        }
         walk(fullPath); // Recursively call for subdirectories
       } else if (item.isFile()) {
         if (fileTypes.some(type => fullPath.endsWith(type))) {

@@ -42,10 +42,10 @@ async function checkIsDeviceSecure(): Promise<boolean> {
 // Statuses 0, 1, 2 are not encrypted, 4 is encrypted but less secure
 // so we're only going to trust status 3 and 5.
 function checkIsStorageEncrypted(status: StorageEncryptionStatus): boolean {
-  return [
-    ENCRYPTION_STATUS.ACTIVE,
-    ENCRYPTION_STATUS.ACTIVE_PER_USER
-  ].includes(status.status);
+  return (
+    status.status === ENCRYPTION_STATUS.ACTIVE ||
+    status.status === ENCRYPTION_STATUS.ACTIVE_PER_USER
+  );
 }
 
 function getSecurityIssues(
@@ -70,6 +70,7 @@ export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(true);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasCompletedInitialCheck, setHasCompletedInitialCheck] = useState<boolean>(false);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
@@ -80,12 +81,16 @@ export const useSecurityInfo = () => {
 
   const fetchSecurityInfo = useCallback(async () => {
     setIsLoading(true);
-    const storageEncryptionStatus = await getStorageEncryptionStatus();
-    const isStorageEncryptedValue = checkIsStorageEncrypted(storageEncryptionStatus);
-    const isDeviceSecureValue = await checkIsDeviceSecure();
-    setIsStorageEncrypted(isStorageEncryptedValue);
-    setIsDeviceSecure(isDeviceSecureValue);
-    setIsLoading(false);
+    try {
+      const storageEncryptionStatus = await getStorageEncryptionStatus();
+      const isStorageEncryptedValue = checkIsStorageEncrypted(storageEncryptionStatus);
+      const isDeviceSecureValue = await checkIsDeviceSecure();
+      setIsStorageEncrypted(isStorageEncryptedValue);
+      setIsDeviceSecure(isDeviceSecureValue);
+    } finally {
+      setHasCompletedInitialCheck(true);
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -99,6 +104,7 @@ export const useSecurityInfo = () => {
   return {
     securityIssues: getSecurityIssues(getTranslation, { isStorageCompliant, isPasscodeCompliant }),
     isLoading,
+    hasCompletedInitialCheck,
     fetchSecurityInfo,
   };
 };
