@@ -1,15 +1,7 @@
+import { Box } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useTranslation } from '../../../contexts/Translation';
-import { Box } from '@material-ui/core';
-import {
-  DateDisplay,
-  TranslatedReferenceData,
-  TranslatedText,
-  useDateTime,
-} from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -17,6 +9,14 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
+import {
+  DateDisplay,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { useTranslation } from '../../../contexts/Translation';
 import { ChangeLogModal } from './ChangeLogModal';
 
 const Container = styled.div`
