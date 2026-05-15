@@ -200,19 +200,15 @@ async function handleSurveyResponseActions(
 /**
  * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.
  *
- * @param {Record<string, unknown> | null} prevRecordData
- * @param {Record<string, unknown> | null} currRecordData
+ * @param {SurveyResponseAnswer | undefined | null} prevBody
+ * @param {SurveyResponseAnswer | undefined | null} currBody
  * @returns {{ from: SurveyResponseAnswer['body']; to: SurveyResponseAnswer['body'] } | null}
  */
 function diffAnswerBody(prevRecordData, currRecordData) {
   if (!currRecordData) return null;
-  const fromBody = prevRecordData ? prevRecordData.body : undefined;
-  const toBody = currRecordData.body;
-  if (fromBody === toBody) return null;
-  return {
-    from: fromBody ?? null,
-    to: toBody ?? null,
-  };
+  const from = prevRecordData?.body ?? null;
+  const to = currRecordData.body ?? null;
+  return from === to ? null : { from, to };
 }
 
 /**
@@ -304,31 +300,30 @@ surveyResponse.get(
      * revision 2, etc. Revision numbers for another question also start at 1.
      * @type {{ [recordId: ChangeLog['recordId']]: number }}
      */
-    const revisionDict = {};
+    const revNumDict = {};
     /** @type {(Change & { _revision: number })[]} */
-    const rowsWithRevisions = rawRows.map(row => {
+    const revisions = rawRows.map(row => {
       const key = row.recordId;
-      revisionDict[key] = (revisionDict[key] ?? 0) + 1;
-      return { ...row, _revision: revisionDict[key] };
+      revNumDict[key] = (revNumDict[key] ?? 0) + 1;
+      return { ...row, _revision: revNumDict[key] };
     });
 
-    const changes = rowsWithRevisions
-      .map(change => {
-        if (!isEditChange(change)) return null; // Edits only, no creates
+    const changes = revisions
+      .map(revision => {
+        if (!isEditChange(revision)) return null; // Edits only, no creates
 
-        const prevRow = rowsWithRevisions.find(
-          r => r.recordId === change.recordId && r._revision === change._revision - 1,
+        const prevRevision = revisions.find(
+          r => r.recordId === revision.recordId && r._revision === revision._revision - 1,
         );
-        const prevData = prevRow?.recordData ?? null;
-        const diff = diffAnswerBody(prevData, change.recordData);
+        const diff = diffAnswerBody(prevRevision?.recordData ?? null, revision.recordData);
 
-        if (!diff) return null;
+        if (!diff) return null; // No meaningful change (shouldn’t really happen)
 
-        return { ...omit(change, '_revision'), ...diff };
+        // Done with revision number; omit from response
+        return { ...omit(revision, '_revision'), ...diff };
       })
-      .filter(change => change !== null);
-
-    changes.reverse();
+      .filter(change => change !== null)
+      .reverse(); // Reverse chronological order (recent edits first)
 
     await req.audit.access({
       recordId: surveyResponseRecord.id,
