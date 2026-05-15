@@ -3,6 +3,15 @@
  * @typedef {import('@tamanu/database').ProgramDataElement} ProgramDataElement
  * @typedef {import('@tamanu/database').SurveyResponseAnswer} SurveyResponseAnswer
  * @typedef {import('@tamanu/database').User} User
+ * @typedef {{
+ *   id: ChangeLog['id'];
+ *   recordId: ChangeLog['recordId'];
+ *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
+ *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
+ *   updatedByUser: Pick<User, 'id' | 'displayName'>;
+ *   from: SurveyResponseAnswer['body'];
+ *   to: SurveyResponseAnswer['body'];
+ * }} Change
  */
 
 import { subject } from '@casl/ability';
@@ -228,18 +237,7 @@ surveyResponse.get(
 
     req.checkPermission('read', survey);
 
-    /**
-     * @typedef {{
-     *   id: ChangeLog['id'];
-     *   recordId: ChangeLog['recordId'];
-     *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
-     *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
-     *   updatedByUser: Pick<User, 'id' | 'displayName'>;
-     *   from: SurveyResponseAnswer['body'];
-     *   to: SurveyResponseAnswer['body'];
-     * }} Change
-     * @type {Change[]}
-     */
+    /** @type {Change[]} */
     const rawRows = await db.query(
       `
         SELECT
