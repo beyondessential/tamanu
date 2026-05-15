@@ -1,17 +1,18 @@
+import { Button } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+
 import {
-  TranslatedText,
-  TranslatedReferenceData,
   TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { Table } from '../../components/Table';
-import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
-import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText } from '../../components';
+import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
+import { Table } from '../../components/Table';
+import { Colors } from '../../constants/styles';
+import { LabTestResultModal } from './LabTestResultModal';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
