@@ -20,6 +20,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { notifyError, notifySuccess, singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
@@ -146,43 +147,39 @@ const ReviewFooterTrailing = styled.div`
 
 const PatientSummaryPanel = styled(Box)`
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
+  flex-direction: column;
+  align-items: flex-start;
   background: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  overflow: hidden;
+  padding: 16px;
   max-width: 260px;
 `;
 
-const PatientSummarySection = styled(Box)`
-  flex: 1;
-  min-width: 0;
-  padding: 6px 8px;
-`;
-
-const PatientSummaryDivider = styled.div`
-  width: 1px;
-  flex-shrink: 0;
-  background-color: ${Colors.outline};
-  align-self: stretch;
-`;
-
-const PatientSummaryLabel = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  color: ${Colors.midText};
-  margin-bottom: 3px;
-  line-height: 1.25;
-`;
-
-const PatientSummaryValue = styled.div`
+const PatientSummaryNameLine = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: ${Colors.darkText};
-  overflow: hidden;
-  white-space: nowrap;
   line-height: 1.3;
+  word-break: break-word;
+`;
+
+const PatientSummaryViewPatientLink = styled.button`
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${Colors.primary};
+  text-decoration: underline;
+  text-align: left;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
@@ -259,6 +256,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
+    const { navigateToPatient } = usePatientNavigation();
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
@@ -689,49 +687,49 @@ export const DispenseMedicationWorkflowModal = memo(
       const name = [patient.firstName, patient.lastName].filter(Boolean).join(' ').trim();
       const patientIdentifier = patient.displayId ?? patient.id;
       if (!name && !patientIdentifier) return null;
+      const handleViewPatient = () => {
+        if (!patient.id) return;
+        navigateToPatient(patient.id);
+        onClose();
+      };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
-          <PatientSummarySection>
-            <PatientSummaryLabel>
-              <TranslatedText stringId="general.patientName.label" fallback="Patient name" />
-            </PatientSummaryLabel>
-            <PatientSummaryValue>
-              {name || (
-                <TranslatedText
-                  stringId="general.fallback.notApplicable"
-                  fallback="N/A"
-                  casing="lower"
-                />
-              )}
-            </PatientSummaryValue>
-          </PatientSummarySection>
-          <PatientSummaryDivider />
-          <PatientSummarySection>
-            <PatientSummaryLabel>
-              <TranslatedText stringId="general.patientId.label" fallback="Patient ID" />
-            </PatientSummaryLabel>
-            <PatientSummaryValue>
-              {patientIdentifier || (
-                <TranslatedText
-                  stringId="general.fallback.notApplicable"
-                  fallback="N/A"
-                  casing="lower"
-                />
-              )}
-            </PatientSummaryValue>
-          </PatientSummarySection>
+          <PatientSummaryNameLine>
+            {name || (
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                casing="lower"
+              />
+            )}{' '}
+            (
+            {patientIdentifier || (
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                casing="lower"
+              />
+            )}
+            )
+          </PatientSummaryNameLine>
+          {patient.id ? (
+            <PatientSummaryViewPatientLink
+              type="button"
+              onClick={handleViewPatient}
+              data-testid="dispense-modal-view-patient"
+            >
+              <TranslatedText stringId="medication.dispense.viewPatient" fallback="View patient" />
+            </PatientSummaryViewPatientLink>
+          ) : null}
         </PatientSummaryPanel>
       );
-    }, [patient]);
+    }, [patient, navigateToPatient, onClose]);
 
     const dispenseWithoutLabelsButton = (
       <OutlinedButton
         onClick={handleDispenseWithoutLabels}
         disabled={
-          isDispensing ||
-          isLoadingFacility ||
-          isLoadingDispensables ||
-          selectedItems.length === 0
+          isDispensing || isLoadingFacility || isLoadingDispensables || selectedItems.length === 0
         }
         data-testid="dispense-without-labels-button"
       >
@@ -761,9 +759,7 @@ export const DispenseMedicationWorkflowModal = memo(
             <Button
               color="primary"
               onClick={handleDispenseAndPrint}
-              disabled={
-                isDispensing || isLoadingFacility || isLoadingDispensables
-              }
+              disabled={isDispensing || isLoadingFacility || isLoadingDispensables}
               data-testid="dispense-and-print-button"
             >
               <TranslatedText
@@ -847,9 +843,7 @@ export const DispenseMedicationWorkflowModal = memo(
           </>
         )}
 
-        {step === MODAL_STEPS.REVIEW && (
-          <MedicationLabelPrintPreview labels={labelsForPrint} />
-        )}
+        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
       </StyledModal>
     );
   },
