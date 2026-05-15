@@ -777,9 +777,7 @@ describe('SurveyResponse', () => {
       );
       expect(changelog).toHaveSucceeded();
 
-      const answerChanges = changelog.body.filter(
-        c => c.tableName === 'survey_response_answers' && c.recordId === createdAnswer.id,
-      );
+      const answerChanges = changelog.body.filter(c => c.recordId === createdAnswer.id);
       expect(answerChanges).toHaveLength(1);
       expect(answerChanges[0]).toMatchObject({
         from: null,
@@ -824,9 +822,7 @@ describe('SurveyResponse', () => {
       );
       expect(changelog).toHaveSucceeded();
 
-      const answerChanges = changelog.body.filter(
-        c => c.tableName === 'survey_response_answers' && c.recordId === answer.id,
-      );
+      const answerChanges = changelog.body.filter(c => c.recordId === answer.id);
       expect(answerChanges).toHaveLength(2);
     });
   });

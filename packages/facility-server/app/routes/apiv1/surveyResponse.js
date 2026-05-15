@@ -225,7 +225,6 @@ function diffAnswerBody(prevRecordData, currRecordData) {
  */
 function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
   return (
-    row.tableName === 'survey_response_answers' &&
     // If this isn’t the first revision, it’s not the first empty → nonempty edit.
     row._revision === 1 &&
     // Answer has been edited to some nonempty value
