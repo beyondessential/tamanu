@@ -38,6 +38,9 @@ const StyledModal = styled(Modal).attrs({
   'data-testid': 'modal-survey-changelog',
   title: <TranslatedText stringId="surveyResponse.changelog.modal.title" fallback="Change log" />,
 })`
+  .MuiPaper-root {
+    overflow-y: hidden;
+  }
   ${ModalContent} {
     padding-block: 0;
   }
