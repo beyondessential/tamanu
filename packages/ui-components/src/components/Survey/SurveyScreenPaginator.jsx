@@ -10,8 +10,7 @@ import { SurveyScreen } from './SurveyScreen';
 import { usePaginatedForm } from './usePaginatedForm';
 
 const Text = styled.p`
-  margin-block-start: 0;
-  margin-block-end: 10px;
+  margin-block: 0 10px;
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
