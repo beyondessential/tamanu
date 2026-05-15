@@ -88,6 +88,12 @@ const StyledButton = styled(Button)`
 `;
 
 export const BaseModal = memo(
+  /**
+   * @param {import('@material-ui/core/Dialog').DialogProps & {
+   *   actions?: React.ReactNode;
+   *   printable?: boolean;
+   * }} props
+   */
   ({
     title,
     children,
