@@ -781,13 +781,10 @@ describe('SurveyResponse', () => {
         c => c.tableName === 'survey_response_answers' && c.recordId === createdAnswer.id,
       );
       expect(answerChanges).toHaveLength(1);
-      expect(answerChanges[0].fieldChanges).toEqual([
-        {
-          fieldKey: 'body',
-          from: null,
-          to: selectedFacility.id,
-        },
-      ]);
+      expect(answerChanges[0]).toMatchObject({
+        from: null,
+        to: selectedFacility.id,
+      });
     });
 
     it('should still surface an answer as edited after editing it away from and back to the original value', async () => {

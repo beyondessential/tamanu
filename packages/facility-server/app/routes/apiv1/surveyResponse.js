@@ -1,7 +1,7 @@
 /**
  * @typedef {import('@tamanu/database').ChangeLog} ChangeLog
  * @typedef {import('@tamanu/database').ProgramDataElement} ProgramDataElement
- * @typedef {import('@tamanu/database').SurveyResponse} SurveyResponse
+ * @typedef {import('@tamanu/database').SurveyResponseAnswer} SurveyResponseAnswer
  * @typedef {import('@tamanu/database').User} User
  */
 
@@ -38,19 +38,6 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
 export const surveyResponse = express.Router();
-
-const changelogIgnoreList = new Set([
-  'created_at',
-  'createdAt',
-  'deleted_at',
-  'deletedAt',
-  'edited_at',
-  'editedAt',
-  'updated_at_sync_tick',
-  'updated_at',
-  'updatedAt',
-  'updatedAtSyncTick',
-]);
 
 async function getBodyForAnswer(dataElementType, value, models) {
   if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
@@ -211,28 +198,21 @@ async function handleSurveyResponseActions(
 }
 
 /**
- * @param {Record<string, unknown> | null} prev
- * @param {Record<string, unknown> | null} curr
+ * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.
+ *
+ * @param {Record<string, unknown> | null} prevRecordData
+ * @param {Record<string, unknown> | null} currRecordData
+ * @returns {{ from: SurveyResponseAnswer['body']; to: SurveyResponseAnswer['body'] } | null}
  */
-function diffKeys(prev, curr) {
-  if (!curr) return [];
-  const keys = new Set(prev ? [...Object.keys(prev), ...Object.keys(curr)] : Object.keys(curr));
-
-  /** @type {{ fieldKey: string; from: any; to: any; }[]} */
-  const out = [];
-  for (const k of keys) {
-    if (changelogIgnoreList.has(k)) continue;
-    const a = prev ? prev[k] : undefined;
-    const b = curr[k];
-    if (!isEqual(a, b)) {
-      out.push({
-        fieldKey: k,
-        from: a ?? null,
-        to: b ?? null,
-      });
-    }
-  }
-  return out;
+function diffAnswerBody(prevRecordData, currRecordData) {
+  if (!currRecordData) return null;
+  const fromBody = prevRecordData ? prevRecordData.body : undefined;
+  const toBody = currRecordData.body;
+  if (fromBody === toBody) return null;
+  return {
+    from: fromBody ?? null,
+    to: toBody ?? null,
+  };
 }
 
 /**
@@ -245,7 +225,6 @@ function diffKeys(prev, curr) {
  */
 function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
   return (
-    // This concept doesn’t apply to `survey_responses` records
     row.tableName === 'survey_response_answers' &&
     // If this isn’t the first revision, it’s not the first empty → nonempty edit.
     row._revision === 1 &&
@@ -260,8 +239,8 @@ function isEditToNonemptyAnswer(row, responseCreatedAtMs) {
 
 /**
  * Survey response changelog for facility (logs.changes).
- * Response: Array<{ id, loggedAt, tableName, recordId, updatedByUser, fieldChanges, recordData }>
- * fieldChanges: { fieldKey, from, to }[] — only rows after the first snapshot per DB record (edit history only).
+ * Response: Array<{ id, loggedAt, tableName, recordId, updatedByUser, from, to, recordData, programDataElement }>
+ * `from` / `to`: answer `body` before and after this change log row.
  */
 surveyResponse.get(
   '/:id/changes',
@@ -285,11 +264,13 @@ surveyResponse.get(
      * @typedef {{
      *   id: ChangeLog['id'];
      *   loggedAt: ChangeLog['loggedAt'];
-     *   tableName: 'survey_responses' | 'survey_response_answers';
+     *   tableName: 'survey_response_answers';
      *   recordId: ChangeLog['recordId'];
-     *   recordData: SurveyResponse;
+     *   recordData: Record<string, unknown>;
      *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
      *   updatedByUser: Pick<User, 'id' | 'displayName'>;
+     *   from: SurveyResponseAnswer['body'];
+     *   to: SurveyResponseAnswer['body'];
      * }} Change
      * @type {Change[]}
      */
@@ -301,15 +282,11 @@ surveyResponse.get(
           c.table_name AS "tableName",
           c.record_id AS "recordId",
           c.record_data AS "recordData",
-          CASE
-            WHEN c.table_name = 'survey_response_answers' THEN
-              jsonb_build_object(
-                'id', pde.id,
-                'name', pde.name,
-                'type', pde.type
-              )
-            ELSE NULL
-          END AS "programDataElement",
+          jsonb_build_object(
+            'id', pde.id,
+            'name', pde.name,
+            'type', pde.type
+          ) AS "programDataElement",
           jsonb_build_object(
             'id', c.updated_by_user_id::text,
             'displayName', u.display_name
@@ -317,18 +294,11 @@ surveyResponse.get(
         FROM
           logs.changes c
           LEFT JOIN users u ON u.id = c.updated_by_user_id
-          LEFT JOIN program_data_elements pde ON
-            c.table_name = 'survey_response_answers'
-            AND pde.id = (c.record_data ->> 'data_element_id')
+          LEFT JOIN program_data_elements pde ON pde.id = (c.record_data ->> 'data_element_id')
         WHERE
           c.migration_context IS NULL
-          AND (
-            (c.table_name = 'survey_responses' AND c.record_id = :surveyResponseId)
-            OR (
-              c.table_name = 'survey_response_answers'
-              AND (c.record_data ->> 'response_id') = :surveyResponseId
-            )
-          )
+          AND c.table_name = 'survey_response_answers'
+          AND (c.record_data ->> 'response_id') = :surveyResponseId
         ORDER BY
           c.created_at,
           c.id
@@ -353,12 +323,8 @@ surveyResponse.get(
       return { ...row, _revision: revisionDict[key] };
     });
 
-    const responseCreatedRow = rowsWithRevisions.find(
-      row =>
-        row.tableName === 'survey_responses' && row.recordId === params.id && row._revision === 1,
-    );
-    const responseCreatedAtMs = responseCreatedRow
-      ? new Date(responseCreatedRow.loggedAt).getTime()
+    const responseCreatedAtMs = surveyResponseRecord.createdAt
+      ? new Date(surveyResponseRecord.createdAt).getTime()
       : null;
 
     const editRowsOnly = rowsWithRevisions.filter(
@@ -374,18 +340,11 @@ surveyResponse.get(
             r._revision === row._revision - 1,
         );
         const prevData = prevRow?.recordData ?? null;
-        const fieldChanges = isEditToNonemptyAnswer(row, responseCreatedAtMs)
-          ? [
-              {
-                fieldKey: 'body',
-                from: null,
-                to: row.recordData?.body ?? null,
-              },
-            ]
-          : diffKeys(prevData, row.recordData);
-        return { ...omit(row, '_revision'), fieldChanges };
+        const bodyDiff = diffAnswerBody(prevData, row.recordData);
+        if (!bodyDiff) return null;
+        return { ...omit(row, '_revision'), ...bodyDiff };
       })
-      .filter(change => change.fieldChanges.length > 0);
+      .filter(Boolean);
 
     changes.reverse();
 

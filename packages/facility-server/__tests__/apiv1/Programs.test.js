@@ -304,9 +304,13 @@ describe('Programs', () => {
       expect(Array.isArray(changelog.body)).toBe(true);
       expect(changelog.body.length).toBeGreaterThan(0);
       const first = changelog.body[0];
+      const stringOrNull = {
+        asymmetricMatch: actual => actual === null || typeof actual === 'string',
+      };
       expect(first).toMatchObject({
         tableName: expect.any(String),
-        fieldChanges: expect.any(Array),
+        from: stringOrNull,
+        to: stringOrNull,
       });
     });
 

@@ -1,15 +1,19 @@
 /**
  * @typedef {import('@tamanu/database').ChangeLog} ChangeLog
+ * @typedef {import('@tamanu/database').ProgramDataElement} ProgramDataElement
  * @typedef {import('@tamanu/database').SurveyResponse} SurveyResponse
+ * @typedef {import('@tamanu/database').SurveyResponseAnswer} SurveyResponseAnswer
  * @typedef {import('@tamanu/database').User} User
  * @typedef {{
  *   id: ChangeLog['id'];
  *   loggedAt: ChangeLog['loggedAt'];
- *   tableName: 'survey_responses' | 'survey_response_answers';
+ *   tableName: 'survey_response_answers';
  *   recordId: ChangeLog['recordId'];
- *   recordData: SurveyResponse;
+ *   recordData: SurveyResponseAnswer;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
+ *   from: SurveyResponseAnswer['body'];
+ *   to: SurveyResponseAnswer['body'];
  * }} Change
  */
 
