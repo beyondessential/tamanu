@@ -5,59 +5,70 @@ import { fetchPatientSummaryData } from './patientSummaryData';
 
 /**
  * Query logs.changes for ai_documents that were edited by a human for a given patient.
- * Returns pairs of { aiGenerated, userEdited } content so the AI can learn from corrections.
+ * Returns each non-empty human edit paired with the most recent prior AI-generated content.
  */
-export async function getPatientSummaryEditFeedback(patientId, sequelize) {
-  // Find ai_documents for this patient that were edited (source = 'human', status = 'edited')
-  // Then look up the change log to find the original AI-generated content before the edit
-  const editedDocs = await sequelize.query(
-    `SELECT id, content FROM ai_documents
-     WHERE record_type = 'Patient' AND record_id = :patientId
-     AND status = 'edited' AND source = 'human'
-     ORDER BY updated_at DESC
-     LIMIT 5`,
-    { replacements: { patientId }, type: QueryTypes.SELECT },
+export async function getPatientSummaryEditFeedback(patientId, models, sequelize) {
+  const doc = await models.AiDocument.findOne({
+    where: {
+      recordType: 'Patient',
+      recordId: patientId,
+      summaryType: 'patient',
+    },
+  });
+
+  if (!doc) return [];
+
+  return sequelize.query(
+    `
+      SELECT
+        ai.record_data->>'content' AS "aiGenerated",
+        human.record_data->>'content' AS "userEdited"
+      FROM logs.changes human
+      JOIN LATERAL (
+        SELECT record_data
+        FROM logs.changes ai
+        WHERE ai.table_name = 'ai_documents'
+        AND ai.record_id = human.record_id
+        AND ai.record_data->>'source' = 'ai'
+        AND NULLIF(ai.record_data->>'content', '') IS NOT NULL
+        AND ai.logged_at < human.logged_at
+        ORDER BY ai.logged_at DESC
+        LIMIT 1
+      ) ai ON TRUE
+      WHERE human.table_name = 'ai_documents'
+      AND human.record_id = :recordId
+      AND human.record_data->>'source' = 'human'
+      AND human.record_data->>'status' = 'edited'
+      AND NULLIF(human.record_data->>'content', '') IS NOT NULL
+      AND ai.record_data->>'content' IS DISTINCT FROM human.record_data->>'content'
+      ORDER BY human.logged_at DESC
+    `,
+    { replacements: { recordId: doc.id }, type: QueryTypes.SELECT },
   );
-
-  if (editedDocs.length === 0) return [];
-
-  const feedback = [];
-  for (const doc of editedDocs) {
-    // Get the earliest change log entry for this record (the original AI-generated version)
-    const [originalLog] = await sequelize.query(
-      `SELECT record_data->>'content' AS content FROM logs.changes
-       WHERE table_name = 'ai_documents' AND record_id = :recordId
-       AND (record_data->>'source') = 'ai'
-       ORDER BY logged_at ASC
-       LIMIT 1`,
-      { replacements: { recordId: doc.id }, type: QueryTypes.SELECT },
-    );
-
-    if (originalLog?.content && doc.content && originalLog.content !== doc.content) {
-      feedback.push({
-        aiGenerated: originalLog.content,
-        userEdited: doc.content,
-      });
-    }
-  }
-
-  return feedback;
 }
 
 export async function regenerateAiPatientSummary({ patientId, models, db, deviceId }) {
   const patientData = await fetchPatientSummaryData(patientId, models);
-  const editFeedback = await getPatientSummaryEditFeedback(patientId, db);
+  const editFeedback = await getPatientSummaryEditFeedback(patientId, models, db);
 
+  console.log('editFeedbackkkk333', editFeedback);
   const centralServer = new CentralServerConnection({ deviceId });
   const aiResponse = await centralServer.fetch('ai/patient/summary', {
     method: 'POST',
     body: { patientData, editFeedback },
   });
 
-  return models.AiDocument.create({
+  // The composite primary key (summary_type, record_type, record_id) makes this
+  // upsert a no-op when a row already exists for this patient: existing summaries
+  // (including edited or discarded ones) are reset to a fresh AI-generated state,
+  // and concurrent regenerations across facilities converge on the same row.
+  const [doc] = await models.AiDocument.upsert({
     summaryType: 'patient',
     recordType: 'Patient',
     recordId: patientId,
     content: aiResponse.content,
+    status: 'generated',
+    source: 'ai',
   });
+  return doc;
 }
