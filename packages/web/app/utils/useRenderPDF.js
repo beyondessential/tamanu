@@ -5,6 +5,11 @@ import Worker from '../workers/pdf.worker?worker';
 
 const waitForWorkerReady = worker =>
   new Promise((resolve, reject) => {
+    const handleTimeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('PDF worker did not signal readiness within 5 minutes'));
+    }, 5 * 60 * 1000);
+
     const handleMessage = event => {
       if (event.data?.type !== 'pdf-render-ready') {
         return;
@@ -19,6 +24,7 @@ const waitForWorkerReady = worker =>
     };
 
     const cleanup = () => {
+      clearTimeout(handleTimeout);
       worker.removeEventListener('message', handleMessage);
       worker.removeEventListener('error', handleError);
     };
