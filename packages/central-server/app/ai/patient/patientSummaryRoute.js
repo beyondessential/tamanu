@@ -44,7 +44,7 @@ patientSummaryRoute.use(ensurePermissionCheck);
 patientSummaryRoute.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'PatientSummary');
 
     if (!req.aiService) {
       throw new ForbiddenError('AI service is not enabled or configured');

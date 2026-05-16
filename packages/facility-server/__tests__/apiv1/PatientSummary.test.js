@@ -8,6 +8,7 @@ const SUMMARY_URL = patientId => `/api/ai/patient/summary/${patientId}`;
 
 describe('PatientSummary', () => {
   let baseApp;
+  let patientSummaryApp;
   let models;
   let ctx;
   let patient;
@@ -15,10 +16,15 @@ describe('PatientSummary', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
+    patientSummaryApp = await baseApp.asRole('practitioner');
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
+
+  beforeEach(async () => {
+    await models.AiDocument.truncate({ cascade: true, force: true });
+  });
 
   describe('POST /:patientId', () => {
     const mockAiContent = 'This is a generated patient summary.';
@@ -30,8 +36,7 @@ describe('PatientSummary', () => {
     });
 
     it('should generate a summary and persist an AiDocument', async () => {
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.post(SUMMARY_URL(patient.id)).send();
+      const result = await patientSummaryApp.post(SUMMARY_URL(patient.id)).send();
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -50,8 +55,7 @@ describe('PatientSummary', () => {
     });
 
     it('should return 404 for a non-existent patient', async () => {
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.post(SUMMARY_URL('non-existent-patient-id')).send();
+      const result = await patientSummaryApp.post(SUMMARY_URL('non-existent-patient-id')).send();
 
       expect(result).toHaveRequestError();
       expect(result.body.error.message).toBe('Patient not found');
@@ -67,18 +71,14 @@ describe('PatientSummary', () => {
       disableHardcodedPermissionsForSuite();
 
       it('should reject when user lacks Patient read permission', async () => {
-        const app = await baseApp.asNewRole([
-          ['create', 'PatientSummary'],
-        ]);
+        const app = await baseApp.asNewRole([['create', 'PatientSummary']]);
         const result = await app.post(SUMMARY_URL(patient.id)).send();
 
         expect(result).toBeForbidden();
       });
 
       it('should reject when user lacks PatientSummary create permission', async () => {
-        const app = await baseApp.asNewRole([
-          ['read', 'Patient'],
-        ]);
+        const app = await baseApp.asNewRole([['read', 'Patient']]);
         const result = await app.post(SUMMARY_URL(patient.id)).send();
 
         expect(result).toBeForbidden();
@@ -86,7 +86,7 @@ describe('PatientSummary', () => {
 
       it('should succeed when user has both required permissions', async () => {
         const app = await baseApp.asNewRole([
-          ['read', 'Patient'],
+          ['write', 'PatientSummary'],
           ['create', 'PatientSummary'],
         ]);
         const result = await app.post(SUMMARY_URL(patient.id)).send();
@@ -105,8 +105,7 @@ describe('PatientSummary', () => {
         recordId: patient.id,
         content: 'Existing summary',
       });
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.get(SUMMARY_URL(patient.id));
+      const result = await patientSummaryApp.get(SUMMARY_URL(patient.id));
 
       expect(result).toHaveSucceeded();
       expect(result.body.aiDocument).toMatchObject({
@@ -117,8 +116,7 @@ describe('PatientSummary', () => {
     });
 
     it('should return null when no document exists', async () => {
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.get(SUMMARY_URL('patient-with-no-doc'));
+      const result = await patientSummaryApp.get(SUMMARY_URL('patient-with-no-doc'));
 
       expect(result).toHaveSucceeded();
       expect(result.body.aiDocument).toBeNull();
@@ -141,7 +139,7 @@ describe('PatientSummary', () => {
       });
 
       it('should succeed with Patient read permission', async () => {
-        const app = await baseApp.asNewRole([['read', 'Patient']]);
+        const app = await baseApp.asNewRole([['read', 'PatientSummary']]);
         const result = await app.get(SUMMARY_URL(patient.id));
 
         expect(result).toHaveSucceeded();
@@ -164,8 +162,9 @@ describe('PatientSummary', () => {
 
     it('should edit an AiDocument', async () => {
       const doc = await createAiDocument();
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.put(DOC_URL(doc.id)).send({ content: 'Edited content' });
+      const result = await patientSummaryApp
+        .put(DOC_URL(doc.id))
+        .send({ content: 'Edited content' });
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -183,8 +182,7 @@ describe('PatientSummary', () => {
 
     it('should discard an AiDocument and set content to null', async () => {
       const doc = await createAiDocument();
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.put(DOC_URL(doc.id)).send({ status: 'discarded' });
+      const result = await patientSummaryApp.put(DOC_URL(doc.id)).send({ status: 'discarded' });
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -200,8 +198,9 @@ describe('PatientSummary', () => {
     });
 
     it('should return 404 for a non-existent document', async () => {
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.put(DOC_URL('non-existent-id')).send({ content: 'Updated' });
+      const result = await patientSummaryApp
+        .put(DOC_URL('non-existent-id'))
+        .send({ content: 'Updated' });
 
       expect(result).toHaveRequestError();
       expect(result.body.error.message).toBe('AI document not found');
@@ -209,8 +208,7 @@ describe('PatientSummary', () => {
 
     it('should reject edit without content', async () => {
       const doc = await createAiDocument();
-      const app = await baseApp.asRole('practitioner');
-      const result = await app.put(DOC_URL(doc.id)).send({});
+      const result = await patientSummaryApp.put(DOC_URL(doc.id)).send({});
 
       expect(result).toHaveRequestError();
       expect(result.body.error.message).toBe('Content is required');
@@ -221,9 +219,7 @@ describe('PatientSummary', () => {
 
       it('should reject when user lacks PatientSummary write permission', async () => {
         const doc = await createAiDocument();
-        const app = await baseApp.asNewRole([
-          ['read', 'Patient'],
-        ]);
+        const app = await baseApp.asNewRole([['read', 'Patient']]);
         const result = await app.put(DOC_URL(doc.id)).send({ content: 'Edited' });
 
         expect(result).toBeForbidden();
@@ -231,9 +227,7 @@ describe('PatientSummary', () => {
 
       it('should succeed with PatientSummary write permission', async () => {
         const doc = await createAiDocument();
-        const app = await baseApp.asNewRole([
-          ['write', 'PatientSummary'],
-        ]);
+        const app = await baseApp.asNewRole([['write', 'PatientSummary']]);
         const result = await app.put(DOC_URL(doc.id)).send({ content: 'Edited' });
 
         expect(result).toHaveSucceeded();
