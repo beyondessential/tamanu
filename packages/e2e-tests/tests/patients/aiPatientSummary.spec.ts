@@ -4,7 +4,7 @@ import { test, expect } from '@fixtures/baseFixture';
 
 type AiDocument = {
   id: string;
-  summaryType: 'patient';
+  type: 'patient_summary';
   recordType: 'Patient';
   recordId: string;
   content: string | null;
@@ -21,12 +21,12 @@ const installAiPatientSummaryMock = async ({
   patientId: string;
   generatedSummary: string;
 }) => {
-  const aiDocumentId = `patient;Patient;${patientId}`;
+  const aiDocumentId = `patient_summary;Patient;${patientId}`;
   const state = { aiDocument: null as AiDocument | null };
 
   const buildGenerated = (): AiDocument => ({
     id: aiDocumentId,
-    summaryType: 'patient',
+    type: 'patient_summary',
     recordType: 'Patient',
     recordId: patientId,
     content: generatedSummary,
