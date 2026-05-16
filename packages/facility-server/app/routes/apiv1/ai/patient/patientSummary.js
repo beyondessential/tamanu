@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError, ValidationError } from '@tamanu/errors';
 import { regenerateAiPatientSummary } from '../../../../services/patientSummary';
 
 export const patientSummaryRoute = express.Router();
@@ -47,7 +47,8 @@ patientSummaryRoute.post(
     const { patientId } = req.params;
     const { deviceId } = req;
 
-    req.checkPermission('read', 'PatientSummary');
+    req.checkPermission('create', 'PatientSummary');
+    req.checkPermission('write', 'PatientSummary');
 
     const { Patient } = req.models;
     const patientExists = await Patient.count({ where: { id: patientId } });
@@ -84,6 +85,9 @@ patientSummaryRoute.put(
       updateFields.status = 'discarded';
       updateFields.content = null;
     } else {
+      if (!content) {
+        throw new ValidationError('Content is required');
+      }
       updateFields.status = 'edited';
       updateFields.content = content;
     }

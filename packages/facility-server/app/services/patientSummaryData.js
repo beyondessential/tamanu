@@ -195,13 +195,9 @@ export async function fetchPatientSummaryData(patientId, models) {
 function formatPatient(p) {
   if (!p) return null;
   return {
-    displayId: p.displayId,
     firstName: p.firstName,
-    lastName: p.lastName,
-    dateOfBirth: p.dateOfBirth,
     dateOfDeath: p.dateOfDeath,
     sex: p.sex,
-    village: p.village?.name,
   };
 }
 

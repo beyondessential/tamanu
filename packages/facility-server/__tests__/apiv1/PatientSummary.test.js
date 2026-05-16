@@ -191,8 +191,8 @@ describe('PatientSummary', () => {
         id: doc.id,
         status: 'discarded',
         source: 'human',
-        content: null,
       });
+      expect(result.body.content).not.toBeDefined();
 
       await doc.reload();
       expect(doc.content).toBeNull();
