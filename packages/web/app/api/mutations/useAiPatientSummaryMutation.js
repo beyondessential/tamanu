@@ -24,27 +24,27 @@ export const useGenerateAiPatientSummary = patientId => {
   });
 };
 
-export const useSaveAiPatientSummary = patientId => {
+const useUpdateAiPatientSummary = (patientId, getRequest) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, content }) =>
-      api.put(`ai/patient/summary/${encodeURIComponent(id)}`, { content }),
+    mutationFn: input => {
+      const { id, body } = getRequest(input);
+      return api.put(`ai/patient/summary/${encodeURIComponent(id)}`, body);
+    },
     onSuccess: aiDocument => writeAiDocumentToCache(queryClient, patientId, aiDocument),
   });
 };
 
-export const useDiscardAiPatientSummary = patientId => {
-  const api = useApi();
-  const queryClient = useQueryClient();
+export const useSaveAiPatientSummary = patientId =>
+  useUpdateAiPatientSummary(patientId, ({ id, content }) => ({
+    id,
+    body: { content, status: 'edited' },
+  }));
 
-  return useMutation({
-    mutationFn: id =>
-      api.put(`ai/patient/summary/${encodeURIComponent(id)}`, {
-        content: null,
-        status: 'discarded',
-      }),
-    onSuccess: aiDocument => writeAiDocumentToCache(queryClient, patientId, aiDocument),
-  });
-};
+export const useDiscardAiPatientSummary = patientId =>
+  useUpdateAiPatientSummary(patientId, id => ({
+    id,
+    body: { status: 'discarded' },
+  }));
