@@ -144,6 +144,28 @@
     "apiKey": "",
     "from": ""
   },
+  // `mail.from` is the default sender address. It replaces the legacy `mailgun.from` key;
+  // if `mail.from` is unset we fall back to `mailgun.from`, so existing deployments keep
+  // working unchanged.
+  //
+  // `mail.transport` is preferred over `mailgun` when set. The value is passed through to
+  // nodemailer's createTransport() unchanged, so any SMTP option (host/port/secure/auth,
+  // service shortcuts, pooling, etc.) or nodemailer transport plugin can be used.
+  // See https://nodemailer.com/transports/. Example:
+  //   "mail": {
+  //     "from": "Tamanu <no-reply@example.com>",
+  //     "transport": {
+  //       "host": "smtp.example.com",
+  //       "port": 587,
+  //       "secure": false,
+  //       "pool": true,
+  //       "auth": { "user": "...", "pass": "..." }
+  //     }
+  //   }
+  "mail": {
+    "from": "",
+    "transport": null
+  },
   "cors": {
     "allowedOrigin": ""
   },
@@ -301,6 +323,13 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "programRegistryPltfuFlagger": {
+      "enabled": true,
+      // every day at 3 AM
+      "schedule": "0 3 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
   },
   "integrations": {
     "fijiVrs": {
@@ -442,6 +471,7 @@
       "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
       "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
       "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
+      "observationMethodCodeSystem": "http://snomed.info/sct",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
       "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",

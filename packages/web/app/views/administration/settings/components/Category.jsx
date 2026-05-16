@@ -152,6 +152,7 @@ export const Category = ({
           suggesterEndpoint,
           secret,
           editor,
+          options,
         } = propertySchema;
 
         const isSecret = Boolean(secret);
@@ -179,6 +180,7 @@ export const Category = ({
               description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
+              options={options}
               disabled={disabled}
               facilityId={facilityId}
               isSecret={isSecret}
