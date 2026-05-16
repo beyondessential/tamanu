@@ -120,8 +120,13 @@ const LabResultsPrintoutComponent = React.memo(
       {
         key: 'reference',
         title: getTranslation('lab.results.table.column.reference', 'Reference'),
-        accessor: ({ labTestType }) =>
-          getReferenceRangeWithUnit({ labTestType, sex: patientData?.sex, getTranslation }),
+        accessor: row =>
+          getReferenceRangeWithUnit({
+            labTestType: row.labTestType,
+            labTest: row,
+            sex: patientData?.sex,
+            getTranslation,
+          }),
       },
     ];
 

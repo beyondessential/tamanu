@@ -194,6 +194,15 @@ const OPTIONS = [
     defaultValue: 0,
     parse: input => intBounds(input, [0, 100]),
   },
+  {
+    /*
+     * Hours after the latest `pulumi up` before the deployment auto-suspends.
+     * Set to 0 to disable the TTL and keep the deployment running.
+     */
+    key: 'ttlhours',
+    defaultValue: 4,
+    parse: input => intBounds(input, [0, 720]),
+  },
 ];
 
 function stripPercent(str) {
@@ -254,6 +263,7 @@ export function configMap(deployName, imageTag, options) {
       dbStorage: `${options.dbstorage}Gi`,
       facilities: options.facilities,
       facilityNames: options.facilitynames && JSON.stringify(options.facilitynames),
+      ttlHours: options.ttlhours,
       timezone: options.timezone,
       ipAllowList: options.ip,
       nodeEnv: options.env,

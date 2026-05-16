@@ -14,12 +14,13 @@ export const PermissionVerb = {
   Read: 'read',
   Run: 'run',
   Submit: 'submit',
+  Login: 'login',
   FhirIntegration: 'fhirIntegration',
 } as const;
 
 export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb];
 
-const { Manage, Delete, Create, Write, List, Read, Run, Submit, FhirIntegration } = PermissionVerb;
+const { Manage, Delete, Create, Write, List, Read, Run, Submit, Login, FhirIntegration } = PermissionVerb;
 
 // Verbs allowed at the per-object level for nouns that support objectId.
 export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -75,7 +76,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Encounter: [List, Read, Write, Create, Delete],
   EncounterDiagnosis: [List, Read, Write, Create],
   EncounterNote: [List, Read, Write, Create],
-  Facility: [List, Read, Write, Create],
+  Facility: [List, Read, Write, Create, Login],
   ...FHIR_RESOURCE_PERMISSION_SCHEMA,
   ...FHIR_INTEGRATION_NOUN_SCHEMA,
   ImagingAreaExternalCode: [List, Read, Write, Create],
@@ -178,6 +179,7 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Manage]: 'M',
   [Run]: 'X',
   [Submit]: 'S',
+  [Login]: 'N',
   [FhirIntegration]: 'F',
 };
 
@@ -190,7 +192,7 @@ export const HIDDEN_PERMISSION_NOUNS = new Set([
 // If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
 export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
 
-// Canonical left-to-right column order for summary display (L R W C D X S).
+// Canonical left-to-right column order for summary display (L R W C D X S N F).
 // Every noun gets the same number of columns so summaries stay aligned.
 // `manage` is excluded because its only noun (`all`) is hidden.
-export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit', 'fhirIntegration'];
+export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit', 'login', 'fhirIntegration'];
