@@ -12,7 +12,7 @@ export async function getPatientSummaryEditFeedback(patientId, models, sequelize
     where: {
       recordType: 'Patient',
       recordId: patientId,
-      summaryType: 'patient',
+      type: 'patient_summary',
     },
   });
 
@@ -57,12 +57,12 @@ export async function regenerateAiPatientSummary({ patientId, models, db, device
     body: { patientData, editFeedback },
   });
 
-  // The composite primary key (summary_type, record_type, record_id) makes this
+  // The composite primary key (type, record_type, record_id) makes this
   // upsert a no-op when a row already exists for this patient: existing summaries
   // (including edited or discarded ones) are reset to a fresh AI-generated state,
   // and concurrent regenerations across facilities converge on the same row.
   const [doc] = await models.AiDocument.upsert({
-    summaryType: 'patient',
+    type: 'patient_summary',
     recordType: 'Patient',
     recordId: patientId,
     content: aiResponse.content,

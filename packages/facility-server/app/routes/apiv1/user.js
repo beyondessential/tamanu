@@ -50,9 +50,15 @@ user.get(
     req.checkPermission('list', 'Patient');
 
     const filters = [
-      makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
-        encounterType: query.encounterType,
-      })),
+      makeFilter(
+        query.encounterType,
+        'encounters.encounter_type IN (:encounterTypes)',
+        () => ({
+          encounterTypes: Array.isArray(query.encounterType)
+            ? query.encounterType
+            : [query.encounterType],
+        }),
+      ),
       makeDeletedAtIsNullFilter('encounters'),
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,

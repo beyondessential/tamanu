@@ -40,7 +40,7 @@ describe('PatientSummary', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        summaryType: 'patient',
+        type: 'patient_summary',
         recordType: 'Patient',
         recordId: patient.id,
         content: mockAiContent,
@@ -100,7 +100,7 @@ describe('PatientSummary', () => {
   describe('GET /:patientId', () => {
     it('should return an existing AiDocument', async () => {
       const doc = await models.AiDocument.create({
-        summaryType: 'patient',
+        type: 'patient_summary',
         recordType: 'Patient',
         recordId: patient.id,
         content: 'Existing summary',
@@ -153,7 +153,7 @@ describe('PatientSummary', () => {
 
     async function createAiDocument() {
       return models.AiDocument.create({
-        summaryType: 'patient',
+        type: 'patient_summary',
         recordType: 'Patient',
         recordId: patient.id,
         content: 'Original AI content',

@@ -3,11 +3,11 @@ import { DataTypes, type QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('ai_documents', {
     id: {
-      // ai documents use a generated id derived from (summary_type, record_type, record_id)
+      // ai documents use a generated id derived from (type, record_type, record_id)
       // so two facilities independently generating a summary for the same logical record
-       type: `TEXT GENERATED ALWAYS AS (summary_type || ';' || record_type || ';' || REPLACE("record_id", ';', ':')) STORED`,
+      type: `TEXT GENERATED ALWAYS AS ("type" || ';' || record_type || ';' || REPLACE("record_id", ';', ':')) STORED`,
     },
-    summary_type: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,

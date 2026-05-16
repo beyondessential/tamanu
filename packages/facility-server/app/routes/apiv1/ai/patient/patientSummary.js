@@ -15,7 +15,7 @@ patientSummaryRoute.get(
 
     const { AiDocument, Encounter } = req.models;
     const existing = await AiDocument.findOne({
-      where: { recordType: 'Patient', recordId: patientId, summaryType: 'patient' },
+      where: { recordType: 'Patient', recordId: patientId, type: 'patient_summary' },
       order: [['createdAt', 'DESC']],
     });
 

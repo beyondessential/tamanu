@@ -1,0 +1,74 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: ai_documents
+        description: "{{ doc('table__ai_documents') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_ai_documents_changed
+              - record_ai_documents_changelog
+              - set_ai_documents_updated_at
+              - set_ai_documents_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: text
+            description: "{{ doc('generic__id') }} in ai_documents."
+            data_tests:
+              - unique
+            config:
+              meta:
+                masking: text
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('ai_documents__type') }}"
+            data_tests:
+              - not_null
+          - name: record_type
+            data_type: character varying(255)
+            description: "{{ doc('ai_documents__record_type') }}"
+            data_tests:
+              - not_null
+          - name: record_id
+            data_type: character varying(255)
+            description: "{{ doc('ai_documents__record_id') }}"
+            data_tests:
+              - not_null
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('ai_documents__status') }}"
+            data_tests:
+              - not_null
+          - name: content
+            data_type: text
+            description: "{{ doc('ai_documents__content') }}"
+            config:
+              meta:
+                masking: text
+          - name: source
+            data_type: character varying(255)
+            description: "{{ doc('ai_documents__source') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in ai_documents."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in ai_documents."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in ai_documents."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in ai_documents."
+            data_tests:
+              - not_null
