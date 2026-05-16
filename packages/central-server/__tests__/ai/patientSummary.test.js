@@ -54,8 +54,8 @@ describe('AI Patient Summary (central-server)', () => {
         expect(result).toBeForbidden();
       });
 
-      it('should succeed with Patient read permission', async () => {
-        const app = await baseApp.asNewRole([['read', 'Patient']]);
+      it('should succeed with PatientSummary read permission', async () => {
+        const app = await baseApp.asNewRole([['read', 'PatientSummary']]);
         const result = await app.post(SUMMARY_URL).send({ patientData: {} });
 
         expect(result).toHaveSucceeded();

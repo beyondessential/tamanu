@@ -51,7 +51,6 @@ export async function regenerateAiPatientSummary({ patientId, models, db, device
   const patientData = await fetchPatientSummaryData(patientId, models);
   const editFeedback = await getPatientSummaryEditFeedback(patientId, models, db);
 
-  console.log('editFeedbackkkk333', editFeedback);
   const centralServer = new CentralServerConnection({ deviceId });
   const aiResponse = await centralServer.fetch('ai/patient/summary', {
     method: 'POST',
