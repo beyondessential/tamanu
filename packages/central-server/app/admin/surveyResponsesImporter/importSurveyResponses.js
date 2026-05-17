@@ -1,15 +1,17 @@
-import { utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
+import { utils } from 'xlsx';
 
-import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-
-import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { formatSurveyTimeFromDate, parseSurveyTimeToHms } from '@tamanu/utils/dateTime';
-
-import { statkey, updateStat } from '../stats';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import {
+  formatSurveyTimeFromDate,
+  parseSurveyTimeToHms,
+  toDateString,
+  toDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
+import { statkey, updateStat } from '../stats';
 
 const checkMandatory = (mandatory, values) => {
   try {
@@ -296,8 +298,8 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
         surveyScreenComponents[
           surveyCode
         ] = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id, {
-          includeAllVitals: true,
-        });
+            includeAllVitals: true,
+          });
       }
     } catch (e) {
       // no survey or error getting components
