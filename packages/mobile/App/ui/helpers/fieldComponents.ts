@@ -39,10 +39,12 @@ export const FieldByType = {
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
   [FieldTypes.GEOLOCATE]: SurveyGeolocationField,
-};
+} as const satisfies Partial<
+  Record<(typeof FieldTypes)[keyof typeof FieldTypes], React.ComponentType<any> | null>
+>;
 
 export const PatientFieldDefinitionComponents = {
   [PatientFieldDefinitionTypes.STRING]: FieldByType[FieldTypes.TEXT],
   [PatientFieldDefinitionTypes.NUMBER]: FieldByType[FieldTypes.NUMBER],
   [PatientFieldDefinitionTypes.SELECT]: FieldByType[FieldTypes.SELECT],
-};
+} as const;
