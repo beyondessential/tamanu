@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
+import { Button, PatientDataDisplayField, TimeDisplay } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
@@ -46,7 +46,11 @@ export const SurveyAnswerResult = ({
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
     case PROGRAM_DATA_ELEMENT_TYPES.TIME:
       // Plain time with no timezone attached, so <TimeDisplay> is inappropriate here.
-      return <time dateTime={answer}>{answer}</time>;
+      return (
+        <time data-testid="plaintimedisplay-q1xj" dateTime={answer}>
+          {answer}
+        </time>
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>
