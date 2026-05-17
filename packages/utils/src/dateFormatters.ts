@@ -48,7 +48,7 @@ export const formatTime = createFormatter(
 
 /**
  * @param time - Plain time without a date or time zone, in HH:mm or HH:mm:ss format
- * @returns Wall-clock time in 12-hour format, no seconds component (HH:mma).
+ * @returns Wall-clock time in 12-hour format, no seconds component (hh:mma).
  * @example "2:30pm"
  * */
 export const formatPlainTime = (time: string | null | undefined): string => {
