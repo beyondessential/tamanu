@@ -109,16 +109,14 @@ const getAnswerValue = async ({
       answer = toDateString(getJsDateFromExcel(answer)); // this throws an error if invalid
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.TIME: {
-      let normalized;
-      if (typeof answer === 'number' && !Number.isNaN(answer)) {
-        normalized = formatSurveyTimeFromDate(getJsDateFromExcel(answer));
-      } else {
-        normalized = parseSurveyTimeToHms(String(answer));
-      }
-      if (!normalized) {
-        throw new Error(`Invalid time value: ${answer}`);
-      }
-      answer = normalized;
+      answer = (() => {
+        const normalized =
+          typeof answer === 'number' && !Number.isNaN(answer)
+            ? formatSurveyTimeFromDate(getJsDateFromExcel(answer))
+            : parseSurveyTimeToHms(String(answer));
+        if (!normalized) throw new Error(`Invalid time value: ${answer}`);
+        return normalized;
+      })();
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE: {
