@@ -1,0 +1,97 @@
+name: CD Backup
+
+# Trigger an on-demand CNPG database backup for any named auto-deploy.
+# Can be called from cd.yml (post-deploy) or triggered manually from the
+# Actions tab to snapshot a deployment before risky operations.
+
+on:
+  workflow_call:
+    inputs:
+      deploy-name:
+        description: Name of the deployment (without the "tamanu-" prefix)
+        type: string
+        required: true
+      cluster:
+        description: |
+          Which CNPG cluster to back up.
+          Accepted values: central, facility-<name>
+          Defaults to "central" when omitted.
+        type: string
+        default: central
+
+  workflow_dispatch:
+    inputs:
+      deploy-name:
+        description: Name of the deployment (without the "tamanu-" prefix)
+        type: string
+        required: true
+      cluster:
+        description: |
+          Which CNPG cluster to back up.
+          Accepted values: central, facility-<name>
+          Defaults to "central" when omitted.
+        type: string
+        default: central
+
+permissions:
+  contents: read
+  id-token: write # for Tailscale OIDC authentication
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    name: Backup ${{ inputs.cluster }} on ${{ inputs.deploy-name }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Trigger on-demand backup
+        run: |
+          set -euo pipefail
+          NS="tamanu-${{ inputs.deploy-name }}"
+          CLUSTER="${{ inputs.cluster }}-db"
+          BACKUP_NAME="${{ inputs.cluster }}-db-ondemand-$(date -u +%Y%m%dt%H%M%S)"
+
+          echo "Triggering backup '$BACKUP_NAME' for cluster '$CLUSTER' in namespace '$NS'"
+
+          kubectl apply -f - <<EOF
+          apiVersion: postgresql.cnpg.io/v1
+          kind: Backup
+          metadata:
+            name: $BACKUP_NAME
+            namespace: $NS
+          spec:
+            method: plugin
+            pluginConfiguration:
+              name: barman-cloud.cloudnative-pg.io
+            cluster:
+              name: $CLUSTER
+          EOF
+
+          echo "Waiting for backup to complete (up to 30 minutes)..."
+          for i in $(seq 1 180); do
+            PHASE=$(kubectl get backup "$BACKUP_NAME" -n "$NS" \
+              -o jsonpath='{.status.phase}' 2>/dev/null || echo pending)
+            echo "[$i/180] phase=$PHASE"
+            case "$PHASE" in
+              completed)
+                echo "Backup completed successfully."
+                kubectl get backup "$BACKUP_NAME" -n "$NS" -o yaml
+                exit 0
+                ;;
+              failed)
+                echo "Backup failed."
+                kubectl get backup "$BACKUP_NAME" -n "$NS" -o yaml
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+
+          echo "Timed out waiting for backup to complete."
+          kubectl get backup "$BACKUP_NAME" -n "$NS" -o yaml
+          exit 1

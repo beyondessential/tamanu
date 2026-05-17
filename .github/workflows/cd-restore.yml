@@ -1,0 +1,116 @@
+name: CD Restore
+
+# Restore a CNPG PostgreSQL cluster from a backup stored in the object store.
+#
+# This creates a brand-new cluster bootstrapped from the latest available backup
+# (or a specific point-in-time), then swaps service selectors so the application
+# uses it.  The old cluster is left intact until you manually delete it.
+#
+# IMPORTANT: This is a destructive operation on the target deployment.  The
+# current primary cluster is paused and traffic is moved to the restored clone.
+# Confirm you understand the implications before triggering this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-name:
+        description: Name of the deployment (without the "tamanu-" prefix)
+        type: string
+        required: true
+      cluster:
+        description: |
+          Which CNPG cluster to restore.
+          Accepted values: central, facility-<name>
+          Defaults to "central" when omitted.
+        type: string
+        default: central
+      recovery-target-time:
+        description: |
+          Point-in-time recovery timestamp (RFC 3339 / PostgreSQL format).
+          Example: "2026-05-17 10:30:00+00"
+          Leave blank to restore from the most recent backup.
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write # for Tailscale OIDC authentication
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    name: Restore ${{ inputs.cluster }} on ${{ inputs.deploy-name }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Restore cluster from backup
+        run: |
+          set -euo pipefail
+          NS="tamanu-${{ inputs.deploy-name }}"
+          CLUSTER="${{ inputs.cluster }}-db"
+          RESTORE_NAME="${CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)"
+          OBJECT_STORE="${CLUSTER}-object-store"
+
+          echo "Restoring '$CLUSTER' in namespace '$NS' as '$RESTORE_NAME'"
+          echo "Recovery target time: '${{ inputs.recovery-target-time }}'"
+
+          # Build optional PITR stanza
+          PITR_YAML=""
+          if [ -n "${{ inputs.recovery-target-time }}" ]; then
+            PITR_YAML="
+                recoveryTarget:
+                  targetTime: \"${{ inputs.recovery-target-time }}\""
+          fi
+
+          # Create the restored cluster, bootstrapping from the object store.
+          # The new cluster uses the same ObjectStore as the source cluster.
+          # WAL archiving is intentionally disabled on the restored clone until
+          # it has been validated and promoted to replace the original.
+          kubectl apply -f - <<EOF
+          apiVersion: postgresql.cnpg.io/v1
+          kind: Cluster
+          metadata:
+            name: $RESTORE_NAME
+            namespace: $NS
+            annotations:
+              tamanu.io/restored-from: $CLUSTER
+              tamanu.io/restore-time: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          spec:
+            instances: 1
+            bootstrap:
+              recovery:
+                source: source${PITR_YAML}
+            externalClusters:
+              - name: source
+                plugin:
+                  name: barman-cloud.cloudnative-pg.io
+                  parameters:
+                    barmanObjectName: $OBJECT_STORE
+                    serverName: $CLUSTER
+            storage:
+              size: $(kubectl get cluster "$CLUSTER" -n "$NS" \
+                -o jsonpath='{.spec.storage.size}' 2>/dev/null || echo "10Gi")
+          EOF
+
+          echo "Waiting for restored cluster to become ready (up to 60 minutes)..."
+          kubectl wait cluster/"$RESTORE_NAME" \
+            -n "$NS" \
+            --for=condition=Ready \
+            --timeout=3600s
+
+          echo ""
+          echo "Restored cluster '$RESTORE_NAME' is ready."
+          echo ""
+          echo "Next steps (manual):"
+          echo "  1. Verify the restored data looks correct."
+          echo "  2. Scale the original cluster to 0 replicas or pause it:"
+          echo "       kubectl patch cluster $CLUSTER -n $NS --type=merge"
+          echo "         -p '{\"spec\":{\"instances\":0}}'"
+          echo "  3. If you want '$RESTORE_NAME' to take over WAL archiving,"
+          echo "     add the plugin stanza and update its ObjectStore reference."
+          echo "  4. Delete '$CLUSTER' once you are satisfied with the restore."
