@@ -312,9 +312,7 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
             .nullable()
             .transform((value, originalValue) => {
               if (originalValue == null) return null;
-              if (typeof originalValue === 'string' && originalValue.trim() === '') {
-                return null;
-              }
+              if (typeof originalValue === 'string' && originalValue.trim() === '') return null;
               return value;
             })
             .test(
