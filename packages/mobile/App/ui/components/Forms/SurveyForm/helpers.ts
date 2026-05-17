@@ -126,7 +126,7 @@ function getFieldValidator(
     case FieldTypes.TIME:
       return Yup.string().matches(
         PLAIN_TIME_PATTERN,
-        getTranslation('validation.surveyTime.invalid', 'Invalid time of day'),
+        getTranslation('validation.surveyTime.invalid', 'Must be a valid time of day (HH:mm:ss)'),
       );
     case FieldTypes.BINARY:
       return Yup.bool();

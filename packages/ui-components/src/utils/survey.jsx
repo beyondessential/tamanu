@@ -11,11 +11,7 @@ import {
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import {
-  ageInMonths,
-  ageInWeeks,
-  ageInYears,
-} from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
 import { notify } from './notify';
@@ -323,7 +319,10 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
             })
             .test(
               'survey-time-hms',
-              getTranslation('validation.surveyTime.invalid', 'Enter a valid time (HH:mm:ss)'),
+              getTranslation(
+                'validation.surveyTime.invalid',
+                'Must be a valid time of day (HH:mm:ss)',
+              ),
               value => value == null || value === '' || isValidSurveyTimeBody(value),
             );
           break;
