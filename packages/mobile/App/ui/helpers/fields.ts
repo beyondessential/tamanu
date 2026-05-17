@@ -67,11 +67,16 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
       return value && formatISO9075(value);
-    case FieldTypes.TIME:
+    case FieldTypes.TIME: {
       if (value == null) return null;
       if (value instanceof Date) return format(value, 'HH:mm:ss');
-      if (typeof value === 'string') return parseSurveyTimeToHms(value) ?? value;
-      return `${value}`;
+      if (typeof value === 'string') {
+        const normalized = parseSurveyTimeToHms(value);
+        if (normalized !== null) return normalized;
+        if (!value.trim()) return null;
+      }
+      throw new Error(`Invalid time value: ${value}`);
+    }
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
