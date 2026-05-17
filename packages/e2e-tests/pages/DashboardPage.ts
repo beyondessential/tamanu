@@ -66,6 +66,7 @@ export class DashboardPage extends BasePage {
     const loadTimeout = 30_000;
     await expect(this.topBar).toBeVisible({ timeout: loadTimeout });
     await expect(this.greetingHeading).toBeVisible({ timeout: loadTimeout });
+    await expect(this.welcomeLayoutRoot.or(this.mainPageContainer)).toBeVisible({ timeout: loadTimeout });
   }
 
   bookingPatientName(fullName: string): Locator {

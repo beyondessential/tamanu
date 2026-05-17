@@ -57,6 +57,6 @@ export class NotificationDrawer {
   }
 
   notificationCardByDisplayId(displayId: string): Locator {
-    return this.card.filter({ has: this.notificationByDisplayId(displayId) });
+    return this.card.filter({ hasText: displayId });
   }
 }

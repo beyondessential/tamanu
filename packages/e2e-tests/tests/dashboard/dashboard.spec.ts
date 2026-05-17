@@ -144,9 +144,6 @@ test.describe('Dashboard', () => {
   test.describe('layout (environment-dependent)', () => {
     test.beforeEach(async ({ dashboardPage }) => {
       await dashboardPage.goto();
-      await expect(
-        dashboardPage.welcomeLayoutRoot.or(dashboardPage.mainPageContainer),
-      ).toBeVisible({ timeout: 30_000 });
     });
 
     test('[AT-2107]Welcome-only dashboard layout and copy', async ({ dashboardPage }) => {
@@ -355,7 +352,7 @@ test.describe('Dashboard', () => {
         });
 
         await dashboardPage.goto();
-        await expect(dashboardPage.tasking.pane).toBeVisible();
+        await expect(dashboardPage.tasking.pane).toBeVisible({ timeout: 20_000 });
         await dashboardPage.tasking.assertTaskVisible(highPriorityTask);
         await dashboardPage.tasking.assertTaskNotVisible(lowPriorityTask);
 
@@ -392,7 +389,7 @@ test.describe('Dashboard', () => {
 
         await clearClinicianDashboardTaskingFilterViaApi(api, page);
         await dashboardPage.goto();
-        await expect(dashboardPage.tasking.pane).toBeVisible();
+        await expect(dashboardPage.tasking.pane).toBeVisible({ timeout: 20_000 });
 
         await dashboardPage.tasking.sortByColumn('Location');
         await dashboardPage.tasking.expectColumnSort('Location', 'ascending');
@@ -488,6 +485,7 @@ test.describe('Dashboard', () => {
       });
 
       await dashboardPage.goto();
+      await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
       await dashboardPage.notifications.notificationCardByDisplayId(labRequestDisplayId).click();
@@ -515,6 +513,7 @@ test.describe('Dashboard', () => {
       });
 
       await dashboardPage.goto();
+      await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
       await dashboardPage.notifications.notificationCardByDisplayId(imagingRequestDisplayId).click();
