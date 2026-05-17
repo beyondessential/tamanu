@@ -295,9 +295,8 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
 
       if (!surveyScreenComponents[surveyCode]) {
         log.debug(`Loading survey screen components from DB for survey with code "${surveyCode}"`);
-        surveyScreenComponents[
-          surveyCode
-        ] = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id, {
+        surveyScreenComponents[surveyCode] =
+          await models.SurveyScreenComponent.getComponentsForSurvey(survey.id, {
             includeAllVitals: true,
           });
       }
