@@ -429,7 +429,7 @@ test.describe('Dashboard', () => {
       await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
-      const labNotificationBody = dashboardPage.notifications.notificationByDisplayId(labRequestDisplayId);
+      const labNotificationBody = dashboardPage.notifications.notificationByDisplayId(newPatient.displayId as string);
       await expect(labNotificationBody).toBeVisible({ timeout: 15_000 });
       await expect(labNotificationBody).toContainText(/Lab results for/i);
       await dashboardPage.notifications.close();
@@ -459,7 +459,7 @@ test.describe('Dashboard', () => {
       await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
-      const imagingNotificationBody = dashboardPage.notifications.notificationByDisplayId(imagingRequestDisplayId);
+      const imagingNotificationBody = dashboardPage.notifications.notificationByDisplayId(newPatient.displayId as string);
       await expect(imagingNotificationBody).toBeVisible({ timeout: 15_000 });
       await expect(imagingNotificationBody).toContainText(/Imaging results for/i);
       await dashboardPage.notifications.close();
@@ -488,7 +488,7 @@ test.describe('Dashboard', () => {
       await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
-      await dashboardPage.notifications.notificationCardByDisplayId(labRequestDisplayId).click();
+      await dashboardPage.notifications.notificationCardByDisplayId(newPatient.displayId as string).click();
       await expect(page).toHaveURL(new RegExp(`/patients/all/${newPatient.id}/`), { timeout: 30_000 });
       await expect(page).toHaveURL(/\/lab-request\//, { timeout: 30_000 });
     });
@@ -516,7 +516,7 @@ test.describe('Dashboard', () => {
       await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
-      await dashboardPage.notifications.notificationCardByDisplayId(imagingRequestDisplayId).click();
+      await dashboardPage.notifications.notificationCardByDisplayId(newPatient.displayId as string).click();
       await expect(page).toHaveURL(new RegExp(`/patients/all/${newPatient.id}/`), { timeout: 30_000 });
       await expect(page).toHaveURL(/\/imaging-request\//, { timeout: 30_000 });
     });
@@ -541,17 +541,18 @@ test.describe('Dashboard', () => {
       });
 
       await dashboardPage.goto();
+      await expect(dashboardPage.notifications.unreadIndicator).toBeVisible({ timeout: 30_000 });
       await dashboardPage.notifications.open();
       await dashboardPage.notifications.waitForLoaded();
 
-      const unreadNotification = dashboardPage.notifications.notificationByDisplayId(labRequestDisplayId);
+      const unreadNotification = dashboardPage.notifications.notificationByDisplayId(newPatient.displayId as string);
       await expect(unreadNotification).toBeVisible({ timeout: 15_000 });
       await expect(dashboardPage.notifications.unreadTitle).toBeVisible();
 
       await dashboardPage.notifications.markAllAsReadAction.click();
       await expect(dashboardPage.notifications.unreadTitle).toBeHidden({ timeout: 15_000 });
       await expect(dashboardPage.notifications.readTitle).toContainText(/Recent \(last 48 hours\)/i);
-      await expect(dashboardPage.notifications.readNotificationByDisplayId(labRequestDisplayId)).toBeVisible({
+      await expect(dashboardPage.notifications.readNotificationByDisplayId(newPatient.displayId as string)).toBeVisible({
         timeout: 15_000,
       });
     });
