@@ -230,20 +230,21 @@ export const eachDayInMonth = (date: Date) =>
   });
 
 const iso9075Validator = (regex: RegExp, message: string) =>
-  z
-    .string()
-    .refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), {
-      message,
-    });
+  z.string().refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), {
+    message,
+  });
 
 export const dateCustomValidation = iso9075Validator(
   /^\d{4}-\d{2}-\d{2}$/,
   'Invalid date format, expected YYYY-MM-DD',
 ).describe('__dateCustomValidation__');
 
+/** Canonical 24-hour time stored in `survey_response_answers.body` for `Time` questions. */
+export const PLAIN_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
 export const timeCustomValidation = z
   .string()
-  .refine((val: string) => /^\d{2}:\d{2}:\d{2}$/.test(val), {
+  .refine((val: string) => PLAIN_TIME_PATTERN.test(val), {
     message: 'Invalid time format, expected HH:MM:SS',
   });
 
@@ -470,9 +471,6 @@ export const getDayBoundaries = (
 };
 
 // --- Survey `Time` program data element (wall clock, no timezone in string) ---
-
-/** Canonical 24-hour time stored in `survey_response_answers.body` for `Time` questions. */
-export const PLAIN_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
 export function isValidSurveyTimeBody(value: string | null | undefined): boolean {
   if (value == null) return false;
