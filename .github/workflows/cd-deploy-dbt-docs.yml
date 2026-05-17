@@ -1,6 +1,7 @@
 name: CD DBT docs
 
 on:
+  workflow_dispatch:
   push:
     tags: ['v*.*.*']
     branches:
@@ -38,7 +39,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: uv pip install --system -r database/requirements.lock
+        run: |
+          uv venv --python 3.11
+          uv pip install -r database/requirements.lock
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
 
       - uses: actions/setup-node@v6
         with:

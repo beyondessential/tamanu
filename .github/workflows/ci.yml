@@ -398,10 +398,14 @@ jobs:
           version: '0.11.14'
           python-version: '3.11'
 
-      - name: Check model is valid (ie that docs can generate)
+      - name: Install Python dependencies
         run: |
-          uv pip install --system -r database/requirements.lock
-          npm run dbt-generate-docs
+          uv venv --python 3.11
+          uv pip install -r database/requirements.lock
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
+
+      - name: Check model is valid (ie that docs can generate)
+        run: npm run dbt-generate-docs
 
   dbt-lock:
     name: Check requirements.lock is up to date
@@ -418,7 +422,7 @@ jobs:
       - name: Verify lockfile matches requirements.txt
         run: |
           uv pip compile database/requirements.txt --python-version 3.11 --generate-hashes -o database/requirements.lock
-          git diff --exit-code database/requirements.lock
+          git diff --exit-code -- database/requirements.lock
 
   dbt-todos:
     needs: node_modules_cache
