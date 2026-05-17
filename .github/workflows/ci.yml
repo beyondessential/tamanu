@@ -395,6 +395,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
+          version: '0.11.14'
           python-version: '3.11'
 
       - name: Check model is valid (ie that docs can generate)
@@ -412,6 +413,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
+          version: '0.11.14'
           python-version: '3.11'
       - name: Verify lockfile matches requirements.txt
         run: |
