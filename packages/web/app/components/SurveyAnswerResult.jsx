@@ -45,7 +45,8 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
     case PROGRAM_DATA_ELEMENT_TYPES.TIME:
-      return answer;
+      // Plain time with no timezone attached, so <TimeDisplay> is inappropriate here.
+      return <time dateTime={answer}>{answer}</time>;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>
