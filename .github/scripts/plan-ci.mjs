@@ -116,7 +116,7 @@ if (event === 'pull_request' && baseSha) {
     : [];
   runMobile = touched.has('mobile');
   runFacilityOffline = touched.has('facility-server') || touched.has('central-server');
-  runDbtModel = migrationsTouched;
+  runDbtModel = migrationsTouched || files.some((f) => f.startsWith('database/'));
 }
 
 const runTest = testMatrix.length > 0;
