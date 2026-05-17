@@ -147,7 +147,10 @@ export const TimeDisplay = ({
   const displayTime = useFormattedDate(dateValue, { timeFormat });
 
   const content = (
-    <time {...props} dateTime={typeof dateValue === 'string' ? dateValue : dateValue.toISOString()}>
+    <time
+      {...props}
+      dateTime={typeof dateValue === 'string' ? dateValue : dateValue?.toISOString()}
+    >
       {displayTime}
     </time>
   );
