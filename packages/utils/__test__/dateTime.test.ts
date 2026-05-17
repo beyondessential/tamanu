@@ -10,7 +10,7 @@ import {
   isWithinIntervalExcludingEnd,
   maxValidDate,
   minValidDate,
-  parseSurveyTimeToHms,
+  parseSurveyTimeToHHmmss,
   type AgeRange,
 } from '../src/dateTime';
 import { startOfDay, endOfDay } from 'date-fns';
@@ -142,31 +142,31 @@ describe('doAgeRangesOverlap', () => {
 });
 
 describe('survey program Time (HH:mm:ss body)', () => {
-  describe('parseSurveyTimeToHms', () => {
+  describe('parseSurveyTimeToHHmmss', () => {
     it('returns null for empty', () => {
-      expect(parseSurveyTimeToHms(null)).toBeNull();
-      expect(parseSurveyTimeToHms(undefined)).toBeNull();
-      expect(parseSurveyTimeToHms('')).toBeNull();
-      expect(parseSurveyTimeToHms('   ')).toBeNull();
+      expect(parseSurveyTimeToHHmmss(null)).toBeNull();
+      expect(parseSurveyTimeToHHmmss(undefined)).toBeNull();
+      expect(parseSurveyTimeToHHmmss('')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('   ')).toBeNull();
     });
 
     it('accepts canonical HH:mm:ss', () => {
-      expect(parseSurveyTimeToHms('00:00:00')).toBe('00:00:00');
-      expect(parseSurveyTimeToHms('23:59:59')).toBe('23:59:59');
-      expect(parseSurveyTimeToHms(' 09:30:01 ')).toBe('09:30:01');
+      expect(parseSurveyTimeToHHmmss('00:00:00')).toBe('00:00:00');
+      expect(parseSurveyTimeToHHmmss('23:59:59')).toBe('23:59:59');
+      expect(parseSurveyTimeToHHmmss(' 09:30:01 ')).toBe('09:30:01');
     });
 
     it('pads HH:mm to HH:mm:00', () => {
-      expect(parseSurveyTimeToHms('09:30')).toBe('09:30:00');
-      expect(parseSurveyTimeToHms('23:59')).toBe('23:59:00');
+      expect(parseSurveyTimeToHHmmss('09:30')).toBe('09:30:00');
+      expect(parseSurveyTimeToHHmmss('23:59')).toBe('23:59:00');
     });
 
     it('rejects invalid times', () => {
-      expect(parseSurveyTimeToHms('24:00:00')).toBeNull();
-      expect(parseSurveyTimeToHms('12:60:00')).toBeNull();
-      expect(parseSurveyTimeToHms('12:00:60')).toBeNull();
-      expect(parseSurveyTimeToHms('9:30:00')).toBeNull();
-      expect(parseSurveyTimeToHms('not-a-time')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('24:00:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('12:60:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('12:00:60')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('9:30:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('not-a-time')).toBeNull();
     });
   });
 

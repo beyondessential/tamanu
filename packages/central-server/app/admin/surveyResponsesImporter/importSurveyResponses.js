@@ -6,7 +6,7 @@ import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import {
   formatSurveyTimeFromDate,
-  parseSurveyTimeToHms,
+  parseSurveyTimeToHHmmss,
   toDateString,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
@@ -113,7 +113,7 @@ const getAnswerValue = async ({
         const normalized =
           typeof answer === 'number' && !Number.isNaN(answer)
             ? formatSurveyTimeFromDate(getJsDateFromExcel(answer))
-            : parseSurveyTimeToHms(String(answer));
+            : parseSurveyTimeToHHmmss(String(answer));
         if (!normalized) throw new Error(`Invalid time value: ${answer}`);
         return normalized;
       })();

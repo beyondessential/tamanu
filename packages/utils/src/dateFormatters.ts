@@ -1,6 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
-import { intlFormatDate, locale, parseSurveyTimeToHms, type DateInput } from './dateTime';
+import { intlFormatDate, locale, parseSurveyTimeToHHmmss, type DateInput } from './dateTime';
 
 const createFormatter =
   (
@@ -53,11 +53,11 @@ export const formatTime = createFormatter(
  * */
 export const formatPlainTime = (time: string | null | undefined): string => {
   if (!time) return '‒‒:‒‒';
-  const hms = parseSurveyTimeToHms(time);
-  if (!hms) return '‒‒:‒‒';
+  const HHmmss = parseSurveyTimeToHHmmss(time);
+  if (!HHmmss) return '‒‒:‒‒';
   try {
     return compactTime(
-      Temporal.PlainTime.from(hms).toLocaleString(locale, { hour12: true, timeStyle: 'short' }),
+      Temporal.PlainTime.from(HHmmss).toLocaleString(locale, { hour12: true, timeStyle: 'short' }),
     );
   } catch {
     return '‒‒:‒‒';

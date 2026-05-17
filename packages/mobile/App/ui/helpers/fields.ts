@@ -3,7 +3,7 @@ import { camelCase } from 'lodash';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 import { checkJSONCriteria } from '@tamanu/utils';
-import { parseSurveyTimeToHms } from '@tamanu/utils/dateTime';
+import { parseSurveyTimeToHHmmss } from '@tamanu/utils/dateTime';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 import { DateFormats } from './constants';
 import { formatDate, parseDate } from './date';
@@ -71,7 +71,7 @@ export const getStringValue = (type: string, value: any): string => {
       if (value == null) return null;
       if (value instanceof Date) return format(value, 'HH:mm:ss');
       if (typeof value === 'string') {
-        const normalized = parseSurveyTimeToHms(value);
+        const normalized = parseSurveyTimeToHHmmss(value);
         if (normalized !== null) return normalized;
         if (!value.trim()) return null;
       }

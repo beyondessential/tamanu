@@ -483,7 +483,7 @@ export function isValidSurveyTimeBody(value: string | null | undefined): boolean
  * Normalize user/import strings to `HH:mm:ss`, or `null` if empty/invalid.
  * Accepts `HH:mm:ss` (validated) or `HH:mm` (seconds padded to `:00`).
  */
-export function parseSurveyTimeToHms(input: string | null | undefined): string | null {
+export function parseSurveyTimeToHHmmss(input: string | null | undefined): string | null {
   const trimmed = input?.trim();
   if (!trimmed) return null;
 
