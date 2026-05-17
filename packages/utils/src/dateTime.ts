@@ -484,15 +484,17 @@ export function isValidSurveyTimeBody(value: string | null | undefined): boolean
  * Accepts `HH:mm:ss` (validated) or `HH:mm` (seconds padded to `:00`).
  */
 export function parseSurveyTimeToHms(input: string | null | undefined): string | null {
-  if (input == null) return null;
-  const s = String(input).trim();
-  if (s === '') return null;
+  const trimmed = input?.trim();
+  if (!trimmed) return null;
 
-  if (PLAIN_TIME_PATTERN.test(s)) return s;
+  if (PLAIN_TIME_PATTERN.test(trimmed)) return trimmed;
 
-  const hm = /^([01]\d|2[0-3]):([0-5]\d)$/;
-  const m = s.match(hm);
-  if (m) return `${m[1]}:${m[2]}:00`;
+  const hhmm = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  const match = trimmed.match(hhmm);
+  if (match) {
+    const [, hour, minute] = match;
+    return `${hour}:${minute}:00`;
+  }
 
   return null;
 }
