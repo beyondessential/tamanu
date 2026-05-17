@@ -36,13 +36,13 @@ export const FieldTypes = {
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
   COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
-};
+} as const;
 
 export const PatientFieldDefinitionTypes = {
   STRING: 'string',
   NUMBER: 'number',
   SELECT: 'select',
-};
+} as const;
 export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
 
 export const getPatientDataDbLocation = fieldName => {
