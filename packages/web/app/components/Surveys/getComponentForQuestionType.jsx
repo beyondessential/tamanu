@@ -14,6 +14,7 @@ import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
   DateField,
   DateTimeField,
+  TimeField,
   NullableBooleanField,
   NumberField,
   SurveyResponseSelectField,
@@ -31,6 +32,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,

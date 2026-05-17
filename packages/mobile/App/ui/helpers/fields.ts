@@ -1,11 +1,12 @@
-import { camelCase } from 'lodash';
-import { formatISO9075 } from 'date-fns';
-import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
-import { checkJSONCriteria } from '@tamanu/utils';
-import { formatDate, parseDate } from './date';
-import { DateFormats } from './constants';
-import { getPatientNameAsString } from './patient';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
+import { checkJSONCriteria } from '@tamanu/utils';
+import { parseSurveyTimeToHms } from '@tamanu/utils/dateTime';
+import { format, formatISO9075 } from 'date-fns';
+import { camelCase } from 'lodash';
+import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { DateFormats } from './constants';
+import { formatDate, parseDate } from './date';
+import { getPatientNameAsString } from './patient';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -16,6 +17,7 @@ export const FieldTypes = {
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
   DATE_TIME: 'DateTime',
+  TIME: 'Time',
   SUBMISSION_DATE: 'SubmissionDate',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
@@ -64,6 +66,11 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
       return value && formatISO9075(value);
+    case FieldTypes.TIME:
+      if (value == null) return null;
+      if (value instanceof Date) return format(value, 'HH:mm:ss');
+      if (typeof value === 'string') return parseSurveyTimeToHms(value) ?? value;
+      return `${value}`;
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
@@ -155,9 +162,14 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
-const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
+const componentsByCodeCache = new WeakMap<
+  ISurveyScreenComponent[],
+  Map<string, ISurveyScreenComponent>
+>();
 
-function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+function getComponentsByCode(
+  allComponents: ISurveyScreenComponent[],
+): Map<string, ISurveyScreenComponent> {
   let map = componentsByCodeCache.get(allComponents);
   if (!map) {
     map = new Map(allComponents.map(c => [c.dataElement?.code, c]));

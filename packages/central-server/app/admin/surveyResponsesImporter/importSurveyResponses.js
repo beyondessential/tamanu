@@ -6,6 +6,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES, NON_ANSWERABLE_DATA_ELEMENT_TYPES } from '@
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { checkVisibilityCriteria } from '@tamanu/shared/utils/fields';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { formatSurveyTimeFromDate, parseSurveyTimeToHms } from '@tamanu/utils/dateTime';
 
 import { statkey, updateStat } from '../stats';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
@@ -105,6 +106,19 @@ const getAnswerValue = async ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       answer = toDateString(getJsDateFromExcel(answer)); // this throws an error if invalid
       break;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME: {
+      let normalized;
+      if (typeof answer === 'number' && !Number.isNaN(answer)) {
+        normalized = formatSurveyTimeFromDate(getJsDateFromExcel(answer));
+      } else {
+        normalized = parseSurveyTimeToHms(String(answer));
+      }
+      if (!normalized) {
+        throw new Error(`Invalid time value: ${answer}`);
+      }
+      answer = normalized;
+      break;
+    }
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE: {
       const config = getConfigObject(screenComponent.config, screenComponent.id);
       const modelName = getModelFromConfigType(config);

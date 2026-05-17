@@ -44,6 +44,8 @@ export const SurveyAnswerResult = ({
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      return answer;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>

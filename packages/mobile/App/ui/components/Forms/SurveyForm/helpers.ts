@@ -15,6 +15,7 @@ import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration
 import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { READONLY_DATA_FIELDS } from '@tamanu/constants';
+import { PLAIN_TIME_PATTERN } from '@tamanu/utils/dateTime';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -122,6 +123,11 @@ function getFieldValidator(
       return undefined;
     case FieldTypes.DATE:
       return Yup.date();
+    case FieldTypes.TIME:
+      return Yup.string().matches(
+        PLAIN_TIME_PATTERN,
+        getTranslation('validation.surveyTime.invalid', 'Invalid time of day'),
+      );
     case FieldTypes.BINARY:
       return Yup.bool();
     case FieldTypes.NUMBER: {

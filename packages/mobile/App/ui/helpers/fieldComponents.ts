@@ -1,3 +1,4 @@
+import React from 'react';
 import { FieldTypes, PatientFieldDefinitionTypes } from './fields';
 
 import { LimitedTextField, TextField } from '~/ui/components/TextField/TextField';
@@ -24,6 +25,7 @@ export const FieldByType = {
   [FieldTypes.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [FieldTypes.DATE]: DateField,
   [FieldTypes.DATE_TIME]: DateField,
+  [FieldTypes.TIME]: props => React.createElement(DateField, { ...props, mode: 'time' }),
   [FieldTypes.SUBMISSION_DATE]: DateField,
   [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,

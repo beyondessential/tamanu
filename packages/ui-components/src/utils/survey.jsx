@@ -16,6 +16,7 @@ import {
   ageInWeeks,
   ageInYears,
 } from '@tamanu/utils/dateTime';
+import { isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
 import { notify } from './notify';
 
@@ -308,6 +309,23 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
             }
             return value;
           });
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+          valueSchema = yup
+            .string()
+            .nullable()
+            .transform((value, originalValue) => {
+              if (originalValue == null) return null;
+              if (typeof originalValue === 'string' && originalValue.trim() === '') {
+                return null;
+              }
+              return value;
+            })
+            .test(
+              'survey-time-hms',
+              getTranslation('validation.surveyTime.invalid', 'Enter a valid time (HH:mm:ss)'),
+              value => value == null || value === '' || isValidSurveyTimeBody(value),
+            );
           break;
         default:
           valueSchema = yup.mixed();
