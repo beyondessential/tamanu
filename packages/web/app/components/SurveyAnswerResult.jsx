@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField, TimeDisplay } from '@tamanu/ui-components';
+import { Button, PatientDataDisplayField, PlainTimeDisplay } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
@@ -28,7 +28,6 @@ export const SurveyAnswerResult = ({
   componentConfig,
   dataElementId,
 }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
   if (!answer) return 'Answer not submitted';
@@ -45,12 +44,7 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
     case PROGRAM_DATA_ELEMENT_TYPES.TIME:
-      // Plain time with no timezone attached, so <TimeDisplay> is inappropriate here.
-      return (
-        <time data-testid="plaintimedisplay-q1xj" dateTime={answer}>
-          {answer}
-        </time>
-      );
+      return <PlainTimeDisplay time={answer} data-testid="plaintimedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>

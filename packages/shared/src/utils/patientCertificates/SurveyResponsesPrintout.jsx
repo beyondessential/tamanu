@@ -101,7 +101,7 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.TIME:
-      return answer;
+      return formatPlainTime(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return JSON.parse(answer).map(translateOption).join(', ');
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
