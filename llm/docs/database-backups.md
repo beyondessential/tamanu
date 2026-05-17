@@ -162,7 +162,7 @@ consumed by the Pulumi stack:
 | Key | Type | Description |
 |-----|------|-------------|
 | `backupsEnabled` | `boolean` | Whether to create ObjectStore + ScheduledBackup resources |
-| `backupRetentionDays` | `number \| null` | Days to retain base backups; `null` when backups are disabled |
+| `backupRetentionDays` | `number \| null` | Days to retain base backups (1–10); `null` when backups are disabled |
 
 ## On-Demand Backups
 

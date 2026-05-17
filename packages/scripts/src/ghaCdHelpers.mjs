@@ -219,11 +219,12 @@ const OPTIONS = [
     /*
      * Number of days of base backups to retain.
      * Barman will automatically expire older backups according to this policy.
-     * Only relevant when `backup` is enabled.
+     * Only relevant when `backup` is enabled. Capped at 10 days for auto-deploys;
+     * production clusters can be configured directly without this limit.
      */
     key: 'backupretention',
-    defaultValue: 7,
-    parse: input => intBounds(input, [1, 365]),
+    defaultValue: 3,
+    parse: input => intBounds(input, [1, 10]),
   },
 ];
 
