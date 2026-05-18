@@ -117,6 +117,7 @@ function getFieldValidator(
 ): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
+    case FieldTypes.DISPLAY_TEXT:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return undefined;

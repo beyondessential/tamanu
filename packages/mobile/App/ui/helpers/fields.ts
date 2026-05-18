@@ -17,6 +17,7 @@ export const FieldTypes = {
   DATE: 'Date',
   DATE_TIME: 'DateTime',
   SUBMISSION_DATE: 'SubmissionDate',
+  DISPLAY_TEXT: 'DisplayText',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
   BINARY: 'Binary',
@@ -155,9 +156,14 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
-const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
+const componentsByCodeCache = new WeakMap<
+  ISurveyScreenComponent[],
+  Map<string, ISurveyScreenComponent>
+>();
 
-function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+function getComponentsByCode(
+  allComponents: ISurveyScreenComponent[],
+): Map<string, ISurveyScreenComponent> {
   let map = componentsByCodeCache.get(allComponents);
   if (!map) {
     map = new Map(allComponents.map(c => [c.dataElement?.code, c]));

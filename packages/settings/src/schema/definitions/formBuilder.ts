@@ -118,7 +118,7 @@ Type names from interpreted image input may be lowercase (text, number,
 date, yes-no, radio, select, multiselect, checkbox, instruction, unknown). Map
 them to the canonical CamelCase types used in the spreadsheet:
 yes-no → Binary, radio → Radio, select → Select, multiselect → MultiSelect,
-checkbox → Checkbox, instruction → Instruction, text → FreeText,
+checkbox → Checkbox, instruction → Instruction, displaytext → DisplayText, text → FreeText,
 number → Number, date → Date. If a type is "unknown" the conversational
 step should have already clarified it — fall back to FreeText if not.
 

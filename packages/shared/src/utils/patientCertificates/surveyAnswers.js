@@ -11,6 +11,11 @@ const shouldShow = component => {
   }
 };
 
+export const getDisplayTextAnswer = component => {
+  const { text, detail, dataElement } = component;
+  return [text || dataElement.defaultText, detail].filter(Boolean).join(' ') || undefined;
+};
+
 export const getSurveyAnswerRows = ({ components, answers }) =>
   components
     .filter(shouldShow)
@@ -18,7 +23,11 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
       const { dataElement, id, screenIndex, config } = component;
       const { type: originalType, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject?.body;
+      const answer =
+        answerObject?.body ??
+        (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
+          ? getDisplayTextAnswer(component)
+          : undefined);
       const sourceType = answerObject?.sourceType;
       const sourceConfig = answerObject?.sourceConfig;
       const componentConfig =

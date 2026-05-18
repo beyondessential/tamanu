@@ -7,6 +7,7 @@ import { theme } from '../../../../styled/theme';
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
+import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
@@ -175,9 +176,12 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
     const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+    const answer =
+      answerObject?.body ??
+      (q.dataElement.type === FieldTypes.DISPLAY_TEXT ? getDisplayTextAnswer(q) ?? null : null);
     return {
       question: q,
-      answer: (answerObject || null) && answerObject.body,
+      answer,
     };
   };
 

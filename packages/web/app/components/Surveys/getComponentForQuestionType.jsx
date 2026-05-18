@@ -41,6 +41,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
     <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />

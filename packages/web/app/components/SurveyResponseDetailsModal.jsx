@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
@@ -52,8 +53,8 @@ const COLUMNS = [
   },
 ];
 
-const isShowable = component =>
-  component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+const isHiddenInResponseViews = component =>
+  component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
   if (isLoading) {
@@ -88,12 +89,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
     .map(component => {
-      if (!isShowable(component)) return null; // Filter out
+      if (isHiddenInResponseViews(component)) return null; // Filter out
 
       const { dataElement, id, config } = component;
       const { type: originalType, name, id: dataElementId } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject?.body;
+      const answer =
+        answerObject?.body ??
+        (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
+          ? getDisplayTextAnswer(component)
+          : undefined);
 
       if (answer === undefined) return null; // Filter out
 
