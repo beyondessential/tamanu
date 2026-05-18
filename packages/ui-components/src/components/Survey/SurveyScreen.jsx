@@ -132,7 +132,7 @@ export const SurveyScreen = ({
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
             encounterType={encounterType}
-            isEdited={Boolean(editedDataElementIds?.has(c.dataElementId))}
+            isEdited={editedDataElementIds?.has(c.dataElementId) ?? false}
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
