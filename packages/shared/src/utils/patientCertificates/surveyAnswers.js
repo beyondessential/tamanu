@@ -3,7 +3,6 @@ import { PROGRAM_DATA_ELEMENT_TYPES, RESULT_COLORS } from '@tamanu/constants';
 const shouldShow = component => {
   switch (component.dataElement.type) {
     case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
-      return false;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return false;
     default:
