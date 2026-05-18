@@ -1,10 +1,19 @@
+import FormHelperText from '@mui/material/FormHelperText';
+import Typography from '@mui/material/Typography';
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import styled from 'styled-components';
 
-export const InstructionField = ({ label, helperText }) => (
-  <Box sx={{ mb: 1 }}>
-    <Typography>
-      {label} {helperText}
-    </Typography>
-  </Box>
+const Root = styled.div`
+  margin-block: 0.5em;
+`;
+
+export const InstructionField = ({ label, helperText, ...props }) => (
+  <Root {...props}>
+    {label && (
+      <Typography component="h2" variant="body1">
+        {label}
+      </Typography>
+    )}
+    {helperText && <FormHelperText>{helperText}</FormHelperText>}
+  </Root>
 );
