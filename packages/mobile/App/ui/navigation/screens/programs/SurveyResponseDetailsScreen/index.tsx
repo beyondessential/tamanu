@@ -134,18 +134,30 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
     flexDirection="row"
     flexGrow={1}
     alignItems="center"
-    paddingLeft={16}
-    paddingRight={16}
+    paddingHorizontal={16}
+    paddingVertical={8}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledView maxWidth="40%">
-      <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-        {question.dataElement.name}
-      </StyledText>
-    </StyledView>
-    <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
-      {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
-    </StyledView>
+    {question.dataElement.type === FieldTypes.DISPLAY_TEXT ? (
+      <StyledView width="100%">
+        <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+          {question.dataElement.name}
+        </StyledText>
+        <StyledText color={theme.colors.TEXT_DARK}>{question.dataElement.defaultText}</StyledText>
+        <StyledText color={theme.colors.TEXT_MID}>{question.detail}</StyledText>
+      </StyledView>
+    ) : (
+      <>
+        <StyledView maxWidth="40%">
+          <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+            {question.dataElement.name}
+          </StyledText>
+        </StyledView>
+        <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
+          {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
+        </StyledView>
+      </>
+    )}
   </StyledView>
 );
 
@@ -176,9 +188,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
     const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
-    const answer =
-      answerObject?.body ??
-      (q.dataElement.type === FieldTypes.DISPLAY_TEXT ? getDisplayTextAnswer(q) ?? null : null);
+    const answer = answerObject?.body;
     return {
       question: q,
       answer,
@@ -192,7 +202,11 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const answerItems = questions
     .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
+    .filter(
+      q =>
+        (q.answer !== null && q.answer !== '') ||
+        q.question.dataElement.type === FieldTypes.DISPLAY_TEXT,
+    )
     .map(questionToAnswerItem);
 
   return (
