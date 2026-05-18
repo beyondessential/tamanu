@@ -40,7 +40,7 @@ const COLUMNS = [
   {
     key: 'value',
     title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
+    accessor: ({ answer, type, originalBody, componentConfig, dataElementId, surveyComponent }) => (
       <SurveyAnswerResult
         answer={answer}
         type={type}
@@ -48,6 +48,7 @@ const COLUMNS = [
         originalBody={originalBody}
         componentConfig={componentConfig}
         dataElementId={dataElementId}
+        surveyComponent={surveyComponent}
       />
     ),
   },
@@ -89,6 +90,8 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
     .map(component => {
+      console.log('component', component);
+
       if (isHiddenInResponseViews(component)) return null; // Filter out
 
       const { dataElement, id, config } = component;
@@ -124,6 +127,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
           />
         ),
         componentConfig,
+        surveyComponent: component,
       };
     })
     .filter(r => r !== null);
