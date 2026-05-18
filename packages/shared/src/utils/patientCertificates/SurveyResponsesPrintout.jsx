@@ -19,6 +19,7 @@ import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../tra
 
 const pageStyles = StyleSheet.create({
   body: {
+    fontFamily: 'Helvetica',
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
@@ -58,9 +59,6 @@ const pageStyles = StyleSheet.create({
     border: '0.5pt solid black',
     gap: 5,
   },
-  robotoFont: {
-    fontFamily: 'Roboto',
-  },
 });
 
 const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '10px' }} />;
@@ -68,7 +66,7 @@ const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '
 const ResultBox = ({ resultText, resultName }) => (
   <View style={pageStyles.resultBox}>
     <Text>{resultName}</Text>
-    <Text style={[pageStyles.itemText, pageStyles.robotoFont]}>{resultText}</Text>
+    <Text style={[pageStyles.itemText]}>{resultText}</Text>
   </View>
 );
 
@@ -118,7 +116,7 @@ const ResponseItem = ({ row, getTranslation, formatShort }) => {
       <Text style={pageStyles.itemText}>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text bold style={[pageStyles.itemText]}>
+      <Text bold style={pageStyles.itemText}>
         {getAnswers({
           answer,
           type,
