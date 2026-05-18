@@ -16,6 +16,7 @@ export async function up(query: QueryInterface): Promise<void> {
     END;
     $$;
   `);
+  await query.sequelize.query("DELETE FROM settings WHERE key = 'audit.changes.enabled';");
 }
 
 export async function down(query: QueryInterface): Promise<void> {
