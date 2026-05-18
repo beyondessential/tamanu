@@ -3,6 +3,7 @@ import {
   FACT_LOOKUP_UP_TO_TICK,
   NOTE_RECORD_TYPES,
   LAB_REQUEST_STATUSES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 
@@ -105,6 +106,12 @@ describe('Sync Patient Merge', () => {
     await models.Department.truncate({ cascade: true, force: true });
     await models.Location.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.User.create({
+      id: SYSTEM_USER_UUID,
+      email: 'system',
+      displayName: 'System',
+      role: 'system',
+    });
     await models.SyncLookup.truncate({ cascade: true, force: true });
     await models.SyncLookupTick.truncate({ cascade: true, force: true });
   });
