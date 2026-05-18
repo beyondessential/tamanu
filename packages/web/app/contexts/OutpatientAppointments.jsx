@@ -1,4 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { debounce, omit } from 'lodash';
 import { useLocation } from 'react-router';
 
@@ -44,7 +52,12 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
     const saved = userPreferences?.outpatientAppointmentFilters;
     if (saved) {
       const isNewFormat =
-        APPOINTMENT_GROUP_BY.LOCATION_GROUP in saved || APPOINTMENT_GROUP_BY.CLINICIAN in saved;
+        (APPOINTMENT_GROUP_BY.LOCATION_GROUP in saved &&
+          typeof saved[APPOINTMENT_GROUP_BY.LOCATION_GROUP] === 'object' &&
+          !Array.isArray(saved[APPOINTMENT_GROUP_BY.LOCATION_GROUP])) ||
+        (APPOINTMENT_GROUP_BY.CLINICIAN in saved &&
+          typeof saved[APPOINTMENT_GROUP_BY.CLINICIAN] === 'object' &&
+          !Array.isArray(saved[APPOINTMENT_GROUP_BY.CLINICIAN]));
       if (isNewFormat) {
         if (saved[APPOINTMENT_GROUP_BY.LOCATION_GROUP]) {
           setLocationGroupFilters(prev => ({
@@ -93,16 +106,19 @@ export const OutpatientAppointmentsContextProvider = ({ children }) => {
   // Derive the active filters and setter for the current group
   const filters =
     groupBy === APPOINTMENT_GROUP_BY.CLINICIAN ? clinicianFilters : locationGroupFilters;
-  const setFilters = useCallback(
-    newFilters => {
-      if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
-        setClinicianFilters(newFilters);
-      } else {
-        setLocationGroupFilters(newFilters);
-      }
-    },
-    [groupBy],
-  );
+
+  const groupByRef = useRef(groupBy);
+  useEffect(() => {
+    groupByRef.current = groupBy;
+  }, [groupBy]);
+
+  const setFilters = useCallback(newFilters => {
+    if (groupByRef.current === APPOINTMENT_GROUP_BY.CLINICIAN) {
+      setClinicianFilters(newFilters);
+    } else {
+      setLocationGroupFilters(newFilters);
+    }
+  }, []);
 
   return (
     <OutpatientAppointmentsContext.Provider value={{ filters, setFilters, groupBy, setGroupBy }}>
