@@ -5,7 +5,7 @@ import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';
-import { formatStringDate } from '../../../../helpers/date';
+import { formatPlainTime, formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
@@ -88,6 +88,8 @@ function getAnswerText(type, answer): string | number {
       return formatStringDate(answer, DateFormats.DDMMYY);
     case FieldTypes.DATE_TIME:
       return formatStringDate(answer, DateFormats.DDMMYY_HHMMSS);
+    case FieldTypes.TIME:
+      return formatPlainTime(answer);
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
       return 'PATIENT_ISSUE_GENERATOR';
     case FieldTypes.MULTI_SELECT:

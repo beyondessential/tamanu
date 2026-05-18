@@ -15,7 +15,6 @@ import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration
 import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { READONLY_DATA_FIELDS } from '@tamanu/constants';
-import { PLAIN_TIME_PATTERN } from '@tamanu/utils/dateTime';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -110,6 +109,8 @@ export function getFormInitialValues(
 
   return initialValues;
 }
+
+const PLAIN_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
 function getFieldValidator(
   dataElement,
