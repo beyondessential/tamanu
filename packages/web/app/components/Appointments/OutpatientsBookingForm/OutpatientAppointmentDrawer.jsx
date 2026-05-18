@@ -506,7 +506,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    await handleSubmit({ ...values, modifyMode });
+    const { shouldEmailAppointment, email, ...appointmentValues } = values;
+    delete appointmentValues.confirmEmail;
+    await handleSubmit({
+      ...appointmentValues,
+      ...(shouldEmailAppointment ? { email } : {}),
+      modifyMode,
+    });
     resetForm();
   };
 

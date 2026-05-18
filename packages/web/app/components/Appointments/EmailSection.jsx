@@ -8,13 +8,20 @@ import { CheckField } from '../Field';
 
 export const EmailSection = ({ label }) => {
   const { setFieldValue, values } = useFormikContext();
-  const { data: patient } = usePatientDataQuery(values.patientId);
+  const { patientId, shouldEmailAppointment } = values;
+  const { data: patient } = usePatientDataQuery(patientId);
 
   // Keep form state up to date with relevant selected patient email
   useEffect(() => {
+    if (!shouldEmailAppointment) {
+      setFieldValue('email', '');
+      setFieldValue('confirmEmail', '');
+      return;
+    }
+
     setFieldValue('email', patient?.email ?? '');
     setFieldValue('confirmEmail', '');
-  }, [patient?.email, setFieldValue]);
+  }, [patient?.email, setFieldValue, shouldEmailAppointment]);
 
   const handleResetEmailFields = e => {
     if (e.target.checked) return;
