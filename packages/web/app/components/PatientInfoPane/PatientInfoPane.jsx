@@ -24,6 +24,7 @@ import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { AiPatientSummary } from '../AiPatientSummary';
 import { useSettings } from '../../contexts/Settings';
+import { useSyncState } from '../../contexts/SyncState';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -265,10 +266,15 @@ export const PatientInfoPane = () => {
   const showRecordDeathActions = !isFetching && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
+  // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
+  // generates from a complete record rather than a partially-pulled one.
+  const isPatientSyncing = useSyncState().isPatientSyncing(patient.id);
+  const showAiPatientSummary = patient.markedForSync && !isPatientSyncing;
+
   return (
     <Container data-testid="container-qhh8">
       <CoreInfoDisplay patient={patient} data-testid="coreinfodisplay-fxik" />
-      {patient.markedForSync && (
+      {showAiPatientSummary && (
         <AiPatientSummary patient={patient} data-testid="ai-patient-summary" />
       )}
       <ListsSection data-testid="listssection-1frw">
