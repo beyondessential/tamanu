@@ -125,9 +125,18 @@ function getFieldValidator(
     case FieldTypes.DATE:
       return Yup.date();
     case FieldTypes.TIME:
-      return Yup.string().matches(
-        PLAIN_TIME_PATTERN,
-        getTranslation('validation.surveyTime.invalid', 'Must be a valid time of day (HH:mm:ss)'),
+      return Yup.string().transform(
+        /**
+         * Transform to plain time string (HH:mm:ss) without date or time zone
+         * @param _value Value which Yup coerced from original `Date`. Useless.
+         * @param original `Date` object from time picker
+         */
+        (_value: string, original: Date): `${string}:${string}:${string}` => {
+          const hours = original.getHours().toString().padStart(2, '0');
+          const minutes = original.getMinutes().toString().padStart(2, '0');
+          const seconds = original.getSeconds().toString().padStart(2, '0');
+          return `${hours}:${minutes}:${seconds}`;
+        },
       );
     case FieldTypes.BINARY:
       return Yup.bool();
