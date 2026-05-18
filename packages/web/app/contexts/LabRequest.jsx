@@ -1,7 +1,11 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { debounce } from 'lodash';
+import { LAB_REQUEST_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
+import { useUserPreferencesQuery } from '../api/queries';
+import { useUserPreferencesMutation } from '../api/mutations';
+import { useAuth } from './Auth';
 
 const LabRequestContext = createContext({
   labRequest: {},
@@ -44,8 +48,34 @@ export const LabRequestProvider = ({ children }) => {
     [LabRequestSearchParamKeys.Published]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
 
   const api = useApi();
+  const { facilityId } = useAuth();
+  const { data: userPreferences, isLoading: prefsLoading } = useUserPreferencesQuery();
+  const { mutate } = useUserPreferencesMutation(facilityId);
+
+  useEffect(() => {
+    if (prefsLoading || hasLoadedPreferences) return;
+    setHasLoadedPreferences(true);
+    if (userPreferences?.labRequestSearchParameters) {
+      setSearchParameters(prev => ({ ...prev, ...userPreferences.labRequestSearchParameters }));
+    }
+  }, [prefsLoading, hasLoadedPreferences, userPreferences]);
+
+  const debouncedSave = useMemo(
+    () =>
+      debounce(
+        params => mutate({ key: USER_PREFERENCES_KEYS.LAB_REQUEST_SEARCH_PARAMETERS, value: params }),
+        300,
+      ),
+    [mutate],
+  );
+
+  useEffect(() => {
+    if (!hasLoadedPreferences) return;
+    debouncedSave(searchParameters);
+  }, [searchParameters, hasLoadedPreferences, debouncedSave]);
 
   const loadLabRequest = useCallback(
     async (labRequestId) => {

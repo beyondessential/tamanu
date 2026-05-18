@@ -7,10 +7,6 @@ import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 import { TranslatedText } from '../../../components';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
-import { useUserPreferencesMutation } from '../../../api/mutations';
-import { useAuth } from '../../../contexts/Auth';
-import { debounce } from 'lodash';
-import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 const Wrapper = styled(Box)`
   cursor: pointer;
@@ -58,20 +54,8 @@ AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
 export const GroupByAppointmentToggle = props => {
   const { groupBy, setGroupBy } = useOutpatientAppointmentsContext();
-  const { facilityId } = useAuth();
-
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-
-  const updateGroupByUserPreferences = debounce(
-    newGroupBy =>
-      mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_GROUP_BY,
-        value: newGroupBy,
-      }),
-    200,
-  );
-
   const navigate = useNavigate();
+
   const handleChange = () => {
     const newValue =
       groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP
@@ -79,7 +63,6 @@ export const GroupByAppointmentToggle = props => {
         : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
     setGroupBy(newValue);
     navigate(`?groupBy=${newValue}`);
-    updateGroupByUserPreferences(newValue);
   };
 
   if (!groupBy) return null;

@@ -1,5 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { debounce } from 'lodash';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
+import { useUserPreferencesQuery } from '../api/queries';
+import { useUserPreferencesMutation } from '../api/mutations';
+import { useAuth } from './Auth';
 
 const ImagingRequestsContext = createContext({});
 
@@ -35,6 +40,34 @@ export const ImagingRequestsProvider = ({ children }) => {
     [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
+  const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
+
+  const { facilityId } = useAuth();
+  const { data: userPreferences, isLoading: prefsLoading } = useUserPreferencesQuery();
+  const { mutate } = useUserPreferencesMutation(facilityId);
+
+  useEffect(() => {
+    if (prefsLoading || hasLoadedPreferences) return;
+    setHasLoadedPreferences(true);
+    if (userPreferences?.imagingRequestSearchParameters) {
+      setSearchParameters(prev => ({ ...prev, ...userPreferences.imagingRequestSearchParameters }));
+    }
+  }, [prefsLoading, hasLoadedPreferences, userPreferences]);
+
+  const debouncedSave = useMemo(
+    () =>
+      debounce(
+        params =>
+          mutate({ key: USER_PREFERENCES_KEYS.IMAGING_REQUEST_SEARCH_PARAMETERS, value: params }),
+        300,
+      ),
+    [mutate],
+  );
+
+  useEffect(() => {
+    if (!hasLoadedPreferences) return;
+    debouncedSave(searchParameters);
+  }, [searchParameters, hasLoadedPreferences, debouncedSave]);
 
   return (
     <ImagingRequestsContext.Provider
