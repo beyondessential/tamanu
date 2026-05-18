@@ -298,10 +298,16 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       additionalClinicianId,
       procedureTypeIds,
       linkEncounterId,
+      shouldEmailAppointment,
       email,
     },
     { resetForm },
   ) => {
+    console.log('[Appointment email debug] location booking submit', {
+      shouldEmailAppointment,
+      email,
+      willSendAppointmentEmail: Boolean(email),
+    });
     mutateBooking(
       {
         id: initialValues.id, // Undefined when creating new booking
