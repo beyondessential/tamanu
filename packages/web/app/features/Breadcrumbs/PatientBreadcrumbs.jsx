@@ -9,7 +9,6 @@ import {
   TranslatedText,
   UnstyledHtmlButton,
 } from '../../components';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { PATIENT_CATEGORY_LABELS, PATIENT_PATHS } from '../../constants/patientPaths';
 import { useEncounter } from '../../contexts/Encounter';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';

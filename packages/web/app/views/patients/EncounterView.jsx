@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useParams } from 'react-router';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { useSyncedTabSearchParam } from '../../utils/useSyncedTabSearchParam';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -165,21 +165,25 @@ const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
 
 export const EncounterView = () => {
   const api = useApi();
-  const query = useUrlSearchParams();
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const { loadEncounter, encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
-  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
   const { encounterId } = useParams();
-  const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || !!patient.dateOfDeath;
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
+  const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
+  const fallbackEncounterTab = visibleTabs[0]?.key;
+  const { currentTab, onTabSelect } = useSyncedTabSearchParam(
+    visibleTabKeys,
+    fallbackEncounterTab,
+  );
 
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
@@ -187,9 +191,6 @@ export const EncounterView = () => {
 
   useEffect(() => {
     if (!userPreferences?.encounterTabOrders) return;
-    if (!currentTab) {
-      setCurrentTab(visibleTabs[0].key);
-    }
     const newTabs = visibleTabs.sort((a, b) => {
       const aOrder = userPreferences?.encounterTabOrders[a.key] || 0;
       const bOrder = userPreferences?.encounterTabOrders[b.key] || 0;
@@ -199,12 +200,6 @@ export const EncounterView = () => {
       setTabs([...newTabs]);
     }
   }, [userPreferences?.encounterTabOrders]);
-
-  useEffect(() => {
-    if (!currentTab) {
-      setCurrentTab(visibleTabs[0].key);
-    }
-  }, [isLoadingUserPreferences]);
 
   //Load the encounter on mount
   useEffect(() => {
@@ -296,7 +291,7 @@ export const EncounterView = () => {
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
-          onTabSelect={setCurrentTab}
+          onTabSelect={onTabSelect}
           encounter={encounter}
           patient={patient}
           disabled={disabled}

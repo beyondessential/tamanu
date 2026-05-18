@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,10 +22,9 @@ import {
 } from './panes';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { useSyncedTabSearchParam } from '../../utils/useSyncedTabSearchParam';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
@@ -181,11 +180,7 @@ export const PatientView = () => {
   const dispatch = useDispatch();
   const { patientId } = useParams();
   const queryClient = useQueryClient();
-  const { navigateToPatient } = usePatientNavigation();
-  const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
-  const queryTab = query.get('tab');
-  const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.SUMMARY);
   const disabled = !!patient.dateOfDeath;
   const api = useApi();
   const syncState = useSyncState();
@@ -203,22 +198,16 @@ export const PatientView = () => {
     isLoading: isLoadingInsurancePlans,
   } = usePatientInsurancePlansQuery({ patientId: patient?.id });
 
+  const visibleTabs = usePatientTabs();
+  const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
+  const fallbackPatientTab = visibleTabs[0]?.key ?? PATIENT_TABS.SUMMARY;
+  const { currentTab, onTabSelect } = useSyncedTabSearchParam(visibleTabKeys, fallbackPatientTab);
+
   useEffect(() => {
     if (patientId && (!patient?.id || patient?.id !== patientId)) {
       dispatch(reloadPatient(patientId));
     }
   }, [dispatch, patientId, patient?.id]);
-
-  useEffect(() => {
-    if (queryTab && queryTab !== currentTab) {
-      setCurrentTab(queryTab);
-      // remove the query parameter 'tab' after the tab has already been selected
-      navigateToPatient(patient.id);
-    }
-
-    // only fire when queryTab is changed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryTab]);
 
   useEffect(() => {
     if (patient?.id) {
@@ -236,8 +225,6 @@ export const PatientView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSyncing]);
 
-  const visibleTabs = usePatientTabs();
-
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans) {
     return <LoadingIndicator data-testid="patient-view-loading" />;
   }
@@ -248,7 +235,7 @@ export const PatientView = () => {
       <StyledDisplayTabs
         tabs={visibleTabs}
         currentTab={currentTab}
-        onTabSelect={setCurrentTab}
+        onTabSelect={onTabSelect}
         patient={patient}
         additionalData={additionalData}
         birthData={birthData}
