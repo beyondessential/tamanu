@@ -128,7 +128,7 @@ function ChangeLogListItem({ change, ...props }) {
       <FormHelperText>
         {change.updatedByUser?.displayName} &middot;{' '}
         <DateDisplay
-          date={change.recordData.editedAt}
+          date={change.recordData.editedTime}
           format="short"
           noTooltip
           timeFormat="default"
