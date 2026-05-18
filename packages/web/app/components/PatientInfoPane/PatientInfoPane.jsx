@@ -268,7 +268,9 @@ export const PatientInfoPane = () => {
   return (
     <Container data-testid="container-qhh8">
       <CoreInfoDisplay patient={patient} data-testid="coreinfodisplay-fxik" />
-      <AiPatientSummary patient={patient} data-testid="ai-patient-summary" />
+      {patient.markedForSync && (
+        <AiPatientSummary patient={patient} data-testid="ai-patient-summary" />
+      )}
       <ListsSection data-testid="listssection-1frw">
         <OngoingConditionDisplay
           patient={patient}

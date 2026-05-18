@@ -166,6 +166,32 @@ const RegenerateButton = styled(TextButton)`
   }
 `;
 
+const ErrorMessage = ({ error }) => {
+  const status = error?.status;
+  if (status === 403) {
+    return (
+      <TranslatedText
+        stringId="ai.patientSummary.error.unavailable"
+        fallback="AI summary is unavailable. Please contact your administrator."
+      />
+    );
+  }
+  if (!status || status >= 500) {
+    return (
+      <TranslatedText
+        stringId="ai.patientSummary.error.serviceUnavailable"
+        fallback="The AI service is temporarily unavailable. Please try again later."
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="ai.patientSummary.error"
+      fallback="Unable to generate summary. Please try again."
+    />
+  );
+};
+
 export const AiPatientSummaryContent = ({
   editContent,
   error,
@@ -191,10 +217,7 @@ export const AiPatientSummaryContent = ({
     {!isLoading && error && !isDiscarded && (
       <Box p={2}>
         <ErrorText>
-          <TranslatedText
-            stringId="ai.patientSummary.error"
-            fallback="Unable to generate summary. Please check your connection and try again."
-          />
+          <ErrorMessage error={error} />
         </ErrorText>
       </Box>
     )}
