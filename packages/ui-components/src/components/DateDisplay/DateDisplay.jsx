@@ -137,38 +137,35 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  * // format="slot" → "9am" (hour only, for calendar slots)
  * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
-export const TimeDisplay = ({
-  date: dateValue,
-  format: timeFormat = 'default',
-  noTooltip = false,
-  ...props
-}) => {
-  const { primaryTimeZone, facilityTimeZone } = useDateTime();
-  const displayTime = useFormattedDate(dateValue, { timeFormat });
+export const TimeDisplay = React.memo(
+  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, ...props }) => {
+    const { primaryTimeZone, facilityTimeZone } = useDateTime();
+    const displayTime = useFormattedDate(dateValue, { timeFormat });
 
-  const content = (
-    <time
-      {...props}
-      dateTime={typeof dateValue === 'string' ? dateValue : dateValue?.toISOString()}
-    >
-      {displayTime}
-    </time>
-  );
+    const content = (
+      <time
+        {...props}
+        dateTime={typeof dateValue === 'string' ? dateValue : dateValue?.toISOString()}
+      >
+        {displayTime}
+      </time>
+    );
 
-  if (noTooltip) return content;
+    if (noTooltip) return content;
 
-  return (
-    <DateTooltip
-      rawDate={dateValue}
-      displayDate={displayTime}
-      timeOnlyTooltip
-      facilityTimeZone={facilityTimeZone}
-      primaryTimeZone={primaryTimeZone}
-    >
-      {content}
-    </DateTooltip>
-  );
-};
+    return (
+      <DateTooltip
+        rawDate={dateValue}
+        displayDate={displayTime}
+        timeOnlyTooltip
+        facilityTimeZone={facilityTimeZone}
+        primaryTimeZone={primaryTimeZone}
+      >
+        {content}
+      </DateTooltip>
+    );
+  },
+);
 
 /**
  * DateDisplay - Displays date with optional time (applies timezone conversion)
