@@ -87,7 +87,7 @@ export const MenuButton = React.memo(
         >
           {() => (
             <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
-              <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-dxm1">
+              <ClickAwayListener onClickAway={handleClose}>
                 <List data-testid="list-i0ae">
                   {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
                     const menuItem = (

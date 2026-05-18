@@ -188,6 +188,7 @@ export const Category = ({
           suggesterEndpoint,
           secret,
           editor,
+          options,
         } = propertySchema;
 
         const needsRestart = schema.requiresRestart || requiresRestart;
@@ -218,6 +219,7 @@ export const Category = ({
               description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
+              options={options}
               disabled={disabled}
               facilityId={facilityId}
               isSecret={isSecret}

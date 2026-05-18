@@ -3,8 +3,10 @@ import './workerShim';
 
 const renderPDFInWorker = async (props) => {
   const { renderPDF } = await import('../renderPDF');
-  const pdf = await renderPDF(props);
-  return URL.createObjectURL(pdf);
+  return renderPDF(props);
 };
 
 expose({ renderPDFInWorker });
+Promise.resolve().then(() => {
+  self.postMessage({ type: 'pdf-render-ready' });
+});
