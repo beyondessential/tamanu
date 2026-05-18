@@ -1,11 +1,11 @@
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import IconButton from '@material-ui/core/IconButton';
+import { X } from 'lucide-react';
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Select, { components } from 'react-select';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import { IconButton } from '@material-ui/core';
-import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { TAMANU_COLORS } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -48,8 +48,7 @@ const StyledIconButton = styled(IconButton)`
   right: 23px;
 `;
 
-const StyledClearIcon = styled(ClearIcon)`
-  cursor: pointer;
+const ClearIcon = styled(X).attrs({ size: 16 })`
   color: ${TAMANU_COLORS.darkText};
 `;
 
@@ -103,7 +102,7 @@ const SingleValue = ({ children, ...props }) => {
 const ClearIndicator = ({ innerProps, tabIndex = 0 }) => {
   return (
     <StyledIconButton {...innerProps} tabIndex={tabIndex} data-testid="stylediconbutton-6vh3">
-      <StyledClearIcon data-testid="styledclearicon-aao1" />
+      <ClearIcon data-testid="styledclearicon-aao1" />
     </StyledIconButton>
   );
 };
