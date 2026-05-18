@@ -1,6 +1,7 @@
+import { isValidElement } from 'react';
+
 import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { isValidElement } from 'react';
 import { TranslatedEnum } from './TranslatedEnum';
 import { TranslatedReferenceData } from './TranslatedReferenceData';
 import { TranslatedSex } from './TranslatedSex';
