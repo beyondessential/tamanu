@@ -54,7 +54,9 @@ export const AppointmentDetailPopper = ({
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
-  const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
+  const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id, {
+    enabled: open,
+  });
   const navigate = useNavigate();
 
   const handlePatientDetailsClick = useCallback(async () => {
