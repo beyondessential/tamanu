@@ -36,18 +36,18 @@ const pageStyles = StyleSheet.create({
     flexDirection: 'column',
     gap: 2,
     paddingBottom: 4,
-    borderBottom: '0.5px solid black',
+    borderBottom: '0.5pt solid black',
     marginBottom: 8,
     alignSelf: 'flex-end',
   },
   itemText: {
-    fontSize: 9,
+    fontSize: 10,
   },
   boldDivider: {
-    borderBottom: '2px solid black',
+    borderBottom: '2pt solid black',
     height: 2,
     width: '100%',
-    marginTop: '-6px',
+    marginTop: -6,
   },
   resultBox: {
     paddingTop: 7,
@@ -55,7 +55,7 @@ const pageStyles = StyleSheet.create({
     paddingBottom: 6,
     marginBottom: 14,
     fontSize: 11,
-    border: '0.5px solid black',
+    border: '0.5pt solid black',
     gap: 5,
   },
   robotoFont: {
