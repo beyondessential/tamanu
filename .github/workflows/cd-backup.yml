@@ -50,11 +50,27 @@ jobs:
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - name: Trigger on-demand backup
+        # Inputs are passed via env so they are never interpolated directly
+        # into the shell script by the GitHub Actions expression engine.
+        env:
+          DEPLOY_NAME: ${{ inputs.deploy-name }}
+          INPUT_CLUSTER: ${{ inputs.cluster }}
         run: |
           set -euo pipefail
-          NS="tamanu-${{ inputs.deploy-name }}"
-          CLUSTER="${{ inputs.cluster }}-db"
-          BACKUP_NAME="${{ inputs.cluster }}-db-ondemand-$(date -u +%Y%m%dt%H%M%S)"
+
+          # Reject inputs that are not valid Kubernetes name segments.
+          if ! [[ "$DEPLOY_NAME" =~ ^[a-z0-9-]+$ ]]; then
+            echo "Invalid deploy-name: '$DEPLOY_NAME'"
+            exit 1
+          fi
+          if ! [[ "$INPUT_CLUSTER" =~ ^[a-z0-9-]+$ ]]; then
+            echo "Invalid cluster: '$INPUT_CLUSTER'"
+            exit 1
+          fi
+
+          NS="tamanu-$DEPLOY_NAME"
+          CLUSTER="$INPUT_CLUSTER-db"
+          BACKUP_NAME="$INPUT_CLUSTER-db-ondemand-$(date -u +%Y%m%dt%H%M%S)"
 
           echo "Triggering backup '$BACKUP_NAME' for cluster '$CLUSTER' in namespace '$NS'"
 
@@ -74,8 +90,11 @@ jobs:
 
           echo "Waiting for backup to complete (up to 30 minutes)..."
           for i in $(seq 1 180); do
+            # jsonpath returns an empty string (not an error) when .status.phase
+            # has not been set yet — handle both the empty-string and error cases.
             PHASE=$(kubectl get backup "$BACKUP_NAME" -n "$NS" \
-              -o jsonpath='{.status.phase}' 2>/dev/null || echo pending)
+              -o jsonpath='{.status.phase}' 2>/dev/null || true)
+            PHASE="${PHASE:-pending}"
             echo "[$i/180] phase=$PHASE"
             case "$PHASE" in
               completed)
