@@ -2,8 +2,7 @@ import { format, formatISO9075 } from 'date-fns';
 import { camelCase } from 'lodash';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
-import { checkJSONCriteria } from '@tamanu/utils';
-import { parseSurveyTimeToHHmmss } from '@tamanu/utils/dateTime';
+import { checkJSONCriteria, parseSurveyTimeToHHmmss } from '@tamanu/utils';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 import { DateFormats } from './constants';
 import { formatDate, parseDate } from './date';
