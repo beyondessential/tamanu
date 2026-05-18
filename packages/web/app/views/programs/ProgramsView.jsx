@@ -12,7 +12,6 @@ import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './Program
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
-import { useSurveyResponseChangesQuery } from '../../api/queries/useSurveyResponseChangesQuery';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -182,25 +181,13 @@ const SurveyFlow = ({ patient, currentUser }) => {
     );
   }, [existingSurveyResponse]);
 
-  const { data: surveyResponseChangesData } = useSurveyResponseChangesQuery(surveyResponseId, {
-    enabled: Boolean(surveyResponseId && existingSurveyResponse),
-  });
-
   const editedDataElementIds = useMemo(() => {
-    if (!existingSurveyResponse?.answers?.length) return null;
-    const changes = surveyResponseChangesData;
-    if (!changes?.length) return new Set();
-    const dataElementIdByAnswerId = new Map(
-      existingSurveyResponse.answers.map(a => [a.id, a.dataElementId]),
-    );
     const ids = new Set();
-    for (const change of changes) {
-      if (change.tableName !== 'survey_response_answers') continue;
-      const dataElementId = dataElementIdByAnswerId.get(change.recordId);
-      if (dataElementId) ids.add(dataElementId);
+    for (const answer of existingSurveyResponse?.answers ?? []) {
+      if (answer.editedTime) ids.add(answer.dataElementId);
     }
     return ids;
-  }, [existingSurveyResponse, surveyResponseChangesData]);
+  }, [existingSurveyResponse]);
 
   const submitSurveyResponseEdit = async data => {
     await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
