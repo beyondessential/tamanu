@@ -51,14 +51,11 @@ function transformPatientData(
         case 'Patient':
           return patient[fieldName];
         case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
+          return additionalData?.[fieldName];
         case 'PatientProgramRegistration':
-          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
+          return patientProgramRegistration?.[fieldName];
         default:
-          if (customPatientFieldValues?.[column]) {
-            return customPatientFieldValues[column][0].value;
-          }
-          return undefined;
+          return customPatientFieldValues?.[column]?.[0].value;
       }
     }
   }
