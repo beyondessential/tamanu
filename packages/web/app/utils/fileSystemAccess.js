@@ -70,10 +70,19 @@ export const saveFile = async ({
       throw error;
     }
 
-    const [writable, data] = await Promise.all([fileHandle.createWritable(), getData()]);
-
-    await writable.write(data);
-    await writable.close();
+    const writablePromise = fileHandle.createWritable();
+    try {
+      const [writable, data] = await Promise.all([writablePromise, getData()]);
+      await writable.write(data);
+      await writable.close();
+    } catch (error) {
+      try {
+        await (await writablePromise).abort();
+      } catch {
+        // createWritable may have failed; abort may fail if the stream is already closed
+      }
+      throw error;
+    }
     return true;
   }
 
