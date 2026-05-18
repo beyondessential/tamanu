@@ -38,7 +38,10 @@ export const SurveyAnswerResult = ({
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
       return surveyComponent ? (
-        <DisplayTextPseudoResult component={surveyComponent} />
+        <DisplayTextPseudoResult
+          component={surveyComponent}
+          data-testid="displaytextpseudoresult-p4n7"
+        />
       ) : (
         answer // Fallback (shouldn’t be reached)
       );
