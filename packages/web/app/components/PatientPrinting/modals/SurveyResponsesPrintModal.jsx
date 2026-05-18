@@ -38,7 +38,7 @@ export const SurveyResponsesPrintModal = React.memo(
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
-      () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+      async () => await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
       {
         enabled: !!patient?.villageId,
       },
