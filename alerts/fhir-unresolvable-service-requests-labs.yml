@@ -23,9 +23,8 @@ send:
         </li>
         {% endfor %}
 
-        {% set remaining = rows | length - 5 %}
-        {% if remaining > 0 %}
-        <li>... and {{ remaining }} more</li>
+        {% if rows | length > 5 %}
+        <li>... and {{ rows | length - 5 }} more</li>
         {% endif %}
       </ul>
       <p>For more information, please check the logs.</p>
