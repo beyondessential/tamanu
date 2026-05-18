@@ -55,7 +55,7 @@ export const AppointmentDetailPopper = ({
   const patientId = appointment.patient.id;
 
   const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id, {
-    enabled: open,
+    enabled: open && Boolean(appointment.patient.id),
   });
   const navigate = useNavigate();
 
