@@ -161,9 +161,7 @@ const SurveyResponsesPrintoutComponent = ({
 
   const groupedAnswerRows = Object.values(
     surveyAnswerRows.reduce((acc, item) => {
-      if (!acc[item.screenIndex]) {
-        acc[item.screenIndex] = [];
-      }
+      acc[item.screenIndex] ??= [];
       acc[item.screenIndex].push(item);
       return acc;
     }, {}),
