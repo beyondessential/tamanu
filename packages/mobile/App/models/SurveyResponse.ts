@@ -121,7 +121,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   resultText?: string;
 
   @DateTimeStringColumn({ nullable: true })
-  editedAt?: string;
+  editedTime?: string;
 
   @Column({ nullable: true })
   notified?: boolean;

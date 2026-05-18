@@ -681,7 +681,7 @@ encounterRelations.get(
           surveys.name as survey_name,
           programs.name as program_name,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
-          survey_responses.edited_at IS NOT NULL AS is_edited
+          survey_responses.edited_time IS NOT NULL AS is_edited
         FROM
           survey_responses
           LEFT JOIN surveys

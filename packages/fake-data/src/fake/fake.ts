@@ -442,12 +442,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
     recordUpdate: true,
   }),
   SurveyResponse: () => ({
-    // editedAt implies “patched after original survey response submission”; must start as NULL
-    editedAt: null,
+    // editedTime implies “patched after original survey response submission”; must start as NULL
+    editedTime: null,
   }),
   SurveyResponseAnswer: () => ({
-    // editedAt implies “patched after original survey response submission”; must start as NULL
-    editedAt: null,
+    // editedTime implies “patched after original survey response submission”; must start as NULL
+    editedTime: null,
   }),
 };
 

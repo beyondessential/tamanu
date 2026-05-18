@@ -24,10 +24,10 @@ export class SurveyResponseAnswer extends Model {
   /**
    * Not to be confused with metadata attribute `updated_at`. NULL when this record originates from
    * initial survey response submission. Non-null if this answer has been meaningfully edited by a
-   * user via `PATCH /surveyResponse`. NB: PATCH-created record is created with an `editedAt`
+   * user via `PATCH /surveyResponse`. NB: PATCH-created record is created with an `editedTime`
    * timestamp so even its first revision is picked up as an edit.
    */
-  declare editedAt?: string;
+  declare editedTime?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -35,7 +35,7 @@ export class SurveyResponseAnswer extends Model {
         id: primaryKey,
         name: DataTypes.STRING,
         body: DataTypes.TEXT,
-        editedAt: dateTimeType('editedAt', { allowNull: true }),
+        editedTime: dateTimeType('editedTime', { allowNull: true }),
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );

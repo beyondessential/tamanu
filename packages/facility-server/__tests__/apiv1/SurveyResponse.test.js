@@ -647,7 +647,7 @@ describe('SurveyResponse', () => {
       expect(patch).toHaveSucceeded();
 
       await response.reload();
-      expect(response.editedAt).toBeTruthy();
+      expect(response.editedTime).toBeTruthy();
 
       const encounterListAfter = await app.get(
         `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
@@ -681,7 +681,7 @@ describe('SurveyResponse', () => {
       expect(patch).toHaveSucceeded();
 
       await response.reload();
-      expect(response.editedAt).toBeFalsy();
+      expect(response.editedTime).toBeFalsy();
     });
   });
 

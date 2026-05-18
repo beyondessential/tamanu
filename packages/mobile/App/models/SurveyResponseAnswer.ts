@@ -20,7 +20,7 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   body?: string;
 
   @DateTimeStringColumn({ nullable: true })
-  editedAt?: string;
+  editedTime?: string;
 
   @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
   response: SurveyResponse;

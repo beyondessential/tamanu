@@ -215,10 +215,10 @@ export class SurveyResponse extends Model {
   declare result?: number;
   declare resultText?: string;
   /**
-   * Not to be confused with metadata attribute `updated_at`. `edited_at` is non-NULL if and only if
+   * Not to be confused with metadata attribute `updated_at`. `edited_time` is non-NULL if and only if
    * this survey response has been meaningfully edited by a user via `PATCH /surveyResponse`.
    */
-  declare editedAt?: string;
+  declare editedTime?: string;
   declare notified?: boolean;
   declare metadata?: Record<string, any>;
   declare userId?: string;
@@ -233,7 +233,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: DataTypes.FLOAT, allowNull: true },
         resultText: { type: DataTypes.TEXT, allowNull: true },
-        editedAt: dateTimeType('editedAt', { allowNull: true }),
+        editedTime: dateTimeType('editedTime', { allowNull: true }),
         notified: { type: DataTypes.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
         metadata: { type: DataTypes.JSONB, allowNull: true },
       },

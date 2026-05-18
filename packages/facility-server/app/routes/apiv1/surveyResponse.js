@@ -6,7 +6,7 @@
  * @typedef {{
  *   id: ChangeLog['id'];
  *   recordId: ChangeLog['recordId'];
- *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
+ *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];
@@ -246,7 +246,7 @@ surveyResponse.get(
           jsonb_build_object(
             'id', c.record_data->>'id',
             'body', c.record_data->>'body',
-            'editedAt', c.record_data->>'edited_at'
+            'editedTime', c.record_data->>'edited_time'
           ) AS "recordData",
           jsonb_build_object(
             'id', pde.id,
@@ -291,7 +291,7 @@ surveyResponse.get(
 
     const changes = revisions
       .map(revision => {
-        if (!revision.recordData.editedAt) return null; // Edits only, no creates
+        if (!revision.recordData.editedTime) return null; // Edits only, no creates
 
         const prevRevision = revisions.find(
           r => r.recordId === revision.recordId && r._revision === revision._revision - 1,
@@ -521,7 +521,7 @@ surveyResponse.patch(
           if (existingAnswer.body !== body) {
             await existingAnswer.update({
               body,
-              editedAt: getCurrentDateTimeString(),
+              editedTime: getCurrentDateTimeString(),
             });
             hasMeaningfulChanges = true;
           }
@@ -530,7 +530,7 @@ surveyResponse.patch(
             dataElementId,
             body,
             responseId: params.id,
-            editedAt: getCurrentDateTimeString(),
+            editedTime: getCurrentDateTimeString(),
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
           if (body !== '') {
@@ -551,7 +551,7 @@ surveyResponse.patch(
           if (existingAnswer.body !== bodyValue) {
             await existingAnswer.update({
               body: bodyValue,
-              editedAt: getCurrentDateTimeString(),
+              editedTime: getCurrentDateTimeString(),
             });
             hasMeaningfulChanges = true;
           }
@@ -560,10 +560,10 @@ surveyResponse.patch(
             body: bodyValue,
             /**
              * This is the first time this question has been answered for this survey response, but
-             * immediately give it an `edited_at` timestamp so we know that it was edited from the
+             * immediately give it an `edited_time` timestamp so we know that it was edited from the
              * original non-answer.
              */
-            editedAt: getCurrentDateTimeString(),
+            editedTime: getCurrentDateTimeString(),
             dataElementId,
             responseId: params.id,
           });
@@ -587,7 +587,7 @@ surveyResponse.patch(
         responseUpdates.resultText = normalizedResultText;
       }
       if (hasMeaningfulChanges) {
-        responseUpdates.editedAt = getCurrentDateTimeString();
+        responseUpdates.editedTime = getCurrentDateTimeString();
       }
       if (Object.keys(responseUpdates).length > 0) {
         await responseRecord.update(responseUpdates);

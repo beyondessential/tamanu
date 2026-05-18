@@ -7,7 +7,7 @@
  * @typedef {{
  *   id: ChangeLog['id'];
  *   recordId: ChangeLog['recordId'];
- *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedAt' | 'id'>;
+ *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
  *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];

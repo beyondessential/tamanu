@@ -8,7 +8,7 @@ export class addSurveyResponseEditMetadata1778560763154 implements MigrationInte
     await queryRunner.addColumn(
       'survey_responses',
       new TableColumn({
-        name: 'editedAt',
+        name: 'editedTime',
         type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
@@ -17,7 +17,7 @@ export class addSurveyResponseEditMetadata1778560763154 implements MigrationInte
     await queryRunner.addColumn(
       'survey_response_answers',
       new TableColumn({
-        name: 'editedAt',
+        name: 'editedTime',
         type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
@@ -26,7 +26,7 @@ export class addSurveyResponseEditMetadata1778560763154 implements MigrationInte
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropColumn('survey_response_answers', 'editedAt');
-    await queryRunner.dropColumn('survey_responses', 'editedAt');
+    await queryRunner.dropColumn('survey_response_answers', 'editedTime');
+    await queryRunner.dropColumn('survey_responses', 'editedTime');
   }
 }
