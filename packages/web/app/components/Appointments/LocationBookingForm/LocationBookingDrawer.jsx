@@ -276,6 +276,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       additionalClinicianId,
       procedureTypeIds,
       linkEncounterId,
+      shouldEmailAppointment,
       email,
     },
     { resetForm },
@@ -292,7 +293,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         additionalClinicianId,
         procedureTypeIds,
         linkEncounterId,
-        email,
+        ...(shouldEmailAppointment ? { email } : {}),
       },
       {
         onSuccess: () => {
