@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
+import type { ISurveyScreenComponent } from '~/types';
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
@@ -185,16 +186,29 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { encounter, survey, questions, answers } = surveyResponse;
   const { patient } = encounter;
 
-  const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+  const answersByDataElementId = new Map(answers.map(a => [a.dataElement.id, a.body] as const));
+  const attachAnswer = <T extends ISurveyScreenComponent>(
+    q: T,
+  ): { answer: string | null; question: T } => {
     return {
       question: q,
-      answer: answerObject?.body ?? null,
+      answer: answersByDataElementId.get(q.dataElement.id) ?? null,
     };
   };
 
-  const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
-    <AnswerItem key={question.id} index={i} question={question} answer={answer} />
+  const questionToAnswerItem = ({
+    question,
+    answer,
+  }: {
+    answer: string | null;
+    question: ISurveyScreenComponent;
+  }): ReactElement => (
+    <AnswerItem
+      key={question.id}
+      index={question.dataElement.id}
+      question={question}
+      answer={answer}
+    />
   );
 
   const answerItems = questions
