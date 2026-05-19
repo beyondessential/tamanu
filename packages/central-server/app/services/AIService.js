@@ -6,7 +6,6 @@ import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
 import { log } from '@tamanu/shared/services/logging';
-import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
@@ -54,11 +53,10 @@ const normalizeMessageContent = content => {
   return String(content ?? '');
 };
 
-const CONTEXT_SETTINGS_KEY = {
-  [AI_CONTEXT_NAMES.PATIENT_SUMMARY]: 'patientSummary',
-};
-
 export class AIService {
+  /** @type {Map<string, string>} */
+  contexts = new Map();
+
   /** @type {NodeCache} */
   sessions = new NodeCache({ stdTTL: SESSION_TTL_SECONDS, checkperiod: 300, useClones: false });
 
@@ -124,10 +122,8 @@ export class AIService {
   }
 
   /**
-   * Resolve the system prompt for a context by reading from settings,
-   * so admin changes take effect without a restart.
+   * Register a named context (system prompt). Call once per feature at startup.
    *
-
    * @param {string} name
    * @param {string} systemPrompt
    */
@@ -157,7 +153,7 @@ export class AIService {
 
   /**
    * @param {string} contextName
-   * @returns {Promise<string>}
+   * @returns {string}
    */
   getContext(contextName) {
     if (!this.contexts.has(contextName)) {
@@ -165,7 +161,6 @@ export class AIService {
     }
     return this.contexts.get(contextName);
   }
-
 
   /**
    * Pick the right chat model for the given context. Non-conversational
@@ -189,7 +184,7 @@ export class AIService {
   async createSession(contextName) {
     const sessionId = nanoid();
     const history = new InMemoryChatMessageHistory();
-    await history.addMessage(new SystemMessage(await this.getContext(contextName)));
+    await history.addMessage(new SystemMessage(this.getContext(contextName)));
     this.sessions.set(sessionId, history);
     return sessionId;
   }
