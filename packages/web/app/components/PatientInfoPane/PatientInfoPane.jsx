@@ -269,7 +269,9 @@ export const PatientInfoPane = () => {
   // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
   // generates from a complete record rather than a partially-pulled one.
   const isPatientSyncing = useSyncState().isPatientSyncing(patient.id);
-  const showAiPatientSummary = patient.markedForSync && !isPatientSyncing;
+  const patientSummaryEnabled = getSetting('patientSummary.enabled');
+  const showAiPatientSummary =
+    patientSummaryEnabled && patient.markedForSync && !isPatientSyncing;
 
   return (
     <Container data-testid="container-qhh8">

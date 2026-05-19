@@ -137,6 +137,13 @@ export const patientSummaryProperties = {
   name: 'Patient summary',
   description: 'Settings for the patient summary',
   properties: {
+    enabled: {
+      name: 'Enabled',
+      description: 'Enable or disable the patient summary',
+      type: yup.boolean(),
+      defaultValue: false,
+      exposedToWeb: true,
+    },
     prompts: {
       name: 'System prompt',
       description: 'The system prompt to use for the patient summary',
