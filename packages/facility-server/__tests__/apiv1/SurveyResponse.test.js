@@ -1,7 +1,6 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-
 import { createTestContext } from '../utilities';
 
 describe('SurveyResponse', () => {
@@ -682,6 +681,71 @@ describe('SurveyResponse', () => {
 
       await response.reload();
       expect(response.editedTime).toBeFalsy();
+    });
+  });
+
+  describe('program survey PATCH notification re-queue', () => {
+    it('should set `notified` to false when a completed notifiable response is edited', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+      const survey = await models.Survey.findByPk(response.surveyId);
+      await survey.update({
+        notifiable: true,
+        notifyEmailAddresses: ['notify@example.com'],
+      });
+      await response.update({ notified: true });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [answer.dataElementId]: 'patched-for-notification-requeue' },
+      });
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.notified).toBe(false);
+    });
+
+    it('should not change `notified` when the survey is not `notifiable`', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+      const survey = await models.Survey.findByPk(response.surveyId);
+      await survey.update({ notifiable: false });
+      await response.update({ notified: true });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [answer.dataElementId]: 'patched-non-notifiable' },
+      });
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.notified).toBe(true);
+    });
+
+    it('should not re-queue notification when PATCH makes no changes', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+      const survey = await models.Survey.findByPk(response.surveyId);
+      await survey.update({
+        notifiable: true,
+        notifyEmailAddresses: ['notify@example.com'],
+      });
+      await response.update({ notified: true });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
+        facilityId,
+        answers: { [answer.dataElementId]: answer.body },
+      });
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.notified).toBe(true);
     });
   });
 

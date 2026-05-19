@@ -589,6 +589,9 @@ surveyResponse.patch(
       if (hasMeaningfulChanges) {
         responseUpdates.editedTime = getCurrentDateTimeString();
       }
+      if (survey.notifiable && responseRecord.endTime && Object.keys(responseUpdates).length > 0) {
+        responseUpdates.notified = false; // Re-queue for SurveyCompletionNotifierProcessor
+      }
       if (Object.keys(responseUpdates).length > 0) {
         await responseRecord.update(responseUpdates);
       }
