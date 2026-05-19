@@ -100,7 +100,7 @@ export class AIService {
       ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
       : service.chatModel;
 
-    await service.registerFormBuilderContext(settings);
+    await service.refreshContexts(settings);
 
     if (fastModelName && fastModelName !== anthropicModel) {
       log.info(
@@ -127,8 +127,18 @@ export class AIService {
   }
 
   /**
-   * Register the AI form builder context from settings. This is called once on
-   * startup, then explicitly after settings changes.
+   * Refresh all settings-backed AI contexts. This is called once on startup,
+   * then explicitly after settings changes.
+   *
+   * @param {import('@tamanu/settings').ReadSettings} settings
+   */
+  async refreshContexts(settings) {
+    await this.registerFormBuilderContext(settings);
+    await this.registerPatientSummaryContext(settings);
+  }
+
+  /**
+   * Register the AI form builder context from settings.
    *
    * @param {import('@tamanu/settings').ReadSettings} settings
    */
