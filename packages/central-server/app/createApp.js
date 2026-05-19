@@ -22,9 +22,9 @@ export async function createApp(ctx) {
   dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
     if (payload.table !== 'settings') return;
     try {
-      await ctx.aiService?.registerFormBuilderContext(ctx.settings);
+      await ctx.aiService?.refreshContexts(ctx.settings);
     } catch (error) {
-      log.warn({ error }, 'Failed to refresh AI form builder contexts after settings change');
+      log.warn({ error }, 'Failed to refresh AI contexts after settings change');
     }
   });
 
