@@ -156,11 +156,6 @@ export class AIService {
     this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
   }
 
-  async registerPatientSummaryContext(settings) {
-    const { prompts } = await settings.get('patientSummary');
-    this.registerContext(PATIENT_SUMMARY_CONTEXT, prompts);
-  }
-
   /**
    * @param {string} contextName
    * @returns {string}
