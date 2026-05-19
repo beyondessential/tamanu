@@ -90,8 +90,6 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
     .map(component => {
-      console.log('component', component);
-
       if (isHiddenInResponseViews(component)) return null; // Filter out
 
       const { dataElement, id, config } = component;
