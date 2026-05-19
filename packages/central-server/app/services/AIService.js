@@ -13,6 +13,7 @@ export const FORM_BUILDER_CONTEXT = 'formBuilder';
 export const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
 export const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
 export const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
+export const PATIENT_SUMMARY_CONTEXT = 'patientSummary';
 
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
@@ -104,6 +105,7 @@ export class AIService {
       : service.chatModel;
 
     await service.registerFormBuilderContext(settings);
+    await service.registerPatientSummaryContext(settings);
 
     if (fastModelName && fastModelName !== anthropicModel) {
       log.info(
@@ -142,6 +144,11 @@ export class AIService {
     this.registerContext(FORM_BUILDER_CONTEXT, processMessage);
     this.registerContext(FORM_BUILDER_BUILD_CONTEXT, buildSurveyDefinition);
     this.registerContext(FORM_BUILDER_TWEAK_CONTEXT, tweakSurveyDefinition);
+  }
+
+  async registerPatientSummaryContext(settings) {
+    const { prompts } = await settings.get('patientSummary');
+    this.registerContext(PATIENT_SUMMARY_CONTEXT, prompts);
   }
 
   /**
