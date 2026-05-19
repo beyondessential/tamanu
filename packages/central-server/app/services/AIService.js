@@ -5,14 +5,11 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
+import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
-export const FORM_BUILDER_CONTEXT = 'formBuilder';
-export const FORM_BUILDER_BUILD_CONTEXT = 'formBuilderBuildSurveyDefinition';
-export const FORM_BUILDER_TWEAK_CONTEXT = 'formBuilderTweakSurveyDefinition';
-export const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
@@ -20,9 +17,9 @@ export const FORM_BUILDER_IMAGE_CONTEXT = 'formBuilderInterpretFormImage';
 // experience. The build context generates a large structured response so it
 // gets the biggest wall-time win from a faster model.
 const FAST_MODEL_CONTEXTS = new Set([
-  FORM_BUILDER_IMAGE_CONTEXT,
-  FORM_BUILDER_TWEAK_CONTEXT,
-  FORM_BUILDER_BUILD_CONTEXT,
+  AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE,
+  AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
+  AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
 ]);
 
 const formBuilderChatResponseSchema = z.object({
@@ -138,10 +135,15 @@ export class AIService {
   async registerFormBuilderContext(settings) {
     const { interpretFormImage, processMessage, buildSurveyDefinition, tweakSurveyDefinition } =
       await settings.get('formBuilder.prompts');
-    this.registerContext(FORM_BUILDER_IMAGE_CONTEXT, interpretFormImage);
-    this.registerContext(FORM_BUILDER_CONTEXT, processMessage);
-    this.registerContext(FORM_BUILDER_BUILD_CONTEXT, buildSurveyDefinition);
-    this.registerContext(FORM_BUILDER_TWEAK_CONTEXT, tweakSurveyDefinition);
+    this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE, interpretFormImage);
+    this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER, processMessage);
+    this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD, buildSurveyDefinition);
+    this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, tweakSurveyDefinition);
+  }
+
+  async registerPatientSummaryContext(settings) {
+    const { prompts } = await settings.get('patientSummary');
+    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
   }
 
   /**
@@ -232,8 +234,8 @@ export class AIService {
    * @returns {Promise<string>}
    */
   async interpretFormBuilderImage({ imageBase64, mediaType, fileName }) {
-    const response = await this.getModelForContext(FORM_BUILDER_IMAGE_CONTEXT).invoke([
-      new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
+    const response = await this.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE).invoke([
+      new SystemMessage(this.getContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE)),
       new HumanMessage({
         content: [
           {
@@ -262,8 +264,8 @@ export class AIService {
    * @returns {Promise<string>}
    */
   async interpretFormBuilderPdf({ pdfBase64, fileName }) {
-    const response = await this.getModelForContext(FORM_BUILDER_IMAGE_CONTEXT).invoke([
-      new SystemMessage(this.getContext(FORM_BUILDER_IMAGE_CONTEXT)),
+    const response = await this.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE).invoke([
+      new SystemMessage(this.getContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE)),
       new HumanMessage({
         content: [
           {

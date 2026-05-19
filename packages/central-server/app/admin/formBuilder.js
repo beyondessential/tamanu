@@ -7,14 +7,10 @@ import NodeCache from 'node-cache';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
+import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
-import {
-  FORM_BUILDER_BUILD_CONTEXT,
-  FORM_BUILDER_CONTEXT,
-  FORM_BUILDER_TWEAK_CONTEXT,
-} from '../services/AIService';
 import {
   programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
@@ -352,7 +348,7 @@ const generateProgramDefinition = async ({
   });
   return finaliseProgramDefinition(
     await aiService.invokeStructured(
-      FORM_BUILDER_BUILD_CONTEXT,
+      AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
       buildInput,
       programDefinitionSchema,
       { name: 'form_builder_program_definition' },
@@ -369,7 +365,7 @@ const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, 
   let tweakResponse;
   try {
     tweakResponse = await aiService.invokeStructured(
-      FORM_BUILDER_TWEAK_CONTEXT,
+      AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
       buildProgramDefinitionTweakInput({ currentProgramDefinition, userMessage }),
       formBuilderTweakResponseSchema,
       { name: 'form_builder_tweak_response' },
@@ -407,7 +403,8 @@ const processChatRequest = async ({
   try {
     const fileContext = await getFileContext({ aiService, file, fileName, fileContentType });
     const userMessage = buildUserMessage({ message, fileContext });
-    const sessionId = existingSessionId || (await aiService.createSession(FORM_BUILDER_CONTEXT));
+    const sessionId =
+      existingSessionId || (await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER));
 
     if (currentProgramDefinition) {
       const tweakResult = await tryTweakProgramDefinition({
