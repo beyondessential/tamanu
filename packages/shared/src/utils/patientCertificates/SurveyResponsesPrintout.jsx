@@ -66,7 +66,7 @@ const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '
 const ResultBox = ({ resultText, resultName }) => (
   <View style={pageStyles.resultBox}>
     <Text>{resultName}</Text>
-    <Text style={[pageStyles.itemText]}>{resultText}</Text>
+    <Text style={pageStyles.itemText}>{resultText}</Text>
   </View>
 );
 
