@@ -67,14 +67,15 @@ export const LoginView = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const loginToken = formData.get('verificationCode') as string;
+    const loginToken = formData.get('verificationCode') as string | null;
 
-    const email = storedEmail || (formData.get('email') as string);
+    const email = storedEmail || (formData.get('email') as string | null);
 
     if (loginToken && email) {
-      loginToken.trim();
-      email.trim();
-      login({ loginToken, email });
+      login({
+        loginToken: loginToken.trim(),
+        email: email.trim(),
+      });
     }
   };
 
@@ -94,7 +95,7 @@ export const LoginView = () => {
             <EmailSection email={storedEmail} />
           ) : (
             <TextField
-              label="Email Address"
+              label="Email address"
               fullWidth
               id="email"
               type="email"
