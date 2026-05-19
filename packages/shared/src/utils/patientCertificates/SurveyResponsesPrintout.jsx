@@ -169,14 +169,7 @@ const SurveyResponsesPrintoutComponent = ({
   const { watermark, logo } = certificateData;
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
-
-  const groupedAnswerRows = Object.values(
-    surveyAnswerRows.reduce((acc, item) => {
-      acc[item.screenIndex] ??= [];
-      acc[item.screenIndex].push(item);
-      return acc;
-    }, {}),
-  );
+  const groupedAnswerRows = Object.values(Object.groupBy(surveyAnswerRows, row => row.screenIndex));
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
 
