@@ -203,6 +203,29 @@ const OPTIONS = [
     defaultValue: 4,
     parse: input => intBounds(input, [0, 720]),
   },
+  {
+    /*
+     * Enables WAL archiving and scheduled base backups to S3 via the CNPG
+     * Barman Cloud Plugin. Requires the ops-side ObjectStore and IAM role to
+     * be configured for the target namespace.
+     *
+     * Omit (or set to false) on ephemeral PR deploys where backups are not needed.
+     */
+    key: 'backup',
+    defaultValue: false,
+    presence: true,
+  },
+  {
+    /*
+     * Number of days of base backups to retain.
+     * Barman will automatically expire older backups according to this policy.
+     * Only relevant when `backup` is enabled. Capped at 10 days for auto-deploys;
+     * production clusters can be configured directly without this limit.
+     */
+    key: 'backupretention',
+    defaultValue: 3,
+    parse: input => intBounds(input, [1, 10]),
+  },
 ];
 
 function stripPercent(str) {
@@ -287,6 +310,9 @@ export function configMap(deployName, imageTag, options) {
       patientPortalReplicas: options.patientportals,
 
       syntheticTests: options.synthetic,
+
+      backupsEnabled: options.backup,
+      backupRetentionDays: options.backup ? options.backupretention : null,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
