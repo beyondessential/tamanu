@@ -4,6 +4,7 @@ import { InstructionField, TranslatedReferenceData } from '@tamanu/ui-components
 import styled from 'styled-components';
 
 const StyledInstructionField = styled(InstructionField)`
+  margin-block: unset;
   h2 {
     font: inherit;
   }
