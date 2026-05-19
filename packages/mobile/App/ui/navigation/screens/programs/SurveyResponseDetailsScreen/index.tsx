@@ -7,7 +7,6 @@ import { theme } from '../../../../styled/theme';
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
-import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
