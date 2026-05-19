@@ -11,7 +11,6 @@ export const EmailSection = ({ label }) => {
   const { patientId, shouldEmailAppointment } = values;
   const { data: patient } = usePatientDataQuery(patientId);
 
-  // Keep form state up to date with relevant selected patient email
   useEffect(() => {
     if (!shouldEmailAppointment) {
       setFieldValue('email', '');
@@ -23,19 +22,12 @@ export const EmailSection = ({ label }) => {
     setFieldValue('confirmEmail', '');
   }, [patient?.email, setFieldValue, shouldEmailAppointment]);
 
-  const handleResetEmailFields = e => {
-    if (e.target.checked) return;
-    setFieldValue('email', '');
-    setFieldValue('confirmEmail', '');
-  };
-
   return (
     <>
       <Field
         name="shouldEmailAppointment"
         label={label}
         component={CheckField}
-        onChange={handleResetEmailFields}
         data-testid="field-160d"
       />
       {values.shouldEmailAppointment && (
