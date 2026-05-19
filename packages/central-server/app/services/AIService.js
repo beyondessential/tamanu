@@ -82,7 +82,7 @@ export class AIService {
         log.info('AIService: no Anthropic API key configured, skipping initialisation');
         return null;
       }
-      // throw error;
+      throw error;
     }
 
     if (!anthropicApiKey) {
