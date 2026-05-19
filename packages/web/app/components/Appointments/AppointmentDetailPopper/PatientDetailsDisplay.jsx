@@ -51,7 +51,7 @@ const PatientId = styled('p')`
   margin-block: 0.25rem 0;
 `;
 
-const ContactSkeleton = styled(Skeleton).attrs({ variant: 'text' })`
+const ContactSkeleton = styled(Skeleton)`
   display: inline-block;
   width: 6rem;
   vertical-align: middle;
