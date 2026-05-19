@@ -42,7 +42,7 @@ const pageStyles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   itemText: {
-    fontSize: 10,
+    fontSize: 9,
   },
   boldDivider: {
     borderBottom: '2pt solid black',
@@ -70,7 +70,15 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody, formatShort }) => {
+const getAnswers = ({
+  answer,
+  type,
+  getTranslation,
+  dataElementId,
+  config,
+  originalBody,
+  formatShort,
+}) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -135,7 +143,12 @@ const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem getTranslation={getTranslation} formatShort={formatShort} key={row.id} row={row} />
+        <ResponseItem
+          getTranslation={getTranslation}
+          formatShort={formatShort}
+          key={row.id}
+          row={row}
+        />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -190,10 +203,7 @@ const SurveyResponsesPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails
-          patient={patientData}
-          getSetting={getSetting}
-        />
+        <PatientDetails patient={patientData} getSetting={getSetting} />
 
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />
@@ -206,7 +216,12 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup getTranslation={getTranslation} formatShort={formatShort} key={index} rows={group} />
+          <ResponsesGroup
+            getTranslation={getTranslation}
+            formatShort={formatShort}
+            key={index}
+            rows={group}
+          />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
