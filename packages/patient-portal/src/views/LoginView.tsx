@@ -95,7 +95,7 @@ export const LoginView = () => {
             <EmailSection email={storedEmail} />
           ) : (
             <TextField
-              label="Email Address"
+              label="Email address"
               fullWidth
               id="email"
               type="email"

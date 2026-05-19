@@ -54,7 +54,7 @@ export const RequestLoginTokenView = () => {
   return (
     <Card>
       <Typography variant="h1" component="h1" gutterBottom>
-        Log In
+        Log in
       </Typography>
       <Typography variant="body1" mb={3} color="text.secondary">
         Enter your email below. We will send a verification code for account authentication.
