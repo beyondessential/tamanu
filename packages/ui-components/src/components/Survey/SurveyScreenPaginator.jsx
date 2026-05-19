@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Typography } from '@material-ui/core';
@@ -15,7 +15,7 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton }) => (
   <div>
     <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
       <TranslatedText
@@ -40,18 +40,20 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
             data-testid="translatedtext-lzgi"
           />
         </OutlinedButton>
-        <FormSubmitButton
-          color="primary"
-          variant="contained"
-          onClick={onSurveyComplete}
-          data-testid="formsubmitbutton-pufy"
-        >
-          <TranslatedText
-            stringId="general.action.complete"
-            fallback="Complete"
-            data-testid="translatedtext-7box"
-          />
-        </FormSubmitButton>
+        {summarySubmitButton || (
+          <FormSubmitButton
+            color="primary"
+            variant="contained"
+            onClick={onSurveyComplete}
+            data-testid="formsubmitbutton-pufy"
+          >
+            <TranslatedText
+              stringId="general.action.complete"
+              fallback="Complete"
+              data-testid="translatedtext-7box"
+            />
+          </FormSubmitButton>
+        )}
       </StyledButtonRow>
     </div>
   </div>
@@ -72,6 +74,8 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
+  summarySubmitButton = null,
+  onScreenIndexChange = undefined,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
@@ -82,6 +86,10 @@ export const SurveyScreenPaginator = ({
   const maxIndex = currentComponents
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
+
+  useEffect(() => {
+    onScreenIndexChange?.(Math.min(screenIndex, maxIndex));
+  }, [maxIndex, onScreenIndexChange, screenIndex]);
 
   if (screenIndex <= maxIndex) {
     const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
@@ -113,6 +121,7 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      summarySubmitButton={summarySubmitButton}
       data-testid="surveysummaryscreen-1jn5"
     />
   );
