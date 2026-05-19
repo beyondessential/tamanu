@@ -71,6 +71,7 @@ export const RequestLoginTokenView = () => {
           onChange={resetError}
           autoFocus
           required
+          type="email"
         />
         <LoginButton type="submit" fullWidth variant="contained">
           Send code
