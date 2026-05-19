@@ -54,9 +54,10 @@ export const AppointmentDetailPopper = ({
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
-  const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id, {
-    enabled: open && Boolean(appointment.patient.id),
-  });
+  const { data: additionalData, isLoading: isLoadingAdditionalData } =
+    usePatientAdditionalDataQuery(appointment.patient.id, {
+      enabled: open && Boolean(appointment.patient.id),
+    });
   const navigate = useNavigate();
 
   const handlePatientDetailsClick = useCallback(async () => {
@@ -120,6 +121,7 @@ export const AppointmentDetailPopper = ({
           <StyledPaper elevation={0} data-testid="styledpaper-mvu3">
             <PatientDetailsDisplay
               additionalData={additionalData}
+              isLoadingAdditionalData={isLoadingAdditionalData}
               onClick={handlePatientDetailsClick}
               patient={appointment.patient}
               data-testid="patientdetailsdisplay-hxfv"

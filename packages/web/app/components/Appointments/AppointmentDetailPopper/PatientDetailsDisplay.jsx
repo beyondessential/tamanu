@@ -1,3 +1,4 @@
+import Skeleton from '@mui/material/Skeleton';
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
@@ -50,7 +51,18 @@ const PatientId = styled('p')`
   margin-block: 0.25rem 0;
 `;
 
-export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
+const ContactSkeleton = styled(Skeleton).attrs({ variant: 'text' })`
+  display: inline-block;
+  width: 6rem;
+  vertical-align: middle;
+`;
+
+export const PatientDetailsDisplay = ({
+  patient,
+  onClick,
+  additionalData,
+  isLoadingAdditionalData = false,
+}) => {
   const { displayId, sex, dateOfBirth } = patient;
   return (
     <Header onClick={onClick} tabIndex={0} data-testid="header-p2x8">
@@ -87,7 +99,13 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
             data-testid="translatedtext-9cmr"
           />
         }
-        value={additionalData?.primaryContactNumber}
+        value={
+          isLoadingAdditionalData ? (
+            <ContactSkeleton data-testid="contactskeleton-yceg" />
+          ) : (
+            additionalData?.primaryContactNumber
+          )
+        }
         data-testid="inlinedetailsdisplay-yceg"
       />
       <PatientId data-testid="patientid-xol3">{displayId}</PatientId>
