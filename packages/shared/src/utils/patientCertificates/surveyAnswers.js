@@ -12,7 +12,7 @@ const shouldShow = component => {
 
 export const getDisplayTextAnswer = component => {
   const { text, detail, dataElement } = component;
-  return [text || dataElement.defaultText, detail].filter(Boolean).join(' ') || undefined;
+  return [text || dataElement.defaultText, detail].filter(Boolean).join('\n') || undefined;
 };
 
 export const getSurveyAnswerRows = ({ components, answers }) =>
