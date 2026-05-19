@@ -220,7 +220,7 @@ adminRoutes.put(
 
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
     await Setting.set('', settings, scope, facilityId);
-    await req.aiService?.registerFormBuilderContext(req.ctx.settings);
+    await req.aiService?.refreshContexts(req.ctx.settings);
     res.json({ code: 200 });
   }),
 );
@@ -230,7 +230,7 @@ adminRoutes.delete(
   asyncHandler(async (req, res) => {
     req.checkPermission('manage', 'all');
     settingsCache.reset();
-    await req.aiService?.registerFormBuilderContext(req.ctx.settings);
+    await req.aiService?.refreshContexts(req.ctx.settings);
     res.status(204).send();
   }),
 );
