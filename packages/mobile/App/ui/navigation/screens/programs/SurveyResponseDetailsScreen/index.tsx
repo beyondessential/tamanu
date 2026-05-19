@@ -187,10 +187,9 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
     const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
-    const answer = answerObject?.body;
     return {
       question: q,
-      answer,
+      answer: answerObject?.body ?? null,
     };
   };
 
@@ -203,7 +202,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
     .map(attachAnswer)
     .filter(
       q =>
-        (q.answer !== null && q.answer !== '') ||
+        (q.answer != null && q.answer !== '') ||
         q.question.dataElement.type === FieldTypes.DISPLAY_TEXT,
     )
     .map(questionToAnswerItem);
