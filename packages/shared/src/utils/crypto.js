@@ -42,7 +42,9 @@ export async function generateSecretKey() {
 
 async function importKey(keyBuffer) {
   if (keyBuffer.length !== KEY_LENGTH_BYTES) {
-    throw new Error(`Key must be exactly ${KEY_LENGTH_BYTES} bytes (got ${keyBuffer.length})`);
+    throw new Error(
+      `Key must be exactly ${KEY_LENGTH_BYTES} bytes (got ${keyBuffer.length})`,
+    );
   }
   return crypto.subtle.importKey('raw', keyBuffer, { name: ALGORITHM }, false, [
     'encrypt',
