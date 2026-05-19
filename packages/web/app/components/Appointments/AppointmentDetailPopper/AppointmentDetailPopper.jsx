@@ -105,7 +105,6 @@ export const AppointmentDetailPopper = ({
         onClickAway={handleClickAway}
         mouseEvent="onMouseDown"
         touchEvent="onTouchStart"
-        data-testid="clickawaylistener-rxja"
       >
         <div>
           <ControlsRow

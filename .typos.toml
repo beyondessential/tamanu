@@ -54,4 +54,7 @@ extend-exclude = [
 
   # default provision files
   "packages/central-server/app/subCommands/defaultProvisioningData/*.json5",
+
+  # bruno API tests contain base64 payloads causing false positives
+  "bruno/**/*",
 ]
