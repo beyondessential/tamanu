@@ -72,9 +72,10 @@ export const LoginView = () => {
     const email = storedEmail || (formData.get('email') as string | null);
 
     if (loginToken && email) {
-      loginToken.trim();
-      email.trim();
-      login({ loginToken, email });
+      login({
+        loginToken: loginToken.trim(),
+        email: email.trim(),
+      });
     }
   };
 
