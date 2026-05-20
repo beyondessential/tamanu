@@ -10,7 +10,7 @@ import {
   TranslatedText,
   VisuallyHidden,
 } from '@tamanu/ui-components';
-import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
+import { useSurveyResponseChangesQuery } from '../api/queries';
 import { DateDisplay } from './DateDisplay';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
