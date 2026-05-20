@@ -79,12 +79,15 @@ export const DischargeEncounterSummaryContent = ({ encounterId }) => {
 
   const handleConfirmDiscard = () => {
     if (!documentId) return;
-    discardSummary(documentId, {
-      onSuccess: () => {
-        setIsDiscardConfirmOpen(false);
-        setIsEditing(false);
+    discardSummary(
+      { id: documentId },
+      {
+        onSuccess: () => {
+          setIsDiscardConfirmOpen(false);
+          setIsEditing(false);
+        },
       },
-    });
+    );
   };
 
   const isLoading = isLoadingExisting || isGenerating;
