@@ -449,21 +449,48 @@ appointments.get(
       return _filters;
     }, []);
 
-    const { rows, count } = await Appointment.findAndCountAll({
+    // The COUNT subquery only needs the joins that are actually referenced by the WHERE
+    // clauses — pulling the full list of reference associations doubles planning time
+    // for what's a hot path on the appointments dashboard.
+    const needsLocation = facilityIdField === '$location.facility_id$' || Boolean(bookableWhereClause);
+    const needsPatient =
+      Boolean(patientNameOrId) ||
+      Object.keys(queries).some(k => k.startsWith('patient.'));
+    const includeForCount = ['locationGroup', 'schedule'];
+    if (needsLocation) {
+      includeForCount.push(
+        bookableWhereClause
+          ? { association: 'location', include: ['locationGroup'] }
+          : 'location',
+      );
+    }
+    if (needsPatient) {
+      includeForCount.push('patient');
+    }
+
+    const whereClause = {
+      [Op.and]: [
+        facilityIdWhereClause,
+        timeQueryWhereClause,
+        cancelledStatusWhereClause,
+        isBeforeScheduleUntilDateWhereClause,
+        buildPatientNameOrIdQuery(patientNameOrId),
+        bookableWhereClause,
+        ...filters,
+      ],
+    };
+
+    const count = await Appointment.count({
+      where: whereClause,
+      include: includeForCount,
+      bind: timeQueryBindParams,
+    });
+
+    const rows = await Appointment.findAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
-      where: {
-        [Op.and]: [
-          facilityIdWhereClause,
-          timeQueryWhereClause,
-          cancelledStatusWhereClause,
-          isBeforeScheduleUntilDateWhereClause,
-          buildPatientNameOrIdQuery(patientNameOrId),
-          bookableWhereClause,
-          ...filters,
-        ],
-      },
+      where: whereClause,
       include: Appointment.getListReferenceAssociations(),
       bind: timeQueryBindParams,
     });
