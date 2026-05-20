@@ -5,8 +5,8 @@ import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
-const AI_DOCUMENT_TYPES = ['patient_summary', 'discharge'] as const;
-const AI_DOCUMENT_RECORD_TYPES = ['Patient', 'Discharge'] as const;
+const AI_DOCUMENT_TYPES = ['patient_summary', 'encounter_summary'] as const;
+const AI_DOCUMENT_RECORD_TYPES = ['Patient', 'Encounter'] as const;
 const AI_DOCUMENT_STATUSES = ['generated', 'edited', 'discarded'] as const;
 const AI_DOCUMENT_SOURCES = ['ai', 'human'] as const;
 
@@ -93,11 +93,10 @@ export class AiDocument extends Model {
       return null;
     }
     return `
-      LEFT JOIN discharges ON ai_documents.record_id = discharges.id AND ai_documents.record_type = 'Discharge'
-      LEFT JOIN encounters ON discharges.encounter_id = encounters.id
+      LEFT JOIN encounters ON ai_documents.record_id = encounters.id AND ai_documents.record_type = 'Encounter'
       WHERE (
         (ai_documents.record_type = 'Patient' AND ai_documents.record_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
-        OR (ai_documents.record_type = 'Discharge' AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+        OR (ai_documents.record_type = 'Encounter' AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
       AND ai_documents.updated_at_sync_tick > :since
     `;
@@ -107,14 +106,13 @@ export class AiDocument extends Model {
     const patientIdExpr = `
       CASE
         WHEN ai_documents.record_type = 'Patient' THEN ai_documents.record_id
-        WHEN ai_documents.record_type = 'Discharge' THEN encounters.patient_id
+        WHEN ai_documents.record_type = 'Encounter' THEN encounters.patient_id
       END
     `;
     return {
       select: await buildSyncLookupSelect(this, { patientId: patientIdExpr }),
       joins: `
-        LEFT JOIN discharges ON ai_documents.record_id = discharges.id AND ai_documents.record_type = 'Discharge'
-        LEFT JOIN encounters ON discharges.encounter_id = encounters.id
+        LEFT JOIN encounters ON ai_documents.record_id = encounters.id AND ai_documents.record_type = 'Encounter'
       `,
     };
   }
