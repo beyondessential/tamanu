@@ -167,8 +167,6 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
     enabled: open && Boolean(surveyResponseId),
   });
 
-  console.log(changes);
-
   return (
     <StyledModal open={open} onClose={onClose} {...props}>
       <ScrollView data-testid="response-changelog-scrollview">
