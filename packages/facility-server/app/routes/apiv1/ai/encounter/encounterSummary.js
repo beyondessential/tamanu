@@ -71,7 +71,9 @@ encounterSummaryRoute.put(
 
     const { AiDocument } = req.models;
     // ai_documents has a composite primary key, so look up by the unique generated id
-    const doc = await AiDocument.findOne({ where: { id: req.params.id } });
+    const doc = await AiDocument.findOne({
+      where: { id: req.params.id, recordType: 'Encounter', type: 'encounter_summary' },
+    });
     if (!doc) {
       throw new NotFoundError('AI document not found');
     }
