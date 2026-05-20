@@ -11,6 +11,7 @@ import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
+import { useSurveyResponseEditMutation } from './useSurveyResponseEditMutation';
 import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -189,22 +190,21 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return ids;
   }, [existingSurveyResponse]);
 
-  const submitSurveyResponseEdit = async data => {
-    await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
-      facilityId,
-      answers: await getAnswersFromData(data, surveyForEdit),
-    });
-    queryClient.invalidateQueries(['surveyResponse', surveyResponseId]);
-    queryClient.invalidateQueries(['surveyResponseChanges', surveyResponseId]);
-    dispatch(reloadPatient(patient.id));
-    if (params?.encounterId && encounter && !encounter.endDate) {
-      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
-    } else {
-      queryClient.resetQueries(['patientFields', patient.id]);
-      await dispatch(reloadPatient(patient.id));
-      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
-    }
-  };
+  const { mutateAsync: submitSurveyResponseEdit } = useSurveyResponseEditMutation(
+    { surveyResponseId, survey: surveyForEdit },
+    {
+      onSuccess: async () => {
+        dispatch(reloadPatient(patient.id));
+        if (params?.encounterId && encounter && !encounter.endDate) {
+          navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+        } else {
+          queryClient.resetQueries(['patientFields', patient.id]);
+          await dispatch(reloadPatient(patient.id));
+          navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+        }
+      },
+    },
+  );
 
   const onCancelEdit = useCallback(() => {
     if (params.encounterId) {
