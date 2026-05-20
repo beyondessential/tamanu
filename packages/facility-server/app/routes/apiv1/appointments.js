@@ -105,7 +105,7 @@ const buildTimeQuery = (intervalStart, intervalEnd) => {
   // but written as plain inequalities so the partial index on (location_group_id, start_time)
   // can be used.
   const whereClause = literal(
-    '"Appointment"."start_time"::TIMESTAMP < $apptTimeQueryEnd AND "Appointment"."end_time"::TIMESTAMP > $apptTimeQueryStart',
+    '"Appointment"."start_time" < $apptTimeQueryEnd AND "Appointment"."end_time" > $apptTimeQueryStart',
   );
   const bindParams = {
     apptTimeQueryStart: `'${intervalStart}'`,
