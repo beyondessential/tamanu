@@ -573,28 +573,33 @@ surveyResponse.patch(
         mergedAnswerValues[dataElementId] = bodyValue;
       }
 
+      // Short circuit if no answer is actually different from existing
+      if (!hasMeaningfulChanges) return;
+
       const encounter = await responseRecord.getEncounter();
       const { result, resultText } = getResultValue(components, mergedAnswerValues, {
         encounterType: encounter?.encounterType,
       });
-      const normalizedResult = result ?? null;
-      const normalizedResultText = resultText ?? null;
-      const responseUpdates = {};
-      if (!isEqual(responseRecord.result, normalizedResult)) {
-        responseUpdates.result = normalizedResult;
-      }
-      if (!isEqual(responseRecord.resultText, normalizedResultText)) {
-        responseUpdates.resultText = normalizedResultText;
-      }
-      if (hasMeaningfulChanges) {
-        responseUpdates.editedTime = getCurrentDateTimeString();
-      }
-      if (survey.notifiable && responseRecord.endTime && Object.keys(responseUpdates).length > 0) {
-        responseUpdates.notified = false; // Re-queue for SurveyCompletionNotifierProcessor
-      }
-      if (Object.keys(responseUpdates).length > 0) {
-        await responseRecord.update(responseUpdates);
-      }
+
+      const responseUpdates = (() => {
+        const updates = { editedTime: getCurrentDateTimeString() };
+
+        const normalizedResult = result ?? null;
+        const normalizedResultText = resultText ?? null;
+        if (!isEqual(responseRecord.result, normalizedResult)) {
+          updates.result = normalizedResult;
+        }
+        if (!isEqual(responseRecord.resultText, normalizedResultText)) {
+          updates.resultText = normalizedResultText;
+        }
+        if (survey.notifiable && responseRecord.endTime && Object.keys(updates).length > 0) {
+          updates.notified = false; // Re-queue for SurveyCompletionNotifierProcessor
+        }
+
+        return updates;
+      })();
+
+      if (Object.keys(responseUpdates).length > 0) await responseRecord.update(responseUpdates);
 
       const patientIdForActions = responseRecord.patientId ?? encounter?.patientId;
       if (!patientIdForActions) {
