@@ -18,7 +18,10 @@ import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import {
+  getCurrentPrimaryTimeZoneDateString,
+  getCurrentPrimaryTimeZoneDateTimeString,
+} from '@tamanu/shared/utils/primaryDateTime';
 
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -96,20 +99,23 @@ appointments.put(
 );
 
 /**
- * @param {string} intervalStart Some valid PostgreSQL Date/Time input.
- * @param {string} intervalEnd Some valid PostgreSQL Date/Time input.
- * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-INPUT
+ * Equivalent to `(start_time, end_time) OVERLAPS ($start, $end)`, including OVERLAPS' point
+ * semantics when `end_time IS NULL`. Written as plain string inequalities so the partial index
+ * on `(location_group_id, start_time)` can be used.
+ *
+ * @param {string} intervalStart ISO 9075 datetime string (`yyyy-MM-dd HH:mm:ss`).
+ * @param {string} intervalEnd ISO 9075 datetime string.
  */
 const buildTimeQuery = (intervalStart, intervalEnd) => {
-  // Equivalent to `(start_time, end_time) OVERLAPS ($start, $end)` for non-degenerate intervals,
-  // but written as plain inequalities so the partial index on (location_group_id, start_time)
-  // can be used.
   const whereClause = literal(
-    '"Appointment"."start_time" < $apptTimeQueryEnd AND "Appointment"."end_time" > $apptTimeQueryStart',
+    `"Appointment"."start_time" < $apptTimeQueryEnd AND (
+       ("Appointment"."end_time" IS NULL AND "Appointment"."start_time" >= $apptTimeQueryStart)
+       OR "Appointment"."end_time" > $apptTimeQueryStart
+     )`,
   );
   const bindParams = {
-    apptTimeQueryStart: `'${intervalStart}'`,
-    apptTimeQueryEnd: `'${intervalEnd}'`,
+    apptTimeQueryStart: intervalStart,
+    apptTimeQueryEnd: intervalEnd,
   };
 
   return [whereClause, bindParams];
@@ -375,12 +381,8 @@ appointments.get(
     const {
       models: { Appointment },
       query: {
-        /**
-         * Midnight today
-         * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-VALUES
-         */
-        after = 'today',
-        before = 'infinity',
+        after,
+        before,
         facilityId,
         rowsPerPage = 10,
         page = 0,
@@ -394,7 +396,11 @@ appointments.get(
       },
     } = req;
 
-    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
+    // Defaults are midnight today (start) and a sentinel far-future timestamp (end). Plain
+    // ISO 9075 strings are required so the varchar comparison in buildTimeQuery is correct.
+    const intervalStart = after ?? `${getCurrentPrimaryTimeZoneDateString()} 00:00:00`;
+    const intervalEnd = before ?? '9999-12-31 23:59:59';
+    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(intervalStart, intervalEnd);
 
     const cancelledStatusWhereClause = includeCancelled
       ? null
