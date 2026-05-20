@@ -9,6 +9,7 @@ import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
+import MultilineResult from './MultilineResult';
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
@@ -70,6 +71,8 @@ export const SurveyAnswerResult = ({
           referenceDataCategory="programDataElement"
         />
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
+      return <MultilineResult answer={answer} />;
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return JSON.parse(answer).map(element => (
         <>
