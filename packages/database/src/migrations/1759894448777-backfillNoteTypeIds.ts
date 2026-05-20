@@ -6,7 +6,6 @@ const NOTES_DERIVED_SIDE_EFFECT_TRIGGERS = [
   'notify_notes_changed',
   'record_notes_changelog',
   'fhir_refresh',
-  'fhir_refresh_notes',
 ];
 
 const NOTE_TYPE_REFERENCE_DATA = [
@@ -133,6 +132,8 @@ export async function up(query: QueryInterface): Promise<void> {
       upCaseExpression,
       otherNoteType.id,
     );
+    // Refresh planner stats on note_type after rewriting every value.
+    await query.sequelize.query(`ANALYZE notes`);
   } finally {
     await setKnownDerivedSideEffectTriggersEnabled(query, true);
   }
@@ -156,6 +157,7 @@ export async function down(query: QueryInterface): Promise<void> {
       downCaseExpression,
       otherNoteType.code,
     );
+    await query.sequelize.query(`ANALYZE notes`);
   } finally {
     await setKnownDerivedSideEffectTriggersEnabled(query, true);
   }
