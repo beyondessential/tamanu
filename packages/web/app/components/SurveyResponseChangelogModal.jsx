@@ -1,3 +1,5 @@
+/** @typedef {import('../api/queries/useSurveyResponseChangesQuery').Change} Change */
+
 import FormHelperText from '@mui/material/FormHelperText';
 import React from 'react';
 import styled, { css } from 'styled-components';
@@ -95,7 +97,7 @@ const RowHeader = styled.th.attrs({ scope: 'row' })`
 function ChangeLogListItem({ change, ...props }) {
   return (
     <ListItem data-testid={`changelog-item-${change.id}`} {...props}>
-      <Heading>{change.programDataElement?.name}</Heading>
+      <Heading>{change.programDataElement.name}</Heading>
       <table>
         <TableHead />
         <tbody>
@@ -106,8 +108,8 @@ function ChangeLogListItem({ change, ...props }) {
             <td>
               <SurveyAnswerResult
                 answer={change.from}
-                dataElementId={change.programDataElement?.id}
-                type={change.programDataElement?.type}
+                dataElementId={change.programDataElement.id}
+                type={change.programDataElement.type}
               />
             </td>
           </tr>
@@ -118,8 +120,8 @@ function ChangeLogListItem({ change, ...props }) {
             <td>
               <SurveyAnswerResult
                 answer={change.to}
-                dataElementId={change.programDataElement?.id}
-                type={change.programDataElement?.type}
+                dataElementId={change.programDataElement.id}
+                type={change.programDataElement.type}
               />
             </td>
           </tr>
