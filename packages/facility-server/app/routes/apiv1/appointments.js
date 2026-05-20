@@ -101,8 +101,11 @@ appointments.put(
  * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-INPUT
  */
 const buildTimeQuery = (intervalStart, intervalEnd) => {
+  // Equivalent to `(start_time, end_time) OVERLAPS ($start, $end)` for non-degenerate intervals,
+  // but written as plain inequalities so the partial index on (location_group_id, start_time)
+  // can be used.
   const whereClause = literal(
-    '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($apptTimeQueryStart, $apptTimeQueryEnd)',
+    '"Appointment"."start_time"::TIMESTAMP < $apptTimeQueryEnd AND "Appointment"."end_time"::TIMESTAMP > $apptTimeQueryStart',
   );
   const bindParams = {
     apptTimeQueryStart: `'${intervalStart}'`,
