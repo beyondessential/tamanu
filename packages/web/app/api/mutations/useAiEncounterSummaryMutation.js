@@ -38,7 +38,7 @@ export const useSaveAiEncounterSummary = encounterId =>
   }));
 
 export const useDiscardAiEncounterSummary = encounterId =>
-  useUpdateAiEncounterSummary(encounterId, id => ({
+  useUpdateAiEncounterSummary(encounterId, ({ id }) => ({
     id,
     body: { status: 'discarded' },
   }));

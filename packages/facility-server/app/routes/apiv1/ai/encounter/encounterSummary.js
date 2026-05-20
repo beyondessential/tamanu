@@ -1,8 +1,25 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import * as z from 'zod';
 
 import { NotFoundError } from '@tamanu/errors';
 import { regenerateAiEncounterSummary } from '../../../../services/encounterSummary';
+
+const MAX_SUMMARY_CONTENT_LENGTH = 10000;
+
+const updateBodySchema = z.discriminatedUnion('status', [
+  z
+    .object({
+      status: z.literal('edited'),
+      content: z.string().min(1).max(MAX_SUMMARY_CONTENT_LENGTH),
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal('discarded'),
+    })
+    .strict(),
+]);
 
 export const encounterSummaryRoute = express.Router();
 
@@ -10,7 +27,7 @@ encounterSummaryRoute.get(
   '/:encounterId',
   asyncHandler(async (req, res) => {
     const { encounterId } = req.params;
-    req.checkPermission('write', 'Discharge');
+    req.checkPermission('read', 'EncounterSummary');
 
     const { AiDocument } = req.models;
     const existing = await AiDocument.findOne({
@@ -28,7 +45,7 @@ encounterSummaryRoute.post(
     const { encounterId } = req.params;
     const { deviceId } = req;
 
-    req.checkPermission('write', 'Discharge');
+    req.checkPermission('create', 'EncounterSummary');
 
     const { Encounter } = req.models;
     const encounterExists = await Encounter.count({ where: { id: encounterId } });
@@ -50,7 +67,7 @@ encounterSummaryRoute.post(
 encounterSummaryRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Discharge');
+    req.checkPermission('write', 'EncounterSummary');
 
     const { AiDocument } = req.models;
     // ai_documents has a composite primary key, so look up by the unique generated id
@@ -59,15 +76,11 @@ encounterSummaryRoute.put(
       throw new NotFoundError('AI document not found');
     }
 
-    const { content, status } = req.body;
-    const updateFields = { source: 'human' };
-    if (status === 'discarded') {
-      updateFields.status = 'discarded';
-      updateFields.content = null;
-    } else {
-      updateFields.status = 'edited';
-      updateFields.content = content;
-    }
+    const parsed = updateBodySchema.parse(req.body);
+    const updateFields =
+      parsed.status === 'discarded'
+        ? { status: 'discarded', content: null, source: 'human' }
+        : { status: 'edited', content: parsed.content, source: 'human' };
     await doc.update(updateFields);
 
     res.send(doc.forResponse());
