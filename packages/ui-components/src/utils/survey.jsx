@@ -11,11 +11,7 @@ import {
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import {
-  ageInMonths,
-  ageInWeeks,
-  ageInYears,
-} from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
 import { notify } from './notify';
 
@@ -232,9 +228,13 @@ export function getFormInitialValues({
 }
 
 export const getAnswersFromData = async (data, survey) => {
+  const componentsByDataElementId = new Map(
+    survey.components.map(component => [component.dataElement.id, component]),
+  );
+
   const answers = {};
   for (const [key, val] of Object.entries(data)) {
-    const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
+    const currentComponent = componentsByDataElementId.get(key);
     const currentDataElementType = currentComponent?.dataElement?.type;
     if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
       try {
@@ -245,7 +245,7 @@ export const getAnswersFromData = async (data, survey) => {
         toast.error(e.message);
         throw e;
       }
-    } else if (currentDataElementType !== 'PatientIssue') {
+    } else if (currentDataElementType !== PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE) {
       answers[key] = val;
     }
   }
