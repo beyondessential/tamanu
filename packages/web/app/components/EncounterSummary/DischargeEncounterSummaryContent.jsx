@@ -35,10 +35,7 @@ import {
 
 const SectionTitle = () => (
   <SectionLabel>
-    <TranslatedText
-      stringId="discharge.encounterSummary.label"
-      fallback="Encounter summary"
-    />
+    <TranslatedText stringId="discharge.encounterSummary.label" fallback="Encounter summary" />
   </SectionLabel>
 );
 
@@ -117,11 +114,7 @@ export const DischargeEncounterSummaryContent = ({ encounterId }) => {
             >
               <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
             </CancelButton>
-            <SaveButton
-              onClick={handleSave}
-              disabled={isBusy}
-              data-testid="encounter-summary-save"
-            >
+            <SaveButton onClick={handleSave} disabled={isBusy} data-testid="encounter-summary-save">
               <TranslatedText stringId="general.action.save" fallback="Save" />
             </SaveButton>
           </EditActions>
@@ -191,6 +184,18 @@ export const DischargeEncounterSummaryContent = ({ encounterId }) => {
         )}
       </Body>
       <DiscardAiSummaryConfirmModal
+        title={
+          <TranslatedText
+            stringId="ai.encounterSummary.discardModal.title"
+            fallback="Discard AI encounter summary"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="ai.encounterSummary.discardModal.text"
+            fallback="Are you sure you would like to discard the AI encounter summary? You can regenerate a new AI summary at any time."
+          />
+        }
         open={isDiscardConfirmOpen}
         onCancel={() => setIsDiscardConfirmOpen(false)}
         onConfirm={handleConfirmDiscard}
