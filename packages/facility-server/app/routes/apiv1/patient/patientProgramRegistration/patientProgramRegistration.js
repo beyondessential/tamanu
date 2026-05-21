@@ -139,15 +139,69 @@ patientProgramRegistration.put(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    const conditionsData = conditions.map(condition => ({
-      id: condition.id,
-      patientProgramRegistrationId: existingRegistration.id,
-      clinicianId: registrationData.clinicianId,
-      date: condition.date,
-      programRegistryConditionId: condition.conditionId,
-      programRegistryConditionCategoryId: condition.conditionCategoryId,
-      reasonForChange: condition.reasonForChange,
-    }));
+    const existingConditionIds = conditions.map(({ id: conditionId }) => conditionId).filter(Boolean);
+    const existingConditions =
+      existingConditionIds.length > 0
+        ? await models.PatientProgramRegistrationCondition.findAll({
+            where: {
+              id: {
+                [Op.in]: existingConditionIds,
+              },
+              patientProgramRegistrationId: existingRegistration.id,
+            },
+          })
+        : [];
+
+    const existingConditionMap = existingConditions.reduce((acc, condition) => {
+      acc[condition.id] = condition;
+      return acc;
+    }, {});
+
+    const conditionsData = conditions.flatMap(condition => {
+      const existingCondition = condition.id ? existingConditionMap[condition.id] : null;
+      const hasLegacyNewConditionShape = Boolean(condition.id) && !condition.conditionId;
+
+      // Existing row update: only persist if the category actually changed.
+      if (existingCondition) {
+        if (
+          existingCondition.programRegistryConditionCategoryId === condition.conditionCategoryId
+        ) {
+          return [];
+        }
+
+        return [
+          {
+            id: condition.id,
+            patientProgramRegistrationId: existingRegistration.id,
+            clinicianId: registrationData.clinicianId,
+            date: condition.date,
+            programRegistryConditionId:
+              condition.conditionId || existingCondition.programRegistryConditionId,
+            programRegistryConditionCategoryId: condition.conditionCategoryId,
+            reasonForChange: condition.reasonForChange,
+          },
+        ];
+      }
+
+      // New rows can come in either modern shape (conditionId) or legacy shape (id).
+      const programRegistryConditionId = hasLegacyNewConditionShape
+        ? condition.id
+        : condition.conditionId;
+      if (!programRegistryConditionId || !condition.conditionCategoryId) {
+        return [];
+      }
+
+      return [
+        {
+          patientProgramRegistrationId: existingRegistration.id,
+          clinicianId: registrationData.clinicianId,
+          date: condition.date,
+          programRegistryConditionId,
+          programRegistryConditionCategoryId: condition.conditionCategoryId,
+          reasonForChange: condition.reasonForChange,
+        },
+      ];
+    });
 
     const updatedRegistrationData = {
       ...registrationData,
@@ -163,12 +217,17 @@ patientProgramRegistration.put(
     }
 
     const [registration] = await db.transaction(async () => {
-      return Promise.all([
-        existingRegistration.update(updatedRegistrationData),
-        models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
-          updateOnDuplicate: ['date', 'programRegistryConditionCategoryId', 'reasonForChange'],
-        }),
-      ]);
+      const updates = [existingRegistration.update(updatedRegistrationData)];
+
+      if (conditionsData.length > 0) {
+        updates.push(
+          models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
+            updateOnDuplicate: ['date', 'programRegistryConditionCategoryId', 'reasonForChange'],
+          }),
+        );
+      }
+
+      return Promise.all(updates);
     });
 
     const responseObject = {

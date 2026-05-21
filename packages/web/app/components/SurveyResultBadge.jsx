@@ -12,10 +12,10 @@ const COLORS = {
   purple: '#971a1a',
 };
 
-const ColoredBadge = styled.div`
-  background: ${(p) => p.color};
+const Badge = styled.div`
   border-radius: 0.5rem;
   text-align: center;
+  text-wrap: balance;
 `;
 
 function separateColorText(resultText) {
@@ -42,8 +42,8 @@ export const SurveyResultBadge = ({ resultText }) => {
   }
   const { color, strippedResultText } = separateColorText(resultText);
   return (
-    <ColoredBadge color={color} data-testid="coloredbadge-y3r7">
+    <Badge data-testid="coloredbadge-y3r7" style={{ backgroundColor: color }}>
       {strippedResultText}
-    </ColoredBadge>
+    </Badge>
   );
 };
