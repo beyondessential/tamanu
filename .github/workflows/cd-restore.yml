@@ -163,11 +163,11 @@ jobs:
               sys.exit(result.returncode)
           PYEOF
 
-          echo "Waiting for restored cluster to become ready (up to 60 minutes)..."
+          echo "Waiting for restored cluster to become ready (up to 15 minutes)..."
           kubectl wait cluster/"$RESTORE_NAME" \
             -n "$NS" \
             --for=condition=Ready \
-            --timeout=3600s
+            --timeout=900s
 
           echo ""
           echo "Restored cluster '$RESTORE_NAME' is ready."
