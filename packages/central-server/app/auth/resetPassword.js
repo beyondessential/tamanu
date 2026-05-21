@@ -7,6 +7,7 @@ import { RateLimitedError } from '@tamanu/errors';
 import { COMMUNICATION_STATUSES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getRandomBase64String } from './utils';
+import { getDefaultFromAddress } from '../services/mailConfig';
 
 export const resetPassword = express.Router();
 
@@ -85,7 +86,7 @@ const sendResetEmail = async (emailService, user, token) => {
       tamanu.io`;
 
   const result = await emailService.sendEmail({
-    from: config.mailgun.from,
+    from: getDefaultFromAddress(),
     to: user.email,
     subject: 'Tamanu password reset',
     text: emailText,

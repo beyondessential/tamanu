@@ -16,12 +16,15 @@ import {
 } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface IOwnProps {
   selectedSurveyId: string;
 }
 
 export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) => {
+  const { getSetting } = useSettings();
+  const hideOtherSex = getSetting<boolean>('features.hideOtherSex') === true;
   const [recentVisitorsData] = useBackendEffect(
     ({ models }) => models.Patient.getRecentVisitors(selectedSurveyId),
     [selectedSurveyId],
@@ -34,6 +37,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
 
   const maleData = genderData?.find(item => item.gender === 'male');
   const femaleData = genderData?.find(item => item.gender === 'female');
+  const otherData = genderData?.find(item => item.gender === 'other');
   const youngData = ageData?.find(item => item.ageGroup === 'lessThanThirty');
   const oldData = ageData?.find(item => item.ageGroup === 'moreThanThirty');
   return (
@@ -115,6 +119,15 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   <DataCell>{femaleData?.totalVisitors || '0'}</DataCell>
                   <DataCell>{femaleData?.totalSurveys || '0'}</DataCell>
                 </Row>
+                {!hideOtherSex && (
+                  <Row>
+                    <DataCell>
+                      <TranslatedText stringId="patient.property.sex.other" fallback="Other" />
+                    </DataCell>
+                    <DataCell>{otherData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{otherData?.totalSurveys || '0'}</DataCell>
+                  </Row>
+                )}
               </Cell>
             </BorderRow>
           )}

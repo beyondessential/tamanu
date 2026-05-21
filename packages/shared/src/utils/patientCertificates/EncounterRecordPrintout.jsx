@@ -42,6 +42,7 @@ const textStyles = StyleSheet.create({
   tableColumnHeader: {
     fontWeight: 700,
     fontSize: 10,
+    marginBottom: 4,
   },
   tableCellContent: {
     fontSize: 10,
@@ -258,37 +259,77 @@ const TableSection = ({ title, data, columns, type }) => {
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime } = useDateTime();
-  return (
-    <Text style={textStyles.tableCellFooter}>
-      {[
-        note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN &&
-          `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
-        note.author?.displayName,
-        note.onBehalfOf &&
-          getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            replacements: {
-              changeOnBehalfOfName: note.onBehalfOf.displayName,
-            },
-          }),
-        formatShortDateTime(note.date),
-      ]
-        .filter(Boolean)
-        .join(' ')}
-    </Text>
+  const isTreatmentPlan = note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
+
+  // For non-TREATMENT_PLAN notes we want to show the original author and date;
+  // the revisedBy association points at the root note when the current record
+  // is a later revision. TREATMENT_PLAN keeps its existing "last updated" behaviour.
+  const originalAuthor =
+    !isTreatmentPlan && note.revisedBy?.author ? note.revisedBy.author : note.author;
+  const originalOnBehalf =
+    !isTreatmentPlan && note.revisedBy ? note.revisedBy.onBehalfOf : note.onBehalfOf;
+  const originalDate =
+    !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
+
+  const baseLine = [
+    isTreatmentPlan && `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
+    originalAuthor?.displayName,
+    originalOnBehalf &&
+      getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+        replacements: {
+          changeOnBehalfOfName: originalOnBehalf.displayName,
+        },
+      }),
+    formatShortDateTime(originalDate),
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const editCount = !isTreatmentPlan ? note.editCount ?? 0 : 0;
+  if (editCount <= 0) {
+    return <Text style={textStyles.tableCellFooter}>{baseLine}</Text>;
+  }
+
+  const editTimes =
+    editCount === 1
+      ? getTranslation('pdf.encounterRecord.notes.editedOnce', '1 time')
+      : getTranslation('pdf.encounterRecord.notes.editedTimes', ':count times', {
+          replacements: { count: editCount },
+        });
+  const lastEditor = [
+    note.author?.displayName,
+    note.onBehalfOf &&
+      getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+        replacements: {
+          changeOnBehalfOfName: note.onBehalfOf.displayName,
+        },
+      }),
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const editSuffix = getTranslation(
+    'pdf.encounterRecord.notes.editedSuffix',
+    ' — Edited :times, last by :editor at :date',
+    {
+      replacements: {
+        times: editTimes,
+        editor: lastEditor,
+        date: formatShortDateTime(note.date),
+      },
+    },
   );
+
+  return <Text style={textStyles.tableCellFooter}>{`${baseLine}${editSuffix}`}</Text>;
 };
-const NotesMultipageCellPadding = () => {
-  let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
+const NoteTypeHeading = ({ note }) => {
+  const { getTranslation } = useLanguageContext();
   return (
-    <View
-      fixed
-      render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurrence && subPageNumber) {
-          firstPageOccurrence = pageNumber;
-        }
-        return pageNumber !== firstPageOccurrence && <View style={{ paddingBottom: 7 }} />;
-      }}
-    />
+    <Text bold style={textStyles.tableColumnHeader}>
+      {getTranslation(
+        getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
+        note.noteTypeReference?.name || note.noteTypeId,
+      )}
+    </Text>
   );
 };
 
@@ -301,43 +342,18 @@ const NotesSection = ({ notes }) => {
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
           {notes.map(note => (
-            <>
+            <React.Fragment key={note.id}>
               <View minPresenceAhead={80} />
-              <View style={tableStyles.notesRow} key={note.id}>
-                <View
-                  style={{
-                    borderTop: borderStyle,
-                    position: 'absolute',
-                    top: -1,
-                    right: 0,
-                    left: 0,
-                  }}
-                  fixed
-                />
+              <View style={tableStyles.notesRow}>
                 <NotesCell>
-                  <NotesMultipageCellPadding />
-                  <MultipageTableHeading
-                    title={getTranslation(
-                      getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
-                      note.noteTypeReference?.name || note.noteTypeId,
-                    )}
-                    style={textStyles.tableColumnHeader}
-                  />
-                  <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
+                  <NoteTypeHeading note={note} />
+                  <View style={{ width: '100%', marginBottom: 10 }}>
+                    <Text style={textStyles.tableCellContent}>{note.content}</Text>
+                  </View>
                   <NoteFooter note={note} />
-                  <View
-                    style={{
-                      borderBottom: borderStyle,
-                      position: 'absolute',
-                      bottom: -1,
-                      right: -1,
-                      left: -1,
-                    }}
-                    fixed
-                  />
                 </NotesCell>
               </View>
-            </>
+            </React.Fragment>
           ))}
         </Table>
       </View>

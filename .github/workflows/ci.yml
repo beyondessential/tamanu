@@ -34,6 +34,31 @@ env:
     packages/utils/dist
 
 jobs:
+  plan:
+    name: Plan CI
+    runs-on: ubuntu-latest
+    outputs:
+      test-matrix: ${{ steps.plan.outputs.test-matrix }}
+      migrations-matrix: ${{ steps.plan.outputs.migrations-matrix }}
+      run-test: ${{ steps.plan.outputs.run-test }}
+      run-migrations: ${{ steps.plan.outputs.run-migrations }}
+      run-mobile: ${{ steps.plan.outputs.run-mobile }}
+      run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
+      run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
+      run-build-shared: ${{ steps.plan.outputs.run-build-shared }}
+      allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+      - name: Plan
+        id: plan
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/plan-ci.mjs
+
   node_version:
     name: Check node version consistency
     runs-on: ubuntu-latest
@@ -81,7 +106,8 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   build_shared_cache:
-    needs: node_modules_cache
+    needs: [plan, node_modules_cache]
+    if: needs.plan.outputs.run-build-shared == 'true'
     name: Build shared packages
     runs-on: ubuntu-latest
     steps:
@@ -112,37 +138,11 @@ jobs:
           path: ${{ env.BUILD_SHARED_PATHS }}
 
   test:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-test == 'true'
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - { package: "@tamanu/facility-server", shard: 1/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 2/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 3/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 4/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 5/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 6/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 7/8, postgres: 17 }
-          - { package: "@tamanu/facility-server", shard: 8/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 1/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 2/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 3/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 4/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 5/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 6/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 7/8, postgres: 17 }
-          - { package: "@tamanu/central-server",  shard: 8/8, postgres: 17 }
-          - { package: "@tamanu/database",                    postgres: 12 }
-          - { package: "@tamanu/database",                    postgres: 14 }
-          - { package: "@tamanu/database",                    postgres: 16 }
-          - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/database",                    postgres: 18 }
-          - { package: "@tamanu/settings"                                  }
-          - { package: "@tamanu/shared"                                    }
-          - { package: "@tamanu/upgrade"                                   }
-          - { package: "@tamanu/utils"                                     }
-          - { package: "@tamanu/web-frontend"                              }
+      matrix: ${{ fromJSON(needs.plan.outputs.test-matrix) }}
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -225,19 +225,11 @@ jobs:
         run: npm run lint-all
 
   migrations:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-migrations == 'true'
     strategy:
       fail-fast: false
-      matrix:
-        server:
-          - central-server
-          - facility-server
-        postgres:
-          - '12'
-          - '14'
-          - '15'
-          - '16'
-          - '17'
+      matrix: ${{ fromJSON(needs.plan.outputs.migrations-matrix) }}
 
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
@@ -268,7 +260,8 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-mobile == 'true'
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
@@ -294,7 +287,8 @@ jobs:
         working-directory: packages/mobile
 
   test-facility-offline:
-    needs: node_modules_cache
+    needs: [plan, node_modules_cache]
+    if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
@@ -313,7 +307,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 18
           .github/scripts/test-facility-offline.sh setup-postgres
       - name: Build central and facility servers
         run: .github/scripts/test-facility-offline.sh build
@@ -346,7 +340,8 @@ jobs:
       - run: git diff --exit-code
 
   dbt-model:
-    needs: [node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build_shared_cache]
+    if: needs.plan.outputs.run-dbt-model == 'true'
     name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
@@ -368,7 +363,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 17
+          source .github/scripts/install-postgres-ubuntu.sh 18
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
@@ -399,7 +394,11 @@ jobs:
 
       - name: Check model is valid (ie that docs can generate)
         run: |
-          pip3 install dbt-core dbt-postgres
+          pip3 install \
+            "dbt-core==1.10.13" \
+            "dbt-postgres==1.9.1" \
+            "dbt-adapters==1.16.7" \
+            "dbt-common==1.35.0"
           npm run dbt-generate-docs
 
   dbt-todos:
@@ -437,6 +436,7 @@ jobs:
     if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
+      - plan
       - node_version
       - build_shared_cache
       - test
@@ -454,3 +454,4 @@ jobs:
       - uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
+          allowed-skips: ${{ needs.plan.outputs.allowed-skips }}

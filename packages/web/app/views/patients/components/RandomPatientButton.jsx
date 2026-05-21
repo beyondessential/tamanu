@@ -6,16 +6,23 @@ import { useSettings } from '../../../contexts/Settings';
 
 const makeRandomPatient = (generateId) => {
   const chance = new Chance();
-  const gender = chance.pickone(['male', 'female']);
-  const title = gender === 'male' ? 'Mr' : chance.pickone(['Mrs', 'Ms']);
-  const firstName = chance.first({ gender });
+  const gender = chance.pickone(['male', 'female', 'other']);
+  let title;
+  if (gender === 'male') {
+    title = 'Mr';
+  } else if (gender === 'female') {
+    title = chance.pickone(['Mrs', 'Ms']);
+  } else {
+    title = chance.pickone(['Mr', 'Mrs', 'Ms', 'Dr']);
+  }
+  const firstName = chance.first(gender !== 'other' ? { gender } : undefined);
   const lastName = chance.last();
   return {
     displayId: generateId(),
     firstName,
     lastName,
     culturalName: chance.bool({ likelihood: 30 }) ? chance.last() : '',
-    middleName: chance.bool({ likelihood: 60 }) ? chance.first({ gender }) : '',
+    middleName: chance.bool({ likelihood: 60 }) ? chance.first(gender !== 'other' ? { gender } : undefined) : '',
     sex: gender,
     dateOfBirth: chance.birthday(),
     email: `${firstName}.${lastName}@randompatient.tamanu.io`.toLowerCase(),
