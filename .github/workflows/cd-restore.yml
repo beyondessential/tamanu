@@ -68,10 +68,10 @@ jobs:
             exit 1
           fi
 
-          NS="tamanu-$DEPLOY_NAME"
-          CLUSTER="$INPUT_CLUSTER-db"
-          RESTORE_NAME="${CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)"
-          OBJECT_STORE="${CLUSTER}-object-store"
+          export NS="tamanu-$DEPLOY_NAME"
+          export CLUSTER="$INPUT_CLUSTER-db"
+          export RESTORE_NAME="${CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)"
+          export OBJECT_STORE="${CLUSTER}-object-store"
 
           echo "Restoring '$CLUSTER' in namespace '$NS' as '$RESTORE_NAME'"
           echo "Recovery target time: '${RECOVERY_TARGET_TIME:-<latest>}'"
@@ -79,6 +79,7 @@ jobs:
           # Fetch the source cluster's storage size.
           # kubectl jsonpath returns an empty string (not an error) when the
           # field is missing, so explicitly fall back to 10Gi in that case too.
+          export STORAGE_SIZE
           STORAGE_SIZE=$(kubectl get cluster "$CLUSTER" -n "$NS" \
             -o jsonpath='{.spec.storage.size}' 2>/dev/null || true)
           STORAGE_SIZE="${STORAGE_SIZE:-10Gi}"
