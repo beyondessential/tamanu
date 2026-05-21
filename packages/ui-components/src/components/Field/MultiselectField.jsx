@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { createFilter } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import FormHelperText from '@mui/material/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { TAMANU_COLORS } from '../../constants';

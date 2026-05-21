@@ -6,7 +6,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
-import { FormHelperText } from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
 import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
 import { CheckControl } from './CheckField';
 
