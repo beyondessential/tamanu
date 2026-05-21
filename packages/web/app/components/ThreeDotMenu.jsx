@@ -1,21 +1,7 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Colors } from '../constants';
-
-const ThreeDotMenuItem = styled(MenuItem)`
-  font-size: 11px;
-  line-height: 15px;
-  border-radius: 4px;
-  padding: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
-  white-space: normal;
-  ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
-    background: ${Colors.veryLightBlue};
-  }
-`;
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
 const StyledMenu = styled(Menu)`
   & .MuiList-padding {
@@ -74,14 +60,14 @@ export const ThreeDotMenu = ({ items, disabled, className }) => {
         {items.map(
           (item, index) =>
             !item.hidden && (
-              <ThreeDotMenuItem
+              <MenuItem
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
                 data-testid={`menuitem-${index}`}
               >
                 {item.label}
-              </ThreeDotMenuItem>
+              </MenuItem>
             ),
         )}
       </StyledMenu>
