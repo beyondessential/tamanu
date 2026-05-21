@@ -103,6 +103,7 @@ describe('Sync Patient Merge', () => {
     await models.Note.truncate({ cascade: true, force: true });
     await models.Patient.truncate({ cascade: true, force: true });
     await models.LocalSystemFact.truncate({ cascade: true, force: true });
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '0');
     await models.Department.truncate({ cascade: true, force: true });
     await models.Location.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
