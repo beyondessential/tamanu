@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
-  ENCOUNTER_TYPES,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   NOTE_TYPES,
   MAX_REPEATS,
@@ -26,7 +25,7 @@ import {
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-import { Colors } from '../constants';
+import { Colors, PATIENT_STATUS } from '../constants';
 import {
   AutocompleteField,
   DefaultFormScreen,
@@ -46,6 +45,7 @@ import { TranslatedText, TranslatedReferenceData } from '../components/Translati
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
+import { getPatientStatus } from '../utils/getPatientStatus';
 import { useTranslation } from '../contexts/Translation';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
@@ -419,7 +419,7 @@ const EncounterOverview = ({
   const { getSetting } = useSettings();
   const dischargeDiagnosisMandatory =
     getSetting('features.discharge.dischargeDiagnosisMandatory') &&
-    encounterType !== ENCOUNTER_TYPES.CLINIC;
+    getPatientStatus(encounterType) !== PATIENT_STATUS.OUTPATIENT;
 
   return (
     <>
@@ -526,7 +526,7 @@ const DischargeFormScreen = props => {
 
   const dischargeDiagnosisMandatory =
     getSetting('features.discharge.dischargeDiagnosisMandatory') &&
-    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
+    getPatientStatus(encounter.encounterType) !== PATIENT_STATUS.OUTPATIENT;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {
