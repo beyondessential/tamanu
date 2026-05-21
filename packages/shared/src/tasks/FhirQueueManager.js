@@ -165,7 +165,10 @@ export class FhirQueueManager {
 
     // using allSettled to avoid 'uncaught promise rejection' errors
     // and setImmediate to avoid growing the stack
-    setImmediate(() => Promise.allSettled([this.processQueue(topic)])).unref();
+    setImmediate(() => {
+      if (this.pendingCrash) return;
+      Promise.allSettled([this.processQueue(topic)]);
+    }).unref();
   }
 
   // If we've been processing jobs but haven't received NOTIFYs for them,
@@ -191,12 +194,15 @@ export class FhirQueueManager {
       sinceLastJobMs: sinceLastJob,
     });
 
-    // processor.stop() returns null when no jobs are in flight; Promise.all
-    // treats nulls as already-resolved, so this works whether processors are
-    // mid-job or idle.
-    await Promise.all(Array.from(this.queueProcessors.values()).map(p => p.stop()));
-
-    this.log.error('FhirQueueManager: drained, exiting for restart');
+    try {
+      // processor.stop() returns null when no jobs are in flight; Promise.all
+      // treats nulls as already-resolved, so this works whether processors are
+      // mid-job or idle.
+      await Promise.all(Array.from(this.queueProcessors.values()).map(p => p.stop()));
+      this.log.error('FhirQueueManager: drained, exiting for restart');
+    } catch (err) {
+      this.log.error('FhirQueueManager: error during drain, exiting anyway', { err });
+    }
     process.exit(1);
   }
 
