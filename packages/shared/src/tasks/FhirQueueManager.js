@@ -62,6 +62,13 @@ export class FhirQueueManager {
           totalJobs: this.worker.metadata.totalJobs || 0,
         });
         await this.worker.heartbeat();
+
+        // Backstop in case a NOTIFY was missed (e.g. during pg-notify
+        // reconnect): poke every registered topic so the next heartbeat
+        // tick is the worst-case latency for picking up a queued job.
+        for (const topic of this.queueProcessors.keys()) {
+          this.processQueueNow(topic);
+        }
       } catch (err) {
         this.log.error('FhirQueueManager: heartbeat failed', { err });
       }
