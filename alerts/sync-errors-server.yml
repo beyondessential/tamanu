@@ -12,6 +12,13 @@ sql: |
     AND errors IS NOT NULL
     -- Transient Postgres serialisation failure: the next cycle re-runs.
     AND errors <> ARRAY['could not serialize access due to concurrent update']
+    -- "snapshot-for-pushing" errors are a deliberate restart of the sync cycle when a
+    -- pulled record was edited locally mid-session; the next cycle picks it up. Only
+    -- worth surfacing if it happens repeatedly — see sync-restart-loop.yml for that.
+    AND NOT (
+      cardinality(errors) = 1
+      AND errors[1] LIKE '%snapshot-for-pushing%'
+    )
   ORDER BY created_at DESC
 
 send:
