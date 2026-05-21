@@ -49,21 +49,22 @@ const StyledTab = styled.div.attrs({ role: 'tab' })`
   &[data-dragging='true'] {
     opacity: 0.5;
   }
-
-  && i:first-child {
-    margin-bottom: 0;
-    font-size: 22px;
-  }
 `;
 
 const Icon = styled.i.attrs({ 'aria-hidden': true })`
-  margin-right: 5px;
   color: ${Colors.softText};
+  font-size: 22px;
+  margin-bottom: 0;
+  margin-right: 5px;
 
   [aria-selected='true'] & {
     color: ${Colors.primary};
   }
 `;
+
+function getTabId(key) {
+  return key ? `tab-${key}` : undefined;
+}
 
 function getTabPanelId(key) {
   return key ? `tabpanel-${key}` : undefined;
@@ -119,6 +120,7 @@ export const TabDisplayDraggable = ({
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={provided.draggableProps.style}
+                      id={getTabId(key)}
                       onClick={() => render && onTabSelect(key)}
                       aria-controls={getTabPanelId(key)}
                       aria-selected={currentTabData?.key === key}
@@ -137,7 +139,11 @@ export const TabDisplayDraggable = ({
             </TabContainer>
           )}
         </Droppable>
-        <div id={getTabPanelId(currentTabData?.key)} role="tabpanel">
+        <div
+          aria-labelledby={getTabId(currentTabData?.key)}
+          id={getTabPanelId(currentTabData?.key)}
+          role="tabpanel"
+        >
           {currentTabData?.render(tabProps)}
         </div>
       </TabBar>
