@@ -41,6 +41,7 @@ const indicatorColumn = {
     <TranslatedText stringId="surveyResponse.details.table.column.indicator" fallback="Indicator" />
   ),
   accessor: ({ name }) => name,
+  sortable: false,
 };
 
 const isShowable = component =>
@@ -102,6 +103,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
             {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
           </>
         ),
+        sortable: false,
       },
     ],
     [],
