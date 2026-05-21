@@ -6,7 +6,6 @@ import { chance } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-
 import { createTestContext } from '../utilities';
 
 let baseApp = null;
