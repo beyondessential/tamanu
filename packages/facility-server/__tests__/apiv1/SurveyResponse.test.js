@@ -546,8 +546,9 @@ describe('SurveyResponse', () => {
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
         .send(
           buildPatchBody({
-            facilityId,
             answers: { [answer.dataElementId]: 'x' },
+            editedTime: undefined,
+            facilityId,
           }),
         );
       expect(missing).toHaveStatus(422);
@@ -556,9 +557,9 @@ describe('SurveyResponse', () => {
       const invalid = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
         .send({
-          facilityId,
-          editedTime: 'not-a-datetime',
           answers: { [answer.dataElementId]: 'x' },
+          editedTime: 'not-a-datetime',
+          facilityId,
         });
       expect(invalid).toHaveStatus(422);
       expect(invalid.body.error.message).toBe('editedTime is invalid');
@@ -722,6 +723,517 @@ describe('SurveyResponse', () => {
 
       await response.reload();
       expect(response.editedTime).toBeFalsy();
+    });
+  });
+
+  describe('program survey PATCH CalculatedQuestion answers', () => {
+    const INPUT_CODE = 'PATCH_CALC_INPUT';
+    const CALC_CODE = 'PATCH_CALC_CALC';
+
+    const setupProgramSurveyWithCalculated = async ({ inputBody, calculatedBody } = {}) => {
+      const {
+        Facility,
+        Location,
+        Department,
+        Patient,
+        User,
+        Encounter,
+        Program,
+        Survey,
+        SurveyResponse,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponseAnswer,
+      } = models;
+
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
+      const examiner = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: examiner.id,
+      });
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+        surveyType: SURVEY_TYPES.PROGRAMS,
+      });
+      const response = await SurveyResponse.create({
+        ...fake(SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+
+      const inputElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+        code: INPUT_CODE,
+      });
+      const calculatedElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+        code: CALC_CODE,
+      });
+
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        screenIndex: 0,
+        componentIndex: 0,
+        dataElementId: inputElement.id,
+        surveyId: survey.id,
+        calculation: '',
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        screenIndex: 0,
+        componentIndex: 1,
+        dataElementId: calculatedElement.id,
+        surveyId: survey.id,
+        calculation: `${INPUT_CODE} * 2`,
+      });
+
+      if (inputBody !== undefined) {
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: inputElement.id,
+          responseId: response.id,
+          body: String(inputBody),
+        });
+      }
+      if (calculatedBody !== undefined) {
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: calculatedElement.id,
+          responseId: response.id,
+          body: calculatedBody,
+        });
+      }
+
+      return {
+        facilityId: facility.id,
+        response,
+        inputElement,
+        calculatedElement,
+      };
+    };
+
+    const getCalculatedAnswer = async (responseId, calculatedElementId) =>
+      models.SurveyResponseAnswer.findOne({
+        where: { responseId, dataElementId: calculatedElementId },
+      });
+
+    it('should not mark a response as edited when an empty calculated answer stays empty', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: null,
+            [calculatedElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeFalsy();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer).toBeFalsy();
+    });
+
+    it('should not mark a response as edited when calculated answer is unchanged (including 0)', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated({ inputBody: 0, calculatedBody: '0.0' });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: 0,
+            [calculatedElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer?.body).toBe('0.0');
+      expect(calculatedAnswer?.editedTime).toBeFalsy();
+    });
+
+    it('should mark a response as edited when a calculated answer changes from one value to another', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated({ inputBody: 5, calculatedBody: '10.0' });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: 10 },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer?.body).toBe('20.0');
+      expect(calculatedAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should mark a response as edited when a calculated answer changes from a value to empty', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated({ inputBody: 5, calculatedBody: '10.0' });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: null },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer?.body).toBe('');
+      expect(calculatedAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should mark a response as edited when a calculated answer changes from empty to a value', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: 3 },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer?.body).toBe('6.0');
+      expect(calculatedAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should treat null and empty string stored bodies as equivalent when recalculating to empty', async () => {
+      const { facilityId, response, inputElement, calculatedElement } =
+        await setupProgramSurveyWithCalculated({ calculatedBody: '' });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: null,
+            [calculatedElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeFalsy();
+
+      const calculatedAnswer = await getCalculatedAnswer(response.id, calculatedElement.id);
+      expect(calculatedAnswer?.body).toBe('');
+      expect(calculatedAnswer?.editedTime).toBeFalsy();
+    });
+  });
+
+  describe('program survey PATCH Result answers', () => {
+    const INPUT_CODE = 'PATCH_RESULT_INPUT';
+    const CALC_CODE = 'PATCH_RESULT_CALC';
+    const RESULT_CODE = 'PATCH_RESULT_RESULT';
+
+    const setupProgramSurveyWithResult = async ({ inputBody, calculatedBody, resultBody } = {}) => {
+      const {
+        Facility,
+        Location,
+        Department,
+        Patient,
+        User,
+        Encounter,
+        Program,
+        Survey,
+        SurveyResponse,
+        ProgramDataElement,
+        SurveyScreenComponent,
+        SurveyResponseAnswer,
+      } = models;
+
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
+      const examiner = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: examiner.id,
+      });
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+        surveyType: SURVEY_TYPES.PROGRAMS,
+      });
+      const response = await SurveyResponse.create({
+        ...fake(SurveyResponse),
+        surveyId: survey.id,
+        encounterId: encounter.id,
+      });
+
+      const inputElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
+        code: INPUT_CODE,
+      });
+      const calculatedElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+        code: CALC_CODE,
+      });
+      const resultElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+        code: RESULT_CODE,
+      });
+
+      // runCalculations runs in component order; the result formula depends on the calculated value.
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        screenIndex: 0,
+        componentIndex: 0,
+        dataElementId: inputElement.id,
+        surveyId: survey.id,
+        calculation: '',
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        screenIndex: 0,
+        componentIndex: 1,
+        dataElementId: calculatedElement.id,
+        surveyId: survey.id,
+        calculation: `${INPUT_CODE} * 2`,
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        screenIndex: 0,
+        componentIndex: 2,
+        dataElementId: resultElement.id,
+        surveyId: survey.id,
+        calculation: CALC_CODE,
+      });
+
+      if (inputBody !== undefined) {
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: inputElement.id,
+          responseId: response.id,
+          body: String(inputBody),
+        });
+      }
+      if (calculatedBody !== undefined) {
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: calculatedElement.id,
+          responseId: response.id,
+          body: calculatedBody,
+        });
+      }
+      if (resultBody !== undefined) {
+        await SurveyResponseAnswer.create({
+          ...fake(SurveyResponseAnswer),
+          dataElementId: resultElement.id,
+          responseId: response.id,
+          body: resultBody,
+        });
+      }
+
+      return {
+        facilityId: facility.id,
+        response,
+        inputElement,
+        calculatedElement,
+        resultElement,
+      };
+    };
+
+    const getResultAnswer = async (responseId, resultElementId) =>
+      models.SurveyResponseAnswer.findOne({
+        where: { responseId, dataElementId: resultElementId },
+      });
+
+    it('should not mark a response as edited when an empty result answer stays empty', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: null,
+            [resultElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeFalsy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer).toBeFalsy();
+    });
+
+    it('should not mark a response as edited when result answer is unchanged (including 0)', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult({
+          inputBody: 0,
+          calculatedBody: '0.0',
+          resultBody: '0',
+        });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: 0,
+            [resultElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeFalsy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer?.body).toBe('0');
+      expect(resultAnswer?.editedTime).toBeFalsy();
+    });
+
+    it('should mark a response as edited when a result answer changes from one value to another', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult({
+          inputBody: 5,
+          calculatedBody: '10.0',
+          resultBody: '10',
+        });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: 10 },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer?.body).toBe('20');
+      expect(resultAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should mark a response as edited when a result answer changes from a value to empty', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult({
+          inputBody: 5,
+          calculatedBody: '10.0',
+          resultBody: '10',
+        });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: null },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer?.body).toBe('');
+      expect(resultAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should mark a response as edited when a result answer changes from empty to a value', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [inputElement.id]: 3 },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeTruthy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer?.body).toBe('6');
+      expect(resultAnswer?.editedTime).toBeTruthy();
+    });
+
+    it('should treat null and empty string stored result bodies as equivalent when recalculating to empty', async () => {
+      const { facilityId, response, inputElement, resultElement } =
+        await setupProgramSurveyWithResult({
+          resultBody: '',
+        });
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: {
+            [inputElement.id]: null,
+            [resultElement.id]: null,
+          },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      await response.reload();
+      expect(response.editedTime).toBeFalsy();
+
+      const resultAnswer = await getResultAnswer(response.id, resultElement.id);
+      expect(resultAnswer?.body).toBe('');
+      expect(resultAnswer?.editedTime).toBeFalsy();
     });
   });
 

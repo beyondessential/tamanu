@@ -67,6 +67,30 @@ async function getBodyForAnswer(dataElementType, value, models) {
   return getStringValue(dataElementType, value);
 }
 
+/** @param {string | null | undefined} body */
+function isEmpty(body) {
+  return body == null || body === '';
+}
+
+/**
+ * @param {string | null | undefined} a
+ * @param {string | null | undefined} b
+ */
+function isEquivalent(a, b) {
+  return a === b || (isEmpty(a) && isEmpty(b));
+}
+
+/** Omit existing calculated/result bodies so a cleared input does not leave stale values. */
+function rerunCalculations(components, mergedAnswerValues) {
+  const valuesForCalculation = { ...mergedAnswerValues };
+  for (const component of components) {
+    if (component.calculation) {
+      delete valuesForCalculation[component.dataElementId];
+    }
+  }
+  return runCalculations(components, valuesForCalculation);
+}
+
 async function createPatientIssues(models, questions, patientId, recordedDate) {
   if (!models.PatientIssue.sequelize.isInsideTransaction()) {
     throw new UsageError('createPatientIssues must always run inside a transaction!');
@@ -513,22 +537,41 @@ surveyResponse.patch(
 
       for (const [dataElementId, value] of Object.entries(patchedAnswers)) {
         if (!validDataElementIds.has(dataElementId)) {
-          throw new InvalidOperationError('Some components are missing from the survey');
+          throw new InvalidOperationError(
+            `Program data element ${dataElementId} is not part of survey ${survey.id}`,
+          );
         }
 
-        if (value === null) continue;
-
         const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
+
+        // Null in the patch means "no answer" for user-editable fields. Calculated/result values
+        // are recalculated below; null there is just the client echoing an empty calculated field.
+        if (value === null) {
+          if (
+            dataElementType === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED ||
+            dataElementType === PROGRAM_DATA_ELEMENT_TYPES.RESULT
+          ) {
+            continue;
+          }
+
+          mergedAnswerValues[dataElementId] = '';
+          const clearedAnswer = answerByDataElementId.get(dataElementId);
+          if (clearedAnswer && !isEquivalent(clearedAnswer.body, '')) {
+            await clearedAnswer.update({ body: '', editedTime });
+            hasMeaningfulChanges = true;
+          }
+          continue;
+        }
         const body = await getBodyForAnswer(dataElementType, value, models);
         if (body === null) continue;
 
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
-          if (existingAnswer.body !== body) {
+          if (!isEquivalent(existingAnswer.body, body)) {
             await existingAnswer.update({ body, editedTime });
             hasMeaningfulChanges = true;
           }
-        } else {
+        } else if (!isEmpty(body)) {
           const createdAnswer = await models.SurveyResponseAnswer.create({
             dataElementId,
             body,
@@ -536,29 +579,26 @@ surveyResponse.patch(
             editedTime,
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
-          if (body !== '') {
-            hasMeaningfulChanges = true;
-          }
+          hasMeaningfulChanges = true;
         }
         mergedAnswerValues[dataElementId] = body;
       }
 
-      // Recalculate calculated questions and persist them
-      const calculatedValues = runCalculations(components, mergedAnswerValues);
+      const calculatedValues = rerunCalculations(components, mergedAnswerValues);
       for (const [dataElementId, value] of Object.entries(calculatedValues)) {
         if (!validDataElementIds.has(dataElementId)) continue;
         const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
         const bodyValue = getStringValue(dataElementType, value) ?? '';
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
-          if (existingAnswer.body !== bodyValue) {
+          if (!isEquivalent(existingAnswer.body, bodyValue)) {
             await existingAnswer.update({
               body: bodyValue,
               editedTime,
             });
             hasMeaningfulChanges = true;
           }
-        } else {
+        } else if (!isEmpty(bodyValue)) {
           const newAnswer = await models.SurveyResponseAnswer.create({
             body: bodyValue,
             /**
@@ -571,7 +611,7 @@ surveyResponse.patch(
             responseId: params.id,
           });
           answerByDataElementId.set(dataElementId, newAnswer);
-          if (bodyValue !== '') hasMeaningfulChanges = true;
+          hasMeaningfulChanges = true;
         }
         mergedAnswerValues[dataElementId] = bodyValue;
       }
