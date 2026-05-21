@@ -1,19 +1,3 @@
-/**
- * @typedef {import('@tamanu/database').ChangeLog} ChangeLog
- * @typedef {import('@tamanu/database').ProgramDataElement} ProgramDataElement
- * @typedef {import('@tamanu/database').SurveyResponseAnswer} SurveyResponseAnswer
- * @typedef {import('@tamanu/database').User} User
- * @typedef {{
- *   id: ChangeLog['id'];
- *   recordId: ChangeLog['recordId'];
- *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
- *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
- *   updatedByUser: Pick<User, 'id' | 'displayName'>;
- *   from: SurveyResponseAnswer['body'];
- *   to: SurveyResponseAnswer['body'];
- * }} Change
- */
-
 import { subject } from '@casl/ability';
 import asyncHandler from 'express-async-handler';
 import { isEqual, isPlainObject } from 'lodash';
