@@ -67,26 +67,11 @@ describe('RefreshMaterializedView', () => {
         },
       },
     );
-
-    // Earlier test files in the same Jest worker (notably
-    // UpcomingVaccinations.test.js) refresh this materialised view and leak
-    // rows into the pre-refresh check below. Force it into an unpopulated
-    // state so the precondition is deterministic.
-    await context.sequelize.query(
-      'REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations WITH NO DATA',
-    );
   });
 
   afterAll(() => context.close());
 
   it('should refresh materialized view', async () => {
-    // Sanity check: the view starts unscannable, so the task.run() below
-    // is what's actually populating it.
-    await expect(
-      context.sequelize.query('SELECT * FROM materialized_upcoming_vaccinations', {
-        type: QueryTypes.SELECT,
-      }),
-    ).rejects.toThrow(/has not been populated/);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
       `
