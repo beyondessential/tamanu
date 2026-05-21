@@ -91,6 +91,19 @@ jobs:
             -o jsonpath='{.spec.serviceAccountTemplate.metadata.annotations.eks\.amazonaws\.com/role-arn}' \
             2>/dev/null || true)
 
+          # Inherit the exact PostgreSQL image from the source cluster's running
+          # status so the restore pod uses the same major version.  Using a
+          # different major version causes PostgreSQL to refuse to start because
+          # the on-disk data directory format is incompatible.
+          export IMAGE_NAME
+          IMAGE_NAME=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+            -o jsonpath='{.status.image}' 2>/dev/null || true)
+          # Fall back to spec.imageName if status not yet populated.
+          if [[ -z "$IMAGE_NAME" ]]; then
+            IMAGE_NAME=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+              -o jsonpath='{.spec.imageName}' 2>/dev/null || true)
+          fi
+
           # Build and apply the restore manifest using Python so that the
           # RECOVERY_TARGET_TIME value is JSON-encoded and never causes YAML
           # injection, regardless of what characters the user supplied.
@@ -103,6 +116,7 @@ jobs:
           object_store    = os.environ['OBJECT_STORE']
           storage_size    = os.environ['STORAGE_SIZE']
           irsa_role_arn   = os.environ.get('IRSA_ROLE_ARN', '').strip()
+          image_name      = os.environ.get('IMAGE_NAME', '').strip()
           pitr            = os.environ.get('RECOVERY_TARGET_TIME', '').strip()
 
           recovery = {'source': 'source'}
@@ -131,6 +145,7 @@ jobs:
               },
               'spec': {
                   'instances': 1,
+                  **(({'imageName': image_name}) if image_name else {}),
                   'bootstrap': {
                       'recovery': recovery,
                   },
