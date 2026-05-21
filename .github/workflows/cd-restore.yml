@@ -70,7 +70,7 @@ jobs:
 
           export NS="tamanu-$DEPLOY_NAME"
           export CLUSTER="$INPUT_CLUSTER-db"
-          export RESTORE_NAME="${CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)"
+          export RESTORE_NAME="${INPUT_CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)-db"
           export OBJECT_STORE="${CLUSTER}-object-store"
 
           echo "Restoring '$CLUSTER' in namespace '$NS' as '$RESTORE_NAME'"
