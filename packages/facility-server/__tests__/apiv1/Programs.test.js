@@ -1,10 +1,11 @@
 import config from 'config';
 
-import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { chance } from '@tamanu/fake-data/fake';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
 
@@ -285,6 +286,7 @@ describe('Programs', () => {
 
       const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`).send({
         facilityId,
+        editedTime: getCurrentDateTimeString(),
         answers: { [dataElementId]: 'patched-answer-value' },
       });
       expect(patch).toHaveSucceeded();
@@ -569,6 +571,7 @@ describe('Programs', () => {
           .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
           .send({
             facilityId,
+            editedTime: getCurrentDateTimeString(),
             answers: { [pdeId]: true },
           });
         expect(patch1).toHaveSucceeded();
@@ -577,6 +580,7 @@ describe('Programs', () => {
           .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
           .send({
             facilityId,
+            editedTime: getCurrentDateTimeString(),
             answers: { [pdeId]: true },
           });
         expect(patch2).toHaveSucceeded();

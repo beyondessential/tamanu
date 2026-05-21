@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAnswersFromData } from '@tamanu/ui-components';
+
+import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -12,13 +13,15 @@ export const useSurveyResponseEditMutation = (
 
   const api = useApi();
   const { facilityId } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async data =>
       await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
-        facilityId,
         answers: await getAnswersFromData(data, survey),
+        editedTime: getCurrentDateTime(),
+        facilityId,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries(['surveyResponse', surveyResponseId]);

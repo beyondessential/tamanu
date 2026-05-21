@@ -1,7 +1,10 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
+
+const buildPatchBody = overrides => ({ editedTime: getCurrentDateTimeString(), ...overrides });
 
 describe('SurveyResponse', () => {
   let app;
@@ -516,32 +519,60 @@ describe('SurveyResponse', () => {
 
       const missing = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({ facilityId });
+        .send(buildPatchBody({ facilityId }));
       expect(missing).toHaveStatus(422);
       expect(missing.body.error.message).toBe('answers is required');
 
       const nullAnswers = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({ facilityId, answers: null });
+        .send(buildPatchBody({ facilityId, answers: null }));
       expect(nullAnswers).toHaveStatus(422);
       expect(nullAnswers.body.error.message).toBe('answers is required');
 
       const stringAnswers = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({ facilityId, answers: 'not-an-object' });
+        .send(buildPatchBody({ facilityId, answers: 'not-an-object' }));
       expect(stringAnswers).toHaveStatus(422);
       expect(stringAnswers.body.error.message).toBe('answers is required');
+    });
+
+    it('should reject PATCH when editedTime is missing or invalid', async () => {
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const missing = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: 'x' },
+          }),
+        );
+      expect(missing).toHaveStatus(422);
+      expect(missing.body.error.message).toBe('editedTime is required');
+
+      const invalid = await app
+        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
+        .send({
+          facilityId,
+          editedTime: 'not-a-datetime',
+          answers: { [answer.dataElementId]: 'x' },
+        });
+      expect(invalid).toHaveStatus(422);
+      expect(invalid.body.error.message).toBe('editedTime is invalid');
     });
 
     it('should reject PATCH for a non-program survey', async () => {
       const { response, answer, facilityId } = await setupComplexChartSurvey();
 
-      const result = await app
-        .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
+      const result = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
           facilityId,
           answers: { [answer.dataElementId]: 'patched' },
-        });
+        }),
+      );
 
       expect(result).toHaveStatus(422);
       expect(result.body.error.message).toBe('Cannot edit survey responses');
@@ -559,10 +590,12 @@ describe('SurveyResponse', () => {
 
       const result = await baseApp
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
-          facilityId,
-          answers: { [answer.dataElementId]: 'x' },
-        });
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: 'x' },
+          }),
+        );
 
       expect(result).toHaveRequestError();
     });
@@ -580,10 +613,12 @@ describe('SurveyResponse', () => {
 
       const result = await restrictedApp
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
-          facilityId,
-          answers: { [answer.dataElementId]: 'x' },
-        });
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: 'x' },
+          }),
+        );
 
       expect(result).toBeForbidden();
     });
@@ -601,10 +636,12 @@ describe('SurveyResponse', () => {
 
       const result = await permittedApp
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
-          facilityId,
-          answers: { [answer.dataElementId]: 'patched-by-permitted-role' },
-        });
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: 'patched-by-permitted-role' },
+          }),
+        );
 
       expect(result).toHaveSucceeded();
       await answer.reload();
@@ -639,10 +676,12 @@ describe('SurveyResponse', () => {
       expect(patientRowBefore).not.toBeUndefined();
       expect(patientRowBefore.isEdited).toBeFalsy();
 
-      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [answer.dataElementId]: 'patched-for-isEdited-test' },
-      });
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: 'patched-for-isEdited-test' },
+        }),
+      );
       expect(patch).toHaveSucceeded();
 
       await response.reload();
@@ -673,10 +712,12 @@ describe('SurveyResponse', () => {
         facility.id,
       );
 
-      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [answer.dataElementId]: facility.id },
-      });
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: facility.id },
+        }),
+      );
       expect(patch).toHaveSucceeded();
 
       await response.reload();
@@ -697,10 +738,12 @@ describe('SurveyResponse', () => {
       });
       await response.update({ notified: true });
 
-      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [answer.dataElementId]: 'patched-for-notification-requeue' },
-      });
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: 'patched-for-notification-requeue' },
+        }),
+      );
       expect(patch).toHaveSucceeded();
 
       await response.reload();
@@ -716,10 +759,12 @@ describe('SurveyResponse', () => {
       await survey.update({ notifiable: false });
       await response.update({ notified: true });
 
-      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [answer.dataElementId]: 'patched-non-notifiable' },
-      });
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: 'patched-non-notifiable' },
+        }),
+      );
       expect(patch).toHaveSucceeded();
 
       await response.reload();
@@ -738,10 +783,12 @@ describe('SurveyResponse', () => {
       });
       await response.update({ notified: true });
 
-      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [answer.dataElementId]: answer.body },
-      });
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: answer.body },
+        }),
+      );
       expect(patch).toHaveSucceeded();
 
       await response.reload();
@@ -813,10 +860,12 @@ describe('SurveyResponse', () => {
       expect(encounterRowBefore).not.toBeUndefined();
       expect(encounterRowBefore.isEdited).toBeFalsy();
 
-      const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send({
-        facilityId,
-        answers: { [dataElement.id]: selectedFacility.id },
-      });
+      const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [dataElement.id]: selectedFacility.id },
+        }),
+      );
       expect(edit).toHaveSucceeded();
 
       const createdAnswer = await models.SurveyResponseAnswer.findOne({
@@ -863,19 +912,23 @@ describe('SurveyResponse', () => {
       // Edit away from the original value
       const editAway = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
-          facilityId,
-          answers: { [answer.dataElementId]: otherFacility.id },
-        });
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: otherFacility.id },
+          }),
+        );
       expect(editAway).toHaveSucceeded();
 
       // Edit back to the original value
       const editBack = await app
         .patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`)
-        .send({
-          facilityId,
-          answers: { [answer.dataElementId]: originalBody },
-        });
+        .send(
+          buildPatchBody({
+            facilityId,
+            answers: { [answer.dataElementId]: originalBody },
+          }),
+        );
       expect(editBack).toHaveSucceeded();
 
       await answer.reload();

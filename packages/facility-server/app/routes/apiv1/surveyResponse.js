@@ -43,7 +43,7 @@ import {
   getStringValue,
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
 export const surveyResponse = express.Router();
@@ -488,6 +488,12 @@ surveyResponse.patch(
     const patchedAnswers = body?.answers;
     if (!isPlainObject(patchedAnswers)) throw new InvalidParameterError('answers is required');
 
+    const editedTime = body?.editedTime;
+    if (!editedTime) throw new InvalidParameterError('editedTime is required');
+    if (!datetimeCustomValidation.safeParse(editedTime).success) {
+      throw new InvalidParameterError('editedTime is invalid');
+    }
+
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
     const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
     const validDataElementIds = new Set(componentByDataElementId.keys());
@@ -519,10 +525,7 @@ surveyResponse.patch(
         const existingAnswer = answerByDataElementId.get(dataElementId);
         if (existingAnswer) {
           if (existingAnswer.body !== body) {
-            await existingAnswer.update({
-              body,
-              editedTime: getCurrentDateTimeString(),
-            });
+            await existingAnswer.update({ body, editedTime });
             hasMeaningfulChanges = true;
           }
         } else {
@@ -530,7 +533,7 @@ surveyResponse.patch(
             dataElementId,
             body,
             responseId: params.id,
-            editedTime: getCurrentDateTimeString(),
+            editedTime,
           });
           answerByDataElementId.set(dataElementId, createdAnswer);
           if (body !== '') {
@@ -551,7 +554,7 @@ surveyResponse.patch(
           if (existingAnswer.body !== bodyValue) {
             await existingAnswer.update({
               body: bodyValue,
-              editedTime: getCurrentDateTimeString(),
+              editedTime,
             });
             hasMeaningfulChanges = true;
           }
@@ -563,7 +566,7 @@ surveyResponse.patch(
              * immediately give it an `edited_time` timestamp so we know that it was edited from the
              * original non-answer.
              */
-            editedTime: getCurrentDateTimeString(),
+            editedTime,
             dataElementId,
             responseId: params.id,
           });
@@ -582,7 +585,7 @@ surveyResponse.patch(
       });
 
       const responseUpdates = (() => {
-        const updates = { editedTime: getCurrentDateTimeString() };
+        const updates = { editedTime };
 
         const normalizedResult = result ?? null;
         const normalizedResultText = resultText ?? null;
