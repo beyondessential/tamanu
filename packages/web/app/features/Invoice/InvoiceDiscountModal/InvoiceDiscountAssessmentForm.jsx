@@ -3,8 +3,8 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { SETTING_KEYS } from '@tamanu/constants';
-import { SelectField, Form, FormGrid, ConfirmCancelBackRow, useApi } from '@tamanu/ui-components';
-import { Field, TranslatedText, BodyText, Heading3 } from '../../../components';
+import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-components';
+import { Field, TranslatedText, BodyText } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
 
 const StyledDivider = styled(Divider)`
@@ -38,8 +38,7 @@ const validationSchema = yup.object().shape({
     ),
 });
 
-export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount }) => {
-  const api = useApi();
+export const InvoiceDiscountAssessmentForm = ({ onClose, onBack, handleUpdateDiscount }) => {
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
 
@@ -74,34 +73,25 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount })
     }
   };
 
-  const handleSubmit = data => {
+  const handleSubmit = async () => {
     const discount = {
-      percentage: data.percentage,
-      isManual: true,
-      appliedByUser: api?.user,
-      appliedTime: new Date(),
+      percentage: (1 - percentage).toFixed(2),
+      isManual: false,
     };
-    handleUpdateDiscount(discount);
+    await handleUpdateDiscount(discount);
   };
 
   return (
     <>
-      <Heading3 mb="8px" data-testid="heading3-luh8">
-        <TranslatedText
-          stringId="invoice.modal.assessment.subtitle"
-          fallback="Patient invoice discount assessment"
-          data-testid="translatedtext-ulsm"
-        />
-      </Heading3>
-      <BodyText mb="36px" color="textTertiary" data-testid="bodytext-7ki0">
+      <BodyText mb="16px" color="textSecondary" data-testid="bodytext-7ki0">
         <TranslatedText
           stringId="invoice.modal.assessment.description"
-          fallback="To begin creating a new invoice, complete the patient discount assessment below."
+          fallback="Complete the patient assessment below to add a sliding fee scale discount to the invoice."
           data-testid="translatedtext-c7b6"
         />
       </BodyText>
       <Form
-        onSubmit={() => handleSubmit({ percentage: (1 - percentage).toFixed(2) })}
+        onSubmit={handleSubmit}
         render={({ submitForm }) => (
           <>
             <FormGrid columns={1} data-testid="formgrid-i3v1">
@@ -139,6 +129,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount })
             <ConfirmCancelBackRow
               onConfirm={submitForm}
               onCancel={onClose}
+              onBack={onBack}
               data-testid="confirmcancelbackrow-f5b4"
             />
           </>
