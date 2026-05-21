@@ -3,7 +3,10 @@ import theConfig from 'config';
 import ms from 'ms';
 import { hostname } from 'os';
 
+import { NOTIFY_CHANNELS } from '@tamanu/constants';
+
 import { getTracer } from '../services/logging';
+import { defineDbNotifier } from '../services/dbNotifier';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
@@ -65,15 +68,11 @@ export class FhirQueueManager {
     }, heartbeat).unref();
 
     this.log.debug('FhirQueueManager: listen for postgres notifications');
-    this.pg = await this.sequelize.connectionManager.getConnection();
-    this.pg.on('notification', msg => {
-      if (msg.channel === 'jobs') {
-        const { topic } = JSON.parse(msg.payload);
-        this.log.debug('FhirQueueManager: got postgres notification', msg);
-        this.processQueueNow(topic);
-      }
+    this.dbNotifier = await defineDbNotifier(this.sequelize.config, [NOTIFY_CHANNELS.JOBS]);
+    this.dbNotifier.listeners[NOTIFY_CHANNELS.JOBS](payload => {
+      this.log.debug('FhirQueueManager: got postgres notification', { payload });
+      this.processQueueNow(payload.topic);
     });
-    this.pg.query('LISTEN jobs');
   }
 
   async setHandler(topic, handler) {
@@ -100,10 +99,10 @@ export class FhirQueueManager {
     await this.worker?.deregister();
     this.worker = null;
 
-    if (this.pg) {
+    if (this.dbNotifier) {
       this.log.info('FhirQueueManager: removing postgres notification listener');
-      await this.sequelize.connectionManager.releaseConnection(this.pg);
-      this.pg = null;
+      await this.dbNotifier.close();
+      this.dbNotifier = null;
     }
   }
 
