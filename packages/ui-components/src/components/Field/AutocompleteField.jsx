@@ -185,7 +185,7 @@ export class AutocompleteInput extends Component {
       if (currentOption) {
         this.setState({
           selectedOption: {
-            value: currentOption.label,
+            value: currentOption.label ?? '',
             tag: currentOption.tag,
           },
         });
@@ -270,6 +270,7 @@ export class AutocompleteInput extends Component {
       return false;
     }
     const autoSelectOption = suggestions[0];
+    if (!autoSelectOption.label) return false;
     this.setState({
       selectedOption: {
         value: autoSelectOption.label,
@@ -562,7 +563,7 @@ export class AutocompleteInput extends Component {
             placeholder,
             infoTooltip,
             size,
-            value: selectedOption?.value,
+            value: selectedOption?.value ?? '',
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
