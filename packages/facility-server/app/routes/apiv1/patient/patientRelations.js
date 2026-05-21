@@ -83,15 +83,14 @@ patientRelations.get(
           ON locations.facility_id = facilities.id
         LEFT JOIN location_groups
           ON location_groups.id = locations.location_group_id
-        LEFT JOIN (
-          SELECT DISTINCT ON (encounter_id)
-            encounter_id,
-            discharger_id
+        LEFT JOIN LATERAL (
+          SELECT discharger_id
           FROM discharges
-          WHERE deleted_at IS NULL
-          ORDER BY encounter_id, (discharger_id IS NULL), discharger_id
-        ) AS discharge
-          ON discharge.encounter_id = encounters.id
+          WHERE discharges.encounter_id = encounters.id
+            AND deleted_at IS NULL
+          ORDER BY (discharger_id IS NULL), discharger_id
+          LIMIT 1
+        ) AS discharge ON true
         LEFT JOIN users AS dischargingClinician
           ON dischargingClinician.id = discharge.discharger_id`;
 

@@ -17,23 +17,9 @@ const OpenButton = styled(IconButton)`
   padding: 5px;
 `;
 
-const Item = styled(MenuItem)`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 15px;
-
-  &:hover {
-    background: ${Colors.veryLightBlue};
-  }
-`;
-
 const List = styled(MenuList)`
   padding: 3px;
   border-radius: 3px;
-
-  .MuiListItem-root {
-    padding: 4px;
-  }
 `;
 
 export const MenuButton = React.memo(
@@ -91,14 +77,14 @@ export const MenuButton = React.memo(
                 <List data-testid="list-i0ae">
                   {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
                     const menuItem = (
-                      <Item
+                      <MenuItem
                         disabled={!action}
                         key={label.props.fallback}
                         onClick={event => handleClick(event, action)}
                         data-testid={`item-8ybn-${index}`}
                       >
                         {label}
-                      </Item>
+                      </MenuItem>
                     );
                     return wrapper ? wrapper(menuItem) : menuItem;
                   })}

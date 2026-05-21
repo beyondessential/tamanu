@@ -57,6 +57,9 @@ const themeConfig = {
       light: '#F4F6F8', // taken from colors.scss::$main-light-gray-color
       main: '#eff2f5', // taken from colors.scss::$main-bg-color
     },
+    action: {
+      hover: Colors.veryLightBlue,
+    },
     spacing: {
       unit: MUI_SPACING_UNIT,
     },
@@ -87,6 +90,19 @@ const themeConfig = {
         marginBlockStart: '4px',
       },
     },
+    MuiListItem: {
+      button: {
+        transition: 'none',
+      },
+    },
+    MuiMenuItem: {
+      root: {
+        fontSize: 11,
+        letterSpacing: '0.02em',
+        paddingBlock: 4,
+        paddingInline: 12,
+      },
+    },
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
@@ -107,6 +123,23 @@ const themeConfig = {
           fontSize: '11px',
           lineHeight: '1.4',
           marginBlockStart: '4px',
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        button: {
+          transition: 'none',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: 11,
+          letterSpacing: '0.02em',
+          paddingBlock: 4,
+          paddingInline: 12,
         },
       },
     },
