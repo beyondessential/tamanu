@@ -1,5 +1,7 @@
-import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@mui/icons-material/MoreVert';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
