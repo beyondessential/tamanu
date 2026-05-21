@@ -1,7 +1,7 @@
-import { Column, Entity, ManyToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToMany } from 'typeorm';
 
 import { ILabTestType, LabTestResultType } from '~/types';
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
@@ -44,10 +44,9 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @ManyToMany(() => LabTestPanel, (labTestPanel) => labTestPanel.tests)
   labTestPanels: LabTestPanel[];
 
-  // TODO: What to do with relations with no "as"
   @ReferenceDataRelation()
   labTestCategory: ReferenceData;
-  @RelationId(({ labTestCategory }) => labTestCategory)
+  @IdRelation()
   labTestCategoryId: string;
 
   @Column({ nullable: false, default: false })
