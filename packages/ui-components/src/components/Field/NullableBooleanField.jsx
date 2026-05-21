@@ -2,7 +2,7 @@ import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import FormHelperText from '@mui/material/FormHelperText';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { TAMANU_COLORS } from '../../constants';

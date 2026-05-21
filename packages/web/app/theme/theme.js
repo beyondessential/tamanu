@@ -82,6 +82,14 @@ const themeConfig = {
         borderColor: Colors.outline,
       },
     },
+    MuiFormHelperText: {
+      root: {
+        color: Colors.midText,
+        fontSize: '11px',
+        lineHeight: '1.4',
+        marginBlockStart: '4px',
+      },
+    },
     MuiListItem: {
       button: {
         transition: 'none',
@@ -106,6 +114,16 @@ const themeConfig = {
     MuiOutlinedInput: {
       notchedOutline: {
         borderColor: Colors.outline,
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: Colors.midText,
+          fontSize: '11px',
+          lineHeight: '1.4',
+          marginBlockStart: '4px',
+        },
       },
     },
     MuiListItem: {
