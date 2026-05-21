@@ -91,6 +91,7 @@ export class FhirTopicQueueProcessor {
             // No job found, don't start a new job run
             return;
           }
+          this.manager.recordJobGrabbed();
 
           try {
             span.setAttributes({
