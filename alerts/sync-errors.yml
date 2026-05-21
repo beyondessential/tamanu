@@ -9,13 +9,13 @@ sql: |
   WHERE
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
-  AND (
-    (
-      parameters->>'isMobile' <> 'true'
-      AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
-    )
-    OR errors <> ARRAY['could not serialize access due to concurrent update']
+  -- A mobile device reconnecting mid-session marks the prior one complete; benign for mobile.
+  AND NOT (
+    parameters->>'isMobile' = 'true'
+    AND errors = ARRAY['Session marked as completed due to its device reconnecting']
   )
+  -- Transient Postgres serialisation failure: the next cycle re-runs.
+  AND errors <> ARRAY['could not serialize access due to concurrent update']
   -- "snapshot-for-pushing" errors are a deliberate restart of the sync cycle when a pulled
   -- record was edited locally mid-session; the next cycle picks it up. Only worth surfacing
   -- if it happens repeatedly — see sync-restart-loop.yml for the rate-based alert.
