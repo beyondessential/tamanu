@@ -17,7 +17,7 @@ const ControlLabel = styled(FormLabel)`
     color: ${TAMANU_COLORS.darkText};
     font-weight: 500;
     font-size: 14px;
-    line-height: 16px;
+    line-height: 1.15;
     letter-spacing: 0;
     margin-bottom: 5px;
   }
