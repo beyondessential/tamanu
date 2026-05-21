@@ -1,10 +1,8 @@
+import { Tabs } from '@material-ui/core';
 import React from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import { Box, Tabs } from '@material-ui/core';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import cn from 'classnames';
 import { Colors } from '../constants';
-import grabCursor from '../assets/images/grab_cursor.svg?url';
 
 const TabBar = styled.div`
   display: flex;
@@ -19,58 +17,58 @@ const TabContainer = styled(Tabs)`
   .MuiTabs-indicator {
     background-color: ${Colors.primary};
   }
-  * {
-    cursor: url("${grabCursor}"), auto !important;
-  }
 `;
 
-const StyledTab = styled(Box)`
+const StyledTab = styled.div.attrs({ role: 'tab' })`
+  color: ${props => props.theme.palette.text.tertiary};
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  text-transform: capitalize;
   min-height: 72px;
   padding: 9px 12px 6px;
   font-weight: 500;
-  opacity: 0.7;
   position: relative;
   flex-shrink: 0;
-  transition:
-    opacity,
-    background-color 0.3s;
+
+  cursor: grab;
+  &:active {
+    cursor: grabbing;
+  }
 
   &:hover {
     opacity: 1;
     background-color: ${Colors.veryLightBlue};
   }
 
-  &.selected {
+  &[aria-selected='true'] {
+    color: ${props => props.theme.palette.primary.main};
     opacity: 1;
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      padding-top: 2px;
-      background-color: ${Colors.primary};
-      width: 100%;
-    }
   }
 
-  &.isDragging {
+  &[data-dragging='true'] {
     opacity: 0.5;
   }
+`;
 
-  && i:first-child {
-    margin-bottom: 0;
-    font-size: 22px;
+const Icon = styled.i.attrs({ 'aria-hidden': true })`
+  color: ${Colors.softText};
+  font-size: 22px;
+  margin-bottom: 0;
+  margin-right: 5px;
+
+  [aria-selected='true'] & {
+    color: ${Colors.primary};
   }
 `;
 
-const Icon = styled.i`
-  color: ${(props) => props.color};
-  margin-right: 5px;
-`;
+function getTabId(key) {
+  return key ? `tab-${key}` : undefined;
+}
+
+function getTabPanelId(key) {
+  return key ? `tabpanel-${key}` : undefined;
+}
 
 export const TabDisplayDraggable = ({
   tabs,
@@ -85,9 +83,9 @@ export const TabDisplayDraggable = ({
     ...t,
     order: index,
   }));
-  const currentTabData = tabs.find((t) => t.key === currentTab);
+  const currentTabData = tabs.find(t => t.key === currentTab);
 
-  const onDragEnd = (result) => {
+  const onDragEnd = result => {
     handleDragEnd(result);
   };
 
@@ -99,7 +97,7 @@ export const TabDisplayDraggable = ({
           direction="horizontal"
           data-testid="droppable-3q8i"
         >
-          {(provided) => (
+          {provided => (
             <TabContainer
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : 'fixed'}
@@ -122,20 +120,14 @@ export const TabDisplayDraggable = ({
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={provided.draggableProps.style}
+                      id={getTabId(key)}
                       onClick={() => render && onTabSelect(key)}
-                      className={cn({
-                        selected: currentTabData?.key === key,
-                        isDragging: snapshot.isDragging,
-                      })}
+                      aria-controls={getTabPanelId(key)}
+                      aria-selected={currentTabData?.key === key}
+                      data-dragging={snapshot.isDragging || undefined}
                       data-testid={`styledtab-ccs8-${key}`}
                     >
-                      {icon && (
-                        <Icon
-                          className={icon}
-                          color={currentTabData?.key === key ? Colors.primary : Colors.softText}
-                          data-testid={`icon-1iqd-${key}`}
-                        />
-                      )}
+                      {icon && <Icon className={icon} data-testid={`icon-1iqd-${key}`} />}
                       {label}
                     </StyledTab>
                   )}
@@ -145,7 +137,13 @@ export const TabDisplayDraggable = ({
             </TabContainer>
           )}
         </Droppable>
-        <div>{currentTabData?.render({ ...tabProps })}</div>
+        <div
+          aria-labelledby={getTabId(currentTabData?.key)}
+          id={getTabPanelId(currentTabData?.key)}
+          role="tabpanel"
+        >
+          {currentTabData?.render(tabProps)}
+        </div>
       </TabBar>
     </DragDropContext>
   );
