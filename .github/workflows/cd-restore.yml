@@ -84,6 +84,13 @@ jobs:
             -o jsonpath='{.spec.storage.size}' 2>/dev/null || true)
           STORAGE_SIZE="${STORAGE_SIZE:-10Gi}"
 
+          # Inherit the IRSA role ARN from the source cluster so the restored
+          # cluster's pods can assume the same IAM role and access S3.
+          export IRSA_ROLE_ARN
+          IRSA_ROLE_ARN=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+            -o jsonpath='{.spec.serviceAccountTemplate.metadata.annotations.eks\.amazonaws\.com/role-arn}' \
+            2>/dev/null || true)
+
           # Build and apply the restore manifest using Python so that the
           # RECOVERY_TARGET_TIME value is JSON-encoded and never causes YAML
           # injection, regardless of what characters the user supplied.
@@ -95,11 +102,22 @@ jobs:
           cluster         = os.environ['CLUSTER']
           object_store    = os.environ['OBJECT_STORE']
           storage_size    = os.environ['STORAGE_SIZE']
+          irsa_role_arn   = os.environ.get('IRSA_ROLE_ARN', '').strip()
           pitr            = os.environ.get('RECOVERY_TARGET_TIME', '').strip()
 
           recovery = {'source': 'source'}
           if pitr:
               recovery['recoveryTarget'] = {'targetTime': pitr}
+
+          service_account_template = {}
+          if irsa_role_arn:
+              service_account_template = {
+                  'metadata': {
+                      'annotations': {
+                          'eks.amazonaws.com/role-arn': irsa_role_arn,
+                      },
+                  },
+              }
 
           manifest = {
               'apiVersion': 'postgresql.cnpg.io/v1',
@@ -116,6 +134,7 @@ jobs:
                   'bootstrap': {
                       'recovery': recovery,
                   },
+                  **(({'serviceAccountTemplate': service_account_template}) if service_account_template else {}),
                   'externalClusters': [{
                       'name': 'source',
                       'plugin': {
