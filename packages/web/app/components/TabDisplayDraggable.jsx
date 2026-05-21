@@ -127,9 +127,7 @@ export const TabDisplayDraggable = ({
                       data-dragging={snapshot.isDragging}
                       data-testid={`styledtab-ccs8-${key}`}
                     >
-                      {icon && (
-                        <Icon aria-hidden className={icon} data-testid={`icon-1iqd-${key}`} />
-                      )}
+                      {icon && <Icon className={icon} data-testid={`icon-1iqd-${key}`} />}
                       {label}
                     </StyledTab>
                   )}
