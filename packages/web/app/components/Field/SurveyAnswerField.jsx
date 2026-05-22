@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 
 import { isErrorUnknownAllow404s, useApi } from '../../api';
@@ -31,6 +31,7 @@ const Container = styled.div`
 
 export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
+  const outputId = useId();
 
   const { data: answer } = useLatestAnswerForPatientQuery(
     patient.id,
@@ -53,8 +54,8 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
 
   return (
     <Container data-testid="container-xmfz">
-      <div>{label}</div>
-      <div>
+      <label htmlFor={outputId}>{label}</label>
+      <output id={outputId}>
         <SurveyAnswerResult
           answer={surveyResponseAnswer}
           type={sourceType}
@@ -63,7 +64,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
           componentConfig={sourceConfig}
           dataElementId={dataElement?.id}
         />
-      </div>
+      </output>
     </Container>
   );
 };
