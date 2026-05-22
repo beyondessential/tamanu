@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 
@@ -122,9 +122,9 @@ export const SurveyScreen = ({
     }
   };
 
-  const getVisibleComponents = useCallback(
-    (components, allComponents) =>
-      components
+  const visibleComponents = useMemo(
+    () =>
+      screenComponents
         .filter(c => checkVisibility(c, values, allComponents))
         .map((c, index) => (
           <SurveyQuestion
@@ -137,10 +137,16 @@ export const SurveyScreen = ({
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
-    [encounterType, getComponentForQuestionType, patient, setQuestionToRef, values],
+    [
+      allComponents,
+      encounterType,
+      getComponentForQuestionType,
+      patient,
+      screenComponents,
+      setQuestionToRef,
+      values,
+    ],
   );
-
-  const visibleComponents = getVisibleComponents(screenComponents, allComponents);
 
   const emptyStateMessage = (
     <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
