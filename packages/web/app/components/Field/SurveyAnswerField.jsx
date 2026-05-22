@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -22,11 +23,11 @@ function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
 }
 
 const Container = styled.div`
+  align-items: baseline;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 2rem;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-block-end: 10px;
 `;
 
 export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
@@ -53,17 +54,17 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
 
   return (
     <Container data-testid="container-xmfz">
-      <div>{label}</div>
-      <div>
-        <SurveyAnswerResult
-          answer={surveyResponseAnswer}
-          type={sourceType}
-          data-testid="surveyanswerresult-m2ey"
-          originalBody={sourceBody}
-          componentConfig={sourceConfig}
-          dataElementId={dataElement?.id}
-        />
-      </div>
+      <Typography component="h2" variant="body1">
+        {label}
+      </Typography>
+      <SurveyAnswerResult
+        answer={surveyResponseAnswer}
+        componentConfig={sourceConfig}
+        data-testid="surveyanswerresult-m2ey"
+        dataElementId={dataElement?.id}
+        originalBody={sourceBody}
+        type={sourceType}
+      />
     </Container>
   );
 };
