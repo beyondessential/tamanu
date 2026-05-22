@@ -36,7 +36,7 @@ function separateColorText(resultText) {
     }
   }
   return {
-    color: '#444',
+    color: TAMANU_COLORS.darkestText,
     strippedResultText: resultText,
   };
 }
