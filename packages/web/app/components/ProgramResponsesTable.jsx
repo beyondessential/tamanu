@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
+import { SurveyResultBadge, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
@@ -10,7 +10,6 @@ import { MenuButton } from './MenuButton';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
 
 function DateAccessor({ endTime }) {

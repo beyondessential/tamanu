@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
-import { SurveyResultBadge } from './SurveyResultBadge';
+import { Button, PatientDataDisplayField, SurveyResultBadge } from '@tamanu/ui-components';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
