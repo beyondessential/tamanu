@@ -26,14 +26,14 @@ const CancelButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
+/** Recalculates dynamic fields, writing them back into form values. */
 const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
-    // recalculate dynamic fields
     const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v, false));
+    for (const [k, v] of Object.entries(calculatedValues)) {
+      if (values[k] === v) continue;
+      setFieldValue(k, v, false);
+    }
   }, [components, values, setFieldValue]);
 };
 
