@@ -1,5 +1,5 @@
 import { Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -62,10 +62,17 @@ export const SurveyScreenPaginator = ({
   getComponentForQuestionType,
 }) => {
   const { components } = survey;
-  const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  const currentComponents = useMemo(
+    () => components.filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT),
+    [components],
   );
+
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
+
+  const screenComponents = useMemo(
+    () => currentComponents.filter(x => x.screenIndex === screenIndex),
+    [currentComponents, screenIndex],
+  );
 
   const maxIndex = currentComponents.reduce(
     (max, current) => Math.max(max, current.screenIndex),
@@ -73,8 +80,6 @@ export const SurveyScreenPaginator = ({
   );
 
   if (screenIndex <= maxIndex) {
-    const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
-
     return (
       <SurveyScreen
         values={values}
