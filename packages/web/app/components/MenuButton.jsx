@@ -1,16 +1,11 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { IconButton, MenuItem, MenuList, Paper, Popper } from '@material-ui/core';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import {
-  ClickAwayListener,
-  IconButton,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-} from '@material-ui/core';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import PropTypes from 'prop-types';
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
+
 import { Colors } from '../constants';
 
 const OpenButton = styled(IconButton)`
