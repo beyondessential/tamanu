@@ -204,21 +204,6 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
   const { models, params, body } = req;
   req.checkPermission('read', 'SurveyResponse');
 
-  const responseRecord = await models.SurveyResponse.findByPk(params.id);
-  if (!responseRecord) {
-    throw new NotFoundError('Survey response not found');
-  }
-
-  const survey = await responseRecord.getSurvey();
-  if (!survey) {
-    throw new NotFoundError('Associated survey not found');
-  }
-  req.checkPermission('write', survey);
-
-  if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
-    throw new InvalidOperationError('Cannot edit survey responses');
-  }
-
   const facilityId = body?.facilityId;
   if (!facilityId) throw new InvalidParameterError('facilityId is required');
 
@@ -231,11 +216,25 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
     throw new InvalidParameterError('editedTime is invalid');
   }
 
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
-  const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
-  const validDataElementIds = new Set(componentByDataElementId.keys());
-
   await req.db.transaction(async () => {
+    const responseRecord = await models.SurveyResponse.findByPk(params.id);
+    if (!responseRecord) {
+      throw new NotFoundError('Survey response not found');
+    }
+
+    const survey = await responseRecord.getSurvey();
+    if (!survey) {
+      throw new NotFoundError('Associated survey not found');
+    }
+    req.checkPermission('write', survey);
+
+    if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
+      throw new InvalidOperationError('Cannot edit survey responses');
+    }
+
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
+    const componentByDataElementId = new Map(components.map(c => [c.dataElementId, c]));
+    const validDataElementIds = new Set(componentByDataElementId.keys());
     const responseAnswers = await models.SurveyResponseAnswer.findAll({
       attributes: ['id', 'dataElementId', 'body'],
       where: { responseId: params.id },
