@@ -1,7 +1,25 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLatestAnswerForPatientQuery } from '../../api/queries/useLatestAnswerForPatientQuery';
+
+import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
+
+function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
+  const api = useApi();
+  return useQuery(
+    ['survey', patientId, dataElementCode],
+    async () =>
+      await api.get(
+        `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
+        { patientId },
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
+    {
+      enabled: Boolean(patientId && dataElementCode),
+    },
+  );
+}
 
 const Container = styled.div`
   display: flex;
