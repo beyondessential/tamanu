@@ -47,11 +47,9 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
   }, [field.name, answer]);
 
-  const [sourceType, sourceConfig, sourceBody] = [
-    answer?.ProgramDataElement?.type,
-    answer?.ProgramDataElement?.surveyScreenComponent?.config,
-    answer?.body,
-  ];
+  const sourceType = answer?.ProgramDataElement?.type;
+  const sourceConfig = answer?.ProgramDataElement?.surveyScreenComponent?.config;
+  const sourceBody = answer?.body;
 
   return (
     <Container data-testid="container-xmfz">
