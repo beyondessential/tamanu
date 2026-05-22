@@ -41,12 +41,12 @@ function separateColorText(resultText) {
   };
 }
 
-export const SurveyResultBadge = ({ resultText }) => {
+export const SurveyResultBadge = ({ resultText, style, ...props }) => {
   if (!resultText) return null;
 
   const { color, strippedResultText } = separateColorText(resultText);
   return (
-    <Badge data-testid="coloredbadge-y3r7" style={{ color }}>
+    <Badge data-testid="coloredbadge-y3r7" style={{ color, ...style }} {...props}>
       {strippedResultText}
     </Badge>
   );
