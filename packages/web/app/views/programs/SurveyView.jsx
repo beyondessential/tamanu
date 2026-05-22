@@ -1,5 +1,6 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
@@ -10,11 +11,11 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
-import { useTranslation } from '../../contexts/Translation';
-import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useTranslation } from '../../contexts/Translation';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background-color: ${props => props.theme.palette.primary.main};
