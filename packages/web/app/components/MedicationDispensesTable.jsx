@@ -259,7 +259,15 @@ export const MedicationDispensesTable = () => {
               ];
               return (
                 <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-                  <MenuButton actions={actions} />
+                  <MenuButton
+                    a11yLabel={
+                      <TranslatedText
+                        stringId="medication-dispenses.table.actions"
+                        fallback="Dispense actions"
+                      />
+                    }
+                    actions={actions}
+                  />
                 </div>
               );
             },

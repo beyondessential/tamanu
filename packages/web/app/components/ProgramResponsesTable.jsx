@@ -150,7 +150,13 @@ export const DataFetchingProgramsTable = ({
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedResponse(data)}>
-          <MenuButton actions={actions} data-testid="menubutton-oi3b" />
+          <MenuButton
+            a11yLabel={
+              <TranslatedText stringId="program.table.actions" fallback="Form response actions" />
+            }
+            actions={actions}
+            data-testid="menubutton-oi3b"
+          />
         </div>
       ),
     });

@@ -217,7 +217,9 @@ const NoDataContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
-const StyledMenuButton = styled(MenuButton)`
+const StyledMenuButton = styled(MenuButton).attrs({
+  a11yLabel: <TranslatedText stringId="patient.bookings.actions" fallback="Appointment actions" />,
+})`
   .MuiIconButton-root {
     &:hover {
       background-color: transparent;

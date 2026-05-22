@@ -98,7 +98,15 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedAssignment(data)}>
-          <MenuButton actions={actions} />
+          <MenuButton
+            a11yLabel={
+              <TranslatedText
+                stringId="portalSurveyAssignment.table.actions"
+                fallback="Form actions"
+              />
+            }
+            actions={actions}
+          />
         </div>
       ),
     });

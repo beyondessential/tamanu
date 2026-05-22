@@ -231,7 +231,13 @@ export const ReferralTable = React.memo(({ patientId }) => {
         );
         return (
           <div onMouseEnter={() => setSelectedReferral(data)}>
-            <MenuButton actions={filteredActions} data-testid="menubutton-7afj" />
+            <MenuButton
+              a11yLabel={
+                <TranslatedText stringId="referral.table.actions" fallback="Referral actions" />
+              }
+              actions={filteredActions}
+              data-testid="menubutton-7afj"
+            />
           </div>
         );
       },

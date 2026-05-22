@@ -1,8 +1,3 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
   ClickAwayListener,
   IconButton,
@@ -11,6 +6,13 @@ import {
   Paper,
   Popper,
 } from '@material-ui/core';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PropTypes from 'prop-types';
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
+
+import { VisuallyHidden } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 
 const OpenButton = styled(IconButton)`
@@ -38,6 +40,7 @@ const List = styled(MenuList)`
 
 export const MenuButton = React.memo(
   ({
+    a11yLabel,
     actions,
     className,
     iconDirection,
@@ -74,7 +77,8 @@ export const MenuButton = React.memo(
           ref={anchorRef}
           data-testid="openbutton-d1ec"
         >
-          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid="icon-p0po" />
+          <Icon style={{ color: iconColor }} data-testid="icon-p0po" />
+          {a11yLabel && <VisuallyHidden>{a11yLabel}</VisuallyHidden>}
         </OpenButton>
         <Popper
           open={open}
@@ -113,6 +117,7 @@ export const MenuButton = React.memo(
 );
 
 MenuButton.propTypes = {
+  a11yLabel: PropTypes.node,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.node.isRequired,

@@ -136,7 +136,15 @@ export const DocumentsTable = React.memo(
             >
               <GetAppIcon fontSize="small" data-testid="getappicon-dpgk" />
             </StyledIconButton>
-            {actions.length > 0 && <MenuButton actions={actions} data-testid="menubutton-5s3g" />}
+            {actions.length > 0 && (
+              <MenuButton
+                a11yLabel={
+                  <TranslatedText stringId="document.table.actions" fallback="Document actions" />
+                }
+                actions={actions}
+                data-testid="menubutton-5s3g"
+              />
+            )}
           </ActionWrapper>
         ),
       },

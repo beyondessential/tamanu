@@ -216,7 +216,9 @@ const CustomCellContainer = styled(Box)`
   text-overflow: ellipsis;
 `;
 
-const StyledMenuButton = styled(MenuButton)`
+const StyledMenuButton = styled(MenuButton).attrs({
+  a11yLabel: <TranslatedText stringId="patient.bookings.actions" fallback="Appointment actions" />,
+})`
   .MuiIconButton-root {
     background-color: transparent;
   }

@@ -71,6 +71,12 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         sortable: false,
         CellComponent: ({ data }) => (
           <MenuButton
+            a11yLabel={
+              <TranslatedText
+                stringId="programRegistry.modal.formHistory.actions"
+                fallback="Form response actions"
+              />
+            }
             actions={[
               {
                 label: <TranslatedText stringId="general.action.print" fallback="Print" />,

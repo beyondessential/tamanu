@@ -155,7 +155,9 @@ const MenuContainer = styled.div`
   z-index: 1;
 `;
 
-const StyledMenuButton = styled(MenuButton)`
+const StyledMenuButton = styled(MenuButton).attrs({
+  a11yLabel: <TranslatedText stringId="encounter.actions.label" fallback="Encounter actions" />,
+})`
   .MuiIconButton-root {
     &:hover {
       background-color: transparent;
