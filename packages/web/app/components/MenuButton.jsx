@@ -61,9 +61,7 @@ export const MenuButton = React.memo(
           open={open}
           anchorEl={anchorRef.current}
           transition
-          disablePortal
           placement={placement}
-          style={{ zIndex: 10 }}
           data-testid="popper-0e9z"
         >
           <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
