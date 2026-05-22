@@ -23,7 +23,8 @@ import {
 } from '../Field';
 import { PhotoCaptureModal } from '../PhotoCaptureModal';
 
-const QUESTION_COMPONENTS = {
+/** @satisfies {Record<PROGRAM_DATA_ELEMENT_TYPES, React.ComponentType<any>>} */
+const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField, // TODO: Implement proper radio field?
@@ -56,7 +57,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),
-};
+});
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
