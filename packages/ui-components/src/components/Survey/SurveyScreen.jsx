@@ -31,7 +31,10 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     const calculatedValues = runCalculations(components, values);
     for (const [k, v] of Object.entries(calculatedValues)) {
-      if (values[k] === v) continue;
+      // Normalize to `null` so `undefined` and `null` are treated as equivalent answers
+      const prev = values[k] ?? null;
+      const next = v ?? null;
+      if (prev === next) continue;
       setFieldValue(k, v, false);
     }
   }, [components, values, setFieldValue]);
