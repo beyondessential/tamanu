@@ -60,7 +60,7 @@ export const MenuButton = React.memo(
           ref={anchorRef}
           data-testid="openbutton-d1ec"
         >
-          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid="icon-p0po" />
+          <Icon style={{ color: iconColor }} data-testid="icon-p0po" />
         </OpenButton>
         <Popper
           open={open}
