@@ -353,7 +353,7 @@ export const ContactDetails = ({
             ),
           }}
           data-testid="styledtext-r6fj"
-        ></StyledText>
+        />
       ) : (
         <StyledText
           dangerouslySetInnerHTML={{
@@ -364,7 +364,7 @@ export const ContactDetails = ({
             ),
           }}
           data-testid="styledtext-rxy4"
-        ></StyledText>
+        />
       )}
       <StyledContactListTable
         columns={columns}
