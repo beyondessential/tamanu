@@ -52,7 +52,8 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
       ViewPhotoLinkComponent={ViewPhotoLink}
     />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
+  /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeField,
