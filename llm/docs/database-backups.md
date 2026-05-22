@@ -96,8 +96,7 @@ spec:
       compression: gzip
       jobs: 2
   instanceSidecarConfiguration:
-    # Expire backups older than backupRetentionDays
-    retentionPolicyIntervalSeconds: 3600
+    retentionPolicy: <backupRetentionDays>d   # e.g. "3d" — from Pulumi backupRetentionDays config
 ```
 
 ### CNPG Cluster – plugin stanza
