@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
@@ -54,17 +55,17 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
 
   return (
     <Container data-testid="container-xmfz">
-      <label htmlFor={outputId}>{label}</label>
-      <output id={outputId}>
-        <SurveyAnswerResult
-          answer={surveyResponseAnswer}
-          type={sourceType}
-          data-testid="surveyanswerresult-m2ey"
-          originalBody={sourceBody}
-          componentConfig={sourceConfig}
-          dataElementId={dataElement?.id}
-        />
-      </output>
+      <Typography component="h2" variant="body1">
+        {label}
+      </Typography>
+      <SurveyAnswerResult
+        answer={surveyResponseAnswer}
+        componentConfig={sourceConfig}
+        data-testid="surveyanswerresult-m2ey"
+        dataElementId={dataElement?.id}
+        originalBody={sourceBody}
+        type={sourceType}
+      />
     </Container>
   );
 };
