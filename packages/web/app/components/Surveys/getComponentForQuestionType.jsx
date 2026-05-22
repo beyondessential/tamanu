@@ -70,8 +70,6 @@ export function getComponentForQuestionType(type, { source, writeToPatient: { fi
       component = PatientDataDisplayField;
     }
   }
-  if (component === undefined) {
-    return LimitedTextField;
-  }
-  return component;
+
+  return component ?? LimitedTextField;
 }
