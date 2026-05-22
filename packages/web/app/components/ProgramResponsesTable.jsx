@@ -6,6 +6,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   EditedEntryLegend,
   EditedOrnament,
+  SurveyResultBadge,
   TranslatedText,
   VisuallyHidden,
 } from '@tamanu/ui-components';
@@ -18,7 +19,6 @@ import { MenuButton } from './MenuButton';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { SurveyResultBadge } from './SurveyResultBadge';
 import { DataFetchingTable } from './Table';
 
 function DateAccessor({ endTime }) {
