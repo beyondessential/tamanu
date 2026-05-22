@@ -20,7 +20,6 @@ const Badge = styled.div`
   padding-block: 6px;
   padding-inline: 11px;
   text-align: center;
-  text-box-trim: both;
   text-wrap: balance;
 `;
 
@@ -37,17 +36,17 @@ function separateColorText(resultText) {
     }
   }
   return {
-    color: '#444',
+    color: TAMANU_COLORS.darkestText,
     strippedResultText: resultText,
   };
 }
 
-export const SurveyResultBadge = ({ resultText }) => {
+export const SurveyResultBadge = ({ resultText, style, ...props }) => {
   if (!resultText) return null;
 
   const { color, strippedResultText } = separateColorText(resultText);
   return (
-    <Badge data-testid="coloredbadge-y3r7" style={{ color }}>
+    <Badge data-testid="coloredbadge-y3r7" style={{ color, ...style }} {...props}>
       {strippedResultText}
     </Badge>
   );

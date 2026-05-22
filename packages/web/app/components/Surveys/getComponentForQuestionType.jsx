@@ -1,29 +1,31 @@
 import React from 'react';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   BaseMultiselectField,
-  LimitedTextField,
-  MultilineTextField,
-  ReadOnlyTextField,
+  PhotoField as BasePhotoField,
   BaseSelectField,
   InstructionField,
-  PhotoField as BasePhotoField,
+  LimitedTextField,
+  MultilineTextField,
   PatientDataDisplayField,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
-import { PhotoCaptureModal } from '../PhotoCaptureModal';
-import { ViewPhotoLink } from '../ViewPhotoLink';
 import {
+  ChartInstanceNameField,
   DateField,
   DateTimeField,
   NullableBooleanField,
   NumberField,
-  SurveyResponseSelectField,
-  ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
+  SurveyResponseSelectField,
 } from '../Field';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
+import { ViewPhotoLink } from '../ViewPhotoLink';
 
-const QUESTION_COMPONENTS = {
+/** @satisfies {Record<PROGRAM_DATA_ELEMENT_TYPES, React.ComponentType<any>>} */
+const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField, // TODO: Implement proper radio field?
@@ -60,7 +62,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),
-};
+});
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
