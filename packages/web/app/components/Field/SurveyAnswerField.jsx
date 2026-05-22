@@ -45,7 +45,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
     }
 
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
-  }, [field.name, answer]);
+  }, [answer, field.name, form?.setFieldValue]);
 
   const sourceType = answer?.ProgramDataElement?.type;
   const sourceConfig = answer?.ProgramDataElement?.surveyScreenComponent?.config;
