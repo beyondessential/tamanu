@@ -5,7 +5,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { TranslationContext, useTranslation } from '@tamanu/ui-components';
+import { TranslationContext, useTranslation, VisuallyHidden } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -321,9 +321,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   // Only include actions column when there is at least one action
   if (actions.length > 0) {
     columns.push({
-      // key and title are empty strings to display a blank column name
-      key: '',
-      title: '',
+      key: 'actions',
+      title: (
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      ),
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => (

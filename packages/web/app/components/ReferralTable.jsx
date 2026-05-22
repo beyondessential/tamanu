@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES, REFERRAL_STATUS_LABELS } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
-import { DeleteButton } from '@tamanu/ui-components';
+import { DeleteButton, VisuallyHidden } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
@@ -217,8 +217,12 @@ export const ReferralTable = React.memo(({ patientId }) => {
       accessor: getStatus,
     },
     {
-      key: '', // For actions column, but we don't want a header for this
-      title: '',
+      key: 'actions',
+      title: (
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      ),
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => {

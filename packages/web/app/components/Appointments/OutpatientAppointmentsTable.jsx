@@ -4,9 +4,15 @@ import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { Button, DateDisplay, TimeDisplay, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
+import {
+  Button,
+  DateDisplay,
+  TimeDisplay,
+  useDateTime,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
 import useOverflow from '../../hooks/useOverflow';
@@ -388,8 +394,12 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     ...(canWriteAppointment
       ? [
           {
-            key: '',
-            title: '',
+            key: 'actions',
+            title: (
+              <VisuallyHidden>
+                <TranslatedText stringId="general.actions.label" fallback="Actions" />
+              </VisuallyHidden>
+            ),
             dontCallRowInput: true,
             sortable: false,
             CellComponent: ({ data }) => (

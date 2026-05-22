@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { VisuallyHidden } from '@tamanu/ui-components';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MenuButton } from './MenuButton';
@@ -87,8 +88,12 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
 
   if (actions.length > 0) {
     columns.push({
-      key: '',
-      title: '',
+      key: 'actions',
+      title: (
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      ),
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (

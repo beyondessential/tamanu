@@ -20,7 +20,7 @@ import { AdminViewContainer, ContentContainer } from '../../components/AdminView
 import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
 import { UserProfileModal } from './UserProfileModal';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, VisuallyHidden } from '@tamanu/ui-components';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -108,7 +108,12 @@ const displayFieldOrDash = value => value || '—'; // em dash
 
 const COLUMNS = [
   {
-    key: '',
+    key: 'visibilityStatus',
+    title: (
+      <VisuallyHidden>
+        <TranslatedText stringId="general.visibilityStatus.label" fallback="Visibility status" />
+      </VisuallyHidden>
+    ),
     sortable: false,
     accessor: ({ visibilityStatus }) => <UserStatusIndicator visibilityStatus={visibilityStatus} />,
   },

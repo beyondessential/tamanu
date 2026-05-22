@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@mui/icons-material/Brightness2';
-import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 
+import { DateTimeRangeDisplay, useDateTime, VisuallyHidden } from '@tamanu/ui-components';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -358,8 +358,12 @@ export const LocationBookingsTable = ({ patient }) => {
     ...(canWriteAppointment
       ? [
           {
-            key: '',
-            title: '',
+            key: 'actions',
+            title: (
+              <VisuallyHidden>
+                <TranslatedText stringId="general.actions.label" fallback="Actions" />
+              </VisuallyHidden>
+            ),
             dontCallRowInput: true,
             sortable: false,
             CellComponent: ({ data }) => (
