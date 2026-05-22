@@ -1,18 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { useLatestAnswerForPatientQuery } from '../../api/queries/useLatestAnswerForPatientQuery';
+
+import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
 
+function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
+  const api = useApi();
+  return useQuery(
+    ['survey', patientId, dataElementCode],
+    async () =>
+      await api.get(
+        `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
+        { patientId },
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
+    {
+      enabled: Boolean(patientId && dataElementCode),
+    },
+  );
+}
+
 const Container = styled.div`
+  align-items: baseline;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 2rem;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-block-end: 10px;
 `;
 
 export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
+  const outputId = useId();
 
   const { data: answer } = useLatestAnswerForPatientQuery(
     patient.id,
@@ -27,18 +46,16 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
     }
 
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
-  }, [field.name, answer]);
+  }, [answer, field.name, form?.setFieldValue]);
 
-  const [sourceType, sourceConfig, sourceBody] = [
-    answer?.ProgramDataElement?.type,
-    answer?.ProgramDataElement?.surveyScreenComponent?.config,
-    answer?.body,
-  ];
+  const sourceType = answer?.ProgramDataElement?.type;
+  const sourceConfig = answer?.ProgramDataElement?.surveyScreenComponent?.config;
+  const sourceBody = answer?.body;
 
   return (
     <Container data-testid="container-xmfz">
-      <div>{label}</div>
-      <div>
+      <label htmlFor={outputId}>{label}</label>
+      <output id={outputId}>
         <SurveyAnswerResult
           answer={surveyResponseAnswer}
           type={sourceType}
@@ -47,7 +64,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
           componentConfig={sourceConfig}
           dataElementId={dataElement?.id}
         />
-      </div>
+      </output>
     </Container>
   );
 };
