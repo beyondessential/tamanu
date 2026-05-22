@@ -76,13 +76,13 @@ export const SurveyScreenPaginator = ({
   editedDataElementIds = null,
 }) => {
   const { components } = survey;
+
+  const { onStepBack, onStepForward, screenIndex } = usePaginatedForm();
+
   const currentComponents = useMemo(
     () => components.filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT),
     [components],
   );
-
-  const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
-
   const screenComponents = useMemo(
     () => currentComponents.filter(x => x.screenIndex === screenIndex),
     [currentComponents, screenIndex],
