@@ -9,7 +9,7 @@ import { SurveyAnswerResult } from '../SurveyAnswerResult';
 function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
   const api = useApi();
   return useQuery(
-    ['survey', patientId, dataElementCode],
+    ['surveyResponseAnswer', 'latest-answer', patientId, dataElementCode],
     async () =>
       await api.get(
         `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
