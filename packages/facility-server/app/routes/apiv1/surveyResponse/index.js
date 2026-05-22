@@ -5,7 +5,7 @@ import { patientDataFieldAssociationGetHandler } from './patientDataFieldAssocia
 import { surveyResponseGetHandler } from './surveyResponse.get';
 import { surveyResponsePostHandler } from './surveyResponse.post';
 
-export { surveyResponsePostHandler } from './surveyResponse.post';
+export { createSurveyResponse, surveyResponsePostHandler } from './surveyResponse.post';
 
 export const surveyResponse = express.Router();
 
