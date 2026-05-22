@@ -22,11 +22,11 @@ function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
 }
 
 const Container = styled.div`
+  align-items: baseline;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 2rem;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-block-end: 10px;
 `;
 
 export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
