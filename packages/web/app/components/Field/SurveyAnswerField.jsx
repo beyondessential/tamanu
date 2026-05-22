@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { isErrorUnknownAllow404s, useApi } from '../../api';
@@ -32,7 +32,6 @@ const Container = styled.div`
 
 export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
-  const outputId = useId();
 
   const { data: answer } = useLatestAnswerForPatientQuery(
     patient.id,
