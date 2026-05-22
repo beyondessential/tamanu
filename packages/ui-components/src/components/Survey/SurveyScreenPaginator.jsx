@@ -46,7 +46,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 );
 
 export const SurveyScreenPaginator = ({
-  survey,
+  survey: { components },
   values,
   onSurveyComplete,
   onCancel,
@@ -61,8 +61,6 @@ export const SurveyScreenPaginator = ({
   encounterType,
   getComponentForQuestionType,
 }) => {
-  const { components } = survey;
-
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm();
 
   const currentComponents = useMemo(
