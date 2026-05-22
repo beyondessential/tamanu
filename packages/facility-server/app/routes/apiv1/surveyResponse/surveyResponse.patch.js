@@ -213,11 +213,11 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
   if (!survey) {
     throw new NotFoundError('Associated survey not found');
   }
+  req.checkPermission('write', survey);
+
   if (survey.surveyType !== SURVEY_TYPES.PROGRAMS) {
     throw new InvalidOperationError('Cannot edit survey responses');
   }
-
-  req.checkPermission('write', survey);
 
   const facilityId = body?.facilityId;
   if (!facilityId) throw new InvalidParameterError('facilityId is required');
