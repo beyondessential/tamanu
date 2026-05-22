@@ -1,3 +1,8 @@
+import { useIsMutating } from '@tanstack/react-query';
+import React, { useEffect, useMemo } from 'react';
+import { useMatch, useParams } from 'react-router';
+import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
@@ -8,9 +13,6 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import React, { useEffect, useMemo } from 'react';
-import { useMatch } from 'react-router';
-import styled from 'styled-components';
 import { getComponentForQuestionType } from '../../components/Surveys';
 import { Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
@@ -38,6 +40,24 @@ const DirtyStateTracker = ({ dirty, setDirty }) => {
   return null;
 };
 
+/** @returns `true` when editing an existing survey response. `false` for a new survey response. */
+function useIsEdit() {
+  const patientProgramsEditMatch = Boolean(
+    useMatch('/patients/:category/:patientId/programs/:surveyResponseId/edit'),
+  );
+  const encounterProgramsEditMatch = Boolean(
+    useMatch(
+      '/patients/:category/:patientId/encounter/:encounterId/programs/:surveyResponseId/edit',
+    ),
+  );
+  return patientProgramsEditMatch || encounterProgramsEditMatch;
+}
+
+function useIsSubmittingEdit() {
+  const { surveyResponseId } = useParams();
+  return useIsMutating({ mutationKey: ['surveyResponseEdit', surveyResponseId] }) > 0;
+}
+
 export const SurveyViewForm = ({
   survey,
   onSubmit,
@@ -54,18 +74,8 @@ export const SurveyViewForm = ({
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
-
-  const patientProgramsEditMatch = Boolean(
-    useMatch('/patients/:category/:patientId/programs/:surveyResponseId/edit'),
-  );
-  const encounterProgramsEditMatch = Boolean(
-    useMatch(
-      '/patients/:category/:patientId/encounter/:encounterId/programs/:surveyResponseId/edit',
-    ),
-  );
-  const isEditingExistingSurveyResponse = Boolean(
-    patientProgramsEditMatch || encounterProgramsEditMatch,
-  );
+  const isEdit = useIsEdit();
+  const isSubmittingEdit = useIsSubmittingEdit();
 
   const { components } = survey;
   const currentComponents = components.filter(
@@ -144,7 +154,7 @@ export const SurveyViewForm = ({
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
-          completeButtonDisabled={isEditingExistingSurveyResponse ? !dirty : false}
+          completeButtonDisabled={isEdit ? !dirty || isSubmittingEdit : false}
           editedDataElementIds={editedDataElementIds}
           data-testid="surveyscreenpaginator-8wns"
         />

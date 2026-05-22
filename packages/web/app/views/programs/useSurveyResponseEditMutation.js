@@ -16,6 +16,7 @@ export const useSurveyResponseEditMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ['surveyResponseEdit', surveyResponseId],
     mutationFn: async data =>
       await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
         answers: await getAnswersFromData(data, survey),
