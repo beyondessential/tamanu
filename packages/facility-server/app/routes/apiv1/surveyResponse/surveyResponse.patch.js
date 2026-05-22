@@ -1,4 +1,3 @@
-import { subject } from '@casl/ability';
 import asyncHandler from 'express-async-handler';
 import { isEqual, isPlainObject } from 'lodash';
 
