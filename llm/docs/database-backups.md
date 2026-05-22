@@ -95,8 +95,7 @@ spec:
     data:
       compression: gzip
       jobs: 2
-  instanceSidecarConfiguration:
-    retentionPolicy: <backupRetentionDays>d   # e.g. "3d" — from Pulumi backupRetentionDays config
+  retentionPolicy: <backupRetentionDays>d   # e.g. "3d" — from Pulumi backupRetentionDays config
 ```
 
 ### CNPG Cluster – plugin stanza
@@ -142,13 +141,11 @@ spec:
 
 **Do not** set `spec.backup.retentionPolicy` on the `Cluster` resource. When the
 Barman Cloud Plugin is active, CNPG ignores that field entirely and emits a warning.
-Retention must be configured on the `ObjectStore` via its
-`instanceSidecarConfiguration`:
+Retention must be configured on the `ObjectStore` as a top-level `spec` field:
 
 ```yaml
 spec:
-  instanceSidecarConfiguration:
-    retentionPolicy: <backupRetentionDays>d   # e.g. "3d", "7d", "10d"
+  retentionPolicy: <backupRetentionDays>d   # e.g. "3d", "7d", "10d"
 ```
 
 Barman will automatically expire base backups (and their associated WAL files) older
