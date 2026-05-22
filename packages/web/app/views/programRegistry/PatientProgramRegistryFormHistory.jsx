@@ -21,7 +21,6 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.date"
             fallback="Date submitted"
-            data-testid="translatedtext-2tx7"
           />
         ),
         accessor: (row) => <DateDisplay date={row.endTime} data-testid="datedisplay-zqys" />,
@@ -74,13 +73,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <MenuButton
             actions={[
               {
-                label: (
-                  <TranslatedText
-                    stringId="general.action.print"
-                    fallback="Print"
-                    data-testid="translatedtext-ugko"
-                  />
-                ),
+                label: <TranslatedText stringId="general.action.print" fallback="Print" />,
                 action: () => {
                   setSelectedResponse(data);
                   setPrintModalOpen(true);
@@ -134,7 +127,6 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           <TranslatedText
             stringId="programRegistry.modal.formHistory.noDataMessage"
             fallback="No Program registry responses found"
-            data-testid="translatedtext-xxye"
           />
         }
         data-testid="datafetchingtable-4uxw"

@@ -277,7 +277,6 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
             <TranslatedText
               stringId="patient.appointments.table.viewPastAppointments"
               fallback="View past appointments"
-              data-testid="translatedtext-vw2l"
             />
           </ViewPastBookingsButton>
         )}
@@ -292,7 +291,6 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
             <TranslatedText
               stringId="patient.appointments.table.bookAppointment"
               fallback="Book appointment"
-              data-testid="translatedtext-xzcy"
             />
           </Button>
         )}
@@ -333,13 +331,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const actions = [
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.cancel"
-          fallback="Cancel"
-          data-testid="translatedtext-wwhp"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -356,24 +348,12 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: (
-        <TranslatedText
-          stringId="patient.appointments.table.column.date"
-          fallback="Date"
-          data-testid="translatedtext-vnct"
-        />
-      ),
+      title: <TranslatedText stringId="patient.appointments.table.column.date" fallback="Date" />,
       accessor: getDate,
     },
     {
       key: 'outpatientAppointmentArea',
-      title: (
-        <TranslatedText
-          stringId="patient.appointments.table.column.area"
-          fallback="Area"
-          data-testid="translatedtext-lnn7"
-        />
-      ),
+      title: <TranslatedText stringId="patient.appointments.table.column.area" fallback="Area" />,
       accessor: ({ locationGroup }) => locationGroup?.name,
       CellComponent: ({ value }) => (
         <CustomCellComponent value={value} $maxWidth={248} data-testid="customcellcomponent-2uhm" />
@@ -385,7 +365,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.clinician"
           fallback="Clinician"
-          data-testid="translatedtext-yyqg"
         />
       ),
       accessor: ({ clinician }) => clinician?.displayName || '-',
@@ -399,7 +378,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.appointmentType"
           fallback="Appointment type"
-          data-testid="translatedtext-yiuf"
         />
       ),
       accessor: ({ appointmentType }) => appointmentType?.name,
@@ -436,7 +414,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
             <TranslatedText
               stringId="patient.appointments.table.noData"
               fallback="No outpatient appointments"
-              data-testid="translatedtext-sb9h"
             />
           }
           patient={patient}
@@ -460,7 +437,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.appointments.table.title"
                 fallback="Outpatient appointments"
-                data-testid="translatedtext-ian9"
               />
             }
             patient={patient}

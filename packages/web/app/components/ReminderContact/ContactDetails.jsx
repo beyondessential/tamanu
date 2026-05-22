@@ -292,7 +292,6 @@ export const ContactDetails = ({
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
-                    data-testid="translatedtext-6z4r"
                   />
                 </StyledTextButton>
               );
@@ -310,11 +309,7 @@ export const ContactDetails = ({
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
                 <RowActionLink onClick={() => onRetry(row)} data-testid="rowactionlink-pfr5">
-                  <TranslatedText
-                    stringId="general.action.retry"
-                    fallback="Retry"
-                    data-testid="translatedtext-qhg3"
-                  />
+                  <TranslatedText stringId="general.action.retry" fallback="Retry" />
                 </RowActionLink>
               ) : (
                 ''

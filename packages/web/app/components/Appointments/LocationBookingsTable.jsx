@@ -244,7 +244,6 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
       <TranslatedText
         stringId="patient.bookings.table.viewPastBookings"
         fallback="View past bookings"
-        data-testid="translatedtext-cked"
       />
     </ViewPastBookingsButton>
   </TableTitleContainer>
@@ -304,20 +303,16 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const actions = [
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.cancel"
-          fallback="Cancel"
-          data-testid="translatedtext-bq2v"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => setIsCancelModalOpen(true),
     },
   ];
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/locations?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
+    navigate(
+      `/appointments/locations?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`,
+    );
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');
@@ -325,24 +320,12 @@ export const LocationBookingsTable = ({ patient }) => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: (
-        <TranslatedText
-          stringId="patient.bookings.table.column.date"
-          fallback="Date"
-          data-testid="translatedtext-u5j4"
-        />
-      ),
+      title: <TranslatedText stringId="patient.bookings.table.column.date" fallback="Date" />,
       accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
     },
     {
       key: 'bookingArea',
-      title: (
-        <TranslatedText
-          stringId="patient.bookings.table.column.area"
-          fallback="Area"
-          data-testid="translatedtext-jc2m"
-        />
-      ),
+      title: <TranslatedText stringId="patient.bookings.table.column.area" fallback="Area" />,
       accessor: ({ location }) => location?.locationGroup?.name,
       CellComponent: ({ value }) => (
         <CustomCellComponent value={value} $maxWidth={243} data-testid="customcellcomponent-7qqa" />
@@ -351,11 +334,7 @@ export const LocationBookingsTable = ({ patient }) => {
     {
       key: 'location',
       title: (
-        <TranslatedText
-          stringId="patient.bookings.table.column.location"
-          fallback="Location"
-          data-testid="translatedtext-jjpp"
-        />
+        <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />
       ),
       accessor: ({ location }) => location?.name,
       sortable: false,
@@ -369,7 +348,6 @@ export const LocationBookingsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.bookings.table.column.bookingType"
           fallback="Booking type"
-          data-testid="translatedtext-1adp"
         />
       ),
       accessor: ({ bookingType }) => bookingType?.name,
@@ -412,7 +390,6 @@ export const LocationBookingsTable = ({ patient }) => {
             <TranslatedText
               stringId="patient.bookings.table.noData"
               fallback="No location bookings"
-              data-testid="translatedtext-61nq"
             />
           }
           openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
@@ -442,7 +419,6 @@ export const LocationBookingsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.bookings.table.title"
                 fallback="Location bookings"
-                data-testid="translatedtext-40uc"
               />
             }
             openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
