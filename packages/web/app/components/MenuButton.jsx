@@ -71,27 +71,25 @@ export const MenuButton = React.memo(
           style={{ zIndex: 10 }}
           data-testid="popper-0e9z"
         >
-          {() => (
-            <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
-              <ClickAwayListener onClickAway={handleClose}>
-                <List data-testid="list-i0ae">
-                  {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
-                    const menuItem = (
-                      <MenuItem
-                        disabled={!action}
-                        key={label.props.fallback}
-                        onClick={event => handleClick(event, action)}
-                        data-testid={`item-8ybn-${index}`}
-                      >
-                        {label}
-                      </MenuItem>
-                    );
-                    return wrapper ? wrapper(menuItem) : menuItem;
-                  })}
-                </List>
-              </ClickAwayListener>
-            </Paper>
-          )}
+          <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
+            <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClose}>
+              <List data-testid="list-i0ae">
+                {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
+                  const menuItem = (
+                    <MenuItem
+                      disabled={!action}
+                      key={label.props.fallback}
+                      onClick={event => handleClick(event, action)}
+                      data-testid={`item-8ybn-${index}`}
+                    >
+                      {label}
+                    </MenuItem>
+                  );
+                  return wrapper ? wrapper(menuItem) : menuItem;
+                })}
+              </List>
+            </ClickAwayListener>
+          </Paper>
         </Popper>
       </div>
     );
