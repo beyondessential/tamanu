@@ -139,20 +139,21 @@ spec:
     name: barman-cloud.cloudnative-pg.io
 ```
 
-### Retention via Barman
+### Retention via the ObjectStore
 
-Set `spec.backup.retentionPolicy` on the `Cluster` to the desired window. This
-field is deprecated in CNPG 1.26+ in favour of the plugin handling it, but until
-the plugin exposes its own Kubernetes retention API you can still use:
+**Do not** set `spec.backup.retentionPolicy` on the `Cluster` resource. When the
+Barman Cloud Plugin is active, CNPG ignores that field entirely and emits a warning.
+Retention must be configured on the `ObjectStore` via its
+`instanceSidecarConfiguration`:
 
 ```yaml
 spec:
-  backup:
-    retentionPolicy: <backupRetentionDays>d   # e.g. "7d"
+  instanceSidecarConfiguration:
+    retentionPolicy: <backupRetentionDays>d   # e.g. "3d", "7d", "10d"
 ```
 
-Alternatively configure the Barman server-side retention in the ObjectStore's
-`instanceSidecarConfiguration` section when the plugin supports it.
+Barman will automatically expire base backups (and their associated WAL files) older
+than the configured window.
 
 ## Pulumi Config Keys
 
@@ -172,16 +173,51 @@ pipeline is working on a new auto-deploy before relying on the schedule.
 
 ## Restoring
 
-Use `cd-restore.yml` to bootstrap a new CNPG cluster from the object store. The
-workflow:
+Use `cd-restore.yml` to bootstrap a temporary cluster from the object store, then
+pipe the recovered data back into the live cluster.
 
-1. Creates a new `Cluster` resource (`<original>-restore-<timestamp>`) that
-   bootstraps from the latest (or a PITR-targeted) backup.
-2. Waits for the restored cluster to become `Ready`.
-3. Prints manual next-steps for swapping traffic and decommissioning the old cluster.
+### How it works
 
-No live traffic is automatically moved — the operator must validate the restored data
-before taking any further action.
+1. A new `Cluster` (`<original>-restore-<timestamp>`) is created and bootstrapped
+   from S3 — either the latest backup or a specific point in time.
+2. The workflow waits for the restored cluster to become `Ready` (typically ~2–3
+   minutes).
+3. The workflow prints copy-paste ready commands for the operator to complete the
+   rollback.
+
+### Point-in-time recovery
+
+To roll back to a specific moment, supply `recovery-target-time` in RFC 3339 format:
+
+```
+2026-05-21 19:20:00+00
+```
+
+Leave it blank to restore to the most recent consistent state. Note that "most
+recent" includes all WAL-archived changes up to the latest archived segment — it is
+**not** a rollback. Always specify a target time when rolling back an unwanted change.
+
+### Cutover procedure (after the restore cluster is Ready)
+
+The app continues connecting to the original cluster's `-rw` service throughout.
+The cutover replaces the database content without touching any Kubernetes
+infrastructure:
+
+```bash
+# 1. Verify the restored data looks correct
+kubectl exec -it -n $NS ${RESTORE_NAME}-1 -c postgres -- psql -U postgres -d app
+
+# 2. Pipe the restored data into the live cluster (app stays connected throughout)
+kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+
+# 3. Verify the live cluster has the rolled-back data
+
+# 4. Delete the restore cluster
+kubectl delete cluster $RESTORE_NAME -n $NS
+```
+
+The workflow output prints all variables (`NS`, `RESTORE_NAME`, `CLUSTER`) pre-filled
+with the correct values so the operator can copy-paste directly.
 
 ## Testing on an Auto-Deploy
 
@@ -196,5 +232,9 @@ Then:
 
 1. Wait for `cd-up` to finish — this creates the `ObjectStore` and `ScheduledBackup`.
 2. Trigger `cd-backup` manually from the Actions tab (or wait for the scheduled run).
-3. Verify the backup appears in S3 and the CNPG `Backup` resource is `completed`.
-4. Optionally trigger `cd-restore` to validate recovery end-to-end.
+3. Verify the backup completed: `kubectl get backup -n <ns> --sort-by=.metadata.creationTimestamp`
+4. Note the backup completion timestamp, then make a test change to the database.
+5. Trigger `cd-restore` with a `recovery-target-time` set to just **before** the test
+   change — this confirms rollback works, not just "restore to latest".
+6. Follow the cutover procedure above to pipe the restored data into the live cluster
+   and verify the test change is gone.
