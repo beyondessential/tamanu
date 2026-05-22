@@ -1,26 +1,27 @@
 import React from 'react';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   BaseMultiselectField,
-  LimitedTextField,
-  MultilineTextField,
-  ReadOnlyTextField,
+  PhotoField as BasePhotoField,
   BaseSelectField,
   InstructionField,
-  PhotoField as BasePhotoField,
+  LimitedTextField,
+  MultilineTextField,
   PatientDataDisplayField,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
-import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
+  ChartInstanceNameField,
   DateField,
   DateTimeField,
   NullableBooleanField,
   NumberField,
-  SurveyResponseSelectField,
-  ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
+  SurveyResponseSelectField,
 } from '../Field';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
 
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
