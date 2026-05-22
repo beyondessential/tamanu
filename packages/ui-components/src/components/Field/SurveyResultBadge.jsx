@@ -20,7 +20,6 @@ const Badge = styled.div`
   padding-block: 6px;
   padding-inline: 11px;
   text-align: center;
-  text-box-trim: both;
   text-wrap: balance;
 `;
 
