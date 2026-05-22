@@ -215,6 +215,76 @@ kubectl delete cluster $RESTORE_NAME -n $NS
 The workflow output prints all variables (`NS`, `RESTORE_NAME`, `CLUSTER`) pre-filled
 with the correct values so the operator can copy-paste directly.
 
+## Rollback Runbooks
+
+### Rolling back a single server
+
+Use this when only one server (e.g. `central` or `facility-1`) needs to be rolled back.
+
+1. **Trigger `cd-restore.yml`** with the target server and a `recovery-target-time` set to just before the incident:
+   - `deploy-name`: e.g. `feature-my-branch` (without the `tamanu-` prefix)
+   - `cluster`: e.g. `central` or `facility-1`
+   - `recovery-target-time`: e.g. `2026-05-21 19:20:00+00`
+
+2. **Wait for the workflow to complete** (~2–3 minutes). It will print copy-paste commands including the pre-filled variable exports.
+
+3. **Run the printed commands** to verify and pipe the data back:
+   ```bash
+   # Variables are printed by the workflow — copy-paste them:
+   NS=tamanu-<deploy-name>
+   RESTORE_NAME=<cluster>-restore-<timestamp>-db
+   CLUSTER=<cluster>-db
+
+   # Verify restored data
+   kubectl exec -it -n $NS ${RESTORE_NAME}-1 -c postgres -- psql -U postgres -d app
+
+   # Pipe restored data into live cluster
+   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+
+   # Delete the restore cluster
+   kubectl delete cluster $RESTORE_NAME -n $NS
+   ```
+
+---
+
+### Rolling back all servers
+
+Use this when a change affected multiple servers and all need to be restored to the same point in time. **Use the exact same `recovery-target-time` for all clusters** to keep the databases consistent with each other.
+
+1. **Note the recovery target time** — pick a timestamp before the incident that applies to all servers (e.g. `2026-05-21 19:20:00+00`).
+
+2. **Trigger `cd-restore.yml` once per cluster** — run it sequentially or in parallel for each cluster that needs rolling back:
+   - `central`
+   - `facility-1`
+   - `facility-2`
+   - (repeat for all facility servers in the deployment)
+
+   Use the **same `recovery-target-time`** for every run.
+
+3. **Wait for all restore clusters to be Ready.**
+
+4. **Pipe each cluster's data back in order** — start with `central`, then facilities:
+   ```bash
+   NS=tamanu-<deploy-name>
+
+   # Repeat for each cluster (central-db, facility-1-db, facility-2-db, ...):
+   RESTORE_NAME=<cluster>-restore-<timestamp>-db
+   CLUSTER=<cluster>-db
+
+   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+   ```
+
+5. **Verify** each live cluster has the rolled-back data.
+
+6. **Delete all restore clusters:**
+   ```bash
+   kubectl delete cluster -n $NS -l tamanu.io/restored-from   # deletes all restore clusters at once
+   ```
+
+> **Note:** The app does not need to be stopped during this procedure. The `pg_restore` step briefly locks tables but the app will reconnect automatically. For zero-tolerance deployments, consider stopping the app pods before step 4 and restarting after step 6.
+
+---
+
 ## Testing on an Auto-Deploy
 
 To exercise the full backup lifecycle on an ephemeral PR deploy, add `%backup` to the
