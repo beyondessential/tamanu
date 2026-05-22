@@ -72,6 +72,15 @@ const useScrollToFirstError = () => {
   return { setQuestionToRef, scrollToQuestion };
 };
 
+const emptyStateMessage = (
+  <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
+    <TranslatedText
+      stringId="general.form.blankPage"
+      fallback="This page has been intentionally left blank"
+    />
+  </EmptyStateText>
+);
+
 export const SurveyScreen = ({
   allComponents,
   screenComponents = allComponents,
@@ -146,15 +155,6 @@ export const SurveyScreen = ({
       setQuestionToRef,
       values,
     ],
-  );
-
-  const emptyStateMessage = (
-    <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
-      <TranslatedText
-        stringId="general.form.blankPage"
-        fallback="This page has been intentionally left blank"
-      />
-    </EmptyStateText>
   );
 
   return (
