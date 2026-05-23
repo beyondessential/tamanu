@@ -300,7 +300,15 @@ export const MedicationRequestsTable = () => {
               ];
               return (
                 <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-                  <MenuButton actions={actions} />
+                  <MenuButton
+                    a11yLabel={
+                      <TranslatedText
+                        stringId="medication-requests.table.actions"
+                        fallback="Request actions"
+                      />
+                    }
+                    actions={actions}
+                  />
                 </div>
               );
             },
