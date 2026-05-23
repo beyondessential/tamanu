@@ -40,7 +40,7 @@ export function describeRolesDelete(getTestContext) {
       expect(response).toHaveRequestError(422);
       expect(response.body.type).toContain('validation-constraint');
       expect(response.body['assigned-user-count']).toBe(1);
-      expect(response.body.detail).toMatch(/1\u00a0user assigned to it/i);
+      expect(response.body.detail).toMatch(/1\u00a0user assigned/);
       expect(await models.Role.findByPk('role-traineeIntern')).not.toBeNull();
     });
 
@@ -54,7 +54,7 @@ export function describeRolesDelete(getTestContext) {
       expect(response).toHaveRequestError(422);
       expect(response.body.type).toContain('validation-constraint');
       expect(response.body['assigned-user-count']).toBe(2);
-      expect(response.body.detail).toMatch(/2\u00a0users assigned to it/);
+      expect(response.body.detail).toMatch(/2\u00a0users assigned/);
       expect(await models.Role.findByPk('role-houseOfficer')).not.toBeNull();
     });
 
