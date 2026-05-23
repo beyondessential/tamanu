@@ -43,7 +43,6 @@ const DiagnosisName = styled.span`
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
   <DiagnosisChip onClick={onClick} data-testid="diagnosischip-3n28">
     <Category
-      isPrimary={isPrimary}
       data-testid="category-vwwx"
       style={{ backgroundColor: isPrimary ? Colors.primary : undefined }}
     >
