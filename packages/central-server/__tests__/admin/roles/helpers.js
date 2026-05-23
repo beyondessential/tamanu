@@ -12,12 +12,21 @@ export const SAMPLE_ROLES = /** @type {const} */ ([
 
 export const SAMPLE_ROLE_IDS = SAMPLE_ROLES.map(({ id }) => id);
 
+export async function destroyUsersWithRole(models, roleId) {
+  await models.User.destroy({ where: { role: roleId }, force: true });
+}
+
+export async function destroyRole(models, roleId) {
+  await destroyUsersWithRole(models, roleId);
+  await models.Role.destroy({ where: { id: roleId }, force: true });
+}
+
 export async function seedSampleRoles(models) {
-  await models.Role.destroy({ where: { id: SAMPLE_ROLE_IDS }, force: true });
+  await Promise.all(SAMPLE_ROLE_IDS.map(roleId => destroyRole(models, roleId)));
   await models.Role.bulkCreate(SAMPLE_ROLES);
 }
 
 export async function createRole(models, { id, name }) {
-  await models.Role.destroy({ where: { id }, force: true });
+  await destroyRole(models, id);
   return models.Role.create({ id, name });
 }

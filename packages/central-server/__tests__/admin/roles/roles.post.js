@@ -1,10 +1,10 @@
-import { createRole, ROLE_URL } from './helpers';
+import { createRole, destroyRole, ROLE_URL } from './helpers';
 
 export function describeRolesPost(getTestContext) {
   describe('POST /api/admin/role', () => {
     it('should create and return new role', async () => {
       const { adminApp, models } = getTestContext();
-      await models.Role.destroy({ where: { id: 'role-cardiothoracicConsultant' }, force: true });
+      await destroyRole(models, 'role-cardiothoracicConsultant');
 
       const response = await adminApp.post(ROLE_URL).send({
         id: 'role-cardiothoracicConsultant',
@@ -19,6 +19,8 @@ export function describeRolesPost(getTestContext) {
 
     it('should trim ID and name before persisting', async () => {
       const { adminApp, models } = getTestContext();
+      await destroyRole(models, 'role-registrar');
+
       const response = await adminApp.post(ROLE_URL).send({
         id: '  role-registrar  ',
         name: '  Registrar  ',
@@ -31,7 +33,9 @@ export function describeRolesPost(getTestContext) {
     });
 
     it('should persist the role so it can be read back by ID', async () => {
-      const { adminApp } = getTestContext();
+      const { adminApp, models } = getTestContext();
+      await destroyRole(models, 'role-fellow');
+
       await adminApp.post(ROLE_URL).send({
         id: 'role-fellow',
         name: 'Fellow',
@@ -107,7 +111,8 @@ export function describeRolesPost(getTestContext) {
     });
 
     it('should require create permission on Role', async () => {
-      const { baseApp, noPermissionApp } = getTestContext();
+      const { baseApp, models, noPermissionApp } = getTestContext();
+      await destroyRole(models, 'role-orthopaedicSurgeon');
       const createApp = await baseApp.asNewRole([['create', 'Role']]);
 
       const allowed = await createApp.post(ROLE_URL).send({
