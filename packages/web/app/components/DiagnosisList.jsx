@@ -1,10 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css } from 'styled-components';
 
 import { Colors } from '../constants';
-import { hexToRgba } from '../utils';
-import { TranslatedText, TranslatedReferenceData } from './Translation';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
 
 const DiagnosisListContainer = styled.div`
   display: flex;
@@ -15,52 +14,64 @@ const DiagnosisListContainer = styled.div`
 `;
 
 const DiagnosisChip = styled.div`
-  margin: 0.3rem;
-  ${(p) => (p.onClick ? `cursor: pointer;` : '')}
+  color: ${Colors.alert};
+  &[data-diagnosis-variant='primary'] {
+    color: ${Colors.primary};
+  }
+
+  background-color: oklch(from currentColor l c h / 10%);
+  border-radius: ${props => props.theme.shape.borderRadius}px;
   display: flex;
+  font-weight: 500;
+  margin: 0.3rem;
+
+  ${p =>
+    typeof p.onClick === 'function'
+      ? css`
+          cursor: pointer;
+        `
+      : ''}
 `;
 
 const Category = styled.div`
-  background: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
   font-weight: 900;
-  padding: 10px 5px;
+  padding-block: 10px;
+  padding-inline: 5px;
   color: ${Colors.white};
-  border-radius: 3px 0 0 3px;
+
+  background-color: ${Colors.alert};
+  [data-diagnosis-variant='primary'] & {
+    background-color: ${Colors.primary};
+  }
 `;
 
 const DiagnosisName = styled.span`
-  background: ${(props) =>
-    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
-  color: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
-  font-weight: 500;
+  border-end-end-radius: inherit;
+  border-start-end-radius: inherit;
   padding: 10px;
-  border-radius: 0 3px 3px 0;
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
-  <DiagnosisChip onClick={onClick} data-testid="diagnosischip-3n28">
-    <Category isPrimary={isPrimary} data-testid="category-vwwx">
+  <DiagnosisChip
+    data-diagnosis-variant={isPrimary ? 'primary' : 'secondary'}
+    onClick={onClick}
+    data-testid="diagnosischip-3n28"
+  >
+    <Category data-testid="category-vwwx">
       {isPrimary ? (
-        <TranslatedText
-          stringId="encounter.diagnosis.type.primary"
-          fallback="P"
-          data-testid="translatedtext-jz99"
-        />
+        <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
       ) : (
-        <TranslatedText
-          stringId="encounter.diagnosis.type.secondary"
-          fallback="S"
-          data-testid="translatedtext-ssu2"
-        />
+        <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
       )}
     </Category>
     {diagnosis?.name && diagnosis?.id && (
-      <DiagnosisName isPrimary={isPrimary} data-testid="diagnosisname-vvn4">
+      <DiagnosisName data-testid="diagnosisname-vvn4">
         <TranslatedReferenceData
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
-          data-testid="translatedreferencedata-eww0"
         />
       </DiagnosisName>
     )}

@@ -77,14 +77,6 @@ export const history = {
   },
 };
 
-export const hexToRgba = (hex, opacity) => {
-  const hx = hex.replace('#', '');
-  const r = parseInt(hx.substring(0, 2), 16);
-  const g = parseInt(hx.substring(2, 4), 16);
-  const b = parseInt(hx.substring(4, 6), 16);
-  return `rgba(${r},${g},${b},${opacity})`;
-};
-
 export const renderToText = element => {
   if (!isValidElement(element)) {
     throw new Error('`renderToText` has been called with an invalid element.');
