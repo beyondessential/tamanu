@@ -107,7 +107,7 @@ export function describeRolesGet(getTestContext) {
     });
 
     it('should require read permission on Role', async () => {
-      const { adminApp, baseApp, models, noPermissionApp } = getTestContext();
+      const { baseApp, models, noPermissionApp } = getTestContext();
       await createRole(models, { id: 'role-registrar', name: 'Registrar' });
       const readApp = await baseApp.asNewRole([['read', 'Role']]);
 
@@ -148,7 +148,7 @@ export function describeRolesGet(getTestContext) {
     });
 
     it('should require delete permission on Role', async () => {
-      const { adminApp, baseApp, models, noPermissionApp } = getTestContext();
+      const { baseApp, models, noPermissionApp } = getTestContext();
       await createRole(models, { id: 'role-fellow', name: 'Fellow' });
       const deleteApp = await baseApp.asNewRole([['delete', 'Role']]);
 
