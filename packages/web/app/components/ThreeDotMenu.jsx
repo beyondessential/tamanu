@@ -2,13 +2,17 @@ import MoreVert from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu).attrs({
+  'data-testid': 'styledmenu-7k45',
+  anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+  getContentAnchorEl: null,
+  transformOrigin: { vertical: 'top', horizontal: 'right' },
+})`
   & .MuiList-padding {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-block: 4px;
   }
 `;
 
@@ -18,6 +22,7 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 export const ThreeDotMenu = ({ items, disabled, className }) => {
+  const menuId = useId();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -37,28 +42,17 @@ export const ThreeDotMenu = ({ items, disabled, className }) => {
   return (
     <>
       <StyledIconButton
-        onClick={onOpenKebabMenu}
-        disabled={disabled}
+        aria-controls={menuId}
+        aria-expanded={open}
+        aria-haspopup="menu"
         className={className}
         data-testid="stylediconbutton-szh8"
+        disabled={disabled}
+        onClick={onOpenKebabMenu}
       >
-        <MoreVert data-testid="morevert-kusc" />
+        <MoreVert />
       </StyledIconButton>
-      <StyledMenu
-        anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        open={open}
-        onClose={handleCloseKebabMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        data-testid="styledmenu-7k45"
-      >
+      <StyledMenu anchorEl={anchorEl} id={menuId} onClose={handleCloseKebabMenu} open={open}>
         {items.map(
           (item, index) =>
             !item.hidden && (
