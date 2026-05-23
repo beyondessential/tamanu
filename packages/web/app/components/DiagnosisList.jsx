@@ -1,21 +1,32 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  UnstyledHtmlButton,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants';
-import { TranslatedReferenceData, TranslatedText } from './Translation';
 
-const DiagnosisListContainer = styled.div`
+const UnorderedList = styled.ul.attrs({
+  'data-testid': 'diagnosislistcontainer-dqkk',
+  role: 'list',
+})`
+  align-items: center;
+  color: ${Colors.primary};
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
-  color: ${Colors.primary};
+  gap: 0.625rem;
 `;
 
-const DiagnosisChip = styled.div`
+const DiagnosisChip = styled(UnstyledHtmlButton).attrs({
+  type: 'button',
+})`
   color: ${Colors.alert};
-  &[data-diagnosis-variant='primary'] {
+  &[data-diagnosis-type='primary'] {
     color: ${Colors.primary};
   }
 
@@ -23,17 +34,19 @@ const DiagnosisChip = styled.div`
   border-radius: ${props => props.theme.shape.borderRadius}px;
   display: flex;
   font-weight: 500;
-  margin: 0.3rem;
 
-  ${p =>
-    typeof p.onClick === 'function'
-      ? css`
-          cursor: pointer;
-        `
-      : ''}
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+  &:active {
+    background-color: oklch(from currentColor l c h / 20%);
+  }
 `;
 
-const Category = styled.div`
+const DiagnosisTypeOrnament = styled.span.attrs({
+  'aria-hidden': true,
+  'data-testid': 'category-vwwx',
+})`
   border-start-start-radius: inherit;
   border-end-start-radius: inherit;
   font-weight: 900;
@@ -42,58 +55,78 @@ const Category = styled.div`
   color: ${Colors.white};
 
   background-color: ${Colors.alert};
-  [data-diagnosis-variant='primary'] & {
+  [data-diagnosis-type='primary'] & {
     background-color: ${Colors.primary};
   }
 `;
 
-const DiagnosisName = styled.span`
+function DiagnosisTypeAccessibleLabel({ isPrimary }) {
+  return (
+    <VisuallyHidden>
+      (
+      {isPrimary ? (
+        <TranslatedText
+          stringId="encounter.diagnosis.type.primary.full"
+          fallback="Primary diagnosis"
+          casing="lower"
+        />
+      ) : (
+        <TranslatedText
+          stringId="encounter.diagnosis.type.secondary.full"
+          fallback="Secondary diagnosis"
+          casing="lower"
+        />
+      )}
+      )
+    </VisuallyHidden>
+  );
+}
+
+const DiagnosisName = styled.span.attrs({
+  'data-testid': 'diagnosisname-vvn4',
+})`
   border-end-end-radius: inherit;
   border-start-end-radius: inherit;
   padding: 10px;
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
-  <DiagnosisChip
-    data-diagnosis-variant={isPrimary ? 'primary' : 'secondary'}
-    onClick={onClick}
-    data-testid="diagnosischip-3n28"
-  >
-    <Category data-testid="category-vwwx">
+const DiagnosisItem = React.memo(({ diagnosis, isPrimary, ...props }) => (
+  <DiagnosisChip data-diagnosis-type={isPrimary ? 'primary' : 'secondary'} {...props}>
+    <DiagnosisTypeOrnament>
       {isPrimary ? (
         <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
       ) : (
         <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
       )}
-    </Category>
-    {diagnosis?.name && diagnosis?.id && (
-      <DiagnosisName data-testid="diagnosisname-vvn4">
+    </DiagnosisTypeOrnament>
+    <DiagnosisName>
+      {diagnosis?.name && diagnosis?.id && (
         <TranslatedReferenceData
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
         />
-      </DiagnosisName>
-    )}
+      )}{' '}
+      <DiagnosisTypeAccessibleLabel isPrimary={isPrimary} />
+    </DiagnosisName>
   </DiagnosisChip>
 ));
 
 export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
-  <DiagnosisListContainer data-testid="diagnosislistcontainer-dqkk">
+  <UnorderedList>
     {diagnoses.map((d, index) => (
-      <DiagnosisItem
-        key={d.id}
-        {...d}
-        onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
-        data-testid={`diagnosisitem-037x-${index}`}
-      />
+      <li key={d.id}>
+        <DiagnosisItem
+          data-testid={`diagnosisitem-037x-${index}`}
+          diagnosis={d.diagnosis}
+          disabled={!onEditDiagnosis}
+          isPrimary={d.isPrimary}
+          onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
+        />
+      </li>
     ))}
-  </DiagnosisListContainer>
+  </UnorderedList>
 ));
-
-DiagnosisList.defaultProps = {
-  onEditDiagnosis: () => {},
-};
 
 DiagnosisList.propTypes = {
   onEditDiagnosis: PropTypes.func,
