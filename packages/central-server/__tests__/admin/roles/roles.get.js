@@ -133,9 +133,9 @@ export function describeRolesGet(getTestContext) {
       expect(response.text).toBe('');
     });
 
-    it('should 404 when no role doesn’t exist', async () => {
+    it('should 404 when role doesn’t exist', async () => {
       const { adminApp } = getTestContext();
-      const response = await adminApp.get(`${ROLE_URL}/role-does-not-exist/isDeletable`);
+      const response = await adminApp.get(`${ROLE_URL}/non-existent/isDeletable`);
       expect(response).toHaveRequestError(404);
     });
 
