@@ -26,15 +26,26 @@ const CancelButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
+/** @param {string | null | undefined} answer */
+function isEmpty(answer) {
+  return answer == null || answer === '';
+}
+
+/**
+ * @param {string | null | undefined} a
+ * @param {string | null | undefined} b
+ */
+function areBothEmpty(a, b) {
+  return isEmpty(a) && isEmpty(b);
+}
+
 /** Recalculates dynamic fields, writing them back into form values. */
 const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     const calculatedValues = runCalculations(components, values);
     for (const [k, v] of Object.entries(calculatedValues)) {
-      // Normalize to `null` so `undefined` and `null` are treated as equivalent answers
-      const prev = values[k] ?? null;
-      const next = v ?? null;
-      if (prev === next) continue;
+      const prev = values[k];
+      if (areBothEmpty(prev, v) || prev === v) continue;
       setFieldValue(k, v, false);
     }
   }, [components, values, setFieldValue]);
