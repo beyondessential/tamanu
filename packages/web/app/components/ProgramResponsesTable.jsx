@@ -1,11 +1,13 @@
 import { subject } from '@casl/ability';
 import React, { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
+import styled from 'styled-components';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   EditedEntryLegend,
   EditedOrnament,
+  EditedOrnamentRoot,
   SurveyResultBadge,
   TranslatedText,
   VisuallyHidden,
@@ -52,6 +54,15 @@ function SurveyNameAccessor({ surveyName, isEdited }) {
 function ResultsAccessor({ resultText }) {
   return <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />;
 }
+
+const ProgramResponsesDataFetchingTable = styled(DataFetchingTable)``;
+
+/** Render ‘*Edited entry’ only if current page of table contains an edited response */
+const ConditionalEditedEntryLegend = styled(EditedEntryLegend)`
+  ${ProgramResponsesDataFetchingTable}:not(:has(${EditedOrnamentRoot})) + & {
+    display: none;
+  }
+`;
 
 export const DataFetchingProgramsTable = ({
   endpoint,
@@ -200,7 +211,7 @@ export const DataFetchingProgramsTable = ({
         submittedBy={selectedResponse?.submittedBy}
         data-testid="surveyresponsesprintmodal-ima2"
       />
-      <DataFetchingTable
+      <ProgramResponsesDataFetchingTable
         TableHeader={TableHeader}
         endpoint={endpoint}
         columns={columns}
@@ -223,7 +234,7 @@ export const DataFetchingProgramsTable = ({
         className={className}
         data-testid="datafetchingtable-58ck"
       />
-      <EditedEntryLegend />
+      <ConditionalEditedEntryLegend />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}

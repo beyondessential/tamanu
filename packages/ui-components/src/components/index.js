@@ -5,7 +5,7 @@ export * from './CustomToastContainer';
 export * from './DateDisplay';
 export * from './Dialog';
 export { EditedEntryLegend, EditedLegend } from './EditedLegend';
-export { EditedOrnament } from './EditedOrnament';
+export { EditedOrnament, EditedOrnamentRoot } from './EditedOrnament';
 export * from './Field';
 export * from './Form';
 export * from './Modal';
