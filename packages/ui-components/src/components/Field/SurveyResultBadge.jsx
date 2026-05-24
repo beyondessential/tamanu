@@ -12,7 +12,7 @@ const colors = /** @type {const} */ ({
   purple: '#67361b',
 });
 
-const Badge = styled.div`
+const Badge = styled.span`
   background-color: oklch(from currentColor l c h / 10%);
   border-radius: calc(infinity * 1px);
   display: inline-block;
