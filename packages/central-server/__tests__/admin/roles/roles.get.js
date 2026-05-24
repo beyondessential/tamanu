@@ -47,7 +47,11 @@ export function describeRolesGet(getTestContext) {
 
     it('should apply both ID and name filters when provided', async () => {
       const { adminApp } = getTestContext();
-      const response = await adminApp.get(ROLES_URL).query({ id: 'consultant', name: 'Cardio' });
+      /**
+       * This query is hand-selected to return exactly one result based on seed data and
+       * {@link seedSampleRoles}
+       */
+      const response = await adminApp.get(ROLES_URL).query({ id: 'diothor', name: 'consult' });
       expect(response).toHaveSucceeded();
       expect(response.body.data).toEqual([
         expect.objectContaining({
