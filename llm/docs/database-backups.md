@@ -48,8 +48,16 @@ One bucket per environment (e.g. `tamanu-db-backups-staging`,
 ### 3. IAM role (IRSA)
 
 Each CNPG cluster's service account needs an IAM role that allows reading and
-writing to the bucket. The `serviceaccountarn` deploy option (already wired up)
-controls the ARN annotation placed on the cluster's `serviceAccountTemplate`.
+writing to the bucket. The `serviceaccountarn` deploy option controls the ARN
+annotation placed on the cluster's `serviceAccountTemplate`.
+
+It defaults to the Tamanu Internal AWS account role, so no override is needed for
+deploys on that account. When deploying to a **different AWS account**, override it
+in the PR deploy line:
+
+```
+%serviceaccountarn=arn:aws:iam::<account-id>:role/<role-name>
+```
 
 Minimum policy:
 
