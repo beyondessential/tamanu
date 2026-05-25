@@ -12,7 +12,8 @@ import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation
 import { TAMANU_COLORS } from '../../constants/colors';
 import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
-import { Field, FieldWithTooltip, SurveyResultBadge } from '../Field';
+import { Field, FieldWithTooltip } from '../Field';
+import SurveyResultQuestion from '../Field/SurveyResultQuestion';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 
 const Text = styled(Typography)`
@@ -69,11 +70,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   const text = component.text || component.dataElement.defaultText;
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
-    return (
-      <Text data-testid="text-lag8">
-        {text} <SurveyResultBadge resultText={component.detail} />
-      </Text>
-    );
+    return <SurveyResultQuestion text={text} component={component} />;
   }
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
