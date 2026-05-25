@@ -170,7 +170,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
 
   return (
     <StyledModal open={open} onClose={onClose} {...props}>
-      <ScrollView data-testid="response-changelog-scrollview">
+      <ScrollView aria-busy={isLoading || undefined} data-testid="response-changelog-scrollview">
         {isLoading ? (
           <TranslatedText stringId="general.table.loading" fallback="Loading…" />
         ) : isError ? (
