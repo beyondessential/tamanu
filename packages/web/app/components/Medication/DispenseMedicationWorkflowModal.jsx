@@ -797,7 +797,7 @@ export const DispenseMedicationWorkflowModal = memo(
               <BodyText>
                 <TranslatedText
                   stringId="modal.medication.dispense.description"
-                  fallback="Select the medications you'd like to dispense below. You'll be able to review and print labels on the next screen."
+                  fallback="Select the medications you'd like to dispense below."
                 />
               </BodyText>
               <DispenseHeaderToolbarRow>
