@@ -12,6 +12,7 @@ export const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
       casing="lower"
     />
   ),
+  type: 'button',
 })`
   cursor: pointer;
   display: inline;
