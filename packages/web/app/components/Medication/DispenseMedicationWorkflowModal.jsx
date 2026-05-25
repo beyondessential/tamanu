@@ -173,7 +173,7 @@ const PatientSummaryViewPatientLink = styled.button`
   font: inherit;
   font-size: 13px;
   font-weight: 500;
-  color: ${Colors.primary};
+  color: ${Colors.midText};
   text-decoration: underline;
   text-align: left;
 
