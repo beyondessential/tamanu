@@ -204,7 +204,7 @@ export function getFormInitialValues({
     const config = getConfigObject(component.id, component.config) || {};
 
     // current user data
-    if (component.dataElement.type === 'UserData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.USER_DATA) {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
       if (userValue !== undefined) {
@@ -212,7 +212,7 @@ export function getFormInitialValues({
       }
     }
     // patient data
-    if (component.dataElement.type === 'PatientData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
       let patientValue = transformPatientData(
         patient,
         additionalData,
