@@ -200,18 +200,25 @@ recent" includes all WAL-archived changes up to the latest archived segment — 
 
 ### Cutover procedure (after the restore cluster is Ready)
 
-The app continues connecting to the original cluster's `-rw` service throughout.
-The cutover replaces the database content without touching any Kubernetes
-infrastructure:
+The cutover replaces the database content on the live cluster without recreating
+Kubernetes resources. Use `--single-transaction` with `--clean` so a failed or
+interrupted `pg_restore` rolls back entirely — without it, each `DROP` commits as
+it runs and a broken pipe can leave the live database with tables dropped but not
+recreated.
+
+`--single-transaction` holds locks for the whole restore. The app will see errors
+for any objects already dropped until the transaction commits. On large databases,
+**stop app pods before step 2 and restart after step 3** to avoid long-lived client
+errors and connection pile-ups (the transaction may still run for a long time).
 
 ```bash
 # 1. Verify the restored data looks correct
 kubectl exec -it -n $NS ${RESTORE_NAME}-1 -c postgres -- psql -U postgres -d app
 
-# 2. Pipe the restored data into the live cluster (app stays connected throughout)
-kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+# 2. (Large DBs) Stop app pods, then pipe restored data into the live cluster
+kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists --single-transaction
 
-# 3. Verify the live cluster has the rolled-back data
+# 3. Verify the live cluster has the rolled-back data, then restart app pods if stopped
 
 # 4. Delete the restore cluster
 kubectl delete cluster $RESTORE_NAME -n $NS
@@ -247,8 +254,8 @@ Use this when only one server (e.g. `central` or `facility-1`) needs to be rolle
    # Verify restored data
    kubectl exec -it -n $NS ${RESTORE_NAME}-1 -c postgres -- psql -U postgres -d app
 
-   # Pipe restored data into live cluster
-   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+   # Pipe restored data into live cluster (stop app pods first on large DBs)
+   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists --single-transaction
 
    # Delete the restore cluster
    kubectl delete cluster $RESTORE_NAME -n $NS
@@ -280,7 +287,7 @@ Use this when a change affected multiple servers and all need to be restored to 
    RESTORE_NAME=<cluster>-restore-<timestamp>-db
    CLUSTER=<cluster>-db
 
-   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists
+   kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists --single-transaction
    ```
 
 5. **Verify** each live cluster has the rolled-back data.
@@ -290,7 +297,11 @@ Use this when a change affected multiple servers and all need to be restored to 
    kubectl delete cluster -n $NS -l tamanu.io/restored-from   # label set by cd-restore; deletes all restore clusters
    ```
 
-> **Note:** The app does not need to be stopped during this procedure. The `pg_restore` step briefly locks tables but the app will reconnect automatically. For zero-tolerance deployments, consider stopping the app pods before step 4 and restarting after step 6.
+> **Note:** Stop app pods before step 4 and restart after step 5 on production or
+> large databases. `--clean` drops objects before recreating them; always use
+> `--single-transaction` so a failed restore does not leave the live DB partially
+> dropped. While the transaction runs, connected clients will error on affected
+> tables — not merely reconnect after brief locks.
 
 ---
 
