@@ -20,6 +20,7 @@ import { SurveyAnswerResult } from './SurveyAnswerResult';
 function EmptyState() {
   return (
     <ContentUnavailableView
+      icon={<History />}
       heading={
         <TranslatedText
           stringId="surveyResponse.changelog.empty.title"
