@@ -9,6 +9,10 @@ name: CD Restore
 # IMPORTANT: This is a destructive operation on the target deployment.  The
 # current primary cluster is paused and traffic is moved to the restored clone.
 # Confirm you understand the implications before triggering this workflow.
+#
+# The workflow waits (default 10 min) for the restore cluster to become Ready.
+# If that wait times out, the job fails but CNPG keeps restoring in the cluster;
+# increase ready-timeout-seconds or monitor the cluster and cut over manually.
 
 on:
   workflow_dispatch:
@@ -31,6 +35,14 @@ on:
           Leave blank to restore from the most recent backup.
         type: string
         default: ''
+      ready-timeout-seconds:
+        description: |
+          How long to wait for the restored cluster to become Ready (seconds).
+          Default 600 (10 min). Large databases may need 3600 (1 h) or more.
+          If exceeded, the workflow fails but CNPG keeps restoring in the
+          background — check cluster status and run the cutover manually.
+        type: number
+        default: 600
 
 permissions:
   contents: read
@@ -55,6 +67,7 @@ jobs:
           DEPLOY_NAME: ${{ inputs.deploy-name }}
           INPUT_CLUSTER: ${{ inputs.cluster }}
           RECOVERY_TARGET_TIME: ${{ inputs.recovery-target-time }}
+          READY_TIMEOUT_SECONDS: ${{ inputs.ready-timeout-seconds }}
         run: |
           set -euo pipefail
 
@@ -65,6 +78,12 @@ jobs:
           fi
           if ! [[ "$INPUT_CLUSTER" =~ ^[a-z0-9-]+$ ]]; then
             echo "Invalid cluster: '$INPUT_CLUSTER'"
+            exit 1
+          fi
+
+          READY_TIMEOUT="${READY_TIMEOUT_SECONDS:-600}"
+          if ! [[ "$READY_TIMEOUT" =~ ^[0-9]+$ ]] || [[ "$READY_TIMEOUT" -lt 60 ]]; then
+            echo "Invalid ready-timeout-seconds: '$READY_TIMEOUT' (must be an integer >= 60)"
             exit 1
           fi
 
@@ -178,11 +197,21 @@ jobs:
               sys.exit(result.returncode)
           PYEOF
 
-          echo "Waiting for restored cluster to become ready (up to 15 minutes)..."
-          kubectl wait cluster/"$RESTORE_NAME" \
+          READY_TIMEOUT_MIN=$(( READY_TIMEOUT / 60 ))
+          echo "Waiting for restored cluster to become ready (up to ${READY_TIMEOUT_MIN} minutes)..."
+          if ! kubectl wait cluster/"$RESTORE_NAME" \
             -n "$NS" \
             --for=condition=Ready \
-            --timeout=900s
+            --timeout="${READY_TIMEOUT}s"; then
+            echo ""
+            echo "Timed out after ${READY_TIMEOUT}s waiting for Ready."
+            echo "CNPG continues restoring '$RESTORE_NAME' in the background."
+            echo "When Ready, run the cutover manually (see llm/docs/database-backups.md):"
+            echo "       NS=$NS"
+            echo "       RESTORE_NAME=$RESTORE_NAME"
+            echo "       CLUSTER=$CLUSTER"
+            exit 1
+          fi
 
           echo ""
           echo "Restored cluster '$RESTORE_NAME' is ready."

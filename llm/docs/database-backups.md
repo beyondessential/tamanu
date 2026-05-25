@@ -176,10 +176,15 @@ pipe the recovered data back into the live cluster.
 
 1. A new `Cluster` (`<original>-restore-<timestamp>`) is created and bootstrapped
    from S3 — either the latest backup or a specific point in time.
-2. The workflow waits for the restored cluster to become `Ready` (typically ~2–3
-   minutes).
+2. The workflow waits for the restored cluster to become `Ready` (default 10
+   minutes; use the `ready-timeout-seconds` input for larger databases).
 3. The workflow prints copy-paste ready commands for the operator to complete the
    rollback.
+
+If the ready wait times out, the workflow **fails** but CNPG keeps restoring the
+cluster in Kubernetes. Check `kubectl get cluster -n <ns>` and proceed with the
+cutover once the restore cluster is `Ready` (the workflow prints `NS`,
+`RESTORE_NAME`, and `CLUSTER` on timeout as well as on success).
 
 ### Point-in-time recovery
 
@@ -226,7 +231,11 @@ Use this when only one server (e.g. `central` or `facility-1`) needs to be rolle
    - `cluster`: e.g. `central` or `facility-1`
    - `recovery-target-time`: e.g. `2026-05-21 19:20:00+00`
 
-2. **Wait for the workflow to complete** (~2–3 minutes). It will print copy-paste commands including the pre-filled variable exports.
+2. **Wait for the workflow to complete** (typically a few minutes; increase
+   `ready-timeout-seconds` for large databases). It prints copy-paste commands
+   including the pre-filled variable exports. On timeout, the workflow fails but
+   the restore cluster may still become Ready — watch the cluster and use the
+   variables printed in the failed run log.
 
 3. **Run the printed commands** to verify and pipe the data back:
    ```bash
