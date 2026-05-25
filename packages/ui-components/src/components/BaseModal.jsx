@@ -1,15 +1,19 @@
 import React, { memo } from 'react';
 
-import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
-import PrintIcon from '@mui/icons-material/Print';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import styled from 'styled-components';
+import { TAMANU_COLORS } from '../constants';
 import { Button } from './Button';
 import { TranslatedText } from './Translation';
-import { TAMANU_COLORS } from '../constants';
+import { VisuallyHidden } from './VisuallyHidden';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
@@ -154,16 +158,15 @@ export const BaseModal = memo(
                 size="small"
                 data-testid="styledbutton-z2pp"
               >
-                <TranslatedText
-                  stringId="general.action.print"
-                  fallback="Print"
-                  data-testid="translatedtext-0ush"
-                />
+                <TranslatedText stringId="general.action.print" fallback="Print" />
               </StyledButton>
             )}
             {cornerExitButton && (
               <IconButton onClick={onClose} disabled={!isClosable} data-testid="iconbutton-eull">
                 <CloseIcon data-testid="closeicon-z1u6" />
+                <VisuallyHidden>
+                  <TranslatedText stringId="general.action.close" fallback="Close" />
+                </VisuallyHidden>
               </IconButton>
             )}
           </Box>

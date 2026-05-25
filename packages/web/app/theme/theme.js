@@ -20,6 +20,16 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  /**
+   * WebKit doesn’t apply implicit ‘list’ role from <ol>s and <ul>s when list-style-type is
+   * ‘none’ unless nested in a <nav>. Intentional on WebKit’s part, but usually undesirable.
+   * @see https://bugs.webkit.org/show_bug.cgi?id=170179#c1
+   */
+  ":where(ol, ul)[role='list']": {
+    listStyleType: 'none',
+    marginBlock: 0,
+    paddingInlineStart: 0,
+  },
   pre: {
     marginBlock: 0,
   },
