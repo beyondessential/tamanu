@@ -15,6 +15,7 @@ import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from 
 import { Field, FieldWithTooltip } from '../Field';
 import SurveyResultQuestion from '../Field/SurveyResultQuestion';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
+import { ViewChangeLogButton } from '../ViewChangeLogButton';
 
 const Text = styled(Typography)`
   margin-block-end: 10px;
@@ -102,6 +103,7 @@ export const SurveyQuestion = ({
   encounterType,
   getComponentForQuestionType,
   isEdited = false,
+  onViewChangeLog = null,
 }) => {
   const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -140,6 +142,16 @@ export const SurveyQuestion = ({
       {isEdited && (
         <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
           <TranslatedText stringId="general.label.edited" fallback="Edited" />
+          {onViewChangeLog && (
+            <>
+              {' '}
+              &ndash;{' '}
+              <ViewChangeLogButton
+                onClick={onViewChangeLog}
+                data-testid="survey-question-view-changelog"
+              />
+            </>
+          )}
         </span>
       )}
     </>
