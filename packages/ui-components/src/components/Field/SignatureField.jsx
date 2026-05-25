@@ -6,6 +6,7 @@ import {
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
 } from '../../utils/signaturePath';
+import { SignaturePathDisplay } from '../SignaturePathDisplay';
 import { Button } from '../Button';
 import { TranslatedText } from '../Translation';
 
@@ -19,6 +20,7 @@ const PadWrapper = styled.div`
   position: relative;
   width: 100%;
   max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
+  aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   border: 1px solid
     ${({ $focused, $hasValue }) =>
       $focused ? TAMANU_COLORS.primary : $hasValue ? TAMANU_COLORS.outline : TAMANU_COLORS.softOutline};
@@ -34,6 +36,11 @@ const PadSvg = styled.svg`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   touch-action: none;
   user-select: none;
+`;
+
+const DrawingLayer = styled(PadSvg)`
+  position: absolute;
+  inset: 0;
 `;
 
 const EmptyOverlay = styled.div`
@@ -60,10 +67,6 @@ const ClearRow = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
-
-const SignaturePath = ({ path }) => (
-  <path d={path} fill={TAMANU_COLORS.darkestText} />
-);
 
 const clientPointToViewBox = (clientX, clientY, rect) => {
   const x = ((clientX - rect.left) / rect.width) * SIGNATURE_VIEWBOX_WIDTH;
@@ -187,18 +190,51 @@ export const SignatureField = ({ field, disabled }) => {
         onBlur={handleBlur}
         data-testid="signaturefield-pad"
       >
-        <PadSvg
-          viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
-          preserveAspectRatio="xMidYMid meet"
-          onPointerDown={isActive ? handlePointerDown : undefined}
-          onPointerMove={isActive ? handlePointerMove : undefined}
-          onPointerUp={isActive ? handlePointerUp : undefined}
-          onPointerCancel={isActive ? handlePointerCancel : undefined}
-          data-testid="signaturefield-svg"
-        >
-          {value && <SignaturePath path={value} />}
-          {isActive && sessionPreviewPath && <SignaturePath path={sessionPreviewPath} />}
-        </PadSvg>
+        {value && !isActive && (
+          <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
+        )}
+        {isActive && !value && !sessionPreviewPath && (
+          <PadSvg
+            viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
+            preserveAspectRatio="xMidYMid meet"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            data-testid="signaturefield-svg"
+          />
+        )}
+        {isActive && value && (
+          <>
+            <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
+            <DrawingLayer
+              viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
+              preserveAspectRatio="xMidYMid meet"
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
+              data-testid="signaturefield-svg"
+            >
+              {sessionPreviewPath && (
+                <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
+              )}
+            </DrawingLayer>
+          </>
+        )}
+        {isActive && !value && sessionPreviewPath && (
+          <PadSvg
+            viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
+            preserveAspectRatio="xMidYMid meet"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            data-testid="signaturefield-svg"
+          >
+            <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
+          </PadSvg>
+        )}
         {showEmptyOverlay && (
           <EmptyOverlay data-testid="signaturefield-empty">
             <TranslatedText

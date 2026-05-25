@@ -8,6 +8,7 @@ export * from './Field';
 export * from './Form';
 export * from './Modal';
 export * from './PatientNameDisplay';
+export * from './SignaturePathDisplay';
 export * from './Suggester';
 export * from './Survey';
 export * from './Tag';

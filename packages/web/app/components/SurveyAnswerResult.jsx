@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
+import { Button, PatientDataDisplayField, SignaturePathDisplay } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
@@ -103,6 +103,8 @@ export const SurveyAnswerResult = ({
           originalBody={originalBody}
         />
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return <SignaturePathDisplay path={answer} data-testid="signaturepathdisplay-answer" />;
     default:
       return answer;
   }
