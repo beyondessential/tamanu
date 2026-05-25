@@ -3,7 +3,7 @@ import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 export function getStringValue(type, value) {
-  if (value === null) {
+  if (value == null) {
     return null;
   }
   switch (type) {
