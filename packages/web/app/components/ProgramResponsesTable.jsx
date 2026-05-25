@@ -118,8 +118,8 @@ export const DataFetchingProgramsTable = ({
   }, []);
 
   const buildRowActions = useCallback(
-    data => {
-      const rowActions = [
+    data =>
+      [
         {
           label: <TranslatedText stringId="general.action.print" fallback="Print" />,
           action: () => {
@@ -127,32 +127,26 @@ export const DataFetchingProgramsTable = ({
             setPrintModalOpen(true);
           },
         },
-      ];
-      if (ability?.can('write', subject('Survey', { id: data.surveyId }))) {
-        rowActions.push({
+        {
           label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
           action: () => navigateToEdit(data),
-        });
-      }
-      if (ability?.can('delete', 'SurveyResponse')) {
-        rowActions.push({
+          hidden: !ability?.can('write', subject('Survey', { id: data.surveyId })),
+        },
+        {
           label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
           action: () => {
             setSelectedResponse(data);
             setDeleteModalOpen(true);
           },
           wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
-        });
-      }
-      if (data.isEdited) {
-        rowActions.push({
+          hidden: !ability?.can('delete', 'SurveyResponse'),
+        },
+        {
           label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
           action: () => openChangelog(data.id),
-        });
-      }
-
-      return rowActions;
-    },
+          hidden: !data.isEdited,
+        },
+      ].filter(row => !row.hidden),
     [ability, navigateToEdit, openChangelog],
   );
 
