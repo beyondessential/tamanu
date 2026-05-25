@@ -283,7 +283,11 @@ export const AiPatientSummaryContent = ({
             <CancelButton onClick={onCancel} disabled={isBusy} data-testid="ai-summary-cancel">
               <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
             </CancelButton>
-            <SaveButton onClick={onSave} disabled={isBusy} data-testid="ai-summary-save">
+            <SaveButton
+              onClick={onSave}
+              disabled={isBusy || !editContent?.trim()}
+              data-testid="ai-summary-save"
+            >
               <TranslatedText stringId="general.action.save" fallback="Save" />
             </SaveButton>
           </EditActionsRight>
