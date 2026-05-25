@@ -190,6 +190,83 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
+export const createEncounterPrescriptionViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  overrides: Partial<{
+    medicationId: string;
+    route: string;
+    doseAmount: number;
+    units: string;
+    frequency: string;
+  }> = {},
+) => {
+  const user = await getUser(api);
+
+  const suggestUrl = constructFacilityUrl('/api/suggestions/drug?count=1');
+  const suggestResponse = await api.get(suggestUrl);
+  if (!suggestResponse.ok()) {
+    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
+  }
+  const medications = await suggestResponse.json();
+  const medicationId = medications[0]?.id;
+  if (!medicationId) throw new Error('No medications found in drug reference data');
+
+  const now = new Date();
+  const dateString = now.toISOString().substring(0, 10);
+  const datetimeString = now.toISOString().replace('T', ' ').substring(0, 19);
+
+  const prescriptionData = {
+    medicationId,
+    prescriberId: user.id,
+    date: dateString,
+    startDate: datetimeString,
+    route: 'oral',
+    doseAmount: 1,
+    units: 'mg',
+    frequency: 'Immediately',
+    ...overrides,
+  };
+
+  const url = constructFacilityUrl(`/api/medication/encounterPrescription/${encounterId}`);
+  const response = await api.post(url, { data: prescriptionData });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const createPharmacyOrderViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  encounterId: string,
+  prescriptionId: string,
+) => {
+  const user = await getUser(api);
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+
+  const url = constructFacilityUrl(`/api/encounter/${encounterId}/pharmacyOrder`);
+  const response = await api.post(url, {
+    data: {
+      orderingClinicianId: user.id,
+      comments: '',
+      isDischargePrescription: false,
+      facilityId,
+      pharmacyOrderPrescriptions: [{ prescriptionId, quantity: 1, repeats: 0 }],
+    },
+  });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create pharmacy order: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
 export const recordPatientDeathViaApi = async (
   api: APIRequestContext,
   page: Page,
