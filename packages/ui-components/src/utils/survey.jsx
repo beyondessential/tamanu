@@ -2,7 +2,6 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import {
@@ -19,7 +18,7 @@ const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 const joinNames = data => [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
 
-const isNullOrUndefined = value => isNull(value) || isUndefined(value);
+const isNil = value => value == null;
 
 // TODO: figure out why defaultOptions is an object in the database, should it be an array? Also what's up with options, is it ever set by anything? There's no survey_screen_component.options in the db that are not null.
 export function mapOptionsToValues(options) {
@@ -191,7 +190,7 @@ export function getFormInitialValues({
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement, getCurrentDateTime);
     const propName = dataElement.id;
-    if (isNullOrUndefined(initialValue)) {
+    if (isNil(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
