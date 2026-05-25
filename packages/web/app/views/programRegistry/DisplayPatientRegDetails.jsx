@@ -219,7 +219,15 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         />
         <MenuContainer>
           <div className="menu">
-            <MenuButton actions={actions} />
+            <MenuButton
+              a11yLabel={
+                <TranslatedText
+                  stringId="programRegistry.actions"
+                  fallback="Program registry actions"
+                />
+              }
+              actions={actions}
+            />
           </div>
         </MenuContainer>
       </Row>

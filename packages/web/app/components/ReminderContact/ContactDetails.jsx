@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { TextButton } from '@tamanu/ui-components';
+import { TextButton, VisuallyHidden } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { WS_EVENTS } from '@tamanu/constants';
 
@@ -280,8 +280,15 @@ export const ContactDetails = ({
     ...(canRemoveReminderContacts && !isRemoveModal
       ? [
           {
-            key: '',
-            title: '',
+            key: 'remove',
+            title: (
+              <VisuallyHidden>
+                <TranslatedText
+                  stringId="patient.details.reminderContacts.action.remove"
+                  fallback="Remove"
+                />
+              </VisuallyHidden>
+            ),
             sortable: false,
             accessor: (data) => {
               return (
@@ -292,7 +299,6 @@ export const ContactDetails = ({
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
-                    data-testid="translatedtext-6z4r"
                   />
                 </StyledTextButton>
               );
@@ -303,18 +309,18 @@ export const ContactDetails = ({
     ...(!isRemoveModal
       ? [
           {
-            key: '',
-            title: '',
+            key: 'retry',
+            title: (
+              <VisuallyHidden>
+                <TranslatedText stringId="general.action.retry" fallback="Retry" />
+              </VisuallyHidden>
+            ),
             sortable: false,
             accessor: (row) =>
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
                 <RowActionLink onClick={() => onRetry(row)} data-testid="rowactionlink-pfr5">
-                  <TranslatedText
-                    stringId="general.action.retry"
-                    fallback="Retry"
-                    data-testid="translatedtext-qhg3"
-                  />
+                  <TranslatedText stringId="general.action.retry" fallback="Retry" />
                 </RowActionLink>
               ) : (
                 ''
@@ -347,7 +353,7 @@ export const ContactDetails = ({
             ),
           }}
           data-testid="styledtext-r6fj"
-        ></StyledText>
+        />
       ) : (
         <StyledText
           dangerouslySetInnerHTML={{
@@ -358,7 +364,7 @@ export const ContactDetails = ({
             ),
           }}
           data-testid="styledtext-rxy4"
-        ></StyledText>
+        />
       )}
       <StyledContactListTable
         columns={columns}
