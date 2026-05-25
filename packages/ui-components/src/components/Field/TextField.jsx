@@ -216,3 +216,5 @@ TextInput.defaultProps = {
   value: '',
   fullWidth: true,
 };
+
+export const ReadOnlyNumberField = props => <ReadOnlyTextField {...props} type="number" />;

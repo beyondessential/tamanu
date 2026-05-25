@@ -9,6 +9,7 @@ import {
   LimitedTextField,
   MultilineTextField,
   PatientDataDisplayField,
+  ReadOnlyNumberField,
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import {
@@ -37,7 +38,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyNumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
