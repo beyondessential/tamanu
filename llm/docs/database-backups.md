@@ -287,7 +287,7 @@ Use this when a change affected multiple servers and all need to be restored to 
 
 6. **Delete all restore clusters:**
    ```bash
-   kubectl delete cluster -n $NS -l tamanu.io/restored-from   # deletes all restore clusters at once
+   kubectl delete cluster -n $NS -l tamanu.io/restored-from   # label set by cd-restore; deletes all restore clusters
    ```
 
 > **Note:** The app does not need to be stopped during this procedure. The `pg_restore` step briefly locks tables but the app will reconnect automatically. For zero-tolerance deployments, consider stopping the app pods before step 4 and restarting after step 6.

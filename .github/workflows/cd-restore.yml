@@ -158,6 +158,9 @@ jobs:
               'metadata': {
                   'name': restore_name,
                   'namespace': ns,
+                  'labels': {
+                      'tamanu.io/restored-from': cluster,
+                  },
                   'annotations': {
                       'tamanu.io/restored-from': cluster,
                   },
