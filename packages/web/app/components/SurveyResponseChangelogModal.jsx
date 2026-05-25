@@ -1,6 +1,8 @@
 /** @typedef {import('../api/queries/useSurveyResponseChangesQuery').Change} Change */
 
 import FormHelperText from '@mui/material/FormHelperText';
+import Skeleton, { skeletonClasses } from '@mui/material/Skeleton';
+import { History } from 'lucide-react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -172,7 +174,7 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
     <StyledModal open={open} onClose={onClose} {...props}>
       <ScrollView aria-busy={isLoading || undefined} data-testid="response-changelog-scrollview">
         {isLoading ? (
-          <TranslatedText stringId="general.table.loading" fallback="Loading…" />
+          <ChangeLogListSkeleton />
         ) : isError ? (
           <TranslatedText
             stringId="surveyResponse.changelog.error.load"
@@ -192,3 +194,57 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
     </StyledModal>
   );
 };
+
+const TextSkeleton = styled(Skeleton).attrs({ variant: 'text' })`
+  &.${skeletonClasses.root} {
+    display: inline-block;
+    font-size: inherit;
+  }
+`;
+
+function ChangeLogListSkeleton() {
+  return (
+    <ul role="list">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <ChangeLogListItemSkeleton key={index} />
+      ))}
+    </ul>
+  );
+}
+
+function ChangeLogListItemSkeleton() {
+  return (
+    <ListItem>
+      <Heading>
+        <TextSkeleton width="60%" />
+      </Heading>
+      <table>
+        <TableHead />
+        <tbody>
+          <tr>
+            <RowHeader>
+              <TranslatedText stringId="surveyResponse.changelog.from" fallback="Edited from:" />
+            </RowHeader>
+            <td>
+              <TextSkeleton width="12ch" />
+            </td>
+          </tr>
+          <tr>
+            <RowHeader>
+              <TranslatedText stringId="surveyResponse.changelog.to" fallback="Edited to:" />
+            </RowHeader>
+            <td>
+              <TextSkeleton width="12ch" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <FormHelperText>
+        <TextSkeleton width="15ch" /> &middot;{' '}
+        <TextSkeleton>
+          <DateDisplay date={new Date()} format="short" noTooltip timeFormat="default" />
+        </TextSkeleton>
+      </FormHelperText>
+    </ListItem>
+  );
+}
