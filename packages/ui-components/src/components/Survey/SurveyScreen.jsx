@@ -32,11 +32,10 @@ function isEmpty(answer) {
 }
 
 /**
- * @param {string | null | undefined} a
- * @param {string | null | undefined} b
+ * @param {...(string | null | undefined)} answers
  */
-function areBothEmpty(a, b) {
-  return isEmpty(a) && isEmpty(b);
+function areEmpty(...answers) {
+  return answers.every(isEmpty);
 }
 
 /** Recalculates dynamic fields, writing them back into form values. */
@@ -45,7 +44,7 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     const calculatedValues = runCalculations(components, values);
     for (const [k, v] of Object.entries(calculatedValues)) {
       const prev = values[k];
-      if (areBothEmpty(prev, v) || prev === v) continue;
+      if (prev === v || areEmpty(prev, v)) continue;
       setFieldValue(k, v, false);
     }
   }, [components, values, setFieldValue]);
