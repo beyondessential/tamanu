@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { get } from 'lodash';
-import { SettingsContext, useSettings } from '@tamanu/ui-components';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
-import { SettingsRefresher } from './SettingsRefresher';
+import { SettingsContext, useSettings } from '@tamanu/ui-components';
 import { checkIsFacilitySelected } from '../store/auth';
+import { SettingsRefresher } from './SettingsRefresher';
 
 export { useSettings };
 
@@ -21,10 +21,12 @@ export const SettingsProvider = ({ children }) => {
     }
   }, [reduxSettings]);
 
+  const getSetting = useCallback(path => get(settings, path), [settings]);
+
   return (
     <SettingsContext.Provider
       value={{
-        getSetting: path => get(settings, path),
+        getSetting,
         settings,
         isSettingsLoaded,
       }}
