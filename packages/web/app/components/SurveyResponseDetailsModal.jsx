@@ -10,7 +10,7 @@ import {
   Modal,
   TranslatedReferenceData,
   TranslatedText,
-  UnstyledHtmlButton,
+  ViewChangeLogButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseChangesQuery, useSurveyResponseQuery } from '../api/queries';
@@ -66,25 +66,6 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
     />
   );
 };
-
-/** @privateRemarks Looks like an `<a>`, but has `<button>` semantics. */
-const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
-  children: (
-    <TranslatedText
-      stringId="general.action.viewChangeLog"
-      fallback="View change log"
-      casing="lower"
-    />
-  ),
-})`
-  cursor: pointer;
-  display: inline;
-  text-decoration-line: underline;
-  &:focus-visible,
-  &:hover {
-    color: ${p => p.theme.palette.primary.main};
-  }
-`;
 
 export const SurveyResponseDetailsModal = ({
   surveyResponseId,
