@@ -128,14 +128,12 @@ export const DataFetchingProgramsTable = ({
           },
         },
       ];
-
       if (ability?.can('write', subject('Survey', { id: data.surveyId }))) {
         rowActions.push({
           label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
           action: () => navigateToEdit(data),
         });
       }
-
       if (ability?.can('delete', 'SurveyResponse')) {
         rowActions.push({
           label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -146,11 +144,12 @@ export const DataFetchingProgramsTable = ({
           wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
         });
       }
-
-      rowActions.push({
-        label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
-        action: () => openChangelog(data.id),
-      });
+      if (data.isEdited) {
+        rowActions.push({
+          label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
+          action: () => openChangelog(data.id),
+        });
+      }
 
       return rowActions;
     },
