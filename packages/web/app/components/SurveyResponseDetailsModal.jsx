@@ -78,6 +78,7 @@ const ViewChangeLogButton = styled(UnstyledHtmlButton).attrs({
   ),
 })`
   cursor: pointer;
+  display: inline;
   text-decoration-line: underline;
   &:focus-visible,
   &:hover {
