@@ -12,4 +12,5 @@ export * from './PhotoField';
 export * from './Select';
 export * from './SelectField';
 export * from './SurveyResultBadge';
+export { default as SurveyResultQuestion } from './SurveyResultQuestion';
 export * from './TextField';
