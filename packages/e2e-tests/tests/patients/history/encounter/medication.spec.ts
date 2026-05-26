@@ -100,8 +100,8 @@ test.describe('Medication - Encounter', () => {
     // Success dialog should appear
     await expect(page.getByRole('dialog')).toContainText('Request sent');
 
-    // Close success dialog
-    await page.getByRole('button', { name: 'Close' }).click();
+    // Close success dialog (use testid to distinguish from the modal header's icon close button)
+    await page.getByTestId('confirmbutton-tok1').click();
     await expect(page.getByRole('dialog')).toBeHidden();
   });
 });
