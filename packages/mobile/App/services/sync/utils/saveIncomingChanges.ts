@@ -90,6 +90,7 @@ export const saveChangesFromMemory = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
+  const { maxRecordsPerInsertBatch = 2000 } = syncSettings;
   const modelChanges = prepareChangesForModels(records, sortedModels);
   for (const { model, records } of modelChanges) {
     if (model.name === 'User') {
@@ -98,7 +99,7 @@ export const saveChangesFromMemory = async (
       await executePreparedInsert(
         model.getTransactionalRepository(),
         buildFromSyncRecord(model, records),
-        syncSettings.maxRecordsPerInsertBatch,
+        maxRecordsPerInsertBatch,
         progressCallback,
       );
     }
