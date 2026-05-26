@@ -1,26 +1,35 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CameraAlt from '@mui/icons-material/CameraAlt';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import Box from '@mui/material/Box';
+import FormHelperText from '@mui/material/FormHelperText';
+import { X } from 'lucide-react';
+import React, { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
+
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
-import { Button } from '../Button';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { ClearIcon } from '../Icons/ClearIcon';
-import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
+import { Button } from '../Button';
+import { ConditionalTooltip } from '../Tooltip';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { VisuallyHidden } from '../VisuallyHidden';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
-const StyledIconButton = styled(IconButton)`
-  margin-left: 5px;
+const ClearButton = styled(IconButton).attrs({
+  'data-testid': 'removeselectionbutton-yt3j',
+  children: (
+    <>
+      <X style={{ color: TAMANU_COLORS.darkText }} size={20} />
+      <VisuallyHidden>
+        <TranslatedText stringId="general.action.clear" fallback="Clear" />
+      </VisuallyHidden>
+    </>
+  ),
+})`
+  margin-inline-start: 5px;
   padding: 5px;
-`;
-
-const StyledClearIcon = styled(ClearIcon)`
-  cursor: pointer;
-  color: ${TAMANU_COLORS.darkText};
 `;
 
 const FieldButtonRow = styled.div`
@@ -54,7 +63,28 @@ const getSmallFileName = (value, maxLength) => {
   return value.slice(0, middlePoint) + '…' + value.slice(lastHalfIndex, value.length);
 };
 
-const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
+const ValueSection = ({ onClear, showFileDialog, smallDisplay, value, ViewPhotoLinkComponent }) => {
+  if (typeof value === 'string' && value !== '') {
+    // Editing a survey response; `value` is an attachment ID, not a File-like object
+    return (
+      <>
+        {ViewPhotoLinkComponent ? (
+          <ViewPhotoLinkComponent imageId={value} />
+        ) : (
+          // Shouldn’t be reached in practice, but just in case
+          <span style={{ fontVariantNumeric: 'lining-nums slashed-zero tabular-nums' }}>
+            <TranslatedText
+              stringId="attachment.photo.previewNotAvailable"
+              fallback="Photo :id (preview not available)"
+              replacements={{ id: value }}
+            />
+          </span>
+        )}
+        <ClearButton onClick={onClear} />
+      </>
+    );
+  }
+
   if (smallDisplay) {
     const maxLength = 50;
     const needEllipsis = value.name.length > maxLength;
@@ -68,9 +98,7 @@ const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
         >
           {smallName}
         </ConditionalTooltip>
-        <StyledIconButton onClick={onClear} data-testid="removeselectionbutton-yt3j">
-          <StyledClearIcon />
-        </StyledIconButton>
+        <ClearButton onClick={onClear} />
       </Box>
     );
   }
@@ -101,6 +129,8 @@ const getFilterNames = filters => {
 };
 
 export const FileChooserInput = ({
+  error,
+  helperText,
   value = '',
   label,
   name,
@@ -250,6 +280,11 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
+      {helperText && (
+        <FormHelperText error={Boolean(error)} data-testid="filechooserfield-formhelpertext">
+          {helperText}
+        </FormHelperText>
+      )}
       {WebcamCaptureModalComponent && (
         <WebcamCaptureModalComponent
           open={isWebcamModalOpen}
