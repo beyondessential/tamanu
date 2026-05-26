@@ -53,6 +53,7 @@ export const SurveyAnswerResult = ({
             variant="contained"
             color="primary"
             data-testid="button-rzll"
+            style={{ display: 'inline-block' }}
           >
             <TranslatedText stringId="survey.action.showForm" fallback="Show form" />
           </Button>
