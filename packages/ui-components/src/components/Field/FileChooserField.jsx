@@ -1,19 +1,21 @@
-import { Box, IconButton } from '@material-ui/core';
-import FormHelperText from '@mui/material/FormHelperText';
+import { IconButton } from '@material-ui/core';
 import CameraAlt from '@mui/icons-material/CameraAlt';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { SETTING_KEYS } from '@tamanu/constants';
+import Box from '@mui/material/Box';
+import FormHelperText from '@mui/material/FormHelperText';
 import { X } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
+
+import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
 import { useSettings } from '../../contexts';
 import { Button } from '../Button';
 import { ConditionalTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { VisuallyHidden } from '../VisuallyHidden';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const ClearButton = styled(IconButton).attrs({
   'data-testid': 'removeselectionbutton-yt3j',
@@ -62,7 +64,7 @@ const getSmallFileName = (value, maxLength) => {
 };
 
 const ValueSection = ({ onClear, showFileDialog, smallDisplay, value, ViewPhotoLinkComponent }) => {
-  if (typeof value === 'string') {
+  if (typeof value === 'string' && value !== '') {
     // Editing a survey response; `value` is an attachment ID, not a File-like object
     return (
       <>
