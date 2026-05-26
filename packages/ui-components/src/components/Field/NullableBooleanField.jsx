@@ -5,11 +5,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import styled from 'styled-components';
+
 import { TAMANU_COLORS } from '../../constants';
 import { useTranslation } from '../../contexts';
 import { TranslatedText } from '../Translation';
 
-const ControlLabel = styled(FormLabel)`
+const ControlLabel = styled(FormLabel).attrs({
+  'data-testid': 'controllabel-q0hy',
+})`
   width: max-content;
   align-items: flex-start;
   margin-left: 0;
@@ -85,7 +88,7 @@ export const NullableBooleanInput = ({
     >
       <ControlLabel
         labelPlacement="top"
-        control={<NullableBooleanControl {...props} data-testid="nullablebooleancontrol-y1ik" />}
+        control={<NullableBooleanControl {...props} data-testid="nullable-boolean-field-control" />}
         label={
           <div>
             {label}
@@ -94,10 +97,11 @@ export const NullableBooleanInput = ({
             )}
           </div>
         }
-        data-testid="controllabel-q0hy"
       />
       {helperText && (
-        <FormHelperText data-testid="styledformhelpertext-y0km">{helperText}</FormHelperText>
+        <FormHelperText data-testid="nullable-boolean-field-formhelpertext">
+          {helperText}
+        </FormHelperText>
       )}
     </FormControl>
   );
