@@ -1,4 +1,5 @@
-import { FormHelperText, Typography } from '@mui/material';
+import FormHelperText from '@mui/material/FormHelperText';
+import Typography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
