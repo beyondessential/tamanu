@@ -7,7 +7,6 @@ import { DateDisplay } from './DateDisplay';
 import MultilineResult from './MultilineResult';
 import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { MultiSelectResult } from './MultiSelectResult';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedOption } from './Translation/TranslatedOptions';
 import { TranslatedText } from './Translation/TranslatedText';
