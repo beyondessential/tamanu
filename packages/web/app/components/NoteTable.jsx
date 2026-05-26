@@ -268,7 +268,7 @@ const NoteContent = ({
           >
             (
             <EditedButton data-testid="editedbutton-jn5i">
-              <TranslatedText stringId="note.table.footer.edited" fallback="edited" />
+              <TranslatedText stringId="general.label.edited" fallback="Edited" />
             </EditedButton>
             )
           </EditedButtonContainer>
