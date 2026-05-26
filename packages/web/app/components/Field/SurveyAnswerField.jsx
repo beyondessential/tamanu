@@ -1,4 +1,5 @@
-import { Typography } from '@mui/material';
+import FormHelperText from '@mui/material/FormHelperText';
+import Typography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -9,7 +10,7 @@ import { SurveyAnswerResult } from '../SurveyAnswerResult';
 function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
   const api = useApi();
   return useQuery(
-    ['survey', patientId, dataElementCode],
+    ['surveyResponseAnswer', 'latest-answer', patientId, dataElementCode],
     async () =>
       await api.get(
         `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
@@ -24,13 +25,23 @@ function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
 
 const Container = styled.div`
   align-items: baseline;
-  display: flex;
-  gap: 2rem;
-  justify-content: space-between;
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
   margin-block-end: 10px;
 `;
 
-export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
+export const SurveyAnswerField = ({
+  className,
+  config,
+  dataElement,
+  error,
+  field,
+  form,
+  helperText,
+  label,
+  patient,
+}) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
 
   const { data: answer } = useLatestAnswerForPatientQuery(
@@ -53,7 +64,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
   const sourceBody = answer?.body;
 
   return (
-    <Container data-testid="container-xmfz">
+    <Container className={className} data-testid="container-xmfz">
       <Typography component="h2" variant="body1">
         {label}
       </Typography>
@@ -65,6 +76,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
         originalBody={sourceBody}
         type={sourceType}
       />
+      {helperText && <FormHelperText error={Boolean(error)}>{helperText}</FormHelperText>}
     </Container>
   );
 };
