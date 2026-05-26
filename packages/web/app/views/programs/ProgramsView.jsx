@@ -195,7 +195,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-                data-testid="translatedtext-30u8"
               />
             }
             data-testid="selectinput-5hi2"
@@ -211,7 +210,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-                data-testid="translatedtext-htq6"
               />
             }
             data-testid="surveyselector-bn1a"
