@@ -161,6 +161,19 @@ const themeConfig = {
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.875rem',
+          fontWeight: 400,
+          minInlineSize: '4em',
+          textTransform: 'none',
+          '&.Mui-selected': {
+            borderColor: Colors.primary,
+          },
+        },
+      },
+    },
   },
 };
 
