@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { VisuallyHidden } from '@tamanu/ui-components';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
@@ -139,14 +140,23 @@ export const DataFetchingProgramsTable = ({
   // Only include actions column when there is at least one action
   if (actions.length > 0) {
     columns.push({
-      // key and title are empty strings to display a blank column name
-      key: '',
-      title: '',
+      key: 'actions',
+      title: (
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      ),
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedResponse(data)}>
-          <MenuButton actions={actions} data-testid="menubutton-oi3b" />
+          <MenuButton
+            a11yLabel={
+              <TranslatedText stringId="program.table.actions" fallback="Form response actions" />
+            }
+            actions={actions}
+            data-testid="menubutton-oi3b"
+          />
         </div>
       ),
     });

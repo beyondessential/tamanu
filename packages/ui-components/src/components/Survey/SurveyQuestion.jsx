@@ -166,7 +166,7 @@ export const SurveyQuestion = ({
         value,
       };
     });
-  }, [getTranslation, id, options, type, componentConfig, getEnumTranslation]);
+  }, [componentConfig, getEnumTranslation, getSetting, getTranslation, id, options, type]);
 
   const configObject = getConfigObject(id, componentConfig);
   const FieldComponent = getComponentForQuestionType(type, configObject);
