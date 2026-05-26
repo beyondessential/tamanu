@@ -158,7 +158,6 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          <SectionSpacing data-testid="sectionspacing-gtmt" />
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
