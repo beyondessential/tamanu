@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 import { Button, PatientDataDisplayField, SurveyResultBadge } from '@tamanu/ui-components';
-import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
+import MultilineResult from './MultilineResult';
+import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
-import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions';
-import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
-import MultilineResult from './MultilineResult';
+import { TranslatedText } from './Translation/TranslatedText';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
@@ -73,16 +75,7 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
       return <MultilineResult answer={answer} />;
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(element => (
-        <>
-          <TranslatedOption
-            value={element}
-            referenceDataId={dataElementId}
-            referenceDataCategory="programDataElement"
-          />
-          <br />
-        </>
-      ));
+      return <MultiSelectResult answerBody={answer} dataElementId={dataElementId} />;
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       return (
         <PatientDataDisplayField
