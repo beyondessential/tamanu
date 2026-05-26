@@ -268,7 +268,7 @@ const NoteContent = ({
           >
             (
             <EditedButton data-testid="editedbutton-jn5i">
-              <TranslatedText stringId="general.label.edited" fallback="Edited" />
+              <TranslatedText stringId="general.label.edited" fallback="Edited" casing="lower" />
             </EditedButton>
             )
           </EditedButtonContainer>
