@@ -81,7 +81,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
 
   const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
     const where: any = {
-      labTestCategoryId: selectedValue,
+      labTestCategory: { id: selectedValue },
       visibilityStatus: VisibilityStatus.Current,
     };
     if (!canCreateSensitive) {
@@ -103,7 +103,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       value: false,
     }));
     setLabTestTypes(labTestTypeOptions);
-  }, [canCreateSensitive]);
+  }, []);
 
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
