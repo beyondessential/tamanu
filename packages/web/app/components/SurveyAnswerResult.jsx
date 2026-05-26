@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 import { Button, PatientDataDisplayField, SurveyResultBadge } from '@tamanu/ui-components';
-import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
+import MultilineResult from './MultilineResult';
+import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { MultiSelectResult } from './MultiSelectResult';
 import { TranslatedReferenceData } from './Translation/index.js';
-import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions';
-import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
-import MultilineResult from './MultilineResult';
+import { TranslatedText } from './Translation/TranslatedText';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);

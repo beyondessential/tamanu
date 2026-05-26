@@ -13,7 +13,7 @@ const UnorderedList = styled.ul`
   padding-inline-start: 0;
 `;
 
-export const MultiSelectResult = ({ answerBody, dataElementId, ...props }) => {
+export default function MultiSelectResult({ answerBody, dataElementId, ...props }) {
   let arr;
   try {
     arr = JSON.parse(answerBody);
@@ -44,4 +44,4 @@ export const MultiSelectResult = ({ answerBody, dataElementId, ...props }) => {
       ))}
     </UnorderedList>
   );
-};
+}
