@@ -25,6 +25,7 @@ import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { AiPatientSummary } from '../AiPatientSummary';
 import { useSettings } from '../../contexts/Settings';
 import { useSyncState } from '../../contexts/SyncState';
+import { useAuth } from '../../contexts/Auth';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -270,8 +271,15 @@ export const PatientInfoPane = () => {
   // generates from a complete record rather than a partially-pulled one.
   const isPatientSyncing = useSyncState().isPatientSyncing(patient.id);
   const patientSummaryEnabled = getSetting('patientSummary.enabled');
+  const { ability } = useAuth();
+  const canReadPatientSummary = ability?.can('read', 'PatientSummary');
+  const canWritePatientSummary = ability?.can('write', 'PatientSummary');
   const showAiPatientSummary =
-    patientSummaryEnabled && patient.markedForSync && !isPatientSyncing;
+    patientSummaryEnabled &&
+    canReadPatientSummary &&
+    canWritePatientSummary &&
+    patient.markedForSync &&
+    !isPatientSyncing;
 
   return (
     <Container data-testid="container-qhh8">

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -130,10 +130,6 @@ const LoadingContainer = styled.div`
   min-height: 96px;
 `;
 
-const ErrorText = styled(BodyText)`
-  color: ${Colors.alert};
-`;
-
 const DiscardedBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -145,8 +141,9 @@ const DiscardedBox = styled.div`
 `;
 
 const DiscardedText = styled.p`
-  color: ${Colors.darkText};
+  color: ${({ $error }) => ($error ? Colors.alert : Colors.darkText)};
   font-size: 14px;
+  text-align: center;
 `;
 
 const RegenerateButton = styled(TextButton)`
@@ -176,14 +173,7 @@ const ErrorMessage = ({ error }) => {
       />
     );
   }
-  if (!status || status >= 500) {
-    return (
-      <TranslatedText
-        stringId="ai.patientSummary.error.serviceUnavailable"
-        fallback="The AI service is temporarily unavailable. Please try again later."
-      />
-    );
-  }
+
   return (
     <TranslatedText
       stringId="ai.patientSummary.error"
@@ -214,20 +204,17 @@ export const AiPatientSummaryContent = ({
         <CircularProgress size={20} />
       </LoadingContainer>
     )}
-    {!isLoading && error && !isDiscarded && (
-      <Box p={2}>
-        <ErrorText>
-          <ErrorMessage error={error} />
-        </ErrorText>
-      </Box>
-    )}
-    {!isLoading && isDiscarded && (
+    {!isLoading && (error || isDiscarded) && (
       <DiscardedBox>
-        <DiscardedText>
-          <TranslatedText
-            stringId="ai.patientSummary.discarded"
-            fallback="AI patient summary has been discarded"
-          />
+        <DiscardedText $error={Boolean(error)}>
+          {error ? (
+            <ErrorMessage error={error} />
+          ) : (
+            <TranslatedText
+              stringId="ai.patientSummary.discarded"
+              fallback="AI patient summary has been discarded"
+            />
+          )}
         </DiscardedText>
         <RegenerateButton
           onClick={onRegenerate}
