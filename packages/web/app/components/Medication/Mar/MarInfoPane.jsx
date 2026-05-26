@@ -146,7 +146,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             </Box>
           </Box>
           <ChangeLogLink onClick={onChangeLogClick}>
-            <TranslatedText stringId="medication.mar.changeLog.label" fallback="View change log" />
+            <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
           </ChangeLogLink>
         </MedicationInfoContainer>
         <Separator />
