@@ -296,6 +296,7 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
         case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
         case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+        case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
           valueSchema = yup.string();
           break;
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:

@@ -11,4 +11,5 @@ export * from './PatientDataDisplayField';
 export * from './PhotoField';
 export * from './Select';
 export * from './SelectField';
+export * from './SignatureField';
 export * from './TextField';

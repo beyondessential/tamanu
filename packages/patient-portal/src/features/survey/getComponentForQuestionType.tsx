@@ -14,6 +14,7 @@ import {
   NullableBooleanField,
   PhotoField,
   PatientDataDisplayField,
+  SignatureField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -49,6 +50,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: UnsupportedField,

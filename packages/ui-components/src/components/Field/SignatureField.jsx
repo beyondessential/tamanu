@@ -1,0 +1,233 @@
+import React, { useCallback, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { TAMANU_COLORS } from '../../constants/colors';
+import {
+  SIGNATURE_VIEWBOX_HEIGHT,
+  SIGNATURE_VIEWBOX_WIDTH,
+  strokesToCombinedPath,
+} from '../../utils/signaturePath';
+import { Button } from '../Button';
+import { TranslatedText } from '../Translation';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const PadWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
+  border: 1px solid
+    ${({ $focused, $hasValue }) =>
+      $focused ? TAMANU_COLORS.primary : $hasValue ? TAMANU_COLORS.outline : TAMANU_COLORS.softOutline};
+  border-radius: 4px;
+  background: ${TAMANU_COLORS.white};
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'crosshair')};
+`;
+
+const PadSvg = styled.svg`
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
+  touch-action: none;
+  user-select: none;
+`;
+
+const EmptyOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+  color: ${TAMANU_COLORS.softText};
+  font-size: 14px;
+  text-align: center;
+  padding: 8px;
+`;
+
+const InstructionText = styled.div`
+  font-size: 12px;
+  color: ${TAMANU_COLORS.midText};
+`;
+
+const ClearRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const SignaturePath = ({ path }) => (
+  <path d={path} fill={TAMANU_COLORS.darkestText} />
+);
+
+const clientPointToViewBox = (clientX, clientY, rect) => {
+  const x = ((clientX - rect.left) / rect.width) * SIGNATURE_VIEWBOX_WIDTH;
+  const y = ((clientY - rect.top) / rect.height) * SIGNATURE_VIEWBOX_HEIGHT;
+  return { x, y, pressure: 0.5 };
+};
+
+export const SignatureField = ({ field, disabled }) => {
+  const value = field.value || '';
+  const padRef = useRef(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [sessionStrokes, setSessionStrokes] = useState([]);
+  const [currentStroke, setCurrentStroke] = useState(null);
+  const isDrawingRef = useRef(false);
+
+  const setValue = useCallback(
+    nextValue => {
+      field.onChange({ target: { name: field.name, value: nextValue } });
+    },
+    [field],
+  );
+
+  const commitSessionToValue = useCallback(() => {
+    if (!sessionStrokes.length) {
+      return;
+    }
+    const combined = strokesToCombinedPath(value, sessionStrokes);
+    setValue(combined);
+    setSessionStrokes([]);
+  }, [sessionStrokes, setValue, value]);
+
+  const handleFocus = () => {
+    if (disabled) {
+      return;
+    }
+    setIsFocused(true);
+  };
+
+  const handleBlur = event => {
+    if (padRef.current?.contains(event.relatedTarget)) {
+      return;
+    }
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false;
+      setCurrentStroke(null);
+    }
+    commitSessionToValue();
+    setIsFocused(false);
+  };
+
+  const handleClear = () => {
+    setValue('');
+    setSessionStrokes([]);
+    setCurrentStroke(null);
+    isDrawingRef.current = false;
+  };
+
+  const handlePointerDown = event => {
+    if (disabled || !isFocused) {
+      return;
+    }
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const rect = padRef.current.getBoundingClientRect();
+    const point = clientPointToViewBox(event.clientX, event.clientY, rect);
+    isDrawingRef.current = true;
+    setCurrentStroke([point]);
+  };
+
+  const handlePointerMove = event => {
+    if (!isDrawingRef.current || !isFocused) {
+      return;
+    }
+    event.preventDefault();
+    const rect = padRef.current.getBoundingClientRect();
+    const point = clientPointToViewBox(event.clientX, event.clientY, rect);
+    setCurrentStroke(prev => [...(prev || []), point]);
+  };
+
+  const finishStroke = () => {
+    if (!isDrawingRef.current) {
+      return;
+    }
+    isDrawingRef.current = false;
+    setCurrentStroke(stroke => {
+      if (stroke?.length) {
+        setSessionStrokes(prev => [...prev, stroke]);
+      }
+      return null;
+    });
+  };
+
+  const handlePointerUp = event => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    finishStroke();
+  };
+
+  const handlePointerCancel = () => {
+    finishStroke();
+  };
+
+  const sessionPreviewPath = strokesToCombinedPath('', [
+    ...sessionStrokes,
+    ...(currentStroke?.length ? [currentStroke] : []),
+  ]);
+
+  const showEmptyOverlay = isFocused && !value && !sessionPreviewPath;
+  const isActive = isFocused && !disabled;
+
+  return (
+    <Container data-testid="signaturefield-container">
+      <PadWrapper
+        ref={padRef}
+        $focused={isFocused}
+        $hasValue={Boolean(value || sessionPreviewPath)}
+        $disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        data-testid="signaturefield-pad"
+      >
+        <PadSvg
+          viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
+          preserveAspectRatio="xMidYMid meet"
+          onPointerDown={isActive ? handlePointerDown : undefined}
+          onPointerMove={isActive ? handlePointerMove : undefined}
+          onPointerUp={isActive ? handlePointerUp : undefined}
+          onPointerCancel={isActive ? handlePointerCancel : undefined}
+          data-testid="signaturefield-svg"
+        >
+          {value && <SignaturePath path={value} />}
+          {isActive && sessionPreviewPath && <SignaturePath path={sessionPreviewPath} />}
+        </PadSvg>
+        {showEmptyOverlay && (
+          <EmptyOverlay data-testid="signaturefield-empty">
+            <TranslatedText
+              stringId="program.question.signature.emptyHint"
+              fallback="Sign here"
+              data-testid="translatedtext-signature-empty"
+            />
+            <InstructionText>
+              <TranslatedText
+                stringId="program.question.signature.instruction"
+                fallback="Use your mouse or trackpad to add signature."
+                data-testid="translatedtext-signature-instruction"
+              />
+            </InstructionText>
+          </EmptyOverlay>
+        )}
+      </PadWrapper>
+      <ClearRow>
+        <Button
+          variant="text"
+          color="primary"
+          size="small"
+          onClick={handleClear}
+          disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
+          data-testid="signaturefield-clear"
+        >
+          <TranslatedText stringId="general.action.clear" fallback="Clear" />
+        </Button>
+      </ClearRow>
+    </Container>
+  );
+};

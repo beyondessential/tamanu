@@ -9,6 +9,7 @@ import {
   InstructionField,
   PhotoField as BasePhotoField,
   PatientDataDisplayField,
+  SignatureField,
 } from '@tamanu/ui-components';
 import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
@@ -45,6 +46,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
     <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />
   ),
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,

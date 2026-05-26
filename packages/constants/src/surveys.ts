@@ -36,6 +36,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
   GEOLOCATE: 'Geolocate',
+  SIGNATURE: 'Signature',
   COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
