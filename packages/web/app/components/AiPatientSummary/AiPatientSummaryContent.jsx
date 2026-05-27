@@ -31,20 +31,32 @@ const SummaryText = styled(BodyText)`
 
 const Footer = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   margin-top: 10px;
-  padding-top: 8px;
 `;
 
-const Disclaimer = styled.p`
+const FooterBottomRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  .MuiIconButton-root {
+    padding: 0;
+  }
+`;
+
+const Disclaimer = styled.div`
   font-size: 11px;
   color: ${Colors.darkText};
   font-weight: 500;
+  white-space: nowrap;
 `;
 
 const EditedText = styled.span`
-  display: block;
+  margin-right: auto;
+  font-size: 11px;
+  color: ${Colors.darkText};
+  font-weight: 500;
 `;
 
 const StyledEditIcon = styled(EditIcon)`
@@ -237,15 +249,17 @@ export const AiPatientSummaryContent = ({
               stringId="ai.patientSummary.disclaimer"
               fallback="This is AI generated and may contain inaccuracies."
             />
+          </Disclaimer>
+          <FooterBottomRow>
             {isHumanEdited && (
               <EditedText>
                 <TranslatedText stringId="ai.patientSummary.edited" fallback="(edited)" />
               </EditedText>
             )}
-          </Disclaimer>
-          <IconButton size="small" onClick={onEdit} data-testid="ai-summary-edit">
-            <StyledEditIcon fontSize="small" />
-          </IconButton>
+            <IconButton size="small" onClick={onEdit} data-testid="ai-summary-edit">
+              <StyledEditIcon fontSize="small" />
+            </IconButton>
+          </FooterBottomRow>
         </Footer>
       </SummaryBox>
     )}
