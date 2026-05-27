@@ -21,6 +21,7 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Encounter } from './Encounter';
+import type { Facility } from './Facility';
 import { Model } from './Model';
 import type { Patient } from './Patient';
 import type { PatientIssue } from './PatientIssue';
@@ -64,13 +65,18 @@ async function createPatientIssues(
   }
 }
 
-/** Returns in the format:
+/**
+ * Returns in the format:
  * {
  *  Patient: { key1: 'value1' },
  *  PatientAdditionalData: { key1: 'value1' },
  * }
  */
-const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]) => {
+const getFieldsToWrite = async (
+  models: Models,
+  questions: any[],
+  answers: Record<ProgramDataElement['id'], any>,
+) => {
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
   const patientDataQuestions = questions.filter(
@@ -108,12 +114,12 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
  */
 async function writeToPatientFields(
   models: Models,
-  facilityId: string,
+  facilityId: Facility['id'],
   questions: any[],
-  answers: any[],
-  patientId: string,
-  surveyId: string,
-  userId: string,
+  answers: Record<ProgramDataElement['id'], any>,
+  patientId: Patient['id'],
+  surveyId: Survey['id'],
+  userId: User['id'],
   submittedTime: string,
 ) {
   const valuesByModel = await getFieldsToWrite(models, questions, answers);
