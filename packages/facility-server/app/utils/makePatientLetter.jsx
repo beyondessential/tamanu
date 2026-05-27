@@ -4,8 +4,9 @@ import path from 'path';
 import ReactPDF from '@react-pdf/renderer';
 import config from 'config';
 import { get } from 'lodash';
+import { Op } from 'sequelize';
 
-import { SETTING_KEYS } from '@tamanu/constants';
+import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
@@ -23,8 +24,10 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const logo = await models.Asset.findOne({
     raw: true,
     where: {
-      name: 'letterhead-logo',
+      name: ASSET_NAMES.LETTERHEAD_LOGO,
+      facilityId: { [Op.or]: [facilityId, null] },
     },
+    order: [['facilityId', 'ASC NULLS LAST']],
   });
 
   const folder = await tmpdir();
