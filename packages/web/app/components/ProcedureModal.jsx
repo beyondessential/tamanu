@@ -73,7 +73,6 @@ export const ProcedureModal = ({
   onClose,
   onSaved,
   encounter,
-  encounterId,
   editedProcedure,
   setEditedProcedure,
 }) => {
@@ -113,7 +112,9 @@ export const ProcedureModal = ({
   const onSubmit = async data => {
     delete data.date;
     const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
-    const { startTime, endTime, timeIn, timeOut, ...rest } = data; // eslint-disable-line no-unused-vars
+    // locationGroup (the Area) is a LocationField UI helper, not a Procedure
+    // column, so strip it out rather than sending it to the API.
+    const { startTime, endTime, timeIn, timeOut, locationGroup, ...rest } = data; // eslint-disable-line no-unused-vars
     const startDateTime = toPersisted(startTime);
 
     await api[rest.id ? 'put' : 'post'](rest.id ? `procedure/${rest.id}` : 'procedure', {
@@ -123,7 +124,7 @@ export const ProcedureModal = ({
       endTime: toPersisted(endTime),
       timeIn: toPersisted(timeIn),
       timeOut: toPersisted(timeOut),
-      encounterId,
+      encounterId: encounter.id,
     });
 
     onSaved();
@@ -316,11 +317,12 @@ export const ProcedureModal = ({
               assistantClinicianIds: [],
               // Default department, area and location to the encounter's, since
               // a procedure is usually performed where the patient currently is.
-              // All remain editable. locationGroup seeds LocationField's area.
-              departmentId: encounter?.departmentId,
-              locationId: encounter?.locationId,
-              locationGroup:
-                encounter?.location?.locationGroup?.id ?? encounter?.location?.locationGroupId,
+              // All remain editable. locationGroup seeds LocationField's area
+              // and is stripped from the payload on submit. The encounter query
+              // always includes location.locationGroup, so a single path is safe.
+              departmentId: encounter.departmentId,
+              locationId: encounter.locationId,
+              locationGroup: encounter.location?.locationGroup?.id,
             }
       }
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

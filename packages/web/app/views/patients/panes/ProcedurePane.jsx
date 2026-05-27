@@ -23,7 +23,6 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         editedProcedure={editedProcedure}
         setEditedProcedure={setEditedProcedure}
         encounter={encounter}
-        encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {
           setEditedProcedure(null);
