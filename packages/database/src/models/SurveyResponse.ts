@@ -29,7 +29,8 @@ import type { ProgramDataElement } from './ProgramDataElement';
 import type { Survey } from './Survey';
 import type { User } from './User';
 
-async function createPatientIssues(
+/** @internal Use {@link SurveyResponse.createPatientIssues} instead. */
+async function _createPatientIssues(
   models: Models,
   questions: any[],
   patientId: Patient['id'],
@@ -109,10 +110,10 @@ const getFieldsToWrite = async (
 };
 
 /**
- * DUPLICATED IN mobile/App/models/SurveyResponse.ts
- * Please keep in sync
+ * @internal Use {@link SurveyResponse.writeToPatientFields} instead
+ * @privateRemarks DUPLICATED IN mobile/App/models/SurveyResponse.ts. Please keep in sync.
  */
-async function writeToPatientFields(
+async function _writeToPatientFields(
   models: Models,
   facilityId: Facility['id'],
   questions: any[],
@@ -529,11 +530,11 @@ export class SurveyResponse extends Model {
     return getStringValue(dataElementType, value);
   }
 
-  static async createPatientIssues(...args: Parameters<typeof createPatientIssues>) {
-    return createPatientIssues(...args);
+  static async createPatientIssues(...args: Parameters<typeof _createPatientIssues>) {
+    return await _createPatientIssues(...args);
   }
 
-  static async writeToPatientFields(...args: Parameters<typeof writeToPatientFields>) {
-    return writeToPatientFields(...args);
+  static async writeToPatientFields(...args: Parameters<typeof _writeToPatientFields>) {
+    return await _writeToPatientFields(...args);
   }
 }
