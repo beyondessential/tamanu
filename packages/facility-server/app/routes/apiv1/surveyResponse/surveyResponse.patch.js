@@ -1,22 +1,15 @@
 import asyncHandler from 'express-async-handler';
 import { isEmpty, isEqual, isPlainObject } from 'lodash';
 
-import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import {
-  InvalidOperationError,
-  InvalidParameterError,
-  NotFoundError,
-  UsageError,
-} from '@tamanu/errors';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
   getResultValue,
   getStringValue,
 } from '@tamanu/shared/utils/fields';
-import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
-import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 
 /**
  * @param {string | null | undefined} a
@@ -37,91 +30,6 @@ function rerunCalculations(components, mergedAnswerValues) {
   return runCalculations(components, valuesForCalculation);
 }
 
-const getFieldsToWrite = async (models, questions, answers) => {
-  const recordValuesByModel = {};
-  const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
-  );
-  for (const question of patientDataQuestions) {
-    const { dataElement, config: configString } = question;
-    const config = safeJsonParse(configString) ?? {};
-    if (!config.writeToPatient) continue;
-
-    const configFieldName = config.writeToPatient?.fieldName;
-    if (!configFieldName) throw new Error('No fieldName defined for writeToPatient config');
-
-    const value = answers[dataElement.id];
-    const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
-    if (!modelName) throw new Error(`Unknown fieldName: ${configFieldName}`);
-    recordValuesByModel[modelName] ??= {};
-    recordValuesByModel[modelName][fieldName] = value;
-  }
-  return recordValuesByModel;
-};
-
-async function writeToPatientFields(
-  models,
-  facilityId,
-  questions,
-  answers,
-  patientId,
-  surveyId,
-  userId,
-  submittedTime,
-) {
-  const valuesByModel = await getFieldsToWrite(models, questions, answers);
-
-  if (valuesByModel.Patient) {
-    const patient = await models.Patient.findByPk(patientId);
-    await patient?.update(valuesByModel.Patient);
-  }
-
-  if (valuesByModel.PatientFieldValue) {
-    const patient = await models.Patient.findByPk(patientId);
-    await patient?.writeFieldValues(valuesByModel.PatientFieldValue);
-  }
-
-  if (valuesByModel.PatientAdditionalData) {
-    const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
-    await pad.update(valuesByModel.PatientAdditionalData);
-  }
-
-  if (valuesByModel.PatientProgramRegistration) {
-    const survey = await models.Survey.findByPk(surveyId);
-    const programRegistryDetail = await models.ProgramRegistry.findOne({
-      where: { programId: survey?.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    });
-    if (!programRegistryDetail?.id) {
-      throw new Error('No program registry configured for the current form');
-    }
-
-    const existingRegistration = await models.PatientProgramRegistration.findOne({
-      where: {
-        patientId,
-        programRegistryId: programRegistryDetail.id,
-      },
-    });
-
-    const registrationData = {
-      patientId,
-      programRegistryId: programRegistryDetail.id,
-      ...valuesByModel.PatientProgramRegistration,
-      registeringFacilityId:
-        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
-      clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    };
-
-    if (existingRegistration) {
-      await existingRegistration.update(registrationData);
-    } else {
-      await models.PatientProgramRegistration.create({
-        date: submittedTime,
-        ...registrationData,
-      });
-    }
-  }
-}
-
 async function handleSurveyResponseActions(
   models,
   facilityId,
@@ -139,7 +47,7 @@ async function handleSurveyResponseActions(
     patientId,
     submittedTime,
   );
-  await writeToPatientFields(
+  await models.SurveyResponse.writeToPatientFields(
     models,
     facilityId,
     activeQuestions,

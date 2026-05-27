@@ -517,4 +517,8 @@ export class SurveyResponse extends Model {
 
     return getStringValue(dataElementType, value);
   }
+
+  static async writeToPatientFields(...args: Parameters<typeof writeToPatientFields>) {
+    return writeToPatientFields(...args);
+  }
 }
