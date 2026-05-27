@@ -159,12 +159,12 @@ async function writeToPatientFields(
 
 async function handleSurveyResponseActions(
   models: Models,
-  facilityId: string,
+  facilityId: Facility['id'],
   questions: any[],
-  answers: any[],
-  patientId: string,
-  surveyId: string,
-  userId: string,
+  answers: Record<ProgramDataElement['id'], any>,
+  patientId: Patient['id'],
+  surveyId: Survey['id'],
+  userId: User['id'],
   submittedTime: string,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
