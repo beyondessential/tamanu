@@ -1,16 +1,15 @@
-import React, { useEffect, useMemo, useRef } from 'react';
 import { Typography } from '@material-ui/core';
+import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
-import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
-
-import { OutlinedButton, ButtonRow, Button } from '../Button';
-import { SurveyQuestion } from './SurveyQuestion';
-import { checkVisibility } from '../../utils/survey';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { TAMANU_COLORS } from '../../constants/colors';
+import { checkVisibility } from '../../utils/survey';
+import { Button, ButtonRow, OutlinedButton } from '../Button';
 import { FormGrid } from '../Form/FormGrid';
 import { TranslatedText } from '../Translation';
+import { SurveyQuestion } from './SurveyQuestion';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
