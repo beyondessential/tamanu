@@ -134,7 +134,6 @@ export class AIService {
    */
   async refreshContexts(settings) {
     await this.registerFormBuilderContext(settings);
-    await this.registerPatientSummaryContext(settings);
   }
 
   /**
@@ -149,11 +148,6 @@ export class AIService {
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER, processMessage);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD, buildSurveyDefinition);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, tweakSurveyDefinition);
-  }
-
-  async registerPatientSummaryContext(settings) {
-    const { prompts } = await settings.get('patientSummary');
-    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
   }
 
   /**
