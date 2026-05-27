@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import Typography from '@mui/material/Typography';
 import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
