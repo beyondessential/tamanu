@@ -91,6 +91,39 @@ describe('getReferenceRange', () => {
       }),
     ).toBe('Negative');
   });
+
+  it('uses per-test referenceRangeText when no numeric overrides are set', () => {
+    expect(
+      getReferenceRange({
+        labTestType: { maleMin: 5, maleMax: 20, rangeText: 'type text' },
+        labTest: { referenceRangeMin: null, referenceRangeMax: null, referenceRangeText: 'test text' },
+        sex: SEX_VALUES.MALE,
+        getTranslation,
+      }),
+    ).toBe('test text');
+  });
+
+  it('referenceRangeText takes priority over sex-specific type ranges', () => {
+    expect(
+      getReferenceRange({
+        labTestType: { femaleMin: 3, femaleMax: 15 },
+        labTest: { referenceRangeText: 'Negative' },
+        sex: SEX_VALUES.FEMALE,
+        getTranslation,
+      }),
+    ).toBe('Negative');
+  });
+
+  it('ignores referenceRangeText when a per-test numeric override is present', () => {
+    expect(
+      getReferenceRange({
+        labTestType: { maleMin: 5, maleMax: 20 },
+        labTest: { referenceRangeMin: 8, referenceRangeMax: null, referenceRangeText: 'should be ignored' },
+        sex: SEX_VALUES.MALE,
+        getTranslation,
+      }),
+    ).toBe('8–20');
+  });
 });
 
 describe('getReferenceRangeWithUnit', () => {

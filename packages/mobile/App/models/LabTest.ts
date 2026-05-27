@@ -29,6 +29,9 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'decimal', nullable: true })
   referenceRangeMax?: number;
 
+  @Column({ type: 'text', nullable: true })
+  referenceRangeText?: string;
+
   @ManyToOne(() => LabRequest, (labRequest) => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)

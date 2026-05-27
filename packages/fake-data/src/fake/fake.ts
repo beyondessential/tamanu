@@ -713,6 +713,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabTest: () => ({
     referenceRangeMin: null,
     referenceRangeMax: null,
+    referenceRangeText: null,
   }),
   Patient: () => {
     const sex = chance.pickone(Object.values(SEX_VALUES));
