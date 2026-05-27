@@ -55,7 +55,7 @@ describe('AI Patient Summary (central-server)', () => {
     describe('with db-defined permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('should reject when user lacks Patient read permission', async () => {
+      it('should reject when user lacks Patient write permission', async () => {
         const app = await baseApp.asNewRole([]);
         const result = await app.post(SUMMARY_URL).send({ patientData });
 
@@ -63,7 +63,7 @@ describe('AI Patient Summary (central-server)', () => {
       });
 
       it('should succeed with PatientSummary read permission', async () => {
-        const app = await baseApp.asNewRole([['read', 'PatientSummary']]);
+        const app = await baseApp.asNewRole([['write', 'PatientSummary']]);
         const result = await app.post(SUMMARY_URL).send({ patientData });
 
         expect(result).toHaveSucceeded();
