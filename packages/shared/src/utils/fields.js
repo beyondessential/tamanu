@@ -1,7 +1,15 @@
+/** @typedef {import('@tamanu/constants').DataElementType} DataElementType */
+
 import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
+/**
+ * @template {DataElementType} T
+ * @param {T} type
+ * @param {any} value
+ * @returns {T extends null | undefined ? null : string}
+ */
 export function getStringValue(type, value) {
   if (value == null) {
     return null;
@@ -14,6 +22,12 @@ export function getStringValue(type, value) {
   }
 }
 
+/**
+ * @param {DataElementType} dataType
+ * @param {string} expected
+ * @param {any} given
+ * @returns {boolean}
+ */
 function compareData(dataType, expected, given) {
   switch (dataType) {
     case PROGRAM_DATA_ELEMENT_TYPES.BINARY:

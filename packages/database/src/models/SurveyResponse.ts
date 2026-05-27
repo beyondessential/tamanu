@@ -20,7 +20,11 @@ import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { Encounter } from './Encounter';
 import { Model } from './Model';
+import type { ProgramDataElement } from './ProgramDataElement';
+import type { Survey } from './Survey';
+import type { User } from './User';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
@@ -172,7 +176,11 @@ async function handleSurveyResponseActions(
 
 // Special case for answers that depend on creating a new record in the database
 // and store the ID of the new record in the answer body. Currently only used for photos.
-async function getBodyForAnswer(dataElementType: string, value: any, models: Models) {
+async function getBodyForAnswer(
+  dataElementType: ProgramDataElement['type'],
+  value: any,
+  models: Models,
+) {
   if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
     const { size, data } = value as unknown as { size: number; data: string };
     const { id: attachmentId } = await models.Attachment.create(
@@ -197,9 +205,9 @@ export class SurveyResponse extends Model {
   declare resultText?: string;
   declare notified?: boolean;
   declare metadata?: Record<string, any>;
-  declare userId?: string;
-  declare surveyId?: string;
-  declare encounterId?: string;
+  declare userId?: User['id'];
+  declare surveyId?: Survey['id'];
+  declare encounterId?: Encounter['id'];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
