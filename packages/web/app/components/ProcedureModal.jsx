@@ -315,11 +315,8 @@ export const ProcedureModal = ({
               startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
-              // Default department, area and location to the encounter's, since
-              // a procedure is usually performed where the patient currently is.
-              // All remain editable. locationGroup seeds LocationField's area
-              // and is stripped from the payload on submit. The encounter query
-              // always includes location.locationGroup, so a single path is safe.
+              // Default to the encounter's location/department since a procedure
+              // usually happens where the patient currently is (all editable).
               departmentId: encounter.departmentId,
               locationId: encounter.locationId,
               locationGroup: encounter.location?.locationGroup?.id,
