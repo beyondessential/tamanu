@@ -187,7 +187,12 @@ async function handleSurveyResponseActions(
   submittedTime: string,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
-  await createPatientIssues(models, activeQuestions, patientId, submittedTime);
+  await models.SurveyResponse.createPatientIssues(
+    models,
+    activeQuestions,
+    patientId,
+    submittedTime,
+  );
   await models.SurveyResponse.writeToPatientFields(
     models,
     facilityId,
@@ -522,6 +527,10 @@ export class SurveyResponse extends Model {
     }
 
     return getStringValue(dataElementType, value);
+  }
+
+  static async createPatientIssues(...args: Parameters<typeof createPatientIssues>) {
+    return createPatientIssues(...args);
   }
 
   static async writeToPatientFields(...args: Parameters<typeof writeToPatientFields>) {
