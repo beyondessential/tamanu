@@ -407,7 +407,12 @@ export const EditMedicationDispenseModal = memo(
       ) : (
         <ConfirmCancelRow
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          confirmText={<TranslatedText stringId="medication.action.review" fallback="Review" />}
+          confirmText={
+            <TranslatedText
+              stringId="medication.dispense.reviewAndPrintLabels"
+              fallback="Review and print labels"
+            />
+          }
           confirmDisabled={isLoadingFacility}
           onCancel={handleClose}
           onConfirm={handleReview}

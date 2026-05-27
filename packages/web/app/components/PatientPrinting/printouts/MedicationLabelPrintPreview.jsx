@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
-import { Colors } from '../../../constants';
 import { MedicationLabel } from './MedicationLabel';
 
 const PrintContainer = styled.div`
@@ -16,7 +15,6 @@ const PrintContainer = styled.div`
 const PrintDescription = styled(Box)`
   margin-bottom: 16px;
   font-size: 14px;
-  color: ${Colors.midText};
 
   @media print {
     display: none;
