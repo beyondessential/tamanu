@@ -5,10 +5,10 @@ import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 /**
- * @template {DataElementType} T
- * @param {T} type
+ * @template {V}
+ * @param {DataElementType} type
  * @param {any} value
- * @returns {T extends null | undefined ? null : string}
+ * @returns {V extends null | undefined ? null : string}
  */
 export function getStringValue(type, value) {
   if (value == null) {
