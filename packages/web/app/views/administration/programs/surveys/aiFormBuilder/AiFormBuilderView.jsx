@@ -213,6 +213,17 @@ export function AiFormBuilderView() {
               signal: abortController.signal,
             })
           : await api.post('admin/form-builder/chat', body, { signal: abortController.signal });
+        // Persist the sessionId as soon as the job is accepted. The backend
+        // returns it alongside the jobId so that stopping mid-response (before
+        // the job result arrives) doesn't lose the conversation — including any
+        // uploaded image's interpretation — by starting a fresh session.
+        if (response.sessionId) {
+          setState(current =>
+            current.sessionId === response.sessionId
+              ? current
+              : { ...current, sessionId: response.sessionId },
+          );
+        }
         const chatResponse = response.jobId
           ? await waitForChatJob({
               api,
@@ -285,6 +296,16 @@ export function AiFormBuilderView() {
     [api, appendMessage, generatedForm, getTranslation, state.sessionId],
   );
 
+  // Flush queued messages one at a time once the in-flight response has settled
+  // (completed, errored, or stopped). Sending sets isThinking back to true, so
+  // each queued message waits for the previous turn to finish.
+  useEffect(() => {
+    if (isThinking || state.queuedSubmissions.length === 0) return;
+    const [nextSubmission, ...remaining] = state.queuedSubmissions;
+    setState(current => ({ ...current, queuedSubmissions: remaining }));
+    sendChatMessage(nextSubmission);
+  }, [isThinking, sendChatMessage, state.queuedSubmissions]);
+
   const handleRetryError = useCallback(
     errorMessageId => {
       if (isThinking) return;
@@ -303,14 +324,25 @@ export function AiFormBuilderView() {
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
     setIsThinking(false);
-    appendMessage({
-      type: 'assistant',
-      text: getTranslation(
-        'admin.programs.aiFormBuilder.stoppedMessage',
-        'The response was stopped. What would you like me to do?',
-      ),
+    setState(current => {
+      // If the user has already queued a follow-up, that message drives the
+      // next turn — don't interrupt with the generic stopped prompt.
+      if (current.queuedSubmissions.length > 0) return current;
+      return {
+        ...current,
+        messages: [
+          ...current.messages,
+          createMessage({
+            type: 'assistant',
+            text: getTranslation(
+              'admin.programs.aiFormBuilder.stoppedMessage',
+              'The response was stopped. What would you like me to do?',
+            ),
+          }),
+        ],
+      };
     });
-  }, [appendMessage, getTranslation]);
+  }, [getTranslation]);
 
   const handleSelectProgram = useCallback(
     programId => {
@@ -324,7 +356,7 @@ export function AiFormBuilderView() {
   );
 
   const handleSubmit = useCallback(() => {
-    if (isThinking || state.savedSurveyId) return;
+    if (state.savedSurveyId) return;
 
     const text = inputValue.trim();
     if (!text && !pendingFile) return;
@@ -337,6 +369,24 @@ export function AiFormBuilderView() {
 
     const submission = { message: text, file: pendingFile };
 
+    setInputValue('');
+    setPendingFile(null);
+
+    // A response is still in flight: show the message now but hold off sending
+    // until the current turn settles. Queued messages are flushed in order by
+    // the effect below.
+    if (isThinking) {
+      setState(current => ({
+        ...current,
+        messages: [...current.messages, userMessage],
+        queuedSubmissions: [
+          ...current.queuedSubmissions,
+          { ...submission, selectedProgramId: current.selectedProgramId },
+        ],
+      }));
+      return;
+    }
+
     setState(current => ({
       ...current,
       pendingSubmission: current.selectedProgramId ? null : submission,
@@ -346,9 +396,6 @@ export function AiFormBuilderView() {
         ...(current.selectedProgramId ? [] : [createMessage({ type: 'programQuestion' })]),
       ],
     }));
-
-    setInputValue('');
-    setPendingFile(null);
 
     if (!state.selectedProgramId) {
       return;
@@ -396,6 +443,11 @@ export function AiFormBuilderView() {
 
     const file = event.dataTransfer.files?.[0];
     if (file) setFileIfValid(file);
+  };
+
+  const handlePasteFile = file => {
+    if (state.savedSurveyId) return;
+    setFileIfValid(file);
   };
 
   const handleDownload = async fileName => {
@@ -539,6 +591,7 @@ export function AiFormBuilderView() {
                 disabled={isSaved}
                 onDrop={handleDrop}
                 onFileSelected={handleFileSelected}
+                onPasteFile={handlePasteFile}
                 onStop={handleStop}
                 onSubmit={handleSubmit}
                 inputValue={inputValue}

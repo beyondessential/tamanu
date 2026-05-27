@@ -498,12 +498,19 @@ formBuilderRouter.post(
     const { async: runAsync, ...payload } = await getUploadedData(req);
 
     if (runAsync) {
+      // Resolve the session up front (rather than lazily inside the job) and
+      // return it with the jobId, so the client retains the conversation even
+      // if it stops before the job result arrives. Otherwise a stopped first
+      // turn loses the sessionId and the next message starts a fresh session,
+      // dropping any uploaded image's interpretation.
+      const sessionId =
+        payload.sessionId || (await req.aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER));
       const jobId = startChatJob({
         aiService: req.aiService,
         userId: req.user.id,
-        payload,
+        payload: { ...payload, sessionId },
       });
-      res.status(202).send({ jobId, status: CHAT_JOB_STATUSES.PENDING });
+      res.status(202).send({ jobId, sessionId, status: CHAT_JOB_STATUSES.PENDING });
       return;
     }
 

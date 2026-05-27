@@ -177,9 +177,31 @@ function PreviewPatientDataField({ label, value }) {
   );
 }
 
+function PreviewLinkedDataField({ label }) {
+  return (
+    <PreviewPatientDataValue>
+      {label}:{' '}
+      <TranslatedText
+        stringId="admin.programs.aiFormBuilder.preview.linkedDataPlaceholder"
+        fallback="Populated from the patient's existing records"
+      />
+    </PreviewPatientDataValue>
+  );
+}
+
 const getPreviewComponentForQuestionType = (type, config) => {
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && !config.writeToPatient) {
     return PreviewPatientDataField;
+  }
+
+  // SurveyLink and SurveyAnswer fetch the patient's existing responses as they
+  // render. Against the mock preview patient (which has no records) those
+  // requests 500, so show a read-only placeholder instead of firing them.
+  if (
+    type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK ||
+    type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER
+  ) {
+    return PreviewLinkedDataField;
   }
 
   return getComponentForQuestionType(type, config);

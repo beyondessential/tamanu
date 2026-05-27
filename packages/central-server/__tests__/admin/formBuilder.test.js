@@ -100,7 +100,9 @@ describe('Form Builder Admin', () => {
     });
 
     expect(startResponse.status).toBe(202);
-    expect(startResponse.body).toMatchObject({ status: 'pending' });
+    // The sessionId is returned up front so a client that stops before the job
+    // result arrives still keeps the conversation on the same session.
+    expect(startResponse.body).toMatchObject({ status: 'pending', sessionId: 'new-session-id' });
 
     const pollResponse = await app.get(
       `/v1/admin/form-builder/chat/jobs/${encodeURIComponent(startResponse.body.jobId)}`,

@@ -491,17 +491,18 @@ const NewChatModalBody = styled.div`
   text-align: left;
 `;
 
-// Anthropic's chat models sometimes emit list items without a preceding
-// newline (e.g. "Here are the options: - first - second"). Markdown won't
-// render those as a list, so we insert a newline before each bullet/number
-// marker that isn't already on its own line.
+// Anthropic's chat models sometimes start a list right after a colon without a
+// line break (e.g. "Here are the options: - first" or "Steps: 1. do x").
+// Markdown only renders a marker as a list item when it begins a line, so we
+// insert a newline after a colon that is immediately followed by a bullet or
+// numbered marker. We deliberately do NOT break on mid-sentence "-"/"*"/"1."
+// runs: a dash inside a question (e.g. "arrival - departure") is punctuation,
+// not a list item, and splitting it wrongly turns one question into two bullets.
 const normaliseAssistantMarkdown = text =>
   text
     .trim()
-    .replace(/:\s+([-*]\s+)/g, ':\n$1')
-    .replace(/([^\n])\s+([-*]\s+)/g, '$1\n$2')
-    .replace(/:\s+(\d+\.\s+)/g, ':\n$1')
-    .replace(/([^\n])\s+(\d+\.\s+)/g, '$1\n$2');
+    .replace(/:[ \t]+(?=[-*][ \t])/g, ':\n')
+    .replace(/:[ \t]+(?=\d+\.[ \t])/g, ':\n');
 
 export function Attachment({ file, sent = false, fullWidth = false, onRemove }) {
   return (
@@ -670,6 +671,7 @@ export function ChatComposer({
   disabled = false,
   onDrop,
   onFileSelected,
+  onPasteFile,
   onStop,
   onSubmit,
   inputValue,
@@ -717,6 +719,26 @@ export function ChatComposer({
     onDrop(event);
   };
 
+  // Let users paste a copied image straight into the composer. We pull the
+  // image out of the clipboard, give it a filename (clipboard images often have
+  // none), and attach it like a dropped/selected file. Non-image pastes fall
+  // through to the textarea's normal text paste.
+  const handlePaste = event => {
+    if (disabled) return;
+    const imageItem = Array.from(event.clipboardData?.items ?? []).find(
+      item => item.kind === 'file' && item.type.startsWith('image/'),
+    );
+    if (!imageItem) return;
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    event.preventDefault();
+    const hasExtension = /\.[a-z0-9]+$/i.test(file.name ?? '');
+    const namedFile = hasExtension
+      ? file
+      : new File([file], `pasted-image.${file.type.split('/')[1] || 'png'}`, { type: file.type });
+    onPasteFile(namedFile);
+  };
+
   const handleKeyDown = event => {
     if (
       event.key !== 'Enter' ||
@@ -730,10 +752,17 @@ export function ChatComposer({
     }
 
     event.preventDefault();
-    if (!disabled && !isThinking && !sendDisabled) {
+    // While thinking this queues the message (handled upstream); the guard only
+    // blocks empty/saved sends.
+    if (!disabled && !sendDisabled) {
       onSubmit();
     }
   };
+
+  // While thinking, the action button stops the response when there's nothing
+  // to send, but turns into a send button as soon as the user types — that
+  // message is queued and sent once the current response finishes.
+  const isStopButton = isThinking && sendDisabled;
 
   return (
     <ComposerWrap
@@ -741,6 +770,7 @@ export function ChatComposer({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleComposerDrop}
+      onPaste={handlePaste}
     >
       <StyledTextInput
         multiline
@@ -795,9 +825,9 @@ export function ChatComposer({
           type="button"
           disabled={disabled || (!isThinking && sendDisabled)}
           $isThinking={isThinking}
-          onClick={isThinking ? onStop : onSubmit}
+          onClick={isStopButton ? onStop : onSubmit}
         >
-          {isThinking ? <StopRoundedIcon /> : <ArrowUpwardIcon />}
+          {isStopButton ? <StopRoundedIcon /> : <ArrowUpwardIcon />}
         </SendButton>
       </ComposerActions>
     </ComposerWrap>
