@@ -409,6 +409,11 @@ export class MobileSyncManager {
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await this.postPull(transactionEntityManager, pullUntil);
+        // TEMP DIAGNOSTIC: surface which table/parent the deferred FK check fails on before commit
+        const fkViolations = await transactionEntityManager.query('PRAGMA foreign_key_check;');
+        if (fkViolations.length) {
+          throw new Error(`FK violations: ${JSON.stringify(fkViolations)}`);
+        }
       });
     } catch (err) {
       console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
