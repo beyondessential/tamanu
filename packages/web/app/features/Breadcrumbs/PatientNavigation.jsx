@@ -1,9 +1,10 @@
 import React from 'react';
-import { matchPath, useLocation, useNavigate } from 'react-router';
+import { matchPath, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { Breadcrumbs } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { BackButton, NoteModalActionBlocker } from '../../components';
+import { useGoBack } from '../../hooks';
 import { PatientBreadcrumb, CategoryBreadcrumb } from './PatientBreadcrumbs';
 import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { usePreviousLocation } from '../../utils/usePreviousLocation';
@@ -60,8 +61,7 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
 };
 
 export const PatientNavigation = ({ patientRoutes }) => {
-  const navigate = useNavigate();
-  const navigateBack = () => navigate(-1);
+  const navigateBack = useGoBack();
   const routeBreadcrumbs = RouteBreadcrumbs({ patientRoutes });
 
   const previousLocation = usePreviousLocation();
