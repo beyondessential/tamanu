@@ -26,25 +26,6 @@ function isEquivalent(a, b) {
   return a === b || (isEmpty(a) && isEmpty(b));
 }
 
-async function getBodyForAnswer(dataElementType, value, models) {
-  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
-    // If the client already provided an attachment id, keep it as-is
-    if (typeof value === 'string') return value;
-
-    const { size, data } = value;
-    const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForDatabase({
-        type: 'image/jpeg',
-        size,
-        data,
-      }),
-    );
-    return attachmentId;
-  }
-
-  return getStringValue(dataElementType, value);
-}
-
 /** Omit existing calculated/result bodies so a cleared input does not leave stale values. */
 function rerunCalculations(components, mergedAnswerValues) {
   const valuesForCalculation = { ...mergedAnswerValues };
@@ -269,7 +250,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
         }
         continue;
       }
-      const body = await getBodyForAnswer(dataElementType, value, models);
+      const body = await models.SurveyResponse.getBodyForAnswer(dataElementType, value, models);
       if (body === null) continue;
 
       const existingAnswer = answerByDataElementId.get(dataElementId);

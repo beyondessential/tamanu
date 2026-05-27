@@ -193,29 +193,6 @@ async function handleSurveyResponseActions(
   );
 }
 
-// Special case for answers that depend on creating a new record in the database
-// and store the ID of the new record in the answer body. Currently only used for photos.
-async function getBodyForAnswer(
-  dataElementType: ProgramDataElement['type'],
-  value: any,
-  models: Models,
-) {
-  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
-    const { size, data } = value as unknown as { size: number; data: string };
-    const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForDatabase({
-        type: 'image/jpeg',
-        size,
-        data,
-      }),
-    );
-    // Store the attachment ID in the answer body
-    return attachmentId;
-  }
-
-  return getStringValue(dataElementType, value);
-}
-
 export class SurveyResponse extends Model {
   declare id: string;
   declare startTime?: string;
@@ -481,7 +458,7 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = await getBodyForAnswer(dataElement.type, value, models);
+      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models);
       // Don't create null answers
       if (body === null) {
         continue;
@@ -514,5 +491,29 @@ export class SurveyResponse extends Model {
     );
 
     return record;
+  }
+
+  /**
+   * Special case for answers that depend on creating a new record in the database and store the ID
+   * of the new record in the answer body. Currently only used for photos.
+   */
+  static async getBodyForAnswer(
+    dataElementType: ProgramDataElement['type'],
+    value: any,
+    models: Models,
+  ) {
+    if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
+      // If the client already provided an attachment ID, keep it as-is
+      if (typeof value === 'string') return value;
+
+      const { size, data } = value as unknown as { size: number; data: string };
+      const { id: attachmentId } = await models.Attachment.create(
+        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg' }),
+      );
+
+      return attachmentId; // Store attachment ID as answer body
+    }
+
+    return getStringValue(dataElementType, value);
   }
 }
