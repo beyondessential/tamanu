@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { isEqual, isPlainObject } from 'lodash';
+import { isEmpty, isEqual, isPlainObject } from 'lodash';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
@@ -17,11 +17,6 @@ import {
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-
-/** @param {string | null | undefined} body */
-function isEmpty(body) {
-  return body == null || body === '';
-}
 
 /**
  * @param {string | null | undefined} a
