@@ -1,4 +1,5 @@
 import Typography from '@mui/material/Typography';
+import { isEmpty } from 'lodash';
 import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -24,11 +25,6 @@ const StyledButtonRow = styled(ButtonRow)`
 const CancelButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
-
-/** @param {string | null | undefined} answer */
-function isEmpty(answer) {
-  return answer == null || answer === '';
-}
 
 /**
  * @param {...(string | null | undefined)} answers
