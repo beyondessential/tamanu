@@ -10,10 +10,6 @@ import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
 
-const SectionSpacing = styled.div`
-  height: 14px;
-`;
-
 const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
   overflow: auto;
