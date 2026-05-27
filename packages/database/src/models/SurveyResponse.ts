@@ -188,7 +188,7 @@ async function handleSurveyResponseActions(
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
   await createPatientIssues(models, activeQuestions, patientId, submittedTime);
-  await writeToPatientFields(
+  await models.SurveyResponse.writeToPatientFields(
     models,
     facilityId,
     activeQuestions,
