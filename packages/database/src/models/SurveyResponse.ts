@@ -177,35 +177,6 @@ async function _writeToPatientFields(
   }
 }
 
-async function handleSurveyResponseActions(
-  models: Models,
-  facilityId: Facility['id'],
-  questions: any[],
-  answers: Record<ProgramDataElement['id'], any>,
-  patientId: Patient['id'],
-  surveyId: Survey['id'],
-  userId: User['id'],
-  submittedTime: string,
-) {
-  const activeQuestions = getActiveActionComponents(questions, answers);
-  await models.SurveyResponse.createPatientIssues(
-    models,
-    activeQuestions,
-    patientId,
-    submittedTime,
-  );
-  await models.SurveyResponse.writeToPatientFields(
-    models,
-    facilityId,
-    activeQuestions,
-    answers,
-    patientId,
-    surveyId,
-    userId,
-    submittedTime,
-  );
-}
-
 export class SurveyResponse extends Model {
   declare id: string;
   declare startTime?: string;
@@ -492,7 +463,7 @@ export class SurveyResponse extends Model {
       });
     }
 
-    await handleSurveyResponseActions(
+    await SurveyResponse.handleSurveyResponseActions(
       models,
       facilityId,
       questions,
@@ -536,5 +507,34 @@ export class SurveyResponse extends Model {
 
   static async writeToPatientFields(...args: Parameters<typeof _writeToPatientFields>) {
     return await _writeToPatientFields(...args);
+  }
+
+  static async handleSurveyResponseActions(
+    models: Models,
+    facilityId: Facility['id'],
+    questions: any[],
+    answers: Record<ProgramDataElement['id'], any>,
+    patientId: Patient['id'],
+    surveyId: Survey['id'],
+    userId: User['id'],
+    submittedTime: string,
+  ) {
+    const activeQuestions = getActiveActionComponents(questions, answers);
+    await models.SurveyResponse.createPatientIssues(
+      models,
+      activeQuestions,
+      patientId,
+      submittedTime,
+    );
+    await models.SurveyResponse.writeToPatientFields(
+      models,
+      facilityId,
+      activeQuestions,
+      answers,
+      patientId,
+      surveyId,
+      userId,
+      submittedTime,
+    );
   }
 }

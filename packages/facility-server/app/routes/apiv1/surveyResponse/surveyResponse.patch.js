@@ -4,11 +4,7 @@ import { isEmpty, isEqual, isPlainObject } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
-import {
-  getActiveActionComponents,
-  getResultValue,
-  getStringValue,
-} from '@tamanu/shared/utils/fields';
+import { getResultValue, getStringValue } from '@tamanu/shared/utils/fields';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
 /**
@@ -28,35 +24,6 @@ function rerunCalculations(components, mergedAnswerValues) {
     }
   }
   return runCalculations(components, valuesForCalculation);
-}
-
-async function handleSurveyResponseActions(
-  models,
-  facilityId,
-  questions,
-  answers,
-  patientId,
-  surveyId,
-  userId,
-  submittedTime,
-) {
-  const activeQuestions = getActiveActionComponents(questions, answers);
-  await models.SurveyResponse.createPatientIssues(
-    models,
-    activeQuestions,
-    patientId,
-    submittedTime,
-  );
-  await models.SurveyResponse.writeToPatientFields(
-    models,
-    facilityId,
-    activeQuestions,
-    answers,
-    patientId,
-    surveyId,
-    userId,
-    submittedTime,
-  );
 }
 
 export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
@@ -223,7 +190,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
     }
 
     // Re-run actions without changing submission time
-    await handleSurveyResponseActions(
+    await models.SurveyResponse.handleSurveyResponseActions(
       models,
       facilityId,
       components,
