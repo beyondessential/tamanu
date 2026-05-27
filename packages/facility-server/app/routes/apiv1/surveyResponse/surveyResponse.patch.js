@@ -37,36 +37,6 @@ function rerunCalculations(components, mergedAnswerValues) {
   return runCalculations(components, valuesForCalculation);
 }
 
-async function createPatientIssues(models, questions, patientId, recordedDate) {
-  if (!models.PatientIssue.sequelize.isInsideTransaction()) {
-    throw new UsageError('createPatientIssues must always run inside a transaction!');
-  }
-  const issueQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
-  );
-  for (const question of issueQuestions) {
-    const config = safeJsonParse(question.config);
-    if (!config?.issueNote || !config.issueType) {
-      throw new InvalidOperationError(
-        `Ill-configured PatientIssue with config: ${question.config}`,
-      );
-    }
-    const issueData = {
-      patientId,
-      type: config.issueType,
-      note: config.issueNote,
-    };
-    if (recordedDate) issueData.recordedDate = recordedDate;
-
-    const existing = await models.PatientIssue.findOne({
-      attributes: ['id'], // Arbitrary projection, just checking existence
-      where: issueData,
-    });
-    if (existing !== null) continue; // Prevent duplicates when program responses are edited
-    await models.PatientIssue.create(issueData);
-  }
-}
-
 const getFieldsToWrite = async (models, questions, answers) => {
   const recordValuesByModel = {};
   const patientDataQuestions = questions.filter(
@@ -163,7 +133,12 @@ async function handleSurveyResponseActions(
   submittedTime,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
-  await createPatientIssues(models, activeQuestions, patientId, submittedTime);
+  await models.SurveyResponse.createPatientIssues(
+    models,
+    activeQuestions,
+    patientId,
+    submittedTime,
+  );
   await writeToPatientFields(
     models,
     facilityId,

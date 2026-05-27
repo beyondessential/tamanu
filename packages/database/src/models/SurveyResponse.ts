@@ -7,7 +7,7 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError, UsageError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -35,16 +35,17 @@ async function createPatientIssues(
   recordedDate?: PatientIssue['recordedDate'],
 ) {
   if (!models.PatientIssue.sequelize.isInsideTransaction()) {
-    throw new Error('createPatientIssues must always run inside a transaction!');
+    throw new UsageError('createPatientIssues must always run inside a transaction!');
   }
   const issueQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
-    const { config: configString } = question;
-    const config = safeJsonParse(configString) ?? {};
+    const config = safeJsonParse(question.config) ?? {};
     if (!config.issueNote || !config.issueType) {
-      throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
+      throw new InvalidOperationError(
+        `Ill-configured PatientIssue with config: ${question.config}`,
+      );
     }
     const issueData: Partial<PatientIssue> = {
       patientId,
