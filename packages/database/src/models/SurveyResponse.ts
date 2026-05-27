@@ -49,12 +49,13 @@ async function _createPatientIssues(
         `Ill-configured PatientIssue with config: ${question.config}`,
       );
     }
+
+    /** NB: Initialising sans-`recordedDate` to query for duplicate. Attaches later if needed. */
     const issueData: Partial<PatientIssue> = {
       patientId,
       type: config.issueType,
       note: config.issueNote,
     };
-    if (recordedDate) issueData.recordedDate = recordedDate;
 
     const existing = await models.PatientIssue.findOne({
       attributes: ['id'], // Arbitrary projection, just checking existence
@@ -62,6 +63,8 @@ async function _createPatientIssues(
     });
 
     if (existing !== null) continue; // Prevent duplicates when program responses are edited
+
+    if (recordedDate) issueData.recordedDate = recordedDate;
     await models.PatientIssue.create(issueData);
   }
 }
