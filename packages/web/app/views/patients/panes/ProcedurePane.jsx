@@ -22,6 +22,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         key={editedProcedure} /* Ensures that the modal is reset on close */
         editedProcedure={editedProcedure}
         setEditedProcedure={setEditedProcedure}
+        encounter={encounter}
         encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {

@@ -72,6 +72,7 @@ const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount)
 export const ProcedureModal = ({
   onClose,
   onSaved,
+  encounter,
   encounterId,
   editedProcedure,
   setEditedProcedure,
@@ -313,6 +314,13 @@ export const ProcedureModal = ({
               startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
+              // Default department, area and location to the encounter's, since
+              // a procedure is usually performed where the patient currently is.
+              // All remain editable. locationGroup seeds LocationField's area.
+              departmentId: encounter?.departmentId,
+              locationId: encounter?.locationId,
+              locationGroup:
+                encounter?.location?.locationGroup?.id ?? encounter?.location?.locationGroupId,
             }
       }
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
