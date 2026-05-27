@@ -12,6 +12,11 @@
  *   from: SurveyResponseAnswer['body'];
  *   to: SurveyResponseAnswer['body'];
  * }} Change
+ * @typedef {Change & { _revision: number }} Revision
+ * Revision numbers (`_revision`) are scoped to the updated record. i.e. The oldest row for a given
+ * question of a survey is always assigned revision 0. Its first edit is revision 1, etc. Revision
+ * numbers for another question also start at 0.
+ * @typedef {Revision[]} RevisionHistory
  */
 import asyncHandler from 'express-async-handler';
 import { omit } from 'lodash';
@@ -87,27 +92,28 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
     },
   );
 
-  /**
-   * @privateRemarks Revision numbers (`_revision`) are scoped to the updated record. i.e. The
-   * oldest row for a given question of a survey is always assigned revision 1. Its first edit is
-   * revision 2, etc. Revision numbers for another question also start at 1.
-   * @type {{ [recordId: ChangeLog['recordId']]: number }}
-   */
-  const revNumDict = {};
-  /** @type {(Change & { _revision: number })[]} */
-  const revisions = rawRows.map(row => {
+  /** @type {Map<ChangeLog['recordId'], RevisionHistory>}*/
+  const revisionHistoryById = new Map();
+  /** @type {RevisionHistory} */
+  const revisions = [];
+
+  for (const row of rawRows) {
     const key = row.recordId;
-    revNumDict[key] = (revNumDict[key] ?? 0) + 1;
-    return { ...row, _revision: revNumDict[key] };
-  });
+    let history = revisionHistoryById.get(key);
+    if (history === undefined) {
+      history = [];
+      revisionHistoryById.set(key, history);
+    }
+    const revision = { ...row, _revision: history.length };
+    history.push(revision);
+    revisions.push(revision);
+  }
 
   const changes = revisions
     .map(revision => {
       if (!revision.recordData.editedTime) return null; // Edits only, no creates
 
-      const prevRevision = revisions.find(
-        r => r.recordId === revision.recordId && r._revision === revision._revision - 1,
-      );
+      const prevRevision = revisionHistoryById.get(revision.recordId)?.[revision._revision - 1];
       const diff = diffAnswerBody(prevRevision?.recordData, revision.recordData);
 
       if (!diff) return null; // No meaningful change (shouldn’t really happen)
