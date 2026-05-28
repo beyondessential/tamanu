@@ -1880,7 +1880,13 @@ medication.get(
         {
           association: 'pharmacyOrder',
           where: { ...pharmacyOrderFilters, facilityId },
-          include: [encounter],
+          include: [
+            encounter,
+            {
+              association: 'orderingClinician',
+              attributes: ['id', 'displayName'],
+            },
+          ],
           required: true,
           attributes: ['id', 'date', 'facilityId', 'encounterId', 'isDischargePrescription'],
         },
@@ -2076,7 +2082,13 @@ medication.get(
             {
               association: 'pharmacyOrder',
               where: { facilityId },
-              include: [encounter],
+              include: [
+                encounter,
+                {
+                  association: 'orderingClinician',
+                  attributes: ['id', 'displayName'],
+                },
+              ],
               required: true,
               attributes: ['id', 'facilityId', 'encounterId', 'isDischargePrescription'],
             },
@@ -2294,6 +2306,10 @@ medication.get(
               attributes: ['id'],
               required: true,
               where: { patientId },
+            },
+            {
+              association: 'orderingClinician',
+              attributes: ['id', 'displayName'],
             },
           ],
         },
