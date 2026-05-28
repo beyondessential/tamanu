@@ -5,7 +5,7 @@ import { keyBy, mapValues, uniq } from 'lodash';
 import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import * as overrides from '/root/serverOverrides.json';
+// import * as overrides from '/root/serverOverrides.json';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { LanguageOption } from '~/models/TranslatedString';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
@@ -75,13 +75,13 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
   // allows overriding the central server list or meta server in builds
-  const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
-  if (centralServerOverrides) {
-    return centralServerOverrides;
-  }
+  // const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
+  // if (centralServerOverrides) {
+  //   return centralServerOverrides;
+  // }
 
   const defaultMetaServer = 'https://meta.tamanu.app';
-  const metaServer = metaServerOverride || defaultMetaServer;
+  const metaServer = defaultMetaServer;
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
