@@ -1,5 +1,7 @@
+import { Box, Typography } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PATIENT_DATA_FIELD_LOCATIONS,
@@ -7,15 +9,15 @@ import {
   SEX_VALUES,
 } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
-import { Box, Typography } from '@material-ui/core';
-import { TAMANU_COLORS } from '../../constants/colors';
+import SurveyResultQuestion from '../Field/SurveyResultQuestion';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useSettings, useTranslation } from '../../contexts';
 
-const Text = styled.div`
-  margin-bottom: 10px;
+const Text = styled(Typography)`
+  margin-block-end: 10px;
 `;
 
 export const FullWidthCol = styled.div`
@@ -68,7 +70,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   const text = component.text || component.dataElement.defaultText;
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
-    return <Text data-testid="text-lag8">{`${text} ${component.detail}`}</Text>;
+    return <SurveyResultQuestion text={text} component={component} />;
   }
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
@@ -99,6 +101,7 @@ export const SurveyQuestion = ({
   disabled,
   encounterType,
   getComponentForQuestionType,
+  isEdited = false,
 }) => {
   const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -123,13 +126,25 @@ export const SurveyQuestion = ({
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = componentDetail && (
+
+  const detail = componentDetail && (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
   );
+  const helperText = (
+    <>
+      {detail}
+      {isEdited && (
+        <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
+          <TranslatedText stringId="general.label.edited" fallback="Edited" />
+        </span>
+      )}
+    </>
+  );
+
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(() => {
     // if the question is a patient data question with a select field type,
@@ -166,7 +181,7 @@ export const SurveyQuestion = ({
         value,
       };
     });
-  }, [getTranslation, id, options, type, componentConfig, getEnumTranslation]);
+  }, [componentConfig, getEnumTranslation, getSetting, getTranslation, id, options, type]);
 
   const configObject = getConfigObject(id, componentConfig);
   const FieldComponent = getComponentForQuestionType(type, configObject);
@@ -199,9 +214,5 @@ export const SurveyQuestion = ({
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
-  if (customComponent) {
-    return customComponent;
-  }
-
-  return fieldComponent;
+  return customComponent ?? fieldComponent;
 };

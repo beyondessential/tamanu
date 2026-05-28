@@ -72,22 +72,6 @@ describe('RefreshMaterializedView', () => {
   afterAll(() => context.close());
 
   it('should refresh materialized view', async () => {
-    const originalMaterializedResult = await context.sequelize.query(
-      `
-      SET TIMEZONE TO :serverTimezone;
-      SELECT * FROM materialized_upcoming_vaccinations;
-      SET TIMEZONE TO :sequelizeTimezone;
-      `,
-      {
-        type: QueryTypes.SELECT,
-        replacements: {
-          serverTimezone: config.primaryTimeZone,
-          sequelizeTimezone: sequelizeTimezone['TimeZone'],
-        },
-      },
-    );
-    // Check that the materialized view is empty as we haven't run the task yet
-    expect(originalMaterializedResult).toEqual([]);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
       `

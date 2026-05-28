@@ -1,0 +1,35 @@
+sql: |
+  SELECT
+    id,
+    errors::text,
+    jsonb_array_elements_text(parameters->'facilityIds') AS facility_id,
+    created_at::text AS created,
+    (completed_at - created_at)::text AS duration
+  FROM sync_sessions
+  WHERE
+    updated_at > now() - interval '1 minute' -- Lookback window
+    AND parameters->>'isMobile' = 'true'
+    AND errors IS NOT NULL
+    -- The prior session was marked complete because the device reconnected; benign.
+    AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
+    -- Transient Postgres serialisation failure: the next cycle re-runs.
+    AND errors <> ARRAY['could not serialize access due to concurrent update']
+  ORDER BY created_at DESC
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Sync session error (mobile, {{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      Sync sessions with an error in the last minute:
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.id }}**: _{{ row.errors }}_ ({{ row.facility_id }},  duration {{ row.duration }}, start {{ row.created }})
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

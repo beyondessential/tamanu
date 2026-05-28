@@ -19,7 +19,6 @@ import { useTranslation } from '../../contexts/Translation';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { ConditionHistoryTable } from './ConditionHistoryTable';
 import Divider from '@material-ui/core/Divider';
-import { useSettings } from '../../contexts/Settings';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
@@ -56,7 +55,6 @@ const useUpdateConditionMutation = (patientProgramRegistrationId, conditionId) =
 
 export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const [warningOpen, setWarningOpen] = useState(false);
-  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const {
     id: conditionId,
@@ -72,8 +70,6 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
     programRegistryId,
   );
-
-  const areAuditChangesEnabled = getSetting('audit.changes.enabled');
 
   const handleConfirmedSubmit = async values => {
     await submit(values);
@@ -190,15 +186,13 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           return (
             <>
               <StyledFormTable columns={columns} data={[condition]} />
-              {areAuditChangesEnabled && (
-                <>
-                  <Divider />
-                  <ConditionHistoryTable
-                    historyData={condition?.history}
-                    programRegistryId={programRegistryId}
-                  />
-                </>
-              )}
+              <>
+                <Divider />
+                <ConditionHistoryTable
+                  historyData={condition?.history}
+                  programRegistryId={programRegistryId}
+                />
+              </>
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
               <RecordedInErrorWarningModal
                 open={warningOpen}

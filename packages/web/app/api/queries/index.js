@@ -19,6 +19,7 @@ export * from './useTelegramBotInfoQuery';
 export * from './useChartSurveysQuery';
 export * from './useEncounterChartsQuery';
 export * from './useSurveyResponseQuery';
+export * from './useSurveyResponseChangesQuery';
 export {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,

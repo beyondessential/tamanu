@@ -163,7 +163,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-requests.table.column.patientId"
           fallback="Patient ID"
-          data-testid="translatedtext-display-id"
         />
       ),
       accessor: getPatientDisplayId,
@@ -175,7 +174,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-requests.table.column.patientName"
           fallback="Patient name"
-          data-testid="translatedtext-patient-name-title"
         />
       ),
       accessor: getPatientName,
@@ -187,7 +185,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-requests.table.column.medication"
           fallback="Medication"
-          data-testid="translatedtext-medication-column-title"
         />
       ),
       accessor: getMedication,
@@ -199,7 +196,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-dispenses.table.column.date"
           fallback="Date dispensed"
-          data-testid="translatedtext-date-dispensed-column-title"
         />
       ),
       accessor: getDateDispensed,
@@ -211,7 +207,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-dispenses.table.column.quantity"
           fallback="Qty dispensed"
-          data-testid="translatedtext-quantity-column-title"
         />
       ),
       accessor: getQuantity,
@@ -223,7 +218,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-dispenses.table.column.dispensedById"
           fallback="Dispensed by"
-          data-testid="translatedtext-dispensed-by-column-title"
         />
       ),
       accessor: getDispensedBy,
@@ -235,7 +229,6 @@ export const MedicationDispensesTable = () => {
         <TranslatedText
           stringId="medication-dispenses.table.column.requestNumber"
           fallback="Request no."
-          data-testid="translatedtext-request-number-column-title"
         />
       ),
       accessor: getRequestNumber,
@@ -266,7 +259,15 @@ export const MedicationDispensesTable = () => {
               ];
               return (
                 <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-                  <MenuButton actions={actions} />
+                  <MenuButton
+                    a11yLabel={
+                      <TranslatedText
+                        stringId="medication-dispenses.table.actions"
+                        fallback="Dispense actions"
+                      />
+                    }
+                    actions={actions}
+                  />
                 </div>
               );
             },

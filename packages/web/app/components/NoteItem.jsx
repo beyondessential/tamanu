@@ -73,11 +73,9 @@ const StyledNoteItemLogMetadata = styled.div`
 const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
-const StyledTooltip = styled(props => (
-  <ClickAwayListener onClickAway={props.onClickAway}>
-    <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-o9f3">
-      {props.children}
-    </Tooltip>
+const StyledTooltip = styled(({ className, onClickAway, ...props }) => (
+  <ClickAwayListener onClickAway={onClickAway}>
+    <Tooltip classes={{ popper: className }} data-testid="tooltip-o9f3" {...props} />
   </ClickAwayListener>
 ))`
   z-index: 1500;
@@ -182,11 +180,7 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
               onClick={() => setTooltipOpen(true)}
               data-testid="styledviewchangelogwrapper-bl80"
             >
-              <TranslatedText
-                stringId="note.action.viewChangeLog"
-                fallback="View change log"
-                data-testid="translatedtext-view-changelog"
-              />
+              <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
             </StyledViewChangeLogWrapper>
           </StyledTooltip>
         </>

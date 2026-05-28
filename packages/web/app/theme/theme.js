@@ -20,6 +20,19 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  /**
+   * WebKit doesn’t apply implicit ‘list’ role from <ol>s and <ul>s when list-style-type is
+   * ‘none’ unless nested in a <nav>. Intentional on WebKit’s part, but usually undesirable.
+   * @see https://bugs.webkit.org/show_bug.cgi?id=170179#c1
+   */
+  ":where(ol, ul)[role='list']": {
+    listStyleType: 'none',
+    marginBlock: 0,
+    paddingInlineStart: 0,
+  },
+  pre: {
+    marginBlock: 0,
+  },
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
@@ -54,6 +67,9 @@ const themeConfig = {
       light: '#F4F6F8', // taken from colors.scss::$main-light-gray-color
       main: '#eff2f5', // taken from colors.scss::$main-bg-color
     },
+    action: {
+      hover: Colors.veryLightBlue,
+    },
     spacing: {
       unit: MUI_SPACING_UNIT,
     },
@@ -76,6 +92,27 @@ const themeConfig = {
         borderColor: Colors.outline,
       },
     },
+    MuiFormHelperText: {
+      root: {
+        color: Colors.midText,
+        fontSize: '11px',
+        lineHeight: '1.4',
+        marginBlockStart: '4px',
+      },
+    },
+    MuiListItem: {
+      button: {
+        transition: 'none',
+      },
+    },
+    MuiMenuItem: {
+      root: {
+        fontSize: 11,
+        letterSpacing: '0.02em',
+        paddingBlock: 4,
+        paddingInline: 12,
+      },
+    },
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
@@ -89,11 +126,51 @@ const themeConfig = {
         borderColor: Colors.outline,
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: Colors.midText,
+          fontSize: '11px',
+          lineHeight: '1.4',
+          marginBlockStart: '4px',
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        button: {
+          transition: 'none',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: 11,
+          letterSpacing: '0.02em',
+          paddingBlock: 4,
+          paddingInline: 12,
+        },
+      },
+    },
     MuiTab: {
       styleOverrides: {
         root: {
           minHeight: '48px',
           textTransform: 'none',
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.875rem',
+          fontWeight: 400,
+          minInlineSize: '4em',
+          textTransform: 'none',
+          '&.Mui-selected': {
+            borderColor: Colors.primary,
+          },
         },
       },
     },

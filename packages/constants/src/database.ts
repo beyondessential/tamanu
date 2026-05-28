@@ -2,6 +2,7 @@
 export const NOTIFY_CHANNELS = {
   MATERIALIZED_VIEW_REFRESHED: 'materialized_view_refreshed',
   TABLE_CHANGED: 'table_changed',
+  JOBS: 'jobs',
 };
 
 // Session config keys are prefixed with this to avoid conflicts with other settings

@@ -209,9 +209,11 @@ interface ResultValue {
  */
 export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
   // find a component with a Result data type and use its value as the overall result
-  const resultComponents = allComponents
-    .filter(c => c.dataElement.type === DataElementType.Result)
-    .filter(c => checkVisibilityCriteria(c, allComponents, values));
+  const resultComponents = allComponents.filter(
+    c =>
+      c.dataElement.type === DataElementType.Result &&
+      checkVisibilityCriteria(c, allComponents, values),
+  );
 
   // use the last visible component in the array
   const component = resultComponents.pop();

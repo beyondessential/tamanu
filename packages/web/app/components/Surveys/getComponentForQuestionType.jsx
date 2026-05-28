@@ -1,28 +1,32 @@
 import React from 'react';
+
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
   BaseMultiselectField,
-  LimitedTextField,
-  MultilineTextField,
-  ReadOnlyTextField,
+  PhotoField as BasePhotoField,
   BaseSelectField,
   InstructionField,
-  PhotoField as BasePhotoField,
+  LimitedTextField,
+  MultilineTextField,
   PatientDataDisplayField,
+  ReadOnlyNumberField,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
-import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
+  ChartInstanceNameField,
   DateField,
   DateTimeField,
   NullableBooleanField,
   NumberField,
-  SurveyResponseSelectField,
-  ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
+  SurveyResponseSelectField,
 } from '../Field';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
+import { ViewPhotoLink } from '../ViewPhotoLink';
 
-const QUESTION_COMPONENTS = {
+/** @satisfies {Record<PROGRAM_DATA_ELEMENT_TYPES, React.ComponentType<any>>} */
+const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField, // TODO: Implement proper radio field?
@@ -35,7 +39,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyNumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
@@ -43,9 +47,14 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
-    <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />
+    <BasePhotoField
+      {...props}
+      WebcamCaptureModalComponent={PhotoCaptureModal}
+      ViewPhotoLinkComponent={ViewPhotoLink}
+    />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
+  /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeField,
@@ -55,7 +64,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),
-};
+});
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];

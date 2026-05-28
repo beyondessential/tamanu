@@ -1,0 +1,40 @@
+interval: 5 minutes
+
+sql: |
+  -- A single "snapshot-for-pushing" error is benign: it means a pulled record was edited
+  -- locally mid-session, so the facility deliberately aborts and restarts to push the edit.
+  -- The next cycle picks it up. But a sustained rate suggests the push -> pull window is
+  -- too wide for the facility's write velocity, and sync may struggle to converge.
+  SELECT
+    jsonb_array_elements_text(parameters->'facilityIds') AS facility_id,
+    COUNT(*) AS error_count
+  FROM sync_sessions
+  WHERE
+    created_at > now() - interval '1 hour'
+    AND errors IS NOT NULL
+    AND cardinality(errors) = 1
+    AND errors[1] LIKE '%snapshot-for-pushing%'
+  GROUP BY facility_id
+  HAVING COUNT(*) >= 10
+  ORDER BY error_count DESC
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Sync restart loop for at least one facility ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      One or more facilities have had repeated sync sessions abort with a
+      "snapshot-for-pushing" restart in the past hour. A single occurrence is
+      expected when a clinician edits a record mid-sync, but a sustained rate
+      suggests the push -> pull window is too wide for the facility's write
+      velocity. Consider tuning `sync.dynamicLimiter` to shorten sessions.
+
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.facility_id }}**: {{ row.error_count }} restart(s) in the last hour
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

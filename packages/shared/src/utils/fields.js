@@ -1,12 +1,17 @@
-import {
-  ACTION_DATA_ELEMENT_TYPES,
-  PROGRAM_DATA_ELEMENT_TYPES,
-} from '@tamanu/constants';
+/** @typedef {import('@tamanu/constants').DataElementType} DataElementType */
+
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
+/**
+ * @template {V}
+ * @param {DataElementType} type
+ * @param {any} value
+ * @returns {V extends null | undefined ? null : string}
+ */
 export function getStringValue(type, value) {
-  if (value === null) {
+  if (value == null) {
     return null;
   }
   switch (type) {
@@ -17,6 +22,12 @@ export function getStringValue(type, value) {
   }
 }
 
+/**
+ * @param {DataElementType} dataType
+ * @param {string} expected
+ * @param {any} given
+ * @returns {boolean}
+ */
 function compareData(dataType, expected, given) {
   switch (dataType) {
     case PROGRAM_DATA_ELEMENT_TYPES.BINARY:
@@ -124,9 +135,12 @@ export function getActiveActionComponents(components, originalValues) {
 
 export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
-  const resultComponents = components
-    .filter(c => c.dataElement.type === 'Result')
-    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
+  const mergedValues = { ...values, ...specialValues };
+  const resultComponents = components.filter(
+    c =>
+      c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT &&
+      checkVisibilityCriteria(c, components, mergedValues),
+  );
 
   const component = resultComponents.pop();
 

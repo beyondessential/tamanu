@@ -45,12 +45,12 @@ export const StyledTextField = styled(MuiTextField)`
     }
   }
 
-  // helper text
+  /*
+   * We use ‘outlined’ variant of MUI TextField, but design prescribes that FormHelperText aligns
+   * with field’s border-box, not content-box.
+   */
   .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
+    margin-left: unset;
   }
 
   .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
@@ -216,3 +216,5 @@ TextInput.defaultProps = {
   value: '',
   fullWidth: true,
 };
+
+export const ReadOnlyNumberField = props => <ReadOnlyTextField {...props} type="number" />;
