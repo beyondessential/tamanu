@@ -38,6 +38,10 @@ const DismissButton = styled(IconButton)`
   padding: 4px;
 `;
 
+// Cap the dismissed list so it doesn't grow unboundedly over months of use.
+// 10 is generous given there is one global banner at a time.
+const DISMISSED_HISTORY_LIMIT = 10;
+
 const readDismissed = () => {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.DISMISSED_BANNERS);
@@ -62,11 +66,16 @@ export const SystemBanner = () => {
   const { getTranslation } = useTranslation();
   const banner = getSetting('banner');
 
+  // Only tick the clock when there's an active banner with an expiry to
+  // check. The common case is no banner at all — running this interval for
+  // every logged-in user would burn re-renders for no reason.
+  const hasExpiry = Boolean(banner?.enabled && banner?.expiresAt);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (!hasExpiry) return undefined;
     const interval = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hasExpiry]);
 
   const [dismissed, setDismissed] = useState(readDismissed);
 
@@ -87,9 +96,12 @@ export const SystemBanner = () => {
 
   const handleDismiss = () => {
     if (!key) return;
-    const next = [...dismissed, key];
-    setDismissed(next);
-    writeDismissed(next);
+    setDismissed(prev => {
+      if (prev.includes(key)) return prev;
+      const next = [...prev, key].slice(-DISMISSED_HISTORY_LIMIT);
+      writeDismissed(next);
+      return next;
+    });
   };
 
   return (
