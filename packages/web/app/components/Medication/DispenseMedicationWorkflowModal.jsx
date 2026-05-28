@@ -406,7 +406,7 @@ export const DispenseMedicationWorkflowModal = memo(
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions: item.instructions,
           quantity: item.quantity,
-          units: item.prescription?.units,
+          units: item.prescription?.dispensingUnit,
           remainingRepeats: item.remainingRepeats,
           prescriberName: item.prescription?.prescriber?.displayName,
           requestNumber: item.displayId,

@@ -243,7 +243,7 @@ const GivenScreen = ({
   timeSlot,
   selectedDate,
   marId,
-  units,
+  dosingUnit,
   onClose,
   prescriptionId,
   isFuture,
@@ -337,10 +337,10 @@ const GivenScreen = ({
               >
                 <RemoveCircleOutlineIcon />
               </DoseButton>
-              <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
+              <StyledNumberFieldWrapper $units={dosingUnit} ref={doseInputRef}>
                 <Field name="doseAmount" component={NumberField} min={0.25} />
                 <InputSuffix>
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={units} />
+                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
                   <RequiredMark>*</RequiredMark>
                 </InputSuffix>
               </StyledNumberFieldWrapper>
@@ -434,7 +434,7 @@ export const StatusPopper = ({
   isPast,
 }) => {
   const { id: marId } = marInfo || {};
-  const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
+  const { doseAmount, dosingUnit, id: prescriptionId, isVariableDose } = medication || {};
   const { toStoredDateTime } = useDateTime();
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
@@ -497,7 +497,7 @@ export const StatusPopper = ({
           doseAmount={doseAmount}
           timeSlot={timeSlot}
           selectedDate={selectedDate}
-          units={units}
+          dosingUnit={dosingUnit}
           marId={marId}
           onClose={onClose}
           prescriptionId={prescriptionId}

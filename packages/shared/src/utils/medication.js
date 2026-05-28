@@ -54,13 +54,13 @@ export const getFirstAdministrationDate = (startDate, idealTimes) => {
 };
 
 export const getMedicationDoseDisplay = (medication, getTranslation, getEnumTranslation) => {
-  let { doseAmount, units, isVariableDose } = medication;
+  let { doseAmount, dosingUnit, isVariableDose } = medication;
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
-  return getMarDoseDisplay({ doseAmount, units }, getEnumTranslation);
+  return getMarDoseDisplay({ doseAmount, dosingUnit }, getEnumTranslation);
 };
 
-export const getMarDoseDisplay = ({ doseAmount, units }, getEnumTranslation) => {
-  return `${doseAmount ?? ''} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units) ?? ''}`.trim();
+export const getMarDoseDisplay = ({ doseAmount, dosingUnit }, getEnumTranslation) => {
+  return `${doseAmount ?? ''} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, dosingUnit) ?? ''}`.trim();
 };
 
 export const getTranslatedFrequency = (frequency, getTranslation) => {

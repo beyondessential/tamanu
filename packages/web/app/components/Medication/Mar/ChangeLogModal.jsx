@@ -119,7 +119,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
               {
                 label: LABELS.doseGiven,
                 value: getMarDoseDisplay(
-                  { doseAmount: log.doseAmount, units: medication.units },
+                  { doseAmount: log.doseAmount, dosingUnit: medication.dosingUnit },
                   getEnumTranslation,
                 ),
               },
@@ -154,7 +154,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
             changes.push({
               label: LABELS.doseGiven,
               value: getMarDoseDisplay(
-                { doseAmount: log.doseAmount, units: medication.units },
+                { doseAmount: log.doseAmount, dosingUnit: medication.dosingUnit },
                 getEnumTranslation,
               ),
             });
@@ -256,7 +256,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                 {
                   label: LABELS.doseGiven,
                   value: getMarDoseDisplay(
-                    { doseAmount: logs[1].doseAmount, units: medication.units },
+                    { doseAmount: logs[1].doseAmount, dosingUnit: medication.dosingUnit },
                     getEnumTranslation,
                   ),
                 },

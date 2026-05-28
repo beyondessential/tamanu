@@ -288,7 +288,7 @@ export const getMedicationLabelData = ({ items, patient, facility, currentDateTi
     patientName: patient ? getPatientNameAsString(patient) : '-',
     dispensedAt: item.dispensedAt || currentDateTime,
     quantity: item.quantity,
-    units: item.units || '',
+    units: item.dispensingUnit || '',
     remainingRepeats: item.remainingRepeats,
     prescriberName: item.prescriberName || '-',
     requestNumber: item.requestNumber || '-',
@@ -345,7 +345,7 @@ const StyledTag = styled(TableCellTag)`
 `;
 
 export const createPrescriptionHash = prescription =>
-  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.units}-${prescription.route}-${prescription.frequency}`;
+  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.dosingUnit}-${prescription.route}-${prescription.frequency}`;
 
 export const getStockStatus = ({ prescription }, useStyledTag = true) => {
   const status =

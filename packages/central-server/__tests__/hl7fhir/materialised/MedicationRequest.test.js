@@ -123,7 +123,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         fake(Prescription, {
           medicationId: resources.drug1.id,
           doseAmount: 10,
-          units: DRUG_UNITS.mg,
+          dosingUnit: DRUG_UNITS.mg,
+          dispensingUnit: DRUG_UNITS.mg,
           frequency: ADMINISTRATION_FREQUENCIES.DAILY,
           idealTimes: ['11:00'],
           route: DRUG_ROUTES.oral,
@@ -250,7 +251,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
               dose: {
                 doseQuantity: {
                   value: parseFloat(prescription.doseAmount),
-                  unit: prescription.units,
+                  unit: prescription.dosingUnit,
                 },
               },
             },
@@ -360,7 +361,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         const prescription = await Prescription.create(
           fake(Prescription, {
             medicationId: resources.drug1.id,
-            units: DRUG_UNITS.mg,
+            dosingUnit: DRUG_UNITS.mg,
+          dispensingUnit: DRUG_UNITS.mg,
             frequency: ADMINISTRATION_FREQUENCIES.DAILY,
             idealTimes: ['11:00'],
             route: DRUG_ROUTES.oral,

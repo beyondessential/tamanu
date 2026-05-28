@@ -82,7 +82,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const testPrescription = await Prescription.create({
         medicationId: testMedication.id,
         doseAmount: 500,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'twice daily',
         route: 'oral',
         date: new Date().toISOString(),
@@ -146,7 +147,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const testPrescription = await store.models.Prescription.create({
         medicationId: testMedication.id,
         doseAmount: 100,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: new Date().toISOString(),
@@ -218,7 +220,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const ongoingPrescription = await store.models.Prescription.create({
         medicationId: ongoingMedication.id,
         doseAmount: 200,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'twice daily',
         route: 'oral',
         date: new Date().toISOString(),
@@ -232,7 +235,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const discontinuedPrescription = await store.models.Prescription.create({
         medicationId: discontinuedMedication.id,
         doseAmount: 100,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: new Date().toISOString(),
@@ -296,7 +300,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const nullDiscontinuedPrescription = await store.models.Prescription.create({
         medicationId: nullDiscontinuedMedication.id,
         doseAmount: 250,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'three times daily',
         route: 'oral',
         date: new Date().toISOString(),
@@ -385,7 +390,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const targetOngoingRx = await Prescription.create({
         medicationId: targetOngoingMed.id,
         doseAmount: 10,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: nowIso,
@@ -398,7 +404,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const targetDiscontinuedRx = await Prescription.create({
         medicationId: targetDiscontinuedMed.id,
         doseAmount: 10,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: nowIso,
@@ -411,7 +418,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const otherOngoingRx = await Prescription.create({
         medicationId: otherOngoingMed.id,
         doseAmount: 10,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: nowIso,
@@ -424,7 +432,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const otherDiscontinuedRx = await Prescription.create({
         medicationId: otherDiscontinuedMed.id,
         doseAmount: 10,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: 'once daily',
         route: 'oral',
         date: nowIso,
@@ -502,7 +511,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       const testPrescription = await store.models.Prescription.create({
         medicationId: testMedication.id,
         doseAmount: 50,
-        units: 'mg',
+        dosingUnit: 'mg',
+        dispensingUnit: 'mg',
         frequency: '', // Empty frequency instead of null
         route: 'oral',
         date: new Date().toISOString(),
