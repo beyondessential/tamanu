@@ -1,5 +1,6 @@
-import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../../utilities';
 import { buildPatchBody, createSurveyResponseTestHelpers } from './helpers';
@@ -54,6 +55,21 @@ describe('SurveyResponse GET /:id/changes', () => {
       expect(result).toBeForbidden();
     });
 
+    it('should forbid GET /changes when the role cannot read the survey', async () => {
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const noSurveyRead = await baseApp.asNewRole([['read', 'SurveyResponse']]);
+
+      const result = await noSurveyRead.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+
+      expect(result).toBeForbidden();
+    });
+
     it('should reject GET /changes for a non-program survey', async () => {
       const { response } = await setupComplexChartSurvey();
 
@@ -67,6 +83,32 @@ describe('SurveyResponse GET /:id/changes', () => {
       expect(result.body.error.message).toBe(
         'Changelog is only available for program survey responses',
       );
+    });
+  });
+
+  describe('response', () => {
+    it('should return 404 when the survey response does not exist', async () => {
+      const result = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(crypto.randomUUID())}/changes`,
+      );
+
+      expect(result).toHaveStatus(404);
+      expect(result).toHaveRequestError(NotFoundError);
+      expect(result.body.error.message).toBe('Survey response not found');
+    });
+
+    it('should return an empty array when the survey response has not been edited', async () => {
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        (await models.Facility.create(fake(models.Facility))).id,
+      );
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+
+      expect(changelog).toHaveSucceeded();
+      expect(changelog.body).toEqual([]);
     });
   });
 
