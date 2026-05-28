@@ -69,15 +69,18 @@ export function App({ sidebar, children }) {
   return (
     <AppContainer>
       {sidebar}
-      <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={location.pathname}>
-          <AppContentsContainer>
-            <SystemBanner />
+      <AppContentsContainer>
+        {/* The banner sits outside the route ErrorBoundary so that downtime
+            warnings (the most likely cause of an error) stay visible if the
+            route component throws. */}
+        <SystemBanner />
+        <PromiseErrorBoundary>
+          <ErrorBoundary errorKey={location.pathname}>
             {children}
             <ForbiddenErrorModal />
-          </AppContentsContainer>
-        </ErrorBoundary>
-      </PromiseErrorBoundary>
+          </ErrorBoundary>
+        </PromiseErrorBoundary>
+      </AppContentsContainer>
     </AppContainer>
   );
 }
