@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { isEmpty, isEqual, isPlainObject } from 'lodash';
+import { isEqual, isPlainObject } from 'lodash';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
@@ -7,12 +7,17 @@ import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getResultValue, getStringValue } from '@tamanu/shared/utils/fields';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
+/** @param {string | null | undefined} answer */
+function isNonAnswer(answer) {
+  return answer == null || answer === '';
+}
+
 /**
  * @param {string | null | undefined} a
  * @param {string | null | undefined} b
  */
 function isEquivalent(a, b) {
-  return a === b || (isEmpty(a) && isEmpty(b));
+  return a === b || (isNonAnswer(a) && isNonAnswer(b));
 }
 
 /** Omit existing calculated/result bodies so a cleared input does not leave stale values. */
@@ -109,7 +114,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
           await existingAnswer.update({ body, editedTime });
           hasMeaningfulChanges = true;
         }
-      } else if (!isEmpty(body)) {
+      } else if (!isNonAnswer(body)) {
         const createdAnswer = await models.SurveyResponseAnswer.create({
           dataElementId,
           body,
@@ -136,7 +141,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
           });
           hasMeaningfulChanges = true;
         }
-      } else if (!isEmpty(bodyValue)) {
+      } else if (!isNonAnswer(bodyValue)) {
         const newAnswer = await models.SurveyResponseAnswer.create({
           body: bodyValue,
           /**
