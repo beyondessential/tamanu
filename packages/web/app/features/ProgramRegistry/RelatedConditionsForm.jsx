@@ -23,7 +23,6 @@ import { optionalForeignKey } from '../../utils/validation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ConditionHistoryModal } from './ConditionHistoryModal';
-import { useSettings } from '../../contexts/Settings';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -150,11 +149,9 @@ export const RelatedConditionsForm = ({
 }) => {
   const [warningOpen, setWarningOpen] = useState(false);
   const [selectedCondition, setSelectedCondition] = useState(null);
-  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
 
   const { id, programRegistryId, clinicalStatusId } = patientProgramRegistration;
-  const areAuditChangesEnabled = getSetting('audit.changes.enabled');
 
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(id);
 
@@ -441,7 +438,7 @@ export const RelatedConditionsForm = ({
             accessor: (row, groupName, index) => {
               // Check for date as a proxy for whether the row is new
               const initialValue = initialValues.conditions[groupName][index]?.date;
-              if (!initialValue || !areAuditChangesEnabled) {
+              if (!initialValue) {
                 return null;
               }
               return (
@@ -472,13 +469,11 @@ export const RelatedConditionsForm = ({
                 await handleConfirmedSubmit(values);
               }}
             />
-            {areAuditChangesEnabled && (
-              <ConditionHistoryModal
-                open={!!selectedCondition}
-                onClose={() => setSelectedCondition(null)}
-                condition={selectedCondition}
-              />
-            )}
+            <ConditionHistoryModal
+              open={!!selectedCondition}
+              onClose={() => setSelectedCondition(null)}
+              condition={selectedCondition}
+            />
             <FormActions isDirty={dirty} />
           </>
         );

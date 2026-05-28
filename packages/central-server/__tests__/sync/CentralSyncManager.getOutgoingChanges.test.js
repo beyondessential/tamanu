@@ -36,7 +36,6 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
       displayName: 'System',
       role: 'system',
     });
-    await models.Setting.set('audit.changes.enabled', false);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     await models.SyncLookup.truncate({ force: true });
     await models.DebugLog.truncate({ force: true });
@@ -89,14 +88,12 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
   });
 
   it('includes audit changes in outgoing changes', async () => {
-    // This test verifies that when audit.changes.enabled is true:
     // 1. A changelog record is created for the initial creation of a patient_program_registration
     // 2. Another changelog record is created when that registration is updated
     // 3. Both changelog records are attached to the outgoing sync snapshot record
     // 4. Each changelog record has the correct tableName and recordId as the record its attached to
     const OLD_SYNC_TICK = 10;
     const NEW_SYNC_TICK = 20;
-    await models.Setting.set('audit.changes.enabled', true);
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
     const facility = await models.Facility.create(fake(models.Facility));
     const patient = await models.Patient.create(fake(models.Patient));
@@ -170,7 +167,6 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     const OLD_SYNC_TICK = 10;
     const NEW_SYNC_TICK = 20;
     const FINAL_SYNC_TICK = 30;
-    await models.Setting.set('audit.changes.enabled', true);
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
     const facility = await models.Facility.create(fake(models.Facility));
     const patient = await models.Patient.create(fake(models.Patient));
@@ -281,7 +277,6 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     const OLD_SYNC_TICK = 10;
     const NEW_SYNC_TICK = 20;
     const FINAL_SYNC_TICK = 30;
-    await models.Setting.set('audit.changes.enabled', true);
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
     const facility = await models.Facility.create(fake(models.Facility));
     const patient = await models.Patient.create(fake(models.Patient));
@@ -366,7 +361,6 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
   it('changelog handles sync tick boundary conditions correctly', async () => {
     const BOUNDARY_SYNC_TICK = 20;
     const AFTER_BOUNDARY_SYNC_TICK = 21;
-    await models.Setting.set('audit.changes.enabled', true);
 
     // Set up initial data
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, BOUNDARY_SYNC_TICK);
