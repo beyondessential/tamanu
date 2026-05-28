@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+import React, { useState } from 'react';
+import styled, { css } from 'styled-components';
+
 import {
-  TranslatedText,
-  TranslatedReferenceData,
   TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { Table } from '../../components/Table';
-import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
-import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText } from '../../components';
+import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
+import { Table } from '../../components/Table';
+import { Colors } from '../../constants/styles';
+import { LabTestResultModal } from './LabTestResultModal';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -36,15 +37,15 @@ const StyledTable = styled(Table)`
     ${props =>
       COLUMN_WIDTHS.slice(0, props.$stickyColumns)
         .map(
-          (width, index) => `
-      thead tr th:nth-child(${index + 1}),
-      tbody tr td:nth-child(${index + 1}) {
-        width: ${width}px;
-        min-width: ${width}px;
-        max-width: ${width}px;
-        left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
-      }
-    `,
+          (width, index) => css`
+            thead tr th:nth-child(${index + 1}),
+            tbody tr td:nth-child(${index + 1}) {
+              width: ${width}px;
+              min-width: ${width}px;
+              max-width: ${width}px;
+              left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
+            }
+          `,
         )
         .join('\n')}
 

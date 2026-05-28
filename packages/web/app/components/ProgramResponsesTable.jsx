@@ -1,31 +1,40 @@
 import React, { useCallback, useState } from 'react';
+
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { VisuallyHidden } from '@tamanu/ui-components';
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
-import { MenuButton } from './MenuButton';
-import { TranslatedText } from './Translation/TranslatedText';
+import { SurveyResultBadge, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
-import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
+import { DateDisplay } from './DateDisplay';
+import { MenuButton } from './MenuButton';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { DataFetchingTable } from './Table';
 
-const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
-const getSubmittedBy = ({ submittedBy, userId }) => {
+function DateAccessor({ endTime }) {
+  return <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
+}
+
+function SubmittedByAccessor({ submittedBy, userId }) {
   // Forms submitted on the patient portal are submitted against the system user on behalf of the patient
   if (userId === SYSTEM_USER_UUID) {
-    return 'Patient';
+    return <TranslatedText stringId="general.patient.label" fallback="Patient" />;
   }
   return submittedBy;
-};
-const getProgramName = ({ programName }) => programName;
-const getSurveyName = ({ surveyName }) => surveyName;
-const getResults = ({ resultText }) => (
-  <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />
-);
+}
+
+function ProgramNameAccessor({ programName }) {
+  return programName;
+}
+
+function SurveyNameAccessor({ surveyName }) {
+  return surveyName;
+}
+
+function ResultsAccessor({ resultText }) {
+  return <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />;
+}
 
 export const DataFetchingProgramsTable = ({
   endpoint,
@@ -50,23 +59,11 @@ export const DataFetchingProgramsTable = ({
 
   const actions = [
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.print"
-          fallback="Print"
-          data-testid="translatedtext-0hvt"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.print" fallback="Print" />,
       action: () => setPrintModalOpen(true),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.delete"
-          fallback="Delete"
-          data-testid="translatedtext-ulmz"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
@@ -76,64 +73,36 @@ export const DataFetchingProgramsTable = ({
       },
     },
   ].filter(({ permissionCheck }) => {
-    return permissionCheck ? permissionCheck() : true;
+    return typeof permissionCheck === 'function' ? permissionCheck() : true;
   });
 
   const columns = [
     {
       key: 'endTime',
       title: (
-        <TranslatedText
-          stringId="program.table.column.submittedDate"
-          fallback="Date submitted"
-          data-testid="translatedtext-lwrk"
-        />
+        <TranslatedText stringId="program.table.column.submittedDate" fallback="Date submitted" />
       ),
-      accessor: getDate,
+      accessor: DateAccessor,
     },
     {
       key: 'submittedBy',
-      title: (
-        <TranslatedText
-          stringId="program.table.column.submittedBy"
-          fallback="Submitted by"
-          data-testid="translatedtext-rw7b"
-        />
-      ),
-      accessor: getSubmittedBy,
+      title: <TranslatedText stringId="program.table.column.submittedBy" fallback="Submitted by" />,
+      accessor: SubmittedByAccessor,
     },
     {
       key: 'programName',
-      title: (
-        <TranslatedText
-          stringId="program.table.column.programName"
-          fallback="Program"
-          data-testid="translatedtext-2c9j"
-        />
-      ),
-      accessor: getProgramName,
+      title: <TranslatedText stringId="program.table.column.programName" fallback="Program" />,
+      accessor: ProgramNameAccessor,
     },
     {
       key: 'surveyName',
-      title: (
-        <TranslatedText
-          stringId="program.table.column.surveyName"
-          fallback="Survey"
-          data-testid="translatedtext-p7xy"
-        />
-      ),
-      accessor: getSurveyName,
+      title: <TranslatedText stringId="program.table.column.surveyName" fallback="Survey" />,
+      accessor: SurveyNameAccessor,
     },
     {
       key: 'resultText',
-      title: (
-        <TranslatedText
-          stringId="program.table.column.resultText"
-          fallback="Results"
-          data-testid="translatedtext-fgtk"
-        />
-      ),
-      accessor: getResults,
+      title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
+      accessor: ResultsAccessor,
     },
   ];
 

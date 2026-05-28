@@ -1,4 +1,5 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   CHARTING_SURVEY_TYPES,
@@ -7,7 +8,6 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -16,10 +16,17 @@ import {
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import type { Encounter } from './Encounter';
+import type { Facility } from './Facility';
+import { Model } from './Model';
+import type { Patient } from './Patient';
+import type { ProgramDataElement } from './ProgramDataElement';
+import type { Survey } from './Survey';
+import type { User } from './User';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
@@ -39,13 +46,18 @@ async function createPatientIssues(models: Models, questions: any[], patientId: 
   }
 }
 
-/** Returns in the format:
+/**
+ * Returns in the format:
  * {
  *  Patient: { key1: 'value1' },
  *  PatientAdditionalData: { key1: 'value1' },
  * }
  */
-const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]) => {
+const getFieldsToWrite = async (
+  models: Models,
+  questions: any[],
+  answers: Record<ProgramDataElement['id'], any>,
+) => {
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
   const patientDataQuestions = questions.filter(
@@ -71,7 +83,7 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
-    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName] ??= {};
     recordValuesByModel[modelName][fieldName] = value;
   }
   return recordValuesByModel;
@@ -83,12 +95,12 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
  */
 async function writeToPatientFields(
   models: Models,
-  facilityId: string,
+  facilityId: Facility['id'],
   questions: any[],
-  answers: any[],
-  patientId: string,
-  surveyId: string,
-  userId: string,
+  answers: Record<ProgramDataElement['id'], any>,
+  patientId: Patient['id'],
+  surveyId: Survey['id'],
+  userId: User['id'],
   submittedTime: string,
 ) {
   const valuesByModel = await getFieldsToWrite(models, questions, answers);
@@ -147,12 +159,12 @@ async function writeToPatientFields(
 
 async function handleSurveyResponseActions(
   models: Models,
-  facilityId: string,
+  facilityId: Facility['id'],
   questions: any[],
-  answers: any[],
-  patientId: string,
-  surveyId: string,
-  userId: string,
+  answers: Record<ProgramDataElement['id'], any>,
+  patientId: Patient['id'],
+  surveyId: Survey['id'],
+  userId: User['id'],
   submittedTime: string,
 ) {
   const activeQuestions = getActiveActionComponents(questions, answers);
@@ -171,7 +183,11 @@ async function handleSurveyResponseActions(
 
 // Special case for answers that depend on creating a new record in the database
 // and store the ID of the new record in the answer body. Currently only used for photos.
-async function getBodyForAnswer(dataElementType: string, value: any, models: Models) {
+async function getBodyForAnswer(
+  dataElementType: ProgramDataElement['type'],
+  value: any,
+  models: Models,
+) {
   if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
     const { size, data } = value as unknown as { size: number; data: string };
     const { id: attachmentId } = await models.Attachment.create(
@@ -196,9 +212,9 @@ export class SurveyResponse extends Model {
   declare resultText?: string;
   declare notified?: boolean;
   declare metadata?: Record<string, any>;
-  declare userId?: string;
-  declare surveyId?: string;
-  declare encounterId?: string;
+  declare userId?: User['id'];
+  declare surveyId?: Survey['id'];
+  declare encounterId?: Encounter['id'];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -290,8 +306,9 @@ export class SurveyResponse extends Model {
     }
 
     // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
-    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
-      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
+    const dateRecordedValue =
+      answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded] ||
+      answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
 
     if (!forceNewEncounter) {
       // First, check for open encounter (active encounter takes precedence)
@@ -334,8 +351,10 @@ export class SurveyResponse extends Model {
 
     const { departmentId, examinerId, userId, locationId } = responseData;
 
-    const encounterStartDate = dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
-    const encounterEndDate = dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
+    const encounterStartDate =
+      dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
+    const encounterEndDate =
+      dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({

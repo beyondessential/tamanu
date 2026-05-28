@@ -1,5 +1,7 @@
+import { Box, Typography } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PATIENT_DATA_FIELD_LOCATIONS,
@@ -7,15 +9,15 @@ import {
   SEX_VALUES,
 } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
-import { Box, Typography } from '@material-ui/core';
-import { TAMANU_COLORS } from '../../constants/colors';
+import SurveyResultQuestion from '../Field/SurveyResultQuestion';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useSettings, useTranslation } from '../../contexts';
 
-const Text = styled.div`
-  margin-bottom: 10px;
+const Text = styled(Typography)`
+  margin-block-end: 10px;
 `;
 
 export const FullWidthCol = styled.div`
@@ -68,7 +70,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   const text = component.text || component.dataElement.defaultText;
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
-    return <Text data-testid="text-lag8">{`${text} ${component.detail}`}</Text>;
+    return <SurveyResultQuestion text={text} component={component} />;
   }
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
@@ -199,9 +201,5 @@ export const SurveyQuestion = ({
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);
-  if (customComponent) {
-    return customComponent;
-  }
-
-  return fieldComponent;
+  return customComponent ?? fieldComponent;
 };

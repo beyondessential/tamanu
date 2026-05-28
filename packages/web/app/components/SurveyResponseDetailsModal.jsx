@@ -10,16 +10,18 @@ import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
 
-const SectionSpacing = styled.div`
-  height: 14px;
-`;
-
 const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
   overflow: auto;
 `;
 
-const PrintButton = styled(Button)`
+const PrintButton = styled(Button).attrs({
+  'data-testid': 'printbutton-ywph',
+  color: 'primary',
+  size: 'small',
+  startIcon: <PrintIcon data-testid="printicon-t3sp" />,
+  variant: 'outlined',
+})`
   position: absolute;
   right: 70px;
   top: 21px;
@@ -140,14 +142,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       ) : (
         <>
           {onPrint && (
-            <PrintButton
-              onClick={onPrint}
-              color="primary"
-              variant="outlined"
-              startIcon={<PrintIcon data-testid="printicon-t3sp" />}
-              size="small"
-              data-testid="printbutton-ywph"
-            >
+            <PrintButton onClick={onPrint}>
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
@@ -159,7 +154,6 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          <SectionSpacing data-testid="sectionspacing-gtmt" />
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

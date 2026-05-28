@@ -1,11 +1,10 @@
 import config from 'config';
 
-import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
+import { chance } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { chance } from '@tamanu/fake-data/fake';
-
 import { createTestContext } from '../utilities';
 
 let baseApp = null;
@@ -68,7 +67,7 @@ function getRandomAnswer(dataElement) {
 
 function createDummySurveyResponse(survey) {
   const answers = {};
-  survey.dataElements.forEach((q) => {
+  survey.dataElements.forEach(q => {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
@@ -117,9 +116,9 @@ describe('Programs', () => {
     });
 
     testProgram = await createDummyProgram();
-    testSurvey = await createDummySurvey(testProgram, 6, {name: 'testSurvey-1'});
-    testSurvey2 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-2'});
-    testSurvey3 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-3'});
+    testSurvey = await createDummySurvey(testProgram, 6, { name: 'testSurvey-1' });
+    testSurvey2 = await createDummySurvey(testProgram, 10, { name: 'testSurvey-2' });
+    testSurvey3 = await createDummySurvey(testProgram, 10, { name: 'testSurvey-3' });
     testReferralSurvey = await createDummySurvey(testProgram, 10, {
       surveyType: SURVEY_TYPES.REFERRAL,
       name: 'testSurvey-4',
@@ -129,25 +128,25 @@ describe('Programs', () => {
 
   describe('Listing', () => {
     it('should list available programs', async () => {
-      const result = await app.get(`/api/program`);
+      const result = await app.get('/api/program');
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       expect(body.count).toEqual(body.data.length);
 
-      expect(body.data.every((p) => p.name));
+      expect(body.data.every(p => p.name));
     });
 
     it('should list surveys within a program', async () => {
-      const result = await app.get(`/api/program/${testProgram.id}/surveys`);
+      const result = await app.get(`/api/program/${encodeURIComponent(testProgram.id)}/surveys`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(4);
       expect(result.body.data).toEqual([
-          expect.objectContaining({ name: testSurvey.name }),
-          expect.objectContaining({ name: testSurvey2.name }),
-          expect.objectContaining({ name: testSurvey3.name }),
-          expect.objectContaining({ name: testReferralSurvey.name }),
-        ]);
+        expect.objectContaining({ name: testSurvey.name }),
+        expect.objectContaining({ name: testSurvey2.name }),
+        expect.objectContaining({ name: testSurvey3.name }),
+        expect.objectContaining({ name: testReferralSurvey.name }),
+      ]);
     });
 
     it('should only suggest relevant surveys', async () => {
@@ -159,7 +158,7 @@ describe('Programs', () => {
 
       const result = await app.get('/api/suggestions/survey');
       expect(result).toHaveSucceeded();
-      const resultIds = result.body.map((x) => x.id);
+      const resultIds = result.body.map(x => x.id);
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
@@ -207,14 +206,16 @@ describe('Programs', () => {
           ['submit', 'Survey', forbiddenSurvey.id],
         ]);
 
-        const result = await appWithPermissions.get(`/api/program/${forbiddenProgram.id}/surveys`);
+        const result = await appWithPermissions.get(
+          `/api/program/${encodeURIComponent(forbiddenProgram.id)}/surveys`,
+        );
         expect(result).toBeForbidden();
       });
     });
   });
 
   it('should fetch a survey', async () => {
-    const result = await app.get(`/api/survey/${testSurvey.id}`);
+    const result = await app.get(`/api/survey/${encodeURIComponent(testSurvey.id)}`);
     expect(result).toHaveSucceeded();
 
     const { body } = result;
@@ -222,14 +223,14 @@ describe('Programs', () => {
     const { components } = body;
     expect(components.length).toEqual(6);
     // look for every component to have a defined dataElement with text
-    expect(components.every((q) => q.dataElement)).toEqual(true);
-    expect(components.every((q) => q.dataElement.defaultText)).toEqual(true);
+    expect(components.every(q => q.dataElement)).toEqual(true);
+    expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
   });
 
   describe('Survey responses', () => {
     it('should submit a survey response against an encounter', async () => {
       const responseData = createDummySurveyResponse(testSurvey);
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...responseData,
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
@@ -245,7 +246,7 @@ describe('Programs', () => {
 
       const answers = await models.SurveyResponseAnswer.findAll({ where: { responseId: id } });
       expect(answers).toHaveLength(Object.keys(responseData.answers).length);
-      answers.forEach((a) => {
+      answers.forEach(a => {
         // answers are always stored as strings so we have to convert the numbery ones here
         expect(responseData.answers[a.dataElementId].toString()).toEqual(a.body);
       });
@@ -274,12 +275,12 @@ describe('Programs', () => {
       );
 
       const programResponses = await app.get(
-        `/api/encounter/${encounter.id}/programResponses?rowsPerPage=100`,
+        `/api/encounter/${encodeURIComponent(encounter.id)}/programResponses?rowsPerPage=100`,
       );
       expect(programResponses).toHaveSucceeded();
 
       expect(programResponses.body.count).toEqual(NUMBER_PROGRAM_RESPONSES);
-      programResponses.body.data.forEach((response) => {
+      programResponses.body.data.forEach(response => {
         expect(response.encounterId).toEqual(encounter.id);
         expect(response.surveyId).toEqual(testSurvey3.id);
       });
@@ -316,14 +317,16 @@ describe('Programs', () => {
         5,
       );
 
-      const result = await app.get(`/api/patient/${patient.id}/programResponses?rowsPerPage=10`);
+      const result = await app.get(
+        `/api/patient/${encodeURIComponent(patient.id)}/programResponses?rowsPerPage=10`,
+      );
       expect(result).toHaveSucceeded();
 
       // check pagination is coming through ok
       expect(result.body.count).toEqual(15);
       expect(result.body.data.length).toEqual(10);
 
-      const checkResult = (response) => {
+      const checkResult = response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included
@@ -337,7 +340,7 @@ describe('Programs', () => {
 
       // check page 2
       const result2 = await app.get(
-        `/api/patient/${patient.id}/programResponses?rowsPerPage=10&page=1`,
+        `/api/patient/${encodeURIComponent(patient.id)}/programResponses?rowsPerPage=10&page=1`,
       );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
@@ -354,7 +357,7 @@ describe('Programs', () => {
       expect(patient).toBeTruthy();
       expect(existingEncounter).toHaveProperty('patientId', patient.id);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: patient.id,
         facilityId,
@@ -372,7 +375,7 @@ describe('Programs', () => {
     it('should automatically create an encounter if none exists', async () => {
       const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,
@@ -413,7 +416,7 @@ describe('Programs', () => {
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
         const programResponses = await app.get(
-          `/api/patient/${patientId}/programResponses?rowsPerPage=100`,
+          `/api/patient/${encodeURIComponent(patientId)}/programResponses?rowsPerPage=100`,
         );
 
         expect(programResponses).toHaveSucceeded();
@@ -422,7 +425,7 @@ describe('Programs', () => {
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
         const programResponses = await app.get(
-          `/api/patient/${patientId}/programResponses?surveyId=${testSurvey2.id}`,
+          `/api/patient/${encodeURIComponent(patientId)}/programResponses?surveyId=${encodeURIComponent(testSurvey2.id)}`,
         );
 
         expect(programResponses).toHaveSucceeded();
@@ -465,7 +468,7 @@ describe('Programs', () => {
         });
         expect(beforeIssue).toBeFalsy();
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
@@ -492,7 +495,7 @@ describe('Programs', () => {
         const TEST_EMAIL = 'updated-email@tamanu.io';
         expect(testPatient.email).not.toEqual(TEST_EMAIL);
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_EMAIL },
           surveyId,
           encounterId: testEncounter.id,
@@ -518,7 +521,7 @@ describe('Programs', () => {
         const padRecord = await models.PatientAdditionalData.getOrCreateForPatient(testPatient.id);
         expect(padRecord.passport).not.toEqual(TEST_PASSPORT);
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           encounterId: testEncounter.id,
@@ -546,7 +549,7 @@ describe('Programs', () => {
         const noPadRecord = await models.PatientAdditionalData.getForPatient(freshPatient.id);
         expect(noPadRecord).toBeFalsy();
 
-        const result = await app.post(`/api/surveyResponse`).send({
+        const result = await app.post('/api/surveyResponse').send({
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           patientId: freshPatient.id,
@@ -566,7 +569,7 @@ describe('Programs', () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,
@@ -582,7 +585,7 @@ describe('Programs', () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 
-      const result = await app.post(`/api/surveyResponse`).send({
+      const result = await app.post('/api/surveyResponse').send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
         userId: examinerId,

@@ -77,7 +77,7 @@ export const usePatientRoutes = () => {
           title={
             <TranslatedText
               stringId="encounter.dischargeSummary.title"
-              fallback="Discharge Summary"
+              fallback="Discharge summary"
             />
           }
         />,

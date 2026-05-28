@@ -1,26 +1,18 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Colors } from '../constants';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import React, { useId, useState } from 'react';
+import styled from 'styled-components';
 
-const ThreeDotMenuItem = styled(MenuItem)`
-  font-size: 11px;
-  line-height: 15px;
-  border-radius: 4px;
-  padding: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
-  white-space: normal;
-  ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
-    background: ${Colors.veryLightBlue};
-  }
-`;
-
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu).attrs({
+  'data-testid': 'styledmenu-7k45',
+  anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+  getContentAnchorEl: null,
+  transformOrigin: { vertical: 'top', horizontal: 'right' },
+})`
   & .MuiList-padding {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-block: 4px;
   }
 `;
 
@@ -30,6 +22,7 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 export const ThreeDotMenu = ({ items, disabled, className }) => {
+  const menuId = useId();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -49,39 +42,28 @@ export const ThreeDotMenu = ({ items, disabled, className }) => {
   return (
     <>
       <StyledIconButton
-        onClick={onOpenKebabMenu}
-        disabled={disabled}
+        aria-controls={menuId}
+        aria-expanded={open}
+        aria-haspopup="menu"
         className={className}
         data-testid="stylediconbutton-szh8"
+        disabled={disabled}
+        onClick={onOpenKebabMenu}
       >
-        <MoreVert data-testid="morevert-kusc" />
+        <MoreVert />
       </StyledIconButton>
-      <StyledMenu
-        anchorEl={anchorEl}
-        getContentAnchorEl={null}
-        open={open}
-        onClose={handleCloseKebabMenu}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        data-testid="styledmenu-7k45"
-      >
+      <StyledMenu anchorEl={anchorEl} id={menuId} onClose={handleCloseKebabMenu} open={open}>
         {items.map(
           (item, index) =>
             !item.hidden && (
-              <ThreeDotMenuItem
+              <MenuItem
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
                 data-testid={`menuitem-${index}`}
               >
                 {item.label}
-              </ThreeDotMenuItem>
+              </MenuItem>
             ),
         )}
       </StyledMenu>

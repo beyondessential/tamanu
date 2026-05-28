@@ -1,5 +1,6 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
@@ -10,17 +11,17 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
-import { useTranslation } from '../../contexts/Translation';
-import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useTranslation } from '../../contexts/Translation';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
-  background: ${props => props.theme.palette.primary.main};
+  background-color: ${props => props.theme.palette.primary.main};
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
   text-align: center;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
@@ -63,25 +64,23 @@ export const SurveyViewForm = ({
     patientProgramRegistration,
     getCurrentDateTime,
   });
-  const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
-    survey,
-    getTranslation,
-  ]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(survey, getTranslation),
+    [survey, getTranslation],
+  );
 
-  const renderSurvey = props => {
-    const {
-      submitForm,
-      values,
-      setFieldValue,
-      setValues,
-      validateForm,
-      setErrors,
-      errors,
-      setStatus,
-      status,
-      dirty,
-    } = props;
-
+  const renderSurvey = ({
+    dirty,
+    errors,
+    setErrors,
+    setFieldValue,
+    setStatus,
+    setValues,
+    status,
+    submitForm,
+    validateForm,
+    values,
+  }) => {
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
       const visibleFields = new Set(

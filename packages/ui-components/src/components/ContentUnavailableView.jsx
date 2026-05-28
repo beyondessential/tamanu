@@ -1,34 +1,33 @@
 import React from 'react';
-import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '../constants';
 
 const ContentUnavailableViewRoot = styled.div`
   margin-trim: block;
   padding-block: 1.5rem;
+  padding-inline: 2rem;
   text-align: center;
   text-wrap: balance;
   svg,
   .lucide {
-    color: ${props => props.theme.palette.text.tertiary};
+    color: ${TAMANU_COLORS.softText};
     font-size: 3.375rem;
     height: 3.375rem;
     width: auto;
   }
 `;
 
-const Heading = styled(Typography).attrs({
-  variant: 'h2',
-})`
-  font-size: 1.5rem;
+const Heading = styled.h2`
+  font: inherit;
+  font-size: 1.5em;
   font-weight: 500;
-  margin-block-start: 0.5em;
+  margin-block: 0.5rem 0;
 `;
 
-const Description = styled(Typography).attrs({
-  variant: 'body2',
-})`
+const Description = styled.p`
+  font: inherit;
   color: ${props => props.theme.palette.text.secondary};
-  margin-block-start: 0.5em;
+  margin-block: 0.5rem 0;
 `;
 
 export function ContentUnavailableView({ icon, heading, description, ...props }) {

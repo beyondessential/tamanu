@@ -101,7 +101,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${programId}/surveys`, {
+        const { data } = await api.get(`program/${encodeURIComponent(programId)}/surveys`, {
           ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
@@ -195,7 +195,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-                data-testid="translatedtext-30u8"
               />
             }
             data-testid="selectinput-5hi2"
@@ -211,7 +210,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-                data-testid="translatedtext-htq6"
               />
             }
             data-testid="surveyselector-bn1a"
