@@ -523,13 +523,8 @@ export class SurveyResponse extends Model {
     submittedTime: string,
   ) {
     const activeQuestions = getActiveActionComponents(questions, answers);
-    await models.SurveyResponse.createPatientIssues(
-      models,
-      activeQuestions,
-      patientId,
-      submittedTime,
-    );
-    await models.SurveyResponse.writeToPatientFields(
+    await SurveyResponse.createPatientIssues(models, activeQuestions, patientId, submittedTime);
+    await SurveyResponse.writeToPatientFields(
       models,
       facilityId,
       activeQuestions,
