@@ -1,3 +1,4 @@
+export { AdminLoginPage } from './AdminLoginPage';
 export { AdminSettingsPage } from './AdminSettingsPage';
 export { DashboardPage } from './DashboardPage';
 export { LoginPage } from './LoginPage';

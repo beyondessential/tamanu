@@ -10,14 +10,12 @@ const adminFrontend = process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:5174';
  * to drive both the new DATETIME setting editor and the banner setting itself.
  *
  * The admin frontend (port 5174 by default) talks to the central server and is
- * served by a separate Vite build from the facility frontend. It uses the same
- * LoginView so the credential prompts match.
+ * served by a separate Vite build from the facility frontend. Login is
+ * handled separately by AdminLoginPage — pass an already-authenticated page
+ * to this constructor.
  */
 export class AdminSettingsPage {
   readonly page: Page;
-  readonly emailInput: Locator;
-  readonly passwordInput: Locator;
-  readonly loginButton: Locator;
 
   readonly bannerEnabledSwitch: Locator;
   readonly bannerMessageInput: Locator;
@@ -27,9 +25,6 @@ export class AdminSettingsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.locator('input[name="email"]');
-    this.passwordInput = page.locator('input[name="password"]');
-    this.loginButton = page.getByTestId('loginbutton-gx21');
 
     // banner.* settings are emitted by Category.jsx with a deterministic data-testid
     // derived from the dotted setting path (dots replaced with dashes).
@@ -51,13 +46,7 @@ export class AdminSettingsPage {
     this.saveButton = page.getByRole('button', { name: /^Save$/ });
   }
 
-  async loginAndOpen(email: string, password: string) {
-    await this.page.goto(adminFrontend);
-    await this.emailInput.fill(email);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
-    await this.page.waitForLoadState('networkidle');
-
+  async open() {
     await this.page.goto(`${adminFrontend}/#/admin/settings`);
     await expect(this.bannerEnabledSwitch).toBeVisible({ timeout: 30_000 });
   }

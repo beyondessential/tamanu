@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { AdminLoginPage } from '../../pages/AdminLoginPage';
 import { AdminSettingsPage } from '../../pages/AdminSettingsPage';
 import { goToFacilityFrontend } from '../../utils/navigation';
 
@@ -33,8 +34,9 @@ test.describe('System banner', () => {
     // different origin from the one the facility auth setup populated.
     const adminContext = await browser.newContext();
     const adminPage = await adminContext.newPage();
+    await new AdminLoginPage(adminPage).login(email, password);
     const adminSettings = new AdminSettingsPage(adminPage);
-    await adminSettings.loginAndOpen(email, password);
+    await adminSettings.open();
 
     try {
       await adminSettings.setBanner({
@@ -86,8 +88,9 @@ test.describe('System banner', () => {
 
     const adminContext = await browser.newContext();
     const adminPage = await adminContext.newPage();
+    await new AdminLoginPage(adminPage).login(email, password);
     const adminSettings = new AdminSettingsPage(adminPage);
-    await adminSettings.loginAndOpen(email, password);
+    await adminSettings.open();
 
     try {
       // ExpiresAt in the past — banner must not appear even with enabled=true.

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { AdminLoginPage } from '../../pages/AdminLoginPage';
 import { AdminSettingsPage } from '../../pages/AdminSettingsPage';
 
 /**
@@ -23,8 +24,9 @@ test.describe('Admin settings: banner DATETIME editor', () => {
       throw new Error('TEST_EMAIL and TEST_PASSWORD must be set');
     }
 
+    await new AdminLoginPage(page).login(email, password);
     const settingsPage = new AdminSettingsPage(page);
-    await settingsPage.loginAndOpen(email, password);
+    await settingsPage.open();
 
     // Pick a deterministic time in the local browser timezone, well in the future.
     const localExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
