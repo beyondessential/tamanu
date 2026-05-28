@@ -10,9 +10,11 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   useDateTime,
+  useSettings,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { AutocompleteInput } from '../Field';
@@ -24,10 +26,17 @@ import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
+  buildInstructionText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
 } from '../../utils/medications';
+
+// Show the preset's code (e.g. "QPHQ6H") in the dropdown per the design, and
+// carry through the translated label text so the change handler can populate
+// the Label text field with it.
+const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
+const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -103,8 +112,36 @@ export const EditMedicationDispenseModal = memo(
   ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
-    const { getTranslation, getReferenceDataTranslation } = useTranslation();
+    const { getSetting } = useSettings();
+    const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
+    const presetLabelSuggester = useSuggester(
+      'medicationPresetLabel',
+      PRESET_LABEL_SUGGESTER_OPTIONS,
+    );
+
+    const presetLabelsEnabled = Boolean(getSetting('features.medicationLabelPresets.enabled'));
+
+    const { data: presetLabelsList } = useQuery({
+      queryKey: ['medicationPresetLabels', facilityId],
+      queryFn: () => presetLabelSuggester.fetchSuggestions(''),
+      enabled: open && presetLabelsEnabled,
+      staleTime: 5 * 60 * 1000,
+    });
+    const hasPresetLabels = (presetLabelsList?.length ?? 0) > 0;
+    const showPresetLabelColumn = presetLabelsEnabled && hasPresetLabels;
+    const showLabelTextColumn = presetLabelsEnabled;
+
+    // Prescription-derived instructions for the read-only Instructions column.
+    // Recomputed from the dispense's underlying prescription so it never reflects
+    // the user's previously-saved label text edits.
+    const defaultInstructions = medicationDispense
+      ? buildInstructionText(
+          medicationDispense.pharmacyOrderPrescription?.prescription,
+          getTranslation,
+          getEnumTranslation,
+        )
+      : '';
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
@@ -163,6 +200,22 @@ export const EditMedicationDispenseModal = memo(
       setErrors({
         ...errors,
         hasInstructionsError: !String(value || '').trim(),
+      });
+    };
+
+    // Selecting a preset overwrites Label text with the preset's text; clearing
+    // reverts to the prescription's computed default. Label text remains editable.
+    const handlePresetLabelChange = ({ target: { value: presetId } }) => {
+      const preset = presetId ? presetLabelsList?.find(p => p.value === presetId) : null;
+      const nextLabelText = preset?.name ?? defaultInstructions ?? '';
+      setItem({
+        ...item,
+        medicationPresetLabelId: presetId || null,
+        instructions: nextLabelText,
+      });
+      setErrors({
+        ...errors,
+        hasInstructionsError: !String(nextLabelText || '').trim(),
       });
     };
 
@@ -226,6 +279,7 @@ export const EditMedicationDispenseModal = memo(
         dispensedByUserId,
         quantity: item.quantity,
         instructions: item.instructions,
+        medicationPresetLabelId: item.medicationPresetLabelId || null,
       });
 
       if (onConfirm) onConfirm();
@@ -309,7 +363,27 @@ export const EditMedicationDispenseModal = memo(
           accessor: ({ pharmacyOrderPrescription }) =>
             pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
-        {
+        // When preset labels are enabled, Instructions becomes read-only and
+        // the editable label moves to the new "Label text" column to its
+        // right. When disabled, the original behaviour is preserved.
+        presetLabelsEnabled
+          ? {
+              key: 'instructionsReadOnly',
+              title: (
+                <TranslatedText
+                  stringId="medication.editDispensedMedication.instructions"
+                  fallback="Instructions"
+                />
+              ),
+              accessor: () => (
+                <InstructionsInput
+                  value={defaultInstructions || ''}
+                  disabled
+                  testId="dispense-instructions-readonly"
+                />
+              ),
+            }
+          : {
           key: 'instructions',
           title: (
             <>
@@ -342,6 +416,66 @@ export const EditMedicationDispenseModal = memo(
             );
           },
         },
+        ...(showPresetLabelColumn
+          ? [
+              {
+                key: 'presetLabel',
+                width: '160px',
+                title: (
+                  <TranslatedText
+                    stringId="medication.editDispensedMedication.presetLabel"
+                    fallback="Preset labels"
+                  />
+                ),
+                accessor: itemRow => (
+                  <AutocompleteInput
+                    name={`presetLabel-${itemRow.id}`}
+                    value={itemRow.medicationPresetLabelId ?? ''}
+                    suggester={presetLabelSuggester}
+                    onChange={handlePresetLabelChange}
+                    data-testid="dispense-preset-label"
+                  />
+                ),
+              },
+            ]
+          : []),
+        ...(showLabelTextColumn
+          ? [
+              {
+                key: 'labelText',
+                title: (
+                  <>
+                    <TranslatedText
+                      stringId="medication.editDispensedMedication.labelText"
+                      fallback="Label text"
+                    />
+                    <Box component="span" color={Colors.alert}>
+                      {' '}
+                      *
+                    </Box>
+                  </>
+                ),
+                accessor: itemRow => {
+                  const { instructions } = itemRow;
+                  const hasInstructionsError = errors.hasInstructionsError || false;
+                  return (
+                    <InstructionsInput
+                      value={instructions}
+                      onChange={handleInstructionsChange}
+                      error={showValidationErrors && hasInstructionsError}
+                      required
+                      testId="dispense-label-text"
+                      helperText={
+                        showValidationErrors && hasInstructionsError
+                          ? getTranslation('validation.required.inline', '*Required')
+                          : ''
+                      }
+                    />
+                  );
+                },
+              },
+            ]
+          : []),
         {
           key: 'dispensedAt',
           width: '120px',

@@ -854,8 +854,20 @@ patientRoute.get(
           attributes: ['id', 'displayName'],
           required: true,
         },
+        {
+          association: 'medicationPresetLabel',
+          attributes: ['id', 'code', 'name'],
+          required: false,
+        },
       ],
-      attributes: ['id', 'quantity', 'instructions', 'dispensedAt', 'dispensedByUserId'],
+      attributes: [
+        'id',
+        'quantity',
+        'instructions',
+        'dispensedAt',
+        'dispensedByUserId',
+        'medicationPresetLabelId',
+      ],
       where: medicationFilter,
       order: [
         [...orderBy.split('.'), orderDirection],

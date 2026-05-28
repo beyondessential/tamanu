@@ -2109,8 +2109,20 @@ medication.get(
           association: 'dispensedBy',
           attributes: ['id', 'displayName'],
         },
+        {
+          association: 'medicationPresetLabel',
+          attributes: ['id', 'code', 'name'],
+          required: false,
+        },
       ],
-      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId', 'instructions'],
+      attributes: [
+        'id',
+        'quantity',
+        'dispensedAt',
+        'dispensedByUserId',
+        'instructions',
+        'medicationPresetLabelId',
+      ],
       where: {
         [Op.and]: [
           ...(rootFilter[Op.and] || []),
@@ -2410,6 +2422,10 @@ const dispenseItemSchema = z.object({
   pharmacyOrderPrescriptionId: z.uuid(),
   quantity: z.coerce.number().int().positive(),
   instructions: z.string().min(1),
+  // Optional reference to the medicationPresetLabel reference_data record the
+  // pharmacist selected to populate the label text. The label text itself is
+  // sent in `instructions`; this just records which preset (if any) was used.
+  medicationPresetLabelId: z.string().nullish(),
 });
 
 const dispenseInputSchema = z
@@ -2548,6 +2564,7 @@ medication.post(
           pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
           quantity: item.quantity,
           instructions: item.instructions,
+          medicationPresetLabelId: item.medicationPresetLabelId ?? null,
           dispensedByUserId,
           dispensedAt,
         })),
@@ -2575,6 +2592,7 @@ const editDispenseInputSchema = z
     dispensedByUserId: z.string(),
     quantity: z.coerce.number().int().positive(),
     instructions: z.string().min(1),
+    medicationPresetLabelId: z.string().nullish(),
   })
   .strip();
 
@@ -2586,9 +2604,8 @@ medication.put(
 
     req.checkPermission('write', 'MedicationDispense');
 
-    const { dispensedByUserId, quantity, instructions } = await editDispenseInputSchema.parseAsync(
-      req.body,
-    );
+    const { dispensedByUserId, quantity, instructions, medicationPresetLabelId } =
+      await editDispenseInputSchema.parseAsync(req.body);
 
     const { User, MedicationDispense } = models;
 
@@ -2605,7 +2622,12 @@ medication.put(
       }
 
       await medicationDispense.update(
-        { quantity, instructions, dispensedByUserId },
+        {
+          quantity,
+          instructions,
+          medicationPresetLabelId: medicationPresetLabelId ?? null,
+          dispensedByUserId,
+        },
         { transaction },
       );
 

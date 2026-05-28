@@ -2,8 +2,17 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { DRUG_STOCK_STATUS_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import {
+  DRUG_ROUTE_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
+  DRUG_STOCK_STATUSES,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+} from '@tamanu/constants';
+import {
+  getDateFromTimeString,
+  getMedicationDoseDisplay,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
   TableCellTag,
@@ -12,6 +21,59 @@ import {
 } from '@tamanu/ui-components';
 import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
+import { singularize } from './utils';
+
+/**
+ * Composes the human-readable instructions text for a prescription, used as
+ * the default "Instructions" / "Label text" value in the dispense workflow.
+ * Pure derivation from prescription fields — never the dispense's edited copy.
+ */
+export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
+  if (!prescription) return '';
+
+  const {
+    frequency: prescriptionFrequency,
+    route: prescriptionRoute,
+    durationValue,
+    durationUnit,
+    indication,
+    notes,
+  } = prescription;
+
+  const dose = getMedicationDoseDisplay(
+    prescription,
+    getTranslation,
+    getEnumTranslation,
+  ).toLowerCase();
+  const frequency = prescriptionFrequency
+    ? getTranslatedFrequency(prescriptionFrequency, getTranslation)
+    : null;
+  const route = prescriptionRoute ? getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute) : null;
+
+  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
+
+  const duration =
+    durationValue && durationUnit
+      ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`
+      : null;
+
+  const base = [];
+  if (dose) base.push(dose);
+  if (frequency) base.push(frequency);
+  let output = base.join(' ').trim();
+
+  const forText = getTranslation('medication.dispense.for', 'for');
+
+  if (route) output += `${output ? ',' : ''} ${route}`;
+  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
+  if (indication) output += `${output ? `, ` : ''}${indication}`;
+  if (output && !output.endsWith('.')) output += '.';
+
+  if (notes) {
+    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
+  }
+  return output.trim();
+};
 
 /**
  * Transforms selected dispensable medication items into label data for printing.
