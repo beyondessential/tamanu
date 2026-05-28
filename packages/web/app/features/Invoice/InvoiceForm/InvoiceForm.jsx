@@ -62,9 +62,6 @@ const FormFooter = styled.div`
   border-radius: 3px;
 `;
 
-// New invoice items default "Ordered by" to the encounter's supervising
-// clinician (examiner), since the cashier adding the item usually isn't the
-// clinician who ordered it. The field stays editable.
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
   id: uuidv4(),
   quantity: 1,
