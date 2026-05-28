@@ -49,11 +49,13 @@ const generateFrequencyProperties = frequencies => {
 };
 
 // Validates that a value is an ISO 8601 datetime string carrying explicit
-// timezone information (either trailing 'Z' for UTC or a numeric offset like
-// '+10:00'). Operators in any timezone can then read the value without
-// ambiguity. Empty string / null is treated as "no expiry" — the validator
-// allows it through.
-const ISO_DATETIME_WITH_TZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
+// timezone information (either trailing 'Z' for UTC or a colon-separated
+// offset like '+10:00'). The colon in the offset is mandatory — the basic
+// form (e.g. '+1000') is technically ISO 8601 but is inconsistently parsed
+// across runtimes, so we don't accept it.
+// Operators in any timezone can then read the value without ambiguity. Empty
+// string / null is treated as "no expiry" — the validator allows it through.
+const ISO_DATETIME_WITH_TZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 const isoDatetimeWithTz = yup
   .string()
   .nullable()
