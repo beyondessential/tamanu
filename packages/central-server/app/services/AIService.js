@@ -189,6 +189,19 @@ export class AIService {
   }
 
   /**
+   * Whether a session still exists. Sessions are in-memory and per-process, so
+   * a client's sessionId can become stale after a server restart or when a
+   * request lands on a different process. Callers use this to fall back to a
+   * fresh session instead of erroring.
+   *
+   * @param {string} sessionId
+   * @returns {boolean}
+   */
+  hasSession(sessionId) {
+    return this.sessions.has(sessionId);
+  }
+
+  /**
    * Send a form builder chat message and enforce the structured response
    * contract described in the form builder prompt settings.
    *

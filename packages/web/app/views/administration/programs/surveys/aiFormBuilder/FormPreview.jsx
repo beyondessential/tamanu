@@ -317,7 +317,8 @@ export function FormPreview({ form, isSaved }) {
       </PreviewHeader>
       <PreviewTitleHeader>
         <PreviewHeaderSpacer aria-hidden="true" />
-        <PreviewFormTitle>{form.title}</PreviewFormTitle>
+        {/* Show the generated form (survey) name, not the attached program's name */}
+        <PreviewFormTitle>{previewSurvey.name}</PreviewFormTitle>
         <PreviewHeaderSpacer aria-hidden="true" />
       </PreviewTitleHeader>
       <PreviewProgress $segments={screenCount} aria-hidden="true">

@@ -55,6 +55,7 @@ describe('Form Builder Admin', () => {
   beforeEach(() => {
     aiService = {
       createSession: jest.fn().mockResolvedValue('new-session-id'),
+      hasSession: jest.fn().mockReturnValue(true),
       sendFormBuilderMessage: jest.fn().mockResolvedValue({
         message: 'AI response',
         attach_to_program_code: 'ncd',
@@ -142,6 +143,24 @@ describe('Form Builder Admin', () => {
       'existing-session-id',
       'Add a mandatory date field',
     );
+  });
+
+  it('starts a fresh session when the client sessionId is stale', async () => {
+    // The session was lost (e.g. server restart), so the client's id no longer exists.
+    aiService.hasSession.mockReturnValue(false);
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      sessionId: 'stale-session-id',
+      message: 'Add a mandatory date field',
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(aiService.createSession).toHaveBeenCalledWith('formBuilder');
+    expect(aiService.sendFormBuilderMessage).toHaveBeenCalledWith(
+      'new-session-id',
+      'Add a mandatory date field',
+    );
+    expect(response.body).toMatchObject({ sessionId: 'new-session-id' });
   });
 
   it('includes uploaded file text in the AI message', async () => {

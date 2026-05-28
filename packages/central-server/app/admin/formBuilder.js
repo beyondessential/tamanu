@@ -403,8 +403,13 @@ const processChatRequest = async ({
   try {
     const fileContext = await getFileContext({ aiService, file, fileName, fileContentType });
     const userMessage = buildUserMessage({ message, fileContext });
+    // Fall back to a fresh session if the client's sessionId is stale (sessions
+    // are in-memory and per-process, so they don't survive a restart or a
+    // request landing on a different process).
     const sessionId =
-      existingSessionId || (await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER));
+      existingSessionId && aiService.hasSession(existingSessionId)
+        ? existingSessionId
+        : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
 
     if (currentProgramDefinition) {
       const tweakResult = await tryTweakProgramDefinition({
@@ -502,9 +507,12 @@ formBuilderRouter.post(
       // return it with the jobId, so the client retains the conversation even
       // if it stops before the job result arrives. Otherwise a stopped first
       // turn loses the sessionId and the next message starts a fresh session,
-      // dropping any uploaded image's interpretation.
+      // dropping any uploaded image's interpretation. A stale sessionId (lost on
+      // restart / a different process) also falls back to a fresh session.
       const sessionId =
-        payload.sessionId || (await req.aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER));
+        payload.sessionId && req.aiService.hasSession(payload.sessionId)
+          ? payload.sessionId
+          : await req.aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
       const jobId = startChatJob({
         aiService: req.aiService,
         userId: req.user.id,
