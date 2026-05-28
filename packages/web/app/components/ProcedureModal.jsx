@@ -112,8 +112,6 @@ export const ProcedureModal = ({
   const onSubmit = async data => {
     delete data.date;
     const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
-    // locationGroup (the Area) is a LocationField UI helper, not a Procedure
-    // column, so strip it out rather than sending it to the API.
     const { startTime, endTime, timeIn, timeOut, locationGroup, ...rest } = data; // eslint-disable-line no-unused-vars
     const startDateTime = toPersisted(startTime);
 
@@ -315,8 +313,6 @@ export const ProcedureModal = ({
               startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
-              // Default to the encounter's location/department since a procedure
-              // usually happens where the patient currently is (all editable).
               departmentId: encounter.departmentId,
               locationId: encounter.locationId,
               locationGroup: encounter.location?.locationGroup?.id,
