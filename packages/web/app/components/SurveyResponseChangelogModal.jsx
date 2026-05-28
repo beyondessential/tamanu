@@ -41,13 +41,19 @@ function EmptyState() {
 
 const StyledModal = styled(Modal).attrs({
   'data-testid': 'modal-survey-changelog',
-  title: <TranslatedText stringId="surveyResponse.changelog.modal.title" fallback="Change log" />,
 })`
   .MuiPaper-root {
     overflow-y: hidden;
   }
   ${ModalContent} {
     padding-block: 0;
+  }
+`;
+
+const SurveyName = styled.span`
+  &::before {
+    content: '|';
+    margin-inline: 0.3em;
   }
 `;
 
@@ -158,10 +164,17 @@ const Footer = styled(ModalCancelRow).attrs({
 
 /**
  * @param {React.ComponentProps<typeof StyledModal> & {
+ *   surveyName?: import('@tamanu/database').Survey['name'];
  *   surveyResponseId: import('@tamanu/database').SurveyResponse['id'];
  * }} props
  */
-export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, ...props }) => {
+export const SurveyResponseChangelogModal = ({
+  open,
+  surveyResponseId,
+  surveyName,
+  onClose,
+  ...props
+}) => {
   const {
     data: changes,
     isLoading,
@@ -171,7 +184,17 @@ export const SurveyResponseChangelogModal = ({ open, surveyResponseId, onClose, 
   });
 
   return (
-    <StyledModal open={open} onClose={onClose} {...props}>
+    <StyledModal
+      open={open}
+      onClose={onClose}
+      title={
+        <>
+          <TranslatedText stringId="surveyResponse.changelog.modal.title" fallback="Change log" />
+          {surveyName && <SurveyName>{surveyName}</SurveyName>}
+        </>
+      }
+      {...props}
+    >
       <ScrollView aria-busy={isLoading || undefined} data-testid="response-changelog-scrollview">
         {isLoading ? (
           <ChangeLogListSkeleton />

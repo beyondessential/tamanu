@@ -84,6 +84,7 @@ export const DataFetchingProgramsTable = ({
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [changelogResponseId, setChangelogResponseId] = useState(null);
+  const [changelogSurveyName, setChangelogSurveyName] = useState(null);
 
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -112,8 +113,9 @@ export const DataFetchingProgramsTable = ({
     [navigate, params],
   );
 
-  const openChangelog = useCallback(id => {
+  const openChangelog = useCallback(({ id, surveyName }) => {
     setChangelogResponseId(id);
+    setChangelogSurveyName(surveyName ?? null);
     setChangelogOpen(true);
   }, []);
 
@@ -143,7 +145,7 @@ export const DataFetchingProgramsTable = ({
         },
         {
           label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
-          action: () => openChangelog(data.id),
+          action: () => openChangelog({ id: data.id, surveyName: data.surveyName }),
           hidden: !data.isEdited,
         },
       ].filter(row => !row.hidden),
@@ -212,15 +214,19 @@ export const DataFetchingProgramsTable = ({
         surveyResponseId={selectedResponseId}
         onClose={cancelResponse}
         onPrint={() => setPrintModalOpen(true)}
-        onViewChangeLog={id => openChangelog(id)}
+        onViewChangeLog={id =>
+          openChangelog({ id, surveyName: selectedResponse?.surveyName })
+        }
         data-testid="surveyresponsedetailsmodal-lsuo"
       />
       <SurveyResponseChangelogModal
         open={changelogOpen}
         surveyResponseId={changelogResponseId}
+        surveyName={changelogSurveyName}
         onClose={() => {
           setChangelogOpen(false);
           setChangelogResponseId(null);
+          setChangelogSurveyName(null);
         }}
         data-testid="surveyresponsechangelogmodal"
       />

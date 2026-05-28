@@ -278,6 +278,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         <SurveyResponseChangelogModal
           open={changelogOpen}
           surveyResponseId={surveyResponseId}
+          surveyName={existingSurveyResponse?.surveyName}
           onClose={() => setChangelogOpen(false)}
           data-testid="surveyresponsechangelogmodal-edit"
         />
