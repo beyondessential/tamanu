@@ -11,6 +11,7 @@ import {
   datelessTimeStringSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
+import { patientSummaryProperties } from './definitions/patientSummary';
 
 export const centralSettings = {
   name: 'Central server settings',
@@ -251,6 +252,7 @@ export const centralSettings = {
       },
     },
     formBuilder: formBuilderProperties,
+    patientSummary: patientSummaryProperties,
     integrations: {
       description: 'Integrations with external services',
       properties: {
