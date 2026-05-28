@@ -42,7 +42,7 @@ const WarningTitle = styled.div`
   color: ${Colors.alert};
 `;
 
-const Paragraph = styled.p`
+const Paragraph = styled.p.attrs({ 'data-testid': 'paragraph-85nv' })`
   font-size: 14px;
 `;
 
@@ -118,13 +118,13 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                   fallback="Confirm encounter deletion"
                 />
               </WarningTitle>
-              <Paragraph data-testid="paragraph-85nv">
+              <Paragraph>
                 <TranslatedText
                   stringId="encounter.delete.warningMessage"
                   fallback="This action will delete the encounter record and all its corresponding data. This includes all notes, diagnoses, procedures and all other information associated with this encounter."
                 />
               </Paragraph>
-              <Paragraph data-testid="paragraph-85nv">
+              <Paragraph>
                 <TranslatedText
                   stringId="encounter.delete.confirmationPrompt"
                   fallback="This action is irreversible. To make sure you have selected the correct encounter, please enter the :shortLabel for this patient to confirm deletion."
