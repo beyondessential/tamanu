@@ -10,6 +10,7 @@ export const LOCAL_STORAGE_KEYS = /** @type {const} */ ({
   ROLE: 'role',
   LANGUAGE: 'language',
   SETTINGS: 'settings',
+  DISMISSED_BANNERS: 'dismissedBanners',
 });
 
 export const ALPHABET_FOR_ID =

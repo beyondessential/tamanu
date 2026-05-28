@@ -48,10 +48,62 @@ const generateFrequencyProperties = frequencies => {
   );
 };
 
+// Validates that a value is an ISO 8601 datetime string carrying explicit
+// timezone information (either trailing 'Z' for UTC or a numeric offset like
+// '+10:00'). Operators in any timezone can then read the value without
+// ambiguity. Empty string / null is treated as "no expiry" — the validator
+// allows it through.
+const ISO_DATETIME_WITH_TZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
+const isoDatetimeWithTz = yup
+  .string()
+  .nullable()
+  .test(
+    'iso-datetime-with-tz',
+    'Must be an ISO 8601 datetime with timezone (e.g. 2026-05-28T11:00:00.000Z). Use the datetime picker to set it.',
+    value => {
+      if (value === '' || value == null) return true;
+      if (typeof value !== 'string') return false;
+      if (!ISO_DATETIME_WITH_TZ.test(value)) return false;
+      return !Number.isNaN(Date.parse(value));
+    },
+  );
+
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    banner: {
+      name: 'System banner',
+      description:
+        'Site-wide banner shown to every logged-in web user. Typically used to ' +
+        'announce planned downtime. Picked up live — no restart or reload required.',
+      exposedToWeb: true,
+      properties: {
+        enabled: {
+          description: 'Show the banner',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        message: {
+          description: 'Banner text shown to all users',
+          type: yup.string(),
+          defaultValue: '',
+        },
+        severity: {
+          description: "Banner styling: 'info', 'warning', or 'error'",
+          type: yup.string().oneOf(['info', 'warning', 'error']),
+          defaultValue: 'info',
+        },
+        expiresAt: {
+          description:
+            'Optional ISO 8601 datetime (with timezone) at which the banner ' +
+            'stops showing. Leave empty for no expiry.',
+          type: isoDatetimeWithTz,
+          editor: SETTING_EDITORS.DATETIME,
+          defaultValue: '',
+        },
+      },
+    },
     audit: {
       description: 'Audit settings',
       highRisk: true,

@@ -11,6 +11,7 @@ import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { SystemBanner } from './components/SystemBanner';
 import {
   LoadingStatusPage,
   UnavailableStatusPage,
@@ -71,6 +72,7 @@ export function App({ sidebar, children }) {
       <PromiseErrorBoundary>
         <ErrorBoundary errorKey={location.pathname}>
           <AppContentsContainer>
+            <SystemBanner />
             {children}
             <ForbiddenErrorModal />
           </AppContentsContainer>
