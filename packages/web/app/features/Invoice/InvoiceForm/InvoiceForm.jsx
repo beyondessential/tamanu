@@ -62,10 +62,14 @@ const FormFooter = styled.div`
   border-radius: 3px;
 `;
 
-const getDefaultRow = getCurrentDate => ({
+// New invoice items default "Ordered by" to the encounter's supervising
+// clinician (examiner), since the cashier adding the item usually isn't the
+// clinician who ordered it. The field stays editable.
+const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
   id: uuidv4(),
   quantity: 1,
   orderDate: getCurrentDate(),
+  orderedByUserId,
 });
 
 export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
@@ -79,7 +83,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
   const [inProgressItems, setInProgressItems] = useState(
-    isAddForm ? [getDefaultRow(getCurrentDate)] : [],
+    isAddForm ? [getDefaultRow(getCurrentDate, invoice.encounter?.examinerId)] : [],
   );
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -189,7 +193,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         if (isReadOnlyForm) {
                           setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
                         } else {
-                          formArrayMethods.push(getDefaultRow(getCurrentDate));
+                          formArrayMethods.push(
+                            getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                          );
                         }
                       }}
                       startIcon={<Plus />}
