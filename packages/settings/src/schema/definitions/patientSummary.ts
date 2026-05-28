@@ -13,11 +13,15 @@ clinical information explicitly documented in the encounter record provided.
 # Previous feedback
 
 The following are summaries for this patient that were previously generated and
-then edited by a clinician. Each pair shows the original AI output and the
-clinician's corrected version. Identify what changed between each pair and apply
-the same corrections to the current summary. Do not treat the edited content as
-a source of clinical facts — use only the encounter data below for all clinical
-information.
+then edited by a clinician, ordered from oldest to most recent. Each pair shows
+the original AI output and the clinician's corrected version. Identify what
+changed between each pair and apply the same corrections to the current summary.
+If corrections across multiple pairs contradict one another, treat the last
+correction in this list as authoritative, as pairs are ordered from oldest to
+most recent. If multiple corrections build on the same phrase, apply all changes
+cumulatively, using the last correction in the list as the final target output
+for that phrase. Do not treat the edited content as a source of clinical facts —
+use only the encounter data below for all clinical information.
 
 {FEEDBACK_ARRAY}
 
@@ -137,6 +141,13 @@ export const patientSummaryProperties = {
   name: 'Patient summary',
   description: 'Settings for the patient summary',
   properties: {
+    enabled: {
+      name: 'Enabled',
+      description: 'Enable or disable the patient summary',
+      type: yup.boolean(),
+      defaultValue: false,
+      exposedToWeb: true,
+    },
     prompts: {
       name: 'System prompt',
       description: 'The system prompt to use for the patient summary',

@@ -141,9 +141,7 @@ export async function getConfigSecret(name) {
   // callers using a fallback chain (e.g. settings → config secret → plaintext)
   // can fall through cleanly without surfacing a decryption error.
   if (!isEncryptedSecret(encryptedValue)) {
-    throw new SecretNotConfiguredError(
-      `Config value at ${name} is not an encrypted secret`,
-    );
+    throw new SecretNotConfiguredError(`Config value at ${name} is not an encrypted secret`);
   }
 
   const keyFilePath = getConfigKeyFilePath();

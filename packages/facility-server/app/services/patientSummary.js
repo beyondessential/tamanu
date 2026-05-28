@@ -32,7 +32,7 @@ export async function getPatientSummaryEditFeedback(patientId, models, sequelize
         AND ai.record_data->>'source' = 'ai'
         AND NULLIF(ai.record_data->>'content', '') IS NOT NULL
         AND ai.logged_at < human.logged_at
-        ORDER BY ai.logged_at DESC
+        ORDER BY ai.logged_at ASC
         LIMIT 1
       ) ai ON TRUE
       WHERE human.table_name = 'ai_documents'
@@ -41,7 +41,8 @@ export async function getPatientSummaryEditFeedback(patientId, models, sequelize
       AND human.record_data->>'status' = 'edited'
       AND NULLIF(human.record_data->>'content', '') IS NOT NULL
       AND ai.record_data->>'content' IS DISTINCT FROM human.record_data->>'content'
-      ORDER BY human.logged_at DESC
+      ORDER BY human.logged_at ASC
+      LIMIT 20
     `,
     { replacements: { recordId: doc.id }, type: QueryTypes.SELECT },
   );

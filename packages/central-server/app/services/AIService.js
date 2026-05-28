@@ -351,19 +351,19 @@ export class AIService {
       .join('\n\n');
   }
 
-  /**
+    /**
    * Stateless one-shot invocation using a registered context.
    *
    * @param {string} contextName
    * @param {string} userMessage
    * @returns {Promise<import('@langchain/core/messages').AIMessage>}
    */
-  async invoke(contextName, userMessage) {
-    return this.chatModel.invoke([
-      new SystemMessage(await this.getContext(contextName)),
-      ['human', userMessage],
-    ]);
-  }
+    async invoke(contextName, userMessage) {
+      return this.chatModel.invoke([
+        new SystemMessage(await this.getContext(contextName)),
+        ['human', userMessage],
+      ]);
+    }
 
   /**
    * Stateless structured invocation using a registered context.
