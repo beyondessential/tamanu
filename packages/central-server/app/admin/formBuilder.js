@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
 import { nanoid } from 'nanoid';
-import NodeCache from 'node-cache';
+import { Op } from 'sequelize';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
@@ -33,11 +33,11 @@ const CHAT_JOB_STATUSES = {
   FAILED: 'failed',
 };
 
-// Async chat jobs are kept in this single-process cache: they don't survive
-// API restarts and won't be visible to other workers if the API ever runs in a
-// multi-worker config. The form builder is admin-only and low traffic so this
-// is acceptable; revisit if those assumptions change.
-const chatJobs = new NodeCache({ stdTTL: CHAT_JOB_TTL_SECONDS, checkperiod: 60, useClones: false });
+// Async chat jobs are persisted (FormBuilderChatJob) rather than held in memory,
+// so the result is visible to every central process and survives a restart — a
+// polling client always resolves the job that started its request. Expired rows
+// are purged by FormBuilderChatCleaner.
+const jobExpiry = () => new Date(Date.now() + CHAT_JOB_TTL_SECONDS * 1000);
 
 const partialSurveySchema = z
   .object({
@@ -403,11 +403,10 @@ const processChatRequest = async ({
   try {
     const fileContext = await getFileContext({ aiService, file, fileName, fileContentType });
     const userMessage = buildUserMessage({ message, fileContext });
-    // Fall back to a fresh session if the client's sessionId is stale (sessions
-    // are in-memory and per-process, so they don't survive a restart or a
-    // request landing on a different process).
+    // Fall back to a fresh session if the client's sessionId is stale (e.g. it
+    // expired, or referred to a session that no longer exists).
     const sessionId =
-      existingSessionId && aiService.hasSession(existingSessionId)
+      existingSessionId && (await aiService.hasSession(existingSessionId))
         ? existingSessionId
         : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
 
@@ -460,32 +459,35 @@ const processChatRequest = async ({
   }
 };
 
-const startChatJob = ({ aiService, userId, payload }) => {
+const startChatJob = async ({ aiService, models, userId, payload }) => {
+  const { FormBuilderChatJob } = models;
   const jobId = nanoid();
-  chatJobs.set(jobId, {
+  // Insert the pending row before returning the jobId, so a client that polls
+  // immediately always finds its job.
+  await FormBuilderChatJob.create({
     id: jobId,
     userId,
     status: CHAT_JOB_STATUSES.PENDING,
+    expiresAt: jobExpiry(),
   });
 
   processChatRequest({ aiService, ...payload })
-    .then(result => {
-      chatJobs.set(jobId, {
-        id: jobId,
-        userId,
-        status: CHAT_JOB_STATUSES.COMPLETE,
-        result,
-      });
-    })
-    .catch(error => {
-      log.warn({ error }, 'AI form builder async chat job failed');
-      const serializedError = serializeChatJobError(error);
-      chatJobs.set(jobId, {
-        id: jobId,
-        userId,
-        status: CHAT_JOB_STATUSES.FAILED,
-        error: serializedError,
-      });
+    .then(
+      result =>
+        FormBuilderChatJob.update(
+          { status: CHAT_JOB_STATUSES.COMPLETE, result },
+          { where: { id: jobId } },
+        ),
+      error => {
+        log.warn({ error }, 'AI form builder async chat job failed');
+        return FormBuilderChatJob.update(
+          { status: CHAT_JOB_STATUSES.FAILED, error: serializeChatJobError(error) },
+          { where: { id: jobId } },
+        );
+      },
+    )
+    .catch(updateError => {
+      log.error({ error: updateError }, 'AI form builder failed to record async chat job result');
     });
 
   return jobId;
@@ -510,11 +512,12 @@ formBuilderRouter.post(
       // dropping any uploaded image's interpretation. A stale sessionId (lost on
       // restart / a different process) also falls back to a fresh session.
       const sessionId =
-        payload.sessionId && req.aiService.hasSession(payload.sessionId)
+        payload.sessionId && (await req.aiService.hasSession(payload.sessionId))
           ? payload.sessionId
           : await req.aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
-      const jobId = startChatJob({
+      const jobId = await startChatJob({
         aiService: req.aiService,
+        models: req.models,
         userId: req.user.id,
         payload: { ...payload, sessionId },
       });
@@ -531,20 +534,24 @@ formBuilderRouter.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'FormBuilder');
 
-    const job = chatJobs.get(req.params.jobId);
-    if (!job) {
-      res.status(202).send({
-        id: req.params.jobId,
-        status: CHAT_JOB_STATUSES.PENDING,
-      });
-      return;
-    }
+    const { FormBuilderChatJob } = req.models;
+    const job = await FormBuilderChatJob.findOne({
+      where: { id: req.params.jobId, expiresAt: { [Op.gt]: new Date() } },
+    });
 
-    if (job.userId !== req.user.id) {
-      // Don't reveal that the job exists for another user.
+    // Jobs are persisted and shared across processes, and the pending row is
+    // created before the jobId is returned — so a missing job means it never
+    // existed or has expired. Fail fast (rather than leaving the client polling)
+    // so it can start a fresh request. Also don't reveal another user's job.
+    if (!job || job.userId !== req.user.id) {
       throw new NotFoundError('AI form builder chat job was not found');
     }
 
-    res.send(job);
+    res.send({
+      id: job.id,
+      status: job.status,
+      result: job.result ?? undefined,
+      error: job.error ?? undefined,
+    });
   }),
 );

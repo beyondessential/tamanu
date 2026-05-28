@@ -1,8 +1,7 @@
 import { nanoid } from 'nanoid';
-import NodeCache from 'node-cache';
+import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
-import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
 import { AI_CONTEXT_NAMES } from '@tamanu/constants';
@@ -49,12 +48,21 @@ const normalizeMessageContent = content => {
   return String(content ?? '');
 };
 
+const sessionExpiry = () => new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
+
+// Rebuild a LangChain message from a stored { role, content } turn.
+const toLangChainMessage = ({ role, content }) => {
+  if (role === 'system') return new SystemMessage(content);
+  if (role === 'ai') return new AIMessage(content);
+  return new HumanMessage(content);
+};
+
 export class AIService {
   /** @type {Map<string, string>} */
   contexts = new Map();
 
-  /** @type {NodeCache} */
-  sessions = new NodeCache({ stdTTL: SESSION_TTL_SECONDS, checkperiod: 300, useClones: false });
+  /** @type {import('@tamanu/database').Models} */
+  models;
 
   /** @type {import('@langchain/anthropic').ChatAnthropic} */
   chatModel;
@@ -65,8 +73,9 @@ export class AIService {
   /**
    * @param {object} options
    * @param {import('@tamanu/settings').ReadSettings} options.settings
+   * @param {import('@tamanu/database').Models} options.models
    */
-  static async init({ settings }) {
+  static async init({ settings, models }) {
     const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
 
     if (!enabled) {
@@ -91,6 +100,7 @@ export class AIService {
     }
 
     const service = new AIService();
+    service.models = models;
     service.chatModel = new ChatAnthropic({
       anthropicApiKey,
       model: anthropicModel,
@@ -110,10 +120,6 @@ export class AIService {
       log.info(`AIService: initialised with model "${anthropicModel}"`);
     }
     return service;
-  }
-
-  close() {
-    this.sessions.close();
   }
 
   /**
@@ -175,6 +181,29 @@ export class AIService {
   }
 
   /**
+   * Find a session that hasn't expired. Sessions are persisted so any central
+   * process can resolve them (they used to be in-memory and per-process, so a
+   * sessionId was lost on restart or when a request landed on another process).
+   *
+   * @param {string} sessionId
+   * @returns {Promise<import('@tamanu/database').Models['AiChatSession'] | null>}
+   */
+  async findActiveSession(sessionId) {
+    if (!sessionId) return null;
+    return this.models.AiChatSession.findOne({
+      where: { id: sessionId, expiresAt: { [Op.gt]: new Date() } },
+    });
+  }
+
+  async getActiveSessionOrThrow(sessionId) {
+    const session = await this.findActiveSession(sessionId);
+    if (!session) {
+      throw new Error(`AI session "${sessionId}" not found`);
+    }
+    return session;
+  }
+
+  /**
    * Create a new multi-turn conversation session using a registered context.
    *
    * @param {string} contextName
@@ -182,23 +211,24 @@ export class AIService {
    */
   async createSession(contextName) {
     const sessionId = nanoid();
-    const history = new InMemoryChatMessageHistory();
-    await history.addMessage(new SystemMessage(this.getContext(contextName)));
-    this.sessions.set(sessionId, history);
+    await this.models.AiChatSession.create({
+      id: sessionId,
+      contextName,
+      messages: [{ role: 'system', content: this.getContext(contextName) }],
+      expiresAt: sessionExpiry(),
+    });
     return sessionId;
   }
 
   /**
-   * Whether a session still exists. Sessions are in-memory and per-process, so
-   * a client's sessionId can become stale after a server restart or when a
-   * request lands on a different process. Callers use this to fall back to a
-   * fresh session instead of erroring.
+   * Whether a non-expired session exists. Callers use this to fall back to a
+   * fresh session instead of erroring on a stale sessionId.
    *
    * @param {string} sessionId
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  hasSession(sessionId) {
-    return this.sessions.has(sessionId);
+  async hasSession(sessionId) {
+    return Boolean(await this.findActiveSession(sessionId));
   }
 
   /**
@@ -210,35 +240,39 @@ export class AIService {
    * @returns {Promise<z.infer<typeof formBuilderChatResponseSchema>>}
    */
   async sendFormBuilderMessage(sessionId, userMessage) {
-    const history = this.sessions.get(sessionId);
-    if (!history) {
-      throw new Error(`AI session "${sessionId}" not found`);
-    }
+    const session = await this.getActiveSessionOrThrow(sessionId);
 
-    this.sessions.ttl(sessionId, SESSION_TTL_SECONDS);
     const structuredModel = this.chatModel.withStructuredOutput(formBuilderChatResponseSchema, {
       name: 'form_builder_chat_response',
     });
     const response = await structuredModel.invoke([
-      ...(await history.getMessages()),
+      ...session.messages.map(toLangChainMessage),
       new HumanMessage(userMessage),
     ]);
 
-    await history.addMessage(new HumanMessage(userMessage));
-    await history.addMessage(new AIMessage(JSON.stringify(response)));
+    await session.update({
+      messages: [
+        ...session.messages,
+        { role: 'human', content: userMessage },
+        { role: 'ai', content: JSON.stringify(response) },
+      ],
+      expiresAt: sessionExpiry(),
+    });
 
     return response;
   }
 
   async addSessionMessages(sessionId, { userMessage, assistantMessage }) {
-    const history = this.sessions.get(sessionId);
-    if (!history) {
-      throw new Error(`AI session "${sessionId}" not found`);
-    }
+    const session = await this.getActiveSessionOrThrow(sessionId);
 
-    this.sessions.ttl(sessionId, SESSION_TTL_SECONDS);
-    await history.addMessage(new HumanMessage(userMessage));
-    await history.addMessage(new AIMessage(assistantMessage));
+    await session.update({
+      messages: [
+        ...session.messages,
+        { role: 'human', content: userMessage },
+        { role: 'ai', content: assistantMessage },
+      ],
+      expiresAt: sessionExpiry(),
+    });
   }
 
   /**
@@ -309,14 +343,11 @@ export class AIService {
    * @returns {Promise<string>}
    */
   async getSessionTranscript(sessionId) {
-    const history = this.sessions.get(sessionId);
-    if (!history) {
-      throw new Error(`AI session "${sessionId}" not found`);
-    }
+    const session = await this.getActiveSessionOrThrow(sessionId);
 
-    return (await history.getMessages())
-      .filter(message => message._getType() !== 'system')
-      .map(message => `[${message._getType()}]\n${normalizeMessageContent(message.content)}`)
+    return session.messages
+      .filter(message => message.role !== 'system')
+      .map(message => `[${message.role}]\n${normalizeMessageContent(message.content)}`)
       .join('\n\n');
   }
 

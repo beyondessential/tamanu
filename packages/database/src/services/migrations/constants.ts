@@ -8,8 +8,10 @@ export const NON_SYNCING_TABLES = [
   'logs.dhis2_pushes',
   'logs.m_supply_pushes',
   'logs.fhir_writes',
+  'public.ai_chat_sessions',
   'public.devices',
   'public.fhir_materialise_jobs',
+  'public.form_builder_chat_jobs',
   'public.local_system_facts',
   'public.one_time_logins',
   'public.patient_vrs_data',
@@ -45,6 +47,10 @@ export const NON_LOGGED_TABLES = [
   'public.user_recently_viewed_patients',
   'public.fhir_materialise_jobs',
   'public.patient_vrs_data',
+
+  // ephemeral AI form-builder chat state
+  'public.ai_chat_sessions',
+  'public.form_builder_chat_jobs',
 
   // historical signer records retained for compliance, no sensitive data remains
   'public.signers_historical',

@@ -46,6 +46,21 @@ describe('Form Builder Admin', () => {
   let forbiddenApp;
   let aiService;
 
+  // The async job result is written to the DB after the response is sent, so
+  // poll until it settles rather than racing a single read.
+  const pollUntilSettled = async jobId => {
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const response = await app.get(
+        `/v1/admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
+      );
+      if (response.body.status !== 'pending') return response;
+      await new Promise(resolve => {
+        setTimeout(resolve, 20);
+      });
+    }
+    throw new Error('Timed out waiting for chat job to settle');
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asNewRole([['write', 'FormBuilder']]);
@@ -105,9 +120,7 @@ describe('Form Builder Admin', () => {
     // result arrives still keeps the conversation on the same session.
     expect(startResponse.body).toMatchObject({ status: 'pending', sessionId: 'new-session-id' });
 
-    const pollResponse = await app.get(
-      `/v1/admin/form-builder/chat/jobs/${encodeURIComponent(startResponse.body.jobId)}`,
-    );
+    const pollResponse = await pollUntilSettled(startResponse.body.jobId);
 
     expect(pollResponse).toHaveSucceeded();
     expect(pollResponse.body).toMatchObject({
@@ -121,14 +134,12 @@ describe('Form Builder Admin', () => {
     });
   });
 
-  it('keeps unknown async chat jobs pending for non-sticky deployments', async () => {
-    const response = await app.get('/v1/admin/form-builder/chat/jobs/job-on-another-instance');
+  it('returns 404 for an unknown or expired async chat job', async () => {
+    // Jobs are persisted and shared across processes, so a missing job means it
+    // never existed or has expired — the client should fail fast, not poll on.
+    const response = await app.get('/v1/admin/form-builder/chat/jobs/job-that-never-existed');
 
-    expect(response.status).toBe(202);
-    expect(response.body).toMatchObject({
-      id: 'job-on-another-instance',
-      status: 'pending',
-    });
+    expect(response.status).toBe(404);
   });
 
   it('reuses an existing AI session', async () => {

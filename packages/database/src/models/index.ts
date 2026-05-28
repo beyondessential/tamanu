@@ -6,6 +6,9 @@ export * from './LocalSystemFact';
 export * from './PortalUser';
 export * from './Device';
 
+export * from './AiChatSession';
+export * from './FormBuilderChatJob';
+
 export * from './Patient';
 export * from './PatientFamilyHistory';
 export * from './PatientCondition';
