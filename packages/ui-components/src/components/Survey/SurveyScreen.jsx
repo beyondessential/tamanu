@@ -105,6 +105,7 @@ export const SurveyScreen = ({
   onCancel,
   showCancelButton = false,
   getComponentForQuestionType,
+  editedDataElementIds = null,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -148,11 +149,13 @@ export const SurveyScreen = ({
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
             encounterType={encounterType}
+            isEdited={editedDataElementIds?.has(c.dataElementId) ?? false}
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
     [
       allComponents,
+      editedDataElementIds,
       encounterType,
       getComponentForQuestionType,
       patient,

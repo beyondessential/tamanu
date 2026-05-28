@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import {
+  EditedEntryLegend,
   TranslatedOption,
   TranslatedReferenceData,
   TranslatedText,
@@ -106,13 +107,6 @@ const StyledButton = styled(Button)`
   &:hover {
     background-color: transparent;
   }
-`;
-
-const EditedEntryLegend = styled.div`
-  text-align: end;
-  margin-top: 4px;
-  font-size: 12px;
-  color: ${Colors.midText};
 `;
 
 export const PatientLabTestsTable = React.memo(
@@ -284,15 +278,7 @@ export const PatientLabTestsTable = React.memo(
           rowIdKey="testType"
           data-testid="styledtable-u2v9"
         />
-        {showEditedEntryLegend && (
-          <EditedEntryLegend data-testid="box-q7pq">
-            <TranslatedText
-              stringId="lab.result.editedEntry.label"
-              fallback="*Edited entry"
-              data-testid="translatedtext-editedentry"
-            />
-          </EditedEntryLegend>
-        )}
+        {showEditedEntryLegend && <EditedEntryLegend data-testid="box-q7pq" />}
         <LabTestResultModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}

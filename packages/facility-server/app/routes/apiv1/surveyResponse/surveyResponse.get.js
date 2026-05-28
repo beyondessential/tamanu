@@ -39,6 +39,7 @@ export const surveyResponseGetHandler = asyncHandler(async (req, res) => {
 
   res.send({
     ...surveyResponseRecord.forResponse(),
+    surveyName: survey.name,
     components,
     answers: answers.map(answer => {
       const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);

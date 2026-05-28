@@ -101,6 +101,7 @@ export const SurveyQuestion = ({
   disabled,
   encounterType,
   getComponentForQuestionType,
+  isEdited = false,
 }) => {
   const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -125,13 +126,25 @@ export const SurveyQuestion = ({
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = componentDetail && (
+
+  const detail = componentDetail && (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
   );
+  const helperText = (
+    <>
+      {detail}
+      {isEdited && (
+        <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
+          <TranslatedText stringId="general.label.edited" fallback="Edited" />
+        </span>
+      )}
+    </>
+  );
+
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(() => {
     // if the question is a patient data question with a select field type,

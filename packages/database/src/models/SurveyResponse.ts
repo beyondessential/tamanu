@@ -7,7 +7,7 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError, UsageError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -24,25 +24,48 @@ import type { Encounter } from './Encounter';
 import type { Facility } from './Facility';
 import { Model } from './Model';
 import type { Patient } from './Patient';
+import type { PatientIssue } from './PatientIssue';
 import type { ProgramDataElement } from './ProgramDataElement';
 import type { Survey } from './Survey';
 import type { User } from './User';
 
-async function createPatientIssues(models: Models, questions: any[], patientId: string) {
+/** @internal Use {@link SurveyResponse.createPatientIssues} instead. */
+async function _createPatientIssues(
+  models: Models,
+  questions: any[],
+  patientId: Patient['id'],
+  recordedDate?: PatientIssue['recordedDate'],
+) {
+  if (!models.PatientIssue.sequelize.isInsideTransaction()) {
+    throw new UsageError('createPatientIssues must always run inside a transaction!');
+  }
   const issueQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
-    const { config: configString } = question;
-    const config = safeJsonParse(configString) ?? {};
+    const config = safeJsonParse(question.config) ?? {};
     if (!config.issueNote || !config.issueType) {
-      throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
+      throw new InvalidOperationError(
+        `Ill-configured PatientIssue with config: ${question.config}`,
+      );
     }
-    await models.PatientIssue.create({
+
+    /** NB: Initialising sans-`recordedDate` to query for duplicate. Attaches later if needed. */
+    const issueData: Partial<PatientIssue> = {
       patientId,
       type: config.issueType,
       note: config.issueNote,
+    };
+
+    const existing = await models.PatientIssue.findOne({
+      attributes: ['id'], // Arbitrary projection, just checking existence
+      where: issueData,
     });
+
+    if (existing !== null) continue; // Prevent duplicates when program responses are edited
+
+    if (recordedDate) issueData.recordedDate = recordedDate;
+    await models.PatientIssue.create(issueData);
   }
 }
 
@@ -90,10 +113,10 @@ const getFieldsToWrite = async (
 };
 
 /**
- * DUPLICATED IN mobile/App/models/SurveyResponse.ts
- * Please keep in sync
+ * @internal Use {@link SurveyResponse.writeToPatientFields} instead
+ * @privateRemarks DUPLICATED IN mobile/App/models/SurveyResponse.ts. Please keep in sync.
  */
-async function writeToPatientFields(
+async function _writeToPatientFields(
   models: Models,
   facilityId: Facility['id'],
   questions: any[],
@@ -157,59 +180,17 @@ async function writeToPatientFields(
   }
 }
 
-async function handleSurveyResponseActions(
-  models: Models,
-  facilityId: Facility['id'],
-  questions: any[],
-  answers: Record<ProgramDataElement['id'], any>,
-  patientId: Patient['id'],
-  surveyId: Survey['id'],
-  userId: User['id'],
-  submittedTime: string,
-) {
-  const activeQuestions = getActiveActionComponents(questions, answers);
-  await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(
-    models,
-    facilityId,
-    activeQuestions,
-    answers,
-    patientId,
-    surveyId,
-    userId,
-    submittedTime,
-  );
-}
-
-// Special case for answers that depend on creating a new record in the database
-// and store the ID of the new record in the answer body. Currently only used for photos.
-async function getBodyForAnswer(
-  dataElementType: ProgramDataElement['type'],
-  value: any,
-  models: Models,
-) {
-  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
-    const { size, data } = value as unknown as { size: number; data: string };
-    const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForDatabase({
-        type: 'image/jpeg',
-        size,
-        data,
-      }),
-    );
-    // Store the attachment ID in the answer body
-    return attachmentId;
-  }
-
-  return getStringValue(dataElementType, value);
-}
-
 export class SurveyResponse extends Model {
   declare id: string;
   declare startTime?: string;
   declare endTime?: string;
   declare result?: number;
   declare resultText?: string;
+  /**
+   * Not to be confused with metadata attribute `updated_at`. `edited_time` is non-NULL if and only if
+   * this survey response has been meaningfully edited by a user via `PATCH /surveyResponse`.
+   */
+  declare editedTime?: string;
   declare notified?: boolean;
   declare metadata?: Record<string, any>;
   declare userId?: User['id'];
@@ -224,6 +205,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: DataTypes.FLOAT, allowNull: true },
         resultText: { type: DataTypes.TEXT, allowNull: true },
+        editedTime: dateTimeType('editedTime', { allowNull: true }),
         notified: { type: DataTypes.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
         metadata: { type: DataTypes.JSONB, allowNull: true },
       },
@@ -437,7 +419,7 @@ export class SurveyResponse extends Model {
       encounterType: encounter.encounterType,
     });
     const record = await SurveyResponse.create({
-      patientId,
+      patientId: patientId ?? encounter.patientId,
       surveyId,
       encounterId: encounter.id,
       result,
@@ -463,7 +445,7 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = await getBodyForAnswer(dataElement.type, value, models);
+      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models);
       // Don't create null answers
       if (body === null) {
         continue;
@@ -484,7 +466,7 @@ export class SurveyResponse extends Model {
       });
     }
 
-    await handleSurveyResponseActions(
+    await SurveyResponse.handleSurveyResponseActions(
       models,
       facilityId,
       questions,
@@ -496,5 +478,61 @@ export class SurveyResponse extends Model {
     );
 
     return record;
+  }
+
+  /**
+   * Special case for answers that depend on creating a new record in the database and store the ID
+   * of the new record in the answer body. Currently only used for photos.
+   */
+  static async getBodyForAnswer(
+    dataElementType: ProgramDataElement['type'],
+    value: any,
+    models: Models,
+  ) {
+    if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
+      // If the client already provided an attachment ID, keep it as-is
+      if (typeof value === 'string') return value;
+
+      const { size, data } = value as unknown as { size: number; data: string };
+      const { id: attachmentId } = await models.Attachment.create(
+        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg' }),
+      );
+
+      return attachmentId; // Store attachment ID as answer body
+    }
+
+    return getStringValue(dataElementType, value);
+  }
+
+  static async createPatientIssues(...args: Parameters<typeof _createPatientIssues>) {
+    return await _createPatientIssues(...args);
+  }
+
+  static async writeToPatientFields(...args: Parameters<typeof _writeToPatientFields>) {
+    return await _writeToPatientFields(...args);
+  }
+
+  static async handleSurveyResponseActions(
+    models: Models,
+    facilityId: Facility['id'],
+    questions: any[],
+    answers: Record<ProgramDataElement['id'], any>,
+    patientId: Patient['id'],
+    surveyId: Survey['id'],
+    userId: User['id'],
+    submittedTime: string,
+  ) {
+    const activeQuestions = getActiveActionComponents(questions, answers);
+    await SurveyResponse.createPatientIssues(models, activeQuestions, patientId, submittedTime);
+    await SurveyResponse.writeToPatientFields(
+      models,
+      facilityId,
+      activeQuestions,
+      answers,
+      patientId,
+      surveyId,
+      userId,
+      submittedTime,
+    );
   }
 }

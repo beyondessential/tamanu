@@ -17,9 +17,8 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => {
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisabled }) => {
   const { getTranslation } = useTranslation();
-
   return (
     <div>
       <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
@@ -45,9 +44,10 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => {
           </OutlinedButton>
           <FormSubmitButton
             color="primary"
-            variant="contained"
-            onClick={onSurveyComplete}
             data-testid="formsubmitbutton-pufy"
+            disabled={completeButtonDisabled}
+            onClick={onSurveyComplete}
+            variant="contained"
           >
             <TranslatedText stringId="general.action.complete" fallback="Complete" />
           </FormSubmitButton>
@@ -72,6 +72,8 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
+  completeButtonDisabled = false,
+  editedDataElementIds = null,
 }) => {
   const { components } = survey;
 
@@ -110,6 +112,7 @@ export const SurveyScreenPaginator = ({
         showCancelButton={showCancelButton}
         encounterType={encounterType}
         getComponentForQuestionType={getComponentForQuestionType}
+        editedDataElementIds={editedDataElementIds}
         data-testid="surveyscreen-2tj0"
       />
     );
@@ -119,6 +122,7 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      completeButtonDisabled={completeButtonDisabled}
       data-testid="surveysummaryscreen-1jn5"
     />
   );

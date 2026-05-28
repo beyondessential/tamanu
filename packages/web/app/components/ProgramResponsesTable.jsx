@@ -1,7 +1,18 @@
-import React, { useCallback, useState } from 'react';
+import { subject } from '@casl/ability';
+import React, { useCallback, useMemo, useState } from 'react';
+import { generatePath, useNavigate, useParams } from 'react-router';
+import styled from 'styled-components';
 
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
-import { SurveyResultBadge, TranslatedText, VisuallyHidden } from '@tamanu/ui-components';
+import {
+  EditedEntryLegend,
+  EditedOrnament,
+  EditedOrnamentRoot,
+  SurveyResultBadge,
+  TranslatedText,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { DeleteProgramResponseModal } from '../views/patients/components/DeleteProgramResponseModal';
@@ -28,13 +39,30 @@ function ProgramNameAccessor({ programName }) {
   return programName;
 }
 
-function SurveyNameAccessor({ surveyName }) {
-  return surveyName;
+/**
+ * @param {{ surveyName: import('@tamanu/database').Survey['name']; isEdited?: boolean }} props
+ */
+function SurveyNameAccessor({ surveyName, isEdited }) {
+  return (
+    <>
+      {surveyName}
+      {isEdited && <EditedOrnament />}
+    </>
+  );
 }
 
 function ResultsAccessor({ resultText }) {
   return <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />;
 }
+
+const ProgramResponsesDataFetchingTable = styled(DataFetchingTable)``;
+
+/** Render ‘*Edited entry’ only if current page of table contains an edited response */
+const ConditionalEditedEntryLegend = styled(EditedEntryLegend)`
+  ${ProgramResponsesDataFetchingTable}:not(:has(${EditedOrnamentRoot})) + & {
+    display: none;
+  }
+`;
 
 export const DataFetchingProgramsTable = ({
   endpoint,
@@ -46,90 +74,131 @@ export const DataFetchingProgramsTable = ({
   TableHeader,
 }) => {
   const { ability } = useAuth();
+  const navigate = useNavigate();
+  const params = useParams();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
+
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
     setSelectedResponse(surveyResponse);
   }, []);
+
   const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
 
-  const actions = [
-    {
-      label: <TranslatedText stringId="general.action.print" fallback="Print" />,
-      action: () => setPrintModalOpen(true),
+  const navigateToEdit = useCallback(
+    response => {
+      const { category, patientId, encounterId } = params;
+      const path = encounterId
+        ? generatePath(`${PATIENT_PATHS.ENCOUNTER}/programs/:surveyResponseId/edit`, {
+            category,
+            patientId,
+            encounterId,
+            surveyResponseId: response.id,
+          })
+        : generatePath(`${PATIENT_PATHS.PATIENT}/programs/:surveyResponseId/edit`, {
+            category,
+            patientId,
+            surveyResponseId: response.id,
+          });
+      navigate(path);
     },
-    {
-      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-      action: () => setDeleteModalOpen(true),
-      permissionCheck: () => {
-        return ability?.can('delete', 'SurveyResponse');
-      },
-      wrapper: menuItem => {
-        return <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>;
-      },
-    },
-  ].filter(({ permissionCheck }) => {
-    return typeof permissionCheck === 'function' ? permissionCheck() : true;
-  });
+    [navigate, params],
+  );
 
-  const columns = [
-    {
-      key: 'endTime',
-      title: (
-        <TranslatedText stringId="program.table.column.submittedDate" fallback="Date submitted" />
-      ),
-      accessor: DateAccessor,
-    },
-    {
-      key: 'submittedBy',
-      title: <TranslatedText stringId="program.table.column.submittedBy" fallback="Submitted by" />,
-      accessor: SubmittedByAccessor,
-    },
-    {
-      key: 'programName',
-      title: <TranslatedText stringId="program.table.column.programName" fallback="Program" />,
-      accessor: ProgramNameAccessor,
-    },
-    {
-      key: 'surveyName',
-      title: <TranslatedText stringId="program.table.column.surveyName" fallback="Survey" />,
-      accessor: SurveyNameAccessor,
-    },
-    {
-      key: 'resultText',
-      title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
-      accessor: ResultsAccessor,
-    },
-  ];
+  const buildRowActions = useCallback(
+    data => {
+      const rowActions = [
+        {
+          label: <TranslatedText stringId="general.action.print" fallback="Print" />,
+          action: () => {
+            setSelectedResponse(data);
+            setPrintModalOpen(true);
+          },
+        },
+      ];
 
-  // Only include actions column when there is at least one action
-  if (actions.length > 0) {
-    columns.push({
-      key: 'actions',
-      title: (
-        <VisuallyHidden>
-          <TranslatedText stringId="general.actions.label" fallback="Actions" />
-        </VisuallyHidden>
-      ),
-      dontCallRowInput: true,
-      sortable: false,
-      CellComponent: ({ data }) => (
-        <div onMouseEnter={() => setSelectedResponse(data)}>
-          <MenuButton
-            a11yLabel={
-              <TranslatedText stringId="program.table.actions" fallback="Form response actions" />
-            }
-            actions={actions}
-            data-testid="menubutton-oi3b"
-          />
-        </div>
-      ),
-    });
-  }
+      if (ability?.can('write', subject('Survey', { id: data.surveyId }))) {
+        rowActions.push({
+          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+          action: () => navigateToEdit(data),
+        });
+      }
+
+      if (ability?.can('delete', 'SurveyResponse')) {
+        rowActions.push({
+          label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+          action: () => {
+            setSelectedResponse(data);
+            setDeleteModalOpen(true);
+          },
+          wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
+        });
+      }
+
+      return rowActions;
+    },
+    [ability, navigateToEdit],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: 'endTime',
+        title: (
+          <TranslatedText stringId="program.table.column.submittedDate" fallback="Date submitted" />
+        ),
+        accessor: DateAccessor,
+      },
+      {
+        key: 'submittedBy',
+        title: (
+          <TranslatedText stringId="program.table.column.submittedBy" fallback="Submitted by" />
+        ),
+        accessor: SubmittedByAccessor,
+      },
+      {
+        key: 'programName',
+        title: <TranslatedText stringId="program.table.column.programName" fallback="Program" />,
+        accessor: ProgramNameAccessor,
+      },
+      {
+        key: 'surveyName',
+        title: <TranslatedText stringId="program.table.column.surveyName" fallback="Survey" />,
+        accessor: SurveyNameAccessor,
+      },
+      {
+        key: 'resultText',
+        title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
+        accessor: ResultsAccessor,
+      },
+      {
+        key: 'actions',
+        title: (
+          <VisuallyHidden>
+            <TranslatedText stringId="general.table.column.actions" fallback="Actions" />
+          </VisuallyHidden>
+        ),
+        dontCallRowInput: true,
+        sortable: false,
+        CellComponent: ({ data }) => (
+          <div onMouseEnter={() => setSelectedResponse(data)}>
+            <MenuButton
+              a11yLabel={
+                <TranslatedText stringId="program.table.actions" fallback="Form response actions" />
+              }
+              actions={buildRowActions(data)}
+              data-testid="menubutton-oi3b"
+            />
+          </div>
+        ),
+      },
+    ],
+    [buildRowActions],
+  );
 
   return (
     <>
@@ -148,7 +217,7 @@ export const DataFetchingProgramsTable = ({
         submittedBy={selectedResponse?.submittedBy}
         data-testid="surveyresponsesprintmodal-ima2"
       />
-      <DataFetchingTable
+      <ProgramResponsesDataFetchingTable
         TableHeader={TableHeader}
         endpoint={endpoint}
         columns={columns}
@@ -171,6 +240,7 @@ export const DataFetchingProgramsTable = ({
         className={className}
         data-testid="datafetchingtable-58ck"
       />
+      <ConditionalEditedEntryLegend />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}

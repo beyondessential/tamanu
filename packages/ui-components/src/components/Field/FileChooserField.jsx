@@ -138,6 +138,7 @@ export const FileChooserInput = ({
   onChange,
   smallDisplay = false,
   WebcamCaptureModalComponent,
+  ViewPhotoLinkComponent,
   buttonText = (
     <TranslatedText
       stringId="chooseFile.button.label"
@@ -235,6 +236,7 @@ export const FileChooserInput = ({
               smallDisplay={smallDisplay}
               showFileDialog={showFileDialog}
               onClear={onClear}
+              ViewPhotoLinkComponent={ViewPhotoLinkComponent}
             />
           ) : (
             <>

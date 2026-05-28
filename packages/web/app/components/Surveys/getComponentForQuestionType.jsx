@@ -23,6 +23,7 @@ import {
   SurveyResponseSelectField,
 } from '../Field';
 import { PhotoCaptureModal } from '../PhotoCaptureModal';
+import { ViewPhotoLink } from '../ViewPhotoLink';
 
 /** @satisfies {Record<PROGRAM_DATA_ELEMENT_TYPES, React.ComponentType<any>>} */
 const QUESTION_COMPONENTS = /** @type {const} */ ({
@@ -46,7 +47,11 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
-    <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />
+    <BasePhotoField
+      {...props}
+      WebcamCaptureModalComponent={PhotoCaptureModal}
+      ViewPhotoLinkComponent={ViewPhotoLink}
+    />
   ),
   /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,

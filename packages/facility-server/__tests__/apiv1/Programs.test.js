@@ -4,6 +4,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { chance } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
@@ -252,6 +253,64 @@ describe('Programs', () => {
       });
     });
 
+    it('should return no changelog entries before any edit', async () => {
+      const responseData = createDummySurveyResponse(testSurvey);
+      const result = await app.post('/api/surveyResponse').send({
+        ...responseData,
+        encounterId: testEncounter.id,
+        surveyId: testSurvey.id,
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(result.body.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+      expect(changelog.body).toEqual([]);
+    });
+
+    it('should list changelog after PATCH and keep end_time unchanged', async () => {
+      const responseData = createDummySurveyResponse(testSurvey);
+      const post = await app.post('/api/surveyResponse').send({
+        ...responseData,
+        encounterId: testEncounter.id,
+        surveyId: testSurvey.id,
+        facilityId,
+      });
+      expect(post).toHaveSucceeded();
+      const responseId = post.body.id;
+      const [dataElementId] = Object.keys(responseData.answers);
+      const before = await models.SurveyResponse.findByPk(responseId);
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`).send({
+        facilityId,
+        editedTime: getCurrentDateTimeString(),
+        answers: { [dataElementId]: 'patched-answer-value' },
+      });
+      expect(patch).toHaveSucceeded();
+
+      const updatedAnswer = await models.SurveyResponseAnswer.findOne({
+        where: { responseId, dataElementId },
+      });
+      expect(updatedAnswer.body).toBe('patched-answer-value');
+
+      const after = await models.SurveyResponse.findByPk(responseId);
+      expect(after.endTime).toEqual(before.endTime);
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(responseId)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+      expect(Array.isArray(changelog.body)).toBe(true);
+      expect(changelog.body.length).toBeGreaterThan(0);
+      const [first] = changelog.body;
+      const stringOrNull = {
+        asymmetricMatch: actual => actual === null || typeof actual === 'string',
+      };
+      expect(first).toMatchObject({ from: stringOrNull, to: stringOrNull });
+    });
+
     it('should only list program responses from an encounter, not referrals', async () => {
       const NUMBER_PROGRAM_RESPONSES = 7;
       const NUMBER_REFERRAL_SURVEY_RESPONSES = 19;
@@ -480,6 +539,55 @@ describe('Programs', () => {
           where: { patientId: testPatient.id, note: 'test-note' },
         });
         expect(afterIssue).toBeTruthy();
+      });
+
+      it('should not create duplicate patient issues when a program response is patched', async () => {
+        const { pdeId, surveyId } = await createWithQuestion({
+          type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+          config: {
+            issueType: 'issue',
+            issueNote: 'patch-dup-test-note',
+          },
+        });
+
+        const createResult = await app.post('/api/surveyResponse').send({
+          answers: { [pdeId]: true },
+          surveyId,
+          encounterId: testEncounter.id,
+          facilityId,
+        });
+        expect(createResult).toHaveSucceeded();
+
+        const responseId = createResult.body.id;
+        expect(responseId).toBeTruthy();
+
+        const issuesAfterCreate = await models.PatientIssue.findAll({
+          where: { patientId: testPatient.id, note: 'patch-dup-test-note' },
+        });
+        expect(issuesAfterCreate).toHaveLength(1);
+
+        const patch1 = await app
+          .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
+          .send({
+            facilityId,
+            editedTime: getCurrentDateTimeString(),
+            answers: { [pdeId]: true },
+          });
+        expect(patch1).toHaveSucceeded();
+
+        const patch2 = await app
+          .patch(`/api/surveyResponse/${encodeURIComponent(responseId)}`)
+          .send({
+            facilityId,
+            editedTime: getCurrentDateTimeString(),
+            answers: { [pdeId]: true },
+          });
+        expect(patch2).toHaveSucceeded();
+
+        const issuesAfterPatches = await models.PatientIssue.findAll({
+          where: { patientId: testPatient.id, note: 'patch-dup-test-note' },
+        });
+        expect(issuesAfterPatches).toHaveLength(1);
       });
 
       it('should write data to a patient record', async () => {

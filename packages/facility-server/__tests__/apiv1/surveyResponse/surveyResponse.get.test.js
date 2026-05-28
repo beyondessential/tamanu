@@ -20,6 +20,22 @@ describe('SurveyResponse GET /:id', () => {
   });
   afterAll(() => ctx.close());
 
+  it('should include surveyName from the associated survey', async () => {
+    const { Facility, Survey } = models;
+    const facility = await Facility.create(fake(Facility));
+    const { response } = await setupAutocompleteSurvey(
+      JSON.stringify({ source: 'Facility' }),
+      facility.id,
+    );
+    const [survey, result] = await Promise.all([
+      Survey.findByPk(response.surveyId, { attributes: ['name'] }),
+      app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`),
+    ]);
+
+    expect(result).toHaveSucceeded();
+    expect(result.body.surveyName).toEqual(survey.name);
+  });
+
   describe('autocomplete', () => {
     it("should look up an autocomplete component's source model and extract a name", async () => {
       // arrange
