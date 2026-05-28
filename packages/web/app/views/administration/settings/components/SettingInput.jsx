@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
@@ -108,8 +109,19 @@ const SETTING_TYPES = {
   NUMBER: 'number',
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
+  DATETIME: 'datetime',
   OBJECT: 'object',
   ARRAY: 'array',
+};
+
+// Picker operates on Date objects in the browser's local timezone for display,
+// and emits UTC ISO 8601 strings (`.toISOString()`) for storage. That keeps the
+// stored value unambiguous so operators in any timezone agree on the same
+// instant. Empty value clears the setting.
+const parseUtcIsoToDate = value => {
+  if (!value) return null;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? null : new Date(ms);
 };
 
 const normalize = val => (val === null || val === '' ? '' : val);
@@ -496,6 +508,34 @@ export const SettingInput = ({
           DefaultButton={DefaultButton}
           data-testid={dataTestId}
         />
+      );
+    }
+    case SETTING_TYPES.DATETIME: {
+      const dateValue = parseUtcIsoToDate(displayValue);
+      return (
+        <Flexbox data-testid="flexbox-datetime">
+          <DateTimePicker
+            value={dateValue}
+            onChange={date => {
+              if (!date || Number.isNaN(date.getTime())) {
+                handleChangeValue('');
+                return;
+              }
+              handleChangeValue(date.toISOString());
+            }}
+            disabled={disabled}
+            slotProps={{
+              textField: {
+                error: Boolean(error),
+                helperText: error?.message,
+                size: 'small',
+                style: { width: '253px' },
+              },
+              actionBar: { actions: ['clear', 'today', 'accept'] },
+            }}
+          />
+          <DefaultButton data-testid="defaultbutton-datetime" />
+        </Flexbox>
       );
     }
     case SETTING_TYPES.OBJECT:

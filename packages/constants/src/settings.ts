@@ -32,6 +32,7 @@ export const SETTINGS_SCOPES = {
 export const SETTING_EDITORS = {
   MULTILINE: 'multiline',
   MARKDOWN: 'markdown',
+  DATETIME: 'datetime',
 } as const;
 
 export type SettingEditor = (typeof SETTING_EDITORS)[keyof typeof SETTING_EDITORS];
