@@ -1,5 +1,4 @@
 import Typography from '@mui/material/Typography';
-import { isEmpty } from 'lodash';
 import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -26,11 +25,16 @@ const CancelButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
+/** @param {string | null | undefined} answer */
+export function isNonAnswer(answer) {
+  return answer == null || answer === '';
+}
+
 /**
  * @param {...(string | null | undefined)} answers
  */
-function areEmpty(...answers) {
-  return answers.every(isEmpty);
+function areNonAnswers(...answers) {
+  return answers.every(isNonAnswer);
 }
 
 /** Recalculates dynamic fields, writing them back into form values. */
@@ -39,7 +43,7 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     const calculatedValues = runCalculations(components, values);
     for (const [k, v] of Object.entries(calculatedValues)) {
       const prev = values[k];
-      if (prev === v || areEmpty(prev, v)) continue;
+      if (prev === v || areNonAnswers(prev, v)) continue;
       setFieldValue(k, v, false);
     }
   }, [components, values, setFieldValue]);
