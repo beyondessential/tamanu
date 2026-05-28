@@ -169,5 +169,45 @@ describe('SurveyResponse GET /:id/changes', () => {
       const answerChanges = changelog.body.filter(c => c.recordId === answer.id);
       expect(answerChanges).toHaveLength(2);
     });
+
+    it('should return changes in reverse chronological order by edit time', async () => {
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const facility2 = await Facility.create(fake(Facility));
+      const facility3 = await Facility.create(fake(Facility));
+      const facility4 = await Facility.create(fake(Facility));
+      const { answer, response, facilityId } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        facility.id,
+      );
+
+      const editTimes = ['2024-06-01 09:00:00', '2024-06-02 09:00:00', '2024-06-03 09:00:00'];
+      const facilityIds = [facility2.id, facility3.id, facility4.id];
+
+      for (let i = 0; i < editTimes.length; i++) {
+        const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+          buildPatchBody({
+            facilityId,
+            editedTime: editTimes[i],
+            answers: { [answer.dataElementId]: facilityIds[i] },
+          }),
+        );
+        expect(edit).toHaveSucceeded();
+      }
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+      expect(changelog.body.length).toBeGreaterThanOrEqual(editTimes.length);
+
+      for (let i = 1; i < changelog.body.length; i++) {
+        const prev = changelog.body[i - 1];
+        const curr = changelog.body[i];
+        const currEditedTime = new Date(curr.recordData.editedTime).getTime();
+        const prevEditedTime = new Date(prev.recordData.editedTime).getTime();
+        expect(currEditedTime).toBeLessThanOrEqual(prevEditedTime);
+      }
+    });
   });
 });
