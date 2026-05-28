@@ -177,7 +177,7 @@ CODE NAMING (apply consistently across all sheets)
 - programCode: lowercase, no separators, from program name. "NCD Screening" → "ncdscreening"
 - survey code: same scheme
 - question code: surveyCode + 3-digit incrementing number, reset per survey. "ncdscreening001", "ncdscreening002"
-- question name: when the uploaded source provides a name/label column (e.g. an exported Tamanu sheet, or a spreadsheet with a "name" column), preserve that value verbatim — do NOT overwrite it with the code. Only default the name to the question code when the source has no separate name (e.g. a plain image with just question text).
+- question name: REQUIRED on every question. When the uploaded source provides a name/label column (e.g. an exported Tamanu sheet, or a spreadsheet with a "name" column), preserve that value verbatim — do NOT overwrite it with the code. When the source has no separate name (e.g. a plain image with just question text), default the name to the question text. NEVER use the question code as the name — the response viewer's "Indicator" column shows name, so a code-as-name renders responses as "ncdreview010" instead of "Blood pressure".
 
 SURVEY / QUESTION RULES
 - newScreen: true on the first question of each logical section/screen.

@@ -150,7 +150,11 @@ export const sanitizeProgramDefinitionPreview = programDefinition => ({
 const programDefinitionQuestionSchema = z
   .object({
     code: z.string().trim().min(1),
-    name: z.string().trim().optional(),
+    // Required: the saved ProgramDataElement.name powers the form response
+    // viewer's "Indicator" column. The build prompt instructs the AI to derive
+    // it from the source label or fall back to the question text, never the
+    // code — this constraint stops the LLM silently omitting it.
+    name: z.string().trim().min(1),
     text: z.string().trim().min(1),
     type: z.string().trim().min(1),
     options: z.union([z.string(), z.array(z.string()), z.record(z.string(), z.string())]).optional(),

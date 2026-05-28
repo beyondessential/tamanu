@@ -1,5 +1,6 @@
 import {
   normalizeQuestionConfigForImport,
+  programDefinitionSchema,
   sanitizeProgramDefinitionPreview,
 } from '../../dist/admin/programImporter/programDefinition';
 
@@ -70,6 +71,25 @@ describe('programDefinition', () => {
         },
       ],
     });
+  });
+
+  it('requires a name on every question (so the build prompt cannot fall back to the code)', async () => {
+    // The form response viewer's "Indicator" column shows ProgramDataElement.name.
+    // Forcing name in the structured-output schema stops the LLM silently omitting
+    // it and saving the code as a stand-in (which renders responses as e.g.
+    // "ncdreview010" instead of "Blood pressure").
+    await expect(
+      programDefinitionSchema.parseAsync({
+        title: 'NCD Follow-up Review',
+        surveys: [{ code: 'ncdreview', name: 'NCD Follow-up Review' }],
+        surveySheets: [
+          {
+            surveyName: 'NCD Follow-up Review',
+            questions: [{ code: 'ncdreview010', text: 'Blood pressure', type: 'Number' }],
+          },
+        ],
+      }),
+    ).rejects.toThrow();
   });
 
   it('normalizes generated Excel-style calculations to math.js expressions', () => {
