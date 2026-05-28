@@ -301,8 +301,8 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     label={
                       <TranslatedText
                         stringId="mar.details.doseGiven.label"
-                        values={{ units: medication?.units }}
-                        fallback={`Dose given (${medication?.units})`}
+                        values={{ units: medication?.dosingUnit }}
+                        fallback={`Dose given (${medication?.dosingUnit})`}
                       />
                     }
                   />

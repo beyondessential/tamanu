@@ -484,7 +484,7 @@ export const PatientMedicationPane = ({ patient }) => {
           medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
-          units: prescription?.units,
+          units: prescription?.dispensingUnit,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,

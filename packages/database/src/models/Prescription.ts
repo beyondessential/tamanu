@@ -18,7 +18,8 @@ export class Prescription extends Model {
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
   declare doseAmount: string;
-  declare units: string;
+  declare dosingUnit: string;
+  declare dispensingUnit: string;
   declare frequency: string;
   declare idealTimes?: string[];
   declare route: string;
@@ -51,7 +52,11 @@ export class Prescription extends Model {
         isPrn: DataTypes.BOOLEAN,
         isVariableDose: DataTypes.BOOLEAN,
         doseAmount: DataTypes.DECIMAL,
-        units: {
+        dosingUnit: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        dispensingUnit: {
           type: DataTypes.STRING,
           allowNull: false,
         },

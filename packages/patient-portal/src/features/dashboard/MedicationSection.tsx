@@ -38,7 +38,7 @@ export const MedicationsSection = () => {
                   />
                   <LabelValueList.ListItem
                     label="Dose"
-                    value={formatDose(medication.doseAmount, medication.units || undefined)}
+                    value={formatDose(medication.doseAmount, medication.dosingUnit || undefined)}
                   />
                   <LabelValueList.ListItem
                     label="Frequency"

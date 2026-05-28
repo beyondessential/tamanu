@@ -184,9 +184,9 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ doseAmount, units, isVariableDose }) =>
+      accessor: ({ doseAmount, dosingUnit, isVariableDose }) =>
         getMedicationDoseDisplay(
-          { doseAmount, units, isVariableDose },
+          { doseAmount, dosingUnit, isVariableDose },
           getTranslation,
           getEnumTranslation,
         ),

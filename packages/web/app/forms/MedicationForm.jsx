@@ -93,7 +93,10 @@ const validationSchema = yup.object().shape({
           <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
         ),
     }),
-  units: foreignKey(
+  dosingUnit: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ).oneOf(DRUG_UNIT_VALUES),
+  dispensingUnit: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
   repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
@@ -872,7 +875,8 @@ export const MedicationForm = ({
                       setValues({
                         ...values,
                         route: referenceDrug?.route?.toLowerCase() || '',
-                        units: referenceDrug?.units || '',
+                        dosingUnit: referenceDrug?.dosingUnit || '',
+                        dispensingUnit: referenceDrug?.dispensingUnit || '',
                         notes: referenceDrug?.notes || '',
                       });
                       handleChangeMedication(e);
@@ -994,12 +998,20 @@ export const MedicationForm = ({
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
-              name="units"
-              label={<TranslatedText stringId="medication.units.label" fallback="Units" />}
+              name="dosingUnit"
+              label={<TranslatedText stringId="medication.dosingUnit.label" fallback="Dosing unit" />}
               component={TranslatedSelectField}
               enumValues={DRUG_UNIT_LABELS}
               required
-              data-testid="medication-field-units-2r9v"
+              data-testid="medication-field-dosingUnit-2r9v"
+            />
+            <Field
+              name="dispensingUnit"
+              label={<TranslatedText stringId="medication.dispensingUnit.label" fallback="Dispensing unit" />}
+              component={TranslatedSelectField}
+              enumValues={DRUG_UNIT_LABELS}
+              required
+              data-testid="medication-field-dispensingUnit-7k2p"
             />
             <Field
               name="frequency"

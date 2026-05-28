@@ -825,7 +825,7 @@ patientRoute.get(
                 'id',
                 'date',
                 'doseAmount',
-                'units',
+                'dosingUnit',
                 'frequency',
                 'route',
                 'durationValue',

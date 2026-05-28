@@ -515,7 +515,7 @@ export const MarDetails = ({
                             </MidText>
                             <DarkestText mt={'3px'}>
                               {getMarDoseDisplay(
-                                { doseAmount: dose.doseAmount, units: medication.units },
+                                { doseAmount: dose.doseAmount, dosingUnit: medication.dosingUnit },
                                 getEnumTranslation,
                               )}
                             </DarkestText>
@@ -601,7 +601,7 @@ export const MarDetails = ({
                             <Field
                               name={`doses.${index}.doseAmount`}
                               component={NumberField}
-                              label={`Dose given (${medication?.units})`}
+                              label={`Dose given (${medication?.dosingUnit})`}
                               required
                             />
                             <div>
