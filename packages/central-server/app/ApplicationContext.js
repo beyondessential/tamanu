@@ -88,7 +88,12 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting(this.store);
     }
 
-    this.aiService = await AIService.init({ settings: this.settings });
+    if (appType === CENTRAL_SERVER_APP_TYPES.API) {
+      this.aiService = await AIService.init({
+        settings: this.settings,
+        models: this.store.models,
+      });
+    }
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
@@ -129,7 +134,6 @@ export class ApplicationContext {
       await hook();
     }
     await closeDatabase();
-    this.aiService?.close();
   }
 
   async waitForClose() {

@@ -30,13 +30,20 @@ export const centralSettings = {
           name: 'Anthropic API key',
           description: 'API key for the Anthropic API',
           type: yup.string(),
-          defaultValue: '',
+          secret: true,
         },
         anthropicModel: {
           name: 'Anthropic model',
           description: 'The Anthropic model to use for AI features',
           type: yup.string(),
           defaultValue: 'claude-sonnet-4-20250514',
+        },
+        anthropicFastModel: {
+          name: 'Anthropic fast model',
+          description:
+            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty.',
+          type: yup.string(),
+          defaultValue: '',
         },
       },
     },
