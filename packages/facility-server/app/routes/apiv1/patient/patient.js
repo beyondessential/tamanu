@@ -818,6 +818,9 @@ patientRoute.get(
             },
             {
               association: 'prescription',
+              // durationValue/durationUnit/indication/notes are needed by
+              // buildInstructionText so the edit-dispense modal can recompute
+              // the read-only Instructions display from the prescription.
               attributes: [
                 'id',
                 'date',
@@ -825,6 +828,10 @@ patientRoute.get(
                 'units',
                 'frequency',
                 'route',
+                'durationValue',
+                'durationUnit',
+                'indication',
+                'notes',
                 'isVariableDose',
                 'isPrn',
               ],

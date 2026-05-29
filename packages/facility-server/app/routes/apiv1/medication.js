@@ -2083,7 +2083,23 @@ medication.get(
             {
               association: 'prescription',
               where: prescriptionFilters,
-              attributes: ['id', 'date', 'units'],
+              // Fields below 'units' are needed by buildInstructionText so the
+              // edit-dispense modal can recompute the read-only Instructions
+              // display from the prescription.
+              attributes: [
+                'id',
+                'date',
+                'doseAmount',
+                'units',
+                'frequency',
+                'route',
+                'durationValue',
+                'durationUnit',
+                'indication',
+                'notes',
+                'isVariableDose',
+                'isPrn',
+              ],
               include: [
                 {
                   association: 'medication',
@@ -2425,7 +2441,10 @@ const dispenseItemSchema = z.object({
   // Optional reference to the medicationPresetLabel reference_data record the
   // pharmacist selected to populate the label text. The label text itself is
   // sent in `instructions`; this just records which preset (if any) was used.
-  medicationPresetLabelId: z.string().nullish(),
+  // `nullish()` allows undefined/null; `.min(1)` rejects the empty string
+  // (which is not nullish and would otherwise reach the DB and violate the
+  // reference_data FK).
+  medicationPresetLabelId: z.string().min(1).nullish(),
 });
 
 const dispenseInputSchema = z
@@ -2592,7 +2611,10 @@ const editDispenseInputSchema = z
     dispensedByUserId: z.string(),
     quantity: z.coerce.number().int().positive(),
     instructions: z.string().min(1),
-    medicationPresetLabelId: z.string().nullish(),
+    // `nullish()` allows undefined/null; `.min(1)` rejects the empty string
+  // (which is not nullish and would otherwise reach the DB and violate the
+  // reference_data FK).
+  medicationPresetLabelId: z.string().min(1).nullish(),
   })
   .strip();
 

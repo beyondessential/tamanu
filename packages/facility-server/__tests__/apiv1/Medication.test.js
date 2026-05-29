@@ -484,6 +484,157 @@ describe('Medication', () => {
 
       expect(result).toHaveRequestError();
     });
+
+    it('should persist medicationPresetLabelId on the created dispense (TAM-6801)', async () => {
+      const presetLabel = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL }),
+      );
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: presetLabel.name,
+            medicationPresetLabelId: presetLabel.id,
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+      expect(result.body[0].medicationPresetLabelId).toBe(presetLabel.id);
+
+      const persisted = await models.MedicationDispense.findByPk(result.body[0].id);
+      expect(persisted.medicationPresetLabelId).toBe(presetLabel.id);
+    });
+
+    it('should reject medicationPresetLabelId as an empty string (TAM-6801)', async () => {
+      // `nullish()` alone would let '' through, then break the FK on insert —
+      // the schema explicitly rejects it instead.
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'whatever',
+            medicationPresetLabelId: '',
+          },
+        ],
+      });
+
+      expect(result).toHaveRequestError();
+    });
+  });
+
+  describe('PUT /api/medication/dispense/:id', () => {
+    const createDispensedMedication = async ({ patientId } = {}) => {
+      const medication = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patientId ?? patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
+      const prescription = await models.Prescription.create(
+        fake(models.Prescription, {
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          startDate: getCurrentDateTimeString(),
+        }),
+      );
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        fake(models.PharmacyOrder, {
+          orderingClinicianId: app.user.id,
+          encounterId: encounter.id,
+          isDischargePrescription: true,
+          date: getCurrentDateTimeString(),
+          facilityId,
+        }),
+      );
+      const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
+        ...fake(models.PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.id,
+          quantity: 10,
+          repeats: 1,
+        }),
+        id: uuidv4(),
+      });
+      const dispense = await models.MedicationDispense.create(
+        fake(models.MedicationDispense, {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 5,
+          instructions: 'Original instructions',
+          dispensedByUserId: app.user.id,
+          dispensedAt: getCurrentDateTimeString(),
+        }),
+      );
+      return { dispense };
+    };
+
+    it('should update an existing dispense and round-trip medicationPresetLabelId', async () => {
+      const presetLabel = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL }),
+      );
+      const { dispense } = await createDispensedMedication();
+
+      const result = await app.put(`/api/medication/dispense/${dispense.id}`).send({
+        dispensedByUserId: app.user.id,
+        quantity: 7,
+        instructions: presetLabel.name,
+        medicationPresetLabelId: presetLabel.id,
+      });
+
+      expect(result).toHaveSucceeded();
+      const reloaded = await models.MedicationDispense.findByPk(dispense.id);
+      expect(reloaded.quantity).toBe(7);
+      expect(reloaded.instructions).toBe(presetLabel.name);
+      expect(reloaded.medicationPresetLabelId).toBe(presetLabel.id);
+    });
+
+    it('should return 404 when the dispense does not exist', async () => {
+      const result = await app.put(`/api/medication/dispense/${uuidv4()}`).send({
+        dispensedByUserId: app.user.id,
+        quantity: 1,
+        instructions: 'whatever',
+      });
+
+      expect(result).toHaveStatus(404);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should reject a user without write MedicationDispense permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const { dispense } = await createDispensedMedication();
+
+        const result = await noPermsApp.put(`/api/medication/dispense/${dispense.id}`).send({
+          dispensedByUserId: noPermsApp.user.id,
+          quantity: 1,
+          instructions: 'whatever',
+        });
+
+        expect(result).toBeForbidden();
+      });
+    });
   });
 
   describe('Approved column', () => {

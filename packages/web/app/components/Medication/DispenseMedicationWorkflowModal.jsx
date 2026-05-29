@@ -34,6 +34,7 @@ import {
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  PRESET_LABEL_SUGGESTER_OPTIONS,
 } from '../../utils/medications';
 
 const MODAL_STEPS = {
@@ -41,11 +42,6 @@ const MODAL_STEPS = {
   REVIEW: 'review',
 };
 
-// Show the preset's code (e.g. "QPHQ6H") in the dropdown per the design, and
-// carry through the translated label text so the change handler can populate
-// the Label text field with it.
-const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
-const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
 
@@ -188,15 +184,14 @@ const PatientSummaryViewPatientLink = styled.button`
 `;
 
 
-const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} value={value} onChange={handleChange} />;
-});
+// Fully-controlled — anything that mutates `instructions` upstream (e.g. picking
+// a preset label, which programmatically replaces the field's text) must be
+// reflected here. The previous `useState(defaultValue)` pattern silently
+// ignored prop updates after mount, which would have broken the core preset-
+// labels UX.
+const InstructionsInput = memo(({ value, onChange, ...props }) => (
+  <TextInput {...props} value={value ?? ''} onChange={onChange} />
+));
 
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);

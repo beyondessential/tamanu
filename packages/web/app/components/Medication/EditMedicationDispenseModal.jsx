@@ -30,13 +30,8 @@ import {
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  PRESET_LABEL_SUGGESTER_OPTIONS,
 } from '../../utils/medications';
-
-// Show the preset's code (e.g. "QPHQ6H") in the dropdown per the design, and
-// carry through the translated label text so the change handler can populate
-// the Label text field with it.
-const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
-const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -88,15 +83,13 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} value={value} onChange={handleChange} />;
-});
+// Fully-controlled — anything that mutates `instructions` upstream (e.g. picking
+// a preset label, which programmatically replaces the field's text) must be
+// reflected here. The previous `useState(defaultValue)` pattern silently
+// ignored prop updates after mount.
+const InstructionsInput = memo(({ value, onChange, ...props }) => (
+  <TextInput {...props} value={value ?? ''} onChange={onChange} />
+));
 
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
@@ -205,18 +198,21 @@ export const EditMedicationDispenseModal = memo(
 
     // Selecting a preset overwrites Label text with the preset's text; clearing
     // reverts to the prescription's computed default. Label text remains editable.
+    // Uses functional setters so rapid back-to-back updates (e.g. picking a
+    // preset and then immediately typing) don't clobber each other from a stale
+    // closure.
     const handlePresetLabelChange = ({ target: { value: presetId } }) => {
       const preset = presetId ? presetLabelsList?.find(p => p.value === presetId) : null;
       const nextLabelText = preset?.name ?? defaultInstructions ?? '';
-      setItem({
-        ...item,
+      setItem(prev => ({
+        ...prev,
         medicationPresetLabelId: presetId || null,
         instructions: nextLabelText,
-      });
-      setErrors({
-        ...errors,
+      }));
+      setErrors(prev => ({
+        ...prev,
         hasInstructionsError: !String(nextLabelText || '').trim(),
-      });
+      }));
     };
 
     const validateDispenseStep = currentDispensedByUserId => {
@@ -384,38 +380,38 @@ export const EditMedicationDispenseModal = memo(
               ),
             }
           : {
-          key: 'instructions',
-          title: (
-            <>
-              <TranslatedText
-                stringId="medication.editDispensedMedication.instructions"
-                fallback="Instructions"
-              />
-              <Box component="span" color={Colors.alert}>
-                {' '}
-                *
-              </Box>
-            </>
-          ),
-          accessor: item => {
-            const { instructions } = item;
-            const hasInstructionsError = errors.hasInstructionsError || false;
-            return (
-              <InstructionsInput
-                value={instructions}
-                onChange={e => handleInstructionsChange(e)}
-                error={showValidationErrors && hasInstructionsError}
-                required
-                testId="dispense-instructions"
-                helperText={
-                  showValidationErrors && hasInstructionsError
-                    ? getTranslation('validation.required.inline', '*Required')
-                    : ''
-                }
-              />
-            );
-          },
-        },
+              key: 'instructions',
+              title: (
+                <>
+                  <TranslatedText
+                    stringId="medication.editDispensedMedication.instructions"
+                    fallback="Instructions"
+                  />
+                  <Box component="span" color={Colors.alert}>
+                    {' '}
+                    *
+                  </Box>
+                </>
+              ),
+              accessor: itemRow => {
+                const { instructions } = itemRow;
+                const hasInstructionsError = errors.hasInstructionsError || false;
+                return (
+                  <InstructionsInput
+                    value={instructions}
+                    onChange={handleInstructionsChange}
+                    error={showValidationErrors && hasInstructionsError}
+                    required
+                    testId="dispense-instructions"
+                    helperText={
+                      showValidationErrors && hasInstructionsError
+                        ? getTranslation('validation.required.inline', '*Required')
+                        : ''
+                    }
+                  />
+                );
+              },
+            },
         ...(showPresetLabelColumn
           ? [
               {
