@@ -250,7 +250,6 @@ export const EncounterView = () => {
               fallback={encounter.location.facility.name}
               value={encounter.location.facility.id}
               category="facility"
-              data-testid="translatedreferencedata-dtq6"
             />
           )
         }
@@ -274,7 +273,6 @@ export const EncounterView = () => {
               fallback={patientBillingTypeData.name}
               value={patientBillingTypeData.id}
               category="patientBillingType"
-              data-testid="translatedreferencedata-kkpj"
             />
           )
         }
