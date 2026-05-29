@@ -21,3 +21,7 @@ Reference to the [user](#!/model/model.public.users) (typically a pharmacist or 
 {% docs medication_dispenses__dispensed_at %}
 The timestamp indicating when the medication was physically dispensed to the patient.
 {% enddocs %}
+
+{% docs medication_dispenses__medication_preset_label_id %}
+TODO
+{% enddocs %}
