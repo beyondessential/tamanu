@@ -145,7 +145,7 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 
-const calculateDynamicFontSizes = (data, labelHeight) => {
+const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
   const patientNameLength = data.patientName?.length || 0;
   const prescriberNameLength = data.prescriberName?.length || 0;
@@ -164,17 +164,18 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   // 2. Instructions / Label text: scale down for longer text so the footer
   // and other fixed sections still fit. Uppercase preset-label text is wider
   // per char than mixed-case English, so the thresholds step harder than the
-  // medication-name ladder above. Thresholds are tuned for the 40mm default
-  // height — taller labels have proportionally more vertical room to wrap, so
-  // scale the thresholds (not the font fractions) by the height ratio.
-  const heightScale = labelHeight / 40;
-  let instructionsFontSize = labelHeight * 0.108; // 4.32mm at 40mm height
-  if (instructionsLength > 110 * heightScale) {
-    instructionsFontSize = labelHeight * 0.06;
-  } else if (instructionsLength > 75 * heightScale) {
-    instructionsFontSize = labelHeight * 0.07;
-  } else if (instructionsLength > 50 * heightScale) {
-    instructionsFontSize = labelHeight * 0.08;
+  // medication-name ladder above. Thresholds are tuned for the default 80x40
+  // shape; capacity is bound by chars-per-line, which is `width / fontSize`
+  // and the font scales with `labelHeight`, so a tall-thin label fits LESS
+  // text per row than the default.
+  const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
+  let instructionsFontSize = labelHeight * 0.108;
+  if (instructionsLength > 110 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.065;
+  } else if (instructionsLength > 75 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.075;
+  } else if (instructionsLength > 50 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.085;
   }
 
 
@@ -216,8 +217,8 @@ export const MedicationLabel = React.memo(({ data }) => {
   const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
-  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') || 40;
+  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') ?? 80;
+  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') ?? 40;
 
   const {
     medicationName,
@@ -238,7 +239,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     patientDateFontSize,
     detailFontSize,
     footerFontSize,
-  } = calculateDynamicFontSizes(data, labelHeight);
+  } = calculateDynamicFontSizes(data, labelWidth, labelHeight);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
