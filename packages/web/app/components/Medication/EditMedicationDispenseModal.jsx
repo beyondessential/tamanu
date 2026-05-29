@@ -85,9 +85,16 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
 `;
 
 // Bluey-grey background when disabled, matching the design + AutocompleteField.
+// Tighter padding-block than the base TextInput (which targets standalone
+// fields, not packed table cells) so a single line of label text doesn't look
+// like a partial second line is hiding below it.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
+  }
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 8px;
   }
 `;
 

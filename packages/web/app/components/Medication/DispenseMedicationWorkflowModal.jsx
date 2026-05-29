@@ -186,9 +186,16 @@ const PatientSummaryViewPatientLink = styled.button`
 
 
 // Bluey-grey background when disabled, matching the design + AutocompleteField.
+// Tighter padding-block than the base TextInput (which targets standalone
+// fields, not packed table cells) so a single line of label text doesn't look
+// like a partial second line is hiding below it.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
+  }
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 8px;
   }
 `;
 
@@ -560,7 +567,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'prescriptionDate',
-          width: '100px',
+          width: '80px',
           title: (
             <TranslatedText
               stringId="medication.dispense.prescriptionDate"
@@ -571,7 +578,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'medication',
-          width: '250px',
+          width: '200px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           accessor: ({ prescription }) => (
             <TranslatedReferenceData
@@ -583,7 +590,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '94px',
+          width: '84px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
@@ -616,7 +623,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'remainingRepeats',
-          width: '94px',
+          width: '80px',
           title: (
             <TranslatedText
               stringId="medication.dispense.remainingRepeats"
@@ -681,7 +688,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ? [
               {
                 key: 'presetLabel',
-                width: '160px',
+                width: '110px',
                 title: (
                   <TranslatedText
                     stringId="medication.dispense.presetLabel"
@@ -741,7 +748,7 @@ export const DispenseMedicationWorkflowModal = memo(
           : []),
         {
           key: 'lastDispensedAt',
-          width: '120px',
+          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.lastDispensed"
@@ -764,7 +771,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (stockColumnEnabled) {
         base.push({
           key: 'stock',
-          width: '90px',
+          width: '76px',
           title: (
             <TranslatedText
               stringId="medication-requests.table.column.stockStatus"
