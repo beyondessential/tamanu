@@ -198,7 +198,7 @@ const StyledInstructionsTextInput = styled(TextInput)`
   }
   .MuiInputBase-input {
     font-size: 14px;
-    padding-block: 8px;
+    padding-block: 10px;
   }
 `;
 
@@ -215,6 +215,15 @@ const InstructionsInput = memo(({ value, onChange, ...props }) => (
   />
 ));
 
+// Trim the side padding so the number sits closer to the unit dropdown in a
+// table cell instead of getting lost in the base TextInput's whitespace.
+const StyledQuantityTextInput = styled(TextInput)`
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-inline: 8px;
+  }
+`;
+
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
   const handleChange = e => {
@@ -222,7 +231,9 @@ const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
     onChange(e);
   };
 
-  return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
+  return (
+    <StyledQuantityTextInput {...props} type="number" value={value} onChange={handleChange} />
+  );
 });
 
 export const DispenseMedicationWorkflowModal = memo(
