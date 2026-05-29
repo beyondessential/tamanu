@@ -87,13 +87,9 @@ export const TabDisplayDraggable = ({
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd} data-testid="dragdropcontext-v5fu">
+    <DragDropContext onDragEnd={onDragEnd}>
       <TabBar className={className} data-testid="tabbar-zlyy">
-        <Droppable
-          droppableId="tab-display-droppable"
-          direction="horizontal"
-          data-testid="droppable-3q8i"
-        >
+        <Droppable droppableId="tab-display-droppable" direction="horizontal">
           {provided => (
             <TabContainer
               ref={provided.innerRef}
