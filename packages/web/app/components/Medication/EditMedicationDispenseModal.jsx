@@ -114,11 +114,12 @@ const InstructionsInput = memo(({ value, onChange, ...props }) => (
   />
 ));
 
-// Trim the side padding so the number sits closer to the unit dropdown in a
-// table cell instead of getting lost in the base TextInput's whitespace.
+// Match the InstructionsInput's compact height so the Quantity cell lines up
+// with the Label text cell at row-level.
 const StyledQuantityTextInput = styled(TextInput)`
   .MuiInputBase-input {
     font-size: 14px;
+    padding-block: 10px;
     padding-inline: 8px;
   }
 `;
