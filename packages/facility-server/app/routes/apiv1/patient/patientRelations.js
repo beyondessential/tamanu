@@ -350,7 +350,8 @@ patientRelations.get(
           surveys.name as survey_name,
           encounters.examiner_id,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
-          programs.name as program_name
+          programs.name as program_name,
+          survey_responses.edited_time IS NOT NULL AS is_edited
         FROM
           survey_responses
           LEFT JOIN encounters

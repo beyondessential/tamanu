@@ -12,12 +12,12 @@ describe('insertChangelogRecords', () => {
     sequelize = ctx.sequelize;
   });
 
-  afterAll(() => ctx.close());
-
-  afterEach(async () => {
+  beforeEach(async () => {
     // Clear the changes table before each test
     await models.ChangeLog.destroy({ where: {} });
   });
+
+  afterAll(() => ctx.close());
 
   it('should not insert anything when no changelog records are provided', async () => {
     // Act

@@ -66,6 +66,7 @@ import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
+import { ai } from './ai';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -249,6 +250,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/vitals', vitals);
   patientDataRoutes.use('/tasks', tasks);
   patientDataRoutes.use('/notifications', notifications);
+  patientDataRoutes.use('/ai', ai);
   
   // reference data endpoints
   referenceDataRoutes.use('/asset', asset);

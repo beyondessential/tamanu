@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { TranslatedText, MenuButton, DateDisplay, DataFetchingTable } from '../../components';
+import { SurveyResultBadge, TranslatedText, DateDisplay } from '@tamanu/ui-components';
+import { MenuButton, DataFetchingTable } from '../../components';
 import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetailsModal';
-import { SurveyResultBadge } from '../../components/SurveyResultBadge';
 import { SurveyResponsesPrintModal } from '../../components/PatientPrinting/modals/SurveyResponsesPrintModal';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 

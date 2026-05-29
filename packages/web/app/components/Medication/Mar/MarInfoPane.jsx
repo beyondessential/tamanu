@@ -1,10 +1,7 @@
+import { Box } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useTranslation } from '../../../contexts/Translation';
-import { Box } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, DateDisplay, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -12,6 +9,14 @@ import {
   getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
+import {
+  DateDisplay,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { useTranslation } from '../../../contexts/Translation';
 import { ChangeLogModal } from './ChangeLogModal';
 
 const Container = styled.div`
@@ -141,7 +146,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             </Box>
           </Box>
           <ChangeLogLink onClick={onChangeLogClick}>
-            <TranslatedText stringId="medication.mar.changeLog.label" fallback="View change log" />
+            <TranslatedText stringId="general.action.viewChangeLog" fallback="View change log" />
           </ChangeLogLink>
         </MedicationInfoContainer>
         <Separator />
@@ -150,7 +155,9 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             <Label>
               <TranslatedText stringId="general.date.label" fallback="Date" />
             </Label>
-            <Value><DateDisplay date={dueAt} format="long" /></Value>
+            <Value>
+              <DateDisplay date={dueAt} format="long" />
+            </Value>
           </Box>
           <VerticalDivider />
           <Box flex={1}>

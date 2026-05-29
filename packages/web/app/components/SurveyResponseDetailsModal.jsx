@@ -1,56 +1,48 @@
 import PrintIcon from '@mui/icons-material/Print';
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { Button, Modal, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import {
+  Button,
+  EditedLegend,
+  EditedOrnament,
+  Modal,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
 import { useSurveyResponseQuery } from '../api/queries';
+import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
-
-const SectionSpacing = styled.div`
-  height: 14px;
-`;
 
 const TableContainer = styled.div`
   max-height: calc(100vh - 298px);
   overflow: auto;
 `;
 
-const PrintButton = styled(Button)`
+const PrintButton = styled(Button).attrs({
+  'data-testid': 'printbutton-ywph',
+  color: 'primary',
+  size: 'small',
+  startIcon: <PrintIcon data-testid="printicon-t3sp" />,
+  variant: 'outlined',
+})`
   position: absolute;
   right: 70px;
   top: 21px;
 `;
 
-const COLUMNS = [
-  {
-    key: 'text',
-    title: (
-      <TranslatedText
-        stringId="surveyResponse.details.table.column.indicator"
-        fallback="Indicator"
-      />
-    ),
-    accessor: ({ name }) => name,
-  },
-  {
-    key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
-    accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
-      <SurveyAnswerResult
-        answer={answer}
-        type={type}
-        data-testid="surveyanswerresult-dhnv"
-        originalBody={originalBody}
-        componentConfig={componentConfig}
-        dataElementId={dataElementId}
-      />
-    ),
-  },
-];
+const indicatorColumn = {
+  key: 'text',
+  title: (
+    <TranslatedText stringId="surveyResponse.details.table.column.indicator" fallback="Indicator" />
+  ),
+  accessor: ({ name }) => name,
+  sortable: false,
+};
 
 const isShowable = component =>
   component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
@@ -81,9 +73,41 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     isLoading,
     error,
   } = useSurveyResponseQuery(surveyResponseId, { isErrorUnknown: isErrorUnknownAllow404s });
-
   const isNotFound = error?.status === 404;
   const isPending = isLoading || !surveyDetails || error;
+
+  const { data: changes } = useSurveyResponseChangesQuery(surveyResponseId, {
+    enabled: Boolean(surveyResponseId && surveyDetails && !error),
+  });
+  const editedAnswerIds = useMemo(() => new Set(changes?.map(c => c.recordId)), [changes]);
+  const hasChanges = Boolean(editedAnswerIds.size);
+
+  const columns = useMemo(
+    () => [
+      indicatorColumn,
+      {
+        key: 'value',
+        title: (
+          <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
+        ),
+        accessor: ({ answer, type, originalBody, componentConfig, dataElementId, wasEdited }) => (
+          <>
+            <SurveyAnswerResult
+              answer={answer}
+              type={type}
+              data-testid="surveyanswerresult-dhnv"
+              originalBody={originalBody}
+              componentConfig={componentConfig}
+              dataElementId={dataElementId}
+            />
+            {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
+          </>
+        ),
+        sortable: false,
+      },
+    ],
+    [],
+  );
 
   const { components = [], answers = [] } = surveyDetails ?? {};
   const answerRows = components
@@ -105,12 +129,15 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       const type =
         originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
 
+      const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+
       return {
         id,
         dataElementId,
         type,
         answer,
         originalBody,
+        wasEdited,
         name: (
           <TranslatedReferenceData
             category="programDataElement"
@@ -140,26 +167,19 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       ) : (
         <>
           {onPrint && (
-            <PrintButton
-              onClick={onPrint}
-              color="primary"
-              variant="outlined"
-              startIcon={<PrintIcon data-testid="printicon-t3sp" />}
-              size="small"
-              data-testid="printbutton-ywph"
-            >
+            <PrintButton onClick={onPrint}>
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
           <TableContainer data-testid="tablecontainer-csba">
             <Table
               data={answerRows}
-              columns={COLUMNS}
+              columns={columns}
               allowExport={false}
               data-testid="table-3xqx"
             />
           </TableContainer>
-          <SectionSpacing data-testid="sectionspacing-gtmt" />
+          {hasChanges && <EditedLegend />}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
