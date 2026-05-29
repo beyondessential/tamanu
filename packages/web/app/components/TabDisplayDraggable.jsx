@@ -1,4 +1,5 @@
 import { Tabs } from '@material-ui/core';
+import { tabsClasses } from '@mui/material/Tabs';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -12,10 +13,14 @@ const TabBar = styled.div`
 
 const TabContainer = styled(Tabs)`
   background: ${Colors.white};
-  position: relative;
+  border-block-end: 1px solid ${p => p.theme.palette.divider};
+  padding-inline: 24px;
 
-  .MuiTabs-indicator {
+  .${tabsClasses.indicator} {
     background-color: ${Colors.primary};
+  }
+  .${tabsClasses.scroller} {
+    border-block-end: 0;
   }
 `;
 
@@ -100,8 +105,8 @@ export const TabDisplayDraggable = ({
           {provided => (
             <TabContainer
               ref={provided.innerRef}
-              variant={scrollable ? 'scrollable' : 'fixed'}
-              scrollButtons={scrollable ? 'on' : 'off'}
+              variant={scrollable ? 'scrollable' : undefined}
+              scrollButtons={scrollable ? 'auto' : false}
               value={currentTabData?.order || 0}
               {...provided.droppableProps}
               data-testid="tabcontainer-uai8"
