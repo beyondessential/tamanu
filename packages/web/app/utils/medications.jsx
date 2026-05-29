@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 
 import {
   DRUG_ROUTE_LABELS,
@@ -16,16 +17,99 @@ import {
 import {
   getPatientNameAsString,
   TableCellTag,
+  TAMANU_COLORS,
+  TextInput,
   ThemedTooltip,
   TranslatedText,
 } from '@tamanu/ui-components';
+import { AutocompleteInput } from '../components/Field';
 import { TranslatedEnum } from '../components';
+import { useSuggester } from '../api';
 import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
 
 // `name` is carried through so the change handler can populate Label text from it.
 export const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
+
+const StyledInstructionsTextInput = styled(TextInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${TAMANU_COLORS.background};
+  }
+  .MuiInputBase-multiline {
+    padding-block: 0;
+  }
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 10px;
+  }
+`;
+
+export const InstructionsInput = memo(({ value, onChange, ...props }) => (
+  <StyledInstructionsTextInput
+    multiline
+    minRows={1}
+    maxRows={5}
+    {...props}
+    value={value ?? ''}
+    onChange={onChange}
+  />
+));
+
+const StyledQuantityTextInput = styled(TextInput)`
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 10px;
+    padding-inline: 8px;
+  }
+`;
+
+export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
+  const [value, setValue] = useState(defaultValue);
+  const handleChange = e => {
+    setValue(e.target.value);
+    onChange(e);
+  };
+  return (
+    <StyledQuantityTextInput {...props} type="number" value={value} onChange={handleChange} />
+  );
+});
+
+export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 10px;
+  }
+`;
+
+// Single source of truth for fetching + gating preset-label visibility. Both
+// dispense modals consume this — same cache key, same staleTime.
+export const usePresetLabelsQuery = ({ enabled, facilityId }) => {
+  const presetLabelSuggester = useSuggester(
+    'medicationPresetLabel',
+    PRESET_LABEL_SUGGESTER_OPTIONS,
+  );
+  const { data: presetLabelsList } = useQuery({
+    queryKey: ['medicationPresetLabels', facilityId],
+    queryFn: () => presetLabelSuggester.fetchSuggestions(''),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  });
+  return {
+    presetLabelSuggester,
+    presetLabelsList,
+    hasPresetLabels: (presetLabelsList?.length ?? 0) > 0,
+  };
+};
+
+// Picking a preset replaces Label text with its translated name; clearing reverts
+// to the prescription-derived default. Pure — both modals' handlers reduce to one
+// call.
+export const resolvePresetLabelText = (presetId, presetLabelsList, fallbackText) => {
+  if (!presetId) return fallbackText ?? '';
+  const preset = presetLabelsList?.find(p => p.value === presetId);
+  return preset?.name ?? fallbackText ?? '';
+};
 
 export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';

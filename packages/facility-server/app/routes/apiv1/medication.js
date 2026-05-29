@@ -2435,8 +2435,6 @@ const dispenseItemSchema = z.object({
   pharmacyOrderPrescriptionId: z.uuid(),
   quantity: z.coerce.number().int().positive(),
   instructions: z.string().min(1),
-  // `.min(1).nullish()` not `.nullish()`: empty string is not nullish, so
-  // without `min(1)` it would survive validation and break the FK on insert.
   medicationPresetLabelId: z.string().min(1).nullish(),
 });
 
@@ -2604,8 +2602,6 @@ const editDispenseInputSchema = z
     dispensedByUserId: z.string(),
     quantity: z.coerce.number().int().positive(),
     instructions: z.string().min(1),
-    // `.min(1).nullish()` not `.nullish()`: empty string is not nullish, so
-    // without `min(1)` it would survive validation and break the FK on insert.
     medicationPresetLabelId: z.string().min(1).nullish(),
   })
   .strip();

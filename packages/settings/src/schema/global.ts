@@ -401,17 +401,6 @@ export const globalSettings = {
             },
           },
         },
-        medicationLabelPresets: {
-          description: 'Preset labels for dispensed medications',
-          properties: {
-            enabled: {
-              description:
-                'Show "Preset labels" and "Label text" columns on the dispense workflow, populated from reference data of type medicationPresetLabel. Off by default; enable per deployment that needs translated label text.',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
-        },
         covidCertificates: {
           description: 'COVID certificate settings',
           properties: {

@@ -6,16 +6,12 @@ import {
   BaseModal,
   ConfirmCancelBackRow,
   ConfirmCancelRow,
-  TAMANU_COLORS,
-  TextInput,
   TranslatedText,
   TranslatedReferenceData,
   useDateTime,
-  useSettings,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
-import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { AutocompleteInput } from '../Field';
@@ -31,7 +27,11 @@ import {
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
-  PRESET_LABEL_SUGGESTER_OPTIONS,
+  InstructionsInput,
+  QuantityInput,
+  resolvePresetLabelText,
+  StyledPresetLabelAutocomplete,
+  usePresetLabelsQuery,
 } from '../../utils/medications';
 
 const MODAL_STEPS = {
@@ -84,80 +84,16 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-const StyledInstructionsTextInput = styled(TextInput)`
-  .MuiInputBase-root.Mui-disabled {
-    background: ${TAMANU_COLORS.background};
-  }
-  .MuiInputBase-multiline {
-    padding-block: 0;
-  }
-  .MuiInputBase-input {
-    font-size: 14px;
-    padding-block: 10px;
-  }
-`;
-
-const InstructionsInput = memo(({ value, onChange, ...props }) => (
-  <StyledInstructionsTextInput
-    multiline
-    minRows={1}
-    maxRows={5}
-    {...props}
-    value={value ?? ''}
-    onChange={onChange}
-  />
-));
-
-const StyledQuantityTextInput = styled(TextInput)`
-  .MuiInputBase-input {
-    font-size: 14px;
-    padding-block: 10px;
-    padding-inline: 8px;
-  }
-`;
-
-const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
-  .MuiInputBase-input {
-    font-size: 14px;
-    padding-block: 10px;
-  }
-`;
-
-const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return (
-    <StyledQuantityTextInput {...props} type="number" value={value} onChange={handleChange} />
-  );
-});
-
 export const EditMedicationDispenseModal = memo(
   ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
-    const { getSetting } = useSettings();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const presetLabelSuggester = useSuggester(
-      'medicationPresetLabel',
-      PRESET_LABEL_SUGGESTER_OPTIONS,
-    );
-
-    const presetLabelsEnabled = Boolean(getSetting('features.medicationLabelPresets.enabled'));
-
-    const { data: presetLabelsList } = useQuery({
-      queryKey: ['medicationPresetLabels', facilityId],
-      queryFn: () => presetLabelSuggester.fetchSuggestions(''),
-      enabled: open && presetLabelsEnabled,
-      staleTime: 5 * 60 * 1000,
+    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+      enabled: open,
+      facilityId,
     });
-    const hasPresetLabels = (presetLabelsList?.length ?? 0) > 0;
-    const showPresetLabelColumn = presetLabelsEnabled && hasPresetLabels;
-    const showLabelTextColumn = presetLabelsEnabled;
 
     // Derived from the prescription, not the dispense's saved instructions, so
     // it shows the original even after the label text has been edited.
@@ -222,6 +158,9 @@ export const EditMedicationDispenseModal = memo(
       setItem({
         ...item,
         instructions: value,
+        // Manual edits override any selected preset, so drop the FK to avoid
+        // saying "this label came from preset X" when it no longer does.
+        medicationPresetLabelId: null,
       });
       setErrors({
         ...errors,
@@ -231,8 +170,7 @@ export const EditMedicationDispenseModal = memo(
 
     // Functional setters so a quick preset-then-type doesn't lose the typing.
     const handlePresetLabelChange = ({ target: { value: presetId } }) => {
-      const preset = presetId ? presetLabelsList?.find(p => p.value === presetId) : null;
-      const nextLabelText = preset?.name ?? defaultInstructions ?? '';
+      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultInstructions);
       setItem(prev => ({
         ...prev,
         medicationPresetLabelId: presetId || null,
@@ -388,57 +326,23 @@ export const EditMedicationDispenseModal = memo(
           accessor: ({ pharmacyOrderPrescription }) =>
             pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
-        presetLabelsEnabled
-          ? {
-              key: 'instructionsReadOnly',
-              title: (
-                <TranslatedText
-                  stringId="medication.editDispensedMedication.instructions"
-                  fallback="Instructions"
-                />
-              ),
-              accessor: () => (
-                <InstructionsInput
-                  value={defaultInstructions || ''}
-                  disabled
-                  testId="dispense-instructions-readonly"
-                />
-              ),
-            }
-          : {
-              key: 'instructions',
-              title: (
-                <>
-                  <TranslatedText
-                    stringId="medication.editDispensedMedication.instructions"
-                    fallback="Instructions"
-                  />
-                  <Box component="span" color={Colors.alert}>
-                    {' '}
-                    *
-                  </Box>
-                </>
-              ),
-              accessor: itemRow => {
-                const { instructions } = itemRow;
-                const hasInstructionsError = errors.hasInstructionsError || false;
-                return (
-                  <InstructionsInput
-                    value={instructions}
-                    onChange={handleInstructionsChange}
-                    error={showValidationErrors && hasInstructionsError}
-                    required
-                    testId="dispense-instructions"
-                    helperText={
-                      showValidationErrors && hasInstructionsError
-                        ? getTranslation('validation.required.inline', '*Required')
-                        : ''
-                    }
-                  />
-                );
-              },
-            },
-        ...(showPresetLabelColumn
+        {
+          key: 'instructionsReadOnly',
+          title: (
+            <TranslatedText
+              stringId="medication.editDispensedMedication.instructions"
+              fallback="Instructions"
+            />
+          ),
+          accessor: () => (
+            <InstructionsInput
+              value={defaultInstructions || ''}
+              disabled
+              testId="dispense-instructions-readonly"
+            />
+          ),
+        },
+        ...(hasPresetLabels
           ? [
               {
                 key: 'presetLabel',
@@ -461,43 +365,39 @@ export const EditMedicationDispenseModal = memo(
               },
             ]
           : []),
-        ...(showLabelTextColumn
-          ? [
-              {
-                key: 'labelText',
-                title: (
-                  <>
-                    <TranslatedText
-                      stringId="medication.editDispensedMedication.labelText"
-                      fallback="Label text"
-                    />
-                    <Box component="span" color={Colors.alert}>
-                      {' '}
-                      *
-                    </Box>
-                  </>
-                ),
-                accessor: itemRow => {
-                  const { instructions } = itemRow;
-                  const hasInstructionsError = errors.hasInstructionsError || false;
-                  return (
-                    <InstructionsInput
-                      value={instructions}
-                      onChange={handleInstructionsChange}
-                      error={showValidationErrors && hasInstructionsError}
-                      required
-                      testId="dispense-label-text"
-                      helperText={
-                        showValidationErrors && hasInstructionsError
-                          ? getTranslation('validation.required.inline', '*Required')
-                          : ''
-                      }
-                    />
-                  );
-                },
-              },
-            ]
-          : []),
+        {
+          key: 'labelText',
+          title: (
+            <>
+              <TranslatedText
+                stringId="medication.editDispensedMedication.labelText"
+                fallback="Label text"
+              />
+              <Box component="span" color={Colors.alert}>
+                {' '}
+                *
+              </Box>
+            </>
+          ),
+          accessor: itemRow => {
+            const { instructions } = itemRow;
+            const hasInstructionsError = errors.hasInstructionsError || false;
+            return (
+              <InstructionsInput
+                value={instructions}
+                onChange={handleInstructionsChange}
+                error={showValidationErrors && hasInstructionsError}
+                required
+                testId="dispense-label-text"
+                helperText={
+                  showValidationErrors && hasInstructionsError
+                    ? getTranslation('validation.required.inline', '*Required')
+                    : ''
+                }
+              />
+            );
+          },
+        },
         {
           key: 'dispensedAt',
           width: '120px',
