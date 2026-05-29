@@ -225,6 +225,7 @@ export class Prescription extends Model {
       MedicationAdministrationRecordDose,
       PharmacyOrderPrescription,
       PharmacyOrder,
+      ReferenceDrug,
     } = this.sequelize.models;
 
     const prescription = this;
@@ -316,7 +317,19 @@ export class Prescription extends Model {
         attributes: ['doseAmount'],
       });
 
-      marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
+      const totalDosingAmount = doses.reduce(
+        (sum: number, d: any) => sum + Number(d.doseAmount || 0),
+        0,
+      );
+
+      // Convert from dosing units to dispensing units. Sum all doses first, then
+      // ceil once so that edits adding more doses don't compound rounding up.
+      const referenceDrug = await ReferenceDrug.findOne({
+        where: { referenceDataId: prescription.medicationId },
+        attributes: ['unitConversion'],
+      });
+      const unitConversion = Number(referenceDrug?.unitConversion) || 1;
+      marQty = Math.ceil(totalDosingAmount / unitConversion);
     }
 
     // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
