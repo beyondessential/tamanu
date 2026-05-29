@@ -149,7 +149,8 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
   const patientNameLength = data.patientName?.length || 0;
   const prescriberNameLength = data.prescriberName?.length || 0;
-  
+  const instructionsLength = data.instructions?.length || 0;
+
   // 1. Medication name: scale based on length
   let medicationNameFontSize = labelHeight * 0.09;
   if (medicationNameLength > 50) {
@@ -159,10 +160,20 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   } else if (medicationNameLength < 25) {
     medicationNameFontSize = labelHeight * 0.11;
   }
-  
-  // 2. Instructions: never scale - fixed readable size (20% larger)
-  const instructionsFontSize = labelHeight * 0.108; // Fixed 4.32mm for 40mm height
-  
+
+  // 2. Instructions / Label text: scale down for longer text so the footer
+  // and other fixed sections still fit. Translated preset-label text can
+  // run to 100+ chars and was being clipped at the default size.
+  let instructionsFontSize = labelHeight * 0.108; // 4.32mm — fits ~60 chars
+  if (instructionsLength > 130) {
+    instructionsFontSize = labelHeight * 0.06; // 2.4mm
+  } else if (instructionsLength > 90) {
+    instructionsFontSize = labelHeight * 0.075; // 3mm
+  } else if (instructionsLength > 60) {
+    instructionsFontSize = labelHeight * 0.09; // 3.6mm
+  }
+
+
   // 3. Patient name and date: scale based on patient name length to stay on one line
   let patientDateFontSize = labelHeight * 0.09;
   if (patientNameLength > 30) {
