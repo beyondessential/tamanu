@@ -70,10 +70,6 @@ A flag to determine whether or not the current prescription is variable does
 Numeric field to record dose amount
 {% enddocs %}
 
-{% docs prescriptions__units %}
-The units of the prescription
-{% enddocs %}
-
 {% docs prescriptions__frequency %}
 The frequency of the prescription
 {% enddocs %}
@@ -104,4 +100,12 @@ Free-form pharmacy note of the prescription.
 
 {% docs prescriptions__display_pharmacy_notes_in_mar %}
 A flag to determine whether to display 'Pharmacy notes' on the medication administration record
+{% enddocs %}
+
+{% docs prescriptions__dosing_unit %}
+The dosing units of the prescription.
+{% enddocs %}
+
+{% docs prescriptions__dispensing_unit %}
+The dispensing units of the prescription.
 {% enddocs %}
