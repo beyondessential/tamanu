@@ -163,6 +163,21 @@ const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   background: white;
 `;
 
+/**
+ * @template {unknown} T
+ * @param {Iterable<T>} list
+ * @param {number} startIndex
+ * @param {number} endIndex
+ * @returns {T[]}
+ */
+function reorder(list, startIndex, endIndex) {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+}
+
 export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
@@ -196,7 +211,7 @@ export const EncounterView = () => {
       return aOrder - bOrder;
     });
     if (!isEqual(newTabs, tabs)) {
-      setTabs([...newTabs]);
+      setTabs(newTabs);
     }
   }, [userPreferences?.encounterTabOrders]);
 
@@ -206,20 +221,12 @@ export const EncounterView = () => {
     }
   }, [isLoadingUserPreferences]);
 
-  //Load the encounter on mount
-  useEffect(() => {
-    if (encounterId && encounterId !== encounter?.id) {
-      loadEncounter(encounterId);
-    }
-  }, [encounterId, encounter?.id, loadEncounter]);
-
-  const reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
+  useEffect(
+    function loadEncounterOnMount() {
+      if (encounterId && encounterId !== encounter?.id) loadEncounter(encounterId);
+    },
+    [encounterId, encounter?.id, loadEncounter],
+  );
 
   const handleDragEnd = result => {
     if (!result.destination) {
@@ -228,7 +235,7 @@ export const EncounterView = () => {
 
     const currentVisibleTabs = visibleTabs;
     const newTabs = reorder(currentVisibleTabs, result.source.index, result.destination.index);
-    setTabs([...newTabs]);
+    setTabs(newTabs);
 
     const newTabOrders = newTabs.reduce((curr, tab, index) => {
       curr[tab.key] = index + 1;
