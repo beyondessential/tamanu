@@ -198,8 +198,6 @@ const StyledInstructionsTextInput = styled(TextInput)`
   }
 `;
 
-// Must stay fully controlled — preset selection programmatically replaces the
-// value, so any internal copy would desync.
 const InstructionsInput = memo(({ value, onChange, ...props }) => (
   <StyledInstructionsTextInput
     multiline
