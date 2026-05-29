@@ -1,17 +1,47 @@
+import FormHelperText from '@mui/material/FormHelperText';
+import Typography from '@mui/material/Typography';
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLatestAnswerForPatientQuery } from '../../api/queries/useLatestAnswerForPatientQuery';
+
+import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { SurveyAnswerResult } from '../SurveyAnswerResult';
 
+function useLatestAnswerForPatientQuery(patientId, dataElementCode) {
+  const api = useApi();
+  return useQuery(
+    ['surveyResponseAnswer', 'latest-answer', patientId, dataElementCode],
+    async () =>
+      await api.get(
+        `surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`,
+        { patientId },
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
+    {
+      enabled: Boolean(patientId && dataElementCode),
+    },
+  );
+}
+
 const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 10px;
+  align-items: baseline;
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  margin-block-end: 10px;
 `;
 
-export const SurveyAnswerField = ({ config, label, patient, field, form, dataElement }) => {
+export const SurveyAnswerField = ({
+  className,
+  config,
+  dataElement,
+  error,
+  field,
+  form,
+  helperText,
+  label,
+  patient,
+}) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
 
   const { data: answer } = useLatestAnswerForPatientQuery(
@@ -27,27 +57,26 @@ export const SurveyAnswerField = ({ config, label, patient, field, form, dataEle
     }
 
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
-  }, [field.name, answer]);
+  }, [answer, field.name, form?.setFieldValue]);
 
-  const [sourceType, sourceConfig, sourceBody] = [
-    answer?.ProgramDataElement?.type,
-    answer?.ProgramDataElement?.surveyScreenComponent?.config,
-    answer?.body,
-  ];
+  const sourceType = answer?.ProgramDataElement?.type;
+  const sourceConfig = answer?.ProgramDataElement?.surveyScreenComponent?.config;
+  const sourceBody = answer?.body;
 
   return (
-    <Container data-testid="container-xmfz">
-      <div>{label}</div>
-      <div>
-        <SurveyAnswerResult
-          answer={surveyResponseAnswer}
-          type={sourceType}
-          data-testid="surveyanswerresult-m2ey"
-          originalBody={sourceBody}
-          componentConfig={sourceConfig}
-          dataElementId={dataElement?.id}
-        />
-      </div>
+    <Container className={className} data-testid="container-xmfz">
+      <Typography component="h2" variant="body1">
+        {label}
+      </Typography>
+      <SurveyAnswerResult
+        answer={surveyResponseAnswer}
+        componentConfig={sourceConfig}
+        data-testid="surveyanswerresult-m2ey"
+        dataElementId={dataElement?.id}
+        originalBody={sourceBody}
+        type={sourceType}
+      />
+      {helperText && <FormHelperText error={Boolean(error)}>{helperText}</FormHelperText>}
     </Container>
   );
 };
