@@ -23,12 +23,10 @@ import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
 
-// Suggester formatter for the medicationPresetLabel reference data: display the
-// preset's `code`, carry `name` through so a change handler can read it.
+// `name` is carried through so the change handler can populate Label text from it.
 export const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
-// Pure derivation from a prescription — never the dispense's edited copy.
 export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';
 

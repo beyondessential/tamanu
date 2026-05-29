@@ -185,8 +185,6 @@ const PatientSummaryViewPatientLink = styled.button`
 `;
 
 
-// Outer `.MuiInputBase-multiline` adds its own padding-block, so both layers
-// must be zeroed/tamed or a single line sits in ~50px of whitespace.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
@@ -221,6 +219,13 @@ const StyledQuantityTextInput = styled(TextInput)`
   }
 `;
 
+const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 10px;
+  }
+`;
+
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
   const handleChange = e => {
@@ -248,8 +253,6 @@ export const DispenseMedicationWorkflowModal = memo(
 
     const presetLabelsEnabled = Boolean(getSetting('features.medicationLabelPresets.enabled'));
 
-    // The suggester only returns visibilityStatus=current rows, so an empty
-    // list means the Preset labels column should hide entirely.
     const { data: presetLabelsList } = useQuery({
       queryKey: ['medicationPresetLabels', facilityId],
       queryFn: () => presetLabelSuggester.fetchSuggestions(''),
@@ -405,9 +408,6 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
-    // Clearing the preset (presetId = '') reverts Label text to the
-    // prescription-derived default rather than leaving the previous selection's
-    // text behind.
     const handlePresetLabelChange = (rowIndex, { target: { value: presetId } }) => {
       setItems(prev => {
         const next = [...prev];
@@ -643,7 +643,6 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
-        // Off-flag deployments keep the original editable Instructions field.
         presetLabelsEnabled
           ? {
               key: 'instructionsReadOnly',
@@ -699,7 +698,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ? [
               {
                 key: 'presetLabel',
-                width: '110px',
+                width: '150px',
                 title: (
                   <TranslatedText
                     stringId="medication.dispense.presetLabel"
@@ -707,7 +706,7 @@ export const DispenseMedicationWorkflowModal = memo(
                   />
                 ),
                 accessor: (item, rowIndex) => (
-                  <AutocompleteInput
+                  <StyledPresetLabelAutocomplete
                     name={`presetLabel-${item.id}`}
                     value={item.medicationPresetLabelId ?? ''}
                     suggester={presetLabelSuggester}

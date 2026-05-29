@@ -84,8 +84,6 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-// Outer `.MuiInputBase-multiline` adds its own padding-block, so both layers
-// must be zeroed/tamed or a single line sits in ~50px of whitespace.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
@@ -117,6 +115,13 @@ const StyledQuantityTextInput = styled(TextInput)`
     font-size: 14px;
     padding-block: 10px;
     padding-inline: 8px;
+  }
+`;
+
+const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding-block: 10px;
   }
 `;
 
@@ -226,7 +231,6 @@ export const EditMedicationDispenseModal = memo(
       });
     };
 
-    // Clearing the preset (presetId = '') reverts Label text to the default.
     // Functional setters so a quick preset-then-type doesn't lose the typing.
     const handlePresetLabelChange = ({ target: { value: presetId } }) => {
       const preset = presetId ? presetLabelsList?.find(p => p.value === presetId) : null;
@@ -386,7 +390,6 @@ export const EditMedicationDispenseModal = memo(
           accessor: ({ pharmacyOrderPrescription }) =>
             pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
-        // Off-flag deployments keep the original editable Instructions field.
         presetLabelsEnabled
           ? {
               key: 'instructionsReadOnly',
@@ -441,7 +444,7 @@ export const EditMedicationDispenseModal = memo(
           ? [
               {
                 key: 'presetLabel',
-                width: '160px',
+                width: '150px',
                 title: (
                   <TranslatedText
                     stringId="medication.editDispensedMedication.presetLabel"
@@ -449,7 +452,7 @@ export const EditMedicationDispenseModal = memo(
                   />
                 ),
                 accessor: itemRow => (
-                  <AutocompleteInput
+                  <StyledPresetLabelAutocomplete
                     name={`presetLabel-${itemRow.id}`}
                     value={itemRow.medicationPresetLabelId ?? ''}
                     suggester={presetLabelSuggester}
