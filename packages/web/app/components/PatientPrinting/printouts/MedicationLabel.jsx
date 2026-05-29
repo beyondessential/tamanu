@@ -162,15 +162,16 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   }
 
   // 2. Instructions / Label text: scale down for longer text so the footer
-  // and other fixed sections still fit. Translated preset-label text can
-  // run to 100+ chars and was being clipped at the default size.
-  let instructionsFontSize = labelHeight * 0.108; // 4.32mm — fits ~60 chars
-  if (instructionsLength > 130) {
+  // and other fixed sections still fit. Uppercase preset-label text is wider
+  // per char than mixed-case English, so the thresholds step harder than the
+  // medication-name ladder above.
+  let instructionsFontSize = labelHeight * 0.108; // 4.32mm
+  if (instructionsLength > 110) {
     instructionsFontSize = labelHeight * 0.06; // 2.4mm
-  } else if (instructionsLength > 90) {
-    instructionsFontSize = labelHeight * 0.075; // 3mm
-  } else if (instructionsLength > 60) {
-    instructionsFontSize = labelHeight * 0.09; // 3.6mm
+  } else if (instructionsLength > 75) {
+    instructionsFontSize = labelHeight * 0.07; // 2.8mm
+  } else if (instructionsLength > 50) {
+    instructionsFontSize = labelHeight * 0.08; // 3.2mm
   }
 
 
