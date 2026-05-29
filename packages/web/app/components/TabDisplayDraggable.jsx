@@ -16,7 +16,7 @@ const TabContainer = styled(Tabs)`
   padding-inline: 24px;
 
   .${tabsClasses.indicator} {
-    background-color: ${Colors.primary};
+    background-color: ${p => p.theme.palette.primary.main};
   }
   .${tabsClasses.scroller} {
     border-block-end: 0;
@@ -25,15 +25,10 @@ const TabContainer = styled(Tabs)`
 
 const StyledTab = styled.div.attrs({ role: 'tab' })`
   color: ${props => props.theme.palette.text.tertiary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  min-height: 72px;
-  padding: 9px 12px 6px;
   font-weight: 500;
+  padding-block: 1.25rem;
+  padding-inline: 12px;
   position: relative;
-  flex-shrink: 0;
 
   cursor: grab;
   &:active {
@@ -41,13 +36,11 @@ const StyledTab = styled.div.attrs({ role: 'tab' })`
   }
 
   &:hover {
-    opacity: 1;
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${p => p.theme.palette.action.hover};
   }
 
   &[aria-selected='true'] {
     color: ${props => props.theme.palette.primary.main};
-    opacity: 1;
   }
 
   &[data-dragging='true'] {
