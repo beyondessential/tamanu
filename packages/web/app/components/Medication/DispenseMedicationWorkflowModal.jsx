@@ -567,7 +567,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'prescriptionDate',
-          width: '80px',
+          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.prescriptionDate"
