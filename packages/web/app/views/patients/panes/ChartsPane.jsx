@@ -1,46 +1,50 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { keyBy } from 'lodash';
+import { subject } from '@casl/ability';
 import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { keyBy } from 'lodash';
+import { Plus } from 'lucide-react';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { subject } from '@casl/ability';
+import styled from 'styled-components';
 
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getAnswersFromData, ButtonWithPermissionCheck, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-
-import { TabPane } from '../components';
-import { TableButtonRow } from '../../../components';
-import { useChartSurveysQuery } from '../../../api/queries';
-import { ChartsTable, EmptyChartsTable } from '../../../components/ChartsTable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounter } from '../../../contexts/Encounter';
-import { useApi } from '../../../api';
-import { useChartData } from '../../../contexts/ChartData';
-import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
-import { VitalChartsModal } from '../../../components/VitalChartsModal';
-import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
-import { TabDisplay } from '../../../components/TabDisplay';
-import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
-import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
-import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
-import { SimpleChartModal } from '../../../components/SimpleChartModal';
-import { ComplexChartModal } from '../../../components/ComplexChartModal';
-import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
 import {
-  getComplexChartFormMode,
-  findChartSurvey,
-  getNoDataMessage,
-  getTooltipMessage,
-  getNoSelectableChartsMessage,
-} from '../../../utils/chart/chartUtils';
-import { ConditionalTooltip } from '../../../components/Tooltip';
+  ButtonWithPermissionCheck,
+  getAnswersFromData,
+  TextButton,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { useApi } from '../../../api';
+import { useChartSurveysQuery } from '../../../api/queries';
+import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
+import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
+import { TableButtonRow } from '../../../components';
+import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
+import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
+import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
+import { ChartsTable, EmptyChartsTable } from '../../../components/ChartsTable';
+import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { SimpleChartModal } from '../../../components/SimpleChartModal';
+import { TabDisplay } from '../../../components/TabDisplay';
+import { ConditionalTooltip } from '../../../components/Tooltip';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { VitalChartsModal } from '../../../components/VitalChartsModal';
+import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
+import { useChartData } from '../../../contexts/ChartData';
+import { useEncounter } from '../../../contexts/Encounter';
 import { useTranslation } from '../../../contexts/Translation';
+import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
+import {
+  findChartSurvey,
+  getComplexChartFormMode,
+  getNoDataMessage,
+  getNoSelectableChartsMessage,
+  getTooltipMessage,
+} from '../../../utils/chart/chartUtils';
+import { TabPane } from '../components';
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
@@ -48,14 +52,13 @@ const TableButtonRowWrapper = styled.div`
   overflow-x: auto;
 `;
 
-const AddComplexChartButton = styled.div`
-  color: ${Colors.primary};
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  margin: 10px 20px 0 10px;
-  white-space: nowrap;
-`;
+function AddComplexChartButton(props) {
+  return (
+    <TextButton data-testid="addcomplexchartbutton-w4wk" startIcon={<Plus />} {...props}>
+      <TranslatedText stringId="general.action.add" fallback="Add" />
+    </TextButton>
+  );
+}
 
 const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
   float: right;
@@ -126,20 +129,20 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   );
 
   // Full data of the selected chart from the dropdown
-  const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
-    chartSurveys,
-    selectedChartTypeId,
-  ]);
+  const selectedChartSurvey = useMemo(
+    () => findChartSurvey(chartSurveys, selectedChartTypeId),
+    [chartSurveys, selectedChartTypeId],
+  );
 
-  const chartSurveyToSubmit = useMemo(() => findChartSurvey(chartSurveys, chartSurveyIdToSubmit), [
-    chartSurveys,
-    chartSurveyIdToSubmit,
-  ]);
+  const chartSurveyToSubmit = useMemo(
+    () => findChartSurvey(chartSurveys, chartSurveyIdToSubmit),
+    [chartSurveys, chartSurveyIdToSubmit],
+  );
 
-  const coreComplexChartSurveyId = useMemo(() => complexToCoreSurveysMap[selectedChartTypeId], [
-    complexToCoreSurveysMap,
-    selectedChartTypeId,
-  ]);
+  const coreComplexChartSurveyId = useMemo(
+    () => complexToCoreSurveysMap[selectedChartTypeId],
+    [complexToCoreSurveysMap, selectedChartTypeId],
+  );
 
   const { data: coreComplexChartSurvey } = useSurveyQuery(coreComplexChartSurveyId);
 
@@ -167,14 +170,12 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   }, [coreComplexChartSurvey]);
 
   const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
-  const {
-    data: { data: complexChartInstances = [] } = {},
-    isLoading: isLoadingInstances,
-  } = useEncounterComplexChartInstancesQuery({
-    encounterId: encounter.id,
-    chartSurveyId: coreComplexChartSurveyId,
-    enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
-  });
+  const { data: { data: complexChartInstances = [] } = {}, isLoading: isLoadingInstances } =
+    useEncounterComplexChartInstancesQuery({
+      encounterId: encounter.id,
+      chartSurveyId: coreComplexChartSurveyId,
+      enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
+    });
 
   // Create tabs for each chart instance
   const complexChartInstanceTabs = useMemo(
@@ -187,9 +188,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [complexChartInstances],
   );
 
-  const complexChartInstancesById = useMemo(() => keyBy(complexChartInstances, 'chartInstanceId'), [
-    complexChartInstances,
-  ]);
+  const complexChartInstancesById = useMemo(
+    () => keyBy(complexChartInstances, 'chartInstanceId'),
+    [complexChartInstances],
+  );
 
   const currentComplexChartInstance = useMemo(
     () => complexChartInstancesById[currentComplexChartTab],
@@ -328,7 +330,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             justifyContent="space-between"
             data-testid="tablebuttonrow-lwlu"
           >
-            <ButtonGroup data-testid="styledbuttongroup-z992">
+            <ButtonGroup data-testid="styledbuttongroup-z992" style={{ gap: '8px' }}>
               <ChartDropdown
                 selectedChartTypeId={selectedChartTypeId}
                 setSelectedChartTypeId={setSelectedChartTypeId}
@@ -342,10 +344,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                       setChartSurveyIdToSubmit(coreComplexChartSurveyId);
                       setModalOpen(true);
                     }}
-                    data-testid="addcomplexchartbutton-w4wk"
-                  >
-                    + Add
-                  </AddComplexChartButton>
+                  />
                 </NoteModalActionBlocker>
               ) : null}
             </ButtonGroup>
@@ -382,11 +381,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                   subject={subject('Charting', { id: selectedChartTypeId })}
                   data-testid="styledbuttonwithpermissioncheck-ruv4"
                 >
-                  <TranslatedText
-                    stringId="chart.action.record"
-                    fallback="Record"
-                    data-testid="translatedtext-r7vz"
-                  />
+                  <TranslatedText stringId="chart.action.record" fallback="Record" />
                 </StyledButtonWithPermissionCheck>
               </NoteModalActionBlocker>
             </StyledConditionalTooltip>
