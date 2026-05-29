@@ -8,6 +8,7 @@ import {
   BaseModal,
   Button,
   OutlinedButton,
+  TAMANU_COLORS,
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
@@ -184,10 +185,17 @@ const PatientSummaryViewPatientLink = styled.button`
 `;
 
 
+// Bluey-grey background when disabled, matching the design + AutocompleteField.
+const StyledInstructionsTextInput = styled(TextInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${TAMANU_COLORS.background};
+  }
+`;
+
 // Must stay fully controlled — preset selection programmatically replaces the
 // value, so any internal copy would desync.
 const InstructionsInput = memo(({ value, onChange, ...props }) => (
-  <TextInput
+  <StyledInstructionsTextInput
     multiline
     minRows={1}
     maxRows={5}
