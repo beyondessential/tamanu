@@ -164,14 +164,17 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   // 2. Instructions / Label text: scale down for longer text so the footer
   // and other fixed sections still fit. Uppercase preset-label text is wider
   // per char than mixed-case English, so the thresholds step harder than the
-  // medication-name ladder above.
-  let instructionsFontSize = labelHeight * 0.108; // 4.32mm
-  if (instructionsLength > 110) {
-    instructionsFontSize = labelHeight * 0.06; // 2.4mm
-  } else if (instructionsLength > 75) {
-    instructionsFontSize = labelHeight * 0.07; // 2.8mm
-  } else if (instructionsLength > 50) {
-    instructionsFontSize = labelHeight * 0.08; // 3.2mm
+  // medication-name ladder above. Thresholds are tuned for the 40mm default
+  // height — taller labels have proportionally more vertical room to wrap, so
+  // scale the thresholds (not the font fractions) by the height ratio.
+  const heightScale = labelHeight / 40;
+  let instructionsFontSize = labelHeight * 0.108; // 4.32mm at 40mm height
+  if (instructionsLength > 110 * heightScale) {
+    instructionsFontSize = labelHeight * 0.06;
+  } else if (instructionsLength > 75 * heightScale) {
+    instructionsFontSize = labelHeight * 0.07;
+  } else if (instructionsLength > 50 * heightScale) {
+    instructionsFontSize = labelHeight * 0.08;
   }
 
 
