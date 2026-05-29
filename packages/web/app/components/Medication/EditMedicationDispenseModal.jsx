@@ -83,10 +83,8 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-// Fully-controlled — anything that mutates `instructions` upstream (e.g. picking
-// a preset label, which programmatically replaces the field's text) must be
-// reflected here. The previous `useState(defaultValue)` pattern silently
-// ignored prop updates after mount.
+// Must stay fully controlled — preset selection programmatically replaces the
+// value, so any internal copy would desync.
 const InstructionsInput = memo(({ value, onChange, ...props }) => (
   <TextInput {...props} value={value ?? ''} onChange={onChange} />
 ));
@@ -125,9 +123,8 @@ export const EditMedicationDispenseModal = memo(
     const showPresetLabelColumn = presetLabelsEnabled && hasPresetLabels;
     const showLabelTextColumn = presetLabelsEnabled;
 
-    // Prescription-derived instructions for the read-only Instructions column.
-    // Recomputed from the dispense's underlying prescription so it never reflects
-    // the user's previously-saved label text edits.
+    // Derived from the prescription, not the dispense's saved instructions, so
+    // it shows the original even after the label text has been edited.
     const defaultInstructions = medicationDispense
       ? buildInstructionText(
           medicationDispense.pharmacyOrderPrescription?.prescription,
@@ -196,11 +193,8 @@ export const EditMedicationDispenseModal = memo(
       });
     };
 
-    // Selecting a preset overwrites Label text with the preset's text; clearing
-    // reverts to the prescription's computed default. Label text remains editable.
-    // Uses functional setters so rapid back-to-back updates (e.g. picking a
-    // preset and then immediately typing) don't clobber each other from a stale
-    // closure.
+    // Clearing the preset (presetId = '') reverts Label text to the default.
+    // Functional setters so a quick preset-then-type doesn't lose the typing.
     const handlePresetLabelChange = ({ target: { value: presetId } }) => {
       const preset = presetId ? presetLabelsList?.find(p => p.value === presetId) : null;
       const nextLabelText = preset?.name ?? defaultInstructions ?? '';
@@ -359,9 +353,7 @@ export const EditMedicationDispenseModal = memo(
           accessor: ({ pharmacyOrderPrescription }) =>
             pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
-        // When preset labels are enabled, Instructions becomes read-only and
-        // the editable label moves to the new "Label text" column to its
-        // right. When disabled, the original behaviour is preserved.
+        // Off-flag deployments keep the original editable Instructions field.
         presetLabelsEnabled
           ? {
               key: 'instructionsReadOnly',

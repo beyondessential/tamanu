@@ -184,11 +184,8 @@ const PatientSummaryViewPatientLink = styled.button`
 `;
 
 
-// Fully-controlled — anything that mutates `instructions` upstream (e.g. picking
-// a preset label, which programmatically replaces the field's text) must be
-// reflected here. The previous `useState(defaultValue)` pattern silently
-// ignored prop updates after mount, which would have broken the core preset-
-// labels UX.
+// Must stay fully controlled — preset selection programmatically replaces the
+// value, so any internal copy would desync.
 const InstructionsInput = memo(({ value, onChange, ...props }) => (
   <TextInput {...props} value={value ?? ''} onChange={onChange} />
 ));
@@ -218,11 +215,8 @@ export const DispenseMedicationWorkflowModal = memo(
 
     const presetLabelsEnabled = Boolean(getSetting('features.medicationLabelPresets.enabled'));
 
-    // Fetch the current preset labels once to decide whether to render the
-    // "Preset labels" column at all — per spec, the column is hidden when no
-    // reference data is configured or all entries are historical. The
-    // suggester filters out historical entries server-side and only returns
-    // visibilityStatus=current.
+    // The suggester only returns visibilityStatus=current rows, so an empty
+    // list means the Preset labels column should hide entirely.
     const { data: presetLabelsList } = useQuery({
       queryKey: ['medicationPresetLabels', facilityId],
       queryFn: () => presetLabelSuggester.fetchSuggestions(''),
@@ -294,12 +288,7 @@ export const DispenseMedicationWorkflowModal = memo(
             ...d,
             selected: true,
             quantity: quantity ?? 1,
-            // Read-only "Instructions" column display (when preset labels are
-            // enabled) — derived from the prescription, never user-edited.
             defaultInstructions,
-            // Editable Label text storage; initialised to the same value as
-            // the read-only Instructions so the label text starts as the
-            // prescription's computed instructions.
             instructions: defaultInstructions,
             medicationPresetLabelId: null,
           };
@@ -383,9 +372,9 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
-    // Selecting a preset overwrites the Label text with the preset's text;
-    // clearing the selection reverts to the prescription-derived default. The
-    // Label text field stays editable in both cases.
+    // Clearing the preset (presetId = '') reverts Label text to the
+    // prescription-derived default rather than leaving the previous selection's
+    // text behind.
     const handlePresetLabelChange = (rowIndex, { target: { value: presetId } }) => {
       setItems(prev => {
         const next = [...prev];
@@ -621,11 +610,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
-        // Instructions column. With preset labels enabled, this becomes a
-        // read-only display of the prescription's computed instructions (the
-        // editable label is the new "Label text" column to its right); without
-        // it, the original editable Instructions field is preserved so no
-        // regressions for deployments that don't use the preset feature.
+        // Off-flag deployments keep the original editable Instructions field.
         presetLabelsEnabled
           ? {
               key: 'instructionsReadOnly',

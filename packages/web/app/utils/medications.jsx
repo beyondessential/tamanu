@@ -23,20 +23,12 @@ import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
 import { singularize } from './utils';
 
-/**
- * Suggester formatter for the medicationPresetLabel reference data. The
- * dispense workflow renders the preset's `code` (e.g. "QPHQ6H") per the design;
- * `name` is carried through so the change handler can populate Label text with
- * the translated text on selection.
- */
+// Suggester formatter for the medicationPresetLabel reference data: display the
+// preset's `code`, carry `name` through so a change handler can read it.
 export const presetLabelFormatter = ({ id, code, name }) => ({ value: id, label: code, name });
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
-/**
- * Composes the human-readable instructions text for a prescription, used as
- * the default "Instructions" / "Label text" value in the dispense workflow.
- * Pure derivation from prescription fields — never the dispense's edited copy.
- */
+// Pure derivation from a prescription — never the dispense's edited copy.
 export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';
 

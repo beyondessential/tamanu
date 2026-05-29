@@ -485,7 +485,7 @@ describe('Medication', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('should persist medicationPresetLabelId on the created dispense (TAM-6801)', async () => {
+    it('should persist medicationPresetLabelId on the created dispense', async () => {
       const presetLabel = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL }),
       );
@@ -514,9 +514,7 @@ describe('Medication', () => {
       expect(persisted.medicationPresetLabelId).toBe(presetLabel.id);
     });
 
-    it('should reject medicationPresetLabelId as an empty string (TAM-6801)', async () => {
-      // `nullish()` alone would let '' through, then break the FK on insert —
-      // the schema explicitly rejects it instead.
+    it('should reject medicationPresetLabelId as an empty string', async () => {
       const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
         patientId: patient.id,
       });

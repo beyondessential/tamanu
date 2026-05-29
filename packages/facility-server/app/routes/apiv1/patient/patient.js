@@ -818,9 +818,6 @@ patientRoute.get(
             },
             {
               association: 'prescription',
-              // durationValue/durationUnit/indication/notes are needed by
-              // buildInstructionText so the edit-dispense modal can recompute
-              // the read-only Instructions display from the prescription.
               attributes: [
                 'id',
                 'date',
