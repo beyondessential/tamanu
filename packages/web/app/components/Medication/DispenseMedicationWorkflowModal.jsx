@@ -185,10 +185,8 @@ const PatientSummaryViewPatientLink = styled.button`
 `;
 
 
-// Bluey-grey background when disabled, matching the design + AutocompleteField.
-// MUI's multiline variant adds its own padding-block on top of the inner input
-// padding; both must be tamed or a single line of text floats in ~50px of
-// vertical whitespace. Zero the outer, keep a small inner.
+// Outer `.MuiInputBase-multiline` adds its own padding-block, so both layers
+// must be zeroed/tamed or a single line sits in ~50px of whitespace.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
@@ -215,8 +213,6 @@ const InstructionsInput = memo(({ value, onChange, ...props }) => (
   />
 ));
 
-// Match the InstructionsInput's compact height so the Quantity cell lines up
-// with the Label text cell at row-level.
 const StyledQuantityTextInput = styled(TextInput)`
   .MuiInputBase-input {
     font-size: 14px;
