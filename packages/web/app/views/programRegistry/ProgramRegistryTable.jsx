@@ -221,7 +221,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         dontCallRowInput: true,
       },
     ];
-  }, []);
+  }, [getEnumTranslation, getTranslation]);
 
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 

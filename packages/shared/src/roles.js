@@ -131,6 +131,10 @@ export const practitioner = [
   { verb: 'create', noun: 'PatientCondition' },
   { verb: 'delete', noun: 'PatientCondition' },
 
+  { verb: 'read', noun: 'PatientSummary' },
+  { verb: 'write', noun: 'PatientSummary' },
+  { verb: 'create', noun: 'PatientSummary' },
+
   { verb: 'list', noun: 'ReportRequest' },
   { verb: 'read', noun: 'ReportRequest' },
   { verb: 'write', noun: 'ReportRequest' },
