@@ -186,12 +186,15 @@ const PatientSummaryViewPatientLink = styled.button`
 
 
 // Bluey-grey background when disabled, matching the design + AutocompleteField.
-// Tighter padding-block than the base TextInput (which targets standalone
-// fields, not packed table cells) so a single line of label text doesn't look
-// like a partial second line is hiding below it.
+// MUI's multiline variant adds its own padding-block on top of the inner input
+// padding; both must be tamed or a single line of text floats in ~50px of
+// vertical whitespace. Zero the outer, keep a small inner.
 const StyledInstructionsTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
+  }
+  .MuiInputBase-multiline {
+    padding-block: 0;
   }
   .MuiInputBase-input {
     font-size: 14px;
