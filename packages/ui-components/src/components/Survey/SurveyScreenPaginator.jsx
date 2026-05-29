@@ -1,9 +1,9 @@
-import { Typography } from '@material-ui/core';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { useTranslation } from '../../contexts';
+
+import { Typography } from '@material-ui/core';
+
 import { ButtonRow, FormSubmitButton, OutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { SurveyScreen } from './SurveyScreen';
@@ -17,45 +17,50 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, completeButtonDisabled }) => {
-  const { getTranslation } = useTranslation();
-  return (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete, summarySubmitButton, completeButtonDisabled }) => (
+  <div>
+    <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
+      <TranslatedText
+        stringId="program.modal.surveyResponse.complete"
+        fallback="Survey complete"
+        data-testid="translatedtext-97rx"
+      />
+    </Typography>
+    <Text data-testid="text-am03">
+      <TranslatedText
+        stringId="program.modal.surveyResponse.completeMessage"
+        fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
+        data-testid="translatedtext-268y"
+      />
+    </Text>
     <div>
-      <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
-        <TranslatedText
-          stringId="program.modal.surveyResponse.complete"
-          fallback="Survey complete"
-        />
-      </Typography>
-      <Text data-testid="text-am03">
-        <TranslatedText
-          stringId="program.modal.surveyResponse.completeMessage"
-          fallback="Press “:complete” to submit your response, or use the “:prev” button to review answers."
-          replacements={{
-            complete: getTranslation('general.action.complete', 'Complete'),
-            prev: getTranslation('general.action.previous', 'Prev'),
-          }}
-        />
-      </Text>
-      <div>
-        <StyledButtonRow data-testid="styledbuttonrow-ljfc">
-          <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
-            <TranslatedText stringId="general.action.previous" fallback="Prev" />
-          </OutlinedButton>
+      <StyledButtonRow data-testid="styledbuttonrow-ljfc">
+        <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
+          <TranslatedText
+            stringId="general.action.prev"
+            fallback="Prev"
+            data-testid="translatedtext-lzgi"
+          />
+        </OutlinedButton>
+        {summarySubmitButton || (
           <FormSubmitButton
-            color="primary"
-            data-testid="formsubmitbutton-pufy"
-            disabled={completeButtonDisabled}
-            onClick={onSurveyComplete}
-            variant="contained"
-          >
-            <TranslatedText stringId="general.action.complete" fallback="Complete" />
+          color="primary"
+          data-testid="formsubmitbutton-pufy"
+          disabled={completeButtonDisabled}
+          onClick={onSurveyComplete}
+          variant="contained"
+        >
+            <TranslatedText
+              stringId="general.action.complete"
+              fallback="Complete"
+              data-testid="translatedtext-7box"
+            />
           </FormSubmitButton>
-        </StyledButtonRow>
-      </div>
+        )}
+      </StyledButtonRow>
     </div>
-  );
-};
+  </div>
+);
 
 export const SurveyScreenPaginator = ({
   survey,
@@ -72,6 +77,8 @@ export const SurveyScreenPaginator = ({
   showCancelButton,
   encounterType,
   getComponentForQuestionType,
+  summarySubmitButton = null,
+  onScreenIndexChange = undefined,
   completeButtonDisabled = false,
   editedDataElementIds = null,
 }) => {
@@ -92,6 +99,10 @@ export const SurveyScreenPaginator = ({
     (max, current) => Math.max(max, current.screenIndex),
     0,
   );
+
+  useEffect(() => {
+    onScreenIndexChange?.(Math.min(screenIndex, maxIndex));
+  }, [maxIndex, onScreenIndexChange, screenIndex]);
 
   if (screenIndex <= maxIndex) {
     return (
@@ -122,6 +133,7 @@ export const SurveyScreenPaginator = ({
     <SurveySummaryScreen
       onStepBack={onStepBack}
       onSurveyComplete={onSurveyComplete}
+      summarySubmitButton={summarySubmitButton}
       completeButtonDisabled={completeButtonDisabled}
       data-testid="surveysummaryscreen-1jn5"
     />
