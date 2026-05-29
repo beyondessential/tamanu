@@ -68,6 +68,7 @@ describe('Sync Lookup data', () => {
 
   const prepareData = async () => {
     const {
+      AiDocument,
       Asset,
       PatientFieldDefinitionCategory,
       Program,
@@ -207,6 +208,11 @@ describe('Sync Lookup data', () => {
         facilityId: facility.id,
       }),
     );
+    await AiDocument.create(fake(AiDocument, {
+      type: 'patient_summary',
+      recordType: 'Patient',
+      recordId: patient.id,
+    }));
     const locationGroup = await LocationGroup.create(
       fake(LocationGroup, {
         facilityId: facility.id,
