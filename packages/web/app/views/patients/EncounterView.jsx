@@ -1,42 +1,47 @@
+import { isEqual } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
 import { useParams } from 'react-router';
+import styled from 'styled-components';
+
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  useReaction,
+  useSettings,
+} from '@tamanu/ui-components';
+import { useApi } from '../../api';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
-import { useEncounter } from '../../contexts/Encounter';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { useReferenceDataQuery } from '../../api/queries';
+import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
+import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { useAuth } from '../../contexts/Auth';
+import { ChartDataProvider } from '../../contexts/ChartData';
+import { useEncounter } from '../../contexts/Encounter';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { EncounterActions } from './components';
+import { PlannedMoveActions } from './components/PlannedMoveActions';
 import {
+  ChartsPane,
   DocumentsPane,
   EncounterInfoPane,
+  EncounterInvoicingPane,
   EncounterMedicationPane,
   EncounterProgramsPane,
   ImagingPane,
-  EncounterInvoicingPane,
   LabsPane,
   NotesPane,
   ProcedurePane,
-  VitalsPane,
-  ChartsPane,
   TasksPane,
+  VitalsPane,
 } from './panes';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
-import { EncounterActions } from './components';
-import { useReferenceDataQuery } from '../../api/queries';
-import { useAuth } from '../../contexts/Auth';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
-import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
-import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
-import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
-import { isEqual } from 'lodash';
-import { ChartDataProvider } from '../../contexts/ChartData';
-import { PlannedMoveActions } from './components/PlannedMoveActions';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -196,11 +201,12 @@ export const EncounterView = () => {
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
-  useEffect(() => {
-    api.post(`user/recently-viewed-patients/${patient.id}`);
-  }, [api, patient.id]);
+  useReaction(
+    patient.id,
+    () => void api.post(`user/recently-viewed-patients/${encodeURIComponent(patient.id)}`),
+  );
 
-  useEffect(() => {
+  useReaction(userPreferences?.encounterTabOrders, () => {
     if (!userPreferences?.encounterTabOrders) return;
     if (!currentTab) {
       setCurrentTab(visibleTabs[0].key);
@@ -213,13 +219,11 @@ export const EncounterView = () => {
     if (!isEqual(newTabs, tabs)) {
       setTabs(newTabs);
     }
-  }, [userPreferences?.encounterTabOrders]);
+  });
 
-  useEffect(() => {
-    if (!currentTab) {
-      setCurrentTab(visibleTabs[0].key);
-    }
-  }, [isLoadingUserPreferences]);
+  useReaction(isLoadingUserPreferences, () => {
+    if (!currentTab) setCurrentTab(visibleTabs[0].key);
+  });
 
   useEffect(
     function loadEncounterOnMount() {
