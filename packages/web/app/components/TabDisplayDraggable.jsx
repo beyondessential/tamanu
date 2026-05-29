@@ -99,7 +99,7 @@ export const TabDisplayDraggable = ({
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : undefined}
               scrollButtons={scrollable ? 'auto' : false}
-              value={currentTabData?.order || 0}
+              value={currentTabData?.order ?? 0}
               {...provided.droppableProps}
               data-testid="tabcontainer-uai8"
             >
