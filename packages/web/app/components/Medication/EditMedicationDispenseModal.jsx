@@ -86,7 +86,14 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
 // Must stay fully controlled — preset selection programmatically replaces the
 // value, so any internal copy would desync.
 const InstructionsInput = memo(({ value, onChange, ...props }) => (
-  <TextInput {...props} value={value ?? ''} onChange={onChange} />
+  <TextInput
+    multiline
+    minRows={1}
+    maxRows={5}
+    {...props}
+    value={value ?? ''}
+    onChange={onChange}
+  />
 ));
 
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
