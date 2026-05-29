@@ -77,20 +77,6 @@ const installAiPatientSummaryMock = async ({
   });
 };
 
-// The AI summary card only renders when `patientSummary.enabled` is true.
-// The test DB snapshot doesn't have it set, so seed it into the persisted
-// settings before the SPA boots.
-const enablePatientSummarySetting = async (page: Page) => {
-  await page.goto('/');
-  await page.evaluate(() => {
-    const raw = window.localStorage.getItem('settings');
-    const settings = raw ? JSON.parse(raw) : {};
-    settings.patientSummary = { ...(settings.patientSummary || {}), enabled: true };
-    window.localStorage.setItem('settings', JSON.stringify(settings));
-  });
-  await page.reload();
-};
-
 test.describe('AI patient summary', () => {
   test('should generate and edit an AI patient summary', async ({
     page,
@@ -100,7 +86,6 @@ test.describe('AI patient summary', () => {
     const generatedSummary = 'Generated AI patient summary for E2E testing.';
     const editedSummary = 'Clinician edited AI patient summary for E2E testing.';
 
-    await enablePatientSummarySetting(page);
     await installAiPatientSummaryMock({
       page,
       patientId: newPatientWithHospitalAdmission.id,
@@ -129,7 +114,6 @@ test.describe('AI patient summary', () => {
   }) => {
     const generatedSummary = 'Generated AI patient summary for E2E testing.';
 
-    await enablePatientSummarySetting(page);
     await installAiPatientSummaryMock({
       page,
       patientId: newPatientWithHospitalAdmission.id,
