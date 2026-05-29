@@ -102,6 +102,12 @@ export class InvoiceItem extends Model {
       foreignKey: 'invoiceItemId',
       as: 'finalisedInsurances',
     });
+
+    this.belongsTo(models.Prescription, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourcePrescription',
+      constraints: false,
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
@@ -204,6 +210,12 @@ export class InvoiceItem extends Model {
         as: 'discount',
       },
       { model: models.InvoiceItemFinalisedInsurance, as: 'finalisedInsurances' },
+      {
+        model: models.Prescription,
+        as: 'sourcePrescription',
+        attributes: ['dispensingUnit'],
+        required: false,
+      },
     ];
   }
 }
