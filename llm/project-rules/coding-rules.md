@@ -31,6 +31,7 @@ Readability is the highest priority. Every line of code is read many times over 
 - NEVER mix DDL and DML in the same migration (see `packages/database/CLAUDE.md`)
 - Bulk `UPDATE`s trigger FHIR rematerialisation for every touched row — consider volume impact
 - Write corresponding mobile (TypeORM) migrations alongside server (Sequelize) migrations
+- Schema changes (added/removed/changed tables or columns) require updating the dbt source models in `database/model/` — see `packages/database/CLAUDE.md`
 
 ### Sync
 

@@ -1,3 +1,4 @@
+import AddIcon from '@mui/icons-material/Add';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -5,7 +6,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useMatch, useNavigate, useOutletContext } from 'react-router';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../../../components/TabDisplay';
 import { Colors } from '../../../../constants/styles';
 import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
@@ -29,15 +30,46 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 const TabKey = /** @type {const} */ ({
+  Builder: 'aiFormBuilder',
   Manage: 'manage',
   Import: 'import',
   Export: 'export',
+});
+
+const builderTab = /** @type {const} */ ({
+  label: (
+    <TranslatedText
+      stringId="admin.programs.aiFormBuilder.tab.label"
+      fallback="AI form builder"
+    />
+  ),
+  key: TabKey.Builder,
+  icon: <AddIcon />,
 });
 
 const manageTab = /** @type {const} */ ({
   label: <TranslatedText stringId="admin.programs.tab.manage" fallback="Manage" />,
   key: TabKey.Manage,
   icon: <TuneIcon />,
+});
+
+const importTab = /** @type {const} */ ({
+  label: <TranslatedText stringId="general.action.import" fallback="Import" />,
+  key: TabKey.Import,
+  icon: <LoginIcon />,
+});
+
+const exportTab = /** @type {const} */ ({
+  label: <TranslatedText stringId="general.action.export" fallback="Export" />,
+  key: TabKey.Export,
+  icon: <LogoutIcon />,
+});
+
+const TAB_ROUTES = /** @type {const} */ ({
+  [TabKey.Builder]: '/admin/programs/forms/aiFormBuilder',
+  [TabKey.Manage]: '/admin/programs/forms/manage',
+  [TabKey.Import]: '/admin/programs/forms/import',
+  [TabKey.Export]: '/admin/programs/forms/export',
 });
 
 export function ProgramsImportTab() {
@@ -66,51 +98,41 @@ export function ProgramsExportTab() {
 
 export const ProgramsAdminView = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAiFormBuilderChat, setHasAiFormBuilderChat] = useState(false);
+  const [newChatRequestId, setNewChatRequestId] = useState(0);
   const navigate = useNavigate();
 
-  const isExportRoute = Boolean(useMatch('/admin/programs/forms/export'));
-  const isImportRoute = Boolean(useMatch('/admin/programs/forms/import'));
+  const isBuilderRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Builder]));
+  const isExportRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Export]));
+  const isImportRoute = Boolean(useMatch(TAB_ROUTES[TabKey.Import]));
+  const isManageRoute = Boolean(useMatch(`${TAB_ROUTES[TabKey.Manage]}/*`));
 
   const currentTab = (() => {
-    if (isImportRoute) return 'import';
-    if (isExportRoute) return 'export';
-    return 'manage';
+    if (isBuilderRoute) return TabKey.Builder;
+    if (isImportRoute) return TabKey.Import;
+    if (isExportRoute) return TabKey.Export;
+    if (isManageRoute) return TabKey.Manage;
+    return TabKey.Manage;
   })();
 
-  const renderTabContent = useCallback(() => <Outlet context={{ setIsLoading }} />, [setIsLoading]);
+  const renderTabContent = useCallback(
+    () => <Outlet context={{ setIsLoading, newChatRequestId, setHasAiFormBuilderChat }} />,
+    [newChatRequestId, setIsLoading, setHasAiFormBuilderChat],
+  );
 
   const tabs = useMemo(
-    () => [
-      { ...manageTab, render: renderTabContent },
-      {
-        label: 'Import',
-        key: TabKey.Import,
-        icon: <LoginIcon />,
+    () =>
+      [builderTab, manageTab, importTab, exportTab].map(tab => ({
+        ...tab,
         render: renderTabContent,
-      },
-      {
-        label: 'Export',
-        key: TabKey.Export,
-        icon: <LogoutIcon />,
-        render: renderTabContent,
-      },
-    ],
+      })),
     [renderTabContent],
   );
 
   const onTabSelect = key => {
     if (key === currentTab) return;
-    if (key === 'manage') {
-      navigate('/admin/programs/forms/manage');
-      return;
-    }
-    if (key === 'import') {
-      navigate('/admin/programs/forms/import');
-      return;
-    }
-    if (key === 'export') {
-      navigate('/admin/programs/forms/export');
-    }
+    const route = TAB_ROUTES[key];
+    if (route) navigate(route);
   };
 
   return (
@@ -122,6 +144,20 @@ export const ProgramsAdminView = () => {
           fallback="Programs (aka forms)"
           data-testid="translatedtext-52ok"
         />
+      }
+      titleActions={
+        currentTab === TabKey.Builder && (
+          <Button
+            size="small"
+            disabled={!hasAiFormBuilderChat}
+            onClick={() => setNewChatRequestId(value => value + 1)}
+          >
+            <TranslatedText
+              stringId="admin.programs.aiFormBuilder.newChat.action"
+              fallback="New chat"
+            />
+          </Button>
+        )
       }
       showLoadingIndicator={isLoading}
       data-testid="adminviewcontainer-w2w4"

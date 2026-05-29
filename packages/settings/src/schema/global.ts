@@ -34,6 +34,7 @@ import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
+import { patientSummaryProperties } from './definitions/patientSummary';
 
 const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
@@ -1671,6 +1672,7 @@ export const globalSettings = {
         },
       },
     },
+    patientSummary: patientSummaryProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,
