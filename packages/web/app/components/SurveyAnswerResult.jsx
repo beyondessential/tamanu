@@ -4,17 +4,17 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 import {
   Button,
+  DateDisplay,
   PatientDataDisplayField,
   PlainTimeDisplay,
+  SurveyResultBadge,
   TranslatedOption,
   TranslatedReferenceData,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { DateDisplay } from './DateDisplay';
 import MultilineResult from './MultilineResult';
 import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
