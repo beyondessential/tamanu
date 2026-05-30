@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { keyBy } from 'lodash';
+import { subject } from '@casl/ability';
 import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { keyBy } from 'lodash';
+import { Plus } from 'lucide-react';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { subject } from '@casl/ability';
+import styled from 'styled-components';
 
 import {
   CHARTING_DATA_ELEMENT_IDS,
@@ -14,42 +15,45 @@ import {
   USER_PREFERENCES_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
-
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
-import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 import {
-  ProgramRegistryChartsTable,
-  EmptyProgramRegistryChartsTable,
-} from '../../components/ProgramRegistryChartsTable';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-
-import { useAuth } from '../../contexts/Auth';
-import { useApi, combineQueries } from '../../api';
-import { ProgramRegistryChartGraphDataProvider } from '../../contexts/VitalChartData';
-import { VitalChartsModal } from '../../components/VitalChartsModal';
-import { useProgramRegistryPatientComplexChartInstancesQuery } from '../../api/queries/useProgramRegistryPatientComplexChartInstancesQuery';
+  getAnswersFromData,
+  TextButton,
+  TranslatedText,
+  useDateTime,
+  useTranslation,
+} from '@tamanu/ui-components';
+import { combineQueries, useApi } from '../../api';
+import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 import { useProgramRegistryPatientChartsQuery } from '../../api/queries/useProgramRegistryPatientChartsQuery';
+import { useProgramRegistryPatientComplexChartInstancesQuery } from '../../api/queries/useProgramRegistryPatientComplexChartInstancesQuery';
 import { useProgramRegistryPatientInitialChartQuery } from '../../api/queries/useProgramRegistryPatientInitialChartQuery';
-import { TabDisplay } from '../../components/TabDisplay';
-import { Colors } from '../../constants';
-import { ChartDropdown } from '../../components/Charting/ChartDropdown';
-import { CoreComplexChartData } from '../../components/Charting/CoreComplexChartData';
 import { useSurveyQuery } from '../../api/queries/useSurveyQuery';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
-import { SimpleChartModal } from '../../components/SimpleChartModal';
-import { ComplexChartModal } from '../../components/ComplexChartModal';
+import { ButtonWithPermissionCheck, TableButtonRow } from '../../components';
+import { ChartDropdown } from '../../components/Charting/ChartDropdown';
 import { COMPLEX_CHART_FORM_MODES } from '../../components/Charting/constants';
-import {
-  getComplexChartFormMode,
-  findChartSurvey,
-  getNoDataMessage,
-  getTooltipMessage,
-  getNoSelectableChartsMessage,
-} from '../../utils/chart/chartUtils';
-import { ConditionalTooltip } from '../../components/Tooltip';
+import { CoreComplexChartData } from '../../components/Charting/CoreComplexChartData';
+import { ComplexChartModal } from '../../components/ComplexChartModal';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
-import { useTranslation } from '../../contexts/Translation';
+import {
+  EmptyProgramRegistryChartsTable,
+  ProgramRegistryChartsTable,
+} from '../../components/ProgramRegistryChartsTable';
+import { SimpleChartModal } from '../../components/SimpleChartModal';
+import { TabDisplay } from '../../components/TabDisplay';
+import { ConditionalTooltip } from '../../components/Tooltip';
+import { VitalChartsModal } from '../../components/VitalChartsModal';
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
+
+import { ProgramRegistryChartGraphDataProvider } from '../../contexts/VitalChartData';
+import {
+  findChartSurvey,
+  getComplexChartFormMode,
+  getNoDataMessage,
+  getNoSelectableChartsMessage,
+  getTooltipMessage,
+} from '../../utils/chart/chartUtils';
 
 const StyledButtonGroup = styled(ButtonGroup)`
   .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
@@ -64,17 +68,13 @@ const TableButtonRowWrapper = styled.div`
   overflow-x: auto;
 `;
 
-const AddComplexChartButton = styled.span`
-  color: ${Colors.primary};
-  font-size: 15px;
-  font-weight: 500;
-  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
-  display: inline-flex;
-  align-items: center;
-  margin-left: 10px;
-  margin-right: 20px;
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-`;
+function AddComplexChartButton(props) {
+  return (
+    <TextButton data-testid="addcomplexchartbutton-w4wk" startIcon={<Plus />} {...props}>
+      <TranslatedText stringId="general.action.add" fallback="Add" />
+    </TextButton>
+  );
+}
 
 const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
   float: right;
@@ -96,9 +96,6 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
   top: 0;
   z-index: 9;
 
-  .MuiTabs-scroller {
-    border-bottom: none;
-  }
   .MuiTab-labelIcon {
     min-height: 0px;
   }
@@ -474,11 +471,8 @@ export const ProgramRegistryChartsView = React.memo(
                               setModalOpen(true);
                             }
                           }}
-                          $disabled={isPatientRemoved}
-                          data-testid="addcomplexchartbutton-w4wk"
-                        >
-                          + Add
-                        </AddComplexChartButton>
+                          disabled={isPatientRemoved}
+                        />
                       </NoteModalActionBlocker>
                     </ConditionalTooltip>
                   ) : null}
