@@ -43,6 +43,23 @@ const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDat
   return result;
 };
 
+const TableRow = styled.tr`
+  ${props => props.discontinued && `text-decoration: line-through;`}
+  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
+  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
+`;
+
+const RowHeader = styled.th.attrs({ scope: 'row' })`
+  font-weight: inherit;
+  &:hover {
+    background-color: ${p => p.theme.palette.action.hover};
+  }
+`;
+
+const MedicationName = styled.span`
+  font-weight: 500;
+`;
+
 const ViewChangeLink = styled.span`
   color: ${Colors.darkestText};
   font-weight: 500;
@@ -105,58 +122,58 @@ export const MarTableRow = ({
 
   return (
     <>
-      <MarRowContainer
+      <TableRow
         discontinued={discontinued}
         isPausing={isPausing}
         onClick={handleRowClick}
         $disabled={isSensitive && !canViewSensitiveMedications}
       >
-        <Box fontWeight={500}>
-          <TranslatedReferenceData
-            fallback={medicationRef.name}
-            value={medicationRef.id}
-            category={medicationRef.type}
-          />
-          {isPausing && (
-            <>
-              {' '}
-              <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
-            </>
-          )}
-        </Box>
-        <Box>
-          {[
-            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
-            getTranslatedFrequency(frequency, getTranslation),
-            getEnumTranslation(DRUG_ROUTE_LABELS, route),
-          ]
-            .filter(Boolean)
-            .join(', ')}
-        </Box>
-        <Box color={!isPausing ? Colors.midText : undefined}>
-          <span>{notes}</span>
-          {displayedPharmacyNote && (
-            <span>
-              {notes && ', '}
-              <TranslatedText
-                stringId="medication.mar.pharmacyNotes"
-                fallback="Pharmacy note"
-              />: {displayedPharmacyNote}
-            </span>
-          )}
-          {modifiedPharmacyNote && (
-            <>
-              {' '}
-              <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
-                <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
-              </ViewChangeLink>
-            </>
-          )}
-        </Box>
-      </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
-        (record, index, array) => {
-          return (
+        <RowHeader>
+          <MedicationName>
+            <TranslatedReferenceData
+              fallback={medicationRef.name}
+              value={medicationRef.id}
+              category={medicationRef.type}
+            />
+            {isPausing && (
+              <>
+                {' '}
+                <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
+              </>
+            )}
+          </MedicationName>
+          <div data-testid="mar-dosage">
+            {[
+              getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+              getTranslatedFrequency(frequency, getTranslation),
+              getEnumTranslation(DRUG_ROUTE_LABELS, route),
+            ]
+              .filter(Boolean)
+              .join(', ')}
+          </div>
+          <Box color={!isPausing ? Colors.midText : undefined}>
+            <span>{notes}</span>
+            {displayedPharmacyNote && (
+              <span>
+                {notes && ', '}
+                <TranslatedText
+                  stringId="medication.mar.pharmacyNotes"
+                  fallback="Pharmacy note"
+                />: {displayedPharmacyNote}
+              </span>
+            )}
+            {modifiedPharmacyNote && (
+              <>
+                {' '}
+                <ViewChangeLink onClick={handleViewChangeClick} data-testid="mar-view-change">
+                  <TranslatedText stringId="medication.mar.viewChange" fallback="View change" />
+                </ViewChangeLink>
+              </>
+            )}
+          </Box>
+        </RowHeader>
+        {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
+          (record, index, array) => (
             <MarStatus
               key={record?.id || index}
               selectedDate={selectedDate}
@@ -169,9 +186,9 @@ export const MarTableRow = ({
               anchorEl={popperAnchorEl}
               onAnchorElChange={onPopperAnchorElChange}
             />
-          );
-        },
-      )}
+          ),
+        )}
+      </TableRow>
       {openMedicationDetails && (
         <MedicationDetails
           initialMedication={medication}

@@ -1,81 +1,96 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { addHours, isSameDay } from 'date-fns';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import { addHours, isSameDay } from 'date-fns';
+import React, { useRef, useState } from 'react';
+import styled, { css } from 'styled-components';
+
 import {
   ADMINISTRATION_STATUS,
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
-import { TranslatedEnum, TranslatedText, DateDisplay, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { ConditionalTooltip } from '../../Tooltip';
-import { useTranslation } from '../../../contexts/Translation';
-import { StatusPopper } from './StatusPopper';
-import { WarningModal } from '../WarningModal';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { MarDetails } from './MarDetails';
+import {
+  DateDisplay,
+  EditedOrnament,
+  TranslatedEnum,
+  TranslatedText,
+  useDateTime,
+  useTranslation,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { ConditionalTooltip } from '../../Tooltip';
+import { WarningModal } from '../WarningModal';
+import { MarDetails } from './MarDetails';
+import { StatusPopper } from './StatusPopper';
 
-const StatusContainer = styled.div`
+const StatusContainer = styled.td`
   position: relative;
-  width: 100%;
-  height: 100%;
-  border: 1px solid ${Colors.outline};
-  border-right: none;
-  border-bottom: none;
-  background-color: ${Colors.white};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: -1px;
-  margin-right: -1px;
-  cursor: ${p =>
-    p.$disabledClick
-      ? 'default'
-      : p.canCreateMar || (p.status && p.canViewMar)
-      ? 'pointer'
-      : 'default'};
+  ${p =>
+    !p.$disabledClick &&
+    (p.canCreateMar || (p.status && p.canViewMar)) &&
+    css`
+      cursor: pointer;
+    `};
   ${p =>
     (p.isDiscontinued || p.isEnd || p.isPaused) &&
-    `background-image: linear-gradient(${Colors.outline} 1px, transparent 1px);
-    background-size: 100% 5px;
-    background-position: 0 2.5px;`}
+    css`
+      background-image: linear-gradient(${p => p.theme.palette.divider} 1px, transparent 1px);
+      background-size: 100% 5px;
+      background-position: 0 2.5px;
+    `}
   ${p =>
     p.isDisabled || p.isDiscontinued || p.isEnd
-      ? `background-color: ${Colors.background}; color: ${Colors.softText};`
-      : `&:hover {
-    background-color: ${p.$disabledClick ? 'transparent' : Colors.veryLightBlue};
-  }`}
+      ? css`
+          background-color: ${Colors.background};
+          color: ${p => p.theme.palette.text.tertiary};
+        `
+      : css`
+          &:hover {
+            background-color: ${p.$disabledClick ? 'transparent' : p.theme.palette.action.hover};
+          }
+        `}
 `;
 
 const IconWrapper = styled.div`
-  height: 24px;
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
   .MuiSvgIcon-root {
-    width: 24px;
-    height: 24px;
-    color: ${props => props.$color};
+    font-size: 24px;
   }
 `;
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
+  inset-block-end: 3px;
+  inset-inline-end: 0;
   position: absolute;
-  right: 0px;
-  bottom: 3px;
-  font-size: 18px;
   &.MuiSvgIcon-root {
     color: ${Colors.alert};
-    width: 16px;
+    font-size: 18px;
   }
 `;
 
-const EditedIcon = styled.span`
+function HighPriorityOrnament(props) {
+  const { getTranslation } = useTranslation();
+  return (
+    <StyledPriorityHighIcon
+      aria-hidden={undefined}
+      aria-label={getTranslation('general.highPriority.label', 'High priority')}
+      {...props}
+    />
+  );
+}
+
+const StyledEditedOrnament = styled(EditedOrnament)`
   position: absolute;
   right: 3px;
   top: 2px;
@@ -83,18 +98,6 @@ const EditedIcon = styled.span`
 
 const DoseInfo = styled.div`
   text-align: center;
-  font-size: 12px;
-`;
-
-const SelectedOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transition: all 0.2s;
-  opacity: ${p => (p.isSelected && !p.isDisabled ? 1 : 0)};
-  border: 1px solid ${Colors.primary};
 `;
 
 const DiscontinuedDivider = styled.div`
@@ -104,6 +107,11 @@ const DiscontinuedDivider = styled.div`
   width: 2px;
   height: 100%;
   background-color: ${Colors.midText};
+`;
+
+const TooltipText = styled.p`
+  margin-block: 0;
+  text-wrap: balance;
 `;
 
 const getIsPast = ({ timeSlot, selectedDate, now }) => {
@@ -193,7 +201,11 @@ const getIsPausedThenDiscontinued = ({
   toFacilityDateTime,
 }) => {
   const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  return isPreviouslyPaused && isDiscontinued && toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot;
+  return (
+    isPreviouslyPaused &&
+    isDiscontinued &&
+    toFacilityDate(discontinuedDate, toFacilityDateTime) >= startDateOfSlot
+  );
 };
 
 export const MarStatus = ({
@@ -219,7 +231,8 @@ export const MarStatus = ({
   const isSensitive = medication?.medication?.referenceDrug?.isSensitive;
 
   const { dueAt, recordedAt, status, reasonNotGiven, isAutoGenerated, isEdited } = marInfo || {};
-  const { doseAmount, isPrn, dosingUnit, discontinuedDate, endDate, isVariableDose } = medication || {};
+  const { doseAmount, isPrn, dosingUnit, discontinuedDate, endDate, isVariableDose } =
+    medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
 
@@ -229,7 +242,12 @@ export const MarStatus = ({
 
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate, now: facilityNow });
-  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate, now: facilityNow });
+  const isDisabled = getIsDisabled({
+    hasRecord: !!marInfo,
+    timeSlot,
+    selectedDate,
+    now: facilityNow,
+  });
   const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > facilityNow;
   const isCurrent = getIsCurrent({ timeSlot, selectedDate, now: facilityNow });
   const isDiscontinued = getIsDiscontinued({
@@ -242,7 +260,13 @@ export const MarStatus = ({
     toFacilityDateTime,
     storedDateTimeToEpochMilliseconds,
   });
-  const isEnd = getIsEnd({ endDate, hasRecord: !!marInfo, timeSlot, selectedDate, toFacilityDateTime });
+  const isEnd = getIsEnd({
+    endDate,
+    hasRecord: !!marInfo,
+    timeSlot,
+    selectedDate,
+    toFacilityDateTime,
+  });
   const isPaused = getIsPaused({
     pauseRecords: pauseRecords?.data,
     timeSlot,
@@ -276,7 +300,9 @@ export const MarStatus = ({
   const recordedAtMs = storedDateTimeToEpochMilliseconds(recordedAt);
   const dueAtMs = storedDateTimeToEpochMilliseconds(dueAt);
   const isRecordedOutsideAdministrationSchedule =
-    !isAutoGenerated || (recordedAtMs != null && dueAtMs != null && recordedAtMs < dueAtMs) || (isPrn && isPast);
+    !isAutoGenerated ||
+    (recordedAtMs != null && dueAtMs != null && recordedAtMs < dueAtMs) ||
+    (isPrn && isPast);
   const isDoseAmountNotMatch =
     !isVariableDose &&
     status === ADMINISTRATION_STATUS.GIVEN &&
@@ -357,25 +383,25 @@ export const MarStatus = ({
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
         return (
-          <IconWrapper $color={Colors.green}>
-            <CheckCircleIcon />
-            {isAlert && <StyledPriorityHighIcon />}
-            {isEdited && <EditedIcon>*</EditedIcon>}
+          <IconWrapper>
+            <CheckCircleIcon style={{ color: Colors.green }} />
+            {isAlert && <HighPriorityOrnament />}
+            {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
         );
       case ADMINISTRATION_STATUS.NOT_GIVEN:
         return (
-          <IconWrapper $color={Colors.alert}>
-            <CancelIcon />
-            {isAlert && <StyledPriorityHighIcon />}
-            {isEdited && <EditedIcon>*</EditedIcon>}
+          <IconWrapper>
+            <CancelIcon style={{ color: Colors.alert }} />
+            {isAlert && <HighPriorityOrnament />}
+            {isEdited && <StyledEditedOrnament />}
           </IconWrapper>
         );
       default: {
         if (isPast) {
           return isPrn ? null : (
-            <IconWrapper $color={Colors.darkOrange}>
-              <HelpOutlineIcon />
+            <IconWrapper>
+              <HelpOutlineIcon style={{ color: Colors.darkOrange }} />
             </IconWrapper>
           );
         }
@@ -390,59 +416,59 @@ export const MarStatus = ({
         return (
           <DoseInfo>
             <div>{doseAmount}</div>
-            <div>{dosingUnit ? getEnumTranslation(DRUG_UNIT_SHORT_LABELS, dosingUnit) : ''}</div>
+            <div>
+              <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+            </div>
           </DoseInfo>
         );
       }
     }
   };
 
-  const getTooltipText = () => {
+  const content = (() => {
     if (isDiscontinued) {
       return (
-        <Box maxWidth={69}>
+        <TooltipText>
           <TranslatedText
             stringId="medication.mar.medicationDiscontinued.tooltip"
             fallback="Medication discontinued"
           />
-        </Box>
+        </TooltipText>
       );
     }
     if (isEnd) {
       return (
-        <Box maxWidth={105}>
+        <TooltipText>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />{' '}
           <DateDisplay date={endDate} timeFormat="default" noTooltip />
-        </Box>
+        </TooltipText>
       );
     }
     if (isPaused && !status) {
       return (
-        <Box maxWidth={69}>
+        <TooltipText>
           <TranslatedText
             stringId="medication.mar.medicationPaused.tooltip"
             fallback="Medication paused"
           />
-        </Box>
+        </TooltipText>
       );
     }
     if (marInfo) {
       switch (status) {
         case ADMINISTRATION_STATUS.NOT_GIVEN:
           return (
-            <>
-              <Box>
-                {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
-                {isAlert && !isError && (
-                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
-                )}
-              </Box>
-              <div>{reasonNotGiven?.name}</div>
-            </>
+            <TooltipText>
+              {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
+              {isAlert && !isError && (
+                <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+              )}
+              {reasonNotGiven?.name}
+            </TooltipText>
           );
         case ADMINISTRATION_STATUS.GIVEN: {
           return (
-            <Box maxWidth={73}>
+            <TooltipText>
               <Box>
                 {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
                 {isAlert && !isError && (
@@ -453,38 +479,34 @@ export const MarStatus = ({
                 dose =>
                   !dose.isRemoved && (
                     <div key={dose?.id}>
-                      <span>{dose?.doseAmount}</span>{' '}
+                      {dose?.doseAmount}&nbsp;
                       <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
                       <TranslatedText
                         stringId="medication.mar.givenAt.tooltip"
                         fallback="given at :time"
-                        replacements={{
-                          time: formatTime(dose?.givenTime),
-                        }}
+                        replacements={{ time: formatTime(dose?.givenTime) }}
                       />
                     </div>
                   ),
               )}
-            </Box>
+            </TooltipText>
           );
         }
         default:
           if (isDisabled) {
             return (
-              <Box maxWidth={73}>
+              <TooltipText>
                 <TranslatedText
                   stringId="medication.mar.future.tooltip"
                   fallback="Cannot record future dose. Due at :dueAt."
-                  replacements={{
-                    dueAt: formatTime(dueAt),
-                  }}
+                  replacements={{ dueAt: formatTime(dueAt) }}
                 />
-              </Box>
+              </TooltipText>
             );
           }
           if (isPast) {
             return isPrn ? null : (
-              <Box maxWidth={69}>
+              <TooltipText>
                 <TranslatedText
                   stringId="medication.mar.missed.tooltip"
                   fallback="Missed. Due at :dueAt"
@@ -492,11 +514,11 @@ export const MarStatus = ({
                     dueAt: formatTime(dueAt),
                   }}
                 />
-              </Box>
+              </TooltipText>
             );
           }
           return (
-            <Box maxWidth={69}>
+            <TooltipText>
               <TranslatedText
                 stringId="medication.mar.dueAt.tooltip"
                 fallback="Due at :dueAt"
@@ -504,47 +526,48 @@ export const MarStatus = ({
                   dueAt: formatTime(dueAt),
                 }}
               />
-            </Box>
+            </TooltipText>
           );
       }
     }
     return null;
-  };
+  })();
 
   return (
     <>
-      <ConditionalTooltip
-        visible={getTooltipText()}
-        title={<Box fontWeight={400}>{getTooltipText()}</Box>}
-        PopperProps={{
-          popperOptions: {
-            positionFixed: true,
-            modifiers: {
-              preventOverflow: {
-                enabled: true,
-                boundariesElement: 'window',
+      <StatusContainer
+        aria-selected={isSelected}
+        ref={containerRef}
+        onClick={onSelected}
+        isDisabled={isDisabled}
+        isDiscontinued={isDiscontinued}
+        isEnd={isEnd}
+        isPaused={isPaused}
+        canCreateMar={canCreateMar}
+        canViewMar={canViewMar}
+        status={status}
+        $disabledClick={isSensitive && !canViewSensitiveMedications}
+      >
+        <ConditionalTooltip
+          visible={Boolean(content)}
+          title={content}
+          PopperProps={{
+            popperOptions: {
+              positionFixed: true,
+              modifiers: {
+                preventOverflow: {
+                  enabled: true,
+                  boundariesElement: 'window',
+                },
               },
             },
-          },
-        }}
-      >
-        <StatusContainer
-          ref={containerRef}
-          onClick={onSelected}
-          isDisabled={isDisabled}
-          isDiscontinued={isDiscontinued}
-          isEnd={isEnd}
-          isPaused={isPaused}
-          canCreateMar={canCreateMar}
-          canViewMar={canViewMar}
-          status={status}
-          $disabledClick={isSensitive && !canViewSensitiveMedications}
+          }}
         >
+          <VisuallyHidden>{content}</VisuallyHidden>
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
-          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled || isEnd} />
-        </StatusContainer>
-      </ConditionalTooltip>
+        </ConditionalTooltip>
+      </StatusContainer>
       <StatusPopper
         open={!!anchorEl && !!containerRef.current && anchorEl === containerRef.current}
         anchorEl={anchorEl}
