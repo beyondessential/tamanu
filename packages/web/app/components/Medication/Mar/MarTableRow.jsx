@@ -30,7 +30,7 @@ import { MarStatus } from './MarStatus';
  * @returns {({ dueAt: string, id?: string } | null)[]}
  */
 const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
-  const result = Array(12).fill(null);
+  const result = Array(MEDICATION_ADMINISTRATION_TIME_SLOTS.length).fill(null);
 
   medicationAdministrationRecords.forEach(record => {
     const facilityDueAt = toFacilityDateTime(record.dueAt);
@@ -42,19 +42,6 @@ const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDat
 
   return result;
 };
-
-const MarRowContainer = styled.div`
-  padding: 8px 12px;
-  font-size: 14px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  ${props => props.discontinued && `text-decoration: line-through;`}
-  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
-  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
-  &:hover {
-    background-color: ${props => (props.$disabled ? 'transparent' : Colors.veryLightBlue)};
-  }
-`;
 
 const ViewChangeLink = styled.span`
   color: ${Colors.darkestText};
@@ -167,22 +154,24 @@ export const MarTableRow = ({
           )}
         </Box>
       </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map((record, index, array) => {
-        return (
-          <MarStatus
-            key={record?.id || index}
-            selectedDate={selectedDate}
-            timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
-            medication={medication}
-            marInfo={record}
-            previousMarInfo={array[index - 1]}
-            nextMarInfo={array[index + 1]}
-            pauseRecords={pauseRecords}
-            anchorEl={popperAnchorEl}
-            onAnchorElChange={onPopperAnchorElChange}
-          />
-        );
-      })}
+      {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map(
+        (record, index, array) => {
+          return (
+            <MarStatus
+              key={record?.id || index}
+              selectedDate={selectedDate}
+              timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
+              medication={medication}
+              marInfo={record}
+              previousMarInfo={array[index - 1]}
+              nextMarInfo={array[index + 1]}
+              pauseRecords={pauseRecords}
+              anchorEl={popperAnchorEl}
+              onAnchorElChange={onPopperAnchorElChange}
+            />
+          );
+        },
+      )}
       {openMedicationDetails && (
         <MedicationDetails
           initialMedication={medication}
