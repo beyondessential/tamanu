@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../index';
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../index';
 
 export const useEncounterMedicationQuery = (encounterId, fetchOptions) => {
   const { facilityId } = useAuth();
@@ -11,8 +11,10 @@ export const useEncounterMedicationQuery = (encounterId, fetchOptions) => {
     ...fetchOptions,
   };
 
-  return useQuery(['encounterMedication', encounterId, options], () =>
-    api.get(`encounter/${encodeURIComponent(encounterId)}/medications`, options),
-    { enabled: !!encounterId },
-  );
+  return useQuery({
+    queryKey: ['encounterMedication', encounterId, options],
+    queryFn: async () =>
+      await api.get(`encounter/${encodeURIComponent(encounterId)}/medications`, options),
+    enabled: !!encounterId,
+  });
 };
