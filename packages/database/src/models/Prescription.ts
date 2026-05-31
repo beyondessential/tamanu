@@ -20,6 +20,7 @@ export class Prescription extends Model {
   declare doseAmount: string;
   declare dosingUnit: string;
   declare dispensingUnit: string;
+  declare unitConversion: number;
   declare frequency: string;
   declare idealTimes?: string[];
   declare route: string;
@@ -59,6 +60,11 @@ export class Prescription extends Model {
         dispensingUnit: {
           type: DataTypes.STRING,
           allowNull: false,
+        },
+        unitConversion: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          defaultValue: 1,
         },
         frequency: {
           type: DataTypes.STRING,
@@ -225,7 +231,6 @@ export class Prescription extends Model {
       MedicationAdministrationRecordDose,
       PharmacyOrderPrescription,
       PharmacyOrder,
-      ReferenceDrug,
     } = this.sequelize.models;
 
     const prescription = this;
@@ -324,11 +329,8 @@ export class Prescription extends Model {
 
       // Convert from dosing units to dispensing units. Sum all doses first, then
       // ceil once so that edits adding more doses don't compound rounding up.
-      const referenceDrug = await ReferenceDrug.findOne({
-        where: { referenceDataId: prescription.medicationId },
-        attributes: ['unitConversion'],
-      });
-      const unitConversion = Number(referenceDrug?.unitConversion) || 1;
+      // Use the unitConversion snapshotted on the prescription at creation time.
+      const unitConversion = Number(prescription.unitConversion) || 1;
       marQty = Math.ceil(totalDosingAmount / unitConversion);
     }
 

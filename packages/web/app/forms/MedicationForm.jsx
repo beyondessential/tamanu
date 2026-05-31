@@ -4,8 +4,6 @@ import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import PrintIcon from '@mui/icons-material/Print';
 import {
-  DRUG_UNIT_VALUES,
-  DRUG_UNIT_LABELS,
   DRUG_ROUTE_LABELS,
   DRUG_ROUTE_VALUES,
   MEDICATION_DURATION_UNITS_LABELS,
@@ -93,12 +91,6 @@ const validationSchema = yup.object().shape({
           <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
         ),
     }),
-  dosingUnit: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ).oneOf(DRUG_UNIT_VALUES),
-  dispensingUnit: foreignKey(
-    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-  ).oneOf(DRUG_UNIT_VALUES),
   repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
@@ -875,8 +867,6 @@ export const MedicationForm = ({
                       setValues({
                         ...values,
                         route: referenceDrug?.route?.toLowerCase() || '',
-                        dosingUnit: referenceDrug?.dosingUnit || '',
-                        dispensingUnit: referenceDrug?.dispensingUnit || '',
                         notes: referenceDrug?.notes || '',
                       });
                       handleChangeMedication(e);
@@ -998,22 +988,6 @@ export const MedicationForm = ({
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
-              name="dosingUnit"
-              label={<TranslatedText stringId="medication.dosingUnit.label" fallback="Dosing unit" />}
-              component={TranslatedSelectField}
-              enumValues={DRUG_UNIT_LABELS}
-              required
-              data-testid="medication-field-dosingUnit-2r9v"
-            />
-            <Field
-              name="dispensingUnit"
-              label={<TranslatedText stringId="medication.dispensingUnit.label" fallback="Dispensing unit" />}
-              component={TranslatedSelectField}
-              enumValues={DRUG_UNIT_LABELS}
-              required
-              data-testid="medication-field-dispensingUnit-7k2p"
-            />
-            <Field
               name="frequency"
               component={FrequencySearchField}
               required
@@ -1094,7 +1068,14 @@ export const MedicationForm = ({
                 data-testid="medication-field-durationUnit-4q8f"
               />
             </FormGrid>
-            <div />
+            <Field
+              name="indication"
+              label={
+                <TranslatedText stringId="medication.indication.label" fallback="Indication" />
+              }
+              component={TextField}
+              data-testid="medication-field-indication-9w6y"
+            />
             <Field
               name="prescriberId"
               label={
@@ -1104,14 +1085,6 @@ export const MedicationForm = ({
               suggester={practitionerSuggester}
               required
               data-testid="medication-field-prescriberId-3x5h"
-            />
-            <Field
-              name="indication"
-              label={
-                <TranslatedText stringId="medication.indication.label" fallback="Indication" />
-              }
-              component={TextField}
-              data-testid="medication-field-indication-9w6y"
             />
             <div style={{ gridColumn: '1/-1' }}>
               <Field

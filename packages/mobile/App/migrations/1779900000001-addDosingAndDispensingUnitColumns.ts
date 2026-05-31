@@ -27,9 +27,19 @@ export class addDosingAndDispensingUnitColumns1779900000001 implements Migration
       'prescriptions',
       new TableColumn({ name: 'dispensingUnit', type: 'varchar', isNullable: true }),
     );
+    await queryRunner.addColumn(
+      'prescriptions',
+      new TableColumn({ name: 'unitConversion', type: 'decimal', isNullable: true }),
+    );
     await queryRunner.query(
       `UPDATE prescriptions SET dosingUnit = units, dispensingUnit = units`,
     );
+    await queryRunner.query(`
+      UPDATE prescriptions
+      SET unitConversion = reference_drugs.unitConversion
+      FROM reference_drugs
+      WHERE reference_drugs.referenceDataId = prescriptions.medicationId
+    `);
     await queryRunner.dropColumn('prescriptions', 'units');
   }
 
@@ -38,6 +48,7 @@ export class addDosingAndDispensingUnitColumns1779900000001 implements Migration
       'prescriptions',
       new TableColumn({ name: 'units', type: 'varchar', isNullable: true }),
     );
+    await queryRunner.dropColumn('prescriptions', 'unitConversion');
     await queryRunner.dropColumn('prescriptions', 'dispensingUnit');
     await queryRunner.dropColumn('prescriptions', 'dosingUnit');
 

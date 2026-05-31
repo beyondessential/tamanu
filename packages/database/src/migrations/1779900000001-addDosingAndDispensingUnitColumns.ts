@@ -22,6 +22,10 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: true,
   });
+  await queryInterface.addColumn('prescriptions', 'unit_conversion', {
+    type: DataTypes.DECIMAL,
+    allowNull: true,
+  });
   await queryInterface.addColumn('reference_medication_templates', 'dosing_unit', {
     type: DataTypes.STRING,
     allowNull: true,
@@ -30,6 +34,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
 export async function down(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.removeColumn('reference_medication_templates', 'dosing_unit');
+  await queryInterface.removeColumn('prescriptions', 'unit_conversion');
   await queryInterface.removeColumn('prescriptions', 'dispensing_unit');
   await queryInterface.removeColumn('prescriptions', 'dosing_unit');
   await queryInterface.removeColumn('reference_drugs', 'unit_conversion');
