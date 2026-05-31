@@ -60,8 +60,6 @@ const medicationInputSchema = z
     isPrn: z.boolean().optional().nullable(),
     isVariableDose: z.boolean().optional().nullable(),
     doseAmount: z.coerce.number().positive().optional().nullable(),
-    dosingUnit: z.enum(Object.values(DRUG_UNITS)),
-    dispensingUnit: z.enum(Object.values(DRUG_UNITS)),
     frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
     startDate: datetimeCustomValidation,
     durationValue: z.coerce.number().positive().optional().nullable(),
@@ -117,7 +115,7 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models, db } = req;
     const patientId = req.params.patientId;
-    const { Prescription, Patient, PatientOngoingPrescription } = models;
+    const { Prescription, Patient, PatientOngoingPrescription, ReferenceDrug } = models;
     req.checkPermission('create', 'Medication');
 
     const data = await medicationInputSchema.parseAsync(req.body);
@@ -129,8 +127,21 @@ medication.post(
       throw new InvalidOperationError(`Patient with id ${patientId} not found`);
     }
 
+    const referenceDrug = await ReferenceDrug.findOne({
+      where: { referenceDataId: data.medicationId },
+      attributes: ['dosingUnit', 'dispensingUnit', 'unitConversion'],
+    });
+
     const result = await db.transaction(async transaction => {
-      const prescription = await Prescription.create(data, { transaction });
+      const prescription = await Prescription.create(
+        {
+          ...data,
+          dosingUnit: referenceDrug?.dosingUnit ?? '',
+          dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+          unitConversion: referenceDrug?.unitConversion ?? 1,
+        },
+        { transaction },
+      );
       await PatientOngoingPrescription.create(
         { patientId, prescriptionId: prescription.id },
         { transaction },
@@ -143,9 +154,21 @@ medication.post(
 );
 
 const createEncounterPrescription = async ({ encounter, data, models }) => {
-  const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
+  const { Prescription, EncounterPrescription, MedicationAdministrationRecord, ReferenceDrug } =
+    models;
 
-  const prescription = await Prescription.create({ ...data, id: undefined });
+  const referenceDrug = await ReferenceDrug.findOne({
+    where: { referenceDataId: data.medicationId },
+    attributes: ['dosingUnit', 'dispensingUnit', 'unitConversion'],
+  });
+
+  const prescription = await Prescription.create({
+    ...data,
+    id: undefined,
+    dosingUnit: referenceDrug?.dosingUnit ?? '',
+    dispensingUnit: referenceDrug?.dispensingUnit ?? '',
+    unitConversion: referenceDrug?.unitConversion ?? 1,
+  });
   await EncounterPrescription.create({
     encounterId: encounter.id,
     prescriptionId: prescription.id,

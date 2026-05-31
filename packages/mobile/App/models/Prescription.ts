@@ -58,6 +58,9 @@ export class Prescription extends BaseModel {
   @Column({ nullable: true })
   dispensingUnit: string;
 
+  @Column({ nullable: true })
+  unitConversion: number;
+
   @Column()
   frequency: string;
 
