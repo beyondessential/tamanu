@@ -35,26 +35,18 @@ export function getSvgPathFromStroke(stroke) {
 
 /** @param {Array<{ x: number, y: number, pressure?: number }>} points */
 export function pointsToSvgPath(points) {
-  if (!points.length) {
-    return '';
-  }
+  if (!points.length) return '';
 
   const strokePoints = points.map(({ x, y, pressure = 0.5 }) => [x, y, pressure]);
   const outline = getStroke(strokePoints, STROKE_OPTIONS);
   return getSvgPathFromStroke(outline);
 }
 
-/** Combines stored path segments when the user adds strokes after refocus. */
-export function appendSvgPaths(existingPath, newPath) {
-  const existing = existingPath?.trim();
-  const added = newPath?.trim();
-  if (!existing) {
-    return added || '';
-  }
-  if (!added) {
-    return existing;
-  }
-  return `${existing} ${added}`;
+export function appendSvgPaths(...paths) {
+  return paths
+    .map(path => path?.trim())
+    .filter(Boolean)
+    .join(' ');
 }
 
 /** Merges an existing body value with in-session stroke point arrays. */
