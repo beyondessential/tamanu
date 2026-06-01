@@ -8,6 +8,7 @@ import {
   TranslatedEnum,
   DateDisplay,
   TextInput,
+  NumberInput,
   Form,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
@@ -23,6 +24,7 @@ import { useTranslation } from '../../contexts/Translation';
 import {
   DRUG_ROUTE_LABELS,
   DRUG_STOCK_STATUSES,
+  DRUG_UNIT_LABELS,
   MAX_REPEATS,
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
@@ -248,19 +250,15 @@ const getColumns = (
       const fieldError = errors?.medications?.[data.id]?.quantity;
       const hasError = status?.submitStatus === SUBMIT_ATTEMPTED_STATUS && selected && !!fieldError;
       return (
-        <TextInput
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 0,
-            },
-          }}
+        <NumberInput
+          min={0}
+          unit={data.dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, data.dispensingUnit) : undefined}
           value={value}
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
           helperText={hasError && fieldError}
-          style={{ maxWidth: '72px' }}
+          style={{ maxWidth: '100px' }}
         />
       );
     },

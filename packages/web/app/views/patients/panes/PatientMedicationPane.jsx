@@ -20,7 +20,7 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES, DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
@@ -341,7 +341,11 @@ const DISPENSED_MEDICATION_COLUMNS = (
       />
     ),
     sortable: false,
-    accessor: data => data?.quantity,
+    accessor: data => {
+      const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      if (!dispensingUnit) return data?.quantity;
+      return `${data?.quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`;
+    },
   },
   {
     key: 'dispensedBy.displayName',

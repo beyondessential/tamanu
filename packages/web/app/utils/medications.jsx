@@ -19,6 +19,7 @@ import {
 } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
+  NumberInput,
   TableCellTag,
   TAMANU_COLORS,
   TextInput,
@@ -85,7 +86,7 @@ export const InstructionsInput = memo(({ value, onChange, disabled, testId, ...p
   );
 });
 
-const StyledQuantityTextInput = styled(TextInput)`
+const StyledQuantityTextInput = styled(NumberInput)`
   .MuiInputBase-input {
     font-size: 14px;
     padding-block: 10px;
@@ -99,9 +100,7 @@ export const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) 
     setValue(e.target.value);
     onChange(e);
   };
-  return (
-    <StyledQuantityTextInput {...props} type="number" value={value} onChange={handleChange} />
-  );
+  return <StyledQuantityTextInput {...props} value={value} onChange={handleChange} />;
 });
 
 export const StyledPresetLabelAutocomplete = styled(AutocompleteInput)`

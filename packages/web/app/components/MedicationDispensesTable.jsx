@@ -12,6 +12,7 @@ import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
 import { getMedicationLabelData, getTranslatedMedicationName } from '../utils/medications';
+import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../contexts/Translation';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
@@ -72,7 +73,7 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 export const MedicationDispensesTable = () => {
   const api = useApi();
   const { ability, facilityId } = useAuth();
-  const { getReferenceDataTranslation } = useTranslation();
+  const { getReferenceDataTranslation, getEnumTranslation } = useTranslation();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
   const { data: facility } = useFacilityQuery(facilityId);
   const { getCurrentDateTime } = useDateTime();
@@ -209,7 +210,11 @@ export const MedicationDispensesTable = () => {
           fallback="Qty dispensed"
         />
       ),
-      accessor: getQuantity,
+      accessor: ({ quantity, pharmacyOrderPrescription }) => {
+        const dispensingUnit = pharmacyOrderPrescription?.prescription?.dispensingUnit;
+        if (!dispensingUnit) return quantity;
+        return `${quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`;
+      },
       sortable: false,
     },
     {

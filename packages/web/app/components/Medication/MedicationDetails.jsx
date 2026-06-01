@@ -8,6 +8,7 @@ import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
   MAX_REPEATS,
@@ -173,7 +174,9 @@ export const MedicationDetails = ({
           />
         )
       ),
-      value: medication.quantity ?? '-',
+      value: medication.quantity != null
+        ? `${medication.quantity}${medication.dispensingUnit ? ` ${getEnumTranslation(DRUG_UNIT_LABELS, medication.dispensingUnit)}` : ''}`
+        : '-',
     }
   ];
 
