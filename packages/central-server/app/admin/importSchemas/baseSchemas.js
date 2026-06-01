@@ -408,6 +408,7 @@ export const InvoicePriceList = yup.object().shape({
   code: fieldTypes.code.required(),
   name: yup.string().nullable(),
   rules: invoicePriceListRulesSchema,
+  evaluationOrder: yup.number().integer().nullable(),
   visibilityStatus,
 });
 
