@@ -54,11 +54,10 @@ const ReadOnlyInstructions = styled.div`
   border-radius: 4px;
   padding: 10px 14px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 18px;
   color: ${TAMANU_COLORS.darkestText};
   white-space: pre-wrap;
   word-wrap: break-word;
-  min-height: 38px;
   box-sizing: border-box;
 `;
 
