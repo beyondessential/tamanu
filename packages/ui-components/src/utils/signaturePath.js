@@ -41,6 +41,7 @@ export function pointsToSvgPath(points) {
   return getSvgPathFromStroke(outline);
 }
 
+/** @param {string[]} paths */
 export function appendSvgPaths(...paths) {
   return paths
     .map(path => path?.trim())
