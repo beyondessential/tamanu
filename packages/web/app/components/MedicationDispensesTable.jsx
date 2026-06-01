@@ -66,7 +66,6 @@ const getMedication = ({ pharmacyOrderPrescription }) => (
 const getDateDispensed = ({ dispensedAt }) => (
   <DateDisplay date={dispensedAt} timeOnlyTooltip shortYear data-testid="datedisplay-date-sent" />
 );
-const getQuantity = ({ quantity }) => quantity;
 const getDispensedBy = ({ dispensedBy }) => dispensedBy?.displayName;
 const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription?.displayId;
 
@@ -115,7 +114,12 @@ export const MedicationDispensesTable = () => {
       },
     ];
 
-    const labelData = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
+    const labelData = getMedicationLabelData({
+      items: labelItems,
+      patient,
+      facility,
+      currentDateTime: getCurrentDateTime(),
+    });
     setSelectedLabelData(labelData);
     setPrintModalOpen(true);
   };
@@ -283,10 +287,13 @@ export const MedicationDispensesTable = () => {
       : []),
   ];
 
-  const fetchOptions = useMemo(() => ({
-    ...searchParameters,
-    facilityId,
-  }), [searchParameters, facilityId]);
+  const fetchOptions = useMemo(
+    () => ({
+      ...searchParameters,
+      facilityId,
+    }),
+    [searchParameters, facilityId],
+  );
 
   const handleRowClick = (_, dispenseData) => {
     const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
