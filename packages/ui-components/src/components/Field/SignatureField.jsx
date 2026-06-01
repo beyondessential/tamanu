@@ -252,16 +252,11 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {showEmptyOverlay && (
           <EmptyOverlay data-testid="signaturefield-empty">
-            <TranslatedText
-              stringId="program.question.signature.emptyHint"
-              fallback="Sign here"
-              data-testid="translatedtext-signature-empty"
-            />
+            <TranslatedText stringId="program.question.signature.emptyHint" fallback="Sign here" />
             <InstructionText>
               <TranslatedText
                 stringId="program.question.signature.instruction"
                 fallback="Use your mouse or trackpad to add signature."
-                data-testid="translatedtext-signature-instruction"
               />
             </InstructionText>
           </EmptyOverlay>
