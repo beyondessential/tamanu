@@ -24,7 +24,8 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   });
   await queryInterface.addColumn('prescriptions', 'unit_conversion', {
     type: DataTypes.DECIMAL,
-    allowNull: true,
+    allowNull: false,
+    defaultValue: 1,
   });
   await queryInterface.addColumn('reference_medication_templates', 'dosing_unit', {
     type: DataTypes.STRING,
