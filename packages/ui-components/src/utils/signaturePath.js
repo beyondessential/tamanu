@@ -16,9 +16,7 @@ const STROKE_OPTIONS = {
  * Stored alone in survey_response_answers.body (no wrapper SVG markup).
  */
 export function getSvgPathFromStroke(stroke) {
-  if (!stroke.length) {
-    return '';
-  }
+  if (!stroke.length) return '';
 
   const d = stroke.reduce(
     (acc, [x0, y0], i, arr) => {
