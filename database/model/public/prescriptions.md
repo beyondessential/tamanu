@@ -109,3 +109,7 @@ The dosing units of the prescription.
 {% docs prescriptions__dispensing_unit %}
 The dispensing units of the prescription.
 {% enddocs %}
+
+{% docs prescriptions__unit_conversion %}
+Number of dosing unit to equal 1 unit of the dispensing unit.
+{% enddocs %}
