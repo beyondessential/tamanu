@@ -34,7 +34,6 @@ export function getSvgPathFromStroke(stroke) {
 /** @param {import('perfect-freehand').StrokePoint[]} points */
 export function pointsToSvgPath(points) {
   if (!points.length) return '';
-
   const outline = getStroke(points, STROKE_OPTIONS);
   return getSvgPathFromStroke(outline);
 }
