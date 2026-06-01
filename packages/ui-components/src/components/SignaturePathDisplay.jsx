@@ -6,8 +6,7 @@ import {
   SIGNATURE_VIEWBOX_WIDTH,
 } from '../utils/signaturePath';
 
-const Svg = styled.svg.attrs({
-  'data-testid': 'signaturepathdisplay',
+const SignatureSvg = styled.svg.attrs({
   preserveAspectRatio: 'xMidYMid meet',
   viewBox: SIGNATURE_VIEWBOX,
 })`
@@ -17,14 +16,18 @@ const Svg = styled.svg.attrs({
   height: auto;
   max-width: min(${SIGNATURE_VIEWBOX_WIDTH}px, 100%);
   width: 100%;
+  &,
+  & path {
+    fill: currentColor;
+  }
 `;
 
 export const SignaturePathDisplay = ({ path, ...props }) => {
   if (!path) return null;
 
   return (
-    <Svg {...props}>
-      <path d={path} fill="currentColor" />
-    </Svg>
+    <SignatureSvg data-testid="signaturepathdisplay" {...props}>
+      <path d={path} />
+    </SignatureSvg>
   );
 };
