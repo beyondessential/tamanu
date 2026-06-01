@@ -6,7 +6,7 @@ import {
   SIGNATURE_VIEWBOX_WIDTH,
 } from '../utils/signaturePath';
 
-const SignatureSvg = styled.svg.attrs({
+export const SignatureSvg = styled.svg.attrs({
   preserveAspectRatio: 'xMidYMid meet',
   viewBox: SIGNATURE_VIEWBOX,
 })`

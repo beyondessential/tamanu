@@ -8,7 +8,7 @@ import {
   strokesToCombinedPath,
 } from '../../utils/signaturePath';
 import { Button } from '../Button';
-import { SignaturePathDisplay } from '../SignaturePathDisplay';
+import { SignaturePathDisplay, SignatureSvg } from '../SignaturePathDisplay';
 import { TranslatedText } from '../Translation';
 
 const Container = styled.div`
@@ -34,15 +34,9 @@ const PadWrapper = styled.div`
   }
 `;
 
-const PadSvg = styled.svg.attrs({
+const PadSvg = styled(SignatureSvg).attrs({
   'data-testid': 'signaturefield-svg',
-  preserveAspectRatio: 'xMidYMid meet',
-  viewBox: SIGNATURE_VIEWBOX,
 })`
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   touch-action: none;
   user-select: none;
 `;
@@ -229,12 +223,10 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {isActive && !value && sessionPreviewPath && (
           <PadSvg
-            preserveAspectRatio="xMidYMid meet"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={finishStroke}
-            data-testid="signaturefield-svg"
           >
             <path d={sessionPreviewPath} />
           </PadSvg>
