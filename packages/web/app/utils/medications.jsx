@@ -45,16 +45,43 @@ const StyledInstructionsTextInput = styled(TextInput)`
   }
 `;
 
-export const InstructionsInput = memo(({ value, onChange, ...props }) => (
-  <StyledInstructionsTextInput
-    multiline
-    minRows={1}
-    maxRows={5}
-    {...props}
-    value={value ?? ''}
-    onChange={onChange}
-  />
-));
+// Disabled MUI v4 multiline TextField doesn't autosize reliably — it sticks at
+// minRows height and clips longer content. The read-only path renders a styled
+// div instead, sized to its content, so wrapped lines stay visible.
+const ReadOnlyInstructions = styled.div`
+  background: ${TAMANU_COLORS.background};
+  border: 1px solid ${TAMANU_COLORS.outline};
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: ${TAMANU_COLORS.darkestText};
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  min-height: 38px;
+  box-sizing: border-box;
+`;
+
+export const InstructionsInput = memo(({ value, onChange, disabled, testId, ...props }) => {
+  if (disabled) {
+    return (
+      <ReadOnlyInstructions data-testid={testId} {...props}>
+        {value ?? ''}
+      </ReadOnlyInstructions>
+    );
+  }
+  return (
+    <StyledInstructionsTextInput
+      multiline
+      minRows={1}
+      maxRows={5}
+      testId={testId}
+      {...props}
+      value={value ?? ''}
+      onChange={onChange}
+    />
+  );
+});
 
 const StyledQuantityTextInput = styled(TextInput)`
   .MuiInputBase-input {
