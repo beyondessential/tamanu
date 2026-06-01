@@ -42,7 +42,11 @@ const PadSvg = styled.svg`
   user-select: none;
 `;
 
-const DrawingLayer = styled(PadSvg)`
+const DrawingLayer = styled(PadSvg).attrs({
+  'data-testid': 'signaturefield-svg',
+  preserveAspectRatio: 'xMidYMid meet',
+  viewBox: `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`,
+})`
   position: absolute;
   inset: 0;
 `;
@@ -71,9 +75,9 @@ const ClearRow = styled.div`
   justify-content: flex-end;
 `;
 
-const HiddenInput = styled.input.attrs({ type: 'text' })`
-  display: none;
-`;
+function HiddenInput(props) {
+  return <input data-testid="signaturefield-input" hidden readOnly type="text" {...props} />;
+}
 
 const clientPointToViewBox = (clientX, clientY, rect) => {
   const x = ((clientX - rect.left) / rect.width) * SIGNATURE_VIEWBOX_WIDTH;
@@ -184,14 +188,7 @@ export const SignatureField = ({ field, disabled }) => {
 
   return (
     <Container data-testid="signaturefield-container">
-      <HiddenInput
-        {...field}
-        data-testid="signaturefield-input"
-        disabled={disabled}
-        readOnly
-        type="text"
-        value={value}
-      />
+      <HiddenInput {...field} disabled={disabled} value={value} />
       <PadWrapper
         ref={padRef}
         $focused={isFocused}
@@ -218,15 +215,12 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {isActive && value && (
           <>
-            <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
+            <SignaturePathDisplay path={value} />
             <DrawingLayer
-              viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
-              preserveAspectRatio="xMidYMid meet"
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerCancel={finishStroke}
-              data-testid="signaturefield-svg"
             >
               {sessionPreviewPath && (
                 <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
