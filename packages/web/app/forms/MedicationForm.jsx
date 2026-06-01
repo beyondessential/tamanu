@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import PrintIcon from '@mui/icons-material/Print';
 import {
+  DRUG_UNIT_LABELS,
   DRUG_ROUTE_LABELS,
   DRUG_ROUTE_VALUES,
   MEDICATION_DURATION_UNITS_LABELS,
@@ -622,7 +623,7 @@ export const MedicationForm = ({
   const isEditing = !!onConfirmEdit;
   const api = useApi();
   const { ability, currentUser } = useAuth();
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
@@ -828,7 +829,7 @@ export const MedicationForm = ({
         initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        render={({ submitForm, setValues, values, dirty, setFieldError }) => (
+        render={({ submitForm, setValues, setFieldValue, values, dirty, setFieldError }) => (
           <StyledFormGrid>
             {!isEditing ? (
               <>
@@ -864,11 +865,10 @@ export const MedicationForm = ({
                     required
                     onChange={e => {
                       const referenceDrug = e.target.referenceDrug;
-                      setValues({
-                        ...values,
-                        route: referenceDrug?.route?.toLowerCase() || '',
-                        notes: referenceDrug?.notes || '',
-                      });
+                      setFieldValue('route', referenceDrug?.route?.toLowerCase() || '');
+                      setFieldValue('dosingUnit', referenceDrug?.dosingUnit || '');
+                      setFieldValue('dispensingUnit', referenceDrug?.dispensingUnit || '');
+                      setFieldValue('notes', referenceDrug?.notes || '');
                       handleChangeMedication(e);
                     }}
                     data-testid="medication-field-medicationId-8k3m"
@@ -985,6 +985,7 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
+              unit={values.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dosingUnit) : undefined}
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
@@ -1145,6 +1146,7 @@ export const MedicationForm = ({
               min={0}
               component={NumberField}
               onInput={preventInvalidNumber}
+              unit={values.dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dispensingUnit) : undefined}
               data-testid="medication-field-quantity-6j9m"
             />
             <Field

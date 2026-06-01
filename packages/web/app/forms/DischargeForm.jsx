@@ -6,6 +6,7 @@ import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  DRUG_UNIT_LABELS,
   NOTE_TYPES,
   MAX_REPEATS,
 } from '@tamanu/constants';
@@ -13,8 +14,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
   TextField,
-  StyledTextField,
   TextInput,
+  NumberInput,
   FormGrid,
   FormConfirmCancelBackRow,
   FormSubmitButton,
@@ -142,8 +143,8 @@ const TableContainer = styled(Box)`
         padding-right: 0;
       }
       ${({ $isEmpty }) =>
-    $isEmpty &&
-    `
+        $isEmpty &&
+        `
         padding: 0;
         padding-top: 15px;
       `}
@@ -251,12 +252,10 @@ const ProcedureList = React.memo(({ procedures }) => (
 ));
 
 const NumberFieldWithoutLabel = ({ field, ...props }) => (
-  <StyledTextField
+  <NumberInput
     name={field.name}
     value={field.value || 0}
     onChange={field.onChange}
-    variant="outlined"
-    type="number"
     {...props}
     data-testid="styledtextfield-4ea9"
   />
@@ -271,9 +270,9 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
   const durationDisplay =
     medication.durationValue && translatedUnit
       ? `${medication.durationValue} ${singularize(
-        translatedUnit,
-        medication.durationValue,
-      ).toLowerCase()}`
+          translatedUnit,
+          medication.durationValue,
+        ).toLowerCase()}`
       : null;
   return (
     <Box>
@@ -321,80 +320,81 @@ const MEDICATION_COLUMNS = (
   canUpdateMedication,
   canWriteSensitiveMedication,
 ) => [
-    {
-      key: 'medication',
-      title: (
-        <TranslatedText
-          stringId="discharge.table.column.medication"
-          fallback="Medication"
-          data-testid="translatedtext-qyha"
-        />
-      ),
-      accessor: medication => (
-        <MedicationAccessor
-          medication={medication}
-          getTranslation={getTranslation}
-          getEnumTranslation={getEnumTranslation}
-        />
-      ),
-      width: '250px',
-    },
-    {
-      key: 'quantity',
-      title: (
-        <TranslatedText
-          stringId="discharge.table.column.dischargeQuantity"
-          fallback="Discharge qty"
-          data-testid="translatedtext-8e5k"
-        />
-      ),
-      accessor: ({ id, medication }) => (
-        <Field
-          name={`medications.${id}.quantity`}
-          component={NumberFieldWithoutLabel}
-          data-testid="field-ksmf"
-          disabled={
-            !canUpdateMedication ||
-            (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
-          }
-        />
-      ),
-      width: '120px',
-    },
-    {
-      key: 'repeats',
-      title: (
-        <TranslatedText
-          stringId="discharge.table.column.repeats"
-          fallback="Repeats"
-          data-testid="translatedtext-opjr"
-        />
-      ),
-      accessor: ({ id, medication }) => (
-        <Field
-          name={`medications.${id}.repeats`}
-          component={NumberFieldWithoutLabel}
-          min={0}
-          max={MAX_REPEATS}
-          data-testid="field-ium3"
-          disabled={
-            !canUpdateMedication ||
-            (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
-          }
-          step={1}
-          onInput={preventInvalidRepeatsInput}
-        />
-      ),
-      width: '120px',
-    },
-    {
-      key: 'Ongoing',
-      title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
-      accessor: OngoingAccessor,
-      width: '60px',
-    },
-    ...(canUpdateMedication
-      ? [
+  {
+    key: 'medication',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.medication"
+        fallback="Medication"
+        data-testid="translatedtext-qyha"
+      />
+    ),
+    accessor: medication => (
+      <MedicationAccessor
+        medication={medication}
+        getTranslation={getTranslation}
+        getEnumTranslation={getEnumTranslation}
+      />
+    ),
+    width: '250px',
+  },
+  {
+    key: 'quantity',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.dischargeQuantity"
+        fallback="Discharge qty"
+        data-testid="translatedtext-8e5k"
+      />
+    ),
+    accessor: ({ id, medication, dispensingUnit }) => (
+      <Field
+        name={`medications.${id}.quantity`}
+        component={NumberFieldWithoutLabel}
+        unit={dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined}
+        data-testid="field-ksmf"
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
+      />
+    ),
+    width: '150px',
+  },
+  {
+    key: 'repeats',
+    title: (
+      <TranslatedText
+        stringId="discharge.table.column.repeats"
+        fallback="Repeats"
+        data-testid="translatedtext-opjr"
+      />
+    ),
+    accessor: ({ id, medication }) => (
+      <Field
+        name={`medications.${id}.repeats`}
+        component={NumberFieldWithoutLabel}
+        min={0}
+        max={MAX_REPEATS}
+        data-testid="field-ium3"
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
+        step={1}
+        onInput={preventInvalidRepeatsInput}
+      />
+    ),
+    width: '120px',
+  },
+  {
+    key: 'Ongoing',
+    title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
+    accessor: OngoingAccessor,
+    width: '60px',
+  },
+  ...(canUpdateMedication
+    ? [
         {
           key: 'Discontinued',
           title: '',
@@ -410,8 +410,8 @@ const MEDICATION_COLUMNS = (
           width: '75px',
         },
       ]
-      : []),
-  ];
+    : []),
+];
 
 const EncounterOverview = ({
   encounter: { procedures, startDate, examiner, reasonForEncounter, encounterType },
@@ -821,13 +821,13 @@ export const DischargeForm = ({
           !showWarningScreen
             ? DischargeSummaryScreen
             : props => (
-              <UnsavedChangesScreen
-                {...props}
-                showWarningScreen={showWarningScreen}
-                onSubmit={handleSubmit}
-                data-testid="unsavedchangesscreen-o64o"
-              />
-            )
+                <UnsavedChangesScreen
+                  {...props}
+                  showWarningScreen={showWarningScreen}
+                  onSubmit={handleSubmit}
+                  data-testid="unsavedchangesscreen-o64o"
+                />
+              )
         }
         validationSchema={yup.object().shape({
           endDate: yup
@@ -859,12 +859,12 @@ export const DischargeForm = ({
               }),
               note: dischargeNoteMandatory
                 ? foreignKey().translatedLabel(
-                  <TranslatedText
-                    stringId="discharge.notes.label"
-                    fallback="Discharge treatment plan and follow-up notes"
-                    data-testid="translatedtext-208f"
-                  />,
-                )
+                    <TranslatedText
+                      stringId="discharge.notes.label"
+                      fallback="Discharge treatment plan and follow-up notes"
+                      data-testid="translatedtext-208f"
+                    />,
+                  )
                 : yup.string().optional(),
             })
             .required()
@@ -980,9 +980,7 @@ export const DischargeForm = ({
             </MedicationContainer>
           </OuterLabelFieldWrapper>
 
-          <BodyText
-            style={{ gridColumn: '1 / -1', color: Colors.textSecondary }}
-          >
+          <BodyText style={{ gridColumn: '1 / -1', color: Colors.textSecondary }}>
             <TranslatedText
               stringId="discharge.pharmacyOrderNote"
               fallback="Please note, the discharge summary only shows the clinical record. In order to actually order a supply of these medicines from pharmacy, if required, you need to 'Send to pharmacy' from the encounter."

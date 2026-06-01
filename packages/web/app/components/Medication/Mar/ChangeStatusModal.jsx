@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useTranslation } from '../../../contexts/Translation';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
@@ -96,6 +97,7 @@ const StyledDivider = styled(Divider)`
 
 export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
   const { currentUser } = useAuth();
+  const { getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
@@ -299,12 +301,9 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     name="doseAmount"
                     component={NumberField}
                     label={
-                      <TranslatedText
-                        stringId="mar.details.doseGiven.label"
-                        values={{ units: medication?.dosingUnit }}
-                        fallback={`Dose given (${medication?.dosingUnit})`}
-                      />
+                      <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
                     }
+                    unit={medication?.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, medication.dosingUnit) : undefined}
                   />
                   <div>
                     <TimeGivenTitle>

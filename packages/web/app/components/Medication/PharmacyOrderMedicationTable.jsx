@@ -4,14 +4,14 @@ import { Box } from '@material-ui/core';
 
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import {
-  TextInput,
+  NumberInput,
   DateDisplay,
   TimeDisplay,
   ThemedTooltip,
   ConditionalTooltip,
   RequiredOrnament,
 } from '@tamanu/ui-components';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
 
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper, CheckInput } from '../Field';
@@ -325,15 +325,11 @@ const getColumns = (
         />
       ),
       sortable: false,
-      maxWidth: 100,
-      accessor: ({ quantity, onChange, hasError }) => (
-        <TextInput
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 1,
-            },
-          }}
+      maxWidth: 130,
+      accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
+        <NumberInput
+          min={1}
+          unit={dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined}
           value={quantity}
           onChange={onChange}
           required

@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { DRUG_UNIT_LABELS } from '@tamanu/constants';
+
 import {
   BaseModal,
   Button,
@@ -530,7 +532,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '84px',
+          width: '140px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
@@ -542,6 +544,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
+            const dispensingUnit = item.prescription?.dispensingUnit;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
             return (
               <QuantityInput
@@ -549,7 +552,11 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={e => handleQuantityChange(rowIndex, e)}
                 error={showValidationErrors && hasQuantityError}
                 disabled={!selected}
-                InputProps={{ inputProps: { min: 1 } }}
+                min={1}
+                unit={
+                  dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined
+                }
+                style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"
                 required={selected}
                 helperText={

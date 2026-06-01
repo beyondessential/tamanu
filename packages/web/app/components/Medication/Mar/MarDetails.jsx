@@ -23,7 +23,7 @@ import Add from '@mui/icons-material/Add';
 import Edit from '@mui/icons-material/Edit';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import Remove from '@mui/icons-material/Remove';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, DRUG_UNIT_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
@@ -601,7 +601,10 @@ export const MarDetails = ({
                             <Field
                               name={`doses.${index}.doseAmount`}
                               component={NumberField}
-                              label={`Dose given (${medication?.dosingUnit})`}
+                              label={
+                                <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
+                              }
+                              unit={medication?.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, medication.dosingUnit) : undefined}
                               required
                             />
                             <div>
