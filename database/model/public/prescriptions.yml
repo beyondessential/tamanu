@@ -169,3 +169,8 @@ sources:
             description: "{{ doc('prescriptions__dispensing_unit') }}"
             data_tests:
               - not_null
+          - name: unit_conversion
+            data_type: numeric
+            description: "{{ doc('prescriptions__unit_conversion') }}"
+            data_tests:
+              - not_null
