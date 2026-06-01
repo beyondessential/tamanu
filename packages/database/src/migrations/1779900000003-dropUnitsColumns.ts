@@ -19,11 +19,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: false,
   });
-  await queryInterface.changeColumn('prescriptions', 'unit_conversion', {
-    type: DataTypes.DECIMAL,
-    allowNull: false,
-    defaultValue: 1,
-  });
   await queryInterface.removeColumn('prescriptions', 'units');
 
   await queryInterface.changeColumn('reference_medication_templates', 'dosing_unit', {
@@ -32,12 +27,8 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   });
   await queryInterface.removeColumn('reference_medication_templates', 'units');
 
-  await queryInterface.sequelize.query(
-    `SELECT flag_lookup_model_to_rebuild('reference_drugs')`,
-  );
-  await queryInterface.sequelize.query(
-    `SELECT flag_lookup_model_to_rebuild('prescriptions')`,
-  );
+  await queryInterface.sequelize.query(`SELECT flag_lookup_model_to_rebuild('reference_drugs')`);
+  await queryInterface.sequelize.query(`SELECT flag_lookup_model_to_rebuild('prescriptions')`);
   await queryInterface.sequelize.query(
     `SELECT flag_lookup_model_to_rebuild('reference_medication_templates')`,
   );
@@ -53,7 +44,6 @@ export async function down(queryInterface: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: true,
   });
-  await queryInterface.removeColumn('prescriptions', 'unit_conversion');
   await queryInterface.addColumn('reference_medication_templates', 'units', {
     type: DataTypes.STRING,
     allowNull: true,
