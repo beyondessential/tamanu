@@ -154,9 +154,8 @@ export const SignatureField = ({ field, disabled }) => {
   };
 
   const handlePointerMove = event => {
-    if (!isDrawingRef.current || !isFocused) {
-      return;
-    }
+    if (!isDrawingRef.current || !isFocused) return;
+
     event.preventDefault();
     const rect = padRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
@@ -164,14 +163,11 @@ export const SignatureField = ({ field, disabled }) => {
   };
 
   const finishStroke = () => {
-    if (!isDrawingRef.current) {
-      return;
-    }
+    if (!isDrawingRef.current) return;
+
     isDrawingRef.current = false;
     setCurrentStroke(stroke => {
-      if (stroke?.length) {
-        setSessionStrokes(prev => [...prev, stroke]);
-      }
+      if (stroke?.length) setSessionStrokes(prev => [...prev, stroke]);
       return null;
     });
   };
