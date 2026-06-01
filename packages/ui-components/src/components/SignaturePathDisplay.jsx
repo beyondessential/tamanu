@@ -1,28 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '../constants/colors';
 import { SIGNATURE_VIEWBOX_HEIGHT, SIGNATURE_VIEWBOX_WIDTH } from '../utils/signaturePath';
 
-const DisplaySvg = styled.svg`
-  display: block;
-  max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
-  width: 100%;
-  height: auto;
+const Svg = styled.svg.attrs({
+  'data-testid': 'signaturepathdisplay',
+  preserveAspectRatio: 'xMidYMid meet',
+  viewBox: `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`,
+})`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
+  color: ${p => p.theme.palette.text.primary};
+  display: block;
+  height: auto;
+  max-width: min(${SIGNATURE_VIEWBOX_WIDTH}px, 100%);
+  width: 100%;
 `;
 
-export const SignaturePathDisplay = ({ path, 'data-testid': dataTestId = 'signaturepathdisplay' }) => {
-  if (!path) {
-    return null;
-  }
+export const SignaturePathDisplay = ({ path, ...props }) => {
+  if (!path) return null;
 
   return (
-    <DisplaySvg
-      viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
-      preserveAspectRatio="xMidYMid meet"
-      data-testid={dataTestId}
-    >
-      <path d={path} fill={TAMANU_COLORS.darkestText} />
-    </DisplaySvg>
+    <Svg {...props}>
+      <path d={path} fill="currentColor" />
+    </Svg>
   );
 };
