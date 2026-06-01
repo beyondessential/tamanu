@@ -1,11 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import { SIGNATURE_VIEWBOX_HEIGHT, SIGNATURE_VIEWBOX_WIDTH } from '../utils/signaturePath';
+import {
+  SIGNATURE_VIEWBOX,
+  SIGNATURE_VIEWBOX_HEIGHT,
+  SIGNATURE_VIEWBOX_WIDTH,
+} from '../utils/signaturePath';
 
 const Svg = styled.svg.attrs({
   'data-testid': 'signaturepathdisplay',
   preserveAspectRatio: 'xMidYMid meet',
-  viewBox: `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`,
+  viewBox: SIGNATURE_VIEWBOX,
 })`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   color: ${p => p.theme.palette.text.primary};

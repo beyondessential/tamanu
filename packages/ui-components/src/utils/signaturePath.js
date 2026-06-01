@@ -1,8 +1,8 @@
 import { getStroke } from 'perfect-freehand';
 
-/** Fixed coordinate space for signature capture and display (survey_response_answers.body paths use this space). */
 export const SIGNATURE_VIEWBOX_WIDTH = 400;
 export const SIGNATURE_VIEWBOX_HEIGHT = 150;
+export const SIGNATURE_VIEWBOX = `0 0${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`;
 
 /** @satisfies {import('perfect-freehand').StrokeOptions} */
 const STROKE_OPTIONS = /** @type {const} */ ({

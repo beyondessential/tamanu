@@ -2,12 +2,13 @@ import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TAMANU_COLORS } from '../../constants/colors';
 import {
+  SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
 } from '../../utils/signaturePath';
-import { SignaturePathDisplay } from '../SignaturePathDisplay';
 import { Button } from '../Button';
+import { SignaturePathDisplay } from '../SignaturePathDisplay';
 import { TranslatedText } from '../Translation';
 
 const Container = styled.div`
@@ -33,7 +34,11 @@ const PadWrapper = styled.div`
   }
 `;
 
-const PadSvg = styled.svg`
+const PadSvg = styled.svg.attrs({
+  'data-testid': 'signaturefield-svg',
+  preserveAspectRatio: 'xMidYMid meet',
+  viewBox: SIGNATURE_VIEWBOX,
+})`
   display: block;
   width: 100%;
   height: auto;
@@ -45,7 +50,7 @@ const PadSvg = styled.svg`
 const DrawingLayer = styled(PadSvg).attrs({
   'data-testid': 'signaturefield-svg',
   preserveAspectRatio: 'xMidYMid meet',
-  viewBox: `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`,
+  viewBox: SIGNATURE_VIEWBOX,
 })`
   position: absolute;
   inset: 0;
@@ -204,7 +209,7 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {isActive && !value && !sessionPreviewPath && (
           <PadSvg
-            viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
+            viewBox={SIGNATURE_VIEWBOX}
             preserveAspectRatio="xMidYMid meet"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -230,7 +235,6 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {isActive && !value && sessionPreviewPath && (
           <PadSvg
-            viewBox={`0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`}
             preserveAspectRatio="xMidYMid meet"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
