@@ -17,16 +17,23 @@ const Container = styled.div`
 `;
 
 const PadWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
+  background-color: ${TAMANU_COLORS.white};
+  max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
+  position: relative;
+  inline-size: 100%;
   border: 1px solid
     ${({ $focused, $hasValue }) =>
-      $focused ? TAMANU_COLORS.primary : $hasValue ? TAMANU_COLORS.outline : TAMANU_COLORS.softOutline};
-  border-radius: 4px;
-  background: ${TAMANU_COLORS.white};
-  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'crosshair')};
+      $focused
+        ? TAMANU_COLORS.primary
+        : $hasValue
+          ? TAMANU_COLORS.outline
+          : TAMANU_COLORS.softOutline};
+  border-radius: ${props => props.theme.shape.borderRadius}px;
+  cursor: crosshair;
+  &[aria-disabled='true'] {
+    cursor: default;
+  }
 `;
 
 const PadSvg = styled.svg`
@@ -44,18 +51,17 @@ const DrawingLayer = styled(PadSvg)`
 `;
 
 const EmptyOverlay = styled.div`
-  position: absolute;
-  inset: 0;
+  place-items: center;
+  color: ${TAMANU_COLORS.softText};
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  pointer-events: none;
-  color: ${TAMANU_COLORS.softText};
   font-size: 14px;
-  text-align: center;
+  gap: 4px;
+  inset: 0;
   padding: 8px;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
 `;
 
 const InstructionText = styled.div`
@@ -66,6 +72,10 @@ const InstructionText = styled.div`
 const ClearRow = styled.div`
   display: flex;
   justify-content: flex-end;
+`;
+
+const HiddenInput = styled.input.attrs({ type: 'text' })`
+  display: none;
 `;
 
 const clientPointToViewBox = (clientX, clientY, rect) => {
@@ -115,6 +125,7 @@ export const SignatureField = ({ field, disabled }) => {
     }
     commitSessionToValue();
     setIsFocused(false);
+    field.onBlur(event);
   };
 
   const handleClear = () => {
@@ -180,11 +191,19 @@ export const SignatureField = ({ field, disabled }) => {
 
   return (
     <Container data-testid="signaturefield-container">
+      <HiddenInput
+        {...field}
+        data-testid="signaturefield-input"
+        disabled={disabled}
+        readOnly
+        type="text"
+        value={value}
+      />
       <PadWrapper
         ref={padRef}
         $focused={isFocused}
         $hasValue={Boolean(value || sessionPreviewPath)}
-        $disabled={disabled}
+        aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
         onFocus={handleFocus}
         onBlur={handleBlur}
