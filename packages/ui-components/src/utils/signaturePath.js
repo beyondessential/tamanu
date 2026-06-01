@@ -37,8 +37,7 @@ export function getSvgPathFromStroke(stroke) {
 export function pointsToSvgPath(points) {
   if (!points.length) return '';
 
-  const strokePoints = points.map(({ x, y }) => [x, y]);
-  const outline = getStroke(strokePoints, STROKE_OPTIONS);
+  const outline = getStroke(points, STROKE_OPTIONS);
   return getSvgPathFromStroke(outline);
 }
 
