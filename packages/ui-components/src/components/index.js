@@ -10,7 +10,7 @@ export * from './Field';
 export * from './Form';
 export * from './Modal';
 export * from './PatientNameDisplay';
-export * from './SignaturePathDisplay';
+export { SignaturePathDisplay, SignatureSvg } from './Field/signature';
 export * from './Suggester';
 export * from './Survey';
 export * from './Tag';

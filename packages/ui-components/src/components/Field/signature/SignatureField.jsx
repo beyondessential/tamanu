@@ -1,15 +1,15 @@
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '../../constants/colors';
+import { TAMANU_COLORS } from '../../../constants/colors';
 import {
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
-} from '../../utils/signaturePath';
-import { Button } from '../Button';
-import { SignaturePathDisplay, SignatureSvg } from '../SignaturePathDisplay';
-import { TranslatedText } from '../Translation';
+} from './signaturePath';
+import { Button } from '../../Button';
+import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
+import { TranslatedText } from '../../Translation';
 
 const Container = styled.div`
   display: flex;
