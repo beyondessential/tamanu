@@ -87,7 +87,7 @@ function HiddenInput(props) {
 const clientPointToViewBox = (clientX, clientY, rect) => {
   const x = ((clientX - rect.left) / rect.width) * SIGNATURE_VIEWBOX_WIDTH;
   const y = ((clientY - rect.top) / rect.height) * SIGNATURE_VIEWBOX_HEIGHT;
-  return { x, y, pressure: 0.5 };
+  return { x, y };
 };
 
 export const SignatureField = ({ field, disabled }) => {
