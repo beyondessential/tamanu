@@ -19,18 +19,15 @@ const Container = styled.div`
 const PadWrapper = styled.div`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   background-color: ${TAMANU_COLORS.white};
+  border-radius: ${props => props.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  cursor: crosshair;
+  inline-size: 100%;
   max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
   position: relative;
-  inline-size: 100%;
-  border: 1px solid
-    ${({ $focused, $hasValue }) =>
-      $focused
-        ? TAMANU_COLORS.primary
-        : $hasValue
-          ? TAMANU_COLORS.outline
-          : TAMANU_COLORS.softOutline};
-  border-radius: ${props => props.theme.shape.borderRadius}px;
-  cursor: crosshair;
+  &:focus {
+    border-color: ${p => p.theme.palette.primary.main};
+  }
   &[aria-disabled='true'] {
     cursor: default;
   }
