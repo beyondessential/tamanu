@@ -201,7 +201,8 @@ export const EditMedicationDispenseModal = memo(
         quantity: item.quantity,
         units: item.pharmacyOrderPrescription.prescription?.units,
         remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
-        prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
+        prescriberName:
+          item.pharmacyOrderPrescription.pharmacyOrder?.orderingClinician?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
       };
       const reviewLabels = getMedicationLabelData({
@@ -407,7 +408,12 @@ export const EditMedicationDispenseModal = memo(
       ) : (
         <ConfirmCancelRow
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-          confirmText={<TranslatedText stringId="medication.action.review" fallback="Review" />}
+          confirmText={
+            <TranslatedText
+              stringId="medication.dispense.reviewAndPrintLabels"
+              fallback="Review and print labels"
+            />
+          }
           confirmDisabled={isLoadingFacility}
           onCancel={handleClose}
           onConfirm={handleReview}

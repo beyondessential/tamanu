@@ -19,7 +19,6 @@ export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient
         <TranslatedText
           stringId="encounter.modal.delete.title"
           fallback="Delete encounter record"
-          data-testid="translatedtext-encounter-modal-delete-title"
         />
       }
       onClose={onClose}

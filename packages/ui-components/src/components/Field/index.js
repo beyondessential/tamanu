@@ -11,5 +11,7 @@ export * from './PatientDataDisplayField';
 export * from './PhotoField';
 export * from './Select';
 export * from './SelectField';
-export * from './SignatureField';
+export { SignatureField } from './SignatureField';
+export * from './SurveyResultBadge';
+export { default as SurveyResultQuestion } from './SurveyResultQuestion';
 export * from './TextField';

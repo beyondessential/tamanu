@@ -11,6 +11,7 @@ const Pre = styled.pre`
  * @param {Omit<React.ComponentPropsWithRef<typeof Pre>, 'children'> & {
  *   answer: string
  * }} props
- */ export default function MultilineResult({ answer, ...props }) {
+ */
+export default function MultilineResult({ answer, ...props }) {
   return <Pre {...props}>{answer}</Pre>;
 }

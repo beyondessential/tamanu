@@ -2,7 +2,6 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import {
@@ -11,11 +10,7 @@ import {
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import {
-  ageInMonths,
-  ageInWeeks,
-  ageInYears,
-} from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
 import { notify } from './notify';
 
@@ -23,7 +18,7 @@ const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 const joinNames = data => [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
 
-const isNullOrUndefined = value => isNull(value) || isUndefined(value);
+const isNil = value => value == null;
 
 // TODO: figure out why defaultOptions is an object in the database, should it be an array? Also what's up with options, is it ever set by anything? There's no survey_screen_component.options in the db that are not null.
 export function mapOptionsToValues(options) {
@@ -195,7 +190,7 @@ export function getFormInitialValues({
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement, getCurrentDateTime);
     const propName = dataElement.id;
-    if (isNullOrUndefined(initialValue)) {
+    if (isNil(initialValue)) {
       return acc;
     }
     acc[propName] = initialValue;
@@ -208,7 +203,7 @@ export function getFormInitialValues({
     const config = getConfigObject(component.id, component.config) || {};
 
     // current user data
-    if (component.dataElement.type === 'UserData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.USER_DATA) {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
       if (userValue !== undefined) {
@@ -216,7 +211,7 @@ export function getFormInitialValues({
       }
     }
     // patient data
-    if (component.dataElement.type === 'PatientData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
       let patientValue = transformPatientData(
         patient,
         additionalData,
@@ -232,9 +227,13 @@ export function getFormInitialValues({
 }
 
 export const getAnswersFromData = async (data, survey) => {
+  const componentsByDataElementId = new Map(
+    survey.components.map(component => [component.dataElement.id, component]),
+  );
+
   const answers = {};
   for (const [key, val] of Object.entries(data)) {
-    const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
+    const currentComponent = componentsByDataElementId.get(key);
     const currentDataElementType = currentComponent?.dataElement?.type;
     if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
       try {
@@ -245,7 +244,7 @@ export const getAnswersFromData = async (data, survey) => {
         toast.error(e.message);
         throw e;
       }
-    } else if (currentDataElementType !== 'PatientIssue') {
+    } else if (currentDataElementType !== PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE) {
       answers[key] = val;
     }
   }

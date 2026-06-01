@@ -16,7 +16,12 @@ async function getMultipartData(req) {
           const parsedData = jsonData ? JSON.parse(jsonData) : {};
 
           const fileInfo = files.file
-            ? { file: files.file[0].path, deleteFileAfterImport: true }
+            ? {
+                file: files.file[0].path,
+                fileName: files.file[0].originalFilename,
+                fileContentType: files.file[0].headers?.['content-type'],
+                deleteFileAfterImport: true,
+              }
             : {};
 
           resolve({

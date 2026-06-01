@@ -1,19 +1,21 @@
-import React from 'react';
-import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 import { Box } from '@mui/material';
+import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
+import React from 'react';
+
 import {
-  LimitedTextField,
-  MultilineTextField,
-  BaseSelectField,
   BaseMultiselectField,
-  ReadOnlyTextField,
-  InstructionField,
-  NumberField,
+  BaseSelectField,
   DateField,
   DateTimeField,
+  InstructionField,
+  LimitedTextField,
+  MultilineTextField,
   NullableBooleanField,
-  PhotoField,
+  NumberField,
   PatientDataDisplayField,
+  PhotoField,
+  ReadOnlyNumberField,
+  ReadOnlyTextField,
   SignatureField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
@@ -41,7 +43,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyNumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: UnsupportedField,
