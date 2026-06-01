@@ -4,12 +4,22 @@ import { getStroke } from 'perfect-freehand';
 export const SIGNATURE_VIEWBOX_WIDTH = 300;
 export const SIGNATURE_VIEWBOX_HEIGHT = 150;
 
-const STROKE_OPTIONS = {
-  size: 2,
-  thinning: 0.5,
-  smoothing: 0.5,
-  streamline: 0.5,
-};
+/** @satisfies {import('perfect-freehand').StrokeOptions} */
+const STROKE_OPTIONS = /** @type {const} */ ({
+  simulatePressure: false,
+  size: 3,
+  streamline: 0,
+  thinning: 0,
+});
+
+/**
+ * @privateRemarks Excess precision bloats the `d` attribute length.
+ * @see https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
+ * @param {number[]} nums
+ */
+function roundAll(nums) {
+  return nums.map(n => n.toFixed(1));
+}
 
 /**
  * Converts perfect-freehand outline points to an SVG path `d` string.
@@ -21,13 +31,13 @@ export function getSvgPathFromStroke(stroke) {
   const d = stroke.reduce(
     (acc, [x0, y0], i, arr) => {
       const [x1, y1] = arr[(i + 1) % arr.length];
-      acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+      const coordinates = [x0, y0, (x0 + x1) / 2, (y0 + y1) / 2];
+      acc.push(...roundAll(coordinates));
       return acc;
     },
-    ['M', ...stroke[0], 'Q'],
+    ['M', ...roundAll(stroke[0]), 'Q'],
   );
 
-  d.push('Z');
   return d.join(' ');
 }
 
