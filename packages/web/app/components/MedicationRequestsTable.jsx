@@ -111,8 +111,8 @@ const getMedication = ({ prescription }) => {
     />
   );
 };
-const getPrescriber = ({ prescription }) => {
-  return prescription?.prescriber?.displayName;
+const getOrderingPrescriber = ({ pharmacyOrder }) => {
+  return pharmacyOrder?.orderingClinician?.displayName;
 };
 const getDateSent = ({ pharmacyOrder }, formatTime) => {
   return (
@@ -241,15 +241,15 @@ export const MedicationRequestsTable = () => {
       sortable: true,
     },
     {
-      key: 'prescriber',
+      key: 'orderingPrescriber',
       title: (
         <TranslatedText
-          stringId="medication-requests.table.column.prescriber"
-          fallback="Prescriber"
-          data-testid="translatedtext-prescriber-column-title"
+          stringId="medication-requests.table.column.orderingPrescriber"
+          fallback="Ordering prescriber"
+          data-testid="translatedtext-ordering-prescriber-column-title"
         />
       ),
-      accessor: getPrescriber,
+      accessor: getOrderingPrescriber,
       sortable: false,
     },
     {
