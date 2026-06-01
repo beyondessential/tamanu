@@ -97,8 +97,14 @@ const initialiseDatabaseWithRetry = async () => {
  * @param {string} file - File path
  */
 function validateFullReferenceDataImport(workbook) {
-  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+  // 'user' has special logic, 'administeredVaccine' is a special case used for existing
+  // deployments, and 'medicationPresetLabel' is opt-in deployment-specific reference data
+  // (translated label text) that we don't want to seed generic defaults for.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = [
+    'user',
+    'administeredVaccine',
+    'medicationPresetLabel',
+  ];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
