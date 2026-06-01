@@ -177,10 +177,6 @@ export const SignatureField = ({ field, disabled }) => {
     finishStroke();
   };
 
-  const handlePointerCancel = () => {
-    finishStroke();
-  };
-
   const sessionPreviewPath = strokesToCombinedPath('', [
     ...sessionStrokes,
     ...(currentStroke?.length ? [currentStroke] : []),
@@ -219,7 +215,7 @@ export const SignatureField = ({ field, disabled }) => {
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerCancel}
+            onPointerCancel={finishStroke}
             data-testid="signaturefield-svg"
           />
         )}
@@ -232,7 +228,7 @@ export const SignatureField = ({ field, disabled }) => {
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerCancel}
+              onPointerCancel={finishStroke}
               data-testid="signaturefield-svg"
             >
               {sessionPreviewPath && (
@@ -248,7 +244,7 @@ export const SignatureField = ({ field, disabled }) => {
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerCancel}
+            onPointerCancel={finishStroke}
             data-testid="signaturefield-svg"
           >
             <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
