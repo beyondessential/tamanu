@@ -814,6 +814,10 @@ patientRoute.get(
                   attributes: ['id', 'name'],
                   required: false,
                 },
+                {
+                  association: 'orderingClinician',
+                  attributes: ['id', 'displayName'],
+                },
               ],
             },
             {
