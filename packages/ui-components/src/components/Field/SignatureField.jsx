@@ -223,9 +223,7 @@ export const SignatureField = ({ field, disabled }) => {
               onPointerUp={handlePointerUp}
               onPointerCancel={finishStroke}
             >
-              {sessionPreviewPath && (
-                <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
-              )}
+              {sessionPreviewPath && <path d={sessionPreviewPath} />}
             </DrawingLayer>
           </>
         )}
@@ -238,7 +236,7 @@ export const SignatureField = ({ field, disabled }) => {
             onPointerCancel={finishStroke}
             data-testid="signaturefield-svg"
           >
-            <path d={sessionPreviewPath} fill={TAMANU_COLORS.darkestText} />
+            <path d={sessionPreviewPath} />
           </PadSvg>
         )}
         {showEmptyOverlay && (
