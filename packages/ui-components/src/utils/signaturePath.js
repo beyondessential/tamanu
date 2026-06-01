@@ -33,11 +33,11 @@ export function getSvgPathFromStroke(stroke) {
   return d.join(' ');
 }
 
-/** @param {Array<{ x: number, y: number, pressure?: number }>} points */
+/** @param {import('perfect-freehand').StrokePoint[]} points */
 export function pointsToSvgPath(points) {
   if (!points.length) return '';
 
-  const strokePoints = points.map(({ x, y, pressure = 0.5 }) => [x, y, pressure]);
+  const strokePoints = points.map(({ x, y }) => [x, y]);
   const outline = getStroke(strokePoints, STROKE_OPTIONS);
   return getSvgPathFromStroke(outline);
 }
