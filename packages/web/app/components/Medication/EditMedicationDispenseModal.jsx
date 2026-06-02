@@ -158,9 +158,6 @@ export const EditMedicationDispenseModal = memo(
       setItem({
         ...item,
         instructions: value,
-        // Manual edits override any selected preset, so drop the FK to avoid
-        // saying "this label came from preset X" when it no longer does.
-        medicationPresetLabelId: null,
       });
       setErrors({
         ...errors,

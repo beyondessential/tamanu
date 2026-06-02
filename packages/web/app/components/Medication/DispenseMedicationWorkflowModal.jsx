@@ -327,9 +327,6 @@ export const DispenseMedicationWorkflowModal = memo(
         next[rowIndex] = {
           ...current,
           instructions: value,
-          // Manual edits override any selected preset, so drop the FK to avoid
-          // saying "this label came from preset X" when it no longer does.
-          medicationPresetLabelId: null,
         };
 
         setItemErrors(prevErrors => ({
