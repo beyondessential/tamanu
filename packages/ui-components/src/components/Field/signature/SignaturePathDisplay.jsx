@@ -10,8 +10,7 @@ export const SignatureSvg = styled.svg.attrs({
   color: ${p => p.theme.palette.text.primary};
   display: block;
   height: auto;
-  max-width: min(${SIGNATURE_VIEWBOX_WIDTH}px, 100%);
-  width: 100%;
+  width: min(100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
   &,
   & path {
     fill: currentColor;

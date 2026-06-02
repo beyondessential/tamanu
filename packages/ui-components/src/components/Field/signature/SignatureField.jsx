@@ -43,8 +43,7 @@ const PadWrapper = styled.div`
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
-  inline-size: 100%;
-  max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
+  width: min(100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
   position: relative;
   &:focus {
     background-color: ${p => p.theme.palette.background.paper};
@@ -62,6 +61,7 @@ const PadSvg = styled(SignatureSvg).attrs({
 })`
   touch-action: none;
   user-select: none;
+  width: 100%;
 `;
 
 const DrawingLayer = styled(PadSvg).attrs({
