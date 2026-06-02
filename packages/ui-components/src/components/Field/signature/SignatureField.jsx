@@ -98,7 +98,7 @@ const clientPointToViewBox = (clientX, clientY, rect) => {
   return { x, y };
 };
 
-export const SignatureField = ({ disabled, error, field, helperText, label, required }) => {
+export function SignatureField({ disabled, error, field, helperText, label, required }) {
   const value = field.value || '';
   const padRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -254,4 +254,4 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
       )}
     </>
   );
-};
+}
