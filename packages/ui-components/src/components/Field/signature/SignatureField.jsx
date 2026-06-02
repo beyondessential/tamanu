@@ -131,9 +131,8 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
   );
 
   const commitSessionToValue = useCallback(() => {
-    if (!sessionStrokes.length) {
-      return;
-    }
+    if (!sessionStrokes.length) return;
+
     const combined = strokesToCombinedPath(value, sessionStrokes);
     setValue(combined);
     setSessionStrokes([]);
