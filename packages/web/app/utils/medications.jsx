@@ -140,6 +140,44 @@ export const resolvePresetLabelText = (presetId, presetLabelsList, fallbackText)
   return preset?.name ?? fallbackText ?? '';
 };
 
+// Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
+// 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
+// symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
+const lowercaseFirstLetter = text =>
+  /^[A-Z][a-z]/.test(text ?? '')
+    ? `${text.charAt(0).toLowerCase()}${text.slice(1)}`
+    : text;
+
+// Shared sentence assembly for the Instructions and Label text defaults. The two
+// differ only in how the dose/frequency/route tokens are derived and whether a
+// verb is prefixed; the segment ordering, separators and punctuation live here so
+// they stay in sync. Built as derived values rather than a mutated accumulator.
+const assembleMedicationLine = (
+  { dose, frequency, route, duration, indication, notes, verb },
+  getTranslation,
+) => {
+  const forText = getTranslation('medication.dispense.for', 'for');
+  const head = [dose, frequency].filter(Boolean).join(' ').trim();
+  const withRoute = route ? `${head}${head ? ',' : ''} ${route}` : head;
+  const withDuration = duration
+    ? `${withRoute}${withRoute ? ` ${forText} ` : ''}${duration}`
+    : withRoute;
+  const withIndication = indication
+    ? `${withDuration}${withDuration ? ', ' : ''}${indication}`
+    : withDuration;
+  const punctuated =
+    withIndication && !withIndication.endsWith('.') ? `${withIndication}.` : withIndication;
+  const withVerb = verb && punctuated ? `${verb} ${punctuated}` : punctuated;
+  const withNotes = notes ? `${withVerb}${withVerb ? ' ' : ''}${String(notes).trim()}` : withVerb;
+  return withNotes.trim();
+};
+
+const buildDuration = (durationValue, durationUnit, getEnumTranslation) => {
+  if (!durationValue || !durationUnit) return null;
+  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
+  return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
+};
+
 export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';
 
@@ -162,43 +200,23 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
     : null;
   const route = prescriptionRoute ? getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute) : null;
 
-  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
-
-  const duration =
-    durationValue && durationUnit
-      ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`
-      : null;
-
-  const base = [];
-  if (dose) base.push(dose);
-  if (frequency) base.push(frequency);
-  let output = base.join(' ').trim();
-
-  const forText = getTranslation('medication.dispense.for', 'for');
-
-  if (route) output += `${output ? ',' : ''} ${route}`;
-  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
-  if (indication) output += `${output ? `, ` : ''}${indication}`;
-  if (output && !output.endsWith('.')) output += '.';
-
-  if (notes) {
-    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
-  }
-  return output.trim();
+  return assembleMedicationLine(
+    {
+      dose,
+      frequency,
+      route,
+      duration: buildDuration(durationValue, durationUnit, getEnumTranslation),
+      indication,
+      notes,
+    },
+    getTranslation,
+  );
 };
 
-// Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
-// 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
-// symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
-const lowercaseFirstLetter = text =>
-  /^[A-Z][a-z]/.test(text ?? '')
-    ? `${text.charAt(0).toLowerCase()}${text.slice(1)}`
-    : text;
-
-// Builds the default dispensed-medication "Label text". Same structure as
+// Builds the default dispensed-medication "Label text". Same sentence structure as
 // buildInstructionText, but with the patient-facing formatting from TAM-6813:
 //  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
-//  - the first letter of unit, frequency and route is lowercased
+//  - the leading capital of unit, frequency and route is dropped (words only)
 //  - an administration verb (e.g. 'Take') is prefixed based on the dosing unit
 // These changes apply to the label text only, never the Instructions field.
 export const buildLabelText = (prescription, getTranslation, getEnumTranslation) => {
@@ -231,32 +249,25 @@ export const buildLabelText = (prescription, getTranslation, getEnumTranslation)
   const route = prescriptionRoute
     ? lowercaseFirstLetter(getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute))
     : null;
-  const verb = units ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
+  // Only prefix a verb when one is configured for the unit. getEnumTranslation
+  // falls back to the raw value, so an unmapped unit would otherwise start the
+  // sentence with the unit noun (e.g. 'Wafer 2 wafers...'); omitting it is safer
+  // than assuming an (oral) default verb for a unit we don't recognise.
+  const verb =
+    units && DRUG_UNIT_VERBS[units] ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
 
-  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
-  const duration =
-    durationValue && durationUnit
-      ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`
-      : null;
-
-  const base = [];
-  if (dose) base.push(dose);
-  if (frequency) base.push(frequency);
-  let output = base.join(' ').trim();
-
-  const forText = getTranslation('medication.dispense.for', 'for');
-
-  if (route) output += `${output ? ',' : ''} ${route}`;
-  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
-  if (indication) output += `${output ? `, ` : ''}${indication}`;
-  if (output && !output.endsWith('.')) output += '.';
-
-  if (verb && output) output = `${verb} ${output}`;
-
-  if (notes) {
-    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
-  }
-  return output.trim();
+  return assembleMedicationLine(
+    {
+      dose,
+      frequency,
+      route,
+      duration: buildDuration(durationValue, durationUnit, getEnumTranslation),
+      indication,
+      notes,
+      verb,
+    },
+    getTranslation,
+  );
 };
 
 /**
