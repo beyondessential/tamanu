@@ -146,9 +146,8 @@ export const SignatureField = ({ field, disabled }) => {
   };
 
   const handlePointerDown = event => {
-    if (disabled || !isFocused) {
-      return;
-    }
+    if (disabled || !isFocused || event.button !== 0 /* left click only */) return;
+
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     const rect = padRef.current.getBoundingClientRect();
