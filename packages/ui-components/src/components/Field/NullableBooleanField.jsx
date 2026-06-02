@@ -30,8 +30,8 @@ const ControlLabel = styled(FormLabel).attrs({
 const RequiredLabel = styled.span`
   color: ${TAMANU_COLORS.alert};
   padding-inline-start: 3px;
-  &::after {
-    content: '*' / ${p => p.altText};
+  &::before {
+    content: '*' / '${p => p.$alt}';
   }
 `;
 
@@ -93,7 +93,7 @@ export const NullableBooleanInput = ({
           <div>
             {label}
             {required && (
-              <RequiredLabel altText={getTranslation('general.label.required', 'Required')} />
+              <RequiredLabel $alt={getTranslation('general.label.required', 'Required')} />
             )}
           </div>
         }
