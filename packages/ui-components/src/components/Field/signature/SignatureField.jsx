@@ -43,13 +43,13 @@ const PadWrapper = styled.div`
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
-  cursor: crosshair;
   inline-size: 100%;
   max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
   position: relative;
   &:focus {
     background-color: ${p => p.theme.palette.background.paper};
     border-color: ${p => p.theme.palette.primary.main};
+    cursor: crosshair;
     outline-style: none;
   }
   &[aria-disabled='true'] {
