@@ -1,4 +1,4 @@
-import { FormControlLabel, FormHelperText, Typography } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -13,13 +13,13 @@ import {
 } from './pathUtils';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
 
-const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
-  border-radius: ${p => p.theme.shape.borderRadius}px;
-  border: 1px solid ${p => p.theme.palette.divider};
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
+const Label = styled.label`
+  color: ${p => p.theme.palette.text.secondary};
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 4px;
 `;
 
 const RequiredOrnament = styled.span`
@@ -27,6 +27,15 @@ const RequiredOrnament = styled.span`
   &::after {
     content: '*' / ${p => p.altText};
   }
+`;
+
+const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
 `;
 
 const PadWrapper = styled.div`
@@ -42,6 +51,7 @@ const PadWrapper = styled.div`
   &:focus {
     background-color: ${p => p.theme.palette.background.paper};
     border-color: ${p => p.theme.palette.primary.main};
+    outline-style: none;
   }
   &[aria-disabled='true'] {
     cursor: default;
@@ -202,17 +212,13 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
 
   return (
     <>
-      <FormControlLabel
-        control={<HiddenInput {...field} disabled={disabled} value={value} />}
-        label={
-          <>
-            {label}
-            {required && (
-              <RequiredOrnament altText={getTranslation('general.label.required', 'Required')} />
-            )}
-          </>
-        }
-      />
+      <Label>
+        {label}
+        {required && (
+          <RequiredOrnament altText={getTranslation('general.label.required', 'Required')} />
+        )}
+        <HiddenInput {...field} disabled={disabled} value={value} />
+      </Label>
       <Container>
         <InstructionText>
           <TranslatedText
