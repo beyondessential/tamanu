@@ -544,6 +544,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         REFERENCE_TYPES.LAB_SAMPLE_SITE,
         REFERENCE_TYPES.TASK_TEMPLATE,
         REFERENCE_TYPES.TASK_SET,
+        REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
       ];
       if (facilityFilterTypes.includes(typeName)) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
