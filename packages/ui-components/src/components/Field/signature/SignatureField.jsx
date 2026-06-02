@@ -6,6 +6,7 @@ import { useTranslation } from '../../../contexts';
 import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
+  appendStrokePointIfFarEnough,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
@@ -164,15 +165,18 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     event.preventDefault();
     const rect = padRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
-    setCurrentStroke(prev => [...(prev ?? []), point]);
+    setCurrentStroke(prev => appendStrokePointIfFarEnough(prev ?? [], point));
   };
 
-  const finishStroke = () => {
+  const finishStroke = (finalPoint = null) => {
     if (!isDrawingRef.current) return;
 
     isDrawingRef.current = false;
     setCurrentStroke(stroke => {
-      if (stroke?.length) setSessionStrokes(prev => [...prev, stroke]);
+      const completed = finalPoint
+        ? appendStrokePointIfFarEnough(stroke ?? [], finalPoint)
+        : (stroke ?? []);
+      if (completed.length) setSessionStrokes(prev => [...prev, completed]);
       return null;
     });
   };
@@ -181,7 +185,11 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    finishStroke();
+
+    const finalPoint =
+      padRef.current &&
+      clientPointToViewBox(event.clientX, event.clientY, padRef.current.getBoundingClientRect());
+    finishStroke(finalPoint || null);
   };
 
   const sessionPreviewPath = strokesToCombinedPath('', [
