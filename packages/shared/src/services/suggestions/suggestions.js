@@ -446,13 +446,20 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName, req }) => {
+    ({ endpoint, modelName, req, search }) => {
       const { parentId } = req.query;
 
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
+
+      // The medication preset label autocomplete displays the code (not the name),
+      // so the search term must match the code column rather than the default
+      // (translatable) name search.
+      if (typeName === REFERENCE_TYPES.MEDICATION_PRESET_LABEL) {
+        baseWhere[Op.or] = [{ code: { [Op.iLike]: search } }];
+      }
 
       // Filter by parent using subquery to avoid self-join ambiguity issues
       if (parentId) {
