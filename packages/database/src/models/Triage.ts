@@ -92,6 +92,15 @@ export class Triage extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
+  // TODO: to handle translations for triage reason for encounter
+  static buildReasonForEncounter(chiefComplaint: any, secondaryComplaint: any): string {
+    const reasonsText = [chiefComplaint, secondaryComplaint]
+      .filter(x => x)
+      .map(x => x.name)
+      .join(' and ');
+    return `Presented at emergency department with ${reasonsText}`;
+  }
+
   static async create(data: any): Promise<any> {
     const { Encounter, ReferenceData } = this.sequelize.models;
 
@@ -108,16 +117,10 @@ export class Triage extends Model {
       throw new InvalidOperationError("Can't triage a patient that has an existing encounter");
     }
 
-    const reasons = await Promise.all(
+    const [chiefComplaint, secondaryComplaint] = await Promise.all(
       [data.chiefComplaintId, data.secondaryComplaintId].map(x => ReferenceData.findByPk(x)),
     );
-
-    // TODO: to handle translations for triage reason for encounter
-    const reasonsText = reasons
-      .filter(x => x)
-      .map(x => x?.name)
-      .join(' and ');
-    const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
+    const reasonForEncounter = Triage.buildReasonForEncounter(chiefComplaint, secondaryComplaint);
 
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
@@ -150,15 +153,22 @@ export class Triage extends Model {
     );
 
     const updateTriage = async () => {
+      let complaintsChanged = false;
+      const onComplaintChange = async () => {
+        complaintsChanged = true;
+      };
+
       await onChangeForeignKey({
         columnName: 'chiefComplaintId',
         noteLabel: 'chief complaint',
         model: ReferenceData,
+        onChange: onComplaintChange,
       });
       await onChangeForeignKey({
         columnName: 'secondaryComplaintId',
         noteLabel: 'secondary complaint',
         model: ReferenceData,
+        onChange: onComplaintChange,
       });
       await onChangeForeignKey({
         columnName: 'arrivalModeId',
@@ -180,18 +190,39 @@ export class Triage extends Model {
         noteLabel: 'triage score',
       });
 
+      // Capture new complaint IDs before super.update() mutates this instance
+      const newChiefComplaintId =
+        'chiefComplaintId' in data ? data.chiefComplaintId : this.chiefComplaintId;
+      const newSecondaryComplaintId =
+        'secondaryComplaintId' in data ? data.secondaryComplaintId : this.secondaryComplaintId;
+
       const { submittedTime, ...triageData } = data;
       const updatedTriage = await super.update(triageData, user);
 
-      if (systemNoteRows.length > 0) {
+      if (complaintsChanged || systemNoteRows.length > 0) {
         const encounter = await Encounter.findByPk(this.encounterId);
         if (encounter) {
-          const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
-          await encounter.addSystemNote(
-            formattedSystemNote,
-            submittedTime || getCurrentDateTimeString(),
-            user,
-          );
+          if (complaintsChanged) {
+            const [chiefComplaint, secondaryComplaint] = await Promise.all(
+              [newChiefComplaintId, newSecondaryComplaintId].map(x => ReferenceData.findByPk(x)),
+            );
+            await encounter.update({
+              reasonForEncounter: Triage.buildReasonForEncounter(
+                chiefComplaint,
+                secondaryComplaint,
+              ),
+              skipSystemNotes: true, // Skipping note as updating chief complaint already creates a note
+            });
+          }
+
+          if (systemNoteRows.length > 0) {
+            const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
+            await encounter.addSystemNote(
+              formattedSystemNote,
+              submittedTime || getCurrentDateTimeString(),
+              user,
+            );
+          }
         }
       }
 
