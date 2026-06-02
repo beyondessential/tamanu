@@ -89,6 +89,11 @@ const clientPointToViewBox = (clientX, clientY, rect) => {
   return { x, y };
 };
 
+/**
+ * @param {Object} props
+ * @param {Object} props.field
+ * @param {boolean | undefined} props.disabled
+ */
 export const SignatureField = ({ field, disabled }) => {
   const value = field.value || '';
   const padRef = useRef(null);
