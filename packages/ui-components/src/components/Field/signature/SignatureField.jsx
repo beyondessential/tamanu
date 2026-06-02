@@ -39,7 +39,6 @@ const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' }
 `;
 
 const PadWrapper = styled.div`
-  border: 1px solid orange;
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
