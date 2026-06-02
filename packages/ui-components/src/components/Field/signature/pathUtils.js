@@ -3,7 +3,7 @@
 import { getStroke } from 'perfect-freehand';
 
 export const SIGNATURE_VIEWBOX_WIDTH = 480;
-export const SIGNATURE_VIEWBOX_HEIGHT = 150;
+export const SIGNATURE_VIEWBOX_HEIGHT = 144;
 export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`;
 
 /** Minimum viewBox distance between captured pointer samples. */
