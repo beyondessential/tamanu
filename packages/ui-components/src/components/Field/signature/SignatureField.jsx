@@ -1,5 +1,5 @@
 import { FormHelperText, Typography } from '@mui/material';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { useTranslation } from '../../../contexts';
@@ -107,6 +107,7 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
   const [currentStroke, setCurrentStroke] = useState(null);
   const isDrawingRef = useRef(false);
   const { getTranslation } = useTranslation();
+  const helperTextId = useId();
 
   const setValue = useCallback(
     nextValue => {
@@ -201,7 +202,7 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
         )}
         <HiddenInput {...field} disabled={disabled} value={value} />
       </Label>
-      <Container>
+      <Container aria-describedby={helperTextId}>
         <InstructionText>
           <TranslatedText
             stringId="program.question.signature.instruction"
@@ -247,7 +248,11 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
         />
       </Container>
       {helperText && (
-        <FormHelperText data-testid="nullable-boolean-field-formhelpertext" error={Boolean(error)}>
+        <FormHelperText
+          data-testid="nullable-boolean-field-formhelpertext"
+          error={Boolean(error)}
+          id={helperTextId}
+        >
           {helperText}
         </FormHelperText>
       )}
