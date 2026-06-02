@@ -69,9 +69,14 @@ const InstructionText = styled.div`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const ClearRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
+const ClearButton = styled(Button).attrs({
+  'data-testid': 'signaturefield-clear',
+  children: <TranslatedText stringId="general.action.clear" fallback="Clear" />,
+  color: 'primary',
+  size: 'small',
+  variant: 'text',
+})`
+  margin-inline-start: auto;
 `;
 
 function HiddenInput(props) {
@@ -243,18 +248,11 @@ export const SignatureField = ({ field, disabled }) => {
           </EmptyOverlay>
         )}
       </PadWrapper>
-      <ClearRow>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={handleClear}
-          disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
-          data-testid="signaturefield-clear"
-        >
-          <TranslatedText stringId="general.action.clear" fallback="Clear" />
-        </Button>
-      </ClearRow>
+
+      <ClearButton
+        onClick={handleClear}
+        disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
+      />
     </Container>
   );
 };
