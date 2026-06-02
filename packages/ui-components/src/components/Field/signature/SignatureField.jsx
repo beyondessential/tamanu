@@ -37,7 +37,7 @@ const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' }
   padding: 10px;
 `;
 
-const PadWrapper = styled.div`
+const PadWrapper = styled.div.attrs({ 'data-testid': 'signaturefield-pad' })`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
@@ -221,7 +221,6 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
           tabIndex={disabled ? -1 : 0}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          data-testid="signaturefield-pad"
         >
           {/*
            * Note two `path`s are drawn:
