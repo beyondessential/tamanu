@@ -170,7 +170,7 @@ export const DRUG_UNIT_VERBS = {
   [DRUG_UNITS.patch]: 'Apply',
   [DRUG_UNITS.pellet]: 'Administer',
   [DRUG_UNITS.pouch]: 'Administer',
-  [DRUG_UNITS.puff]: 'Take',
+  [DRUG_UNITS.puff]: 'Inhale',
   [DRUG_UNITS.ring]: 'Insert',
   [DRUG_UNITS.smear]: 'Apply',
   [DRUG_UNITS.spray]: 'Administer',

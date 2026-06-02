@@ -50,6 +50,16 @@ describe('buildLabelText', () => {
     ).toBe('Give 500 mg daily.');
   });
 
+  it("prefixes 'Inhale' for puffs (inhaler/puffer)", () => {
+    expect(
+      buildLabelText(
+        { units: 'Puff', doseAmount: 2, frequency: 'Two times daily' },
+        getTranslation,
+        getEnumTranslation,
+      ),
+    ).toBe('Inhale 2 puffs two times daily.');
+  });
+
   it('preserves the casing of acronym/symbol units and routes', () => {
     // 'IU' must not become 'iU', and route 'IM' must not become 'iM'.
     expect(
