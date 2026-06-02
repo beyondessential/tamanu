@@ -19,7 +19,7 @@ const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' }
 
 const PadWrapper = styled.div`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${p => p.theme.palette.background.default};
   border-radius: ${props => props.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
   cursor: crosshair;
@@ -27,6 +27,7 @@ const PadWrapper = styled.div`
   max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
   position: relative;
   &:focus {
+    background-color: ${TAMANU_COLORS.white};
     border-color: ${p => p.theme.palette.primary.main};
   }
   &[aria-disabled='true'] {
@@ -62,6 +63,7 @@ const EmptyOverlay = styled.div.attrs({ 'data-testid': 'signaturefield-empty-ove
   pointer-events: none;
   position: absolute;
   text-align: center;
+  border: 1px solid red;
 `;
 
 const InstructionText = styled.div`
