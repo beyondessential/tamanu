@@ -137,7 +137,7 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
     }
     commitSessionToValue();
     setIsFocused(false);
-    field.onBlur(event);
+    field.onBlur({ target: { name: field.name } });
   };
 
   const handleClear = () => {
