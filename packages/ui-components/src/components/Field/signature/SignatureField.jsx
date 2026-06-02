@@ -18,13 +18,12 @@ const Label = styled.label`
   font-size: 14px;
   font-weight: 500;
   line-height: 1.3;
-  margin-bottom: 4px;
-`;
+  margin-block-end: 4px;
 
-const RequiredOrnament = styled.span`
-  color: ${p => p.theme.palette.error.main};
-  &::after {
-    content: '*' / ${p => p.altText};
+  &:has(input:required)::after {
+    color: ${p => p.theme.palette.error.main};
+    content: '*' / '${p => p.$requiredAlt}';
+    margin-inline-start: 3px;
   }
 `;
 
@@ -195,12 +194,9 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
 
   return (
     <>
-      <Label>
+      <Label $requiredAlt={getTranslation('general.label.required', 'Required')}>
         {label}
-        {required && (
-          <RequiredOrnament altText={getTranslation('general.label.required', 'Required')} />
-        )}
-        <HiddenInput {...field} disabled={disabled} value={value} />
+        <HiddenInput {...field} disabled={disabled} required={required} value={value} />
       </Label>
       <Container aria-describedby={helperTextId}>
         <InstructionText>
