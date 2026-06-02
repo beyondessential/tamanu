@@ -232,35 +232,27 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
           {value && !isActive && (
             <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
           )}
-          {isActive && !value && !sessionPreviewPath && (
-            <PadSvg
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={finishStroke}
-            />
-          )}
           {isActive && value && (
             <>
               <SignaturePathDisplay path={value} />
               <DrawingLayer
+                onPointerCancel={finishStroke}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
-                onPointerCancel={finishStroke}
               >
                 {sessionPreviewPath && <path d={sessionPreviewPath} />}
               </DrawingLayer>
             </>
           )}
-          {isActive && !value && sessionPreviewPath && (
+          {isActive && !value && (
             <PadSvg
+              onPointerCancel={finishStroke}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
-              onPointerCancel={finishStroke}
             >
-              <path d={sessionPreviewPath} />
+              {sessionPreviewPath && <path d={sessionPreviewPath} />}
             </PadSvg>
           )}
           {showEmptyOverlay && (
