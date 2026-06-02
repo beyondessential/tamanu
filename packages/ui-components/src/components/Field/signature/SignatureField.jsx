@@ -91,9 +91,7 @@ const ClearButton = styled(TextButton).attrs({
 `;
 
 function HiddenInput(props) {
-  return (
-    <input data-testid="signaturefield-input" hidden={false} readOnly type="text" {...props} />
-  );
+  return <input data-testid="signaturefield-input" hidden readOnly type="text" {...props} />;
 }
 
 const clientPointToViewBox = (clientX, clientY, rect) => {
