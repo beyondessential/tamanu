@@ -122,9 +122,7 @@ export const SignatureField = ({ field, disabled }) => {
   }, [sessionStrokes, setValue, value]);
 
   const handleFocus = () => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
     setIsFocused(true);
   };
 
