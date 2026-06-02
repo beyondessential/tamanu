@@ -1,4 +1,4 @@
-/** @typedef {{ x: number; y: number }} ViewBoxPoint */
+/** @typedef {{ x: number; y: number }} Point */
 
 import { getStroke } from 'perfect-freehand';
 
@@ -10,8 +10,8 @@ export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIE
 const SIGNATURE_MIN_POINT_DISTANCE = 3;
 
 /**
- * @param {ViewBoxPoint | undefined} lastPoint
- * @param {ViewBoxPoint} nextPoint
+ * @param {Point | undefined} lastPoint
+ * @param {Point} nextPoint
  * @param {number} [minDistance=SIGNATURE_MIN_POINT_DISTANCE]
  */
 function isFarEnoughFromLastPoint(
@@ -27,8 +27,8 @@ function isFarEnoughFromLastPoint(
 }
 
 /**
- * @param {ViewBoxPoint[]} stroke
- * @param {ViewBoxPoint} point
+ * @param {Point[]} stroke
+ * @param {Point} point
  */
 export function appendStrokePointIfFarEnough(stroke, point) {
   if (!isFarEnoughFromLastPoint(stroke.at(-1), point)) return stroke;
@@ -39,16 +39,18 @@ export function appendStrokePointIfFarEnough(stroke, point) {
 const STROKE_OPTIONS = /** @type {const} */ ({
   simulatePressure: false,
   size: 3,
+  streamline: 0.75,
   thinning: 0,
 });
 
 /**
- * @privateRemarks Excess precision bloats the `d` attribute length.
+ * @privateRemarks No harm in rendering with higher precision, but it bloats the
+ * `d` attribute length.
  * @see https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
  * @param {number[]} nums
  */
 function roundAll(nums) {
-  return nums.map(n => n.toFixed(1));
+  return nums.map(n => n.toFixed(2));
 }
 
 /**
@@ -71,7 +73,7 @@ function getSvgPathFromStroke(stroke) {
   return d.join(' ');
 }
 
-/** @param {ViewBoxPoint[]} points */
+/** @param {Point[]} points */
 function pointsToSvgPath(points) {
   if (!points.length) return '';
   const outline = getStroke(points, STROKE_OPTIONS);
@@ -86,14 +88,14 @@ function concatenateSvgPaths(...paths) {
     .join(' ');
 }
 
-/** @param {ViewBoxPoint[][]} strokes */
+/** @param {Point[][]} strokes */
 function serializeStrokes(strokes) {
   return strokes.map(stroke => stroke.map(({ x, y }) => [Math.round(x), Math.round(y)]));
 }
 
 /**
  * @param {string | null | undefined} body
- * @returns {ViewBoxPoint[][]}
+ * @returns {Point[][]}
  */
 function parseSignatureBody(body) {
   if (!body) return [];
@@ -102,7 +104,7 @@ function parseSignatureBody(body) {
   return parsed.map(stroke => stroke.map(([x, y]) => ({ x, y })));
 }
 
-/** @param {ViewBoxPoint[][]} strokes */
+/** @param {Point[][]} strokes */
 function serializeSignatureBody(strokes) {
   return JSON.stringify(serializeStrokes(strokes));
 }
@@ -110,7 +112,7 @@ function serializeSignatureBody(strokes) {
 /**
  * Merges in-session centreline strokes into an existing body value.
  * @param {string} existingBody
- * @param {ViewBoxPoint[][]} strokePointLists
+ * @param {Point[][]} strokePointLists
  */
 export function mergeStrokesIntoBody(existingBody, strokePointLists) {
   if (!strokePointLists.length) return existingBody || '';
