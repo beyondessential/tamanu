@@ -255,11 +255,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
         />
       </Container>
       {helperText && (
-        <FormHelperText
-          data-testid="nullable-boolean-field-formhelpertext"
-          error={Boolean(error)}
-          id={helperTextId}
-        >
+        <FormHelperText error={Boolean(error)} id={helperTextId}>
           {helperText}
         </FormHelperText>
       )}
