@@ -174,6 +174,8 @@ function defaultOrigin(): string {
 
 /**
  * Encrypt and store an API token, or remove the key when `token` is empty.
+ * Falls back to cleartext storage when Web Crypto is unavailable (plain HTTP, non-localhost) — the
+ * session is already transmitted unencrypted in that case, so cleartext localStorage is no worse.
  */
 export async function writePersistedAuthToken(
   storageKey: string,
@@ -185,7 +187,17 @@ export async function writePersistedAuthToken(
 ): Promise<void> {
   const keyMaterial = buildTokenStorageKeyMaterial(deviceId, origin, namespace);
   if (token) {
-    storage.setItem(storageKey, await packPersistedToken(token, keyMaterial));
+    if (!globalThis.crypto?.subtle) {
+      // Web Crypto is only available in secure contexts (HTTPS or localhost).
+      // On plain HTTP (e.g. local-network ITI access), fall back to cleartext rather than
+      // blocking login entirely.
+      console.warn(
+        '[Tamanu] Web Crypto API unavailable; storing auth token as cleartext. Use HTTPS for encrypted token storage.',
+      );
+      storage.setItem(storageKey, token);
+    } else {
+      storage.setItem(storageKey, await packPersistedToken(token, keyMaterial));
+    }
   } else {
     storage.removeItem(storageKey);
   }
