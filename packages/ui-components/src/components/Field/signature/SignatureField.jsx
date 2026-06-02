@@ -242,13 +242,12 @@ export const SignatureField = ({ field, disabled }) => {
             <InstructionText>
               <TranslatedText
                 stringId="program.question.signature.instruction"
-                fallback="Use your mouse or trackpad to add signature."
+                fallback="Use your mouse or trackpad to add signature"
               />
             </InstructionText>
           </EmptyOverlay>
         )}
       </PadWrapper>
-
       <ClearButton
         onClick={handleClear}
         disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
