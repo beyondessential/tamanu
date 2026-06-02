@@ -8,7 +8,6 @@ export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIE
 const STROKE_OPTIONS = /** @type {const} */ ({
   simulatePressure: false,
   size: 3,
-  streamline: 0,
   thinning: 0,
 });
 
