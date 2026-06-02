@@ -11,7 +11,7 @@ import { Button } from '../../Button';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
 import { TranslatedText } from '../../Translation';
 
-const Container = styled.div`
+const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -50,7 +50,7 @@ const DrawingLayer = styled(PadSvg).attrs({
   inset: 0;
 `;
 
-const EmptyOverlay = styled.div`
+const EmptyOverlay = styled.div.attrs({ 'data-testid': 'signaturefield-empty-overlay' })`
   place-items: center;
   color: ${TAMANU_COLORS.softText};
   display: flex;
@@ -191,7 +191,7 @@ export const SignatureField = ({ field, disabled }) => {
   const isActive = isFocused && !disabled;
 
   return (
-    <Container data-testid="signaturefield-container">
+    <Container>
       <HiddenInput {...field} disabled={disabled} value={value} />
       <PadWrapper
         ref={padRef}
@@ -236,7 +236,7 @@ export const SignatureField = ({ field, disabled }) => {
           </PadSvg>
         )}
         {showEmptyOverlay && (
-          <EmptyOverlay data-testid="signaturefield-empty">
+          <EmptyOverlay>
             <TranslatedText stringId="program.question.signature.emptyHint" fallback="Sign here" />
             <InstructionText>
               <TranslatedText
