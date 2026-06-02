@@ -1,33 +1,38 @@
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TAMANU_COLORS } from '../../../constants/colors';
+import { Button, TextButton } from '../../Button';
+import { TranslatedText } from '../../Translation';
 import {
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
 } from './pathUtils';
-import { Button } from '../../Button';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
-import { TranslatedText } from '../../Translation';
+import { Typography } from '@mui/material';
 
 const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 10px;
 `;
 
 const PadWrapper = styled.div`
+  border: 1px solid orange;
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   background-color: ${p => p.theme.palette.background.default};
-  border-radius: ${props => props.theme.shape.borderRadius}px;
+  border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
   cursor: crosshair;
   inline-size: 100%;
   max-width: ${SIGNATURE_VIEWBOX_WIDTH}px;
   position: relative;
   &:focus {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${p => p.theme.palette.background.paper};
     border-color: ${p => p.theme.palette.primary.main};
   }
   &[aria-disabled='true'] {
@@ -47,38 +52,34 @@ const DrawingLayer = styled(PadSvg).attrs({
   preserveAspectRatio: 'xMidYMid meet',
   viewBox: SIGNATURE_VIEWBOX,
 })`
-  position: absolute;
   inset: 0;
+  position: absolute;
 `;
 
 const EmptyOverlay = styled.div.attrs({ 'data-testid': 'signaturefield-empty-overlay' })`
-  place-items: center;
-  color: ${TAMANU_COLORS.softText};
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-  gap: 4px;
+  color: ${p => p.theme.palette.text.tertiary};
+  display: grid;
   inset: 0;
-  padding: 8px;
+  place-items: center;
   pointer-events: none;
   position: absolute;
   text-align: center;
-  border: 1px solid red;
+  text-wrap: balance;
 `;
 
-const InstructionText = styled.div`
-  font-size: 12px;
-  color: ${TAMANU_COLORS.midText};
-`;
+const InstructionText = styled(Typography).attrs({
+  color: 'textSecondary',
+  variant: 'body2',
+})``;
 
-const ClearButton = styled(Button).attrs({
+const ClearButton = styled(TextButton).attrs({
   'data-testid': 'signaturefield-clear',
   children: <TranslatedText stringId="general.action.clear" fallback="Clear" />,
   color: 'primary',
-  size: 'small',
-  variant: 'text',
 })`
-  margin-inline-start: auto;
+  font-size: inherit;
+  line-height: 1.75;
+  margin-inline-end: auto;
 `;
 
 function HiddenInput(props) {
@@ -194,6 +195,12 @@ export const SignatureField = ({ field, disabled }) => {
 
   return (
     <Container>
+      <InstructionText>
+        <TranslatedText
+          stringId="program.question.signature.instruction"
+          fallback="Use your mouse or trackpad to add signature"
+        />
+      </InstructionText>
       <HiddenInput {...field} disabled={disabled} value={value} />
       <PadWrapper
         ref={padRef}
@@ -240,12 +247,6 @@ export const SignatureField = ({ field, disabled }) => {
         {showEmptyOverlay && (
           <EmptyOverlay>
             <TranslatedText stringId="program.question.signature.emptyHint" fallback="Sign here" />
-            <InstructionText>
-              <TranslatedText
-                stringId="program.question.signature.instruction"
-                fallback="Use your mouse or trackpad to add signature"
-              />
-            </InstructionText>
           </EmptyOverlay>
         )}
       </PadWrapper>
