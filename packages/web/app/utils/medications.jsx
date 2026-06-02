@@ -7,6 +7,9 @@ import {
   DRUG_ROUTE_LABELS,
   DRUG_STOCK_STATUS_LABELS,
   DRUG_STOCK_STATUSES,
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_PLURAL_LABELS,
+  DRUG_UNIT_VERBS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
 import {
@@ -177,6 +180,78 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
   if (indication) output += `${output ? `, ` : ''}${indication}`;
   if (output && !output.endsWith('.')) output += '.';
+
+  if (notes) {
+    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
+  }
+  return output.trim();
+};
+
+// Only drop the leading capital from ordinary capitalised words (e.g. 'Tablet' ->
+// 'tablet', 'Oral' -> 'oral', 'Two times daily' -> 'two times daily'). Acronym and
+// symbol units/routes such as 'IU', 'FFU', 'IM', 'S/C' and 'mL' keep their casing.
+const lowercaseFirstLetter = text =>
+  /^[A-Z][a-z]/.test(text ?? '')
+    ? `${text.charAt(0).toLowerCase()}${text.slice(1)}`
+    : text;
+
+// Builds the default dispensed-medication "Label text". Same structure as
+// buildInstructionText, but with the patient-facing formatting from TAM-6813:
+//  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
+//  - the first letter of unit, frequency and route is lowercased
+//  - an administration verb (e.g. 'Take') is prefixed based on the dosing unit
+// These changes apply to the label text only, never the Instructions field.
+export const buildLabelText = (prescription, getTranslation, getEnumTranslation) => {
+  if (!prescription) return '';
+
+  const {
+    units,
+    doseAmount,
+    isVariableDose,
+    frequency: prescriptionFrequency,
+    route: prescriptionRoute,
+    durationValue,
+    durationUnit,
+    indication,
+    notes,
+  } = prescription;
+
+  const numericDose = Number(doseAmount);
+  const isPlural = !isVariableDose && Number.isFinite(numericDose) && numericDose > 1;
+  const unitEnum = isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS;
+  const unitText = units ? lowercaseFirstLetter(getEnumTranslation(unitEnum, units)) : '';
+  const amountText = isVariableDose
+    ? lowercaseFirstLetter(getTranslation('medication.table.variable', 'Variable'))
+    : doseAmount ?? '';
+  const dose = `${amountText} ${unitText}`.trim();
+
+  const frequency = prescriptionFrequency
+    ? lowercaseFirstLetter(getTranslatedFrequency(prescriptionFrequency, getTranslation))
+    : null;
+  const route = prescriptionRoute
+    ? lowercaseFirstLetter(getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute))
+    : null;
+  const verb = units ? getEnumTranslation(DRUG_UNIT_VERBS, units) : null;
+
+  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
+  const duration =
+    durationValue && durationUnit
+      ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`
+      : null;
+
+  const base = [];
+  if (dose) base.push(dose);
+  if (frequency) base.push(frequency);
+  let output = base.join(' ').trim();
+
+  const forText = getTranslation('medication.dispense.for', 'for');
+
+  if (route) output += `${output ? ',' : ''} ${route}`;
+  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
+  if (indication) output += `${output ? `, ` : ''}${indication}`;
+  if (output && !output.endsWith('.')) output += '.';
+
+  if (verb && output) output = `${verb} ${output}`;
 
   if (notes) {
     output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
