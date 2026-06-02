@@ -134,9 +134,8 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
   };
 
   const handleBlur = event => {
-    if (padRef.current?.contains(event.relatedTarget)) {
-      return;
-    }
+    if (padRef.current?.contains(event.relatedTarget)) return;
+
     if (isDrawingRef.current) {
       isDrawingRef.current = false;
       setCurrentStroke(null);
