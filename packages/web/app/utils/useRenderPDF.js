@@ -1,9 +1,20 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { wrap } from 'comlink';
+import { releaseProxy, wrap } from 'comlink';
 import Worker from '../workers/pdf.worker?worker';
 
-export const pdfWorker = wrap(new Worker());
+const renderPDFInWorker = async props => {
+  const worker = new Worker();
+  const pdfWorker = wrap(worker);
+
+  try {
+    const pdf = await pdfWorker.renderPDFInWorker(props);
+    return URL.createObjectURL(pdf);
+  } finally {
+    pdfWorker[releaseProxy]?.();
+    worker.terminate();
+  }
+};
 
 export const useRenderPDF = (props) => {
   const {
@@ -12,12 +23,19 @@ export const useRenderPDF = (props) => {
     error,
   } = useQuery(
     ['renderPDF', props.id, ...(props.queryDeps || [])],
-    () => pdfWorker.renderPDFInWorker(props),
+    () => renderPDFInWorker(props),
     {
       enabled: !!props.id,
     },
   );
 
-  useEffect(() => (url ? () => URL.revokeObjectURL(url) : undefined), [url]);
+  useEffect(() => {
+    if (!url) {
+      return undefined;
+    }
+
+    return () => URL.revokeObjectURL(url);
+  }, [url]);
+
   return { url, isFetching, error };
 };
