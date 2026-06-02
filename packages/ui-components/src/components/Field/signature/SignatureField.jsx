@@ -1,7 +1,8 @@
+import { Typography } from '@mui/material';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '../../../constants/colors';
-import { Button, TextButton } from '../../Button';
+
+import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
   SIGNATURE_VIEWBOX,
@@ -10,7 +11,6 @@ import {
   strokesToCombinedPath,
 } from './pathUtils';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
-import { Typography } from '@mui/material';
 
 const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
   border-radius: ${p => p.theme.shape.borderRadius}px;
