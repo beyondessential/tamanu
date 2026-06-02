@@ -7,7 +7,7 @@ export const SIGNATURE_VIEWBOX_HEIGHT = 144;
 export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`;
 
 /** Minimum viewBox distance between captured pointer samples. */
-const SIGNATURE_MIN_POINT_DISTANCE = 3;
+const SIGNATURE_MIN_POINT_DISTANCE = 2.5;
 
 /**
  * @param {Point | undefined} lastPoint
