@@ -42,8 +42,8 @@ const PadWrapper = styled.div.attrs({ 'data-testid': 'signaturefield-pad' })`
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
-  width: min(100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
   position: relative;
+  width: min(100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
   &:focus {
     background-color: ${p => p.theme.palette.background.paper};
     border-color: ${p => p.theme.palette.primary.main};
