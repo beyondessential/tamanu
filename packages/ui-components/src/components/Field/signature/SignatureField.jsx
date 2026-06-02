@@ -6,7 +6,6 @@ import { useTranslation } from '../../../contexts';
 import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
-  SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
@@ -56,21 +55,12 @@ const PadWrapper = styled.div`
   }
 `;
 
-const PadSvg = styled(SignatureSvg).attrs({
-  'data-testid': 'signaturefield-svg',
-})`
+const DrawingLayer = styled(SignatureSvg)`
+  inset: 0;
+  position: absolute;
   touch-action: none;
   user-select: none;
   width: 100%;
-`;
-
-const DrawingLayer = styled(PadSvg).attrs({
-  'data-testid': 'signaturefield-svg',
-  preserveAspectRatio: 'xMidYMid meet',
-  viewBox: SIGNATURE_VIEWBOX,
-})`
-  inset: 0;
-  position: absolute;
 `;
 
 const EmptyOverlay = styled.div.attrs({ 'data-testid': 'signaturefield-empty-overlay' })`
@@ -233,31 +223,21 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
           onBlur={handleBlur}
           data-testid="signaturefield-pad"
         >
-          {value && !isActive && (
-            <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
-          )}
-          {isActive && value && (
-            <>
-              <SignaturePathDisplay path={value} />
-              <DrawingLayer
-                onPointerCancel={finishStroke}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-              >
-                {sessionPreviewPath && <path d={sessionPreviewPath} />}
-              </DrawingLayer>
-            </>
-          )}
-          {isActive && !value && (
-            <PadSvg
+          {/*
+           * Note two `path`s are drawn:
+           * - `value` has already been flushed to the <input>.
+           * - `sessionPreviewPath` is transient; it gets merged with `value` on blur.
+           */}
+          {value && <SignaturePathDisplay path={value} />}
+          {isActive && (
+            <DrawingLayer
               onPointerCancel={finishStroke}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
             >
               {sessionPreviewPath && <path d={sessionPreviewPath} />}
-            </PadSvg>
+            </DrawingLayer>
           )}
           {showEmptyOverlay && (
             <EmptyOverlay>
