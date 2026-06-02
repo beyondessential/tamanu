@@ -7,14 +7,14 @@ export const SIGNATURE_VIEWBOX_HEIGHT = 150;
 export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`;
 
 /** Minimum viewBox distance between captured pointer samples. */
-export const SIGNATURE_MIN_POINT_DISTANCE = 3;
+const SIGNATURE_MIN_POINT_DISTANCE = 3;
 
 /**
  * @param {ViewBoxPoint | undefined} lastPoint
  * @param {ViewBoxPoint} nextPoint
  * @param {number} [minDistance=SIGNATURE_MIN_POINT_DISTANCE]
  */
-export function isFarEnoughFromLastPoint(
+function isFarEnoughFromLastPoint(
   lastPoint,
   nextPoint,
   minDistance = SIGNATURE_MIN_POINT_DISTANCE,
@@ -31,7 +31,7 @@ export function isFarEnoughFromLastPoint(
  * @param {ViewBoxPoint} point
  */
 export function appendStrokePointIfFarEnough(stroke, point) {
-  if (!isFarEnoughFromLastPoint(stroke[stroke.length - 1], point)) return stroke;
+  if (!isFarEnoughFromLastPoint(stroke.at(-1), point)) return stroke;
   return [...stroke, point];
 }
 
@@ -53,9 +53,9 @@ function roundAll(nums) {
 
 /**
  * Converts perfect-freehand outline points to an SVG path `d` string.
- * Stored alone in survey_response_answers.body (no wrapper SVG markup).
+ * Used for display only; centreline points are stored in body instead.
  */
-export function getSvgPathFromStroke(stroke) {
+function getSvgPathFromStroke(stroke) {
   if (!stroke.length) return '';
 
   const d = stroke.reduce(
@@ -71,23 +71,54 @@ export function getSvgPathFromStroke(stroke) {
   return d.join(' ');
 }
 
-/** @param {import('perfect-freehand').StrokePoint[]} points */
-export function pointsToSvgPath(points) {
+/** @param {ViewBoxPoint[]} points */
+function pointsToSvgPath(points) {
   if (!points.length) return '';
   const outline = getStroke(points, STROKE_OPTIONS);
   return getSvgPathFromStroke(outline);
 }
 
 /** @param {string[]} paths */
-export function appendSvgPaths(...paths) {
+function concatenateSvgPaths(...paths) {
   return paths
     .map(path => path?.trim())
     .filter(Boolean)
     .join(' ');
 }
 
-/** Merges an existing body value with in-session stroke point arrays. */
-export function strokesToCombinedPath(existingPath, strokePointLists) {
-  const newSegment = strokePointLists.map(pointsToSvgPath).filter(Boolean).join(' ');
-  return appendSvgPaths(existingPath, newSegment);
+/** @param {ViewBoxPoint[][]} strokes */
+function serializeStrokes(strokes) {
+  return strokes.map(stroke => stroke.map(({ x, y }) => [Math.round(x), Math.round(y)]));
+}
+
+/**
+ * @param {string | null | undefined} body
+ * @returns {ViewBoxPoint[][]}
+ */
+function parseSignatureBody(body) {
+  if (!body) return [];
+
+  const parsed = JSON.parse(body);
+  return parsed.map(stroke => stroke.map(([x, y]) => ({ x, y })));
+}
+
+/** @param {ViewBoxPoint[][]} strokes */
+function serializeSignatureBody(strokes) {
+  return JSON.stringify(serializeStrokes(strokes));
+}
+
+/**
+ * Merges in-session centreline strokes into an existing body value.
+ * @param {string} existingBody
+ * @param {ViewBoxPoint[][]} strokePointLists
+ */
+export function mergeStrokesIntoBody(existingBody, strokePointLists) {
+  if (!strokePointLists.length) return existingBody || '';
+
+  return serializeSignatureBody([...parseSignatureBody(existingBody), ...strokePointLists]);
+}
+
+/** Converts a stored body value to an SVG path `d` string for display. */
+export function bodyToDisplayPath(body) {
+  return concatenateSvgPaths(...parseSignatureBody(body).map(pointsToSvgPath));
 }

@@ -7,9 +7,10 @@ import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
   appendStrokePointIfFarEnough,
+  bodyToDisplayPath,
+  mergeStrokesIntoBody,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-  strokesToCombinedPath,
 } from './pathUtils';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
 
@@ -119,7 +120,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   const commitSessionToValue = useCallback(() => {
     if (!sessionStrokes.length) return;
 
-    const combined = strokesToCombinedPath(value, sessionStrokes);
+    const combined = mergeStrokesIntoBody(value, sessionStrokes);
     setValue(combined);
     setSessionStrokes([]);
   }, [sessionStrokes, setValue, value]);
@@ -192,10 +193,12 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     finishStroke(finalPoint || null);
   };
 
-  const sessionPreviewPath = strokesToCombinedPath('', [
-    ...sessionStrokes,
-    ...(currentStroke?.length ? [currentStroke] : []),
-  ]);
+  const sessionPreviewPath = bodyToDisplayPath(
+    mergeStrokesIntoBody(value, [
+      ...sessionStrokes,
+      ...(currentStroke?.length ? [currentStroke] : []),
+    ]),
+  );
 
   const showEmptyOverlay = !value && !sessionPreviewPath;
   const isActive = isFocused && !disabled;

@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { SIGNATURE_VIEWBOX, SIGNATURE_VIEWBOX_HEIGHT, SIGNATURE_VIEWBOX_WIDTH } from './pathUtils';
+import {
+  bodyToDisplayPath,
+  SIGNATURE_VIEWBOX,
+  SIGNATURE_VIEWBOX_HEIGHT,
+  SIGNATURE_VIEWBOX_WIDTH,
+} from './pathUtils';
 
 export const SignatureSvg = styled.svg.attrs({
   preserveAspectRatio: 'xMidYMid meet',
@@ -18,9 +23,11 @@ export const SignatureSvg = styled.svg.attrs({
 `;
 
 export function SignaturePathDisplay({ path, ...props }) {
+  const displayPath = bodyToDisplayPath(path);
+
   return (
     <SignatureSvg data-testid="signaturepathdisplay" {...props}>
-      {path && <path d={path} />}
+      {displayPath && <path d={displayPath} />}
     </SignatureSvg>
   );
 }
