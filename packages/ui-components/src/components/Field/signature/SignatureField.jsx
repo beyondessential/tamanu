@@ -191,8 +191,6 @@ export const SignatureField = ({ field, disabled }) => {
       <HiddenInput {...field} disabled={disabled} value={value} />
       <PadWrapper
         ref={padRef}
-        $focused={isFocused}
-        $hasValue={Boolean(value || sessionPreviewPath)}
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
         onFocus={handleFocus}
@@ -204,13 +202,10 @@ export const SignatureField = ({ field, disabled }) => {
         )}
         {isActive && !value && !sessionPreviewPath && (
           <PadSvg
-            viewBox={SIGNATURE_VIEWBOX}
-            preserveAspectRatio="xMidYMid meet"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={finishStroke}
-            data-testid="signaturefield-svg"
           />
         )}
         {isActive && value && (
