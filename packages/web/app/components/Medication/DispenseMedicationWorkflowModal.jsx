@@ -611,7 +611,6 @@ export const DispenseMedicationWorkflowModal = memo(
                     value={item.medicationPresetLabelId ?? ''}
                     suggester={presetLabelSuggester}
                     onChange={e => handlePresetLabelChange(rowIndex, e)}
-                    disabled={!item.selected}
                     data-testid={`dispense-preset-label-${rowIndex}`}
                   />
                 ),
@@ -638,7 +637,6 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={e => handleInstructionsChange(rowIndex, e)}
                 error={showValidationErrors && hasInstructionsError}
                 required={selected}
-                disabled={!selected}
                 testId="dispense-label-text"
                 helperText={
                   showValidationErrors && hasInstructionsError
