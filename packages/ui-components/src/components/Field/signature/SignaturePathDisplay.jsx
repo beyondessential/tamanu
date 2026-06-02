@@ -4,7 +4,7 @@ import {
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-} from './signaturePath';
+} from './pathUtils';
 
 export const SignatureSvg = styled.svg.attrs({
   preserveAspectRatio: 'xMidYMid meet',

@@ -7,5 +7,5 @@ export {
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
-} from './signaturePath';
+} from './pathUtils';
 export { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';

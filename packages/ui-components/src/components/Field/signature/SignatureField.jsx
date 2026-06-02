@@ -6,7 +6,7 @@ import {
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
   strokesToCombinedPath,
-} from './signaturePath';
+} from './pathUtils';
 import { Button } from '../../Button';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
 import { TranslatedText } from '../../Translation';
