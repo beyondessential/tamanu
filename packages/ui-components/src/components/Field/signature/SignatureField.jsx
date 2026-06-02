@@ -206,7 +206,7 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
     ...(currentStroke?.length ? [currentStroke] : []),
   ]);
 
-  const showEmptyOverlay = isFocused && !value && !sessionPreviewPath;
+  const showEmptyOverlay = !value && !sessionPreviewPath;
   const isActive = isFocused && !disabled;
 
   return (
