@@ -164,7 +164,7 @@ export const SignatureField = ({ disabled, error, field, helperText, label, requ
     event.preventDefault();
     const rect = padRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
-    setCurrentStroke(prev => [...(prev || []), point]);
+    setCurrentStroke(prev => [...(prev ?? []), point]);
   };
 
   const finishStroke = () => {
