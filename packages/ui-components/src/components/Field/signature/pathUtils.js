@@ -44,21 +44,13 @@ const STROKE_OPTIONS = /** @type {const} */ ({
 });
 
 /**
- * @privateRemarks No harm in rendering with higher precision, but it bloats the
- * `d` attribute length.
- * @see https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
- * @param {number[]} nums
- */
-function roundAll(nums) {
-  return nums.map(n => n.toFixed(2));
-}
-
-/**
  * Converts perfect-freehand outline points to an SVG path `d` string.
  * Used for display only; centreline points are stored in body instead.
  */
 function getSvgPathFromStroke(stroke) {
   if (!stroke.length) return '';
+
+  const roundAll = nums => nums.map(n => n.toFixed(2));
 
   const d = stroke.reduce(
     (acc, [x0, y0], i, arr) => {
