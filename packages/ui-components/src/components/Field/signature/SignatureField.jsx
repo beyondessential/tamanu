@@ -1,7 +1,8 @@
-import { Typography } from '@mui/material';
+import { FormControlLabel, FormHelperText, Typography } from '@mui/material';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { useTranslation } from '../../../contexts';
 import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
@@ -19,6 +20,13 @@ const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' }
   flex-direction: column;
   gap: 8px;
   padding: 10px;
+`;
+
+const RequiredOrnament = styled.span`
+  color: ${p => p.theme.palette.error.main};
+  &::after {
+    content: '*' / ${p => p.altText};
+  }
 `;
 
 const PadWrapper = styled.div`
@@ -83,7 +91,9 @@ const ClearButton = styled(TextButton).attrs({
 `;
 
 function HiddenInput(props) {
-  return <input data-testid="signaturefield-input" hidden readOnly type="text" {...props} />;
+  return (
+    <input data-testid="signaturefield-input" hidden={false} readOnly type="text" {...props} />
+  );
 }
 
 const clientPointToViewBox = (clientX, clientY, rect) => {
@@ -97,13 +107,14 @@ const clientPointToViewBox = (clientX, clientY, rect) => {
  * @param {Object} props.field
  * @param {boolean | undefined} props.disabled
  */
-export const SignatureField = ({ field, disabled }) => {
+export const SignatureField = ({ disabled, error, field, helperText, label, required }) => {
   const value = field.value || '';
   const padRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
   const [sessionStrokes, setSessionStrokes] = useState([]);
   const [currentStroke, setCurrentStroke] = useState(null);
   const isDrawingRef = useRef(false);
+  const { getTranslation } = useTranslation();
 
   const setValue = useCallback(
     nextValue => {
@@ -192,66 +203,87 @@ export const SignatureField = ({ field, disabled }) => {
   const isActive = isFocused && !disabled;
 
   return (
-    <Container>
-      <InstructionText>
-        <TranslatedText
-          stringId="program.question.signature.instruction"
-          fallback="Use your mouse or trackpad to add signature"
-        />
-      </InstructionText>
-      <HiddenInput {...field} disabled={disabled} value={value} />
-      <PadWrapper
-        ref={padRef}
-        aria-disabled={disabled}
-        tabIndex={disabled ? -1 : 0}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        data-testid="signaturefield-pad"
-      >
-        {value && !isActive && (
-          <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
-        )}
-        {isActive && !value && !sessionPreviewPath && (
-          <PadSvg
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={finishStroke}
-          />
-        )}
-        {isActive && value && (
+    <>
+      <FormControlLabel
+        control={<HiddenInput {...field} disabled={disabled} value={value} />}
+        label={
           <>
-            <SignaturePathDisplay path={value} />
-            <DrawingLayer
+            {label}
+            {required && (
+              <RequiredOrnament altText={getTranslation('general.label.required', 'Required')} />
+            )}
+          </>
+        }
+      />
+      <Container>
+        <InstructionText>
+          <TranslatedText
+            stringId="program.question.signature.instruction"
+            fallback="Use your mouse or trackpad to add signature"
+          />
+        </InstructionText>
+
+        <PadWrapper
+          ref={padRef}
+          aria-disabled={disabled}
+          tabIndex={disabled ? -1 : 0}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          data-testid="signaturefield-pad"
+        >
+          {value && !isActive && (
+            <SignaturePathDisplay path={value} data-testid="signaturefield-saved" />
+          )}
+          {isActive && !value && !sessionPreviewPath && (
+            <PadSvg
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={finishStroke}
+            />
+          )}
+          {isActive && value && (
+            <>
+              <SignaturePathDisplay path={value} />
+              <DrawingLayer
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={finishStroke}
+              >
+                {sessionPreviewPath && <path d={sessionPreviewPath} />}
+              </DrawingLayer>
+            </>
+          )}
+          {isActive && !value && sessionPreviewPath && (
+            <PadSvg
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerCancel={finishStroke}
             >
-              {sessionPreviewPath && <path d={sessionPreviewPath} />}
-            </DrawingLayer>
-          </>
-        )}
-        {isActive && !value && sessionPreviewPath && (
-          <PadSvg
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={finishStroke}
-          >
-            <path d={sessionPreviewPath} />
-          </PadSvg>
-        )}
-        {showEmptyOverlay && (
-          <EmptyOverlay>
-            <TranslatedText stringId="program.question.signature.emptyHint" fallback="Sign here" />
-          </EmptyOverlay>
-        )}
-      </PadWrapper>
-      <ClearButton
-        onClick={handleClear}
-        disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
-      />
-    </Container>
+              <path d={sessionPreviewPath} />
+            </PadSvg>
+          )}
+          {showEmptyOverlay && (
+            <EmptyOverlay>
+              <TranslatedText
+                stringId="program.question.signature.emptyHint"
+                fallback="Sign here"
+              />
+            </EmptyOverlay>
+          )}
+        </PadWrapper>
+        <ClearButton
+          onClick={handleClear}
+          disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
+        />
+      </Container>
+      {helperText && (
+        <FormHelperText data-testid="nullable-boolean-field-formhelpertext" error={Boolean(error)}>
+          {helperText}
+        </FormHelperText>
+      )}
+    </>
   );
 };
