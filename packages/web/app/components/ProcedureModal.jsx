@@ -72,7 +72,7 @@ const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount)
 export const ProcedureModal = ({
   onClose,
   onSaved,
-  encounterId,
+  encounter,
   editedProcedure,
   setEditedProcedure,
 }) => {
@@ -112,7 +112,7 @@ export const ProcedureModal = ({
   const onSubmit = async data => {
     delete data.date;
     const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
-    const { startTime, endTime, timeIn, timeOut, ...rest } = data; // eslint-disable-line no-unused-vars
+    const { startTime, endTime, timeIn, timeOut, locationGroup, ...rest } = data; // eslint-disable-line no-unused-vars
     const startDateTime = toPersisted(startTime);
 
     await api[rest.id ? 'put' : 'post'](rest.id ? `procedure/${rest.id}` : 'procedure', {
@@ -122,7 +122,7 @@ export const ProcedureModal = ({
       endTime: toPersisted(endTime),
       timeIn: toPersisted(timeIn),
       timeOut: toPersisted(timeOut),
-      encounterId,
+      encounterId: encounter.id,
     });
 
     onSaved();
@@ -313,6 +313,9 @@ export const ProcedureModal = ({
               startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
+              departmentId: encounter.departmentId,
+              locationId: encounter.locationId,
+              locationGroup: encounter.location?.locationGroup?.id,
             }
       }
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
