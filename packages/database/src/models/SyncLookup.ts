@@ -22,7 +22,7 @@ export class SyncLookup extends Model {
     super.init(
       {
         id: primaryKey,
-        recordId: { type: DataTypes.STRING },
+        recordId: { type: DataTypes.TEXT },
         recordType: { type: DataTypes.STRING },
         data: { type: DataTypes.JSON },
         updatedAtSyncTick: { type: DataTypes.BIGINT },
