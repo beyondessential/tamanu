@@ -51,3 +51,20 @@ export const MFA_CHALLENGE_TYPES = {
   ENROL_INVITE: 'enrol_invite',
 } as const;
 export type MfaChallengeType = (typeof MFA_CHALLENGE_TYPES)[keyof typeof MFA_CHALLENGE_TYPES];
+
+export const MFA_FACTORS = {
+  WEBAUTHN: 'webauthn',
+  TOTP: 'totp',
+} as const;
+export type MfaFactor = (typeof MFA_FACTORS)[keyof typeof MFA_FACTORS];
+
+// Values for the auth.mfa.totp.availability setting: where TOTP may be used as
+// a factor. fallbackOnly offers it only where WebAuthn is unavailable (mobile,
+// and servers outside the relying party ID stem).
+export const MFA_TOTP_AVAILABILITY = {
+  ALL: 'all',
+  FALLBACK_ONLY: 'fallbackOnly',
+  OFF: 'off',
+} as const;
+export type MfaTotpAvailability =
+  (typeof MFA_TOTP_AVAILABILITY)[keyof typeof MFA_TOTP_AVAILABILITY];
