@@ -38,6 +38,16 @@ export interface SyncRecordData {
   [key: string]: any;
 }
 
+export interface MfaPending {
+  // mobile only completes 'challenge'/'enrol' via TOTP (WebAuthn on mobile is
+  // a separate future effort)
+  kind: string;
+  factors: string[];
+  skippable?: boolean;
+  // short-lived token for the mfa/login completion endpoints
+  token: string;
+}
+
 export interface LoginResponse {
   token: string;
   refreshToken: string;
@@ -46,6 +56,8 @@ export interface LoginResponse {
   settings: object;
   permissions: [];
   allowedFacilities: { id: string }[] | 'ALL';
+  // present instead of the tokens when a second factor is still owed
+  mfaPending?: MfaPending;
 }
 
 export type FetchOptions = {
