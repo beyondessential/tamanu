@@ -552,6 +552,36 @@ sync-down dimension.
   setup that the single runtime-configured app build can't satisfy per
   deployment; see `docs/plans/mfa-mobile-webauthn.md`. Not built in this effort.
 
+## Testing
+
+Each PR lands with its tests; layered per the repo's testing rules
+(`endpoint-integration-tests.md`, `playwright-e2e.md`).
+
+- **Unit** — the enforcement **policy function** is pure-ish and high-value:
+  matrix over feature flag × user factors / `require Mfa` × factor availability
+  (`totp.availability` × WebAuthn-available-here) × IP zone × auth method. Also
+  the RP-ID suffix predicate (incl. the `evilfoo.bar.com` non-match) and CIDR
+  matching (IPv4/IPv6/v4-mapped).
+- **Integration** (central + facility endpoint tests) — ceremony endpoints
+  (register/assert begin+finish, TOTP enrol/confirm/verify); permission
+  enforcement (`write Mfa`, `UserMfa`, `require Mfa`); feature-flag-off leaves
+  login unchanged; `off` rejects passwordless assertions and `fallbackOnly`
+  rejects TOTP on a WebAuthn-capable surface; facility forwards TOTP to central;
+  invite-token redeem **requires token + password** and is single-use/expiring.
+- **E2E** (Playwright, critical journeys) — enrol a passkey then log in with it;
+  passwordless (usernameless, UV) login; enrol TOTP then log in; forced-enrolment
+  interstitial (passkey-first); admin reset; feature-flag-off path.
+
+WebAuthn in Playwright uses the **Chromium CDP virtual authenticator**
+(`WebAuthn.addVirtualAuthenticator`) behind a fixture — it answers the real
+`navigator.credentials` calls, so the actual UI is exercised, not mocked. Set
+`hasResidentKey` + `hasUserVerification` + `isUserVerified` to cover
+usernameless/UV/passwordless, and `automaticPresenceSimulation` for unattended
+runs. **Chromium-only** (the e2e project already runs Chromium). TOTP needs no
+browser support — the test computes codes with `otpauth` from the enrolment
+secret. **Cross-device hybrid (QR/phone) is not E2E-testable** (real devices +
+Apple/Google relay) — cover it manually.
+
 ## Out of scope / excluded
 
 - **Delegated/IdP WebAuthn.** Not building it. Out-of-zone facilities offer no
