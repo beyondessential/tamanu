@@ -3,6 +3,9 @@ export const JWT_TOKEN_TYPES = {
   ACCESS: 'access',
   PATIENT_PORTAL_ACCESS: 'patient_portal_access',
   PATIENT_PORTAL_REFRESH: 'patient_portal_refresh',
+  // short-lived token minted by redeeming an MFA enrolment invite; authorises
+  // only the enrolment ceremony endpoints, not a session
+  MFA_ENROL: 'mfa_enrol',
 };
 
 // we hardcode this as we don't support multiple keys yet, but still want

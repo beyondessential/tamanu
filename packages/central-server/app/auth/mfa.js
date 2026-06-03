@@ -47,7 +47,7 @@ export async function getWebAuthnContext(req) {
  * a WebAuthn-capable server means enrolment is refused and users are steered
  * to passkeys instead.
  */
-async function requireTotpAvailable(req) {
+export async function requireTotpAvailable(req) {
   const totpAvailability = await req.settings.get('auth.mfa.totp.availability');
   const rpId = await req.settings.get('auth.mfa.webauthn.rpid');
   const available = isTotpAvailable({
