@@ -1,0 +1,35 @@
+server-kind: facility
+
+sql: |
+  SELECT
+    value AS last_pushed_tick,
+    updated_at::text AS last_successful_push,
+    (now() - updated_at)::text AS time_since_push
+  FROM local_system_facts
+  WHERE key = 'lastSuccessfulSyncPush'
+    AND updated_at < now() - interval '1 hour'
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] No successful sync push in the last hour ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      This facility has not completed a successful sync push in the last hour.
+
+      This could indicate:
+      - The sync service is not running
+      - Pushes are failing before completion (check sync session errors on central)
+      - Network connectivity issues reaching the central server
+      - Database connection or transaction issues
+
+      **Details:**
+      {% for row in rows %}
+      - Last pushed tick: {{ row.last_pushed_tick }}
+      - Last successful push: {{ row.last_successful_push }}
+      - Time since push: {{ row.time_since_push }}
+      {% endfor %}

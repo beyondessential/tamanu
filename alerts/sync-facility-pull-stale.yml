@@ -1,0 +1,35 @@
+server-kind: facility
+
+sql: |
+  SELECT
+    value AS last_pulled_tick,
+    updated_at::text AS last_successful_pull,
+    (now() - updated_at)::text AS time_since_pull
+  FROM local_system_facts
+  WHERE key = 'lastSuccessfulSyncPull'
+    AND updated_at < now() - interval '1 hour'
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] No successful sync pull in the last hour ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      This facility has not completed a successful sync pull in the last hour.
+
+      This could indicate:
+      - The sync service is not running
+      - Pulls are failing before completion (check sync session errors on central)
+      - Network connectivity issues reaching the central server
+      - Database connection or transaction issues
+
+      **Details:**
+      {% for row in rows %}
+      - Last pulled tick: {{ row.last_pulled_tick }}
+      - Last successful pull: {{ row.last_successful_pull }}
+      - Time since pull: {{ row.time_since_pull }}
+      {% endfor %}
