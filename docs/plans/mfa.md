@@ -263,7 +263,7 @@ lets it be toggled centrally and roll out via sync.
 
 Per-factor settings sit under the same `auth.mfa.*` family:
 `auth.mfa.totp.availability` (`all | fallbackOnly | off`, see TOTP) and
-`auth.mfa.passwordless.enabled` (see Conditional access B).
+`auth.mfa.passwordless` (`off | onRequest | promoted`, see Conditional access B).
 
 ## Permissions
 
@@ -440,10 +440,21 @@ phishing-resistant path.
   password, separate from the password path that gates in `loginFromCredential`.
   The password still exists underneath for admin reset / recovery — passwordless
   is an *added* method, not removal of the credential.
-- **Policy-gated by a global setting** `auth.mfa.passwordless.enabled`. On =
-  anyone with a passkey may log in passwordless; off = passkeys serve only as a
-  second factor after the password. Per-role refinement (forcing some roles to
-  password + factor) can layer on later if needed.
+- **Policy-gated by a global setting** `auth.mfa.passwordless` =
+  `off | onRequest | promoted` (tri-state, mirroring TOTP availability):
+  - `off` — no passwordless entry; passkeys serve only as a second factor after
+    the password. The server **rejects** passwordless assertions.
+  - `onRequest` — passwordless is available but **opt-in per login**: the login
+    screen is password-first and the user must explicitly invoke "Sign in with a
+    passkey"; no conditional-UI/autofill auto-prompt.
+  - `promoted` — passwordless surfaced by default: WebAuthn **conditional UI**
+    (`mediation: 'conditional'`, autofill) actively offers passkeys and the
+    passkey CTA is primary.
+  The `off` vs (`onRequest`|`promoted`) boundary is **server-enforced** (whether
+  passwordless assertions are accepted at all); `onRequest` vs `promoted` is
+  purely **web-client presentation** (whether to use conditional UI and how
+  prominent the CTA is). Default `onRequest` (capability available without
+  changing the default login UX). Per-role refinement deferred.
 - **Offline payoff**: a passkey-only UV login works **offline at an in-zone
   facility** — local public-key verification, no password, no central — strictly
   better than the password+TOTP path offline.
@@ -535,8 +546,9 @@ Three sequenced PRs in one effort (nothing deprioritised):
   stubbed until PR2/PR3).
 - **PR2 — passwordless (B).** No-password `assert-begin/finish`,
   `residentKey: 'preferred'` + `userVerification: 'required'`, the
-  `auth.mfa.passwordless.enabled` setting; passkey assertion feeds the policy
-  function as fully-authenticating.
+  `auth.mfa.passwordless` setting (`off | onRequest | promoted`; `promoted` uses
+  conditional-UI autofill); passkey assertion feeds the policy function as
+  fully-authenticating.
 - **PR3 — IP policy (A).** `auth.ipAllowlist` (login gate) + `auth.mfa.ipExempt`
   (MFA exemption) settings, CIDR matching on `req.ip`; feeds the policy function.
 
@@ -560,8 +572,10 @@ Three sequenced PRs in one effort (nothing deprioritised):
 7. **TOTP library** — `otpauth` (over `otplib`).
 8. **Passwordless UX** — usernameless with `residentKey: 'preferred'` +
    `userVerification: 'required'`, graceful username-first fallback.
-9. **Passwordless gate** — global `auth.mfa.passwordless.enabled`; per-role
-   refinement deferred.
+9. **Passwordless gate** — global `auth.mfa.passwordless` =
+   `off | onRequest | promoted` (default `onRequest`). `off` rejects passwordless
+   server-side; `onRequest` is opt-in per login; `promoted` uses conditional-UI
+   autofill. Per-role refinement deferred.
 10. **IP policy storage** — synced settings; `auth.ipAllowlist` (login-level) +
     `auth.mfa.ipExempt` (MFA). Client IP via existing `config.proxy.trusted` +
     `req.ip`, fail-closed.
