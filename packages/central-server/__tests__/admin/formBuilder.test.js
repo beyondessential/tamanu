@@ -53,6 +53,7 @@ describe('Form Builder Admin', () => {
   });
 
   beforeEach(() => {
+    console.log('test');
     aiService = {
       createSession: jest.fn().mockResolvedValue('new-session-id'),
       sendFormBuilderMessage: jest.fn().mockResolvedValue({
