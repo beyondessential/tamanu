@@ -48,6 +48,20 @@ import { MFA_FACTORS, MFA_TOTP_AVAILABILITY } from '@tamanu/constants';
  */
 
 /**
+ * Whether TOTP may be used (or enrolled) for logins handled by this server.
+ * Verification happens at central only, and `fallbackOnly` reserves TOTP for
+ * surfaces where WebAuthn can't run. Shared by the policy decision and the
+ * TOTP enrolment endpoints so the two can't drift.
+ */
+export function isTotpAvailable({ totpAvailability, webAuthnAvailable, centralReachable }) {
+  return (
+    centralReachable &&
+    (totpAvailability === MFA_TOTP_AVAILABILITY.ALL ||
+      (totpAvailability === MFA_TOTP_AVAILABILITY.FALLBACK_ONLY && !webAuthnAvailable))
+  );
+}
+
+/**
  * Decide what a login needs beyond the password. One policy function shared by
  * the central and facility login paths, so the rules live in exactly one place.
  *
@@ -70,10 +84,11 @@ export function resolveMfaPolicy({
   // a user-verified passkey assertion already proved possession + inherence
   if (authMethod === 'webauthn') return { kind: 'none' };
 
-  const totpAllowedHere =
-    centralReachable &&
-    (totpAvailability === MFA_TOTP_AVAILABILITY.ALL ||
-      (totpAvailability === MFA_TOTP_AVAILABILITY.FALLBACK_ONLY && !webAuthnAvailable));
+  const totpAllowedHere = isTotpAvailable({
+    totpAvailability,
+    webAuthnAvailable,
+    centralReachable,
+  });
 
   // passkey-first ordering throughout: challenges offer it first, and forced
   // enrolment leads with it
