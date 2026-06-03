@@ -38,6 +38,7 @@ import { location } from './location';
 import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
+import { mfaLogin } from './mfaLogin';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
 import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
@@ -91,6 +92,7 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.post('/login', limiter, loginHandler);
   apiv1.use('/resetPassword', limiter, resetPassword);
   apiv1.use('/changePassword', limiter, changePassword);
+  apiv1.use('/mfa/login', limiter, mfaLogin);
   
   apiv1.get(
     '/public/ping',

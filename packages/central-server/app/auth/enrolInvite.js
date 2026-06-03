@@ -140,12 +140,11 @@ enrolInvite.post(
   '/webauthn/register-finish',
   asyncHandler(async (req, res) => {
     await requireMfaEnabled(req);
-    const { rpId, expectedOrigin } = await getWebAuthnContext(req);
+    const { rpId } = await getWebAuthnContext(req);
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     const credential = await finishWebAuthnRegistration({
       models: req.store.models,
       rpId,
-      expectedOrigin,
       user: req.user,
       registrationResponse,
       friendlyName,
