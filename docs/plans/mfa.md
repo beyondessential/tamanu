@@ -176,6 +176,19 @@ their phone, no per-workstation setup.
   seeds add no security and no real UX (one seed can be enrolled into multiple
   apps), so we don't support them. The backup-device need is met by multiple
   WebAuthn credentials; the lockout backstop is admin reset (below).
+- **Availability is gated by a global setting** `auth.mfa.totp.availability` =
+  `all | fallbackOnly | off` (one enum subsumes the on/off toggle):
+  - `all` — TOTP offered as a factor/enrolment option on every surface.
+  - `fallbackOnly` — TOTP offered **only where WebAuthn is unavailable for this
+    login** (mobile, and out-of-zone facilities). On WebAuthn-capable surfaces
+    (admin/clinical web, in-zone facilities) TOTP is neither offered nor accepted
+    — those users are steered to / forced onto passkeys. Lets a deployment
+    enforce phishing-resistant MFA where it can without locking out the rest.
+  - `off` — no TOTP anywhere (WebAuthn-only deployment).
+  This composes with force-enrolment: a `fallbackOnly` web user whose only factor
+  is TOTP isn't locked out — the WebAuthn-capable surface force-enrols a passkey
+  (passkey-first interstitial). Per-role TOTP gating is deferred (as with
+  passwordless).
 
 ### Recovery: admin reset / provisioning (no recovery codes)
 
@@ -247,6 +260,10 @@ This is distinct from the permissions: the flag decides *whether MFA exists for
 this deployment at all*; the permissions decide *which users may/must use it*.
 Keeping enablement as a setting (not config) fits the reduce-config goal and
 lets it be toggled centrally and roll out via sync.
+
+Per-factor settings sit under the same `auth.mfa.*` family:
+`auth.mfa.totp.availability` (`all | fallbackOnly | off`, see TOTP) and
+`auth.mfa.passwordless.enabled` (see Conditional access B).
 
 ## Permissions
 
@@ -353,6 +370,9 @@ not hardcoded to "always two factors":
 
 - feature flag on?
 - does the user have a factor / is the user `require Mfa`?
+- **which factors are available here** — `auth.mfa.totp.availability` × whether
+  WebAuthn is available for this login (so `fallbackOnly` hides TOTP on
+  WebAuthn-capable surfaces).
 - **IP zone** (see Conditional access A) — exempt range may skip the factor.
 - **auth method used** (see Conditional access B) — a user-verifying passkey
   assertion satisfies strong auth on its own, so no separate second step.
@@ -509,8 +529,10 @@ Three sequenced PRs in one effort (nothing deprioritised):
   in-person hybrid-QR provision, and the **enrolment-invite token** for
   remote/async provisioning — reusing the `OneTimeLogin` pattern, redemption
   **requiring token + password**, short-lived/single-use); the
-  `auth.mfa.enabled` feature flag; and the enforcement **policy function** built
-  to take IP-zone and auth-method inputs (stubbed until PR2/PR3).
+  `auth.mfa.enabled` feature flag and `auth.mfa.totp.availability`
+  (`all|fallbackOnly|off`); and the enforcement **policy function** built to take
+  factor-availability, IP-zone, and auth-method inputs (IP-zone/passwordless
+  stubbed until PR2/PR3).
 - **PR2 — passwordless (B).** No-password `assert-begin/finish`,
   `residentKey: 'preferred'` + `userVerification: 'required'`, the
   `auth.mfa.passwordless.enabled` setting; passkey assertion feeds the policy
@@ -549,6 +571,11 @@ Three sequenced PRs in one effort (nothing deprioritised):
     UserMfa`; the target user needs no MFA permission. The invite-token redeem
     **must** require token + password (never token alone) and be
     short-lived/single-use. Hybrid QR is in-person/synchronous only.
+13. **TOTP availability** — `auth.mfa.totp.availability` = `all | fallbackOnly |
+    off` (one enum subsumes on/off). `fallbackOnly` offers TOTP only where
+    WebAuthn is unavailable (mobile + out-of-zone facilities), enforcing passkeys
+    on capable surfaces without lockout (force-enrol covers the gap). Per-role
+    TOTP gating deferred.
 
 All design decisions are settled. Remaining items are build-time UX/detail only
 (e.g. exact interstitial copy and layout).
