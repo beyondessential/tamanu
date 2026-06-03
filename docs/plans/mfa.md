@@ -1,0 +1,551 @@
+# Multi-factor authentication (WebAuthn + TOTP)
+
+Linear: TAM-1652 (admin panel) + TAM-1848 (clients). The card scopes a PoC to
+the admin panel, but we are speccing and building the **full scope** — admin
+panel, clinical web, facility logins, and **mobile TOTP** — in this plan. Mobile
+**WebAuthn** (native passkeys) is planned separately in
+`docs/plans/mfa-mobile-webauthn.md` and not built in this effort, because it
+carries an external prerequisite (a Tamanu-owned passkey domain + app
+entitlement + store release) the rest of MFA does not. TAM-1652 independently
+specified the RP-ID-as-common-stem design and the passkey-invalidation warning
+captured below, and flagged secure TOTP distribution to facilities as a separate
+concern (which this plan resolves by never distributing the seed — central-only
+verification).
+
+## Goal
+
+Add a second authentication factor for Tamanu users. Two factor types:
+
+- **WebAuthn / passkeys** — the preferred factor.
+- **TOTP** (authenticator app) — secondary, for users without a usable
+  authenticator.
+
+A login goes through the second factor when MFA is enabled and the account has a
+factor (or is required to). Enablement is a global feature flag; per-user
+applicability is driven by the two permissions below.
+
+The design is shaped almost entirely by Tamanu's central/facility split and the
+sync system, so most of this document is about *where secrets live and how they
+(don't) move*, not about the MFA mechanics themselves.
+
+## Background: the constraints that drive every decision
+
+- **Users sync down only.** `User` is `PULL_FROM_CENTRAL`
+  (`packages/database/src/models/User.ts`). The password travels over sync as a
+  **bcrypt hash** — one-way, safe to replicate. Anything we add to a synced
+  table inherits the same "ends up in every facility DB" property.
+- **Login already has a central/local split.** Facility login tries central
+  first and falls back to local
+  (`packages/facility-server/app/middleware/auth.js`,
+  `centralServerLoginWithLocalFallback`). Password reset / change are simply
+  **forwarded to central** (`resetPassword.js`, `changePassword.js` forward via
+  `CentralServerConnection.forwardRequest`). Central is the trust anchor.
+- **Credential check seam.** Password verification happens in
+  `User.loginFromCredential()` (`User.ts`, after the bcrypt `compare`, before
+  device registration and token issue). That boundary is where a second-factor
+  gate slots in.
+- **Ephemeral-token precedent.** `OneTimeLogin` (`DO_NOT_SYNC`) is the existing
+  pattern for short-lived, per-server tokens (used by password reset). MFA
+  challenges follow the same pattern.
+- **Encryption-at-rest primitive exists.** `packages/shared/src/utils/crypto.js`
+  provides `encryptSecret` / `decryptSecret` (versioned AES) keyed by a PSK from
+  a config key file. Secret *settings* are stored encrypted in the `Setting`
+  table.
+
+### The key asymmetry between the two factors
+
+|                | Stored secret        | Safe to replicate?      | Offline at facility? | Cross-origin portable? |
+|----------------|----------------------|-------------------------|----------------------|------------------------|
+| **WebAuthn**   | public key only      | ✅ leak is a non-event  | ✅                   | ❌ origin-bound (see RP ID) |
+| **TOTP**       | symmetric seed       | ❌ replicating = leaking | only if replicated  | ✅                     |
+
+WebAuthn stores only public keys, so credentials can be replicated to every
+facility and verified **offline** with no shared secret. TOTP's seed is
+symmetric and recoverable, so replicating it widens the blast radius to every
+facility DB — therefore TOTP stays **central-only** and is verified only when
+online to central. This asymmetry is why the two factors get different storage,
+sync, and offline behaviour.
+
+## Decisions
+
+### WebAuthn is the primary, offline-capable factor
+
+- Credentials store `{ credentialId, publicKey, transports, aaguid, rpId,
+  originEnrolledAt, friendlyName, createdAt, lastUsedAt }`.
+- **Multiple credentials per user** — essential, not optional. It is both the
+  expected model (laptop + phone + hardware backup key) and the anti-lockout
+  story. At assertion, offer the user's credential list (or discoverable creds).
+- Public keys are safe to sync, so the table is **`BIDIRECTIONAL`**: a credential
+  enrolled at a facility flows up to central and back down to siblings, and any
+  in-zone server can verify offline.
+
+#### RP ID and the "can this server do WebAuthn locally?" predicate
+
+WebAuthn credentials are bound to a **Relying Party ID**, which must be a
+registrable domain suffix of the origin. Tamanu deployments are expected to put
+central and facilities under a shared parent domain
+(`central.foo.bar.com`, `facility-a.foo.bar.com`, …), so a single RP ID of
+`foo.bar.com` lets one credential assert across every subdomain.
+
+- **RP ID is a global setting**: `auth.mfa.webauthn.rpid` (e.g. `foo.bar.com`).
+  Not secret, deployment-wide, and `PULL_FROM_CENTRAL` settings sync it to every
+  facility — so each server has it offline.
+- **The server's own origin** (`canonicalHostName`) is the only per-server input
+  and is already known/trusted at login time. (It must be the *trusted*
+  self-origin, not the client-sent `Origin`, or WebAuthn's origin check is
+  meaningless.)
+- **Capability predicate**, computable offline at every server:
+
+  ```
+  canDoWebAuthnLocally = originIsUnderRpId(ownOrigin, settings.auth.mfa.webauthn.rpid)
+
+  originIsUnderRpId(origin, rpId) = (origin === rpId) || origin.endsWith('.' + rpId)
+  ```
+
+  The leading dot is required — a naïve `endsWith(rpId)` would let
+  `evilfoo.bar.com` match `foo.bar.com`. This mirrors the browser's own check.
+- The predicate gates **both enrollment and assertion** (the rpid-suffix rule
+  applies to both ceremonies).
+- **When the predicate is false** (out-of-zone facility on a customer/government
+  domain): **refuse** WebAuthn locally and fall back to TOTP/password. We are
+  **not** building a delegated/IdP-style flow (no redirect-to-central IdP) —
+  out-of-zone facilities simply don't offer WebAuthn.
+- **RP ID is effectively set-once.** Changing it after enrollment invalidates
+  every existing credential (rpid mismatch → assertions refuse). Guard the
+  setting against casual edits and warn loudly in the admin UI.
+
+#### Signature counter — not stored
+
+The counter only detects a *cloned* authenticator (extracted private key). That
+threat is high-sophistication, already undetectable for synced passkeys (which
+report counter 0 by design), and **actively harmful to enforce** in a
+sync-lagged/offline topology (a server routinely sees a "regressed" counter
+simply because it hasn't received another server's update yet). Since we'd never
+act on it, we don't store it at all — pass `0` as the stored counter to the
+verifier on every assertion (the verifier treats `0`/`0` as "counter
+unsupported" and does no regression check). No column, no sync-merge question.
+
+#### Cross-device (hybrid) — free with the web flow, for both enrol and auth
+
+The "scan a QR with my phone while on the laptop" flow is the WebAuthn **hybrid
+transport**, and it works for **both ceremonies**: `create()` (enrol a phone
+passkey from the laptop) and `get()` (sign in). Supported for free by the web
+scope, with no server work:
+
+- The QR / BLE proximity check / tunnel are handled by the OS + browser, relayed
+  through **Apple/Google** servers — we run no relay.
+- The phone acts as a **roaming authenticator via its OS passkey manager**, not
+  via the Tamanu mobile app, and creates/asserts a passkey bound to the **web RP
+  ID (the stem)**. So this is purely the web path and is **unrelated** to the
+  separate mobile-app passkey plan (`docs/plans/mfa-mobile-webauthn.md`).
+
+All we must do is **not disable it**: don't pin `authenticatorAttachment` (leave
+it unset, for `create()` and `get()` alike); store the registration `transports`
+(already in the credential record) and echo them in `allowCredentials` for the
+username-first auth path; the usernameless path sends empty `allowCredentials`,
+which surfaces the phone option natively. `userVerification: 'required'` is
+satisfied by the phone's biometric.
+
+Notes: it is **online-only** (the relay needs internet on both devices), so it
+won't work at an offline facility — which refines the offline force-enrol claim
+in Enforcement: in-zone offline enrolment works only with a **local**
+authenticator (platform passkey / security key), not the phone-over-QR path. It
+is an especially strong fit for **shared clinical workstations** (and their
+forced-enrolment): a user with no local passkey enrols/signs in by scanning with
+their phone, no per-workstation setup.
+
+### TOTP is the central-only secondary factor
+
+- **Symmetric seed → central-only.** Stored in a dedicated per-user table that
+  is **not synced to facilities** (`DO_NOT_SYNC`, or otherwise kept out of
+  facility scope). Verified only at central; facilities **forward** the entered
+  code to central (the `changePassword` forwarding pattern).
+- **Encrypted at rest** by reusing the existing secrets mechanism as-is:
+  `encryptSecret` / `decryptSecret` from `shared/utils/crypto.js`, keyed by the
+  existing `crypto.settingsPsk`. No new key is invented. The blast-radius
+  protection comes entirely from the table being **central-only** — since the
+  ciphertext never syncs to facilities, it is irrelevant that facilities also
+  hold the PSK. Encryption-at-rest is therefore pure defence-in-depth against a
+  central DB *dump* (you'd also need the key file). (Minor: a key named
+  "settingsPsk" guarding non-settings data is slightly awkward; alias the
+  concept later if desired — not worth solving now.)
+- **No offline TOTP.** If central is unreachable, the TOTP step cannot complete.
+  See "Offline + MFA-required" below.
+- **One seed per user.** Re-enrolling replaces the existing seed. Multiple TOTP
+  seeds add no security and no real UX (one seed can be enrolled into multiple
+  apps), so we don't support them. The backup-device need is met by multiple
+  WebAuthn credentials; the lockout backstop is admin reset (below).
+
+### Recovery: admin reset / provisioning (no recovery codes)
+
+There are **no recovery codes**. The recovery path is an admin resetting the
+locked-out user. An admin who is themselves locked out appeals to tech support,
+who have additional out-of-band checks. This needs:
+
+- **Admin reset MFA** — clear a user's factors so they re-enrol.
+- **Admin pre-enrol / provision** — provision a factor on a user's behalf.
+  Mechanics differ by factor:
+  - *WebAuthn via hybrid QR* (**preferred — "come to IT", in person**): the admin
+    starts an enrol-for-user-X ceremony; the server issues registration options
+    bound to X's handle; the admin's screen shows the QR; **the user scans it
+    with their own phone** and the passkey is created on the user's device. The
+    private key never leaves the user's phone — the admin only relays the public
+    attestation, so the admin gains nothing that could impersonate the user.
+    **Strictly in-person and synchronous**: hybrid requires BLE proximity between
+    the user's phone and the admin's machine, a live pending ceremony in the
+    admin's browser, and the QR is single-use/short-lived. So you **cannot print
+    or email the QR** — that has no BLE peer and a dead session. This is the
+    deliberate phishing-resistance/proximity property. Online-only; runs from the
+    admin panel (in-zone). (See Cross-device.)
+  - *WebAuthn with a hardware key in hand*: alternatively the admin runs the
+    ceremony with a security key physically present, then hands it over — for
+    issuing org-owned hardware keys.
+  - *Enrolment-invite token* (**for remote/async provisioning**): the admin
+    generates a time-limited token; the user receives it (link/email) and opens
+    it **on their own device**, where they self-run the normal WebAuthn `create()`
+    (or TOTP enrol) on their own authenticator, on their own schedule. Reuses the
+    `OneTimeLogin` pattern (as password reset does). It does **not** require the
+    target user to hold `write Mfa` — the token carries the admin's `write
+    UserMfa` authority. **Security (required):** the token is a bearer
+    authorisation to enrol an authenticator on the account, so interception → an
+    attacker enrols their *own* passkey → takeover. Redemption **must** therefore
+    require the user to **also authenticate** (token *and* password) — the token
+    alone is never sufficient — and the token **must** be short-lived and
+    single-use. Not optional.
+  - *TOTP*: the admin generates the seed, which means the admin **sees** it —
+    acceptable for provisioning, but weaker than the hybrid-QR path.
+
+All gated by the `UserMfa` admin permissions (see Permissions).
+
+### Two tables, opposite profiles
+
+Do **not** force a uniform table — the factors have opposite sync and secrecy
+needs, even though the UI presents one "your security methods" list:
+
+| Table | Cardinality | Contents | Sync direction | At rest |
+|-------|-------------|----------|----------------|---------|
+| `webauthn_credentials` | N per user | public keys | `BIDIRECTIONAL` | plaintext (public) |
+| `totp_secrets` | 1 per user | symmetric seed | `DO_NOT_SYNC` (central-only) | encrypted (`crypto.settingsPsk`) |
+| MFA challenges (ephemeral) | per ceremony | random nonce | `DO_NOT_SYNC` | — |
+
+Challenges are issued and verified by whichever server runs the ceremony
+(`OneTimeLogin` pattern), so in-zone WebAuthn works fully offline.
+
+## Enablement: feature flag
+
+A global on/off flag (TAM-1652) — a synced global setting, e.g.
+`auth.mfa.enabled` (`PULL_FROM_CENTRAL`, like the RP ID). It is the kill-switch
+and rollout gate:
+
+- **Off**: no enrolment offered, no enforcement, login behaves exactly as today.
+  The two permissions are inert.
+- **On**: enrolment is offered to users with `write Mfa`, enrolled factors are
+  required at login, and `require Mfa` users are force-enrolled.
+
+This is distinct from the permissions: the flag decides *whether MFA exists for
+this deployment at all*; the permissions decide *which users may/must use it*.
+Keeping enablement as a setting (not config) fits the reduce-config goal and
+lets it be toggled centrally and roll out via sync.
+
+## Permissions
+
+Covers the two permissions TAM-1652 calls for ("permission to set MFA devices"
+and "require a certain role to have MFA"), plus the admin recovery actions.
+
+Tamanu permissions are `(verb, noun, objectId?)` tuples, defined in the DB
+(`Permission` model, `PULL_FROM_CENTRAL`), assigned to roles, and compiled into
+CASL abilities (`packages/shared/src/permissions/buildAbility.js`). The split
+chosen: noun **`Mfa`** = acting on *your own* MFA, noun **`UserMfa`** = acting on
+*another user's* MFA (admin).
+
+| Permission | Meaning |
+|------------|---------|
+| `write Mfa` | Manage your own MFA — enrol and remove your own factors. Gates the self-service enrolment endpoints. |
+| `require Mfa` | **Enforcement flag.** Presence on a user's role ⇒ that user **must** have a factor configured (see Login flow). |
+| `read UserMfa` | Admin: view another user's MFA status. |
+| `write UserMfa` | Admin: reset / pre-enrol another user (the recovery + provisioning actions above). |
+
+- Self-service endpoints check `req.ability.can('write', 'Mfa')`; admin
+  endpoints check the `UserMfa` verbs — all with `req.flagPermissionChecked()`.
+- **`write Mfa` gates *self-initiated* enrolment only.** Admin-driven enrolment —
+  hybrid QR, hardware key, *and* the invite token — is authorised by the admin's
+  `write UserMfa`; the **target user needs no MFA permission at all**. The invite
+  token specifically carries the admin's authority to the user's own device:
+  redeeming it enrols a factor without the user holding `write Mfa`.
+- Consequence: a deployment may grant `write Mfa` to **no one** and provision all
+  MFA via admins — fully coherent. It also softens the pairing below.
+- `write Mfa` and `require Mfa` are independent: a role can grant *may-enrol*,
+  *must-enrol*, both, or neither. A `require`-d role without `write Mfa` only
+  affects the *self-service* forced-enrolment path (the user can't self-enrol at
+  the interstitial); they can still be covered by an admin invite/provision. Best
+  to still pair `require` ⇒ `write Mfa` so self-service works, but it's no longer
+  a hard contradiction.
+- All sync to facilities with the rest of the permission set, so both the
+  "may this user enrol" and "is MFA required for this user" checks are available
+  wherever login happens.
+
+## Login flow changes
+
+- **TOTP**: after the password `compare` in `User.loginFromCredential()`, if the
+  user has TOTP enrolled (and/or is MFA-required), issue a partial/challenge
+  state instead of a token; complete on TOTP verification (central). Facility
+  forwards the code to central.
+- **WebAuthn**: the single login POST becomes a two-phase exchange (issue
+  challenge → verify assertion). Shared challenge plumbing with TOTP.
+- **Login response** (`packages/central-server/app/auth/login.js`,
+  facility `auth.js`) gains fields to express "MFA required, here are your
+  available factors / challenge" so web and mobile can drive the second step.
+
+## Enrollment flow
+
+Authenticated self-service on one's own account — a **new seam** (today there is
+no authenticated "change my own credential" endpoint; password reset is
+unauthenticated, admin edits act on others).
+
+- **WebAuthn**: `register-begin` (server issues challenge + RP info) →
+  `navigator.credentials.create()` → `register-finish` (verify attestation,
+  store credential). Runs against whichever in-zone origin the user is on;
+  credential created with the shared RP ID; flows over sync (`BIDIRECTIONAL`).
+  The ceremony is **fully local** — challenge and verification never touch
+  central — so in-zone WebAuthn enrolment works **offline** and syncs up later.
+- **TOTP**: `enrol` (central generates seed, stores **pending**, returns
+  `otpauth://` URI for QR) → user enters a code → `confirm` (central verifies
+  against pending seed, marks active). Pending seed lives in the central-only
+  table, never the synced `User` row. Requires central connectivity.
+
+## Enforcement: force-enrolment, decided
+
+**No downgrade, ever** — silently dropping to password-only when central is
+unreachable would be a full MFA bypass (cut the link, skip the factor). An
+MFA-required (`require Mfa`) user who has no factor is driven into a
+**forced-enrolment** interstitial after password verification, before any
+session is usable.
+
+What that means by location, for an MFA-required user with **no factor yet**:
+
+- **In-zone facility** (WebAuthn-capable, `canDoWebAuthnLocally === true`): they
+  are force-enrolled into a WebAuthn credential **on the spot, even offline** —
+  the ceremony is local, the credential works immediately and syncs up later. No
+  block. (Offline this requires a **local** authenticator; the phone-over-QR
+  hybrid path needs internet — see Cross-device.)
+- **Out-of-zone facility, offline**: WebAuthn can't run (rpid mismatch — even a
+  synced credential won't assert at that origin) and TOTP can't verify (central
+  unreachable) → **hard block**. This is an inherent consequence of the
+  topology, not a tunable policy.
+- **Anywhere online**: can always complete enrolment (WebAuthn in-zone, or TOTP
+  via central).
+
+So the hard block only bites *out-of-zone + offline* facilities; in-zone
+facilities can always self-rescue via local WebAuthn enrolment.
+
+**Which factor the interstitial leads with:** when both are available (in-zone +
+online) it leads with **"Set up a passkey"** as the primary call to action, with
+"Use an authenticator app instead" as a secondary link — steering users to the
+stronger, offline-capable factor. When WebAuthn isn't available (out-of-zone),
+only TOTP is offered (no choice). On an exempt network the interstitial is
+skippable (see Conditional access A).
+
+### The enforcement check is a policy decision, not a constant
+
+"What auth does this login need?" is computed at login time from several inputs,
+not hardcoded to "always two factors":
+
+- feature flag on?
+- does the user have a factor / is the user `require Mfa`?
+- **IP zone** (see Conditional access A) — exempt range may skip the factor.
+- **auth method used** (see Conditional access B) — a user-verifying passkey
+  assertion satisfies strong auth on its own, so no separate second step.
+
+Implement this as one small, well-tested policy function consumed by both the
+central and facility login paths, rather than scattering conditionals.
+
+## Conditional access (advanced)
+
+### A. IP-range policy (restrict logins / exempt MFA by zone)
+
+Two independent, security-sensitive knobs, as CIDR list settings (per-facility
+with a global fallback; `PULL_FROM_CENTRAL`, so evaluable offline at the edge).
+They are deliberately split across two namespaces because they are different
+concerns:
+
+- **`auth.ipAllowlist`** — a **login-level** gate (not MFA): refuse login
+  entirely from outside the listed range(s). Lives under `auth.` directly
+  because it has nothing to do with MFA.
+- **`auth.mfa.ipExempt`** — MFA conditional-access: a trusted range (e.g.
+  intranet) skips the second factor; everywhere else (e.g. internet) requires
+  it. (Leaf key isn't re-prefixed with "mfa" — it's already in that namespace.)
+
+**Client IP — already handled.** Tamanu sits behind a reverse proxy (Caddy), but
+the trust boundary already exists: `config.proxy.trusted` drives Express
+`trust proxy` on both central and facility (`createApi.js`,
+`addFacilityMiddleware.js`), and `req.ip` respects it (rate-limiting already
+keys off it). So we reuse `req.ip` for CIDR matching (`ipaddr.js`; IPv4, IPv6,
+v4-mapped-v6). This is **fail-closed**: if a deployment's proxy isn't configured
+in `config.proxy.trusted`, `req.ip` is the proxy's own address, which won't match
+any intranet CIDR, so the MFA exemption simply doesn't apply and everyone gets
+MFA. A spoofed `X-Forwarded-For` cannot manufacture an exemption.
+
+**Where evaluated:** at the point of first contact, since that is where the
+user's real IP is visible — **facility** for facility logins (central only sees
+the facility's IP otherwise), **central** for direct/admin/mobile. CIDR settings
+sync, so a facility evaluates locally even offline.
+
+**Deliberate trade-off:** MFA-exempt-by-IP makes *network position* a factor — a
+compromised host inside the trusted range bypasses MFA. This is an accepted
+posture, to be enabled knowingly.
+
+**Exempt + `require Mfa` (decided — hybrid):** a `require Mfa` user with no
+factor, logging in from an exempt range, is **shown the forced-enrolment
+interstitial but may skip it** and proceed (they're exempt anyway). Off-network
+the same interstitial is **mandatory**. This nudges early enrolment without
+hard-blocking on the trusted network, while still enforcing the requirement the
+moment they're off it.
+
+### B. Single-factor passkey (passwordless)
+
+A passkey used *instead of* a password, not after it — the strongest and
+phishing-resistant path.
+
+- **`userVerification: 'required'`** at assertion: a passkey with biometric/PIN
+  UV is possession + inherence, so it satisfies "MFA" by itself. The policy
+  function treats a verified passkey assertion as fully authenticated — no
+  separate second factor.
+- **Discoverable credentials, degrade gracefully** (`residentKey: 'preferred'` at
+  registration): usernameless ("Sign in with a passkey", no email typed) where
+  the authenticator supports it, falling back to username-first on constrained
+  authenticators (e.g. hardware keys with full resident-key slots) — so enrolment
+  never hard-fails. User handle = the Tamanu user UUID (stable, not PII).
+- **New parallel login entry**: `assert-begin` / `assert-finish` with no
+  password, separate from the password path that gates in `loginFromCredential`.
+  The password still exists underneath for admin reset / recovery — passwordless
+  is an *added* method, not removal of the credential.
+- **Policy-gated by a global setting** `auth.mfa.passwordless.enabled`. On =
+  anyone with a passkey may log in passwordless; off = passkeys serve only as a
+  second factor after the password. Per-role refinement (forcing some roles to
+  password + factor) can layer on later if needed.
+- **Offline payoff**: a passkey-only UV login works **offline at an in-zone
+  facility** — local public-key verification, no password, no central — strictly
+  better than the password+TOTP path offline.
+
+## Scope / endpoints (initial)
+
+- `POST .../mfa/webauthn/register-begin` / `register-finish`
+- `POST .../mfa/webauthn/assert-begin` / `assert-finish`
+- `POST .../mfa/totp/enrol` / `confirm`
+- `POST .../mfa/totp/verify` (central; facility forwards)
+- `GET/DELETE .../mfa/methods` (list / remove your own factor — `write Mfa`)
+- Admin (`UserMfa`): view status, reset (clear factors), pre-enrol/provision,
+  generate an enrolment-invite token
+- `POST .../mfa/enrol-invite` (admin, `write UserMfa`) — issue a time-limited
+  enrolment token for a user; `POST .../mfa/enrol-invite/redeem` — token-scoped
+  session that lets the user self-run `register-finish` / TOTP `confirm` on their
+  own device (reuses the `OneTimeLogin` pattern)
+
+## Libraries
+
+All actively maintained as of mid-2026; hosted/SaaS auth providers are ruled out
+(external dependency at login breaks offline/facility operation and raises
+data-residency concerns).
+
+- **WebAuthn server: `@simplewebauthn/server`** (v13.x). De-facto standard,
+  TS-first, verification-primitives (not a flow) so we keep control of the
+  central/facility ceremony routing. `verifyAuthenticationResponse` takes
+  `expectedRPID` / `expectedOrigin` as arrays or predicates — exactly what the
+  shared-RP-ID-across-many-origins model needs. v13 is rearchitected onto
+  WebCrypto/`Uint8Array` (no Node `Buffer`), so it runs on central, facility, and
+  RN unchanged. Pass `0` as the stored counter (we don't track it).
+- **WebAuthn web client: `@simplewebauthn/browser`** (v13.x). Matching pair;
+  handles the base64url ⇄ ArrayBuffer encoding that is the main footgun. No
+  React-specific wrapper — imperative calls inside the existing login action.
+- **TOTP: `otpauth`** (v9.x, decided over `otplib`) — zero-dependency,
+  isomorphic, TS-native, emits the `otpauth://` URI. (`otplib` v13 was the
+  heavier alternative; `speakeasy` is unmaintained — avoid.)
+- **QR rendering: existing `qrcode`** (already a dep) — render the `otpauth://`
+  URI client-side. No new dependency.
+- **Mobile TOTP**: no new mobile-specific lib — the `otpauth://` URI from
+  `otpauth` is rendered as a QR on the client; verification is central-side.
+  (Native-passkey lib `react-native-passkey` is covered in the mobile WebAuthn
+  plan, not this effort.)
+
+New runtime deps for this effort: the two `@simplewebauthn` packages and
+`otpauth`. `qrcode` and `jose` (JWT) are already present.
+
+## Mobile (TOTP in scope; WebAuthn split out)
+
+Mobile only ever authenticates to **central** (single store build
+`com.tamanuapp`, runtime server selection via `ServerSelector`), so central is
+the sole verifier — no facility-forwarding or sync-down dimension.
+
+- **Mobile TOTP — in scope here.** Verification is central-only/online anyway, so
+  it is exactly the web flow on the mobile client: the login screen gains a TOTP
+  code step after the password, posting to central; enrolment uses the same
+  central `enrol`/`confirm` (render the `otpauth://` URI as a QR / show the
+  secret). An MFA-required user logging in on mobile with no factor is
+  force-enrolled into **TOTP** (online); offline-first-login with no factor hard
+  blocks, as with out-of-zone facilities.
+- **Mobile WebAuthn — separate plan.** Native passkeys need an associated-domain
+  setup that the single runtime-configured app build can't satisfy per
+  deployment; see `docs/plans/mfa-mobile-webauthn.md`. Not built in this effort.
+
+## Out of scope / excluded
+
+- **Delegated/IdP WebAuthn.** Not building it. Out-of-zone facilities offer no
+  WebAuthn and fall back to TOTP/password.
+- **Patient portal MFA** — explicitly **excluded** (separate auth surface,
+  `packages/central-server/app/patientPortalApi/auth/`).
+- **Mobile native passkeys** — planned separately
+  (`docs/plans/mfa-mobile-webauthn.md`), not built here.
+
+## Build sequence
+
+Three sequenced PRs in one effort (nothing deprioritised):
+
+- **PR1 — core MFA.** `webauthn_credentials`, `totp_secrets`, ephemeral
+  challenge tables (+ mobile TypeORM migrations as needed); WebAuthn + TOTP
+  enrol/verify endpoints; the two permissions + admin actions (reset,
+  in-person hybrid-QR provision, and the **enrolment-invite token** for
+  remote/async provisioning — reusing the `OneTimeLogin` pattern, redemption
+  **requiring token + password**, short-lived/single-use); the
+  `auth.mfa.enabled` feature flag; and the enforcement **policy function** built
+  to take IP-zone and auth-method inputs (stubbed until PR2/PR3).
+- **PR2 — passwordless (B).** No-password `assert-begin/finish`,
+  `residentKey: 'preferred'` + `userVerification: 'required'`, the
+  `auth.mfa.passwordless.enabled` setting; passkey assertion feeds the policy
+  function as fully-authenticating.
+- **PR3 — IP policy (A).** `auth.ipAllowlist` (login gate) + `auth.mfa.ipExempt`
+  (MFA exemption) settings, CIDR matching on `req.ip`; feeds the policy function.
+
+## Resolved decisions
+
+1. **Offline stance** — no downgrade. Rely on WebAuthn where available; hard
+   block only at out-of-zone + offline facilities (inherent). See Enforcement.
+2. **No recovery codes** — recovery is admin reset; admin-of-admin lockout goes
+   to tech support with out-of-band checks. Adds admin reset + provisioning
+   (the `UserMfa` permissions).
+3. **Permissions** — split nouns: `write Mfa` (own), `require Mfa` (enforcement
+   flag), `read`/`write UserMfa` (admin). See Permissions.
+4. **TOTP encryption** — reuse the existing `encryptSecret`/`crypto.settingsPsk`
+   mechanism; central-only storage (not the key) provides the blast-radius
+   protection. No new key.
+5. **Enforcement UX** — forced-enrolment interstitial; hard block only when
+   neither factor can complete (out-of-zone + offline). Leads with passkey, TOTP
+   as the alternative; skippable on an exempt network.
+6. **Sequencing** — core first, then passwordless (B), then IP policy (A); see
+   Build sequence.
+7. **TOTP library** — `otpauth` (over `otplib`).
+8. **Passwordless UX** — usernameless with `residentKey: 'preferred'` +
+   `userVerification: 'required'`, graceful username-first fallback.
+9. **Passwordless gate** — global `auth.mfa.passwordless.enabled`; per-role
+   refinement deferred.
+10. **IP policy storage** — synced settings; `auth.ipAllowlist` (login-level) +
+    `auth.mfa.ipExempt` (MFA). Client IP via existing `config.proxy.trusted` +
+    `req.ip`, fail-closed.
+11. **Exempt + `require Mfa`** — hybrid: interstitial shown but skippable on an
+    exempt network, mandatory off-network.
+12. **Admin-driven enrolment & the invite token** — authorised by `write
+    UserMfa`; the target user needs no MFA permission. The invite-token redeem
+    **must** require token + password (never token alone) and be
+    short-lived/single-use. Hybrid QR is in-person/synchronous only.
+
+All design decisions are settled. Remaining items are build-time UX/detail only
+(e.g. exact interstitial copy and layout).
