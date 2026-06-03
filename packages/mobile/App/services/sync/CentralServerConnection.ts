@@ -335,6 +335,13 @@ export class CentralServerConnection {
         { backoff: { maxAttempts: 1 } },
       );
 
+      // password accepted but a second factor is owed: no tokens yet, hand the
+      // pending state back so the caller can run the TOTP step
+      if (data.mfaPending) {
+        this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+        return data;
+      }
+
       const facilityId = await readConfig('facilityId', '');
       const { token, refreshToken, user, allowedFacilities } = data;
       if (
@@ -351,6 +358,31 @@ export class CentralServerConnection {
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
       }
+      this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+      return data;
+    } catch (err) {
+      this.throwError(err);
+    }
+  }
+
+  /**
+   * Complete a paused login by satisfying the second factor. `path` is relative
+   * to mfa/login (mobile uses 'totp' to verify, and 'totp/enrol' + 'totp/confirm'
+   * for forced enrolment). The pending token authorises the call; the terminal
+   * step returns the full login payload.
+   */
+  async completeMfaLogin(
+    path: string,
+    mfaToken: string,
+    body: Record<string, unknown> = {},
+  ): Promise<LoginResponse> {
+    try {
+      const data = await this.post<LoginResponse>(
+        `mfa/login/${path}`,
+        {},
+        { mfaToken, ...body },
+        { backoff: { maxAttempts: 1 } },
+      );
       this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
       return data;
     } catch (err) {
