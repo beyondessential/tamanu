@@ -104,7 +104,7 @@ export class MobileSyncManager {
   }
 
   get syncSettings(): MobileSyncSettings {
-    return this.settings.getSetting<MobileSyncSettings>('mobileSync');
+    return this.settings.getSetting<MobileSyncSettings>('mobileSync') ?? ({} as MobileSyncSettings);
   }
 
   setSyncStage(syncStage: number): void {

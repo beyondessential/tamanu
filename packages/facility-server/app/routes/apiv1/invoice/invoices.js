@@ -10,7 +10,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice } from '@tamanu/utils/invoice';
+import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -310,6 +310,24 @@ invoiceRoute.put(
       await transaction.rollback();
       throw error;
     }
+
+    // Recalculate patientPaymentStatus now that items/discount may have changed.
+    // Payments can be recorded on in-progress invoices, so the status may be stale
+    // if a fee scale discount is applied after a partial payment.
+    const invoicePriceListId = await req.models.InvoicePriceList.getIdForPatientEncounter(
+      foundInvoice.encounterId,
+    );
+    const invoiceWithDetails = await req.models.Invoice.findOne({
+      where: { encounterId: foundInvoice.encounterId },
+      include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
+    });
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
+    // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
+    const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
+    await req.models.Invoice.update(
+      { patientPaymentStatus: getInvoicePatientPaymentStatus(effectivePaidAmount, patientTotal) },
+      { where: { id: invoiceId } },
+    );
 
     const invoice = await req.models.Invoice.findByPk(invoiceId);
     res.json(invoice.dataValues);
