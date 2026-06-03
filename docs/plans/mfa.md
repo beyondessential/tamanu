@@ -5,8 +5,9 @@ the admin panel, but we are speccing and building the **full scope** — admin
 panel, clinical web, facility logins, and **mobile TOTP** — in this plan. Mobile
 **WebAuthn** (native passkeys) is planned separately in
 `docs/plans/mfa-mobile-webauthn.md` and not built in this effort, because it
-carries an external prerequisite (a Tamanu-owned passkey domain + app
-entitlement + store release) the rest of MFA does not. TAM-1652 independently
+carries an external prerequisite (a Tamanu-owned passkey domain hosting
+associated-domain files + an app entitlement + a new app build) the rest of MFA
+does not. TAM-1652 independently
 specified the RP-ID-as-common-stem design and the passkey-invalidation warning
 captured below, and flagged secure TOTP distribution to facilities as a separate
 concern (which this plan resolves by never distributing the seed — central-only
@@ -472,9 +473,11 @@ New runtime deps for this effort: the two `@simplewebauthn` packages and
 
 ## Mobile (TOTP in scope; WebAuthn split out)
 
-Mobile only ever authenticates to **central** (single store build
-`com.tamanuapp`, runtime server selection via `ServerSelector`), so central is
-the sole verifier — no facility-forwarding or sync-down dimension.
+Mobile only ever authenticates to **central**, and one build serves **many
+deployments** (manual/version-bound download, not an app-store app; the app
+fetches the deployment list from `meta.tamanu.app` and the user picks via
+`ServerSelector`). Central is the sole verifier — no facility-forwarding or
+sync-down dimension.
 
 - **Mobile TOTP — in scope here.** Verification is central-only/online anyway, so
   it is exactly the web flow on the mobile client: the login screen gains a TOTP
