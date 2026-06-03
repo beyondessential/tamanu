@@ -5,8 +5,9 @@ import * as yup from 'yup';
 
 import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { constructPermission, ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { isTotpAvailable } from '@tamanu/shared/auth/mfaPolicy';
+import { isTotpAvailable, resolveMfaPolicy } from '@tamanu/shared/auth/mfaPolicy';
 import { originIsUnderRpId } from '@tamanu/shared/auth/webauthn';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import {
   beginWebAuthnRegistration,
   finishWebAuthnRegistration,
@@ -29,16 +30,18 @@ export async function requireMfaEnabled(req) {
 }
 
 /**
- * The rpid and expected web origin for WebAuthn ceremonies run against this
- * server, or a ForbiddenError when this server's origin isn't under the
- * configured rpid stem (the browser would refuse the ceremony anyway).
+ * The rpid for WebAuthn ceremonies run against this server, or a
+ * ForbiddenError when this server's origin isn't under the configured rpid
+ * stem (the browser would refuse the ceremony anyway). Ceremony origins are
+ * validated against the stem inside the ceremony service, so verification
+ * also accepts ceremonies forwarded from other in-zone frontends.
  */
 export async function getWebAuthnContext(req) {
   const rpId = await req.settings.get('auth.mfa.webauthn.rpid');
   if (!originIsUnderRpId(config.canonicalHostName, rpId)) {
     throw new ForbiddenError('WebAuthn is not available on this server');
   }
-  return { rpId, expectedOrigin: new URL(config.canonicalHostName).origin };
+  return { rpId };
 }
 
 /**
@@ -58,6 +61,45 @@ export async function requireTotpAvailable(req) {
   if (!available) {
     throw new ForbiddenError('Authenticator app codes are not available on this server');
   }
+}
+
+/**
+ * What this login owes beyond the password, per the shared policy function,
+ * with all the central-server inputs filled in.
+ *
+ * `require Mfa` is matched against the role's literal permission rows rather
+ * than the compiled ability, so a wildcard grant (`manage all`) doesn't
+ * silently make every admin MFA-required.
+ */
+export async function resolveLoginMfaPolicy(req, user) {
+  const { settings, store } = req;
+  const mfaEnabled = await settings.get('auth.mfa.enabled');
+  if (!mfaEnabled) return { kind: 'none' };
+
+  const { WebAuthnCredential, TotpSecret } = store.models;
+  const [totpAvailability, rpId, permissions, totpSecret] = await Promise.all([
+    settings.get('auth.mfa.totp.availability'),
+    settings.get('auth.mfa.webauthn.rpid'),
+    getPermissionsForRoles(store.models, user.role),
+    TotpSecret.findOne({ where: { userId: user.id } }),
+  ]);
+  // only credentials bound to the current rpid can assert; ones from an old
+  // rpid are dead weight
+  const credentialCount = rpId
+    ? await WebAuthnCredential.count({ where: { userId: user.id, rpId } })
+    : 0;
+
+  return resolveMfaPolicy({
+    mfaEnabled,
+    totpAvailability,
+    webAuthnAvailable: originIsUnderRpId(config.canonicalHostName, rpId),
+    centralReachable: true, // we are central
+    hasWebAuthnCredential: credentialCount > 0,
+    hasConfirmedTotp: Boolean(totpSecret?.confirmedAt),
+    mfaRequired: permissions.some(
+      permission => permission.verb === 'require' && permission.noun === 'Mfa',
+    ),
+  });
 }
 
 const credentialSummary = credential => ({
@@ -101,13 +143,12 @@ mfa.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Mfa');
     await requireMfaEnabled(req);
-    const { rpId, expectedOrigin } = await getWebAuthnContext(req);
+    const { rpId } = await getWebAuthnContext(req);
 
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     const credential = await finishWebAuthnRegistration({
       models: req.store.models,
       rpId,
-      expectedOrigin,
       user: req.user,
       registrationResponse,
       friendlyName,

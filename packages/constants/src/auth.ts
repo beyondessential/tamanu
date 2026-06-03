@@ -6,6 +6,9 @@ export const JWT_TOKEN_TYPES = {
   // short-lived token minted by redeeming an MFA enrolment invite; authorises
   // only the enrolment ceremony endpoints, not a session
   MFA_ENROL: 'mfa_enrol',
+  // short-lived token returned by login when a second factor (or forced
+  // enrolment) is still owed; authorises only the MFA completion endpoints
+  MFA_LOGIN: 'mfa_login',
 };
 
 // we hardcode this as we don't support multiple keys yet, but still want

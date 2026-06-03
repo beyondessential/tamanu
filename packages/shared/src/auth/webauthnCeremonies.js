@@ -8,6 +8,8 @@ import { isoBase64URL } from '@simplewebauthn/server/helpers';
 import { MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { InvalidCredentialError, InvalidOperationError, InvalidTokenError } from '@tamanu/errors';
 
+import { originIsUnderRpId } from './webauthn';
+
 /**
  * WebAuthn ceremony plumbing shared by central and facility servers — in-zone
  * facilities run both registration and assertion fully locally (the challenge
@@ -25,16 +27,34 @@ const CHALLENGE_EXPIRY_MS = 5 * 60 * 1000;
 
 const challengeExpiry = () => new Date(Date.now() + CHALLENGE_EXPIRY_MS);
 
-function challengeFromClientData(ceremonyResponse) {
+function parseClientData(ceremonyResponse) {
   try {
     const clientData = JSON.parse(
       Buffer.from(ceremonyResponse.response.clientDataJSON, 'base64url').toString('utf8'),
     );
     if (typeof clientData.challenge !== 'string' || !clientData.challenge) return null;
-    return clientData.challenge;
+    return clientData;
   } catch (_err) {
     return null;
   }
+}
+
+/**
+ * The web origin the ceremony actually ran at, accepted if it sits under the
+ * rpid stem. Ceremonies can legitimately run at any of the deployment's
+ * frontends (central admin panel, each facility) and may be verified by a
+ * different server than the one serving that frontend (e.g. a facility
+ * forwarding to central), so rather than each verifier pinning its own
+ * hostname, the stem defines the set of trusted origins — the same rule the
+ * browser itself enforces for the rpid. The signed clientDataJSON is what
+ * makes the origin trustworthy; verification fails if it was tampered with.
+ */
+function expectedOriginFor(clientData, rpId) {
+  const origin = clientData?.origin;
+  if (typeof origin !== 'string' || !originIsUnderRpId(origin, rpId)) {
+    throw new InvalidCredentialError('Ceremony origin is not under the relying party ID');
+  }
+  return origin;
 }
 
 /**
@@ -112,12 +132,13 @@ export async function beginWebAuthnRegistration({ models, rpId, user }) {
 export async function finishWebAuthnRegistration({
   models,
   rpId,
-  expectedOrigin,
   user,
   registrationResponse,
   friendlyName,
 }) {
-  const token = challengeFromClientData(registrationResponse);
+  const clientData = parseClientData(registrationResponse);
+  const expectedOrigin = expectedOriginFor(clientData, rpId);
+  const token = clientData.challenge;
   const challenge = await consumeChallenge({
     models,
     type: MFA_CHALLENGE_TYPES.WEBAUTHN_REGISTER,
@@ -199,8 +220,10 @@ export async function beginWebAuthnAssertion({ models, rpId, user }) {
  * signature counter is deliberately passed as 0 — never stored, never
  * enforced; see the WebAuthnCredential model.
  */
-export async function finishWebAuthnAssertion({ models, rpId, expectedOrigin, assertionResponse }) {
-  const token = challengeFromClientData(assertionResponse);
+export async function finishWebAuthnAssertion({ models, rpId, assertionResponse }) {
+  const clientData = parseClientData(assertionResponse);
+  const expectedOrigin = expectedOriginFor(clientData, rpId);
+  const token = clientData.challenge;
   const challenge = await consumeChallenge({
     models,
     type: MFA_CHALLENGE_TYPES.WEBAUTHN_ASSERT,

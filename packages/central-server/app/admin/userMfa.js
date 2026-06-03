@@ -128,14 +128,13 @@ userMfaRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'UserMfa');
     await requireMfaEnabled(req);
-    const { rpId, expectedOrigin } = await getWebAuthnContext(req);
+    const { rpId } = await getWebAuthnContext(req);
     const user = await targetUser(req);
 
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     const credential = await finishWebAuthnRegistration({
       models: req.store.models,
       rpId,
-      expectedOrigin,
       user,
       registrationResponse,
       friendlyName,

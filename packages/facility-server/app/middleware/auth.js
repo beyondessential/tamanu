@@ -123,12 +123,28 @@ export async function centralServerLogin({
     },
   });
 
-  // we've logged in as a valid central user - update local database to match
+  // central accepted the password but the login owes a second factor: pass
+  // the pending state through; the client completes it via /mfa/login (also
+  // forwarded to central)
+  if (response.mfaPending) {
+    return { central: true, mfaPending: response.mfaPending };
+  }
+
+  return finaliseCentralLogin({ models, settings, deviceId, response });
+}
+
+/**
+ * Land a successful central login locally: mirror the user and their
+ * localisation so subsequent offline logins work, and register the device.
+ * Shared between the plain login path and MFA completion (where central's
+ * payload arrives via a forwarded /mfa/login request instead).
+ */
+export async function finaliseCentralLogin({ models, settings, deviceId, response }) {
   const { user, localisation, allowedFacilities, primaryTimeZone } = response;
   const { id, ...userDetails } = user;
 
   const userModel = await models.User.sequelize.transaction(async () => {
-    const [user] = await models.User.upsert({
+    const [upserted] = await models.User.upsert({
       id,
       ...userDetails,
       deletedAt: null,
@@ -138,7 +154,7 @@ export async function centralServerLogin({
       localisation: JSON.stringify(localisation),
       deletedAt: null,
     });
-    return user;
+    return upserted;
   });
 
   await models.Device.ensureRegistration({ settings, user: userModel, deviceId, scopes: [] });
@@ -230,44 +246,67 @@ export async function loginHandler(req, res, next) {
     const globalSettings =
       settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
-    const { central, user, localisation, allowedFacilities, primaryTimeZone } =
-      await centralServerLoginWithLocalFallback({
-        models,
-        settings: globalSettings,
-        email,
-        password,
-        deviceId,
-        facilityDeviceId,
-      });
+    const loginResult = await centralServerLoginWithLocalFallback({
+      models,
+      settings: globalSettings,
+      email,
+      password,
+      deviceId,
+      facilityDeviceId,
+    });
 
-    // check if user has access to any facilities on this server
-    const serverFacilities = selectFacilityIds(config);
-    const availableFacilities = await models.User.filterAllowedFacilities(
-      allowedFacilities,
-      serverFacilities,
-    );
-    if (availableFacilities.length === 0) {
-      throw new AuthPermissionError('User does not have access to any facilities on this server');
+    // central paused the login pending a second factor: hand the client the
+    // pending state; completion (via this facility's /mfa/login routes)
+    // produces the facility login response
+    if (loginResult.mfaPending) {
+      res.send({
+        mfaPending: loginResult.mfaPending,
+        central: true,
+        serverType: SERVER_TYPES.FACILITY,
+      });
+      return;
     }
 
-    const [permissions, token, role] = await Promise.all([
-      getPermissionsForRoles(models, user.role),
-      buildToken({ user, deviceId }),
-      models.Role.findByPk(user.role),
-    ]);
-    res.send({
-      token,
-      central,
-      localisation,
-      permissions,
-      role: role?.forResponse() ?? null,
-      serverType: SERVER_TYPES.FACILITY,
-      primaryTimeZone,
-      availableFacilities,
-    });
+    await sendFacilityLoginResponse(req, res, { deviceId, loginResult });
   } catch (e) {
     next(e);
   }
+}
+
+/**
+ * The facility-shaped successful-login payload: facility token, facility
+ * availability check, permissions. Shared by the plain login path and MFA
+ * completion.
+ */
+export async function sendFacilityLoginResponse(req, res, { deviceId, loginResult }) {
+  const { models } = req;
+  const { central, user, localisation, allowedFacilities, primaryTimeZone } = loginResult;
+
+  // check if user has access to any facilities on this server
+  const serverFacilities = selectFacilityIds(config);
+  const availableFacilities = await models.User.filterAllowedFacilities(
+    allowedFacilities,
+    serverFacilities,
+  );
+  if (availableFacilities.length === 0) {
+    throw new AuthPermissionError('User does not have access to any facilities on this server');
+  }
+
+  const [permissions, token, role] = await Promise.all([
+    getPermissionsForRoles(models, user.role),
+    buildToken({ user, deviceId }),
+    models.Role.findByPk(user.role),
+  ]);
+  res.send({
+    token,
+    central,
+    localisation,
+    permissions,
+    role: role?.forResponse() ?? null,
+    serverType: SERVER_TYPES.FACILITY,
+    primaryTimeZone,
+    availableFacilities,
+  });
 }
 
 export async function setFacilityHandler(req, res, next) {

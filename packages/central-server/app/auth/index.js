@@ -9,6 +9,7 @@ import { enrolInvite } from './enrolInvite';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
 import { mfa } from './mfa';
+import { mfaLogin } from './mfaLogin';
 import { refresh } from './refresh';
 import { setFacility } from './setFacility';
 import { userInfo, userMiddleware } from './userMiddleware';
@@ -31,6 +32,8 @@ export const authModule = ({ authLimiter } = {}) => {
   // registered before the userMiddleware-gated /mfa router takes the rest of
   // that path space
   router.use('/mfa/enrolInvite', limiter, enrolInvite);
+  // pre-auth: authorised by the short-lived mfa_login token from /login
+  router.use('/mfa/login', limiter, mfaLogin);
   router.post('/login', limiter, login);
   router.post('/refresh', limiter, refresh);
 
