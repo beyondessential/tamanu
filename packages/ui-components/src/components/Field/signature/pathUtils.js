@@ -6,35 +6,6 @@ export const SIGNATURE_VIEWBOX_WIDTH = 480;
 export const SIGNATURE_VIEWBOX_HEIGHT = 144;
 export const SIGNATURE_VIEWBOX = `0 0 ${SIGNATURE_VIEWBOX_WIDTH} ${SIGNATURE_VIEWBOX_HEIGHT}`;
 
-/** Minimum viewBox distance between captured pointer samples. */
-const SIGNATURE_MIN_POINT_DISTANCE = 2.5;
-
-/**
- * @param {Point | undefined} lastPoint
- * @param {Point} nextPoint
- * @param {number} [minDistance=SIGNATURE_MIN_POINT_DISTANCE]
- */
-function isFarEnoughFromLastPoint(
-  lastPoint,
-  nextPoint,
-  minDistance = SIGNATURE_MIN_POINT_DISTANCE,
-) {
-  if (!lastPoint) return true;
-
-  const dx = nextPoint.x - lastPoint.x;
-  const dy = nextPoint.y - lastPoint.y;
-  return dx * dx + dy * dy >= minDistance * minDistance;
-}
-
-/**
- * @param {Point[]} stroke
- * @param {Point} point
- */
-export function appendStrokePointIfFarEnough(stroke, point) {
-  if (!isFarEnoughFromLastPoint(stroke.at(-1), point)) return stroke;
-  return [...stroke, point];
-}
-
 /** @satisfies {import('perfect-freehand').StrokeOptions} */
 const STROKE_OPTIONS = /** @type {const} */ ({
   simulatePressure: false,
