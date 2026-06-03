@@ -111,8 +111,8 @@ const Table = styled(DataFetchingTable)`
 
 const getDate = ({ date }) => <DateDisplay date={date} format="shortest" />;
 const getInvoiceTotal = row => {
-  const { patientTotal } = getInvoiceSummaryDisplay(row);
-  return patientTotal === undefined ? (
+  const { patientSubtotal } = getInvoiceSummaryDisplay(row);
+  return patientSubtotal === undefined ? (
     <TranslatedText
       stringId="general.fallback.notApplicable"
       fallback="N/A"
@@ -120,7 +120,7 @@ const getInvoiceTotal = row => {
       data-testid="translatedtext-nc3a"
     />
   ) : (
-    `$${patientTotal}`
+    `$${patientSubtotal}`
   );
 };
 const getPaymentStatus = row => {
