@@ -1,4 +1,5 @@
 import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
+import { isMfaPending } from '@tamanu/api-client';
 import { buildAbility, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
@@ -17,6 +18,8 @@ const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
 const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
+const LOGIN_MFA_PENDING = 'LOGIN_MFA_PENDING';
+const MFA_CANCEL = 'MFA_CANCEL';
 const SET_FACILITY_ID = 'SET_FACILITY_ID';
 const SET_SETTINGS = 'SET_SETTINGS';
 const IMPERSONATE_ROLE = 'IMPERSONATE_ROLE';
@@ -35,6 +38,12 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
   try {
     const loginInfo = await api.login(email, password);
+    if (isMfaPending(loginInfo)) {
+      // password accepted, but a second factor (or forced enrolment) is owed:
+      // hold the pending state and let the UI run the MFA step
+      dispatch({ type: LOGIN_MFA_PENDING, mfaPending: loginInfo.mfaPending });
+      return 'mfa';
+    }
     await handleLoginSuccess(dispatch, loginInfo);
     return true;
   } catch (error) {
@@ -42,6 +51,30 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
     dispatch({ type: LOGIN_FAILURE, error: message });
     return false;
   }
+};
+
+/**
+ * Complete a terminal MFA login step (verify a code / finish an assertion /
+ * confirm an enrolment) using the pending token held in state. Throws on
+ * failure so the MFA screen can surface "wrong code" etc. inline; the
+ * non-terminal ceremony steps are driven from the component via the api
+ * directly (they involve browser WebAuthn prompts).
+ */
+export const completeMfaLogin = (path, body = {}) => async (dispatch, getState, { api }) => {
+  const { mfaPending } = getState().auth;
+  if (!mfaPending) throw new Error('No MFA login in progress');
+
+  const loginInfo = await api.completeMfaLogin(path, mfaPending.token, body);
+  if (isMfaPending(loginInfo)) {
+    // shouldn't happen on a terminal step, but stay consistent if it does
+    dispatch({ type: LOGIN_MFA_PENDING, mfaPending: loginInfo.mfaPending });
+    return;
+  }
+  await handleLoginSuccess(dispatch, loginInfo);
+};
+
+export const cancelMfaLogin = () => dispatch => {
+  dispatch({ type: MFA_CANCEL });
 };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
@@ -210,6 +243,7 @@ export const changePassword = data => async (dispatch, getState, { api }) => {
 };
 
 // selectors
+export const getMfaPending = ({ auth }) => auth.mfaPending;
 export const getCurrentUser = ({ auth }) => auth.user;
 export const getServerType = ({ auth }) => auth?.server?.type;
 export const checkIsLoggedIn = state => !!getCurrentUser(state);
@@ -230,6 +264,7 @@ const defaultState = {
   availableFacilities: [],
   facilityId: null,
   impersonatingRole: null,
+  mfaPending: null,
   resetPassword: {
     loading: false,
     success: false,
@@ -257,6 +292,7 @@ const resetState = {
   error: defaultState.error,
   token: null,
   impersonatingRole: null,
+  mfaPending: null,
 };
 
 const actionHandlers = {
@@ -275,8 +311,17 @@ const actionHandlers = {
     localisation: action.localisation,
     server: action.server,
     role: action.role,
+    mfaPending: null,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
+  }),
+  [LOGIN_MFA_PENDING]: action => ({
+    loading: false,
+    error: defaultState.error,
+    mfaPending: action.mfaPending,
+  }),
+  [MFA_CANCEL]: () => ({
+    mfaPending: null,
   }),
   [SET_FACILITY_ID]: action => ({
     facilityId: action.facilityId,

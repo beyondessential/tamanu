@@ -51,6 +51,31 @@ interface LoginData {
   availableFacilities?: AvailableFacility[];
 }
 
+interface MfaPending {
+  // 'challenge' (present an existing factor) or 'enrol' (forced enrolment)
+  kind: string;
+  // factor types offered, passkey-first: 'webauthn' and/or 'totp'
+  factors: string[];
+  // enrol only: whether the interstitial may be skipped (IP-exempt user)
+  skippable?: boolean;
+  // short-lived token scoped to the mfa/login completion endpoints
+  token: string;
+}
+
+export interface MfaPendingResponse {
+  mfaPending: MfaPending;
+  server: {
+    type: string;
+    centralHost?: string;
+  };
+}
+
+export function isMfaPending(
+  response: LoginResponse | MfaPendingResponse,
+): response is MfaPendingResponse {
+  return 'mfaPending' in response;
+}
+
 interface LoginResponse extends LoginData {
   user: User;
   ability: {
@@ -123,6 +148,8 @@ interface LoginResponseData {
   };
   centralHost?: string;
   serverType?: string;
+  // present instead of token when the login still owes a second factor
+  mfaPending?: MfaPending;
 }
 
 export class TamanuApi {
@@ -134,7 +161,7 @@ export class TamanuApi {
   #onVersionIncompatible?: (message: string) => void;
   #authToken?: string;
   #refreshToken?: string;
-  #ongoingAuth?: Promise<LoginResponse> | null;
+  #ongoingAuth?: Promise<LoginResponse | MfaPendingResponse> | null;
 
   lastRefreshed: number | null = null;
   user: User | null = null;
@@ -185,13 +212,17 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email: string, password: string, config: FetchOptions = {}): Promise<LoginResponse> {
+  async login(
+    email: string,
+    password: string,
+    config: FetchOptions = {},
+  ): Promise<LoginResponse | MfaPendingResponse> {
     const { scopes = [], body = {}, ...restOfConfig } = config;
     if (this.#ongoingAuth) {
       return await this.#ongoingAuth;
     }
 
-    return await (this.#ongoingAuth = (async (): Promise<LoginResponse> => {
+    return await (this.#ongoingAuth = (async (): Promise<LoginResponse | MfaPendingResponse> => {
       const response = (await this.post(
         'login',
         {
@@ -204,42 +235,94 @@ export class TamanuApi {
         { ...restOfConfig, returnResponse: true, useAuthToken: false, waitForAuth: false },
       )) as Response;
 
-      const serverType = response.headers.get('x-tamanu-server');
-      if (!(SERVER_TYPES.FACILITY === serverType || SERVER_TYPES.CENTRAL === serverType)) {
-        throw Problem.fromError(
-          new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
-        ).withResponse(response);
-      }
-
-      const responseData = (await response.json()) as LoginResponseData;
-      const {
-        server: serverFromResponse,
-        centralHost,
-        serverType: responseServerType,
-        ...loginData
-      } = responseData;
-
-      const claims = decodeJwt(loginData.token);
-      if (claims.deviceId !== this.deviceId) {
-        // If this happens, either something is seriously wrong or the server has a bug.
-        throw Problem.fromError(
-          new RemoteCallError('Device ID mismatch').withExtraData({
-            deviceIdSent: this.deviceId,
-            deviceIdRecv: claims.deviceId,
-          }),
-        ).withResponse(response);
-      }
-
-      const server = serverFromResponse ?? { type: '', centralHost: undefined };
-      server.type = responseServerType ?? serverType;
-      server.centralHost = centralHost;
-      this.setToken(loginData.token, loginData.refreshToken);
-
-      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], restOfConfig);
-      return { ...loginData, user, ability, server };
+      return await this.#handleLoginResponse(response, restOfConfig);
     })().finally(() => {
       this.#ongoingAuth = null;
     }));
+  }
+
+  /**
+   * Turn a raw /login (or /mfa/login completion) response into a usable result.
+   * When the server still owes a second factor it returns the pending state to
+   * drive the MFA step; otherwise it finalises the session (stores tokens,
+   * fetches the user) exactly as a plain login would.
+   */
+  async #handleLoginResponse(
+    response: Response,
+    restOfConfig: FetchOptions,
+  ): Promise<LoginResponse | MfaPendingResponse> {
+    const serverType = response.headers.get('x-tamanu-server');
+    if (!(SERVER_TYPES.FACILITY === serverType || SERVER_TYPES.CENTRAL === serverType)) {
+      throw Problem.fromError(
+        new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
+      ).withResponse(response);
+    }
+
+    const responseData = (await response.json()) as LoginResponseData;
+    const {
+      server: serverFromResponse,
+      centralHost,
+      serverType: responseServerType,
+      mfaPending,
+      ...loginData
+    } = responseData;
+
+    const server = serverFromResponse ?? { type: '', centralHost: undefined };
+    server.type = responseServerType ?? serverType;
+    server.centralHost = centralHost;
+
+    // login paused: no tokens issued yet, hand back the pending state so the
+    // caller can run the MFA step and complete via completeMfaLogin
+    if (mfaPending) {
+      return { mfaPending, server };
+    }
+
+    const claims = decodeJwt(loginData.token);
+    if (claims.deviceId !== this.deviceId) {
+      // If this happens, either something is seriously wrong or the server has a bug.
+      throw Problem.fromError(
+        new RemoteCallError('Device ID mismatch').withExtraData({
+          deviceIdSent: this.deviceId,
+          deviceIdRecv: claims.deviceId,
+        }),
+      ).withResponse(response);
+    }
+
+    this.setToken(loginData.token, loginData.refreshToken);
+
+    const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], restOfConfig);
+    return { ...loginData, user, ability, server };
+  }
+
+  /**
+   * A non-terminal MFA login step (a ceremony "begin", or TOTP enrol): returns
+   * the server's payload (WebAuthn options / otpauth URL) without touching
+   * tokens. Pre-auth — authorised by the mfaToken in the body.
+   */
+  async beginMfaLogin(path: string, mfaToken: string, body: object = {}): Promise<any> {
+    return await this.post(
+      `mfa/login/${path}`,
+      { mfaToken, ...body },
+      { useAuthToken: false, waitForAuth: false },
+    );
+  }
+
+  /**
+   * A terminal MFA login step (verify a code, finish an assertion, confirm an
+   * enrolment): on success the server returns the full login payload, which we
+   * finalise into a session.
+   */
+  async completeMfaLogin(
+    path: string,
+    mfaToken: string,
+    body: object = {},
+  ): Promise<LoginResponse | MfaPendingResponse> {
+    const response = (await this.post(
+      `mfa/login/${path}`,
+      { mfaToken, ...body },
+      { returnResponse: true, useAuthToken: false, waitForAuth: false },
+    )) as Response;
+    return await this.#handleLoginResponse(response, {});
   }
 
   async fetchUserData(
