@@ -1,5 +1,6 @@
 export { DashboardPage } from './DashboardPage';
 export { LoginPage } from './LoginPage';
+export { MfaLoginPage } from './MfaLoginPage';
 export { SidebarPage } from './SidebarPage';
 
 export * from './facilityAdmin';
