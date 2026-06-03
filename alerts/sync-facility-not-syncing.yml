@@ -1,3 +1,5 @@
+server-kind: central
+
 sql: |
   with sync_sessions_with_facility_id as (
     select
