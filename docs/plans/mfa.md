@@ -265,6 +265,37 @@ Per-factor settings sit under the same `auth.mfa.*` family:
 `auth.mfa.totp.availability` (`all | fallbackOnly | off`, see TOTP) and
 `auth.mfa.passwordless` (`off | onRequest | promoted`, see Conditional access B).
 
+### Settings & defaults
+
+Governing principle: the whole feature is **opt-in**, a bare `enabled = true`
+must be **non-disruptive**, and every security-sensitive list defaults to its
+**safe** value. All are synced settings (`PULL_FROM_CENTRAL`).
+
+| Setting | Type | Default | Why |
+|---------|------|---------|-----|
+| `auth.mfa.enabled` | bool | **`false`** | Opt-in. Enabling alone only *makes enrolment available* — forces/challenges no one — so it's safe to flip on. |
+| `auth.mfa.webauthn.rpid` | string | **`""` (unset)** | No safe guess for the domain; empty ⇒ WebAuthn unavailable (fail-safe) ⇒ TOTP/password. Set the common stem to enable passkeys. |
+| `auth.mfa.totp.availability` | `all\|fallbackOnly\|off` | **`all`** | Once on, TOTP usable everywhere; deployments tighten as desired. |
+| `auth.mfa.passwordless` | `off\|onRequest\|promoted` | **`onRequest`** | Capability available without changing the password-first default UX. |
+| `auth.ipAllowlist` | CIDR[] | **`[]`** | Empty ⇒ no login IP restriction; a non-empty default would lock people out. |
+| `auth.mfa.ipExempt` | CIDR[] | **`[]`** | Empty ⇒ no one exempt ⇒ everyone gets MFA. Fail-closed. |
+| `auth.mfa.enrolInvite.expiry` | duration | **short** (mirror `auth.resetPassword.tokenExpiry`) | Invite tokens are powerful; single-use + short-lived, redeem requires token + password. |
+
+**"Just flipped `enabled = true`" state** is deliberately benign: TOTP available
+everywhere, passkeys available *on request once an rpid is set* (none until
+then), no IP rules, and **nobody forced** (`require Mfa` is a permission,
+default-ungranted). MFA becomes optional/available; forcing is the separate,
+explicit step of granting `require Mfa`.
+
+**Not settings, but need default decisions:**
+
+- *Permission seeding* — default-grant **`write Mfa` to all roles**,
+  **`read`/`write UserMfa` to admin roles only**, and **never** default-grant
+  `require Mfa`.
+- *Fixed constants* (deliberately not exposed) — TOTP digits 6 / period 30s /
+  SHA-1 / window ±1 (authenticator compatibility); WebAuthn
+  `userVerification: required`, `residentKey: preferred`, ceremony timeout ~60s.
+
 ## Permissions
 
 Covers the two permissions TAM-1652 calls for ("permission to set MFA devices"
@@ -590,6 +621,11 @@ Three sequenced PRs in one effort (nothing deprioritised):
     WebAuthn is unavailable (mobile + out-of-zone facilities), enforcing passkeys
     on capable surfaces without lockout (force-enrol covers the gap). Per-role
     TOTP gating deferred.
+14. **Settings defaults** — feature **off** by default; a bare `enabled = true`
+    is non-disruptive (nobody forced/challenged); security-sensitive lists default
+    to safe (allowlist empty = no restriction, exempt empty = no one exempt); RP
+    ID unset = WebAuthn off. Permission seeding: `write Mfa` to all roles,
+    `UserMfa` to admins, `require Mfa` to none. See Settings & defaults.
 
 All design decisions are settled. Remaining items are build-time UX/detail only
 (e.g. exact interstitial copy and layout).
