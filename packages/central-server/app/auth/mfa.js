@@ -5,11 +5,14 @@ import * as yup from 'yup';
 
 import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { constructPermission, ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { isTotpAvailable } from '@tamanu/shared/auth/mfaPolicy';
 import { originIsUnderRpId } from '@tamanu/shared/auth/webauthn';
 import {
   beginWebAuthnRegistration,
   finishWebAuthnRegistration,
 } from '@tamanu/shared/auth/webauthnCeremonies';
+
+import { confirmTotp, enrolTotp } from './totp';
 
 /**
  * Self-service MFA management for the logged-in user. Mounted behind
@@ -36,6 +39,25 @@ export async function getWebAuthnContext(req) {
     throw new ForbiddenError('WebAuthn is not available on this server');
   }
   return { rpId, expectedOrigin: new URL(config.canonicalHostName).origin };
+}
+
+/**
+ * TOTP availability beyond the master flag: `off` disables it, and
+ * `fallbackOnly` reserves it for surfaces where WebAuthn can't run — which on
+ * a WebAuthn-capable server means enrolment is refused and users are steered
+ * to passkeys instead.
+ */
+async function requireTotpAvailable(req) {
+  const totpAvailability = await req.settings.get('auth.mfa.totp.availability');
+  const rpId = await req.settings.get('auth.mfa.webauthn.rpid');
+  const available = isTotpAvailable({
+    totpAvailability,
+    webAuthnAvailable: originIsUnderRpId(config.canonicalHostName, rpId),
+    centralReachable: true, // we are central
+  });
+  if (!available) {
+    throw new ForbiddenError('Authenticator app codes are not available on this server');
+  }
 }
 
 const credentialSummary = credential => ({
@@ -91,6 +113,35 @@ mfa.post(
       friendlyName,
     });
     res.send(credentialSummary(credential));
+  }),
+);
+
+mfa.post(
+  '/totp/enrol',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Mfa');
+    await requireMfaEnabled(req);
+    await requireTotpAvailable(req);
+
+    const { otpauthUrl } = await enrolTotp({ models: req.store.models, user: req.user });
+    res.send({ otpauthUrl });
+  }),
+);
+
+const totpConfirmSchema = yup.object({
+  code: yup.string().required(),
+});
+
+mfa.post(
+  '/totp/confirm',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Mfa');
+    await requireMfaEnabled(req);
+    await requireTotpAvailable(req);
+
+    const { code } = await totpConfirmSchema.validate(req.body);
+    await confirmTotp({ models: req.store.models, user: req.user, code });
+    res.send({ ok: 'ok' });
   }),
 );
 

@@ -1,5 +1,17 @@
+import * as OTPAuth from 'otpauth';
+
 import { SETTINGS_SCOPES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
+
+// Use a fixed 32-byte buffer as the settings PSK so the TOTP seed
+// encrypt/decrypt works in tests without a real key file or config secret.
+jest.mock('@tamanu/shared/utils/crypto', () => {
+  const original = jest.requireActual('@tamanu/shared/utils/crypto');
+  return {
+    ...original,
+    getSettingsPskKeyBuffer: jest.fn(async () => Buffer.alloc(32, 0xab)),
+  };
+});
 
 describe('MFA self-service', () => {
   let ctx;
@@ -178,6 +190,82 @@ describe('MFA self-service', () => {
 
       const again = await agent.delete(`/api/mfa/webauthn/${credential.id}`);
       expect(again.status).toBe(404);
+    });
+  });
+
+  describe('totp', () => {
+    let totpAgent;
+
+    beforeAll(async () => {
+      totpAgent = await baseApp.asNewRole([['write', 'Mfa']]);
+    });
+
+    it('enrols and confirms with a code from the authenticator', async () => {
+      const enrol = await totpAgent.post('/api/mfa/totp/enrol');
+      expect(enrol).toHaveSucceeded();
+      expect(enrol.body.otpauthUrl).toMatch(/^otpauth:\/\/totp\//);
+
+      // the seed must be at rest as an encrypted envelope, never plaintext
+      const row = await models.TotpSecret.findOne({ where: { userId: totpAgent.user.id } });
+      expect(row.secret).toMatch(/^S1:/);
+      expect(row.confirmedAt).toBeNull();
+
+      const wrong = await totpAgent.post('/api/mfa/totp/confirm').send({ code: '000000' });
+      expect(wrong).toHaveRequestError();
+
+      // play the authenticator app: derive the current code from the URI
+      const code = OTPAuth.URI.parse(enrol.body.otpauthUrl).generate();
+      const confirm = await totpAgent.post('/api/mfa/totp/confirm').send({ code });
+      expect(confirm).toHaveSucceeded();
+
+      const methods = await totpAgent.get('/api/mfa/methods');
+      expect(methods.body.totp).toEqual({ enrolled: true, confirmed: true });
+    });
+
+    it('re-enrolling replaces the seed and resets confirmation', async () => {
+      const first = await totpAgent.post('/api/mfa/totp/enrol');
+      const second = await totpAgent.post('/api/mfa/totp/enrol');
+      expect(second).toHaveSucceeded();
+      expect(second.body.otpauthUrl).not.toEqual(first.body.otpauthUrl);
+
+      // codes from the replaced seed no longer work
+      const staleCode = OTPAuth.URI.parse(first.body.otpauthUrl).generate();
+      const stale = await totpAgent.post('/api/mfa/totp/confirm').send({ code: staleCode });
+      expect(stale).toHaveRequestError();
+
+      const methods = await totpAgent.get('/api/mfa/methods');
+      expect(methods.body.totp).toEqual({ enrolled: true, confirmed: false });
+    });
+
+    it('is refused when availability is off', async () => {
+      await models.Setting.set('auth.mfa.totp.availability', 'off', SETTINGS_SCOPES.GLOBAL);
+      try {
+        const response = await totpAgent.post('/api/mfa/totp/enrol');
+        expect(response).toBeForbidden();
+      } finally {
+        await models.Setting.set('auth.mfa.totp.availability', 'all', SETTINGS_SCOPES.GLOBAL);
+      }
+    });
+
+    it('fallbackOnly: refused where WebAuthn is available, allowed where it is not', async () => {
+      await models.Setting.set(
+        'auth.mfa.totp.availability',
+        'fallbackOnly',
+        SETTINGS_SCOPES.GLOBAL,
+      );
+      try {
+        // this server is under the rpid stem, so WebAuthn is available here
+        const refused = await totpAgent.post('/api/mfa/totp/enrol');
+        expect(refused).toBeForbidden();
+
+        // with no rpid, WebAuthn is off and TOTP becomes the fallback
+        await models.Setting.set('auth.mfa.webauthn.rpid', '', SETTINGS_SCOPES.GLOBAL);
+        const allowed = await totpAgent.post('/api/mfa/totp/enrol');
+        expect(allowed).toHaveSucceeded();
+      } finally {
+        await models.Setting.set('auth.mfa.totp.availability', 'all', SETTINGS_SCOPES.GLOBAL);
+        await models.Setting.set('auth.mfa.webauthn.rpid', 'localhost', SETTINGS_SCOPES.GLOBAL);
+      }
     });
   });
 });
