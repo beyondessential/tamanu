@@ -103,6 +103,7 @@
     "node-cache": "^5.1.2",
     "node-telegram-bot-api": "^0.65.1",
     "nodemailer": "^8.0.5",
+    "otpauth": "^9.5.1",
     "pg": "^8.5.1",
     "pkijs": "^2.2.1",
     "prompts": "^2.0.0",
