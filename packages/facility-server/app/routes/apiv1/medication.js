@@ -2095,7 +2095,20 @@ medication.get(
             {
               association: 'prescription',
               where: prescriptionFilters,
-              attributes: ['id', 'date', 'units'],
+              attributes: [
+                'id',
+                'date',
+                'doseAmount',
+                'units',
+                'frequency',
+                'route',
+                'durationValue',
+                'durationUnit',
+                'indication',
+                'notes',
+                'isVariableDose',
+                'isPrn',
+              ],
               include: [
                 {
                   association: 'medication',
@@ -2121,8 +2134,20 @@ medication.get(
           association: 'dispensedBy',
           attributes: ['id', 'displayName'],
         },
+        {
+          association: 'medicationPresetLabel',
+          attributes: ['id', 'code', 'name'],
+          required: false,
+        },
       ],
-      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId', 'instructions'],
+      attributes: [
+        'id',
+        'quantity',
+        'dispensedAt',
+        'dispensedByUserId',
+        'instructions',
+        'medicationPresetLabelId',
+      ],
       where: {
         [Op.and]: [
           ...(rootFilter[Op.and] || []),
@@ -2426,6 +2451,7 @@ const dispenseItemSchema = z.object({
   pharmacyOrderPrescriptionId: z.uuid(),
   quantity: z.coerce.number().int().positive(),
   instructions: z.string().min(1),
+  medicationPresetLabelId: z.string().min(1).nullish(),
 });
 
 const dispenseInputSchema = z
@@ -2564,6 +2590,7 @@ medication.post(
           pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
           quantity: item.quantity,
           instructions: item.instructions,
+          medicationPresetLabelId: item.medicationPresetLabelId ?? null,
           dispensedByUserId,
           dispensedAt,
         })),
@@ -2591,6 +2618,7 @@ const editDispenseInputSchema = z
     dispensedByUserId: z.string(),
     quantity: z.coerce.number().int().positive(),
     instructions: z.string().min(1),
+    medicationPresetLabelId: z.string().min(1).nullish(),
   })
   .strip();
 
@@ -2602,9 +2630,8 @@ medication.put(
 
     req.checkPermission('write', 'MedicationDispense');
 
-    const { dispensedByUserId, quantity, instructions } = await editDispenseInputSchema.parseAsync(
-      req.body,
-    );
+    const { dispensedByUserId, quantity, instructions, medicationPresetLabelId } =
+      await editDispenseInputSchema.parseAsync(req.body);
 
     const { User, MedicationDispense } = models;
 
@@ -2621,7 +2648,12 @@ medication.put(
       }
 
       await medicationDispense.update(
-        { quantity, instructions, dispensedByUserId },
+        {
+          quantity,
+          instructions,
+          medicationPresetLabelId: medicationPresetLabelId ?? null,
+          dispensedByUserId,
+        },
         { transaction },
       );
 
