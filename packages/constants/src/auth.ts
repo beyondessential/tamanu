@@ -42,3 +42,12 @@ export const LOGIN_ATTEMPT_OUTCOMES = {
 };
 
 export const LOCKED_OUT_ERROR_MESSAGE = 'User is locked out';
+
+// Ephemeral single-use MFA tokens (mfa_challenges table): WebAuthn ceremony
+// challenges, and admin-issued enrolment invite tokens.
+export const MFA_CHALLENGE_TYPES = {
+  WEBAUTHN_REGISTER: 'webauthn_register',
+  WEBAUTHN_ASSERT: 'webauthn_assert',
+  ENROL_INVITE: 'enrol_invite',
+} as const;
+export type MfaChallengeType = (typeof MFA_CHALLENGE_TYPES)[keyof typeof MFA_CHALLENGE_TYPES];
