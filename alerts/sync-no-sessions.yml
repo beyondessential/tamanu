@@ -1,3 +1,5 @@
+server-kind: central
+
 sql: |
   SELECT facility_id, last_successful_sync FROM (
     SELECT facility_id, max(completed_at) as last_successful_sync
