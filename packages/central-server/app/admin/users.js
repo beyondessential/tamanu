@@ -22,7 +22,11 @@ import { isBcryptHash } from '@tamanu/utils/password';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
+import { userMfaRouter } from './userMfa';
+
 export const usersRouter = express.Router();
+
+usersRouter.use('/:userId/mfa', userMfaRouter);
 
 const createUserFilters = (filterParams, models) => {
   const includeDeactivated = filterParams.includeDeactivated !== 'false';
