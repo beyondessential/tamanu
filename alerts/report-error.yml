@@ -1,3 +1,5 @@
+server-kind: central
+
 sql: |
   SELECT *
   FROM report_requests
