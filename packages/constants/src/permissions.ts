@@ -16,11 +16,15 @@ export const PermissionVerb = {
   Submit: 'submit',
   Login: 'login',
   FhirIntegration: 'fhirIntegration',
+  // policy flag rather than an action: presence of `require Mfa` on a role
+  // means its users must have an MFA factor configured
+  Require: 'require',
 } as const;
 
 export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb];
 
-const { Manage, Delete, Create, Write, List, Read, Run, Submit, Login, FhirIntegration } = PermissionVerb;
+const { Manage, Delete, Create, Write, List, Read, Run, Submit, Login, FhirIntegration, Require } =
+  PermissionVerb;
 
 // Verbs allowed at the per-object level for nouns that support objectId.
 export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
@@ -159,6 +163,10 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Triage: [List, Read, Write, Create],
   User: [List, Read, Write, Create],
   UserDesignation: [List, Read, Write, Create],
+  // own MFA factors (write = enrol/remove own; require = role must have MFA)
+  Mfa: [Write, Require],
+  // another user's MFA factors (admin reset / provisioning)
+  UserMfa: [Read, Write],
   Vitals: [List, Read, Write, Create],
 };
 
@@ -183,6 +191,7 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
   [Submit]: 'S',
   [Login]: 'N',
   [FhirIntegration]: 'F',
+  [Require]: 'Q',
 };
 
 export const HIDDEN_PERMISSION_NOUNS = new Set([

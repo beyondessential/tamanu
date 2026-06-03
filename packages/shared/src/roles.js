@@ -7,6 +7,11 @@ export const reception = base;
 
 export const practitioner = [
   ...base,
+  // manage one's own MFA factors (production deployments grant this via the
+  // permissions import; `base` is left without it so least-privilege tests
+  // have a role that can't)
+  { verb: 'write', noun: 'Mfa' },
+
   { verb: 'list', noun: 'ReferenceData' },
   { verb: 'read', noun: 'ReferenceData' },
 

@@ -38,6 +38,10 @@
       "require": "./dist/cjs/schemas/facility/requests/*.js",
       "import": "./dist/esm/schemas/facility/requests/*.js"
     },
+    "./auth/*": {
+      "require": "./dist/cjs/auth/*.js",
+      "import": "./dist/esm/auth/*.js"
+    },
     "./subCommands/*": {
       "require": "./dist/cjs/subCommands/*.js",
       "import": "./dist/esm/subCommands/*.js"
