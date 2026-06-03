@@ -45,6 +45,7 @@
     "@mui/system": "~6.1.1",
     "@mui/x-date-pickers": "~7.22.0",
     "@react-pdf/renderer": "^3.4.4",
+    "@simplewebauthn/browser": "^13.3.0",
     "@tamanu/api-client": "*",
     "@tamanu/database": "*",
     "@tamanu/errors": "*",

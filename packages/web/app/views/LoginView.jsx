@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { LoginForm } from '../forms/LoginForm';
+import { MfaLoginForm } from '../forms/MfaLoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import {
   changePassword,
   clearPatient,
+  getMfaPending,
   login,
   requestPasswordReset,
   restartPasswordResetFlow,
@@ -28,6 +30,7 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
+  const mfaPending = useSelector(getMfaPending);
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
@@ -54,6 +57,16 @@ export const LoginView = () => {
     }
     dispatch(restartPasswordResetFlow());
   };
+
+  // a paused login takes over the view until the second factor is satisfied
+  // (or cancelled), regardless of which screen we came from
+  if (mfaPending) {
+    return (
+      <AuthFlowView data-testid="authflowview-7rqa">
+        <MfaLoginForm data-testid="mfaloginform-9b1a" />
+      </AuthFlowView>
+    );
+  }
 
   return (
     <AuthFlowView data-testid="authflowview-7rqa">

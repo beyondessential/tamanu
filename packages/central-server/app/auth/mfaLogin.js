@@ -15,7 +15,12 @@ import {
 } from '@tamanu/shared/auth/webauthnCeremonies';
 
 import { sendLoginSuccessResponse } from './login';
-import { getWebAuthnContext, requireMfaEnabled, requireTotpAvailable } from './mfa';
+import {
+  getWebAuthnContext,
+  requireMfaEnabled,
+  requireTotpAvailable,
+  resolveLoginMfaPolicy,
+} from './mfa';
 import { confirmTotp, enrolTotp, verifyTotp } from './totp';
 
 /**
@@ -75,6 +80,32 @@ const requireKind = (payload, kind) => {
  */
 const userSettingsFor = async (req, payload) =>
   payload.withSettings ? await req.settings.getFrontEndSettings() : undefined;
+
+// Skip a forced enrolment without enrolling. Only succeeds when the policy,
+// re-evaluated now, genuinely allows it (an IP-exempt required user): the
+// interstitial is a nudge there, not a gate. The pending token's kind is not
+// trusted — the live decision is — so this can never be used to bypass a real
+// requirement. (Until IP-exemption ships, this always refuses.)
+mfaLogin.post(
+  '/skip',
+  asyncHandler(async (req, res) => {
+    await requireMfaEnabled(req);
+    const { user, payload } = await pendingFromBody(req);
+
+    const decision = await resolveLoginMfaPolicy(req, user);
+    if (!(decision.kind === 'enrol' && decision.skippable)) {
+      throw new ForbiddenError('Enrolment cannot be skipped');
+    }
+
+    await sendLoginSuccessResponse(res, {
+      models: req.store.models,
+      user,
+      deviceId: payload.deviceId,
+      internalClient: payload.internalClient,
+      userSettings: await userSettingsFor(req, payload),
+    });
+  }),
+);
 
 const totpVerifySchema = yup.object({
   mfaToken: yup.string().required(),

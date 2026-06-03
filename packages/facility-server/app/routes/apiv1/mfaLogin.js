@@ -58,6 +58,7 @@ const forwardAndFinalise = endpoint =>
 
 export const mfaLogin = express.Router();
 
+mfaLogin.post('/skip', forwardAndFinalise('mfa/login/skip'));
 mfaLogin.post('/totp', forwardAndFinalise('mfa/login/totp'));
 mfaLogin.post('/webauthn/assert-begin', forwardThrough('mfa/login/webauthn/assert-begin'));
 mfaLogin.post('/webauthn/assert-finish', forwardAndFinalise('mfa/login/webauthn/assert-finish'));

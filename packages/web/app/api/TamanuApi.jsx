@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   TamanuApi as ApiClient,
+  isMfaPending,
   readPersistedAuthToken,
   writePersistedAuthToken,
 } from '@tamanu/api-client';
@@ -242,7 +243,22 @@ export class TamanuApi extends ApiClient {
   }
 
   async login(email, password) {
-    const output = await super.login(email, password);
+    return this.#persistLoginResult(await super.login(email, password));
+  }
+
+  /**
+   * Run a terminal MFA login step and persist its session, mirroring login().
+   * `path` is relative to mfa/login (e.g. 'totp', 'webauthn/assert-finish').
+   */
+  async completeMfaLogin(path, mfaToken, body) {
+    return this.#persistLoginResult(await super.completeMfaLogin(path, mfaToken, body));
+  }
+
+  #persistLoginResult(output) {
+    // a paused login has no session to persist yet — hand the pending state
+    // straight back so the UI can run the MFA step
+    if (isMfaPending(output)) return output;
+
     const {
       localisation,
       server,
