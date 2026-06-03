@@ -7,6 +7,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
+import { mfa } from './mfa';
 import { refresh } from './refresh';
 import { setFacility } from './setFacility';
 import { userInfo, userMiddleware } from './userMiddleware';
@@ -31,6 +32,7 @@ export const authModule = ({ authLimiter } = {}) => {
   router.use(userMiddleware);
   router.post('/setFacility', setFacility);
   router.get('/user/me', userInfo);
+  router.use('/mfa', mfa);
 
   router.get('/permissions', asyncHandler(getPermissions));
   router.get(
