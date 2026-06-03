@@ -62,6 +62,7 @@ describe('Form Builder Admin', () => {
   };
 
   beforeAll(async () => {
+    console.log('test');
     ctx = await createTestContext();
     app = await ctx.baseApp.asNewRole([['write', 'FormBuilder']]);
     forbiddenApp = await ctx.baseApp.asNewRole([]);
