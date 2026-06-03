@@ -84,6 +84,56 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        mfa: {
+          description: 'Multi-factor authentication',
+          properties: {
+            enabled: {
+              name: 'Enable MFA',
+              description:
+                'Make multi-factor authentication available. Enabling this alone is non-disruptive: it only lets users (with the relevant permission) enrol a factor — nobody is challenged until they have enrolled, or forced to enrol unless their role requires MFA',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            webauthn: {
+              description: 'WebAuthn (passkey) options',
+              properties: {
+                rpid: {
+                  name: 'Relying party ID',
+                  description:
+                    'The WebAuthn relying party ID: the common stem of the central and facility server domain names (e.g. "foo.bar.com" for central.foo.bar.com and facility-a.foo.bar.com), which lets one passkey work across all of them. Servers whose origin is not under this stem do not offer WebAuthn. Empty disables WebAuthn entirely. WARNING: changing this after users have enrolled invalidates every existing passkey',
+                  type: yup.string(),
+                  defaultValue: '',
+                  highRisk: true,
+                },
+              },
+            },
+            totp: {
+              description: 'Authenticator app (TOTP) options',
+              properties: {
+                availability: {
+                  name: 'TOTP availability',
+                  description:
+                    'Where authenticator-app codes may be used as a factor: "all" = every surface; "fallbackOnly" = only where WebAuthn is unavailable (mobile, and servers outside the relying party ID stem), enforcing passkeys on capable surfaces; "off" = nowhere (WebAuthn-only deployment)',
+                  type: yup.string().oneOf(['all', 'fallbackOnly', 'off']),
+                  defaultValue: 'all',
+                },
+              },
+            },
+            enrolInvite: {
+              description: 'Admin-issued MFA enrolment invite tokens',
+              properties: {
+                expiry: {
+                  name: 'Invite expiry',
+                  description:
+                    'How long an MFA enrolment invite token stays redeemable. Invites are single-use, and redemption also requires the user to enter their password',
+                  type: yup.number().positive(),
+                  defaultValue: 60,
+                  unit: 'minutes',
+                },
+              },
+            },
+          },
+        },
       },
     },
     ageDisplayFormat: {
