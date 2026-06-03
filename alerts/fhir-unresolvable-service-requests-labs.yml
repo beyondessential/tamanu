@@ -1,3 +1,5 @@
+server-kind: central
+
 sql: |
   SELECT
     lr.display_id AS lab_request_id,

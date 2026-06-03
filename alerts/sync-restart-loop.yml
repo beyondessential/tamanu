@@ -1,3 +1,5 @@
+server-kind: central
+
 interval: 5 minutes
 
 sql: |
