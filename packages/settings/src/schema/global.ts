@@ -28,6 +28,7 @@ import {
 import {
   ADMINISTRATION_FREQUENCIES,
   isValidAdditionalSearchField,
+  MFA_TOTP_AVAILABILITY,
   SETTING_EDITORS,
 } from '@tamanu/constants';
 import {
@@ -114,8 +115,8 @@ export const globalSettings = {
                   name: 'TOTP availability',
                   description:
                     'Where authenticator-app codes may be used as a factor: "all" = every surface; "fallbackOnly" = only where WebAuthn is unavailable (mobile, and servers outside the relying party ID stem), enforcing passkeys on capable surfaces; "off" = nowhere (WebAuthn-only deployment)',
-                  type: yup.string().oneOf(['all', 'fallbackOnly', 'off']),
-                  defaultValue: 'all',
+                  type: yup.string().oneOf(Object.values(MFA_TOTP_AVAILABILITY)),
+                  defaultValue: MFA_TOTP_AVAILABILITY.ALL,
                 },
               },
             },
