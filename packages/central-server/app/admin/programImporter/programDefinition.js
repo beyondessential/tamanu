@@ -386,6 +386,74 @@ const validateSurvey = async ({ context, rows, surveyInfo }) => {
   });
 };
 
+// Question codes differ between a freshly-generated survey and the stored one,
+// so cross-question references (pde-<code>) are masked before comparing content.
+const maskQuestionReferences = value => String(value ?? '').replace(/pde-[A-Za-z0-9]+/g, 'pde-#');
+
+const componentSignature = ({ type, name, text, options, visualisationConfig }, component) => ({
+  type,
+  name: name ?? '',
+  text: text ?? '',
+  options: options ?? '',
+  visualisationConfig: maskQuestionReferences(visualisationConfig),
+  detail: component.detail ?? '',
+  visibilityCriteria: maskQuestionReferences(component.visibilityCriteria),
+  validationCriteria: maskQuestionReferences(component.validationCriteria),
+  calculation: maskQuestionReferences(component.calculation),
+  config: maskQuestionReferences(component.config),
+});
+
+// Ordered, code-agnostic content signature for the survey the import rows would
+// create.
+const importRowsSurveySignature = rows => {
+  const dataElements = new Map(
+    rows.filter(({ model }) => model === 'ProgramDataElement').map(({ values }) => [values.id, values]),
+  );
+  return rows
+    .filter(({ model }) => model === 'SurveyScreenComponent')
+    .map(({ values }) =>
+      componentSignature(
+        {
+          type: values.type,
+          name: dataElements.get(values.dataElementId)?.name,
+          text: dataElements.get(values.dataElementId)?.defaultText,
+          options: dataElements.get(values.dataElementId)?.defaultOptions,
+          visualisationConfig: dataElements.get(values.dataElementId)?.visualisationConfig,
+        },
+        values,
+      ),
+    );
+};
+
+// Ordered, code-agnostic content signature for an existing survey in the DB.
+const existingSurveySignature = async (models, surveyId) => {
+  const components = await models.SurveyScreenComponent.findAll({
+    where: { surveyId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    order: [
+      ['screenIndex', 'ASC'],
+      ['componentIndex', 'ASC'],
+    ],
+    include: [{ model: models.ProgramDataElement, as: 'dataElement' }],
+  });
+  return components.map(component =>
+    componentSignature(
+      {
+        type: component.dataElement.type,
+        name: component.dataElement.name,
+        text: component.dataElement.defaultText,
+        options: component.dataElement.defaultOptions,
+        visualisationConfig: component.dataElement.visualisationConfig,
+      },
+      component,
+    ),
+  );
+};
+
+const surveyContentUnchanged = async (models, existingSurvey, rows) => {
+  const existing = await existingSurveySignature(models, existingSurvey.id);
+  return JSON.stringify(existing) === JSON.stringify(importRowsSurveySignature(rows));
+};
+
 export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
   const errors = [];
   const context = {
@@ -407,6 +475,17 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
       const surveySheet = programDefinition.surveySheets.find(
         ({ surveyName }) => surveyName === surveyDefinition.name,
       );
+
+      // When editing an existing program every survey is re-sent, so find the
+      // current survey this one would replace (if any).
+      const existingSurvey = await models.Survey.findOne({
+        where: {
+          code: createCode(surveyDefinition.code),
+          programId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+      });
+
       const surveyCode = await getAvailableSurveyCode(
         models.Survey,
         createCode(surveyDefinition.code),
@@ -417,6 +496,14 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
         surveyDefinition,
         surveySheet,
       });
+
+      // Leave unchanged surveys exactly as they are — don't create a redundant
+      // version when nothing about the survey's content has changed.
+      if (existingSurvey && (await surveyContentUnchanged(models, existingSurvey, rows))) {
+        surveyIds.push(existingSurvey.id);
+        continue;
+      }
+
       const stats = await validateSurvey({ context, rows, surveyInfo });
       if (errors.length > 0) throw errors[0];
 
@@ -434,6 +521,14 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
         },
       );
       if (errors.length > 0) throw errors[0];
+
+      // A changed survey that already existed supersedes its previous version:
+      // retire the old survey so only the new one is current (no duplicate
+      // active surveys). The old survey and its responses are kept as historical
+      // rather than mutated, preserving response history.
+      if (existingSurvey) {
+        await existingSurvey.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+      }
 
       surveyIds.push(surveyId);
     }
