@@ -17,7 +17,7 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
-import { MfaPending } from '~/services/sync';
+import { MfaEnrolResponse, MfaLoginStep, MfaPending } from '~/services/sync';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -35,9 +35,9 @@ interface AuthContextData {
   // set while a sign-in is paused for a second factor
   mfaPending: MfaPending | null;
   // non-terminal MFA step, e.g. 'totp/enrol' to get the otpauth URI
-  beginMfaSignInStep: (path: string, body?: Record<string, unknown>) => Promise<any>;
+  beginMfaSignInStep: (path: MfaLoginStep, body?: Record<string, unknown>) => Promise<MfaEnrolResponse>;
   // terminal MFA step ('totp' or 'totp/confirm'); signs the user in on success
-  completeMfaSignIn: (path: string, body?: Record<string, unknown>) => Promise<void>;
+  completeMfaSignIn: (path: MfaLoginStep, body?: Record<string, unknown>) => Promise<void>;
   cancelMfaSignIn: () => void;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
@@ -164,15 +164,15 @@ const Provider = ({
   };
 
   const beginMfaSignInStep = async (
-    path: string,
+    path: MfaLoginStep,
     body: Record<string, unknown> = {},
-  ): Promise<any> => {
+  ): Promise<MfaEnrolResponse> => {
     if (!mfaSignIn) throw new Error('No sign-in is awaiting a second factor');
     return backend.auth.beginMfaSignInStep(mfaSignIn.pending.token, path, body);
   };
 
   const completeMfaSignIn = async (
-    path: string,
+    path: MfaLoginStep,
     body: Record<string, unknown> = {},
   ): Promise<void> => {
     if (!mfaSignIn) throw new Error('No sign-in is awaiting a second factor');

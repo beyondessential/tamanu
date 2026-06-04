@@ -3,7 +3,7 @@ import mitt from 'mitt';
 import { MODELS_MAP } from '~/models/modelsMap';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
-import { CentralServerConnection, LoginResponse } from '~/services/sync';
+import { MfaEnrolResponse, MfaLoginStep, CentralServerConnection, LoginResponse } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
 import {
   AuthenticationError,
@@ -137,10 +137,14 @@ export class AuthService {
    */
   async beginMfaSignInStep(
     mfaToken: string,
-    path: string,
+    path: MfaLoginStep,
     body: Record<string, unknown> = {},
-  ): Promise<any> {
-    return this.centralServer.completeMfaLogin(path, mfaToken, body);
+  ): Promise<MfaEnrolResponse> {
+    return (this.centralServer.completeMfaLogin(
+      path,
+      mfaToken,
+      body,
+    ) as unknown) as Promise<MfaEnrolResponse>;
   }
 
   /**
@@ -151,7 +155,7 @@ export class AuthService {
   async completeMfaSignIn(
     params: SyncConnectionParameters,
     mfaToken: string,
-    path: string,
+    path: MfaLoginStep,
     body: Record<string, unknown> = {},
   ): Promise<{
     user: IUser;

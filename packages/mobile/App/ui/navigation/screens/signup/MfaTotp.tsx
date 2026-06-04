@@ -16,6 +16,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 import { TextField } from '/components/TextField/TextField';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 /**
  * Second-factor step for a paused sign-in. Mobile completes MFA with an
@@ -34,7 +35,7 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
   const isEnrol = mfaPending?.kind === 'enrol';
   const [otpauthUrl, setOtpauthUrl] = useState<string | null>(null);
   const [code, setCode] = useState('');
-  const [error, setError] = useState<'enrolFailed' | 'badCode' | null>(null);
+  const [error, setError] = useState<'enrolFailed' | 'badCode' | 'expired' | 'openFailed' | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,14 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
   const secret = otpauthUrl ? (otpauthUrl.match(/[?&]secret=([A-Z2-7]+)/i)?.[1] ?? null) : null;
 
   const onOpenAuthenticator = useCallback(() => {
-    if (otpauthUrl) Linking.openURL(otpauthUrl).catch(() => {});
+    // the URL comes from the server: never hand a non-otpauth scheme to the
+    // OS, and tell the user when nothing could open it (the manual key below
+    // is the fallback)
+    if (!otpauthUrl?.startsWith('otpauth://')) {
+      setError('openFailed');
+      return;
+    }
+    Linking.openURL(otpauthUrl).catch(() => setError('openFailed'));
   }, [otpauthUrl]);
 
   const navigateOnSuccess = useCallback(async () => {
@@ -71,8 +79,11 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
     try {
       await completeMfaSignIn(isEnrol ? 'totp/confirm' : 'totp', { code });
       await navigateOnSuccess();
-    } catch (_err) {
-      setError('badCode');
+    } catch (err) {
+      // a wrong code is retryable; anything else (typically the short-lived
+      // pending pass expiring while the user was off in their authenticator
+      // app) means this attempt is over and they must log in again
+      setError(err?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID ? 'badCode' : 'expired');
     } finally {
       setBusy(false);
     }
@@ -163,15 +174,28 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
             />
             {error && (
               <StyledText color={theme.colors.ALERT} fontSize={12} marginTop={5}>
-                {error === 'enrolFailed' ? (
+                {error === 'enrolFailed' && (
                   <TranslatedText
                     stringId="mfa.totp.enrolError"
                     fallback="Could not start authenticator setup."
                   />
-                ) : (
+                )}
+                {error === 'badCode' && (
                   <TranslatedText
                     stringId="mfa.totp.codeError"
                     fallback="Incorrect code. Please try again."
+                  />
+                )}
+                {error === 'expired' && (
+                  <TranslatedText
+                    stringId="mfa.totp.expiredError"
+                    fallback="This sign-in attempt has expired. Please cancel and log in again."
+                  />
+                )}
+                {error === 'openFailed' && (
+                  <TranslatedText
+                    stringId="mfa.totp.openError"
+                    fallback="Could not open an authenticator app. Enter the key below manually instead."
                   />
                 )}
               </StyledText>

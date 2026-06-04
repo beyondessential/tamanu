@@ -4,7 +4,7 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
-import { FetchOptions, LoginResponse, SyncRecord } from './types';
+import { FetchOptions, LoginResponse, MFA_LOGIN_STEPS, MfaLoginStep, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
@@ -105,7 +105,9 @@ export class CentralServerConnection {
       'X-Version': version,
       ...(extraHeaders || {}),
     };
-    const isLogin = path.startsWith('login');
+    // mfa/login is part of the login exchange too: its problems must reach the
+  // UI with their type intact (wrong code vs expired pass differ)
+  const isLogin = path.startsWith('login') || path.startsWith('mfa/login');
     try {
       const response = await callWithBackoff(async () => {
         const configAxios: AxiosRequestConfig = {
@@ -372,10 +374,13 @@ export class CentralServerConnection {
    * step returns the full login payload.
    */
   async completeMfaLogin(
-    path: string,
+    path: MfaLoginStep,
     mfaToken: string,
     body: Record<string, unknown> = {},
   ): Promise<LoginResponse> {
+    if (!MFA_LOGIN_STEPS.includes(path)) {
+      throw new Error(`Unknown MFA login step: ${path}`);
+    }
     try {
       const data = await this.post<LoginResponse>(
         `mfa/login/${path}`,
