@@ -55,6 +55,8 @@ export const MFA_CHALLENGE_TYPES = {
   WEBAUTHN_REGISTER: 'webauthn_register',
   WEBAUTHN_ASSERT: 'webauthn_assert',
   ENROL_INVITE: 'enrol_invite',
+  // single-use nonce for a paused login's completion pass (mfa_login JWT)
+  LOGIN: 'login',
 } as const;
 export type MfaChallengeType = (typeof MFA_CHALLENGE_TYPES)[keyof typeof MFA_CHALLENGE_TYPES];
 

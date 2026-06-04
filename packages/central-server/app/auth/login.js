@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import * as jose from 'jose';
-import { SERVER_TYPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, JWT_TOKEN_TYPES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
@@ -12,10 +12,10 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
 import { resolveLoginMfaPolicy } from './mfa';
 
-// short, to bound how long the pass is reusable to mint sessions — but long
-// enough to complete a fumbly forced enrolment (scan/add to an authenticator
-// app, type a code)
-const MFA_LOGIN_SESSION_EXPIRY = '5 minutes';
+// short — long enough to complete a fumbly forced enrolment (scan/add to an
+// authenticator app, type a code), but the pass is also single-use (consumed
+// on successful completion), so this only bounds an abandoned/leaked pass
+const MFA_LOGIN_SESSION_EXPIRY_MINUTES = 5;
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -160,6 +160,18 @@ export const login = asyncHandler(async (req, res) => {
     // pause the login: no access or refresh token yet, just a short-lived
     // pass for the /mfa/login completion endpoints. The access token minted
     // by loginFromCredential is discarded, never disclosed.
+    //
+    // The pass is single-use: a nonce is stored in mfa_challenges and consumed
+    // on successful completion, so a completed (or leaked-after-use) pass can't
+    // be replayed to mint further sessions within its lifetime.
+    const expiresAt = new Date(Date.now() + MFA_LOGIN_SESSION_EXPIRY_MINUTES * 60 * 1000);
+    const nonce = await getRandomBase64String(32, 'base64url');
+    await models.MfaChallenge.create({
+      type: MFA_CHALLENGE_TYPES.LOGIN,
+      token: nonce,
+      userId: user.id,
+      expiresAt,
+    });
     const mfaToken = await buildToken(
       {
         userId: user.id,
@@ -167,10 +179,11 @@ export const login = asyncHandler(async (req, res) => {
         internalClient,
         withSettings: userSettings !== undefined,
         kind: decision.kind,
+        nonce,
       },
       secret,
       {
-        expiresIn: MFA_LOGIN_SESSION_EXPIRY,
+        expiresIn: `${MFA_LOGIN_SESSION_EXPIRY_MINUTES} minutes`,
         audience: JWT_TOKEN_TYPES.MFA_LOGIN,
         issuer: canonicalHostName,
       },

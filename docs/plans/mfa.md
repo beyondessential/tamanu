@@ -358,10 +358,11 @@ chosen: noun **`Mfa`** = acting on *your own* MFA, noun **`UserMfa`** = acting o
   `/mfa/login` completion endpoints only — long-lived credentials are minted
   only once the factor is satisfied. It carries `deviceId` so the completion's
   token gets the right claim (the client also echoes `deviceId` in the
-  completion body for the facility path). The pass is **not yet single-use** —
-  within its lifetime it could be redeemed more than once (only ever yielding
-  another session for the same user); making it single-use is a noted follow-up
-  (see Follow-ups).
+  completion body for the facility path). The pass is **single-use**: a nonce
+  stored in `mfa_challenges` is checked live on every completion call and
+  atomically consumed on a successful terminal step (after the factor is
+  verified, so a wrong code doesn't burn it), so a completed pass can't be
+  replayed within its lifetime.
 
 ## Enrollment flow
 
@@ -678,14 +679,11 @@ Three sequenced PRs in one effort (nothing deprioritised):
 All design decisions are settled. Remaining items are build-time UX/detail only
 (e.g. exact interstitial copy and layout).
 
-## Follow-ups (within this effort, not yet done)
+## Follow-ups
 
-- **Single-use `mfa_login` pass.** Today it's short-lived but reusable within
-  its window. Make it single-use (a nonce stored in `mfa_challenges`, consumed
-  on the terminal completion step) so a paused-login pass can't mint more than
-  one session.
-- *(done)* ~~Facility-server integration tests for the `/mfa/login` forwarding
-  routes~~ — added (`facility-server/__tests__/apiv1/mfaLogin.test.js`): covers
-  pass-through routes, the finalise routes (local user mirror + device
-  registration + facility token), the no-facility-access rejection, and
-  central-failure propagation.
+All addressed within this effort: the `mfa_login` pass is single-use (nonce in
+`mfa_challenges`, consumed on successful completion), and the facility
+`/mfa/login` forwarding routes have integration tests
+(`facility-server/__tests__/apiv1/mfaLogin.test.js`). Nothing outstanding for
+PR1 beyond the deferred future work (passwordless, IP policy, mobile native
+passkeys — separate plans/PRs).

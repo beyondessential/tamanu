@@ -5,7 +5,8 @@ import config from 'config';
 import * as jose from 'jose';
 import * as yup from 'yup';
 
-import { JWT_TOKEN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Op } from 'sequelize';
+import { JWT_TOKEN_TYPES, MFA_CHALLENGE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ForbiddenError, InvalidTokenError } from '@tamanu/errors';
 import {
   beginWebAuthnAssertion,
@@ -63,7 +64,48 @@ const pendingFromBody = async req => {
   if (!user || user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     throw new InvalidTokenError('Invalid or expired MFA login token');
   }
+
+  // the pass is single-use: its nonce must still be live. This rejects a pass
+  // already consumed by a successful completion (so it can't be replayed) as
+  // well as begin-step calls after completion. Terminal steps consume it via
+  // completeLogin once the factor passes.
+  const live = await req.store.models.MfaChallenge.findOne({
+    where: { type: MFA_CHALLENGE_TYPES.LOGIN, token: payload.nonce, usedAt: null },
+  });
+  if (!live || live.isExpired()) {
+    throw new InvalidTokenError('Invalid or expired MFA login token');
+  }
   return { user, payload };
+};
+
+/**
+ * Finish a paused login: atomically consume the single-use pass, then send the
+ * full login payload. The consume is the single-use gate — it runs only after
+ * the factor has been verified (so a wrong code doesn't burn the pass), and
+ * atomically (so two concurrent completions can't both mint a session).
+ */
+const completeLogin = async (req, res, { user, payload }) => {
+  const [consumed] = await req.store.models.MfaChallenge.update(
+    { usedAt: new Date() },
+    {
+      where: {
+        type: MFA_CHALLENGE_TYPES.LOGIN,
+        token: payload.nonce,
+        usedAt: null,
+        expiresAt: { [Op.gt]: new Date() },
+      },
+    },
+  );
+  if (consumed === 0) {
+    throw new InvalidTokenError('Invalid or expired MFA login token');
+  }
+  await sendLoginSuccessResponse(res, {
+    models: req.store.models,
+    user,
+    deviceId: payload.deviceId,
+    internalClient: payload.internalClient,
+    userSettings: await userSettingsFor(req, payload),
+  });
 };
 
 const requireKind = (payload, kind) => {
@@ -97,13 +139,7 @@ mfaLogin.post(
       throw new ForbiddenError('Enrolment cannot be skipped');
     }
 
-    await sendLoginSuccessResponse(res, {
-      models: req.store.models,
-      user,
-      deviceId: payload.deviceId,
-      internalClient: payload.internalClient,
-      userSettings: await userSettingsFor(req, payload),
-    });
+    await completeLogin(req, res, { user, payload });
   }),
 );
 
@@ -123,13 +159,7 @@ mfaLogin.post(
     const { code } = await totpVerifySchema.validate(req.body);
     await verifyTotp({ models: req.store.models, user, code });
 
-    await sendLoginSuccessResponse(res, {
-      models: req.store.models,
-      user,
-      deviceId: payload.deviceId,
-      internalClient: payload.internalClient,
-      userSettings: await userSettingsFor(req, payload),
-    });
+    await completeLogin(req, res, { user, payload });
   }),
 );
 
@@ -169,13 +199,7 @@ mfaLogin.post(
       throw new InvalidTokenError('Passkey does not belong to this login');
     }
 
-    await sendLoginSuccessResponse(res, {
-      models: req.store.models,
-      user,
-      deviceId: payload.deviceId,
-      internalClient: payload.internalClient,
-      userSettings: await userSettingsFor(req, payload),
-    });
+    await completeLogin(req, res, { user, payload });
   }),
 );
 
@@ -218,13 +242,7 @@ mfaLogin.post(
       friendlyName,
     });
 
-    await sendLoginSuccessResponse(res, {
-      models: req.store.models,
-      user,
-      deviceId: payload.deviceId,
-      internalClient: payload.internalClient,
-      userSettings: await userSettingsFor(req, payload),
-    });
+    await completeLogin(req, res, { user, payload });
   }),
 );
 
@@ -257,12 +275,6 @@ mfaLogin.post(
     const { code } = await totpConfirmSchema.validate(req.body);
     await confirmTotp({ models: req.store.models, user, code });
 
-    await sendLoginSuccessResponse(res, {
-      models: req.store.models,
-      user,
-      deviceId: payload.deviceId,
-      internalClient: payload.internalClient,
-      userSettings: await userSettingsFor(req, payload),
-    });
+    await completeLogin(req, res, { user, payload });
   }),
 );
