@@ -49,7 +49,6 @@ const Disclaimer = styled.div`
   font-size: 11px;
   color: ${Colors.darkText};
   font-weight: 500;
-  white-space: nowrap;
 `;
 
 const EditedText = styled.span`
