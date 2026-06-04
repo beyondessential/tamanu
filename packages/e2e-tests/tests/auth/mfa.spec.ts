@@ -133,7 +133,8 @@ test.describe('MFA login', () => {
     await settingsPage.openFromKebab();
     // on a facility frontend, authenticator apps are managed centrally
     await expect(settingsPage.totpCentralOnlyNote).toBeVisible();
-    await settingsPage.addPasskey(1);
+    await settingsPage.addPasskey(1, 'E2E test key');
+    await expect(settingsPage.passkeyRows.first()).toContainText('E2E test key');
     await page.keyboard.press('Escape');
 
     // having a factor now means the next login is challenged, even though the

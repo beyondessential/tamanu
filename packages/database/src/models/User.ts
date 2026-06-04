@@ -47,6 +47,7 @@ export class User extends Model {
   declare displayName: string;
   declare role: string;
   declare phoneNumber?: string;
+  declare totpConfirmedAt?: Date | null;
   declare visibilityStatus: string;
   declare facilities: Facility[];
   declare deviceRegistrationQuota: number;
@@ -148,6 +149,13 @@ export class User extends Model {
         },
         phoneNumber: {
           type: DataTypes.STRING,
+        },
+        // mirror of totp_secrets.confirmed_at, maintained by central: the seed
+        // is central-only but the fact a confirmed authenticator app exists is
+        // not secret, and synced so facilities can show truthful MFA status
+        totpConfirmedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
         },
         deviceRegistrationQuota: {
           type: DataTypes.INTEGER,

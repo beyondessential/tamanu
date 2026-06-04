@@ -31,7 +31,10 @@ export class MfaSettingsPage {
   }
 
   /** Run the add-passkey ceremony and wait for the new row to appear. */
-  async addPasskey(expectedCount: number) {
+  async addPasskey(expectedCount: number, name?: string) {
+    if (name) {
+      await this.page.getByTestId('mfa-passkey-name').locator('input').fill(name);
+    }
     await this.addPasskeyButton.click();
     await expect(this.passkeyRows).toHaveCount(expectedCount);
   }

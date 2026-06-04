@@ -48,3 +48,9 @@ How many devices this user can register (when `features.deviceRegistrationQuota`
 
 See [`devices`](#!/source/source.tamanu.tamanu.devices) for more.
 {% enddocs %}
+
+{% docs users__totp_confirmed_at %}
+When the user confirmed their authenticator app (TOTP) enrolment, if they have one.
+
+Mirror of `totp_secrets.confirmed_at`, maintained by the central server: the seed itself never syncs, but the fact that a confirmed authenticator app exists is shown at facilities.
+{% enddocs %}

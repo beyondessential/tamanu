@@ -136,9 +136,9 @@ export const MfaLoginForm = () => {
   };
 
   const heading = isEnrol ? (
-    <TranslatedText stringId="mfa.enrol.heading" fallback="Set up two-factor authentication" />
+    <TranslatedText stringId="mfa.enrol.heading" fallback="Set up multi-factor authentication" />
   ) : (
-    <TranslatedText stringId="mfa.challenge.heading" fallback="Two-factor authentication" />
+    <TranslatedText stringId="mfa.challenge.heading" fallback="Multi-factor authentication" />
   );
 
   const subtext = isEnrol ? (

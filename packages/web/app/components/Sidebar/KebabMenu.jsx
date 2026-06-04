@@ -125,7 +125,7 @@ export const KebabMenu = () => {
           >
             <TranslatedText
               stringId="mfa.settings.menuItem"
-              fallback="Two-factor authentication"
+              fallback="Multi-factor authentication"
             />
           </KebabMenuItem>
         )}

@@ -78,7 +78,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, UserDesignation, ReferenceData, Role, WebAuthnCredential, TotpSecret },
+        models: { User, UserDesignation, ReferenceData, Role, WebAuthnCredential },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page, ...filterParams },
     } = req;
@@ -158,16 +158,14 @@ usersRouter.get(
     });
     const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
-    // factor presence for the MFA column, batched over the page
+    // passkey presence for the MFA column, batched over the page (TOTP
+    // presence is already on the user row via the synced mirror)
     const userIds = users.map(user => user.id);
-    const [webauthnRows, totpRows] = await Promise.all([
-      WebAuthnCredential.findAll({ attributes: ['userId'], where: { userId: userIds } }),
-      TotpSecret.findAll({ attributes: ['userId', 'confirmedAt'], where: { userId: userIds } }),
-    ]);
+    const webauthnRows = await WebAuthnCredential.findAll({
+      attributes: ['userId'],
+      where: { userId: userIds },
+    });
     const usersWithPasskeys = new Set(webauthnRows.map(row => row.userId));
-    const usersWithTotp = new Set(
-      totpRows.filter(row => row.confirmedAt).map(row => row.userId),
-    );
 
     res.send({
       count,
@@ -193,7 +191,7 @@ usersRouter.get(
             designations,
             mfa: {
               webauthn: usersWithPasskeys.has(user.id),
-              totp: usersWithTotp.has(user.id),
+              totp: Boolean(user.totpConfirmedAt),
             },
           };
         }),

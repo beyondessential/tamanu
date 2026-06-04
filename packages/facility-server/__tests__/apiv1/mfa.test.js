@@ -99,8 +99,51 @@ describe('Facility MFA self-service', () => {
       expect(response).toHaveSucceeded();
       expect(response.body).toMatchObject({
         webauthn: expect.any(Array),
-        totp: null,
+        totp: { confirmed: false, confirmedAt: null, managedCentrally: true },
       });
+    });
+
+    it('shows a confirmed authenticator app from the synced mirror', async () => {
+      const user = await models.User.findOne({ where: { email: agent.user.email } });
+      const confirmedAt = new Date();
+      await user.update({ totpConfirmedAt: confirmedAt });
+      try {
+        const response = await agent.get('/api/mfa/methods');
+        expect(response).toHaveSucceeded();
+        expect(response.body.totp).toMatchObject({
+          confirmed: true,
+          managedCentrally: true,
+        });
+        expect(response.body.totp.confirmedAt).not.toBeNull();
+      } finally {
+        await user.update({ totpConfirmedAt: null });
+      }
+    });
+
+    it('renames an own passkey', async () => {
+      const user = await models.User.findOne({ where: { email: agent.user.email } });
+      const credential = await models.WebAuthnCredential.create({
+        userId: user.id,
+        credentialId: 'rename-cred-id',
+        publicKey: 'AAAA',
+        rpId: 'localhost',
+        enrolmentOrigin: 'http://localhost',
+      });
+
+      const rename = await agent
+        .patch(`/api/mfa/webauthn/${credential.id}`)
+        .send({ friendlyName: 'Front desk key' });
+      expect(rename).toHaveSucceeded();
+      await credential.reload();
+      expect(credential.friendlyName).toBe('Front desk key');
+
+      // a blank name is refused
+      const blank = await agent
+        .patch(`/api/mfa/webauthn/${credential.id}`)
+        .send({ friendlyName: '   ' });
+      expect(blank).toHaveRequestError();
+
+      await credential.destroy();
     });
 
     it('soft-deletes a passkey so the tombstone syncs out', async () => {

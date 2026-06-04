@@ -379,6 +379,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
+    // mirror of TOTP confirmation: a fresh user has no authenticator app
+    totpConfirmedAt: null,
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),

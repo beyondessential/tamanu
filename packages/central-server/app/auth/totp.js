@@ -43,10 +43,15 @@ export async function enrolTotp({ models, user }) {
 
   // one seed per user: re-enrolling replaces any previous seed, confirmed or
   // not, so a lost authenticator can be swapped out
-  const [row] = await models.TotpSecret.upsert(
-    { userId: user.id, secret: encrypted, confirmedAt: null },
-    { conflictFields: ['user_id'] },
-  );
+  const row = await models.TotpSecret.sequelize.transaction(async () => {
+    const [replacement] = await models.TotpSecret.upsert(
+      { userId: user.id, secret: encrypted, confirmedAt: null },
+      { conflictFields: ['user_id'] },
+    );
+    // the synced mirror of confirmation state resets with the seed
+    await models.User.update({ totpConfirmedAt: null }, { where: { id: user.id } });
+    return replacement;
+  });
 
   return {
     id: row.id,
@@ -76,7 +81,12 @@ export async function confirmTotp({ models, user, code }) {
     throw new InvalidCredentialError('Incorrect authenticator code');
   }
   if (!found.row.isConfirmed()) {
-    await found.row.update({ confirmedAt: new Date() });
+    const confirmedAt = new Date();
+    await models.TotpSecret.sequelize.transaction(async () => {
+      await found.row.update({ confirmedAt });
+      // synced mirror, so facilities can show truthful status
+      await models.User.update({ totpConfirmedAt: confirmedAt }, { where: { id: user.id } });
+    });
   }
 }
 

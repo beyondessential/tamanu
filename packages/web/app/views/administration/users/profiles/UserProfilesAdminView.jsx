@@ -158,7 +158,7 @@ const COLUMNS = [
   },
   {
     key: 'mfa',
-    title: <TranslatedText stringId="admin.users.mfa.column" fallback="2FA" />,
+    title: <TranslatedText stringId="admin.users.mfa.column" fallback="MFA" />,
     sortable: false,
     accessor: ({ mfa }) => {
       const factors = [];

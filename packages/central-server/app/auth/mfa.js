@@ -199,8 +199,32 @@ mfa.get(
     ]);
     res.send({
       webauthn: credentials.map(credentialSummary),
-      totp: { enrolled: Boolean(totpSecret), confirmed: Boolean(totpSecret?.confirmedAt) },
+      totp: {
+        enrolled: Boolean(totpSecret),
+        confirmed: Boolean(totpSecret?.confirmedAt),
+        confirmedAt: totpSecret?.confirmedAt ?? null,
+      },
     });
+  }),
+);
+
+const renameSchema = yup.object({
+  friendlyName: yup.string().trim().min(1).max(100).required(),
+});
+
+mfa.patch(
+  '/webauthn/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Mfa');
+    await requireMfaEnabled(req);
+
+    const { friendlyName } = await renameSchema.validate(req.body);
+    const [updated] = await req.store.models.WebAuthnCredential.update(
+      { friendlyName },
+      { where: { id: req.params.id, userId: req.user.id } },
+    );
+    if (!updated) throw new NotFoundError('No such passkey');
+    res.send({ ok: 'ok' });
   }),
 );
 
