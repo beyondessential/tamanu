@@ -1,4 +1,8 @@
-/** @typedef {{ x: number; y: number }} Point */
+/**
+ * @typedef {{ x: number; y: number }} Point
+ * @typedef {`[[${string}]]` | ''} SignatureAnswerBody
+ * @typedef {import('perfect-freehand').Vec2} Vec2
+ */
 
 import { getStroke } from 'perfect-freehand';
 
@@ -17,6 +21,7 @@ const STROKE_OPTIONS = /** @type {const} */ ({
 /**
  * Converts perfect-freehand outline points to an SVG path `d` string.
  * Used for display only; centreline points are stored in body instead.
+ * @param {Vec2[]} stroke
  */
 function getSvgPathFromStroke(stroke) {
   if (!stroke.length) return '';
@@ -43,14 +48,6 @@ function pointsToSvgPath(points) {
   return getSvgPathFromStroke(outline);
 }
 
-/** @param {string[]} paths */
-function concatenateSvgPaths(...paths) {
-  return paths
-    .map(path => path?.trim())
-    .filter(Boolean)
-    .join(' ');
-}
-
 /**
  * @privateRemarks The inner `for` loop is equivalent to mapping with
  * ```js
@@ -64,6 +61,7 @@ function serializeStrokes(strokes) {
   return strokes.map(stroke => {
     const serialized = [];
     for (const { x, y } of stroke) {
+      /** @type {Vec2} */
       const curr = [Math.round(x), Math.round(y)];
       const prev = serialized[serialized.length - 1];
       if (prev && prev[0] === curr[0] && prev[1] === curr[1]) continue;
@@ -74,12 +72,11 @@ function serializeStrokes(strokes) {
 }
 
 /**
- * @param {string | null | undefined} body
+ * @param {SignatureAnswerBody | null | undefined} body
  * @returns {Point[][]}
  */
 function parseSignatureBody(body) {
   if (!body) return [];
-
   const parsed = JSON.parse(body);
   return parsed.map(stroke => stroke.map(([x, y]) => ({ x, y })));
 }
@@ -91,25 +88,40 @@ function serializeSignatureBody(strokes) {
 
 /**
  * Merges in-session centreline strokes into an existing body value.
- * @param {string} existingBody
+ * @param {SignatureAnswerBody} existingBody
  * @param {Point[][]} strokePointLists
  */
 export function mergeStrokesIntoBody(existingBody, strokePointLists) {
   if (!strokePointLists.length) return existingBody || '';
-
   return serializeSignatureBody([...parseSignatureBody(existingBody), ...strokePointLists]);
 }
 
-/** Converts a stored body value to an SVG path `d` string for display. */
+/**
+ * @param {SignatureAnswerBody} body
+ * @returns {string[]} Array of `d` commands, one per stroke in the signature.
+ */
+export function bodyToDrawPaths(body) {
+  return parseSignatureBody(body).map(pointsToSvgPath);
+}
+
+/** @param {string[]} paths */
+function concatenateSvgPaths(...paths) {
+  return paths
+    .map(path => path?.trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
+/** @returns {SignatureAnswerBody} A single `d` command which draws the entire signature. */
 export function bodyToDisplayPath(body) {
-  return concatenateSvgPaths(...parseSignatureBody(body).map(pointsToSvgPath));
+  return concatenateSvgPaths(...bodyToDrawPaths(body));
 }
 
 /**
  * @privateRemarks Emulates `compressSignatureBody` from
  * `@tamanu/shared/utils/signatureCompression`. Used in frontend only for form validation to flag
  * extremely complex signatures that may exceed database index size limit.
- * @param {`[${string}]` | '' | null | undefined} body Centreline JSON stored in
+ * @param {`SignatureAnswerBody | null | undefined} body Centreline JSON stored in
  * survey_response_answers.body when uncompressed.
  * @returns {Promise<number>} gzip-compressed base64 string for database storage.
  */

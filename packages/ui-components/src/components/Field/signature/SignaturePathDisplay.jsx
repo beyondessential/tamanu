@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  bodyToDisplayPath,
+  bodyToDrawPaths,
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
@@ -23,11 +23,13 @@ export const SignatureSvg = styled.svg.attrs({
 `;
 
 export function SignaturePathDisplay({ path, ...props }) {
-  const displayPath = bodyToDisplayPath(path);
+  const displayPaths = bodyToDrawPaths(path);
 
   return (
     <SignatureSvg data-testid="signaturepathdisplay" {...props}>
-      {displayPath && <path d={displayPath} />}
+      {displayPaths.map((d, index) => (
+        <path key={index} d={d} />
+      ))}
     </SignatureSvg>
   );
 }
