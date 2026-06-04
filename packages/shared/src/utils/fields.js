@@ -19,7 +19,7 @@ export async function getStringValue(type, value) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
-      return compressSignatureBody(`${value}`);
+      return await compressSignatureBody(value);
     default:
       return `${value}`;
   }
