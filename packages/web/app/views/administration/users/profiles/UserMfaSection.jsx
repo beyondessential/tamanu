@@ -184,36 +184,58 @@ export const UserMfaSection = ({ user }) => {
           </StatusLine>
         )}
 
-        {canWrite && (
-          <Actions>
-            <OutlinedButton onClick={emailInvite} data-testid="admin-mfa-invite-email">
-              <TranslatedText
-                stringId="admin.users.mfa.emailInvite"
-                fallback="Email invite to user"
-              />
-            </OutlinedButton>
-            <OutlinedButton onClick={generateInvite} data-testid="admin-mfa-invite">
-              <TranslatedText
-                stringId="admin.users.mfa.generateInvite"
-                fallback="Generate invite token"
-              />
-            </OutlinedButton>
-            <OutlinedButton
-              onClick={provisionInPerson}
-              disabled={busy}
-              data-testid="admin-mfa-provision"
-            >
-              <TranslatedText
-                stringId="admin.users.mfa.provisionInPerson"
-                fallback="Set up a passkey in person"
-              />
-            </OutlinedButton>
-            {hasAnyFactor && (
-              <Button onClick={() => setShowResetConfirm(true)} data-testid="admin-mfa-reset">
-                <TranslatedText stringId="admin.users.mfa.reset" fallback="Reset MFA" />
-              </Button>
+        {canWrite && status && (
+          <>
+            {status.canSelfEnrol ? (
+              // no invites needed: their own account menu can do it
+              <SectionSubtitle data-testid="admin-mfa-self-enrol-note">
+                <TranslatedText
+                  stringId="admin.users.mfa.selfEnrolNote"
+                  fallback="This user can set up MFA themselves, from the menu at the bottom of the sidebar when logged in."
+                />
+              </SectionSubtitle>
+            ) : (
+              <SectionSubtitle data-testid="admin-mfa-invite-note">
+                <TranslatedText
+                  stringId="admin.users.mfa.inviteNote"
+                  fallback="This user's role does not allow them to set up MFA themselves, so enrolment goes through an admin: email them an invite, share an invite token over another channel, or set up a passkey with them in person."
+                />
+              </SectionSubtitle>
             )}
-          </Actions>
+            <Actions>
+              {!status.canSelfEnrol && (
+                <>
+                  <OutlinedButton onClick={emailInvite} data-testid="admin-mfa-invite-email">
+                    <TranslatedText
+                      stringId="admin.users.mfa.emailInvite"
+                      fallback="Email invite to user"
+                    />
+                  </OutlinedButton>
+                  <OutlinedButton onClick={generateInvite} data-testid="admin-mfa-invite">
+                    <TranslatedText
+                      stringId="admin.users.mfa.generateInvite"
+                      fallback="Generate invite token"
+                    />
+                  </OutlinedButton>
+                </>
+              )}
+              <OutlinedButton
+                onClick={provisionInPerson}
+                disabled={busy}
+                data-testid="admin-mfa-provision"
+              >
+                <TranslatedText
+                  stringId="admin.users.mfa.provisionInPerson"
+                  fallback="Set up a passkey in person"
+                />
+              </OutlinedButton>
+              {hasAnyFactor && (
+                <Button onClick={() => setShowResetConfirm(true)} data-testid="admin-mfa-reset">
+                  <TranslatedText stringId="admin.users.mfa.reset" fallback="Reset MFA" />
+                </Button>
+              )}
+            </Actions>
+          </>
         )}
 
         {invite && (

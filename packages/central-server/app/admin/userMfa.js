@@ -6,6 +6,8 @@ import { NotFoundError } from '@tamanu/errors';
 import { COMMUNICATION_STATUSES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
+import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
+
 import { getRandomBase64String } from '../auth/utils';
 import { getWebAuthnContext, requireMfaEnabled } from '../auth/mfa';
 import { getDefaultFromAddress } from '../services/mailConfig';
@@ -40,9 +42,10 @@ userMfaRouter.get(
     const user = await targetUser(req);
     const { WebAuthnCredential, TotpSecret } = req.store.models;
 
-    const [credentials, totpSecret] = await Promise.all([
+    const [credentials, totpSecret, targetAbility] = await Promise.all([
       WebAuthnCredential.findAll({ where: { userId: user.id }, order: [['createdAt', 'ASC']] }),
       TotpSecret.findOne({ where: { userId: user.id } }),
+      getAbilityForUser(req.store.models, user),
     ]);
     res.send({
       webauthn: credentials.map(credential => ({
@@ -56,6 +59,9 @@ userMfaRouter.get(
         confirmed: Boolean(totpSecret?.confirmedAt),
         confirmedAt: totpSecret?.confirmedAt ?? null,
       },
+      // whether the user could enrol on their own (write Mfa, same check as
+      // the self-service endpoints) — invites exist for those who can't
+      canSelfEnrol: targetAbility.can('write', 'Mfa'),
     });
   }),
 );

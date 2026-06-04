@@ -116,6 +116,19 @@ describe('Admin MFA management and enrolment invites', () => {
       await models.TotpSecret.create({ userId: victim.id, secret: 'S1:CCCC:DDDD' });
     });
 
+    it('reports whether the user could self-enrol instead', async () => {
+      // the invite target has no MFA permissions: invites are for them
+      const targetStatus = await adminAgent.get(`/api/admin/users/${target.id}/mfa`);
+      expect(targetStatus.body.canSelfEnrol).toBe(false);
+
+      // a write-Mfa user manages their own factors; no invite needed
+      const selfServiceAgent = await baseApp.asNewRole([['write', 'Mfa']]);
+      const selfStatus = await adminAgent.get(
+        `/api/admin/users/${selfServiceAgent.user.id}/mfa`,
+      );
+      expect(selfStatus.body.canSelfEnrol).toBe(true);
+    });
+
     it('404s on unknown users', async () => {
       const response = await adminAgent.get('/api/admin/users/no-such-user/mfa');
       expect(response.status).toBe(404);
