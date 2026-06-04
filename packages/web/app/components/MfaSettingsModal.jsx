@@ -4,8 +4,18 @@ import QRCode from 'qrcode';
 import { startRegistration } from '@simplewebauthn/browser';
 import * as yup from 'yup';
 
-import { Modal, Form, FormGrid, FormSubmitButton, OutlinedButton, TextButton, TextField, TranslatedText } from '@tamanu/ui-components';
-import { BodyText, Field } from '.';
+import {
+  Modal,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+  OutlinedButton,
+  TextButton,
+  TextField,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { BodyText } from './Typography';
+import { Field } from './Field';
 import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
