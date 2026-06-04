@@ -15,6 +15,7 @@ import {
   TranslatedText,
   VisuallyHidden,
 } from '@tamanu/ui-components';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSurveyResponseChangesQuery } from '../api/queries';
 import { DateDisplay } from './DateDisplay';
 import { ModalCancelRow } from './ModalActionRow';
@@ -272,7 +273,12 @@ function ChangeLogListItemSkeleton() {
       <FormHelperText>
         <TextSkeleton width="15ch" /> &middot;{' '}
         <TextSkeleton>
-          <DateDisplay date={new Date()} format="short" noTooltip timeFormat="default" />
+          <DateDisplay
+            date={getCurrentDateTimeString()}
+            format="short"
+            noTooltip
+            timeFormat="default"
+          />
         </TextSkeleton>
       </FormHelperText>
     </ListItem>
