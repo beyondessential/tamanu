@@ -418,17 +418,30 @@ const validateSurvey = async ({ context, rows, surveyInfo }) => {
 // so cross-question references (pde-<code>) are masked before comparing content.
 const maskQuestionReferences = value => String(value ?? '').replace(/pde-[A-Za-z0-9]+/g, 'pde-#');
 
-const componentSignature = ({ type, name, text, options, visualisationConfig }, component) => ({
+// One question's comparable content (data element + component fields together),
+// with cross-question references masked so codes don't affect equality.
+const componentSignature = ({
+  type,
+  name,
+  text,
+  options,
+  visualisationConfig,
+  detail,
+  visibilityCriteria,
+  validationCriteria,
+  calculation,
+  config,
+}) => ({
   type,
   name: name ?? '',
   text: text ?? '',
   options: options ?? '',
   visualisationConfig: maskQuestionReferences(visualisationConfig),
-  detail: component.detail ?? '',
-  visibilityCriteria: maskQuestionReferences(component.visibilityCriteria),
-  validationCriteria: maskQuestionReferences(component.validationCriteria),
-  calculation: maskQuestionReferences(component.calculation),
-  config: maskQuestionReferences(component.config),
+  detail: detail ?? '',
+  visibilityCriteria: maskQuestionReferences(visibilityCriteria),
+  validationCriteria: maskQuestionReferences(validationCriteria),
+  calculation: maskQuestionReferences(calculation),
+  config: maskQuestionReferences(config),
 });
 
 // Ordered, code-agnostic content signature for the survey the import rows would
@@ -439,18 +452,21 @@ const importRowsSurveySignature = rows => {
   );
   return rows
     .filter(({ model }) => model === 'SurveyScreenComponent')
-    .map(({ values }) =>
-      componentSignature(
-        {
-          type: values.type,
-          name: dataElements.get(values.dataElementId)?.name,
-          text: dataElements.get(values.dataElementId)?.defaultText,
-          options: dataElements.get(values.dataElementId)?.defaultOptions,
-          visualisationConfig: dataElements.get(values.dataElementId)?.visualisationConfig,
-        },
-        values,
-      ),
-    );
+    .map(({ values }) => {
+      const dataElement = dataElements.get(values.dataElementId) ?? {};
+      return componentSignature({
+        type: dataElement.type,
+        name: dataElement.name,
+        text: dataElement.defaultText,
+        options: dataElement.defaultOptions,
+        visualisationConfig: dataElement.visualisationConfig,
+        detail: values.detail,
+        visibilityCriteria: values.visibilityCriteria,
+        validationCriteria: values.validationCriteria,
+        calculation: values.calculation,
+        config: values.config,
+      });
+    });
 };
 
 // Ordered, code-agnostic content signature for an existing survey in the DB.
@@ -463,17 +479,19 @@ const existingSurveySignature = async (models, surveyId) => {
     ],
     include: [{ model: models.ProgramDataElement, as: 'dataElement' }],
   });
-  return components.map(component =>
-    componentSignature(
-      {
-        type: component.dataElement.type,
-        name: component.dataElement.name,
-        text: component.dataElement.defaultText,
-        options: component.dataElement.defaultOptions,
-        visualisationConfig: component.dataElement.visualisationConfig,
-      },
-      component,
-    ),
+  return components.map(({ dataElement, detail, visibilityCriteria, validationCriteria, calculation, config }) =>
+    componentSignature({
+      type: dataElement.type,
+      name: dataElement.name,
+      text: dataElement.defaultText,
+      options: dataElement.defaultOptions,
+      visualisationConfig: dataElement.visualisationConfig,
+      detail,
+      visibilityCriteria,
+      validationCriteria,
+      calculation,
+      config,
+    }),
   );
 };
 
@@ -501,6 +519,32 @@ const historiciseRemovedComponents = async (models, surveyId, rows) => {
   );
 };
 
+// Resolve how a survey definition maps onto the database: update the existing
+// current survey in place (keeping its id and question codes) when one exists,
+// otherwise create a new survey with a fresh code. getAvailableSurveyCode is
+// only consulted for genuinely new surveys.
+const prepareSurveyImport = async ({ models, programId, surveyDefinition, surveySheet }) => {
+  const existingSurvey = await models.Survey.findOne({
+    where: {
+      code: createCode(surveyDefinition.code),
+      programId,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  });
+  const surveyCode = existingSurvey
+    ? existingSurvey.code
+    : await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code));
+  const { rows, surveyId, surveyInfo } = createSurveyImportRows({
+    programId,
+    surveyCode,
+    surveyDefinition,
+    surveySheet,
+    surveyId: existingSurvey?.id,
+    preserveQuestionCodes: Boolean(existingSurvey),
+  });
+  return { existingSurvey, rows, surveyId, surveyInfo };
+};
+
 export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
   const errors = [];
   const context = {
@@ -523,29 +567,11 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
         ({ surveyName }) => surveyName === surveyDefinition.name,
       );
 
-      // When editing an existing program every survey is re-sent, so find the
-      // current survey this one would update (if any).
-      const existingSurvey = await models.Survey.findOne({
-        where: {
-          code: createCode(surveyDefinition.code),
-          programId,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-      });
-
-      // Editing updates the existing survey in place — keeping its id and each
-      // question's code so responses stay linked — rather than creating a
-      // duplicate. New programs/surveys are created with a fresh code.
-      const surveyCode = existingSurvey
-        ? existingSurvey.code
-        : await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code));
-      const { rows, surveyId, surveyInfo } = createSurveyImportRows({
+      const { existingSurvey, rows, surveyId, surveyInfo } = await prepareSurveyImport({
+        models,
         programId,
-        surveyCode,
         surveyDefinition,
         surveySheet,
-        surveyId: existingSurvey?.id,
-        preserveQuestionCodes: Boolean(existingSurvey),
       });
 
       // Leave unchanged surveys exactly as they are — editing one survey re-sends

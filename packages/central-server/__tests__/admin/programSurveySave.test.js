@@ -111,6 +111,20 @@ describe('AI form builder survey save', () => {
     ).toBe(1);
   });
 
+  it('forbids saving without Survey create/write permission', async () => {
+    const program = await models.Program.create({
+      id: 'program-savetest-forbidden',
+      name: 'NCD Save Test Forbidden',
+    });
+    const forbiddenApp = await ctx.baseApp.asNewRole([['read', 'Program']]);
+
+    const response = await forbiddenApp
+      .post(`/v1/admin/program/${encodeURIComponent(program.id)}/ai-form-builder-survey`)
+      .send({ form: buildForm('forbref', [{ code: 'forbref001', text: 'Reason' }]) });
+
+    expect(response).toBeForbidden();
+  });
+
   it('does not rewrite a survey when its content is unchanged', async () => {
     const program = await models.Program.create({
       id: 'program-savetest-2',

@@ -437,6 +437,58 @@ const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, 
   }
 };
 
+// Seed an uploaded Tamanu program export as the working definition so edits run
+// through the targeted tweak path rather than regenerating the whole (often
+// huge) program. Returns the chat response, or null when the upload isn't a
+// recognisable program export.
+const handleProgramExportUpload = async ({
+  aiService,
+  sessionId,
+  file,
+  fileName,
+  message,
+  userMessage,
+}) => {
+  const uploadedDefinition = await loadProgramDefinitionFromUpload({ file, fileName });
+  if (!uploadedDefinition) return null;
+
+  const persist = assistantMessage =>
+    aiService.addSessionMessages(sessionId, { userMessage, assistantMessage }).catch(error => {
+      log.warn({ error }, 'AI form builder failed to persist uploaded program chat history');
+    });
+
+  // If the user described an edit alongside the upload, try to apply it now. A
+  // failed tweak still seeds the (unmodified) definition and tells the user the
+  // change wasn't applied, so their request isn't silently dropped.
+  const editRequest = message?.trim();
+  if (editRequest) {
+    const tweakResult = await tryTweakProgramDefinition({
+      aiService,
+      currentProgramDefinition: uploadedDefinition,
+      userMessage: editRequest,
+    });
+    const assistantMessage = tweakResult
+      ? tweakResult.message
+      : buildProgramLoadedEditNotAppliedMessage(uploadedDefinition);
+    await persist(assistantMessage);
+    return {
+      sessionId,
+      message: assistantMessage,
+      attachToProgramCode: null,
+      programDefinition: tweakResult ? tweakResult.programDefinition : uploadedDefinition,
+    };
+  }
+
+  const loadedMessage = buildProgramLoadedMessage(uploadedDefinition);
+  await persist(loadedMessage);
+  return {
+    sessionId,
+    message: loadedMessage,
+    attachToProgramCode: null,
+    programDefinition: uploadedDefinition,
+  };
+};
+
 const processChatRequest = async ({
   aiService,
   sessionId: existingSessionId,
@@ -457,53 +509,18 @@ const processChatRequest = async ({
         ? existingSessionId
         : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
 
-    // An uploaded Tamanu program export is parsed deterministically into a
-    // working definition. This seeds the targeted tweak path for subsequent
-    // edits instead of regenerating the entire (often huge) program from
-    // scratch — which the model can't reliably do in one structured response.
+    // An uploaded Tamanu program export seeds the working definition so edits
+    // run through the targeted tweak path rather than a full regeneration.
     if (!currentProgramDefinition) {
-      const uploadedDefinition = await loadProgramDefinitionFromUpload({ file, fileName });
-      if (uploadedDefinition) {
-        const editRequest = message?.trim();
-        // If the user described an edit alongside the upload, try to apply it
-        // now. A failed tweak still seeds the (unmodified) definition and tells
-        // the user the change wasn't applied, so their request isn't silently
-        // dropped — a follow-up then runs through the tweak path.
-        if (editRequest) {
-          const tweakResult = await tryTweakProgramDefinition({
-            aiService,
-            currentProgramDefinition: uploadedDefinition,
-            userMessage: editRequest,
-          });
-          const assistantMessage = tweakResult
-            ? tweakResult.message
-            : buildProgramLoadedEditNotAppliedMessage(uploadedDefinition);
-          await aiService
-            .addSessionMessages(sessionId, { userMessage, assistantMessage })
-            .catch(error => {
-              log.warn({ error }, 'AI form builder failed to persist upload-edit chat history');
-            });
-          return {
-            sessionId,
-            message: assistantMessage,
-            attachToProgramCode: null,
-            programDefinition: tweakResult ? tweakResult.programDefinition : uploadedDefinition,
-          };
-        }
-
-        const loadedMessage = buildProgramLoadedMessage(uploadedDefinition);
-        await aiService
-          .addSessionMessages(sessionId, { userMessage, assistantMessage: loadedMessage })
-          .catch(error => {
-            log.warn({ error }, 'AI form builder failed to persist uploaded program chat history');
-          });
-        return {
-          sessionId,
-          message: loadedMessage,
-          attachToProgramCode: null,
-          programDefinition: uploadedDefinition,
-        };
-      }
+      const uploadResult = await handleProgramExportUpload({
+        aiService,
+        sessionId,
+        file,
+        fileName,
+        message,
+        userMessage,
+      });
+      if (uploadResult) return uploadResult;
     }
 
     if (currentProgramDefinition) {
