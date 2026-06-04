@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useTranslation } from '../../../contexts';
 import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
 import { TextButton } from '../../Button';
+import { RequiredOrnament } from '../../RequiredOrnament';
 import { TranslatedText } from '../../Translation';
 import {
   bodyToDisplayPath,
@@ -13,7 +14,6 @@ import {
   SIGNATURE_VIEWBOX_WIDTH,
 } from './pathUtils';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
-import { RequiredOrnament } from '../..';
 
 const Label = styled.label`
   color: ${p => p.theme.palette.text.secondary};
