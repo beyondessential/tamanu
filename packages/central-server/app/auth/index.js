@@ -7,6 +7,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
 import { enrolInvite } from './enrolInvite';
 import { resetPassword } from './resetPassword';
+import { passwordlessLogin } from './passwordlessLogin';
 import { login } from './login';
 import { mfa } from './mfa';
 import { mfaLogin } from './mfaLogin';
@@ -35,6 +36,8 @@ export const authModule = ({ authLimiter } = {}) => {
   // pre-auth: authorised by the short-lived mfa_login token from /login
   router.use('/mfa/login', limiter, mfaLogin);
   router.post('/login', limiter, login);
+  // pre-auth: a user-verifying passkey assertion IS the credential
+  router.use('/login/webauthn', limiter, passwordlessLogin);
   router.post('/refresh', limiter, refresh);
 
   router.use(userMiddleware);
