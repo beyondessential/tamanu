@@ -94,6 +94,21 @@ describe('AI form builder survey save', () => {
     expect((await models.SurveyScreenComponent.findByPk(`${surveyId}-qlref003`)).visibilityStatus).toBe(
       VISIBILITY_STATUSES.CURRENT,
     );
+
+    // A further edit still resolves and updates the same survey — the code is
+    // never suffixed, so no second current survey is ever created.
+    const third = await save(
+      program.id,
+      buildForm('qlref', [{ code: 'qlref001', text: 'Updated question one again' }]),
+    );
+    expect(third).toHaveSucceeded();
+    expect(third.body.surveys[0].id).toBe(surveyId);
+    expect((await models.Survey.findByPk(surveyId)).code).toBe('qlref');
+    expect(
+      await models.Survey.count({
+        where: { programId: program.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      }),
+    ).toBe(1);
   });
 
   it('does not rewrite a survey when its content is unchanged', async () => {
