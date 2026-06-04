@@ -15,7 +15,8 @@
 const encoding = /** @type {const} */ ('gzip');
 
 /**
- * @param {`[${string}]` | '' | null | undefined} body Centreline JSON stored in survey_response_answers.body when uncompressed.
+ * @param {`[${string}]` | '' | null | undefined} body Centreline JSON stored in
+ * survey_response_answers.body when uncompressed.
  * @returns {Promise<string>} gzip-compressed base64 string for database storage.
  */
 export async function compressSignatureBody(body) {
@@ -31,7 +32,8 @@ export async function compressSignatureBody(body) {
 }
 
 /**
- * @param {string | null | undefined} base64String gzip-compressed base64 from survey_response_answers.body.
+ * @param {string | null | undefined} base64String gzip-compressed base64 from
+ * survey_response_answers.body.
  * @returns {Promise<'' | `[${string}]`>} centreline JSON
  */
 export async function decompressSignatureBody(base64String) {
