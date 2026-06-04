@@ -51,9 +51,26 @@ function concatenateSvgPaths(...paths) {
     .join(' ');
 }
 
-/** @param {Point[][]} strokes */
+/**
+ * @privateRemarks The inner `for` loop is equivalent to mapping with
+ * ```js
+ * stroke => stroke.map(({ x, y }) => [Math.round(x), Math.round(y)])
+ * ```
+ * but there’s no point storing a line segment between two identical points.
+ * (e.g. `[[1,1],[1,1],[2,2]]` looks the same as `[[1,1],[2,2]]`.)
+ * @param {Point[][]} strokes
+ */
 function serializeStrokes(strokes) {
-  return strokes.map(stroke => stroke.map(({ x, y }) => [Math.round(x), Math.round(y)]));
+  return strokes.map(stroke => {
+    const serialized = [];
+    for (const { x, y } of stroke) {
+      const curr = [Math.round(x), Math.round(y)];
+      const prev = serialized[serialized.length - 1];
+      if (prev && prev[0] === curr[0] && prev[1] === curr[1]) continue;
+      serialized.push(curr);
+    }
+    return serialized;
+  });
 }
 
 /**
