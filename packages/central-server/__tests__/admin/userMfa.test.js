@@ -129,6 +129,20 @@ describe('Admin MFA management and enrolment invites', () => {
       expect(selfStatus.body.canSelfEnrol).toBe(true);
     });
 
+    it('reports whether the user is MFA-required (literal rows, not wildcards)', async () => {
+      expect((await adminAgent.get(`/api/admin/users/${target.id}/mfa`)).body.mfaRequired).toBe(
+        false,
+      );
+
+      const requiredAgent = await baseApp.asNewRole([['require', 'Mfa']]);
+      const requiredStatus = await adminAgent.get(
+        `/api/admin/users/${requiredAgent.user.id}/mfa`,
+      );
+      expect(requiredStatus.body.mfaRequired).toBe(true);
+      // require Mfa alone doesn't grant self-service
+      expect(requiredStatus.body.canSelfEnrol).toBe(false);
+    });
+
     it('404s on unknown users', async () => {
       const response = await adminAgent.get('/api/admin/users/no-such-user/mfa');
       expect(response.status).toBe(404);

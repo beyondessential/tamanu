@@ -200,6 +200,15 @@ export const UserMfaSection = ({ user }) => {
                   stringId="admin.users.mfa.inviteNote"
                   fallback="This user's role does not allow them to set up MFA themselves, so enrolment goes through an admin: email them an invite, share an invite token over another channel, or set up a passkey with them in person."
                 />
+                {status.mfaRequired && !hasAnyFactor && (
+                  <>
+                    {' '}
+                    <TranslatedText
+                      stringId="admin.users.mfa.requiredNote"
+                      fallback="Their role requires MFA, so they will in any case be asked to set it up at their next login — an invite simply lets them do it ahead of time."
+                    />
+                  </>
+                )}
               </SectionSubtitle>
             )}
             <Actions>

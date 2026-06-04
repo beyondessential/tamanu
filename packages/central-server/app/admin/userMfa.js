@@ -6,7 +6,10 @@ import { NotFoundError } from '@tamanu/errors';
 import { COMMUNICATION_STATUSES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
+import {
+  getAbilityForUser,
+  getPermissionsForRoles,
+} from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { getRandomBase64String } from '../auth/utils';
 import { getWebAuthnContext, requireMfaEnabled } from '../auth/mfa';
@@ -42,10 +45,11 @@ userMfaRouter.get(
     const user = await targetUser(req);
     const { WebAuthnCredential, TotpSecret } = req.store.models;
 
-    const [credentials, totpSecret, targetAbility] = await Promise.all([
+    const [credentials, totpSecret, targetAbility, targetPermissions] = await Promise.all([
       WebAuthnCredential.findAll({ where: { userId: user.id }, order: [['createdAt', 'ASC']] }),
       TotpSecret.findOne({ where: { userId: user.id } }),
       getAbilityForUser(req.store.models, user),
+      getPermissionsForRoles(req.store.models, user.role),
     ]);
     res.send({
       webauthn: credentials.map(credential => ({
@@ -62,6 +66,11 @@ userMfaRouter.get(
       // whether the user could enrol on their own (write Mfa, same check as
       // the self-service endpoints) — invites exist for those who can't
       canSelfEnrol: targetAbility.can('write', 'Mfa'),
+      // literal `require Mfa` rows, like the login policy (not the compiled
+      // ability, so a manage-all wildcard doesn't read as required)
+      mfaRequired: targetPermissions.some(
+        permission => permission.verb === 'require' && permission.noun === 'Mfa',
+      ),
     });
   }),
 );
