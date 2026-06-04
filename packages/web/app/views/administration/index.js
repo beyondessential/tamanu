@@ -4,6 +4,7 @@ export { LocationAssignmentsAdminView } from './LocationAssignmentsAdminView';
 export { AssetUploaderView } from './AssetUploaderView';
 export * from './users';
 export {
+  AiFormBuilderView,
   ManageProgramRegistriesRoutes,
   ManageProgramsAdminView,
   ProgramRegistriesAdminView,

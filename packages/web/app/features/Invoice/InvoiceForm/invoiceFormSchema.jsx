@@ -10,20 +10,18 @@ const REQUIRED_MESSAGE = (
   />
 );
 
-// Invoice item rows are autofilled with date & quantity only. If the user starts filling in any
-// other field (productId, orderedByUserId, or manualEntryPrice), treat the row as intentionally
-// edited and require productId and orderedByUserId to be completed before submission.
-// Uses != null so that legitimate falsy values like manualEntryPrice=0 are treated as user input.
-const hasUserEnteredData = ({ productId, orderedByUserId, manualEntryPrice }) =>
-  productId != null || orderedByUserId != null || manualEntryPrice != null;
+// Invoice item rows are autofilled with date, quantity and ordered-by clinician. A row only counts
+// as intentionally edited once the user sets a product or a manual price; ordered-by is excluded
+// because it's prefilled. != null keeps legitimate falsy values like manualEntryPrice=0 as input.
+const hasUserEnteredData = ({ productId, manualEntryPrice }) =>
+  productId != null || manualEntryPrice != null;
 
 export const invoiceFormSchema = yup.object({
   invoiceItems: yup.array(
     yup.object().shape({
       orderDate: yup.string().required(REQUIRED_MESSAGE),
-      productId: yup.string().when(['orderedByUserId', 'manualEntryPrice'], {
-        is: (orderedByUserId, manualEntryPrice) =>
-          hasUserEnteredData({ orderedByUserId, manualEntryPrice }),
+      productId: yup.string().when('manualEntryPrice', {
+        is: manualEntryPrice => hasUserEnteredData({ manualEntryPrice }),
         then: schema => schema.required(REQUIRED_MESSAGE),
         otherwise: schema => schema.nullable(),
       }),
@@ -38,6 +36,6 @@ export const invoiceFormSchema = yup.object({
         .transform((value, originalValue) => (originalValue === '' ? undefined : value))
         .required(REQUIRED_MESSAGE),
       manualEntryPrice: yup.number().nullable(),
-    }, [['productId', 'orderedByUserId']]),
+    }),
   ),
 });
