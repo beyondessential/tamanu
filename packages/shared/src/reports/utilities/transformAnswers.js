@@ -8,6 +8,7 @@ import {
   parseDate,
 } from '@tamanu/utils/dateTime';
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { prepareSignatureBodyForApi } from '../../utils/signatureCompression';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
@@ -165,6 +166,9 @@ export const getAnswerBody = async (
       break;
     case 'PatientData':
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      result = await prepareSignatureBodyForApi(answer);
       break;
     default:
       result = answer;

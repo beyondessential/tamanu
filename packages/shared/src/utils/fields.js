@@ -2,21 +2,24 @@
 
 import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
+import { prepareSignatureBodyForStorage } from './signatureCompression';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 /**
  * @template {V}
  * @param {DataElementType} type
  * @param {any} value
- * @returns {V extends null | undefined ? null : string}
+ * @returns {Promise<V extends null | undefined ? null : string>}
  */
-export function getStringValue(type, value) {
+export async function getStringValue(type, value) {
   if (value == null) {
     return null;
   }
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return prepareSignatureBodyForStorage(`${value}`);
     default:
       return `${value}`;
   }
