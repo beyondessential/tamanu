@@ -46,9 +46,18 @@ export async function decompressSignatureBody(base64String) {
   return new TextDecoder().decode(arrayBuffer);
 }
 
-/** @param {string | null | undefined} body */
+/**
+ * @param {string | null | undefined} body
+ * @returns {body is `[${string}]`}
+ */
 export function isUncompressedSignatureBody(body) {
-  return Boolean(body) && body.startsWith('[');
+  if (!body || !body.startsWith('[') || !body.endsWith(']')) return false;
+  try {
+    JSON.parse(body);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 /**
