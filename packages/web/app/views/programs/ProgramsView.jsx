@@ -233,7 +233,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
           />
         }
         error={error}
-        data-testid="errormessage-kl46"
       />
     );
   }
@@ -249,7 +248,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
           />
         }
         error={surveyResponseError}
-        data-testid="errormessage-survey-edit"
       />
     );
   }
@@ -275,11 +273,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       <ProgramsPane data-testid="programspane-me3f">
         <ProgramsPaneHeader data-testid="programspaneheader-99cy">
           <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-csfc">
-            <TranslatedText
-              stringId="program.modal.selectSurvey.title"
-              fallback="Select form"
-              data-testid="translatedtext-wbj1"
-            />
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select form" />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1} data-testid="formgrid-m7yd">
@@ -312,7 +306,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
                 fallback="Begin survey"
               />
             }
-            data-testid="surveyselector-bn1a"
           />
         </FormGrid>
       </ProgramsPane>
