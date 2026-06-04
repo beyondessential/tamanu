@@ -500,6 +500,50 @@ export class User extends Model {
     };
   }
 
+  /**
+   * The non-password half of a login, for a passwordless passkey assertion the
+   * CALLER HAS ALREADY VERIFIED (possession + user verification proven by the
+   * authenticator). Handles what loginFromCredential does minus the
+   * password/lockout machinery, which doesn't apply — assertions aren't
+   * guessable. Token minting stays with the caller (central and facility mint
+   * differently).
+   */
+  static async loginFromVerifiedPasskey(
+    payload: Record<string, any>,
+    { settings }: Pick<LoginContext, 'settings'>,
+  ): Promise<Pick<LoginReturn, 'user' | 'device' | 'internalClient' | 'settings'>> {
+    const { Device, UserLoginAttempt } = this.sequelize.models;
+    const { user, facilityIds, deviceId, scopes = [], clientHeader } = payload;
+
+    const internalClient = Boolean(
+      clientHeader && (Object.values(SERVER_TYPES) as string[]).includes(clientHeader),
+    );
+    if (internalClient && !deviceId) {
+      throw new MissingCredentialError('Missing deviceId');
+    }
+
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new AuthPermissionError('User no longer exists');
+    }
+
+    const device = await Device.ensureRegistration({ settings, user, deviceId, scopes });
+    await UserLoginAttempt.create({
+      userId: user.id,
+      deviceId,
+      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
+    });
+
+    const shouldReturnSettings =
+      clientHeader &&
+      (
+        [SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]
+      ).includes(clientHeader) &&
+      !facilityIds;
+    const frontEndSettings = shouldReturnSettings ? await settings.getFrontEndSettings() : undefined;
+
+    return { user, device, internalClient, settings: frontEndSettings };
+  }
+
   static async loginFromToken(
     token: string,
     { tokenSecret, tokenIssuer }: LoginContext,
