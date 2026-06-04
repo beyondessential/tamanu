@@ -7,7 +7,7 @@ import {
   mergeStrokesIntoBody,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-} from '@tamanu/shared/utils/signaturePathUtils';
+} from '@tamanu/shared/utils/signature';
 import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
 import { TextButton } from '../../Button';
 import { RequiredOrnament } from '../../RequiredOrnament';

@@ -24,7 +24,7 @@ import { QueryTypes } from 'sequelize';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { decompressSignatureBody } from '@tamanu/shared/utils/signatureCompression';
+import { decompressSignatureBody } from '@tamanu/shared/utils/signature';
 
 /**
  * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.

@@ -6,7 +6,7 @@ import {
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-} from '../signaturePathUtils';
+} from '../signature';
 
 const SIGNATURE_PDF_WIDTH = 198;
 const SIGNATURE_PDF_HEIGHT =

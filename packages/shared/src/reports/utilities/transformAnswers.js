@@ -2,7 +2,7 @@ import { keyBy } from 'lodash';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { format, formatShort, isISOString, parseDate } from '@tamanu/utils/dateTime';
-import { decompressSignatureBody } from '../../utils/signatureCompression';
+import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {

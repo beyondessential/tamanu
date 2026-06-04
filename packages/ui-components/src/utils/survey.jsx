@@ -9,7 +9,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
-import { estimateCompressedSize } from '@tamanu/shared/utils/signatureCompression';
+import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';

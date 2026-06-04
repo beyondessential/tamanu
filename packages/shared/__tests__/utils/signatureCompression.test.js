@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import {
   compressSignatureBody,
   decompressSignatureBody,
-} from '../../src/utils/signatureCompression';
+} from '../../src/utils/signature';
 
 const SIGNATURE_WIDTH = 480;
 const SIGNATURE_HEIGHT = 144;

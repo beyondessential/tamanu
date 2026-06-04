@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { bodyToDrawPaths, mergeStrokesIntoBody } from '../../src/utils/signaturePathUtils';
+import { bodyToDrawPaths, mergeStrokesIntoBody } from '../../src/utils/signature';
 
 describe('signaturePathUtils', () => {
   it('converts centreline JSON to SVG path commands', () => {

@@ -66,6 +66,10 @@
       "require": "./dist/cjs/utils/patientCertificates/index.js",
       "import": "./dist/esm/utils/patientCertificates/index.js"
     },
+    "./utils/signature": {
+      "require": "./dist/cjs/utils/signature/index.js",
+      "import": "./dist/esm/utils/signature/index.js"
+    },
     "./utils/uvci": {
       "require": "./dist/cjs/utils/uvci/index.js",
       "import": "./dist/esm/utils/uvci/index.js"

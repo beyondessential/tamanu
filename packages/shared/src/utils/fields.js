@@ -2,7 +2,7 @@
 
 import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
-import { compressSignatureBody } from './signatureCompression';
+import { compressSignatureBody } from './signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 /**
