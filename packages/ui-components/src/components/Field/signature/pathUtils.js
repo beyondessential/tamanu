@@ -122,8 +122,8 @@ export function bodyToDisplayPath(body) {
  * `@tamanu/shared/utils/signatureCompression`. Used in frontend only for form validation to flag
  * extremely complex signatures that may exceed database index size limit.
  * @param {`SignatureAnswerBody | null | undefined} body Centreline JSON stored in
- * survey_response_answers.body when uncompressed.
- * @returns {Promise<number>} gzip-compressed base64 string for database storage.
+ * `survey_response_answers.body` when uncompressed.
+ * @returns {Promise<number>} Length after Gzip compression, encoded in Base64, for database storage
  */
 export async function estimateCompressedSize(body) {
   if (!body) return 0;
