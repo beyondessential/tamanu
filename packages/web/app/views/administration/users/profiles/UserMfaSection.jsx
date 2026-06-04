@@ -5,7 +5,13 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { startRegistration } from '@simplewebauthn/browser';
 
-import { BodyText, Button, OutlinedButton, TranslatedText } from '../../../../components';
+import {
+  BodyText,
+  Button,
+  DateDisplay,
+  OutlinedButton,
+  TranslatedText,
+} from '../../../../components';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
 import { Colors } from '../../../../constants';
 import { useApi } from '../../../../api';
@@ -132,7 +138,7 @@ export const UserMfaSection = ({ user }) => {
         <SectionTitle data-testid="admin-mfa-title">
           <TranslatedText
             stringId="admin.users.mfa.title"
-            fallback="Two-factor authentication"
+            fallback="Multi-factor authentication"
           />
         </SectionTitle>
         <SectionSubtitle>
@@ -187,9 +193,9 @@ export const UserMfaSection = ({ user }) => {
           <InviteBox data-testid="admin-mfa-invite-token">
             <TranslatedText
               stringId="admin.users.mfa.inviteIssued"
-              fallback="Share this invite token with the user. They redeem it with their password on their own device. It is single-use and expires :expiry."
-              replacements={{ expiry: new Date(invite.expiresAt).toLocaleString() }}
-            />
+              fallback="Share this invite token with the user. They redeem it with their password on their own device. It is single-use and expires"
+            />{' '}
+            <DateDisplay date={invite.expiresAt} timeFormat="default" />
             <code>{invite.token}</code>
             <OutlinedButton
               onClick={() => navigator.clipboard?.writeText(invite.token)}

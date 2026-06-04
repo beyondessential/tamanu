@@ -5,6 +5,7 @@ import { startRegistration } from '@simplewebauthn/browser';
 import * as yup from 'yup';
 
 import {
+  DateDisplay,
   Modal,
   Form,
   FormGrid,
@@ -12,6 +13,7 @@ import {
   OutlinedButton,
   TextButton,
   TextField,
+  TextInput,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
@@ -71,13 +73,19 @@ const ErrorText = styled(BodyText)`
   color: ${Colors.alert};
 `;
 
-const formatDate = value => (value ? new Date(value).toLocaleDateString() : null);
+const AddPasskeyRow = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+`;
 
 /**
  * Self-service security methods management. The methods response doubles as
- * the capability probe: totp === null means this server doesn't manage
- * authenticator apps (facility — they're central-side), and a 403 means MFA
- * is disabled or the user may not manage factors.
+ * the capability probe: totp.managedCentrally means this server can't run
+ * authenticator-app enrolment (facility — it still knows the synced
+ * confirmation state), and a 403 means MFA is disabled or the user may not
+ * manage factors.
  */
 export const MfaSettingsModal = ({ open, onClose }) => {
   const api = useApi();
@@ -91,6 +99,10 @@ export const MfaSettingsModal = ({ open, onClose }) => {
   const [totpEnrol, setTotpEnrol] = useState(null);
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [removeTarget, setRemoveTarget] = useState(null);
+  const [newPasskeyName, setNewPasskeyName] = useState('');
+  // credential id being renamed, and the in-progress value
+  const [renameId, setRenameId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
 
   const refresh = useCallback(async () => {
     try {
@@ -122,12 +134,32 @@ export const MfaSettingsModal = ({ open, onClose }) => {
     try {
       const optionsJSON = await api.post('mfa/webauthn/register-begin');
       const registrationResponse = await startRegistration({ optionsJSON });
-      await api.post('mfa/webauthn/register-finish', { registrationResponse });
+      await api.post('mfa/webauthn/register-finish', {
+        registrationResponse,
+        friendlyName: newPasskeyName.trim() || null,
+      });
+      setNewPasskeyName('');
       await refresh();
     } catch (e) {
       setError(getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const startRename = credential => {
+    setRenameId(credential.id);
+    setRenameValue(credential.friendlyName ?? '');
+  };
+
+  const submitRename = async () => {
+    setError(null);
+    try {
+      await api.patch(`mfa/webauthn/${renameId}`, { friendlyName: renameValue.trim() });
+      setRenameId(null);
+      await refresh();
+    } catch (e) {
+      setError(getTranslation('mfa.rename.error', 'Could not rename this passkey.'));
     }
   };
 
@@ -171,7 +203,7 @@ export const MfaSettingsModal = ({ open, onClose }) => {
   return (
     <Modal
       title={
-        <TranslatedText stringId="mfa.settings.title" fallback="Two-factor authentication" />
+        <TranslatedText stringId="mfa.settings.title" fallback="Multi-factor authentication" />
       }
       open={open}
       onClose={onClose}
@@ -183,7 +215,7 @@ export const MfaSettingsModal = ({ open, onClose }) => {
         <BodyText data-testid="mfa-settings-unavailable">
           <TranslatedText
             stringId="mfa.settings.unavailable"
-            fallback="Two-factor authentication is not available on this server, or you do not have permission to manage it."
+            fallback="Multi-factor authentication is not available on this server, or you do not have permission to manage it."
           />
         </BodyText>
       )}
@@ -199,31 +231,69 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                 <TranslatedText stringId="mfa.settings.noPasskeys" fallback="No passkeys yet." />
               </BodyText>
             )}
-            {methods.webauthn.map(credential => (
-              <FactorRow key={credential.id} data-testid="mfa-passkey-row">
-                <span>
-                  {credential.friendlyName ?? (
-                    <TranslatedText stringId="mfa.settings.unnamedPasskey" fallback="Passkey" />
-                  )}
-                  <FactorMeta>
-                    <TranslatedText
-                      stringId="mfa.settings.addedOn"
-                      fallback="added :date"
-                      replacements={{ date: formatDate(credential.createdAt) }}
-                    />
-                  </FactorMeta>
-                </span>
-                <TextButton
-                  onClick={() => setRemoveTarget(credential)}
-                  data-testid="mfa-passkey-remove"
-                >
-                  <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                </TextButton>
-              </FactorRow>
-            ))}
-            <OutlinedButton onClick={addPasskey} disabled={busy} data-testid="mfa-add-passkey">
-              <TranslatedText stringId="mfa.settings.addPasskey" fallback="Add a passkey" />
-            </OutlinedButton>
+            {methods.webauthn.map(credential =>
+              renameId === credential.id ? (
+                <FactorRow key={credential.id} data-testid="mfa-passkey-row">
+                  <TextInput
+                    value={renameValue}
+                    onChange={event => setRenameValue(event.target.value)}
+                    data-testid="mfa-rename-input"
+                  />
+                  <span>
+                    <TextButton
+                      onClick={submitRename}
+                      disabled={!renameValue.trim()}
+                      data-testid="mfa-rename-save"
+                    >
+                      <TranslatedText stringId="general.action.save" fallback="Save" />
+                    </TextButton>
+                    <TextButton onClick={() => setRenameId(null)} data-testid="mfa-rename-cancel">
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    </TextButton>
+                  </span>
+                </FactorRow>
+              ) : (
+                <FactorRow key={credential.id} data-testid="mfa-passkey-row">
+                  <span>
+                    {credential.friendlyName ?? (
+                      <TranslatedText stringId="mfa.settings.unnamedPasskey" fallback="Passkey" />
+                    )}
+                    <FactorMeta>
+                      <TranslatedText stringId="mfa.settings.addedOn" fallback="added" />{' '}
+                      <DateDisplay date={credential.createdAt} />
+                    </FactorMeta>
+                  </span>
+                  <span>
+                    <TextButton
+                      onClick={() => startRename(credential)}
+                      data-testid="mfa-passkey-rename"
+                    >
+                      <TranslatedText stringId="general.action.rename" fallback="Rename" />
+                    </TextButton>
+                    <TextButton
+                      onClick={() => setRemoveTarget(credential)}
+                      data-testid="mfa-passkey-remove"
+                    >
+                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                    </TextButton>
+                  </span>
+                </FactorRow>
+              ),
+            )}
+            <AddPasskeyRow>
+              <TextInput
+                value={newPasskeyName}
+                onChange={event => setNewPasskeyName(event.target.value)}
+                placeholder={getTranslation(
+                  'mfa.settings.passkeyName.placeholder',
+                  'Name (e.g. work laptop)',
+                )}
+                data-testid="mfa-passkey-name"
+              />
+              <OutlinedButton onClick={addPasskey} disabled={busy} data-testid="mfa-add-passkey">
+                <TranslatedText stringId="mfa.settings.addPasskey" fallback="Add a passkey" />
+              </OutlinedButton>
+            </AddPasskeyRow>
           </Section>
 
           <Section>
@@ -233,12 +303,28 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                 fallback="Authenticator app"
               />
             </SectionHeading>
-            {methods.totp === null ? (
-              // facility servers don't manage authenticator apps
+            {methods.totp?.confirmed ? (
+              <FactorRow data-testid="mfa-totp-row">
+                <span>
+                  <TranslatedText
+                    stringId="mfa.settings.totpActive"
+                    fallback="An authenticator app is set up."
+                  />
+                  {methods.totp.confirmedAt && (
+                    <FactorMeta>
+                      <TranslatedText stringId="mfa.settings.addedOn" fallback="added" />{' '}
+                      <DateDisplay date={methods.totp.confirmedAt} />
+                    </FactorMeta>
+                  )}
+                </span>
+              </FactorRow>
+            ) : methods.totp === null || methods.totp.managedCentrally ? (
+              // facility servers know whether an app is set up (it syncs) but
+              // can't run the enrolment, which is central-bound
               <BodyText data-testid="mfa-totp-central-only">
                 <TranslatedText
                   stringId="mfa.settings.totpCentralOnly"
-                  fallback="Authenticator apps are managed on the central server. Set one up there, or ask an administrator for an enrolment invite."
+                  fallback="Authenticator apps are set up on the central server. Go there, or ask an administrator for an enrolment invite."
                 />
               </BodyText>
             ) : totpEnrol ? (
@@ -278,15 +364,6 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                   )}
                 />
               </>
-            ) : methods.totp.confirmed ? (
-              <FactorRow data-testid="mfa-totp-row">
-                <span>
-                  <TranslatedText
-                    stringId="mfa.settings.totpActive"
-                    fallback="An authenticator app is set up."
-                  />
-                </span>
-              </FactorRow>
             ) : (
               <OutlinedButton onClick={beginTotpEnrol} data-testid="mfa-add-totp">
                 <TranslatedText

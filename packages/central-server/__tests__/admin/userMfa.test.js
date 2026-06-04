@@ -65,7 +65,9 @@ describe('Admin MFA management and enrolment invites', () => {
 
   describe('status and reset', () => {
     it('reports a user’s factors and clears them on reset', async () => {
-      const victim = await models.User.create(fake(models.User));
+      const victim = await models.User.create(
+        fake(models.User, { totpConfirmedAt: new Date() }),
+      );
       await models.WebAuthnCredential.create({
         userId: victim.id,
         credentialId: `cred-${victim.id}`,
@@ -80,14 +82,22 @@ describe('Admin MFA management and enrolment invites', () => {
 
       const before = await adminAgent.get(`/api/admin/users/${victim.id}/mfa`);
       expect(before.body.webauthn).toHaveLength(1);
-      expect(before.body.totp).toEqual({ enrolled: true, confirmed: true });
+      expect(before.body.totp).toEqual({
+        enrolled: true,
+        confirmed: true,
+        confirmedAt: expect.any(String),
+      });
 
       const reset = await adminAgent.delete(`/api/admin/users/${victim.id}/mfa`);
       expect(reset).toHaveSucceeded();
 
       const after = await adminAgent.get(`/api/admin/users/${victim.id}/mfa`);
       expect(after.body.webauthn).toHaveLength(0);
-      expect(after.body.totp).toEqual({ enrolled: false, confirmed: false });
+      expect(after.body.totp).toEqual({ enrolled: false, confirmed: false, confirmedAt: null });
+
+      // the synced mirror clears with the reset
+      await victim.reload();
+      expect(victim.totpConfirmedAt).toBeNull();
 
       // webauthn rows are tombstoned (must sync out); totp rows are hard
       // deleted (central-only, and the unique index must free up)
@@ -109,6 +119,24 @@ describe('Admin MFA management and enrolment invites', () => {
     it('404s on unknown users', async () => {
       const response = await adminAgent.get('/api/admin/users/no-such-user/mfa');
       expect(response.status).toBe(404);
+    });
+
+    it('reports factor presence in the admin users list', async () => {
+      const listed = await models.User.create(
+        fake(models.User, { totpConfirmedAt: new Date() }),
+      );
+      await models.WebAuthnCredential.create({
+        userId: listed.id,
+        credentialId: `list-cred-${listed.id}`,
+        publicKey: 'dGVzdA',
+        rpId: 'localhost',
+      });
+
+      const listAgent = await baseApp.asNewRole([['list', 'User']]);
+      const response = await listAgent.get('/api/admin/users').query({ email: listed.email });
+      expect(response).toHaveSucceeded();
+      const row = response.body.data.find(user => user.id === listed.id);
+      expect(row.mfa).toEqual({ webauthn: true, totp: true });
     });
   });
 

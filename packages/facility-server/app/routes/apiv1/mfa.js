@@ -107,17 +107,43 @@ mfa.get(
     req.checkPermission('write', 'Mfa');
     await requireMfaEnabled(req);
 
-    // passkeys sync, so the local table is the full set; TOTP state is
-    // central-only and unknowable here — null tells the client it's managed
-    // centrally, not that it's absent
+    // passkeys sync, so the local table is the full set. The TOTP seed is
+    // central-only, but the synced users.totp_confirmed_at mirror tells us
+    // whether a confirmed authenticator app exists; managedCentrally tells
+    // the client enrolment can't run here
     const credentials = await req.models.WebAuthnCredential.findAll({
       where: { userId: req.user.id },
       order: [['createdAt', 'ASC']],
     });
     res.send({
       webauthn: credentials.map(credentialSummary),
-      totp: null,
+      totp: {
+        confirmed: Boolean(req.user.totpConfirmedAt),
+        confirmedAt: req.user.totpConfirmedAt ?? null,
+        managedCentrally: true,
+      },
     });
+  }),
+);
+
+const renameSchema = yup.object({
+  friendlyName: yup.string().trim().min(1).max(100).required(),
+});
+
+mfa.patch(
+  '/webauthn/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Mfa');
+    await requireMfaEnabled(req);
+
+    const { friendlyName } = await renameSchema.validate(req.body);
+    // the rename syncs out with the credential row
+    const [updated] = await req.models.WebAuthnCredential.update(
+      { friendlyName },
+      { where: { id: req.params.id, userId: req.user.id } },
+    );
+    if (!updated) throw new NotFoundError('No such passkey');
+    res.send({ ok: 'ok' });
   }),
 );
 

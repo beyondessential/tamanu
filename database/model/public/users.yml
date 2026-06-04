@@ -93,3 +93,6 @@ sources:
               - dbt_utils.accepted_range:
                   arguments:
                     min_value: 0
+          - name: totp_confirmed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('users__totp_confirmed_at') }}"

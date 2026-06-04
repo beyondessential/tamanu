@@ -191,6 +191,36 @@ describe('MFA self-service', () => {
       const again = await agent.delete(`/api/mfa/webauthn/${credential.id}`);
       expect(again.status).toBe(404);
     });
+
+    it('renames an owned credential, refusing blank names and unknown ids', async () => {
+      const credential = await models.WebAuthnCredential.create({
+        userId: agent.user.id,
+        credentialId: 'rename-credential-id',
+        publicKey: 'dGVzdA',
+        rpId: 'localhost',
+      });
+
+      const rename = await agent
+        .patch(`/api/mfa/webauthn/${credential.id}`)
+        .send({ friendlyName: 'Front desk key' });
+      expect(rename).toHaveSucceeded();
+      await credential.reload();
+      expect(credential.friendlyName).toBe('Front desk key');
+
+      const blank = await agent
+        .patch(`/api/mfa/webauthn/${credential.id}`)
+        .send({ friendlyName: '   ' });
+      expect(blank).toHaveRequestError();
+
+      // someone else's credential is a 404, not a hit
+      const otherAgent = await baseApp.asNewRole([['write', 'Mfa']]);
+      const foreign = await otherAgent
+        .patch(`/api/mfa/webauthn/${credential.id}`)
+        .send({ friendlyName: 'Mine now' });
+      expect(foreign.status).toBe(404);
+
+      await credential.destroy();
+    });
   });
 
   describe('totp', () => {
@@ -219,7 +249,15 @@ describe('MFA self-service', () => {
       expect(confirm).toHaveSucceeded();
 
       const methods = await totpAgent.get('/api/mfa/methods');
-      expect(methods.body.totp).toEqual({ enrolled: true, confirmed: true });
+      expect(methods.body.totp).toEqual({
+        enrolled: true,
+        confirmed: true,
+        confirmedAt: expect.any(String),
+      });
+
+      // the synced mirror on the user row follows, so facilities can show it
+      const mirrorUser = await models.User.findByPk(totpAgent.user.id);
+      expect(mirrorUser.totpConfirmedAt).not.toBeNull();
     });
 
     it('re-enrolling replaces the seed and resets confirmation', async () => {
@@ -234,7 +272,15 @@ describe('MFA self-service', () => {
       expect(stale).toHaveRequestError();
 
       const methods = await totpAgent.get('/api/mfa/methods');
-      expect(methods.body.totp).toEqual({ enrolled: true, confirmed: false });
+      expect(methods.body.totp).toEqual({
+        enrolled: true,
+        confirmed: false,
+        confirmedAt: null,
+      });
+
+      // re-enrolment resets the synced mirror too
+      const mirrorUser = await models.User.findByPk(totpAgent.user.id);
+      expect(mirrorUser.totpConfirmedAt).toBeNull();
     });
 
     it('is refused when availability is off', async () => {

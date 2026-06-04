@@ -49,7 +49,11 @@ userMfaRouter.get(
         createdAt: credential.createdAt,
         lastUsedAt: credential.lastUsedAt,
       })),
-      totp: { enrolled: Boolean(totpSecret), confirmed: Boolean(totpSecret?.confirmedAt) },
+      totp: {
+        enrolled: Boolean(totpSecret),
+        confirmed: Boolean(totpSecret?.confirmedAt),
+        confirmedAt: totpSecret?.confirmedAt ?? null,
+      },
     });
   }),
 );
@@ -63,14 +67,19 @@ userMfaRouter.delete(
     const user = await targetUser(req);
     const { WebAuthnCredential, TotpSecret } = req.store.models;
 
-    await Promise.all([
+    await TotpSecret.sequelize.transaction(async () => {
       // soft: the tombstones must sync out so other servers stop accepting
       // the credentials
-      WebAuthnCredential.destroy({ where: { userId: user.id } }),
+      await WebAuthnCredential.destroy({ where: { userId: user.id } });
       // hard: central-only table with no sync to inform, and a lingering
       // soft-deleted row would block re-enrolment on the unique user_id index
-      TotpSecret.destroy({ where: { userId: user.id }, force: true }),
-    ]);
+      await TotpSecret.destroy({ where: { userId: user.id }, force: true });
+      // and the synced mirror of confirmation state
+      await req.store.models.User.update(
+        { totpConfirmedAt: null },
+        { where: { id: user.id } },
+      );
+    });
     res.send({ ok: 'ok' });
   }),
 );
