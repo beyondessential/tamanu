@@ -32,7 +32,7 @@ const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' }
   padding: 10px;
 `;
 
-const PadWrapper = styled.div.attrs({ 'data-testid': 'signaturefield-pad' })`
+const DrawArea = styled.div.attrs({ 'data-testid': 'signaturefield-draw-area' })`
   aspect-ratio: ${SIGNATURE_VIEWBOX_WIDTH} / ${SIGNATURE_VIEWBOX_HEIGHT};
   background-color: ${p => p.theme.palette.background.default};
   border-radius: ${p => p.theme.shape.borderRadius}px;
@@ -96,7 +96,7 @@ const clientPointToViewBox = (clientX, clientY, rect) => {
 
 export function SignatureField({ disabled, error, field, helperText, label, required }) {
   const value = field.value || '';
-  const padRef = useRef(null);
+  const drawAreaRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
   const [sessionStrokes, setSessionStrokes] = useState([]);
   const [currentStroke, setCurrentStroke] = useState(null);
@@ -127,7 +127,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   };
 
   const handleBlur = event => {
-    if (padRef.current?.contains(event.relatedTarget)) return;
+    if (drawAreaRef.current?.contains(event.relatedTarget)) return;
 
     /**
      * pendingStroke handles the edge case where the tab loses focus mid-stroke, ensuring the last
@@ -156,7 +156,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
 
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    const rect = padRef.current.getBoundingClientRect();
+    const rect = drawAreaRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
     isDrawingRef.current = true;
     setCurrentStroke([point]);
@@ -166,7 +166,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     if (!isDrawingRef.current || !isFocused) return;
 
     event.preventDefault();
-    const rect = padRef.current.getBoundingClientRect();
+    const rect = drawAreaRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
     setCurrentStroke(prev => [...(prev ?? []), point]);
   };
@@ -213,8 +213,8 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
           />
         </InstructionText>
 
-        <PadWrapper
-          ref={padRef}
+        <DrawArea
+          ref={drawAreaRef}
           aria-disabled={disabled}
           tabIndex={disabled ? -1 : 0}
           onFocus={handleFocus}
@@ -244,7 +244,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
               />
             </EmptyOverlay>
           )}
-        </PadWrapper>
+        </DrawArea>
         <ClearButton
           onClick={handleClear}
           disabled={disabled || (!value && !sessionPreviewPath && !currentStroke?.length)}
