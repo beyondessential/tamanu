@@ -89,7 +89,10 @@ export class CentralServerConnection extends TamanuApi {
     return await this.login(email, password, {
       backoff,
       timeout,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      // facility_server is the forwarded-IP trust for the IP policy; central
+      // only grants it when this server's sync user holds create FacilityDevice,
+      // and silently drops it otherwise — requesting it is always safe
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT, DEVICE_SCOPES.FACILITY_SERVER],
     }).then(loginData => {
       return (this.#loginData = loginData);
     });

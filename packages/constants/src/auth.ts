@@ -36,6 +36,11 @@ export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 // we'll all work together to figure this thing out! 🤞
 export const DEVICE_SCOPES = {
   SYNC_CLIENT: 'sync_client',
+  // a facility server's own device: marks a connection trusted to forward
+  // end-client IPs for the IP policy. Never self-acquired — registration or
+  // expansion to this scope requires the authenticating user's role to hold
+  // `create FacilityDevice` (granted deliberately to facility sync users)
+  FACILITY_SERVER: 'facility_server',
 } as const;
 export type DeviceScope = (typeof DEVICE_SCOPES)[keyof typeof DEVICE_SCOPES];
 
