@@ -53,7 +53,7 @@ export async function decompressSignatureBody(base64String) {
 export function isUncompressedSignatureBody(body) {
   if (!body || !body.startsWith('[') || !body.endsWith(']')) return false;
   try {
-    JSON.parse(body);
+    void JSON.parse(body);
     return true;
   } catch (error) {
     return false;
