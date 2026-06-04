@@ -499,7 +499,7 @@ const invokeProgramDefinitionBuild = (aiService, buildInput) =>
 // with explicit corrective guidance, and on persistent failure surface a clean,
 // actionable message — never the raw LangChain parser exception.
 const BUILD_RETRY_GUIDANCE =
-  'Your previous response was rejected because it did not match the required structure (commonly a missing "surveySheets" array). Return the COMPLETE ProgramDefinition as JSON with BOTH a "surveys" array of metadata AND a "surveySheets" array containing every survey and all of its questions. Do not omit or summarise any questions.';
+  'Your previous response did not match the required structure. Return the COMPLETE ProgramDefinition as valid JSON, including every survey and all of its questions in full. Do not omit, summarise, or truncate any part of the form.';
 
 const generateProgramDefinition = async ({
   aiService,
