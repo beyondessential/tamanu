@@ -156,6 +156,26 @@ const COLUMNS = [
     sortable: true,
     accessor: ({ phoneNumber }) => displayFieldOrDash(phoneNumber),
   },
+  {
+    key: 'mfa',
+    title: <TranslatedText stringId="admin.users.mfa.column" fallback="2FA" />,
+    sortable: false,
+    accessor: ({ mfa }) => {
+      const factors = [];
+      if (mfa?.webauthn) {
+        factors.push(
+          <TranslatedText key="passkey" stringId="admin.users.mfa.passkey" fallback="Passkey" />,
+        );
+      }
+      if (mfa?.totp) {
+        factors.push(
+          <TranslatedText key="app" stringId="admin.users.mfa.app" fallback="App" />,
+        );
+      }
+      if (factors.length === 0) return displayFieldOrDash(null);
+      return factors.reduce((parts, factor) => (parts ? [parts, ' + ', factor] : [factor]), null);
+    },
+  },
 ];
 
 export const UserProfilesAdminView = React.memo(() => {

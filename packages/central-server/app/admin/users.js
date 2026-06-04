@@ -78,7 +78,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, UserDesignation, ReferenceData, Role },
+        models: { User, UserDesignation, ReferenceData, Role, WebAuthnCredential, TotpSecret },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page, ...filterParams },
     } = req;
@@ -158,6 +158,17 @@ usersRouter.get(
     });
     const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
+    // factor presence for the MFA column, batched over the page
+    const userIds = users.map(user => user.id);
+    const [webauthnRows, totpRows] = await Promise.all([
+      WebAuthnCredential.findAll({ attributes: ['userId'], where: { userId: userIds } }),
+      TotpSecret.findAll({ attributes: ['userId', 'confirmedAt'], where: { userId: userIds } }),
+    ]);
+    const usersWithPasskeys = new Set(webauthnRows.map(row => row.userId));
+    const usersWithTotp = new Set(
+      totpRows.filter(row => row.confirmedAt).map(row => row.userId),
+    );
+
     res.send({
       count,
       data: await Promise.all(
@@ -180,6 +191,10 @@ usersRouter.get(
             roleName,
             allowedFacilities,
             designations,
+            mfa: {
+              webauthn: usersWithPasskeys.has(user.id),
+              totp: usersWithTotp.has(user.id),
+            },
           };
         }),
       ),
