@@ -406,6 +406,12 @@ The endpoints are useless without somewhere to click. Three surfaces, all PR1:
   status, with *reset* (remove all factors), *generate enrolment invite*
   (copyable token/link), and *in-person provisioning* (hybrid QR). Plus an MFA
   status column in the users table.
+- **Invite redemption page** — *NOT YET BUILT*: a pre-auth page where the
+  invited user enters the token + their email + password to open an enrol
+  session, then runs the passkey/TOTP enrolment UI against the enrol-session
+  endpoints. Until it exists, invite tokens can only be redeemed via the API;
+  the in-person hybrid QR and self-service paths are the usable provisioning
+  routes.
 
 ## Enforcement: force-enrolment, decided
 
