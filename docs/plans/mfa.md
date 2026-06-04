@@ -495,10 +495,24 @@ in `config.proxy.trusted`, `req.ip` is the proxy's own address, which won't matc
 any intranet CIDR, so the MFA exemption simply doesn't apply and everyone gets
 MFA. A spoofed `X-Forwarded-For` cannot manufacture an exemption.
 
-**Where evaluated:** at the point of first contact, since that is where the
-user's real IP is visible — **facility** for facility logins (central only sees
-the facility's IP otherwise), **central** for direct/admin/mobile. CIDR settings
-sync, so a facility evaluates locally even offline.
+**Where evaluated:** the client IP is **captured** at the point of first
+contact — **facility** for facility logins (central only sees the facility's
+IP otherwise), **central** for direct/admin/mobile. The facility enforces
+`auth.ipAllowlist` locally at its own door (synced settings, works offline)
+and **forwards the captured client IP** with login/MFA forwards; central
+evaluates both knobs itself against the same synced settings.
+
+**Trusting the forwarded IP:** central only honours a forwarded client IP
+when the request proves it came from a facility server, else a browser could
+assert an exempt IP directly — a clean MFA bypass. The facility-channel proof
+reuses existing primitives: a new device scope (`facility_server`) carried by
+the facility's own registered device and presented with forwards; devices
+cannot self-upgrade scopes, so acquiring it requires the authenticating
+(sync) user's role to hold a dedicated literal permission, granted
+deliberately by the deployment and never to clinical roles (mobile devices
+register as `sync_client` under end users, who don't have it). Ungranted ⇒
+forwarded IPs ignored ⇒ the exemption never matches facility-mediated logins
+⇒ everyone gets MFA. Fail-closed at every step.
 
 **Deliberate trade-off:** MFA-exempt-by-IP makes *network position* a factor — a
 compromised host inside the trusted range bypasses MFA. This is an accepted
