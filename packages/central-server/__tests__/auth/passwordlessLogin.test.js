@@ -85,6 +85,32 @@ describe('Passwordless login', () => {
     });
   });
 
+  describe('public loginFeatures', () => {
+    it('reports the effective mode for the login screen', async () => {
+      const response = await baseApp.get('/api/public/loginFeatures');
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual({ passwordless: MFA_PASSWORDLESS.ON_REQUEST });
+    });
+
+    it('reports off when MFA is disabled or the rpid does not cover this server', async () => {
+      await models.Setting.set('auth.mfa.enabled', false, SETTINGS_SCOPES.GLOBAL);
+      try {
+        const disabled = await baseApp.get('/api/public/loginFeatures');
+        expect(disabled.body).toEqual({ passwordless: MFA_PASSWORDLESS.OFF });
+      } finally {
+        await models.Setting.set('auth.mfa.enabled', true, SETTINGS_SCOPES.GLOBAL);
+      }
+
+      await models.Setting.set('auth.mfa.webauthn.rpid', 'foo.bar.com', SETTINGS_SCOPES.GLOBAL);
+      try {
+        const outOfZone = await baseApp.get('/api/public/loginFeatures');
+        expect(outOfZone.body).toEqual({ passwordless: MFA_PASSWORDLESS.OFF });
+      } finally {
+        await models.Setting.set('auth.mfa.webauthn.rpid', 'localhost', SETTINGS_SCOPES.GLOBAL);
+      }
+    });
+  });
+
   describe('ceremony', () => {
     it('issues a usernameless challenge: no allowCredentials, UV required', async () => {
       const response = await baseApp.post('/api/login/webauthn/assert-begin');

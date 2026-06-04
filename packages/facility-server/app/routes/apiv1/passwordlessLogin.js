@@ -6,7 +6,8 @@ import * as yup from 'yup';
 import { MFA_PASSWORDLESS } from '@tamanu/constants';
 import { ForbiddenError, InvalidCredentialError } from '@tamanu/errors';
 import { ReadSettings } from '@tamanu/settings';
-import { effectivePasswordlessMode } from '@tamanu/shared/auth/mfaPolicy';
+import { effectivePasswordlessMode, resolveMfaPolicy } from '@tamanu/shared/auth/mfaPolicy';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import {
   beginWebAuthnAssertion,
   finishWebAuthnAssertion,
@@ -73,6 +74,26 @@ passwordlessLogin.post(
     const user = await models.User.findByPk(credential.userId);
     if (!user) {
       throw new InvalidCredentialError('Passkey assertion could not be verified');
+    }
+
+    // belt-and-braces, mirroring central: a UV passkey assertion satisfies the
+    // policy outright, but evaluate it anyway (all inputs are local/synced) so
+    // a future policy change can't be silently bypassed on facilities
+    const permissions = await getPermissionsForRoles(models, user.role);
+    const decision = resolveMfaPolicy({
+      mfaEnabled: true, // the availability gate above already required it
+      authMethod: 'webauthn',
+      totpAvailability: await settings.get('auth.mfa.totp.availability'),
+      webAuthnAvailable: true, // in-zone, per the gate above
+      centralReachable: false, // not needed locally; the conservative input
+      hasWebAuthnCredential: true, // they just asserted with one
+      hasConfirmedTotp: Boolean(user.totpConfirmedAt),
+      mfaRequired: permissions.some(
+        permission => permission.verb === 'require' && permission.noun === 'Mfa',
+      ),
+    });
+    if (decision.kind !== 'none') {
+      throw new ForbiddenError('Multi-factor authentication is required');
     }
 
     const { device } = await models.User.loginFromVerifiedPasskey(

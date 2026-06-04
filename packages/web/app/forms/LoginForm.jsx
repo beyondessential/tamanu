@@ -118,7 +118,7 @@ const LoginFormComponent = ({
   const { getTranslation } = useTranslation();
   const api = useApi();
   const dispatch = useDispatch();
-  const [passkeyError, setPasskeyError] = useState(null);
+  const [passkeyError, setPasskeyError] = useState(false);
 
   // what the server is willing to offer pre-auth (off is server-enforced; this
   // only drives presentation)
@@ -132,7 +132,7 @@ const LoginFormComponent = ({
 
   const signInWithPasskey = useCallback(
     async ({ conditional = false } = {}) => {
-      setPasskeyError(null);
+      setPasskeyError(false);
       try {
         const optionsJSON = await api.beginPasswordlessLogin();
         const assertionResponse = await startAuthentication({
@@ -144,13 +144,13 @@ const LoginFormComponent = ({
       } catch (e) {
         // a conditional (autofill) ceremony aborts routinely — never surface it
         if (!conditional) {
-          setPasskeyError(
-            getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'),
-          );
+          setPasskeyError(true);
         }
       }
     },
-    [api, dispatch, getTranslation],
+    // deliberately small: a new identity here restarts the conditional
+    // (autofill) ceremony via the effect below, aborting an in-flight prompt
+    [api, dispatch],
   );
 
   useEffect(() => {
@@ -191,7 +191,14 @@ const LoginFormComponent = ({
           />
         </LoginSubtext>
         {!!errorMessage && <LoginAlert>{errorMessage}</LoginAlert>}
-        {!!passkeyError && <LoginAlert data-testid="passkey-error">{passkeyError}</LoginAlert>}
+        {passkeyError && (
+          <LoginAlert data-testid="passkey-error">
+            <TranslatedText
+              stringId="mfa.webauthn.error"
+              fallback="Passkey could not be used. Please try again."
+            />
+          </LoginAlert>
+        )}
       </div>
       <StyledField
         name="email"
