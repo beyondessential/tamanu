@@ -114,12 +114,14 @@ export const MessageText = styled.p`
   font-size: 14px;
   line-height: 1.4;
   margin: 0;
+  overflow-wrap: anywhere;
 `;
 
 const AssistantMessage = styled.div`
   color: ${TAMANU_COLORS.darkestText};
   font-size: 14px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 
   > *:first-child {
     margin-block-start: 0;
