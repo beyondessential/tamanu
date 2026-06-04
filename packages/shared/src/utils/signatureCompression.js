@@ -11,13 +11,17 @@
  * Based on https://gist.github.com/Explosion-Scratch/357c2eebd8254f8ea5548b0e6ac7a61b
  */
 
+/**
+ * @typedef {`[[${string}]]` | ''} SignatureAnswerBody JSON string encoding an array of strokes.
+ * Each stroke is an array of points defining the centreline of the stroke.
+ */
+
 /** @satisfies {CompressionFormat} */
 const encoding = /** @type {const} */ ('gzip');
 
 /**
- * @param {`[${string}]` | '' | null | undefined} body Centreline JSON stored in
- * survey_response_answers.body when uncompressed.
- * @returns {Promise<string>} gzip-compressed base64 string for database storage.
+ * @param {SignatureAnswerBody | null | undefined} body
+ * @returns {Promise<string>}
  */
 export async function compressSignatureBody(body) {
   if (!body) return '';
@@ -32,9 +36,8 @@ export async function compressSignatureBody(body) {
 }
 
 /**
- * @param {string | null | undefined} base64String gzip-compressed base64 from
- * survey_response_answers.body.
- * @returns {Promise<'' | `[${string}]`>} centreline JSON
+ * @param {string | null | undefined} base64String
+ * @returns {Promise<SignatureAnswerBody>}
  */
 export async function decompressSignatureBody(base64String) {
   if (!base64String) return '';
