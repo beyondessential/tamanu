@@ -1,6 +1,75 @@
+import * as XLSX from 'xlsx';
+
 import { createTestContext } from '../utilities';
 
 jest.setTimeout(120 * 1000);
+
+// Build a minimal Tamanu program export workbook (Metadata sheet + one survey
+// sheet), matching the format produced by the program exporter.
+const buildProgramExportBuffer = () => {
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([
+      ['programName', 'NCD'],
+      ['programCode', 'ncd'],
+      ['country', ''],
+      ['homeServer', ''],
+      [],
+      [
+        'code',
+        'name',
+        'surveyType',
+        'targetLocationId',
+        'targetDepartmentId',
+        'status',
+        'isSensitive',
+        'visibilityStatus',
+        'notifiable',
+        'notifyEmailAddresses',
+        'visibilityCriteria',
+      ],
+      ['referral', 'Referral form', 'programs', '', '', 'publish', '', '', '', '', ''],
+      // An obsolete survey with no questions: its sheet is empty and should be
+      // skipped rather than aborting the parse.
+      ['referralold', 'Referral form (old)', 'obsolete', '', '', 'publish', '', '', '', '', ''],
+    ]),
+    'Metadata',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([
+      [
+        'code',
+        'type',
+        'name',
+        'text',
+        'detail',
+        'newScreen',
+        'options',
+        'optionLabels',
+        'optionColors',
+        'visibilityCriteria',
+        'validationCriteria',
+        'visualisationConfig',
+        'optionSet',
+        'questionLabel',
+        'detailLabel',
+        'calculation',
+        'config',
+        'visibilityStatus',
+      ],
+      ['referral001', 'FreeText', 'Patient name', 'Patient name', ...Array(14).fill('')],
+    ]),
+    'referral',
+  );
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([['code', 'type', 'name', 'text']]),
+    'referralold',
+  );
+  return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+};
 
 const programDefinition = {
   title: 'Referral form',
@@ -325,6 +394,64 @@ describe('Form Builder Admin', () => {
       text: 'Referral date',
       type: 'Date',
     });
+  });
+
+  it('loads an uploaded program export deterministically without invoking the model', async () => {
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: '' }))
+      .attach('file', buildProgramExportBuffer(), 'program.xlsx');
+
+    expect(response).toHaveSucceeded();
+    // No model call: the export is parsed into a working definition directly.
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+    expect(aiService.invokeStructured).not.toHaveBeenCalled();
+    expect(response.body.programDefinition).toMatchObject({
+      title: 'NCD',
+      programCode: 'ncd',
+      // The obsolete, question-less survey is dropped, keeping arrays consistent.
+      surveys: [{ code: 'referral', name: 'Referral form', surveyType: 'programs' }],
+      surveySheets: [
+        {
+          surveyName: 'Referral form',
+          questions: [
+            { code: 'referral001', type: 'FreeText', name: 'Patient name', text: 'Patient name' },
+          ],
+        },
+      ],
+    });
+    expect(response.body.message).toMatch(/loaded/i);
+    expect(aiService.addSessionMessages).toHaveBeenCalled();
+  });
+
+  it('retries the build once and returns a clean error when it cannot be parsed', async () => {
+    aiService.sendFormBuilderMessage.mockResolvedValueOnce({
+      message: 'Your form is ready to export.',
+      attach_to_program_code: 'ncd',
+      ready: true,
+    });
+    // Mimics the LangChain structured-output failure that previously leaked to
+    // the user verbatim.
+    aiService.invokeStructured.mockRejectedValue(
+      new Error(
+        'Failed to parse. Text: "{...}". Troubleshooting URL: https://docs.langchain.com/oss/javascript/langchain/errors/OUTPUT_PARSING_FAILURE/',
+      ),
+    );
+
+    const startResponse = await app.post('/v1/admin/form-builder/chat').send({
+      async: true,
+      message: 'Export this form',
+    });
+
+    expect(startResponse).toHaveSucceeded();
+    const settled = await pollUntilSettled(startResponse.body.jobId);
+
+    expect(aiService.invokeStructured).toHaveBeenCalledTimes(2);
+    expect(settled.body.status).toBe('failed');
+    expect(settled.body.error.message).toBe(
+      'The form builder could not generate a complete form for this request. Please try again, or make a smaller change at a time.',
+    );
+    expect(settled.body.error.message).not.toContain('OUTPUT_PARSING_FAILURE');
   });
 
   it('applies a fast patch when tweaking an existing preview', async () => {

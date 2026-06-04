@@ -247,6 +247,160 @@ const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessag
 const finaliseProgramDefinition = rawProgramDefinition =>
   programDefinitionSchema.parseAsync(sanitizeProgramDefinitionPreview(rawProgramDefinition));
 
+const cellToString = value => (value == null ? '' : String(value).trim());
+
+const parseBooleanCell = value => {
+  const normalised = cellToString(value).toLowerCase();
+  return normalised === 'true' || normalised === 'yes';
+};
+
+const rowToRecord = (header, row) =>
+  Object.fromEntries(header.map((key, index) => [key, row[index]]));
+
+const buildSurveyMetadataFromRow = record => {
+  const survey = {
+    code: cellToString(record.code),
+    name: cellToString(record.name),
+  };
+  const surveyType = cellToString(record.surveyType);
+  if (surveyType) survey.surveyType = surveyType;
+  const status = cellToString(record.status);
+  if (status) survey.status = status;
+  if (cellToString(record.isSensitive)) survey.isSensitive = parseBooleanCell(record.isSensitive);
+  if (cellToString(record.notifiable)) survey.notifiable = parseBooleanCell(record.notifiable);
+  const notifyEmailAddresses = cellToString(record.notifyEmailAddresses)
+    .split(',')
+    .map(email => email.trim())
+    .filter(Boolean);
+  if (notifyEmailAddresses.length) survey.notifyEmailAddresses = notifyEmailAddresses;
+  const visibilityCriteria = cellToString(record.visibilityCriteria);
+  if (visibilityCriteria) survey.visibilityCriteria = visibilityCriteria;
+  const visibilityStatus = cellToString(record.visibilityStatus);
+  if (visibilityStatus) survey.visibilityStatus = visibilityStatus;
+  return survey;
+};
+
+const QUESTION_STRING_FIELDS = [
+  'options',
+  'visibilityCriteria',
+  'validationCriteria',
+  'detail',
+  'config',
+  'calculation',
+  'visibilityStatus',
+  'visualisationConfig',
+];
+
+const buildQuestionFromRow = record => {
+  const code = cellToString(record.code);
+  const name = cellToString(record.name);
+  const text = cellToString(record.text);
+  // The schema requires non-empty name and text. Real exports populate both,
+  // but fall back to neighbours so a single blank cell doesn't reject an
+  // otherwise valid form (saving is additive, so this never overwrites data).
+  const question = {
+    code,
+    type: cellToString(record.type),
+    name: name || text || code,
+    text: text || name || code,
+  };
+  if (parseBooleanCell(record.newScreen)) question.newScreen = true;
+  for (const field of QUESTION_STRING_FIELDS) {
+    const value = cellToString(record[field]);
+    if (value) question[field] = value;
+  }
+  return question;
+};
+
+const findSurveySheetForCode = (workbook, surveyCode) => {
+  if (workbook.Sheets[surveyCode]) return workbook.Sheets[surveyCode];
+  // Sheet names are capped at 31 characters on write, so a longer survey code
+  // is truncated — match on that prefix as a fallback.
+  const truncated = surveyCode.slice(0, 31);
+  return workbook.Sheets[truncated] ?? null;
+};
+
+// Deterministically parse a Tamanu program export workbook (a Metadata sheet
+// plus one sheet per survey) into the ProgramDefinition shape. Returns null
+// when the file isn't a recognisable program export, so the caller can fall
+// back to the LLM flow.
+const parseProgramExportWorkbook = file => {
+  const workbook = readFile(file);
+  const metadataSheet = workbook.Sheets.Metadata;
+  if (!metadataSheet) return null;
+
+  const metadataRows = utils.sheet_to_json(metadataSheet, { header: 1, blankrows: false });
+  const surveyHeaderIndex = metadataRows.findIndex(
+    row => row[0] === 'code' && row.includes('surveyType'),
+  );
+  if (surveyHeaderIndex === -1) return null;
+
+  const metadata = {};
+  for (let index = 0; index < surveyHeaderIndex; index += 1) {
+    const [key, value] = metadataRows[index];
+    if (typeof key === 'string' && key) metadata[key] = cellToString(value);
+  }
+
+  const surveyHeader = metadataRows[surveyHeaderIndex];
+  const surveyMetadata = metadataRows
+    .slice(surveyHeaderIndex + 1)
+    .filter(row => cellToString(row[0]))
+    .map(row => buildSurveyMetadataFromRow(rowToRecord(surveyHeader, row)));
+  if (!surveyMetadata.length) return null;
+
+  // Exports can include obsolete surveys whose sheets are empty. Skip any
+  // survey without questions rather than aborting — saving is additive, so
+  // dropping an empty survey from the working definition is non-destructive and
+  // keeps `surveys`/`surveySheets` consistent for schema validation.
+  const surveys = [];
+  const surveySheets = [];
+  for (const survey of surveyMetadata) {
+    const sheet = findSurveySheetForCode(workbook, survey.code);
+    if (!sheet) continue;
+    const rows = utils.sheet_to_json(sheet, { header: 1, blankrows: false });
+    if (rows.length < 2) continue;
+    const [questionHeader, ...questionRows] = rows;
+    const questions = questionRows
+      .filter(row => cellToString(row[0]))
+      .map(row => buildQuestionFromRow(rowToRecord(questionHeader, row)));
+    if (!questions.length) continue;
+    surveys.push(survey);
+    surveySheets.push({ surveyName: survey.name, questions });
+  }
+  if (!surveys.length) return null;
+
+  return {
+    title: metadata.programName || metadata.programCode || 'Program',
+    ...(metadata.programCode ? { programCode: metadata.programCode } : {}),
+    ...(metadata.programName ? { programName: metadata.programName } : {}),
+    surveys,
+    surveySheets,
+  };
+};
+
+// Parse and validate an uploaded program export into a working definition, or
+// return null when the file can't be read as one.
+const loadProgramDefinitionFromUpload = async ({ file, fileName }) => {
+  if (!file) return null;
+  if (!WORKBOOK_FILE_EXTENSIONS.has(extname(fileName || '').toLowerCase())) return null;
+  try {
+    const rawProgramDefinition = parseProgramExportWorkbook(file);
+    if (!rawProgramDefinition) return null;
+    return await finaliseProgramDefinition(rawProgramDefinition);
+  } catch (error) {
+    log.warn({ error }, 'AI form builder could not parse uploaded file as a program export');
+    return null;
+  }
+};
+
+const buildProgramLoadedMessage = programDefinition => {
+  const surveyCount = programDefinition.surveys.length;
+  const programName = programDefinition.programName || programDefinition.title;
+  return `I've loaded "${programName}" from your file — it has ${surveyCount} survey${
+    surveyCount === 1 ? '' : 's'
+  }. Tell me which questions you'd like to add, remove, or change.`;
+};
+
 const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
 
 const findSurveySheet = (programDefinition, surveyName) => {
@@ -332,6 +486,21 @@ const serializeChatJobError = error => ({
   status: error?.status,
 });
 
+const invokeProgramDefinitionBuild = (aiService, buildInput) =>
+  aiService.invokeStructured(
+    AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
+    buildInput,
+    programDefinitionSchema,
+    { name: 'form_builder_program_definition' },
+  );
+
+// The model sometimes returns a partial definition (most often omitting the
+// surveySheets array), which fails structured-output validation. We retry once
+// with explicit corrective guidance, and on persistent failure surface a clean,
+// actionable message — never the raw LangChain parser exception.
+const BUILD_RETRY_GUIDANCE =
+  'Your previous response was rejected because it did not match the required structure (commonly a missing "surveySheets" array). Return the COMPLETE ProgramDefinition as JSON with BOTH a "surveys" array of metadata AND a "surveySheets" array containing every survey and all of its questions. Do not omit or summarise any questions.';
+
 const generateProgramDefinition = async ({
   aiService,
   currentProgramDefinition,
@@ -346,14 +515,25 @@ const generateProgramDefinition = async ({
     sessionId,
     userMessage,
   });
-  return finaliseProgramDefinition(
-    await aiService.invokeStructured(
-      AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
-      buildInput,
-      programDefinitionSchema,
-      { name: 'form_builder_program_definition' },
-    ),
-  );
+
+  try {
+    return await finaliseProgramDefinition(await invokeProgramDefinitionBuild(aiService, buildInput));
+  } catch (error) {
+    log.warn(
+      { error },
+      'AI form builder build failed to parse, retrying once with corrective guidance',
+    );
+    try {
+      return await finaliseProgramDefinition(
+        await invokeProgramDefinitionBuild(aiService, `${buildInput}\n\n[IMPORTANT] ${BUILD_RETRY_GUIDANCE}`),
+      );
+    } catch (retryError) {
+      log.warn({ error: retryError }, 'AI form builder build retry failed');
+      throw new InvalidOperationError(
+        'The form builder could not generate a complete form for this request. Please try again, or make a smaller change at a time.',
+      );
+    }
+  }
 };
 
 // Attempt a targeted patch against the current program definition. Returns the
@@ -409,6 +589,54 @@ const processChatRequest = async ({
       existingSessionId && (await aiService.hasSession(existingSessionId))
         ? existingSessionId
         : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
+
+    // An uploaded Tamanu program export is parsed deterministically into a
+    // working definition. This seeds the targeted tweak path for subsequent
+    // edits instead of regenerating the entire (often huge) program from
+    // scratch — which the model can't reliably do in one structured response.
+    if (!currentProgramDefinition) {
+      const uploadedDefinition = await loadProgramDefinitionFromUpload({ file, fileName });
+      if (uploadedDefinition) {
+        const editRequest = message?.trim();
+        // If the user described an edit alongside the upload, apply it now.
+        if (editRequest) {
+          const tweakResult = await tryTweakProgramDefinition({
+            aiService,
+            currentProgramDefinition: uploadedDefinition,
+            userMessage: editRequest,
+          });
+          if (tweakResult) {
+            await aiService
+              .addSessionMessages(sessionId, {
+                userMessage,
+                assistantMessage: tweakResult.message,
+              })
+              .catch(error => {
+                log.warn({ error }, 'AI form builder failed to persist upload-edit chat history');
+              });
+            return {
+              sessionId,
+              message: tweakResult.message,
+              attachToProgramCode: null,
+              programDefinition: tweakResult.programDefinition,
+            };
+          }
+        }
+
+        const loadedMessage = buildProgramLoadedMessage(uploadedDefinition);
+        await aiService
+          .addSessionMessages(sessionId, { userMessage, assistantMessage: loadedMessage })
+          .catch(error => {
+            log.warn({ error }, 'AI form builder failed to persist uploaded program chat history');
+          });
+        return {
+          sessionId,
+          message: loadedMessage,
+          attachToProgramCode: null,
+          programDefinition: uploadedDefinition,
+        };
+      }
+    }
 
     if (currentProgramDefinition) {
       const tweakResult = await tryTweakProgramDefinition({
