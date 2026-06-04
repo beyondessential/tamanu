@@ -22,7 +22,7 @@ import asyncHandler from 'express-async-handler';
 import { omit } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { decompressSignatureBody } from '@tamanu/shared/utils/signatureCompression';
 
