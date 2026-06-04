@@ -2,7 +2,7 @@
 
 import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
-import { prepareSignatureBodyForStorage } from './signatureCompression';
+import { compressSignatureBody } from './signatureCompression';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 
 /**
@@ -19,7 +19,7 @@ export async function getStringValue(type, value) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
-      return prepareSignatureBodyForStorage(`${value}`);
+      return compressSignatureBody(`${value}`);
     default:
       return `${value}`;
   }

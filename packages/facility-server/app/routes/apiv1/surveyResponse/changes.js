@@ -24,7 +24,7 @@ import { QueryTypes } from 'sequelize';
 
 import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { prepareSignatureBodyForApi } from '@tamanu/shared/utils/signatureCompression';
+import { decompressSignatureBody } from '@tamanu/shared/utils/signatureCompression';
 
 /**
  * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.
@@ -122,8 +122,8 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
 
         const isSignature =
           revision.programDataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
-        const from = isSignature ? await prepareSignatureBodyForApi(diff.from) : diff.from;
-        const to = isSignature ? await prepareSignatureBodyForApi(diff.to) : diff.to;
+        const from = isSignature ? await decompressSignatureBody(diff.from) : diff.from;
+        const to = isSignature ? await decompressSignatureBody(diff.to) : diff.to;
 
         // Done with revision number; omit from response
         return { ...omit(revision, '_revision'), from, to };

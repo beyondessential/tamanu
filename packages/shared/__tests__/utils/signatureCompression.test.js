@@ -3,9 +3,6 @@ import { expect } from 'chai';
 import {
   compressSignatureBody,
   decompressSignatureBody,
-  isUncompressedSignatureBody,
-  prepareSignatureBodyForApi,
-  prepareSignatureBodyForStorage,
 } from '../../src/utils/signatureCompression';
 
 describe('signatureCompression', () => {
@@ -25,25 +22,12 @@ describe('signatureCompression', () => {
     expect(await decompressSignatureBody('')).to.equal('');
   });
 
-  it('detects uncompressed centreline JSON', () => {
-    expect(isUncompressedSignatureBody('[[1,2]]')).to.be.true;
-    expect(isUncompressedSignatureBody('H4sIAAAA')).to.be.false;
-    expect(isUncompressedSignatureBody('')).to.be.false;
-  });
-
-  it('prepare helpers round-trip storage and API formats', async () => {
+  it('storage compress and API decompress round-trip', async () => {
     const body = '[[10,20]]';
-    const stored = await prepareSignatureBodyForStorage(body);
+    const stored = await compressSignatureBody(body);
     expect(stored).not.to.equal(body);
 
-    const apiBody = await prepareSignatureBodyForApi(stored);
+    const apiBody = await decompressSignatureBody(stored);
     expect(apiBody).to.equal(body);
-  });
-
-  it('prepare helpers pass through empty values', async () => {
-    expect(await prepareSignatureBodyForStorage('')).to.equal('');
-    expect(await prepareSignatureBodyForApi('')).to.equal('');
-    expect(await prepareSignatureBodyForStorage(null)).to.equal('');
-    expect(await prepareSignatureBodyForApi(null)).to.equal('');
   });
 });

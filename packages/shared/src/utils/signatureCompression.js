@@ -45,35 +45,3 @@ export async function decompressSignatureBody(base64String) {
   const arrayBuffer = await new Response(cs.readable).arrayBuffer();
   return new TextDecoder().decode(arrayBuffer);
 }
-
-/**
- * @param {string | null | undefined} body
- * @returns {body is `[${string}]`}
- */
-export function isUncompressedSignatureBody(body) {
-  if (!body || !body.startsWith('[') || !body.endsWith(']')) return false;
-  try {
-    void JSON.parse(body);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-/**
- * Compresses centreline JSON for database storage. Passes through empty and already-compressed values.
- * @param {string | null | undefined} body
- */
-export async function prepareSignatureBodyForStorage(body) {
-  if (!body || !isUncompressedSignatureBody(body)) return body ?? '';
-  return compressSignatureBody(body);
-}
-
-/**
- * Decompresses a stored signature body for API responses. Passes through empty and plain JSON.
- * @param {string | null | undefined} body
- */
-export async function prepareSignatureBodyForApi(body) {
-  if (!body || isUncompressedSignatureBody(body)) return body ?? '';
-  return decompressSignatureBody(body);
-}
