@@ -7,7 +7,13 @@ import {
 
 describe('signatureCompression', () => {
   it('round-trips centreline JSON', async () => {
-    const body = '[[240,75],[242,76],[245,80]]';
+    const body = JSON.stringify([
+      [
+        [240, 75],
+        [242, 76],
+        [245, 80],
+      ],
+    ]);
 
     const compressed = await compressSignatureBody(body);
     expect(compressed).to.be.a('string');
