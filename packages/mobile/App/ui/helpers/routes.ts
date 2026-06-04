@@ -19,6 +19,7 @@ export const Routes = {
     Index: '',
     Intro: '',
     SignIn: '',
+    MfaTotp: '',
     SelectFacility: '',
     ResetPassword: '',
     ChangePassword: '',

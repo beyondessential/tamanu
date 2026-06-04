@@ -7,6 +7,7 @@ import { IntroScreen } from '../screens/signup/Intro';
 import { SignIn } from '../screens/signup/SignIn';
 import { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
 
+import { MfaTotp } from '../screens/signup/MfaTotp';
 import { ResetPassword } from '../screens/signup/ResetPassword';
 import { ChangePassword } from '../screens/signup/ChangePassword';
 
@@ -29,6 +30,11 @@ export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
       <Stack.Screen
         name={Routes.SignUpStack.SignIn}
         component={SignIn}
+        options={TransitionStyle}
+      />
+      <Stack.Screen
+        name={Routes.SignUpStack.MfaTotp}
+        component={MfaTotp}
         options={TransitionStyle}
       />
       <Stack.Screen
