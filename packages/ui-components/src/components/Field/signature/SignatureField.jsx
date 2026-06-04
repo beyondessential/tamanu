@@ -13,6 +13,7 @@ import {
   SIGNATURE_VIEWBOX_WIDTH,
 } from './pathUtils';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
+import { RequiredOrnament } from '../..';
 
 const Label = styled.label`
   color: ${p => p.theme.palette.text.secondary};
@@ -21,12 +22,6 @@ const Label = styled.label`
   font-weight: 500;
   line-height: 1.3;
   margin-block-end: 4px;
-
-  &:has(input:required)::after {
-    color: ${p => p.theme.palette.error.main};
-    content: '*' / '${p => p.$requiredAlt}';
-    margin-inline-start: 3px;
-  }
 `;
 
 const Container = styled.div.attrs({ 'data-testid': 'signaturefield-container' })`
@@ -198,8 +193,9 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
 
   return (
     <>
-      <Label $requiredAlt={getTranslation('general.label.required', 'Required')}>
+      <Label>
         {label}
+        {required && <RequiredOrnament />}
         <HiddenInput {...field} disabled={disabled} required={required} value={value} />
       </Label>
       <Container aria-describedby={helperTextId}>
