@@ -424,6 +424,65 @@ describe('Form Builder Admin', () => {
     expect(aiService.addSessionMessages).toHaveBeenCalled();
   });
 
+  it('resolves survey sheets whose names were normalised on export', async () => {
+    // The metadata holds the raw survey code, but the worksheet name strips
+    // Excel-forbidden characters (as the AI form builder does via createSheetName).
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([
+        ['programName', 'NCD'],
+        ['programCode', 'ncd'],
+        ['country', ''],
+        ['homeServer', ''],
+        [],
+        ['code', 'name', 'surveyType', 'status'],
+        ['ref/1', 'Referral form', 'programs', 'publish'],
+      ]),
+      'Metadata',
+    );
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([
+        ['code', 'type', 'name', 'text'],
+        ['referral001', 'FreeText', 'Patient name', 'Patient name'],
+      ]),
+      'ref1',
+    );
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: '' }))
+      .attach('file', buffer, 'program.xlsx');
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.programDefinition).toMatchObject({
+      surveys: [{ code: 'ref/1', name: 'Referral form' }],
+      surveySheets: [{ surveyName: 'Referral form', questions: [{ code: 'referral001' }] }],
+    });
+  });
+
+  it('loads the program and reports back when an upload-bundled edit cannot be applied', async () => {
+    // The tweak attempt fails (the model errors), so the edit can't be applied.
+    aiService.invokeStructured.mockRejectedValueOnce(new Error('tweak unavailable'));
+
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'make it better somehow' }))
+      .attach('file', buildProgramExportBuffer(), 'program.xlsx');
+
+    expect(response).toHaveSucceeded();
+    // The edit isn't silently dropped: the user is told it wasn't applied...
+    expect(response.body.message).toMatch(/couldn't apply/i);
+    // ...and the program is still seeded so a follow-up can use the tweak path.
+    expect(response.body.programDefinition).toMatchObject({
+      programCode: 'ncd',
+      surveys: [{ code: 'referral' }],
+    });
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+  });
+
   it('retries the build once and returns a clean error when it cannot be parsed', async () => {
     aiService.sendFormBuilderMessage.mockResolvedValueOnce({
       message: 'Your form is ready to export.',

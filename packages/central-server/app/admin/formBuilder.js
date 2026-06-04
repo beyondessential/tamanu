@@ -312,12 +312,22 @@ const buildQuestionFromRow = record => {
   return question;
 };
 
+// Resolve the worksheet for a survey code. Sheet names are capped at 31
+// characters and cannot contain Excel-forbidden characters. The program
+// exporter writes the raw survey code, while the AI form builder normalises it
+// (strips :/\?*[] then truncates via createSheetName) — try each form so
+// re-uploaded AI workbooks resolve too.
+const sheetNameCandidatesForCode = surveyCode => [
+  surveyCode,
+  surveyCode.slice(0, 31),
+  surveyCode.replace(/[:/\\?*[\]]/g, '').slice(0, 31),
+];
+
 const findSurveySheetForCode = (workbook, surveyCode) => {
-  if (workbook.Sheets[surveyCode]) return workbook.Sheets[surveyCode];
-  // Sheet names are capped at 31 characters on write, so a longer survey code
-  // is truncated — match on that prefix as a fallback.
-  const truncated = surveyCode.slice(0, 31);
-  return workbook.Sheets[truncated] ?? null;
+  for (const candidate of sheetNameCandidatesForCode(surveyCode)) {
+    if (workbook.Sheets[candidate]) return workbook.Sheets[candidate];
+  }
+  return null;
 };
 
 // Deterministically parse a Tamanu program export workbook (a Metadata sheet
@@ -399,6 +409,11 @@ const buildProgramLoadedMessage = programDefinition => {
   return `I've loaded "${programName}" from your file — it has ${surveyCount} survey${
     surveyCount === 1 ? '' : 's'
   }. Tell me which questions you'd like to add, remove, or change.`;
+};
+
+const buildProgramLoadedEditNotAppliedMessage = programDefinition => {
+  const programName = programDefinition.programName || programDefinition.title;
+  return `I've loaded "${programName}" from your file, but I couldn't apply that change automatically. Tell me which survey and question to change and the new wording, and I'll update it.`;
 };
 
 const cloneProgramDefinition = programDefinition => JSON.parse(JSON.stringify(programDefinition));
@@ -598,29 +613,30 @@ const processChatRequest = async ({
       const uploadedDefinition = await loadProgramDefinitionFromUpload({ file, fileName });
       if (uploadedDefinition) {
         const editRequest = message?.trim();
-        // If the user described an edit alongside the upload, apply it now.
+        // If the user described an edit alongside the upload, try to apply it
+        // now. A failed tweak still seeds the (unmodified) definition and tells
+        // the user the change wasn't applied, so their request isn't silently
+        // dropped — a follow-up then runs through the tweak path.
         if (editRequest) {
           const tweakResult = await tryTweakProgramDefinition({
             aiService,
             currentProgramDefinition: uploadedDefinition,
             userMessage: editRequest,
           });
-          if (tweakResult) {
-            await aiService
-              .addSessionMessages(sessionId, {
-                userMessage,
-                assistantMessage: tweakResult.message,
-              })
-              .catch(error => {
-                log.warn({ error }, 'AI form builder failed to persist upload-edit chat history');
-              });
-            return {
-              sessionId,
-              message: tweakResult.message,
-              attachToProgramCode: null,
-              programDefinition: tweakResult.programDefinition,
-            };
-          }
+          const assistantMessage = tweakResult
+            ? tweakResult.message
+            : buildProgramLoadedEditNotAppliedMessage(uploadedDefinition);
+          await aiService
+            .addSessionMessages(sessionId, { userMessage, assistantMessage })
+            .catch(error => {
+              log.warn({ error }, 'AI form builder failed to persist upload-edit chat history');
+            });
+          return {
+            sessionId,
+            message: assistantMessage,
+            attachToProgramCode: null,
+            programDefinition: tweakResult ? tweakResult.programDefinition : uploadedDefinition,
+          };
         }
 
         const loadedMessage = buildProgramLoadedMessage(uploadedDefinition);
