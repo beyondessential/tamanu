@@ -11,6 +11,7 @@ import {
   Modal,
   MODAL_PADDING_TOP_AND_BOTTOM,
   ModalContent,
+  TranslatedReferenceData,
   TranslatedText,
   VisuallyHidden,
 } from '@tamanu/ui-components';
@@ -106,7 +107,13 @@ const RowHeader = styled.th.attrs({ scope: 'row' })`
 function ChangeLogListItem({ change, ...props }) {
   return (
     <ListItem data-testid={`changelog-item-${change.id}`} {...props}>
-      <Heading>{change.programDataElement.name}</Heading>
+      <Heading>
+        <TranslatedReferenceData
+          category="programDataElement"
+          value={change.programDataElement.id}
+          fallback={change.programDataElement.name}
+        />
+      </Heading>
       <table>
         <TableHead />
         <tbody>
