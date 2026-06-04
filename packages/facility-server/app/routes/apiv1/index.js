@@ -38,6 +38,7 @@ import { location } from './location';
 import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
+import { mfa } from './mfa';
 import { mfaLogin } from './mfaLogin';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
@@ -137,6 +138,10 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use(constructPermission);
   
   apiv1.use(attachAuditUserToDbSession);
+  
+  // self-service MFA for the logged-in user (the pre-auth /mfa/login
+  // completion routes are registered above, before authMiddleware)
+  apiv1.use('/mfa', mfa);
   
   apiv1.delete(
     '/admin/settings/cache',

@@ -1,0 +1,307 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import QRCode from 'qrcode';
+import { startRegistration } from '@simplewebauthn/browser';
+import * as yup from 'yup';
+
+import { Modal, Form, FormGrid, FormSubmitButton, OutlinedButton, TextButton, TextField, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, Field } from '.';
+import { Colors } from '../constants';
+import { useTranslation } from '../contexts/Translation';
+import { useApi } from '../api';
+import { ConfirmModal } from './ConfirmModal';
+
+const Section = styled.div`
+  padding: 12px 0;
+  border-bottom: 1px solid ${Colors.outline};
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const SectionHeading = styled.div`
+  font-size: 15px;
+  font-weight: 500;
+  color: ${Colors.darkestText};
+  margin-bottom: 8px;
+`;
+
+const FactorRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  color: ${Colors.darkText};
+`;
+
+const FactorMeta = styled.span`
+  color: ${Colors.midText};
+  font-size: 12px;
+  margin-left: 8px;
+`;
+
+const Qr = styled.img`
+  display: block;
+  width: 180px;
+  height: 180px;
+  margin: 10px auto;
+`;
+
+const ManualKey = styled.code`
+  display: block;
+  text-align: center;
+  word-break: break-all;
+  font-size: 12px;
+  color: ${Colors.midText};
+  margin-bottom: 10px;
+`;
+
+const ErrorText = styled(BodyText)`
+  color: ${Colors.alert};
+`;
+
+const formatDate = value => (value ? new Date(value).toLocaleDateString() : null);
+
+/**
+ * Self-service security methods management. The methods response doubles as
+ * the capability probe: totp === null means this server doesn't manage
+ * authenticator apps (facility — they're central-side), and a 403 means MFA
+ * is disabled or the user may not manage factors.
+ */
+export const MfaSettingsModal = ({ open, onClose }) => {
+  const api = useApi();
+  const { getTranslation } = useTranslation();
+
+  const [methods, setMethods] = useState(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  // TOTP enrolment in progress: otpauth URI + its QR rendering
+  const [totpEnrol, setTotpEnrol] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [removeTarget, setRemoveTarget] = useState(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      setMethods(await api.get('mfa/methods'));
+      setUnavailable(false);
+    } catch (e) {
+      setMethods(null);
+      setUnavailable(true);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+    setTotpEnrol(null);
+    refresh();
+  }, [open, refresh]);
+
+  useEffect(() => {
+    if (!totpEnrol) return;
+    QRCode.toDataURL(totpEnrol)
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(null));
+  }, [totpEnrol]);
+
+  const addPasskey = async () => {
+    setError(null);
+    setBusy(true);
+    try {
+      const optionsJSON = await api.post('mfa/webauthn/register-begin');
+      const registrationResponse = await startRegistration({ optionsJSON });
+      await api.post('mfa/webauthn/register-finish', { registrationResponse });
+      await refresh();
+    } catch (e) {
+      setError(getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const beginTotpEnrol = async () => {
+    setError(null);
+    try {
+      const { otpauthUrl } = await api.post('mfa/totp/enrol');
+      setTotpEnrol(otpauthUrl);
+    } catch (e) {
+      setError(getTranslation('mfa.totp.enrolError', 'Could not start authenticator setup.'));
+    }
+  };
+
+  const confirmTotp = async ({ code }, { setSubmitting }) => {
+    setError(null);
+    try {
+      await api.post('mfa/totp/confirm', { code });
+      setTotpEnrol(null);
+      await refresh();
+    } catch (e) {
+      setError(getTranslation('mfa.totp.codeError', 'Incorrect code. Please try again.'));
+      setSubmitting(false);
+    }
+  };
+
+  const removePasskey = async () => {
+    setError(null);
+    try {
+      await api.delete(`mfa/webauthn/${removeTarget.id}`);
+      setRemoveTarget(null);
+      await refresh();
+    } catch (e) {
+      setRemoveTarget(null);
+      setError(getTranslation('mfa.remove.error', 'Could not remove this method.'));
+    }
+  };
+
+  // the manual fallback for QR: the base32 secret from the otpauth URI
+  const manualKey = totpEnrol ? new URLSearchParams(totpEnrol.split('?')[1] ?? '').get('secret') : null;
+
+  return (
+    <Modal
+      title={
+        <TranslatedText stringId="mfa.settings.title" fallback="Two-factor authentication" />
+      }
+      open={open}
+      onClose={onClose}
+      data-testid="mfa-settings-modal"
+    >
+      {!!error && <ErrorText data-testid="mfa-settings-error">{error}</ErrorText>}
+
+      {unavailable && (
+        <BodyText data-testid="mfa-settings-unavailable">
+          <TranslatedText
+            stringId="mfa.settings.unavailable"
+            fallback="Two-factor authentication is not available on this server, or you do not have permission to manage it."
+          />
+        </BodyText>
+      )}
+
+      {methods && (
+        <>
+          <Section>
+            <SectionHeading>
+              <TranslatedText stringId="mfa.settings.passkeys" fallback="Passkeys" />
+            </SectionHeading>
+            {methods.webauthn.length === 0 && (
+              <BodyText>
+                <TranslatedText stringId="mfa.settings.noPasskeys" fallback="No passkeys yet." />
+              </BodyText>
+            )}
+            {methods.webauthn.map(credential => (
+              <FactorRow key={credential.id} data-testid="mfa-passkey-row">
+                <span>
+                  {credential.friendlyName ?? (
+                    <TranslatedText stringId="mfa.settings.unnamedPasskey" fallback="Passkey" />
+                  )}
+                  <FactorMeta>
+                    <TranslatedText
+                      stringId="mfa.settings.addedOn"
+                      fallback="added :date"
+                      replacements={{ date: formatDate(credential.createdAt) }}
+                    />
+                  </FactorMeta>
+                </span>
+                <TextButton
+                  onClick={() => setRemoveTarget(credential)}
+                  data-testid="mfa-passkey-remove"
+                >
+                  <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                </TextButton>
+              </FactorRow>
+            ))}
+            <OutlinedButton onClick={addPasskey} disabled={busy} data-testid="mfa-add-passkey">
+              <TranslatedText stringId="mfa.settings.addPasskey" fallback="Add a passkey" />
+            </OutlinedButton>
+          </Section>
+
+          <Section>
+            <SectionHeading>
+              <TranslatedText
+                stringId="mfa.settings.authenticatorApp"
+                fallback="Authenticator app"
+              />
+            </SectionHeading>
+            {methods.totp === null ? (
+              // facility servers don't manage authenticator apps
+              <BodyText data-testid="mfa-totp-central-only">
+                <TranslatedText
+                  stringId="mfa.settings.totpCentralOnly"
+                  fallback="Authenticator apps are managed on the central server. Set one up there, or ask an administrator for an enrolment invite."
+                />
+              </BodyText>
+            ) : totpEnrol ? (
+              <>
+                <BodyText>
+                  <TranslatedText
+                    stringId="mfa.totp.enrolInstructions"
+                    fallback="Scan this QR code with your authenticator app, then enter the 6-digit code."
+                  />
+                </BodyText>
+                {qrDataUrl && <Qr src={qrDataUrl} alt="" data-testid="mfa-totp-qr" />}
+                {manualKey && <ManualKey data-testid="mfa-totp-manual-key">{manualKey}</ManualKey>}
+                <Form
+                  onSubmit={confirmTotp}
+                  validationSchema={yup.object({ code: yup.string().required() })}
+                  render={() => (
+                    <FormGrid columns={1}>
+                      <Field
+                        name="code"
+                        label={
+                          <TranslatedText
+                            stringId="mfa.totp.code.label"
+                            fallback="Authenticator code"
+                          />
+                        }
+                        component={TextField}
+                        placeholder={getTranslation('mfa.totp.code.placeholder', '123456')}
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        required
+                        data-testid="mfa-totp-code"
+                      />
+                      <FormSubmitButton type="submit" data-testid="mfa-totp-submit">
+                        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                      </FormSubmitButton>
+                    </FormGrid>
+                  )}
+                />
+              </>
+            ) : methods.totp.confirmed ? (
+              <FactorRow data-testid="mfa-totp-row">
+                <span>
+                  <TranslatedText
+                    stringId="mfa.settings.totpActive"
+                    fallback="An authenticator app is set up."
+                  />
+                </span>
+              </FactorRow>
+            ) : (
+              <OutlinedButton onClick={beginTotpEnrol} data-testid="mfa-add-totp">
+                <TranslatedText
+                  stringId="mfa.settings.addTotp"
+                  fallback="Set up an authenticator app"
+                />
+              </OutlinedButton>
+            )}
+          </Section>
+        </>
+      )}
+
+      <ConfirmModal
+        open={Boolean(removeTarget)}
+        title={<TranslatedText stringId="mfa.remove.title" fallback="Remove passkey" />}
+        text={
+          <TranslatedText
+            stringId="mfa.remove.text"
+            fallback="You will no longer be able to use this passkey to log in."
+          />
+        }
+        onConfirm={removePasskey}
+        onCancel={() => setRemoveTarget(null)}
+        data-testid="mfa-remove-confirm"
+      />
+    </Modal>
+  );
+};
