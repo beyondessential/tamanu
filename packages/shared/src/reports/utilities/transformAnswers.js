@@ -118,6 +118,11 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
   }
 };
 
+/** @param {`[${string}]`} answer */
+async function convertSignatureAnswer(answer) {
+  return await decompressSignatureBody(answer);
+}
+
 export const getAnswerBody = async (
   models,
   componentConfig,
@@ -168,7 +173,7 @@ export const getAnswerBody = async (
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
-      result = await decompressSignatureBody(answer);
+      result = await convertSignatureAnswer(answer);
       break;
     default:
       result = answer;
