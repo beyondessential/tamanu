@@ -186,6 +186,14 @@ describe('Login with MFA', () => {
       expect(response).toBeForbidden();
     });
 
+    it('refuses /skip when the enrolment is not skippable', async () => {
+      // skip is only allowed for IP-exempt users (skippable: true), which is
+      // never the case until IP-exemption ships — prove the guard now, since
+      // the endpoint is already reachable with a valid enrol token
+      const response = await baseApp.post('/api/mfa/login/skip').send({ mfaToken });
+      expect(response).toBeForbidden();
+    });
+
     it('enrolling and confirming TOTP completes the login', async () => {
       const enrol = await baseApp.post('/api/mfa/login/totp/enrol').send({ mfaToken });
       expect(enrol).toHaveSucceeded();

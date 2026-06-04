@@ -78,7 +78,16 @@ sync, and offline behaviour.
   story. At assertion, offer the user's credential list (or discoverable creds).
 - Public keys are safe to sync, so the table is **`BIDIRECTIONAL`**: a credential
   enrolled at a facility flows up to central and back down to siblings, and any
-  in-zone server can verify offline.
+  in-zone server can verify offline. (As a BIDIRECTIONAL model it must implement
+  `buildSyncLookupQueryDetails` — returning `null`, like other sync-everywhere
+  tables — or the sync_lookup refresh throws.)
+- **Mobile needs no local table for it.** Mobile builds its pull list from its
+  own models and central snapshots only the requested tables
+  (`filterModelsFromName` in `setupSnapshotForPull`), so a table mobile has no
+  model for is never requested, never pushed, never an error — it just doesn't
+  sync there. That's the right outcome: mobile can't use web-origin passkeys
+  anyway (mobile WebAuthn is its own deferred effort). No mobile TypeORM
+  migration is required by this table.
 
 #### RP ID and the "can this server do WebAuthn locally?" predicate
 
@@ -344,6 +353,15 @@ chosen: noun **`Mfa`** = acting on *your own* MFA, noun **`UserMfa`** = acting o
 - **Login response** (`packages/central-server/app/auth/login.js`,
   facility `auth.js`) gains fields to express "MFA required, here are your
   available factors / challenge" so web and mobile can drive the second step.
+- **Pending pass**: a paused login withholds the access and refresh tokens and
+  returns a short-lived JWT (~5 min, audience `mfa_login`) scoped to the
+  `/mfa/login` completion endpoints only — long-lived credentials are minted
+  only once the factor is satisfied. It carries `deviceId` so the completion's
+  token gets the right claim (the client also echoes `deviceId` in the
+  completion body for the facility path). The pass is **not yet single-use** —
+  within its lifetime it could be redeemed more than once (only ever yielding
+  another session for the same user); making it single-use is a noted follow-up
+  (see Follow-ups).
 
 ## Enrollment flow
 
@@ -659,3 +677,14 @@ Three sequenced PRs in one effort (nothing deprioritised):
 
 All design decisions are settled. Remaining items are build-time UX/detail only
 (e.g. exact interstitial copy and layout).
+
+## Follow-ups (within this effort, not yet done)
+
+- **Single-use `mfa_login` pass.** Today it's short-lived but reusable within
+  its window. Make it single-use (a nonce stored in `mfa_challenges`, consumed
+  on the terminal completion step) so a paused-login pass can't mint more than
+  one session.
+- **Facility-server integration tests for the `/mfa/login` forwarding routes.**
+  The central side is covered; the facility forwarders (`forwardAndFinalise`:
+  local user mirror + device registration + facility token) are not, for want
+  of a central-connection mock harness in facility route tests.

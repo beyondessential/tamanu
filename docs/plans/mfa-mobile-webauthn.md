@@ -106,6 +106,12 @@ expectation to set.
    checked — decision: not enforced offline (consistent with today's offline
    password fallback) vs hard block. Until this plan ships, that user's second
    factor on mobile is **TOTP** (online), per the main plan.
+6. **Local TypeORM `webauthn_credentials` table — only needed when this plan is
+   built, not before.** The server table is `BIDIRECTIONAL`, but mobile only
+   pulls tables it has models for (central snapshots just the requested tables),
+   so until mobile has a model the table simply isn't synced there — no error.
+   When mobile passkeys are implemented, this plan adds the TypeORM model +
+   migration; nothing is needed from the main MFA PR.
 
 ## Library
 

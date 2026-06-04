@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as jose from 'jose';
 import * as yup from 'yup';
+import { Op } from 'sequelize';
 import { compare } from 'bcrypt';
 
 import { JWT_TOKEN_TYPES, MFA_CHALLENGE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -60,16 +61,28 @@ enrolInvite.post(
     const user = await models.User.getForAuthByEmail(email);
     if (!user) fail();
 
-    const invite = await models.MfaChallenge.findOne({
-      where: { type: MFA_CHALLENGE_TYPES.ENROL_INVITE, token, userId: user.id, usedAt: null },
-    });
-    if (!invite || invite.isExpired()) fail();
-
     // brute-forcing the password here requires a live invite in hand, and the
-    // route sits behind the auth rate limiter
+    // route sits behind the auth rate limiter. Checked before claiming so a
+    // wrong password doesn't burn the invite.
     if (!(await compare(password, user.password ?? ''))) fail();
 
-    await invite.update({ usedAt: new Date() });
+    // claim the invite atomically: a single UPDATE that only matches a live,
+    // unused, unexpired row, so two concurrent redemptions can't both win
+    // (returning the row count is the single-use guarantee — a findOne+update
+    // pair would race)
+    const [claimedCount] = await models.MfaChallenge.update(
+      { usedAt: new Date() },
+      {
+        where: {
+          type: MFA_CHALLENGE_TYPES.ENROL_INVITE,
+          token,
+          userId: user.id,
+          usedAt: null,
+          expiresAt: { [Op.gt]: new Date() },
+        },
+      },
+    );
+    if (claimedCount === 0) fail();
 
     const enrolToken = await buildToken({ userId: user.id }, config.auth.secret, {
       issuer: config.canonicalHostName,

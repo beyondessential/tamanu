@@ -65,6 +65,10 @@ export class WebAuthnCredential extends Model {
     return null; // syncs everywhere — public keys, verifiable offline at any in-zone server
   }
 
+  static async buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
+
   static initRelations(models: Models) {
     this.belongsTo(models.User, {
       foreignKey: {
