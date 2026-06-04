@@ -2,7 +2,6 @@ import { FormHelperText, Typography } from '@mui/material';
 import React, { useCallback, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { useTranslation } from '../../../contexts';
 import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
 import { TextButton } from '../../Button';
 import { RequiredOrnament } from '../../RequiredOrnament';
@@ -102,7 +101,6 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   const [sessionStrokes, setSessionStrokes] = useState([]);
   const [currentStroke, setCurrentStroke] = useState(null);
   const isDrawingRef = useRef(false);
-  const { getTranslation } = useTranslation();
   const helperTextId = useId();
 
   const setValue = useCallback(
