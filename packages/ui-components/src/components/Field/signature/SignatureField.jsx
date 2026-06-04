@@ -2,16 +2,16 @@ import { FormHelperText, Typography } from '@mui/material';
 import React, { useCallback, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
-import { TextButton } from '../../Button';
-import { RequiredOrnament } from '../../RequiredOrnament';
-import { TranslatedText } from '../../Translation';
 import {
   bodyToDisplayPath,
   mergeStrokesIntoBody,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-} from './pathUtils';
+} from '@tamanu/shared/utils/signaturePathUtils';
+import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
+import { TextButton } from '../../Button';
+import { RequiredOrnament } from '../../RequiredOrnament';
+import { TranslatedText } from '../../Translation';
 import { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
 
 const Label = styled.label`

@@ -2,6 +2,7 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
+import { SignaturePdfDisplay } from './SignaturePdfDisplay';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
@@ -113,22 +114,28 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
 
 const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
+  const isSignature = type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
+
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text bold style={[pageStyles.itemText]}>
-        {getAnswers({
-          answer,
-          type,
-          getTranslation,
-          dataElementId,
-          config,
-          originalBody,
-          formatShort,
-        })}
-      </Text>
+      {isSignature ? (
+        <SignaturePdfDisplay body={answer} />
+      ) : (
+        <Text bold style={[pageStyles.itemText]}>
+          {getAnswers({
+            answer,
+            type,
+            getTranslation,
+            dataElementId,
+            config,
+            originalBody,
+            formatShort,
+          })}
+        </Text>
+      )}
     </View>
   );
 };

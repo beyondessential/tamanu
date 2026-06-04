@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import {
   bodyToDrawPaths,
   SIGNATURE_VIEWBOX,
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
-} from './pathUtils';
+} from '@tamanu/shared/utils/signaturePathUtils';
 
 export const SignatureSvg = styled.svg.attrs({
   preserveAspectRatio: 'xMidYMid meet',

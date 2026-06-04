@@ -1,18 +1,19 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
-import React from 'react';
-import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import React from 'react';
 import { toast } from 'react-toastify';
-import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import * as yup from 'yup';
+
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
-import { convertToBase64 } from '@tamanu/utils/encodings';
+import { estimateCompressedSize } from '@tamanu/shared/utils/signaturePathUtils';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
+import { convertToBase64 } from '@tamanu/utils/encodings';
 import { TranslatedText } from '../components/Translation';
-import { estimateCompressedSize } from '../components/Field/signature/pathUtils';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });

@@ -112,16 +112,16 @@ function concatenateSvgPaths(...paths) {
     .join(' ');
 }
 
-/** @returns {SignatureAnswerBody} A single `d` command which draws the entire signature. */
+/** @returns {string} A single `d` command which draws the entire signature. */
 export function bodyToDisplayPath(body) {
   return concatenateSvgPaths(...bodyToDrawPaths(body));
 }
 
 /**
- * @privateRemarks Emulates `compressSignatureBody` from
- * `@tamanu/shared/utils/signatureCompression`. Used in frontend only for form validation to flag
- * extremely complex signatures that may exceed database index size limit.
- * @param {`SignatureAnswerBody | null | undefined} body Centreline JSON stored in
+ * @privateRemarks Emulates `compressSignatureBody` from `./signatureCompression`. Used in
+ * frontend only for form validation to flag extremely complex signatures that may exceed database
+ * index size limit.
+ * @param {SignatureAnswerBody | null | undefined} body Centreline JSON stored in
  * `survey_response_answers.body` when uncompressed.
  * @returns {Promise<number>} Length after Gzip compression, encoded in Base64, for database storage
  */

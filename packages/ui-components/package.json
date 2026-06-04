@@ -16,8 +16,8 @@
     "build": "echo 'builds with client frontend'"
   },
   "dependencies": {
-    "@tamanu/utils": "*",
-    "perfect-freehand": "^1.2.3"
+    "@tamanu/shared": "*",
+    "@tamanu/utils": "*"
   },
   "peerDependencies": {
     "@material-ui/core": "^4.12.4",
