@@ -11,7 +11,9 @@ describe('Facility MFA self-service', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    agent = await baseApp.asNewRole([['write', 'Mfa']]);
+    // CI runs facility tests with hardcoded permissions: practitioner has
+    // write Mfa, base does not (asNewRole DB roles don't exist there)
+    agent = await baseApp.asRole('practitioner');
 
     await models.Setting.set('auth.mfa.enabled', true, SETTINGS_SCOPES.GLOBAL);
     // the test server's canonicalHostName defaults to localhost
@@ -42,7 +44,7 @@ describe('Facility MFA self-service', () => {
     });
 
     it('forbids users without write Mfa', async () => {
-      const lowPrivilegeAgent = await baseApp.asNewRole([]);
+      const lowPrivilegeAgent = await baseApp.asRole('base');
       const responses = await Promise.all([
         lowPrivilegeAgent.post('/api/mfa/webauthn/register-begin'),
         lowPrivilegeAgent.post('/api/mfa/webauthn/register-finish').send({}),
@@ -169,7 +171,7 @@ describe('Facility MFA self-service', () => {
 
     it("cannot delete another user's passkey", async () => {
       const { models: m } = ctx;
-      const otherAgent = await baseApp.asNewRole([['write', 'Mfa']]);
+      const otherAgent = await baseApp.asRole('practitioner');
       const otherUser = await m.User.findOne({ where: { email: otherAgent.user.email } });
       const credential = await m.WebAuthnCredential.create({
         userId: otherUser.id,
