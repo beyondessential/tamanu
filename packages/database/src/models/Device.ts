@@ -143,28 +143,29 @@ export class Device extends Model {
         // or as an upgrade. Ungranted requests degrade rather than fail —
         // the scope is dropped and the device works as a plain sync client —
         // so deployments that haven't opted in are unaffected.
-        let effectiveScopes = scopes;
-        if (scopes.includes(DEVICE_SCOPES.FACILITY_SERVER)) {
-          const granted =
-            (await this.sequelize.models.Permission.count({
-              where: { roleId: user.role, verb: 'create', noun: 'FacilityDevice' },
-            })) > 0;
-          if (!granted) {
-            effectiveScopes = scopes.filter(scope => scope !== DEVICE_SCOPES.FACILITY_SERVER);
-          }
-        }
+        const facilityScopeGranted =
+          scopes.includes(DEVICE_SCOPES.FACILITY_SERVER) &&
+          (await this.sequelize.models.Permission.count({
+            where: { roleId: user.role, verb: 'create', noun: 'FacilityDevice' },
+          })) > 0;
+        const effectiveScopes =
+          scopes.includes(DEVICE_SCOPES.FACILITY_SERVER) && !facilityScopeGranted
+            ? scopes.filter(scope => scope !== DEVICE_SCOPES.FACILITY_SERVER)
+            : scopes;
 
         const syncDevice = await Device.findByPk(deviceId);
         if (syncDevice) {
           const requestedNew = difference(effectiveScopes, syncDevice.scopes);
           if (requestedNew.length > 0) {
             // devices never self-upgrade; the only permitted expansion is the
-            // permission-gated facility_server scope filtered above
-            if (requestedNew.every(scope => scope === DEVICE_SCOPES.FACILITY_SERVER)) {
-              await syncDevice.update({ scopes: [...syncDevice.scopes, ...requestedNew] });
-            } else {
+            // single permission-gated facility_server scope (anything
+            // ungranted was already filtered out of effectiveScopes above)
+            const onlyTheFacilityScope =
+              requestedNew.length === 1 && requestedNew[0] === DEVICE_SCOPES.FACILITY_SERVER;
+            if (!onlyTheFacilityScope) {
               throw new AuthPermissionError('Requested more scopes than the device has');
             }
+            await syncDevice.update({ scopes: [...syncDevice.scopes, ...requestedNew] });
           }
 
           await syncDevice.markSeen();

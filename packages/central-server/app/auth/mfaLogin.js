@@ -16,7 +16,7 @@ import {
 } from '@tamanu/shared/auth/webauthnCeremonies';
 
 import { sendLoginSuccessResponse } from './login';
-import { isIpExempt, resolveClientIp } from './clientIp';
+import { assertIpAllowed, isIpExempt, resolveClientIp } from './clientIp';
 import {
   getWebAuthnContext,
   requireMfaEnabled,
@@ -39,6 +39,16 @@ import { confirmTotp, enrolTotp, verifyTotp } from './totp';
  */
 
 export const mfaLogin = express.Router();
+
+// completions are part of a login: the IP allowlist applies here exactly as
+// at /login, or an exfiltrated pending pass could be finished from a blocked
+// network (the facility mounts its gate on the whole /mfa/login path too)
+mfaLogin.use(
+  asyncHandler(async (req, _res, next) => {
+    await assertIpAllowed(req, await resolveClientIp(req));
+    next();
+  }),
+);
 
 const pendingFromBody = async req => {
   const mfaToken = req.body?.mfaToken;

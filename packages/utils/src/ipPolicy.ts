@@ -51,3 +51,10 @@ export function isValidCidr(value: unknown): boolean {
     return false;
   }
 }
+
+/**
+ * Whether a string is a syntactically valid IP address (v4 or v6).
+ */
+export function isValidIpAddress(value: unknown): boolean {
+  return typeof value === 'string' && ipaddr.isValid(value);
+}

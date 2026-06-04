@@ -163,6 +163,38 @@ describe('IP policy', () => {
       expect(response).toHaveSucceeded();
     });
 
+    it('exempts MFA by the forwarded client IP — the facility-mediated case', async () => {
+      // the primary use case: a facility user inside the trusted intranet
+      // range skips the challenge, decided at central from the forwarded IP
+      await setGlobal('auth.mfa.enabled', true);
+      await setGlobal('auth.mfa.ipExempt', ['10.0.0.0/8']);
+      const confirmedAt = new Date();
+      const user = await makeUser({ totpConfirmedAt: confirmedAt });
+      await models.TotpSecret.create({ userId: user.id, secret: 'S1:AAAA:BBBB', confirmedAt });
+
+      try {
+        const exempt = await baseApp
+          .post('/api/login')
+          .set('X-Tamanu-Client-Ip', '10.1.2.3')
+          .set('X-Tamanu-Forwarder-Auth', forwarderToken)
+          .send({ email: user.email, password: PASSWORD, deviceId: 'fwd-exempt-device' });
+        expect(exempt).toHaveSucceeded();
+        expect(exempt.body.mfaPending).toBeUndefined();
+        expect(exempt.body.token).toEqual(expect.any(String));
+
+        // same request without the forwarder credential: evaluated as
+        // loopback, outside the exempt range, so the challenge applies
+        const challenged = await baseApp
+          .post('/api/login')
+          .set('X-Tamanu-Client-Ip', '10.1.2.3')
+          .send({ email: user.email, password: PASSWORD, deviceId: 'fwd-exempt-device' });
+        expect(challenged.body.mfaPending).toBeTruthy();
+      } finally {
+        await setGlobal('auth.mfa.ipExempt', []);
+        await setGlobal('auth.mfa.enabled', false);
+      }
+    });
+
     it('ignores the forwarded IP without a trusted forwarder credential', async () => {
       const user = await makeUser();
       await setGlobal('auth.ipAllowlist', ['10.0.0.0/8']);

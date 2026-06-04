@@ -17,6 +17,7 @@ import { version } from '../../package.json';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
+import { getForwarderConnection } from '../sync/forwarderConnection';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -113,10 +114,10 @@ export async function centralServerLogin({
 }) {
   // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
-  // the forwarder credential comes from the facility's OWN session (its
-  // device id), separate from this user-credentialed login call
+  // the forwarder credential comes from the facility's OWN session (the
+  // shared forwarder connection), separate from this user-credentialed login
   const forwarderHeaders = req
-    ? await new CentralServerConnection({ deviceId: facilityDeviceId }).forwarderHeaders(req)
+    ? await getForwarderConnection(facilityDeviceId).forwarderHeaders(req)
     : {};
   const response = await centralServer.login(email, password, {
     scopes: [],

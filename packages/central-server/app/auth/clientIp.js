@@ -4,7 +4,7 @@ import * as jose from 'jose';
 
 import { DEVICE_SCOPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
-import { ipMatchesCidrList } from '@tamanu/utils';
+import { ipMatchesCidrList, isValidIpAddress } from '@tamanu/utils';
 
 /**
  * The end-client IP for IP-policy decisions (auth.ipAllowlist,
@@ -26,7 +26,9 @@ export const FORWARDER_AUTH_HEADER = 'x-tamanu-forwarder-auth';
 export async function resolveClientIp(req) {
   const forwardedIp = req.get(CLIENT_IP_HEADER);
   const forwarderToken = req.get(FORWARDER_AUTH_HEADER);
-  if (!forwardedIp || !forwarderToken) return req.ip;
+  // defence in depth: never let a non-IP header value flow downstream, even
+  // though the CIDR matcher would reject it anyway
+  if (!forwardedIp || !isValidIpAddress(forwardedIp) || !forwarderToken) return req.ip;
 
   try {
     const { payload } = await jose.jwtVerify(
