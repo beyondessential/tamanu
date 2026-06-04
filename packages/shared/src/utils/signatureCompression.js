@@ -21,7 +21,7 @@ const encoding = /** @type {const} */ ('gzip');
 
 /**
  * @param {SignatureAnswerBody | null | undefined} body
- * @returns {Promise<string>}
+ * @returns {Promise<string>} `body`, Gzip-compressed then encoded in Base64
  */
 export async function compressSignatureBody(body) {
   if (!body) return '';
@@ -32,7 +32,10 @@ export async function compressSignatureBody(body) {
   writer.write(byteArray);
   writer.close();
   const buffer = await new Response(cs.readable).arrayBuffer();
-  return Buffer.from(buffer).toString('base64');
+
+  return typeof Uint8Array.prototype.toBase64 === 'function'
+    ? new Uint8Array(buffer).toBase64() // Requires Node 25+. Fine in supported Chromium versions.
+    : Buffer.from(buffer).toString('base64');
 }
 
 /**
@@ -49,4 +52,14 @@ export async function decompressSignatureBody(base64String) {
   writer.close();
   const arrayBuffer = await new Response(cs.readable).arrayBuffer();
   return new TextDecoder().decode(arrayBuffer);
+}
+
+/**
+ * Used in frontend only for form validation to flag extremely complex signatures that may exceed
+ * database index size limit.
+ * @param {SignatureAnswerBody | null | undefined} body
+ * @returns {Promise<number>} Length of compressed `body`
+ */
+export async function estimateCompressedSize(body) {
+  return (await compressSignatureBody(body)).length;
 }
