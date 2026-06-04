@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+import { startAuthentication } from '@simplewebauthn/browser';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -14,12 +17,16 @@ import {
   Form,
   FormGrid,
   FormSubmitButton,
+  OutlinedButton,
   TextButton,
 } from '@tamanu/ui-components';
+import { MFA_PASSWORDLESS } from '@tamanu/constants';
 import { Colors } from '../constants/styles';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useApi } from '../api';
+import { passwordlessLogin } from '../store';
 
 export const LoginAlert = styled(({ children, ...props }) => (
   <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
@@ -42,6 +49,12 @@ const LoginHeading = styled(Typography)`
 const LoginSubtext = styled(BodyText)`
   color: ${Colors.midText};
   padding-top: 10px;
+`;
+
+const PasskeyLoginButton = styled(OutlinedButton)`
+  font-size: 14px;
+  line-height: 18px;
+  padding: 12px 0;
 `;
 
 const LoginButton = styled(FormSubmitButton)`
@@ -103,6 +116,49 @@ const LoginFormComponent = ({
   rememberEmail,
 }) => {
   const { getTranslation } = useTranslation();
+  const api = useApi();
+  const dispatch = useDispatch();
+  const [passkeyError, setPasskeyError] = useState(null);
+
+  // what the server is willing to offer pre-auth (off is server-enforced; this
+  // only drives presentation)
+  const { data: loginFeatures } = useQuery({
+    queryKey: ['loginFeatures'],
+    queryFn: () => api.get('public/loginFeatures'),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const passwordlessMode = loginFeatures?.passwordless ?? MFA_PASSWORDLESS.OFF;
+
+  const signInWithPasskey = useCallback(
+    async ({ conditional = false } = {}) => {
+      setPasskeyError(null);
+      try {
+        const optionsJSON = await api.beginPasswordlessLogin();
+        const assertionResponse = await startAuthentication({
+          optionsJSON,
+          useBrowserAutofill: conditional,
+        });
+        await dispatch(passwordlessLogin(assertionResponse));
+        // success unmounts this form
+      } catch (e) {
+        // a conditional (autofill) ceremony aborts routinely — never surface it
+        if (!conditional) {
+          setPasskeyError(
+            getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'),
+          );
+        }
+      }
+    },
+    [api, dispatch, getTranslation],
+  );
+
+  useEffect(() => {
+    // promoted: actively offer passkeys from the email field's autofill
+    if (passwordlessMode === MFA_PASSWORDLESS.PROMOTED) {
+      signInWithPasskey({ conditional: true });
+    }
+  }, [passwordlessMode, signInWithPasskey]);
 
   const removeValidation = () => {
     setFieldError('email', '');
@@ -135,6 +191,7 @@ const LoginFormComponent = ({
           />
         </LoginSubtext>
         {!!errorMessage && <LoginAlert>{errorMessage}</LoginAlert>}
+        {!!passkeyError && <LoginAlert data-testid="passkey-error">{passkeyError}</LoginAlert>}
       </div>
       <StyledField
         name="email"
@@ -150,7 +207,7 @@ const LoginFormComponent = ({
         component={TextField}
         placeholder={getTranslation('login.email.placeholder', 'Enter your email address')}
         onChange={() => removeValidation()}
-        autoComplete="off"
+        autoComplete="username webauthn"
         enablePasting
         data-testid="styledfield-dwnl"
       />
@@ -197,6 +254,14 @@ const LoginFormComponent = ({
         }
         data-testid="loginbutton-gx21"
       />
+      {passwordlessMode !== MFA_PASSWORDLESS.OFF && (
+        <PasskeyLoginButton
+          onClick={() => signInWithPasskey()}
+          data-testid="passwordless-login-button"
+        >
+          <TranslatedText stringId="login.passkey.label" fallback="Sign in with a passkey" />
+        </PasskeyLoginButton>
+      )}
       <LanguageSelector data-testid="languageselector-9z0j" />
       <ForgotPasswordButton
         onClick={onNavToResetPassword}

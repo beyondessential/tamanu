@@ -327,6 +327,32 @@ export class TamanuApi {
     return await this.#handleLoginResponse(response, {});
   }
 
+  /**
+   * Begin a passwordless (usernameless) passkey login: returns the WebAuthn
+   * request options for the browser/platform to answer. Pre-auth.
+   */
+  async beginPasswordlessLogin(): Promise<any> {
+    return await this.post(
+      'login/webauthn/assert-begin',
+      {},
+      { useAuthToken: false, waitForAuth: false },
+    );
+  }
+
+  /**
+   * Finish a passwordless passkey login: a verified assertion is the complete
+   * credential, so the server answers with the full login payload, finalised
+   * into a session exactly as a password login would be.
+   */
+  async finishPasswordlessLogin(assertionResponse: object): Promise<LoginResponse> {
+    const response = (await this.post(
+      'login/webauthn/assert-finish',
+      { assertionResponse, deviceId: this.deviceId },
+      { returnResponse: true, useAuthToken: false, waitForAuth: false },
+    )) as Response;
+    return (await this.#handleLoginResponse(response, {})) as LoginResponse;
+  }
+
   async fetchUserData(
     permissions: string[],
     config: FetchOptions = {},

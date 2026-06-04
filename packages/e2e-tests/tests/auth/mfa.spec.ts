@@ -169,6 +169,41 @@ test.describe('MFA login', () => {
     await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
   });
 
+  test('[MFA-0005] passwordless: enrol a passkey, then sign in with it alone', async ({
+    page,
+  }) => {
+    test.skip(
+      !selfServiceEmail,
+      'set MFA_SELFSERVICE_EMAIL/PASSWORD (write Mfa, no factor) to run; needs auth.mfa.passwordless != off',
+    );
+    const settingsPage = new MfaSettingsPage(page);
+
+    // arrange: enrol a passkey the ordinary way (password login + modal)
+    await new LoginPage(page).goto();
+    await page.locator('input[name="email"]').fill(selfServiceEmail);
+    await page.locator('input[name="password"]').fill(selfServicePassword);
+    await page.getByTestId('loginbutton-gx21').click();
+    await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
+    await settingsPage.openFromKebab();
+    await settingsPage.addPasskey(1, 'Passwordless key');
+    await page.keyboard.press('Escape');
+    await new SidebarPage(page).logOutButton.click();
+
+    try {
+      // act: no email, no password — the passkey IS the login. The virtual
+      // authenticator is discoverable + user-verifying, so the usernameless
+      // ceremony resolves the account on its own
+      await new LoginPage(page).goto();
+      await page.getByTestId('passwordless-login-button').click();
+      await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
+    } finally {
+      // clean up so the user is factorless for re-runs
+      await settingsPage.openFromKebab();
+      await settingsPage.removeFirstPasskey(0);
+      await page.keyboard.press('Escape');
+    }
+  });
+
   test('[MFA-0004] enrolment invite: admin issues, user redeems at the login screen', async ({
     page,
   }) => {
