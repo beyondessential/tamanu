@@ -1,4 +1,15 @@
-/* Based on https://gist.github.com/Explosion-Scratch/357c2eebd8254f8ea5548b0e6ac7a61b */
+/*
+ * - survey_response_answers.body for Signature questions is a JSON array of points, representing
+ *   centrelines of the strokes in the signature.
+ *   e.g.`[[240,75],[242,76],[245,80]]`
+ * - survey_response_answers.body is TEXT column, which has huge limit (64 KiB), but table has index
+ *   on the column, which constrains it to 8 KiB.
+ * - Uncompressed, a very complex signature may exceed 8 KiB, so we apply compression. (Gzip for
+ *   compression; encoded as Base64 for TEXT column.)
+ * - Uncompressed Signature data not meaningful to query on anyway.
+ *
+ * Based on https://gist.github.com/Explosion-Scratch/357c2eebd8254f8ea5548b0e6ac7a61b
+ */
 
 /** @satisfies {CompressionFormat} */
 const encoding = /** @type {const} */ ('gzip');
