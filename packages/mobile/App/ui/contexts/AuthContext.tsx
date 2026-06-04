@@ -17,6 +17,7 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
+import { MfaPending } from '~/services/sync';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -30,7 +31,14 @@ interface AuthContextData {
   user: IUser;
   ability: PureAbility;
   signedIn: boolean;
-  signIn: (params: SyncConnectionParameters) => Promise<void>;
+  signIn: (params: SyncConnectionParameters) => Promise<'success' | 'mfa'>;
+  // set while a sign-in is paused for a second factor
+  mfaPending: MfaPending | null;
+  // non-terminal MFA step, e.g. 'totp/enrol' to get the otpauth URI
+  beginMfaSignInStep: (path: string, body?: Record<string, unknown>) => Promise<any>;
+  // terminal MFA step ('totp' or 'totp/confirm'); signs the user in on success
+  completeMfaSignIn: (path: string, body?: Record<string, unknown>) => Promise<void>;
+  cancelMfaSignIn: () => void;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
   signOutClient: (signedOutFromInactivity: boolean) => void;
@@ -63,6 +71,13 @@ const Provider = ({
   const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
   const [preventSignOutOnFailure, setPreventSignOutOnFailure] = useState(false);
+  // a sign-in paused for a second factor: the pending state from the server,
+  // plus the original connection params (the password is needed again to save
+  // the local user once the factor is satisfied)
+  const [mfaSignIn, setMfaSignIn] = useState<{
+    pending: MfaPending;
+    params: SyncConnectionParameters;
+  } | null>(null);
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -103,22 +118,39 @@ const Provider = ({
       password: params.password,
     };
     setPreventSignOutOnFailure(true);
-    await remoteSignIn(payload);
+    const status = await remoteSignIn(payload);
+    if (status === 'mfa') {
+      // a reconnect can't drive the MFA screen from here: drop the pending
+      // state and ask the user to log in again, which runs the full flow
+      setMfaSignIn(null);
+      throw new Error('Your account requires a second factor. Please log in again.');
+    }
     backend.syncManager.triggerSync();
   };
 
-  const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+  const finaliseSignIn = ({ user: usr, settings: stngs, token, refreshToken }): void => {
     setToken(token);
-    setSettings(settings);
+    setSettings(stngs);
     setRefreshToken(refreshToken);
     signInAs(usr);
   };
 
-  const signIn = async (params: SyncConnectionParameters): Promise<void> => {
+  const remoteSignIn = async (params: SyncConnectionParameters): Promise<'success' | 'mfa'> => {
+    const result = await backend.auth.remoteSignIn(params);
+    if (result.mfaPending) {
+      setMfaSignIn({ pending: result.mfaPending, params });
+      return 'mfa';
+    }
+    finaliseSignIn(result);
+    return 'success';
+  };
+
+  const signIn = async (params: SyncConnectionParameters): Promise<'success' | 'mfa'> => {
     const network = await NetInfo.fetch();
+    let status: 'success' | 'mfa' = 'success';
     if (network.isConnected) {
-      await remoteSignIn(params);
+      status = await remoteSignIn(params);
+      if (status === 'mfa') return status;
     } else {
       await localSignIn(params);
     }
@@ -128,6 +160,39 @@ const Provider = ({
     if (facilityId) {
       backend.syncManager.triggerSync(); // we deliberately don't await this
     }
+    return status;
+  };
+
+  const beginMfaSignInStep = async (
+    path: string,
+    body: Record<string, unknown> = {},
+  ): Promise<any> => {
+    if (!mfaSignIn) throw new Error('No sign-in is awaiting a second factor');
+    return backend.auth.beginMfaSignInStep(mfaSignIn.pending.token, path, body);
+  };
+
+  const completeMfaSignIn = async (
+    path: string,
+    body: Record<string, unknown> = {},
+  ): Promise<void> => {
+    if (!mfaSignIn) throw new Error('No sign-in is awaiting a second factor');
+    const result = await backend.auth.completeMfaSignIn(
+      mfaSignIn.params,
+      mfaSignIn.pending.token,
+      path,
+      body,
+    );
+    finaliseSignIn(result);
+    setMfaSignIn(null);
+
+    const facilityId = await readConfig('facilityId', '');
+    if (facilityId) {
+      backend.syncManager.triggerSync(); // we deliberately don't await this
+    }
+  };
+
+  const cancelMfaSignIn = (): void => {
+    setMfaSignIn(null);
   };
 
   const signOut = (): void => {
@@ -208,6 +273,10 @@ const Provider = ({
       value={{
         setUserFirstSignIn,
         signIn,
+        mfaPending: mfaSignIn?.pending ?? null,
+        beginMfaSignInStep,
+        completeMfaSignIn,
+        cancelMfaSignIn,
         signOut,
         reconnectWithPassword,
         signOutClient,

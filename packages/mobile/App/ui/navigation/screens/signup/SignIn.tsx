@@ -122,6 +122,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
                 buttonUrl: error.updateUrl,
               });
             }}
+            onMfaRequired={(): void => {
+              navigation.navigate(Routes.SignUpStack.MfaTotp);
+            }}
             onSuccess={(): void => {
               if (!facilityId) {
                 navigation.navigate(Routes.SignUpStack.SelectFacility);

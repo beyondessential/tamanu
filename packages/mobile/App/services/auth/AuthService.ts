@@ -132,6 +132,18 @@ export class AuthService {
   }
 
   /**
+   * A non-terminal MFA step ('totp/enrol' returns the otpauth URI to set the
+   * authenticator app up with); no session handling.
+   */
+  async beginMfaSignInStep(
+    mfaToken: string,
+    path: string,
+    body: Record<string, unknown> = {},
+  ): Promise<any> {
+    return this.centralServer.completeMfaLogin(path, mfaToken, body);
+  }
+
+  /**
    * Complete a paused login from the TOTP step, then finalise the session the
    * same way a plain remote sign-in does. `path` is relative to mfa/login
    * ('totp' to verify, 'totp/enrol'/'totp/confirm' for forced enrolment).
