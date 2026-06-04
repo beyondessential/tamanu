@@ -143,6 +143,23 @@ const readWorkbookContext = file => {
   }).join('\n\n');
 };
 
+// Detect an uploaded Tamanu program export: a workbook with a Metadata sheet
+// whose survey table header (a row starting with "code" that includes
+// "surveyType") marks it as an exported program rather than a new-form source.
+const isProgramExportUpload = ({ file, fileName }) => {
+  if (!file) return false;
+  if (!WORKBOOK_FILE_EXTENSIONS.has(extname(fileName || '').toLowerCase())) return false;
+  try {
+    const metadataSheet = readFile(file).Sheets.Metadata;
+    if (!metadataSheet) return false;
+    const rows = utils.sheet_to_json(metadataSheet, { header: 1, blankrows: false });
+    return rows.some(row => row[0] === 'code' && row.includes('surveyType'));
+  } catch (error) {
+    log.warn({ error }, 'AI form builder could not inspect uploaded workbook');
+    return false;
+  }
+};
+
 const sanitizeFileNameForPrompt = fileName => {
   if (!fileName) return undefined;
 
@@ -409,6 +426,26 @@ const processChatRequest = async ({
       existingSessionId && (await aiService.hasSession(existingSessionId))
         ? existingSessionId
         : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
+
+    // The form builder only creates new forms; it can't update an existing
+    // program yet (saving would create a duplicate survey rather than versioning
+    // the original). Tell the user plainly instead of attempting a rebuild.
+    if (isProgramExportUpload({ file, fileName })) {
+      const message =
+        "I can't update an existing program yet — I can only help you build a new form. " +
+        'Remove the uploaded program export and describe the form you would like to create.';
+      await aiService
+        .addSessionMessages(sessionId, { userMessage, assistantMessage: message })
+        .catch(error => {
+          log.warn({ error }, 'AI form builder failed to persist chat history');
+        });
+      return {
+        sessionId,
+        message,
+        attachToProgramCode: null,
+        programDefinition: null,
+      };
+    }
 
     if (currentProgramDefinition) {
       const tweakResult = await tryTweakProgramDefinition({
