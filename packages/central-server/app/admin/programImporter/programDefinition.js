@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { z } from 'zod';
 
 import {
@@ -275,22 +276,49 @@ export const normalizeQuestionConfigForImport = question => {
   };
 };
 
-const createSurveyImportRows = ({ programId, surveyDefinition, surveySheet, surveyCode }) => {
-  const surveyId = `${programId}-${surveyCode}`;
+const createSurveyImportRows = ({
+  programId,
+  surveyDefinition,
+  surveySheet,
+  surveyCode,
+  // For in-place edits of an existing survey: target the existing survey id and
+  // keep each question's code verbatim, so data element / component identity
+  // (and therefore response links) survive the edit. New questions still get a
+  // generated survey-scoped code. Defaults reproduce the create-new behaviour.
+  surveyId: surveyIdOverride,
+  preserveQuestionCodes = false,
+}) => {
+  const surveyId = surveyIdOverride ?? `${programId}-${surveyCode}`;
   const originalSurveyCode = createCode(surveyDefinition.code);
+  const usedQuestionCodes = new Set();
   const questionCodeMap = new Map(
     surveySheet.questions.map((question, questionIndex) => {
       const originalQuestionCode = createCode(question.code);
-      const questionCode = originalQuestionCode.startsWith(originalSurveyCode)
-        ? `${surveyCode}${originalQuestionCode.slice(originalSurveyCode.length)}`
-        : `${surveyCode}${String(questionIndex + 1).padStart(3, '0')}`;
-
+      let questionCode;
+      if (preserveQuestionCodes) {
+        const verbatim = (question.code ?? '').trim();
+        if (verbatim && !usedQuestionCodes.has(verbatim)) {
+          questionCode = verbatim;
+        } else {
+          let counter = 1;
+          do {
+            questionCode = `${surveyCode}${String(counter).padStart(3, '0')}`;
+            counter += 1;
+          } while (usedQuestionCodes.has(questionCode));
+        }
+      } else {
+        questionCode = originalQuestionCode.startsWith(originalSurveyCode)
+          ? `${surveyCode}${originalQuestionCode.slice(originalSurveyCode.length)}`
+          : `${surveyCode}${String(questionIndex + 1).padStart(3, '0')}`;
+      }
+      usedQuestionCodes.add(questionCode);
       return [originalQuestionCode, questionCode];
     }),
   );
-  const sortedQuestionCodeEntries = [...questionCodeMap.entries()].sort(
-    ([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length,
-  );
+  // Preserved codes are unchanged, so cross-question references need no rewriting.
+  const sortedQuestionCodeEntries = preserveQuestionCodes
+    ? []
+    : [...questionCodeMap.entries()].sort(([oldCodeA], [oldCodeB]) => oldCodeB.length - oldCodeA.length);
 
   const rows = [
     {
@@ -454,6 +482,25 @@ const surveyContentUnchanged = async (models, existingSurvey, rows) => {
   return JSON.stringify(existing) === JSON.stringify(importRowsSurveySignature(rows));
 };
 
+// After an in-place update, questions dropped from the survey still have their
+// components in the DB. Retire them (and never delete) so they no longer appear
+// on the form while existing responses to them are preserved.
+const historiciseRemovedComponents = async (models, surveyId, rows) => {
+  const keptDataElementIds = rows
+    .filter(({ model }) => model === 'ProgramDataElement')
+    .map(({ values }) => values.id);
+  await models.SurveyScreenComponent.update(
+    { visibilityStatus: VISIBILITY_STATUSES.HISTORICAL },
+    {
+      where: {
+        surveyId,
+        dataElementId: { [Op.notIn]: keptDataElementIds },
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    },
+  );
+};
+
 export const saveProgramDefinition = async ({ db, models, programId, programDefinition }) => {
   const errors = [];
   const context = {
@@ -477,7 +524,7 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
       );
 
       // When editing an existing program every survey is re-sent, so find the
-      // current survey this one would replace (if any).
+      // current survey this one would update (if any).
       const existingSurvey = await models.Survey.findOne({
         where: {
           code: createCode(surveyDefinition.code),
@@ -486,19 +533,23 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
         },
       });
 
-      const surveyCode = await getAvailableSurveyCode(
-        models.Survey,
-        createCode(surveyDefinition.code),
-      );
+      // Editing updates the existing survey in place — keeping its id and each
+      // question's code so responses stay linked — rather than creating a
+      // duplicate. New programs/surveys are created with a fresh code.
+      const surveyCode = existingSurvey
+        ? existingSurvey.code
+        : await getAvailableSurveyCode(models.Survey, createCode(surveyDefinition.code));
       const { rows, surveyId, surveyInfo } = createSurveyImportRows({
         programId,
         surveyCode,
         surveyDefinition,
         surveySheet,
+        surveyId: existingSurvey?.id,
+        preserveQuestionCodes: Boolean(existingSurvey),
       });
 
-      // Leave unchanged surveys exactly as they are — don't create a redundant
-      // version when nothing about the survey's content has changed.
+      // Leave unchanged surveys exactly as they are — editing one survey re-sends
+      // the whole program, so don't rewrite (and re-sync) untouched ones.
       if (existingSurvey && (await surveyContentUnchanged(models, existingSurvey, rows))) {
         surveyIds.push(existingSurvey.id);
         continue;
@@ -522,12 +573,10 @@ export const saveProgramDefinition = async ({ db, models, programId, programDefi
       );
       if (errors.length > 0) throw errors[0];
 
-      // A changed survey that already existed supersedes its previous version:
-      // retire the old survey so only the new one is current (no duplicate
-      // active surveys). The old survey and its responses are kept as historical
-      // rather than mutated, preserving response history.
+      // Retire questions removed from an edited survey (kept as historical so
+      // their responses survive).
       if (existingSurvey) {
-        await existingSurvey.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+        await historiciseRemovedComponents(models, surveyId, rows);
       }
 
       surveyIds.push(surveyId);

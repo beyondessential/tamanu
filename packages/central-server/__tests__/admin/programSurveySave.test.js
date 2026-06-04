@@ -4,17 +4,16 @@ import { createTestContext } from '../utilities';
 
 jest.setTimeout(120 * 1000);
 
-// Saving an edited program through the AI form builder supersedes the previous
-// survey version (old → historical, new → current) instead of leaving two
-// active near-duplicate surveys; unchanged surveys are left untouched.
+// Editing a program through the AI form builder updates the existing survey in
+// place: modified questions keep their code (so responses stay linked), new
+// questions are added, removed questions are retired (historical), and the
+// survey id is unchanged. Unchanged surveys are left untouched.
 describe('AI form builder survey save', () => {
   let ctx;
   let app;
   let models;
 
-  // Distinct survey codes per test so the globally-scoped getAvailableSurveyCode
-  // doesn't suffix one test's survey because of another's.
-  const buildForm = (surveyCode, questionText) => ({
+  const buildForm = (surveyCode, questions) => ({
     title: 'NCD Save Test',
     programCode: 'savetest',
     programName: 'NCD Save Test',
@@ -22,9 +21,12 @@ describe('AI form builder survey save', () => {
     surveySheets: [
       {
         surveyName: 'Referral',
-        questions: [
-          { code: `${surveyCode}001`, name: 'Reason', text: questionText, type: 'FreeText' },
-        ],
+        questions: questions.map(({ code, text }) => ({
+          code,
+          name: code,
+          text,
+          type: 'FreeText',
+        })),
       },
     ],
   });
@@ -46,49 +48,72 @@ describe('AI form builder survey save', () => {
     await ctx?.close();
   });
 
-  it('supersedes the previous survey version when content changes', async () => {
+  it('updates an existing survey in place, preserving identity and retiring removed questions', async () => {
     const program = await models.Program.create({ id: 'program-savetest', name: 'NCD Save Test' });
 
-    const first = await save(program.id, buildForm('supref', 'Reason for referral'));
-    expect(first).toHaveSucceeded();
-    const firstSurveyId = first.body.surveys[0].id;
-
-    const second = await save(program.id, buildForm('supref', 'Updated reason for referral'));
-    expect(second).toHaveSucceeded();
-    const secondSurveyId = second.body.surveys[0].id;
-
-    expect(secondSurveyId).not.toBe(firstSurveyId);
-    expect((await models.Survey.findByPk(firstSurveyId)).visibilityStatus).toBe(
-      VISIBILITY_STATUSES.HISTORICAL,
+    const first = await save(
+      program.id,
+      buildForm('qlref', [
+        { code: 'qlref001', text: 'Original question one' },
+        { code: 'qlref002', text: 'Original question two' },
+      ]),
     );
-    expect((await models.Survey.findByPk(secondSurveyId)).visibilityStatus).toBe(
+    expect(first).toHaveSucceeded();
+    const surveyId = first.body.surveys[0].id;
+
+    // Modify q1, remove q2, add q3.
+    const second = await save(
+      program.id,
+      buildForm('qlref', [
+        { code: 'qlref001', text: 'Updated question one' },
+        { code: 'qlref003', text: 'New question three' },
+      ]),
+    );
+    expect(second).toHaveSucceeded();
+
+    // Same survey, still current — not a duplicate.
+    expect(second.body.surveys[0].id).toBe(surveyId);
+    expect((await models.Survey.findByPk(surveyId)).visibilityStatus).toBe(
       VISIBILITY_STATUSES.CURRENT,
     );
+    expect(
+      await models.Survey.count({
+        where: { programId: program.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      }),
+    ).toBe(1);
 
-    const current = await models.Survey.findAll({
-      where: { programId: program.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    });
-    expect(current).toHaveLength(1);
+    // Modified question kept its data element (same id), text updated.
+    expect((await models.ProgramDataElement.findByPk('pde-qlref001')).defaultText).toBe(
+      'Updated question one',
+    );
+    // Removed question's component is retired, not deleted.
+    expect((await models.SurveyScreenComponent.findByPk(`${surveyId}-qlref002`)).visibilityStatus).toBe(
+      VISIBILITY_STATUSES.HISTORICAL,
+    );
+    // Added question is present and current.
+    expect((await models.SurveyScreenComponent.findByPk(`${surveyId}-qlref003`)).visibilityStatus).toBe(
+      VISIBILITY_STATUSES.CURRENT,
+    );
   });
 
-  it('does not create a new version when the survey is unchanged', async () => {
+  it('does not rewrite a survey when its content is unchanged', async () => {
     const program = await models.Program.create({
       id: 'program-savetest-2',
       name: 'NCD Save Test 2',
     });
 
-    const first = await save(program.id, buildForm('unchref', 'Reason for referral'));
+    const first = await save(program.id, buildForm('unchref', [{ code: 'unchref001', text: 'Reason' }]));
     expect(first).toHaveSucceeded();
-    const firstSurveyId = first.body.surveys[0].id;
+    const surveyId = first.body.surveys[0].id;
+    const componentBefore = await models.SurveyScreenComponent.findByPk(`${surveyId}-unchref001`);
 
-    const second = await save(program.id, buildForm('unchref', 'Reason for referral'));
+    const second = await save(program.id, buildForm('unchref', [{ code: 'unchref001', text: 'Reason' }]));
     expect(second).toHaveSucceeded();
+    expect(second.body.surveys[0].id).toBe(surveyId);
 
-    expect(second.body.surveys[0].id).toBe(firstSurveyId);
-    expect((await models.Survey.findByPk(firstSurveyId)).visibilityStatus).toBe(
-      VISIBILITY_STATUSES.CURRENT,
-    );
-    const allForProgram = await models.Survey.findAll({ where: { programId: program.id } });
-    expect(allForProgram).toHaveLength(1);
+    // Untouched: the component wasn't rewritten (same sync tick).
+    const componentAfter = await models.SurveyScreenComponent.findByPk(`${surveyId}-unchref001`);
+    expect(componentAfter.updatedAtSyncTick).toBe(componentBefore.updatedAtSyncTick);
+    expect(await models.Survey.count({ where: { programId: program.id } })).toBe(1);
   });
 });
