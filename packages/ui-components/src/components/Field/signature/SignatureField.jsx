@@ -3,6 +3,7 @@ import React, { useCallback, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { useTranslation } from '../../../contexts';
+import { SIGNATURE_TOO_COMPLEX_STRING_ID } from '../../../utils/survey';
 import { TextButton } from '../../Button';
 import { TranslatedText } from '../../Translation';
 import {
@@ -248,7 +249,14 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
       </Container>
       {helperText && (
         <FormHelperText error={Boolean(error)} id={helperTextId}>
-          {helperText}
+          {error && helperText === SIGNATURE_TOO_COMPLEX_STRING_ID ? (
+            <TranslatedText
+              stringId={SIGNATURE_TOO_COMPLEX_STRING_ID}
+              fallback="Signature too complex to save. Please try again."
+            />
+          ) : (
+            helperText
+          )}
         </FormHelperText>
       )}
     </>

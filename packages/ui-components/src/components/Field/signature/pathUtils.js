@@ -104,3 +104,23 @@ export function mergeStrokesIntoBody(existingBody, strokePointLists) {
 export function bodyToDisplayPath(body) {
   return concatenateSvgPaths(...parseSignatureBody(body).map(pointsToSvgPath));
 }
+
+/**
+ * @privateRemarks Emulates `compressSignatureBody` from
+ * `@tamanu/shared/utils/signatureCompression`. Used in frontend only for form validation to flag
+ * extremely complex signatures that may exceed database index size limit.
+ * @param {`[${string}]` | '' | null | undefined} body Centreline JSON stored in
+ * survey_response_answers.body when uncompressed.
+ * @returns {Promise<number>} gzip-compressed base64 string for database storage.
+ */
+export async function estimateCompressedSize(body) {
+  if (!body) return 0;
+
+  const byteArray = new TextEncoder().encode(body);
+  const cs = new CompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(byteArray);
+  writer.close();
+  const buffer = await new Response(cs.readable).arrayBuffer();
+  return new Uint8Array(buffer).toBase64().length;
+}
