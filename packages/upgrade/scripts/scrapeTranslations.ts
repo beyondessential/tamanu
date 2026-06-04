@@ -35,7 +35,9 @@ const readAllFilesRecursive = (directoryPath: string) => {
     for (const item of items) {
       const fullPath = path.join(currentPath, item.name);
       if (item.isDirectory()) {
-        if (isTopLevelPackageDistDir(fullPath)) {
+        // Never descend into dependencies — they aren't our source, and walking
+        // them (web's node_modules alone is ~38k files) dominates the scrape.
+        if (item.name === 'node_modules' || isTopLevelPackageDistDir(fullPath)) {
           continue;
         }
         walk(fullPath); // Recursively call for subdirectories
