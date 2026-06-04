@@ -145,11 +145,12 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 
-const calculateDynamicFontSizes = (data, labelHeight) => {
+const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
   const patientNameLength = data.patientName?.length || 0;
   const prescriberNameLength = data.prescriberName?.length || 0;
-  
+  const instructionsLength = data.instructions?.length || 0;
+
   // 1. Medication name: scale based on length
   let medicationNameFontSize = labelHeight * 0.09;
   if (medicationNameLength > 50) {
@@ -159,10 +160,25 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
   } else if (medicationNameLength < 25) {
     medicationNameFontSize = labelHeight * 0.11;
   }
-  
-  // 2. Instructions: never scale - fixed readable size (20% larger)
-  const instructionsFontSize = labelHeight * 0.108; // Fixed 4.32mm for 40mm height
-  
+
+  // 2. Instructions / Label text: scale down for longer text so the footer
+  // and other fixed sections still fit. Uppercase preset-label text is wider
+  // per char than mixed-case English, so the thresholds step harder than the
+  // medication-name ladder above. Thresholds are tuned for the default 80x40
+  // shape; capacity is bound by chars-per-line, which is `width / fontSize`
+  // and the font scales with `labelHeight`, so a tall-thin label fits LESS
+  // text per row than the default.
+  const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
+  let instructionsFontSize = labelHeight * 0.108;
+  if (instructionsLength > 110 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.065;
+  } else if (instructionsLength > 75 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.075;
+  } else if (instructionsLength > 50 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.085;
+  }
+
+
   // 3. Patient name and date: scale based on patient name length to stay on one line
   let patientDateFontSize = labelHeight * 0.09;
   if (patientNameLength > 30) {
@@ -201,8 +217,8 @@ export const MedicationLabel = React.memo(({ data }) => {
   const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
-  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') || 40;
+  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') ?? 80;
+  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') ?? 40;
 
   const {
     medicationName,
@@ -223,7 +239,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     patientDateFontSize,
     detailFontSize,
     footerFontSize,
-  } = calculateDynamicFontSizes(data, labelHeight);
+  } = calculateDynamicFontSizes(data, labelWidth, labelHeight);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>

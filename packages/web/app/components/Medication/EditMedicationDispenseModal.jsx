@@ -6,7 +6,6 @@ import {
   BaseModal,
   ConfirmCancelBackRow,
   ConfirmCancelRow,
-  TextInput,
   TranslatedText,
   TranslatedReferenceData,
   useDateTime,
@@ -24,9 +23,15 @@ import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
+  buildInstructionText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  InstructionsInput,
+  QuantityInput,
+  resolvePresetLabelText,
+  StyledPresetLabelAutocomplete,
+  usePresetLabelsQuery,
 } from '../../utils/medications';
 
 const MODAL_STEPS = {
@@ -79,32 +84,26 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} value={value} onChange={handleChange} />;
-});
-
-const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
-});
-
 export const EditMedicationDispenseModal = memo(
   ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
-    const { getTranslation, getReferenceDataTranslation } = useTranslation();
+    const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
+    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+      enabled: open,
+      facilityId,
+    });
+
+    // Derived from the prescription, not the dispense's saved instructions, so
+    // it shows the original even after the label text has been edited.
+    const defaultInstructions = medicationDispense
+      ? buildInstructionText(
+          medicationDispense.pharmacyOrderPrescription?.prescription,
+          getTranslation,
+          getEnumTranslation,
+        )
+      : '';
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
@@ -164,6 +163,20 @@ export const EditMedicationDispenseModal = memo(
         ...errors,
         hasInstructionsError: !String(value || '').trim(),
       });
+    };
+
+    // Functional setters so a quick preset-then-type doesn't lose the typing.
+    const handlePresetLabelChange = ({ target: { value: presetId } }) => {
+      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultInstructions);
+      setItem(prev => ({
+        ...prev,
+        medicationPresetLabelId: presetId || null,
+        instructions: nextLabelText,
+      }));
+      setErrors(prev => ({
+        ...prev,
+        hasInstructionsError: !String(nextLabelText || '').trim(),
+      }));
     };
 
     const validateDispenseStep = currentDispensedByUserId => {
@@ -227,6 +240,7 @@ export const EditMedicationDispenseModal = memo(
         dispensedByUserId,
         quantity: item.quantity,
         instructions: item.instructions,
+        medicationPresetLabelId: item.medicationPresetLabelId || null,
       });
 
       if (onConfirm) onConfirm();
@@ -311,12 +325,51 @@ export const EditMedicationDispenseModal = memo(
             pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
         {
-          key: 'instructions',
+          key: 'instructionsReadOnly',
+          title: (
+            <TranslatedText
+              stringId="medication.editDispensedMedication.instructions"
+              fallback="Instructions"
+            />
+          ),
+          accessor: () => (
+            <InstructionsInput
+              value={defaultInstructions || ''}
+              disabled
+              testId="dispense-instructions-readonly"
+            />
+          ),
+        },
+        ...(hasPresetLabels
+          ? [
+              {
+                key: 'presetLabel',
+                width: '150px',
+                title: (
+                  <TranslatedText
+                    stringId="medication.editDispensedMedication.presetLabel"
+                    fallback="Preset labels"
+                  />
+                ),
+                accessor: itemRow => (
+                  <StyledPresetLabelAutocomplete
+                    name={`presetLabel-${itemRow.id}`}
+                    value={itemRow.medicationPresetLabelId ?? ''}
+                    suggester={presetLabelSuggester}
+                    onChange={handlePresetLabelChange}
+                    data-testid="dispense-preset-label"
+                  />
+                ),
+              },
+            ]
+          : []),
+        {
+          key: 'labelText',
           title: (
             <>
               <TranslatedText
-                stringId="medication.editDispensedMedication.instructions"
-                fallback="Instructions"
+                stringId="medication.editDispensedMedication.labelText"
+                fallback="Label text"
               />
               <Box component="span" color={Colors.alert}>
                 {' '}
@@ -324,16 +377,16 @@ export const EditMedicationDispenseModal = memo(
               </Box>
             </>
           ),
-          accessor: item => {
-            const { instructions } = item;
+          accessor: itemRow => {
+            const { instructions } = itemRow;
             const hasInstructionsError = errors.hasInstructionsError || false;
             return (
               <InstructionsInput
                 value={instructions}
-                onChange={e => handleInstructionsChange(e)}
+                onChange={handleInstructionsChange}
                 error={showValidationErrors && hasInstructionsError}
                 required
-                testId="dispense-instructions"
+                testId="dispense-label-text"
                 helperText={
                   showValidationErrors && hasInstructionsError
                     ? getTranslation('validation.required.inline', '*Required')
