@@ -381,6 +381,32 @@ unauthenticated, admin edits act on others).
   against pending seed, marks active). Pending seed lives in the central-only
   table, never the synced `User` row. Requires central connectivity.
 
+## UI surfaces
+
+The endpoints are useless without somewhere to click. Three surfaces, all PR1:
+
+- **Self-service modal** (web client, facility + central): a "Two-factor
+  authentication" item in the sidebar kebab menu — visible only when
+  `auth.mfa.enabled` and the user has `write Mfa`. Opens a modal with the
+  user's security methods list (passkeys with name/created/last-used, and
+  authenticator-app status), *add passkey* (`@simplewebauthn/browser`
+  ceremony), *add authenticator app* (QR + manual key + confirm code), and
+  *remove* per factor.
+- **Facility `/api/mfa` routes**: the self-service router exists on central
+  only; facility users need their own. WebAuthn registration runs **locally**
+  at in-zone facilities (shared ceremony code, local tables, credential syncs
+  up — works offline, per the enrolment-flow design). TOTP is **not offered in
+  facility self-service**: `forwardRequest` authenticates as the facility's
+  central user, not the end user, so a forwarded enrolment would act on the
+  wrong account — and TOTP is central-bound anyway. The facility modal says so;
+  authenticator apps are set up on central's webapp, via the login
+  interstitial, or by admin invite. The facility methods list shows local
+  passkeys and reports authenticator-app status as managed centrally.
+- **Admin panel** (central, user edit modal): an MFA section showing factor
+  status, with *reset* (remove all factors), *generate enrolment invite*
+  (copyable token/link), and *in-person provisioning* (hybrid QR). Plus an MFA
+  status column in the users table.
+
 ## Enforcement: force-enrolment, decided
 
 **No downgrade, ever** — silently dropping to password-only when central is
@@ -587,9 +613,14 @@ Each PR lands with its tests; layered per the repo's testing rules
   login unchanged; `off` rejects passwordless assertions and `fallbackOnly`
   rejects TOTP on a WebAuthn-capable surface; facility forwards TOTP to central;
   invite-token redeem **requires token + password** and is single-use/expiring.
-- **E2E** (Playwright, critical journeys) — enrol a passkey then log in with it;
-  passwordless (usernameless, UV) login; enrol TOTP then log in; forced-enrolment
-  interstitial (passkey-first); admin reset; feature-flag-off path.
+- **E2E** (Playwright, critical journeys) — **self-service** enrolment via the
+  kebab modal for a *non-required* user (`write Mfa`, no `require Mfa`): enrol
+  a passkey, log out, get **challenged** on the next login and complete it —
+  and the same journey for TOTP. This covers the non-forced flows end to end;
+  having no UI to drive would fail these specs, which is exactly the point.
+  Plus: forced-enrolment interstitial (passkey-first) for a required user;
+  factor removal; passwordless (usernameless, UV) login (PR2); admin reset;
+  feature-flag-off path.
 
 WebAuthn in Playwright uses the **Chromium CDP virtual authenticator**
 (`WebAuthn.addVirtualAuthenticator`) behind a fixture — it answers the real
