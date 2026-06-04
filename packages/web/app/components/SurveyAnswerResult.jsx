@@ -6,6 +6,7 @@ import {
   Button,
   DateDisplay,
   PatientDataDisplayField,
+  SignatureAnswerResult,
   SignaturePathDisplay,
   SurveyResultBadge,
   TranslatedOption,
@@ -100,7 +101,7 @@ export const SurveyAnswerResult = ({
         />
       );
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
-      return <SignaturePathDisplay path={answer} data-testid="signaturepathdisplay-answer" />;
+      return <SignatureAnswerResult path={answer} />;
     default:
       return answer;
   }

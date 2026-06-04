@@ -1,4 +1,3 @@
-export { SignatureField } from './SignatureField';
 export {
   bodyToDisplayPath,
   mergeStrokesIntoBody,
@@ -6,4 +5,6 @@ export {
   SIGNATURE_VIEWBOX_HEIGHT,
   SIGNATURE_VIEWBOX_WIDTH,
 } from './pathUtils';
+export { SignatureAnswerResult } from './SignatureAnswerResult';
+export { SignatureField } from './SignatureField';
 export { SignaturePathDisplay, SignatureSvg } from './SignaturePathDisplay';
