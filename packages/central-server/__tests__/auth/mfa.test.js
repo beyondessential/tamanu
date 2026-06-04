@@ -116,7 +116,7 @@ describe('MFA self-service', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('rejects a finish with an unparseable response', async () => {
+    it('rejects a finish with an unparsable response', async () => {
       const response = await agent.post('/api/mfa/webauthn/register-finish').send({
         registrationResponse: { id: 'x', response: { clientDataJSON: '%%%' } },
       });

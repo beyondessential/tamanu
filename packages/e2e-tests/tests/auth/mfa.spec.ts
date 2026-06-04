@@ -26,35 +26,37 @@ import { constructFacilityUrl } from '../../utils/navigation';
  */
 
 const shouldRun = process.env.RUN_MFA_E2E === 'true';
-const email = process.env.MFA_REQUIRED_EMAIL ?? '';
-const password = process.env.MFA_REQUIRED_PASSWORD ?? '';
+// the passkey journey and the TOTP journey each need their OWN require-Mfa
+// user that starts with no factor — they can't share one, because once the
+// first test enrols a factor that user is challenged (not force-enrolled) on
+// subsequent logins
+const passkeyEmail = process.env.MFA_REQUIRED_EMAIL ?? '';
+const passkeyPassword = process.env.MFA_REQUIRED_PASSWORD ?? '';
+const totpEmail = process.env.MFA_TOTP_EMAIL ?? '';
+const totpPassword = process.env.MFA_TOTP_PASSWORD ?? '';
 
-// the journeys mutate one shared user's factors (enrol, then challenge), so
-// they must run in order against that user
-test.describe.configure({ mode: 'serial' });
+// enter credentials and wait for the paused-login interstitial (MFA holds the
+// login rather than reaching the dashboard)
+const startPausedLogin = async (page, mfaLoginPage, email: string, password: string) => {
+  await new LoginPage(page).goto();
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
+  await page.getByTestId('loginbutton-gx21').click();
+  await expect(mfaLoginPage.form).toBeVisible();
+};
 
 test.describe('MFA login', () => {
   test.skip(!shouldRun, 'set RUN_MFA_E2E=true and seed an MFA deployment to run');
   // not the shared logged-in user: these start from the login screen
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  let loginPage: MfaLoginPage;
-
-  test.beforeEach(async ({ page }) => {
-    loginPage = new MfaLoginPage(page);
-    const basicLogin = new LoginPage(page);
-    await basicLogin.goto();
-    // fill credentials but don't wait for the dashboard — MFA pauses the login
-    await page.locator('input[name="email"]').fill(email);
-    await page.locator('input[name="password"]').fill(password);
-    await page.getByTestId('loginbutton-gx21').click();
-    await expect(loginPage.form).toBeVisible();
-  });
-
   test('[MFA-0001] forced enrolment of a passkey, then passkey login', async ({
     page,
     virtualAuthenticator,
   }) => {
+    const loginPage = new MfaLoginPage(page);
+    await startPausedLogin(page, loginPage, passkeyEmail, passkeyPassword);
+
     // first login: forced to enrol — the interstitial leads with the passkey
     await expect(loginPage.passkeyButton).toBeVisible();
     await loginPage.usePasskey();
@@ -69,14 +71,16 @@ test.describe('MFA login', () => {
     // log out and back in: now a challenge, not enrolment, completed by the
     // same passkey
     await new SidebarPage(page).logOutButton.click();
-    await page.locator('input[name="email"]').fill(email);
-    await page.locator('input[name="password"]').fill(password);
-    await page.getByTestId('loginbutton-gx21').click();
+    await startPausedLogin(page, loginPage, passkeyEmail, passkeyPassword);
     await loginPage.usePasskey();
     await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
   });
 
   test('[MFA-0002] forced enrolment of an authenticator app (TOTP)', async ({ page }) => {
+    test.skip(!totpEmail, 'set MFA_TOTP_EMAIL/PASSWORD (a separate no-factor user) to run');
+    const loginPage = new MfaLoginPage(page);
+    await startPausedLogin(page, loginPage, totpEmail, totpPassword);
+
     // capture the otpauth URI from the enrol response so we can compute a code
     const otpauthUrl = await loginPage.startTotpEnrolment();
     await expect(loginPage.totpQr).toBeVisible();

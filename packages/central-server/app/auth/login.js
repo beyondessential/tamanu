@@ -12,7 +12,10 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
 import { resolveLoginMfaPolicy } from './mfa';
 
-const MFA_LOGIN_SESSION_EXPIRY = '10 minutes';
+// short, to bound how long the pass is reusable to mint sessions — but long
+// enough to complete a fumbly forced enrolment (scan/add to an authenticator
+// app, type a code)
+const MFA_LOGIN_SESSION_EXPIRY = '5 minutes';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;

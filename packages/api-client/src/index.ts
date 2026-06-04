@@ -1,4 +1,5 @@
-export { TamanuApi } from './TamanuApi';
+export { TamanuApi, isMfaPending } from './TamanuApi';
+export type { MfaPendingResponse } from './TamanuApi';
 export {
   buildTokenStorageKeyMaterial,
   packPersistedToken,

@@ -302,7 +302,7 @@ export class TamanuApi {
   async beginMfaLogin(path: string, mfaToken: string, body: object = {}): Promise<any> {
     return await this.post(
       `mfa/login/${path}`,
-      { mfaToken, ...body },
+      { mfaToken, deviceId: this.deviceId, ...body },
       { useAuthToken: false, waitForAuth: false },
     );
   }
@@ -319,7 +319,9 @@ export class TamanuApi {
   ): Promise<LoginResponse | MfaPendingResponse> {
     const response = (await this.post(
       `mfa/login/${path}`,
-      { mfaToken, ...body },
+      // deviceId so the facility mints its token with the right claim (central
+      // uses the deviceId from the pending token and ignores this)
+      { mfaToken, deviceId: this.deviceId, ...body },
       { returnResponse: true, useAuthToken: false, waitForAuth: false },
     )) as Response;
     return await this.#handleLoginResponse(response, {});

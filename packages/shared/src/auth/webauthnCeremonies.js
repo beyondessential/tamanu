@@ -5,6 +5,7 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server';
 import { isoBase64URL } from '@simplewebauthn/server/helpers';
+import { Op } from 'sequelize';
 import { MFA_CHALLENGE_TYPES } from '@tamanu/constants';
 import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 
@@ -64,6 +65,8 @@ function expectedOriginFor(clientData, rpId) {
  */
 async function consumeChallenge({ models, type, token, userId }) {
   if (!token) return null;
+  // expiry is part of the WHERE so an expired challenge isn't needlessly
+  // marked used — the single matching live row is claimed atomically
   const [count, rows] = await models.MfaChallenge.update(
     { usedAt: new Date() },
     {
@@ -71,15 +74,14 @@ async function consumeChallenge({ models, type, token, userId }) {
         type,
         token,
         usedAt: null,
+        expiresAt: { [Op.gt]: new Date() },
         ...(userId !== undefined ? { userId } : {}),
       },
       returning: true,
     },
   );
   if (count === 0) return null;
-  const [challenge] = rows;
-  if (challenge.isExpired()) return null;
-  return challenge;
+  return rows[0];
 }
 
 /**
