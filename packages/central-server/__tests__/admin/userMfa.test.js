@@ -171,6 +171,28 @@ describe('Admin MFA management and enrolment invites', () => {
       expect(minutesAway).toBeLessThan(65);
     });
 
+    it('emails the invite with instructions instead of disclosing the token', async () => {
+      ctx.emailService.sendEmail.mockClear();
+      const response = await adminAgent
+        .post(`/api/admin/users/${target.id}/mfa/enrolInvite`)
+        .send({ sendEmail: true });
+      expect(response).toHaveSucceeded();
+      // the admin sees where it went, never the token itself
+      expect(response.body.sentTo).toEqual(target.email);
+      expect(response.body.token).toBeUndefined();
+
+      expect(ctx.emailService.sendEmail).toHaveBeenCalledTimes(1);
+      const [message] = ctx.emailService.sendEmail.mock.calls[0];
+      expect(message.to).toEqual(target.email);
+      // the email carries the token and tells the user what to do with it
+      expect(message.text).toContain('Have an MFA enrolment invite?');
+      const invite = await models.MfaChallenge.findOne({
+        where: { userId: target.id, usedAt: null },
+        order: [['createdAt', 'DESC']],
+      });
+      expect(message.text).toContain(invite.token);
+    });
+
     it('redeem requires the token AND the password', async () => {
       const { token } = await issueInvite();
 
@@ -232,15 +254,14 @@ describe('Admin MFA management and enrolment invites', () => {
 
       const enrol = await baseApp
         .post('/api/mfa/enrolInvite/totp/enrol')
-        .set('authorization', `Bearer ${session}`);
+        .send({ enrolToken: session });
       expect(enrol).toHaveSucceeded();
       expect(enrol.body.otpauthUrl).toMatch(/^otpauth:\/\/totp\//);
 
       const code = OTPAuth.URI.parse(enrol.body.otpauthUrl).generate();
       const confirm = await baseApp
         .post('/api/mfa/enrolInvite/totp/confirm')
-        .set('authorization', `Bearer ${session}`)
-        .send({ code });
+        .send({ enrolToken: session, code });
       expect(confirm).toHaveSucceeded();
 
       const seed = await models.TotpSecret.findOne({ where: { userId: target.id } });
@@ -286,7 +307,7 @@ describe('Admin MFA management and enrolment invites', () => {
       await victim.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
       const response = await baseApp
         .post('/api/mfa/enrolInvite/totp/enrol')
-        .set('authorization', `Bearer ${redeemed.body.token}`);
+        .send({ enrolToken: redeemed.body.token });
       expect(response).toHaveRequestError();
     });
   });

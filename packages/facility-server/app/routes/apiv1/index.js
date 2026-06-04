@@ -39,6 +39,7 @@ import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { mfa } from './mfa';
+import { mfaEnrolInvite } from './mfaEnrolInvite';
 import { mfaLogin } from './mfaLogin';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
@@ -94,6 +95,7 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use('/resetPassword', limiter, resetPassword);
   apiv1.use('/changePassword', limiter, changePassword);
   apiv1.use('/mfa/login', limiter, mfaLogin);
+  apiv1.use('/mfa/enrolInvite', limiter, mfaEnrolInvite);
   
   apiv1.get(
     '/public/ping',

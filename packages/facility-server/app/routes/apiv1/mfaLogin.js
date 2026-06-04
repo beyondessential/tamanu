@@ -23,10 +23,11 @@ import { finaliseCentralLogin, sendFacilityLoginResponse } from '../../middlewar
  * the online path.
  */
 
-const forwardThrough = endpoint =>
+export const forwardThrough = endpoint =>
   asyncHandler(async (req, res) => {
     const { deviceId } = req;
-    // no permission needed: the mfa_login token in the body is the authority
+    // no permission needed: the central-issued token in the body is the
+    // authority (mfa_login pending pass or mfa_enrol session)
     req.flagPermissionChecked();
 
     const centralServer = new CentralServerConnection({ deviceId });

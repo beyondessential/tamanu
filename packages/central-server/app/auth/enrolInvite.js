@@ -32,7 +32,11 @@ import { confirmTotp, enrolTotp } from './totp';
  *
  * Redemption trades the (single-use) invite for a short-lived JWT scoped to
  * these endpoints only (audience mfa_enrol) — enough to complete a multi-step
- * ceremony without re-sending the password each round trip.
+ * ceremony without re-sending the password each round trip. Like the
+ * mfa/login pending pass, the session token travels in the request BODY
+ * (`enrolToken`), not the Authorization header: facility servers forward
+ * these requests to central, and forwarding replaces the Authorization
+ * header with the facility's own central session.
  */
 
 const ENROL_SESSION_EXPIRY = '15 minutes';
@@ -99,16 +103,15 @@ enrolInvite.post(
 // Everything below requires the enrol-session token from /redeem — a normal
 // login session is neither needed nor accepted.
 const enrolSessionMiddleware = asyncHandler(async (req, _res, next) => {
-  const header = req.get('authorization');
-  const bearer = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null;
-  if (!bearer) {
+  const enrolToken = req.body?.enrolToken;
+  if (typeof enrolToken !== 'string' || !enrolToken) {
     throw new InvalidTokenError('Missing enrolment session token');
   }
 
   let payload;
   try {
     ({ payload } = await jose.jwtVerify(
-      bearer,
+      enrolToken,
       createSecretKey(new TextEncoder().encode(config.auth.secret)),
       { issuer: config.canonicalHostName, audience: JWT_TOKEN_TYPES.MFA_ENROL },
     ));

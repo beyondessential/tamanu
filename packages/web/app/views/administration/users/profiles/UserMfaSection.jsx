@@ -98,6 +98,27 @@ export const UserMfaSection = ({ user }) => {
     }
   };
 
+  // emails the token straight to the user, with instructions — the token
+  // alone can't enrol anything (their password is required to redeem), so
+  // email is a fine channel
+  const emailInvite = async () => {
+    try {
+      const { sentTo } = await api.post(`admin/users/${user.id}/mfa/enrolInvite`, {
+        sendEmail: true,
+      });
+      setInvite(null);
+      toast.success(
+        getTranslation('admin.users.mfa.inviteEmailed', 'Invite emailed to :email', {
+          replacements: { email: sentTo },
+        }),
+      );
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // for when email isn't suitable (no inbox access, in person, another
+  // channel): show the token once for the admin to pass on
   const generateInvite = async () => {
     try {
       setInvite(await api.post(`admin/users/${user.id}/mfa/enrolInvite`));
@@ -165,10 +186,16 @@ export const UserMfaSection = ({ user }) => {
 
         {canWrite && (
           <Actions>
+            <OutlinedButton onClick={emailInvite} data-testid="admin-mfa-invite-email">
+              <TranslatedText
+                stringId="admin.users.mfa.emailInvite"
+                fallback="Email invite to user"
+              />
+            </OutlinedButton>
             <OutlinedButton onClick={generateInvite} data-testid="admin-mfa-invite">
               <TranslatedText
                 stringId="admin.users.mfa.generateInvite"
-                fallback="Generate enrolment invite"
+                fallback="Generate invite token"
               />
             </OutlinedButton>
             <OutlinedButton
@@ -193,7 +220,7 @@ export const UserMfaSection = ({ user }) => {
           <InviteBox data-testid="admin-mfa-invite-token">
             <TranslatedText
               stringId="admin.users.mfa.inviteIssued"
-              fallback="Share this invite token with the user. They redeem it with their password on their own device. It is single-use and expires"
+              fallback="Share this invite token with the user. On their own device, they follow the 'Have an MFA enrolment invite?' link on the log-in screen and redeem it with their password. It is single-use and expires"
             />{' '}
             <DateDisplay date={invite.expiresAt} timeFormat="default" />
             <code>{invite.token}</code>

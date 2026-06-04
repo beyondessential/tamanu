@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { LoginForm } from '../forms/LoginForm';
+import { MfaInviteForm } from '../forms/MfaInviteForm';
 import { MfaLoginForm } from '../forms/MfaLoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
@@ -79,7 +80,15 @@ export const LoginView = () => {
             setScreen('resetPassword');
             dispatch(restartPasswordResetFlow());
           }}
+          onNavToMfaInvite={() => setScreen('mfaInvite')}
           data-testid="loginform-fp20"
+        />
+      )}
+      {screen === 'mfaInvite' && (
+        <MfaInviteForm
+          onNavToLogin={() => setScreen('login')}
+          initialEmail={rememberEmail}
+          data-testid="mfainviteform-x1k2"
         />
       )}
       {screen === 'resetPassword' && (

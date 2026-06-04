@@ -403,15 +403,19 @@ The endpoints are useless without somewhere to click. Three surfaces, all PR1:
   interstitial, or by admin invite. The facility methods list shows local
   passkeys and reports authenticator-app status as managed centrally.
 - **Admin panel** (central, user edit modal): an MFA section showing factor
-  status, with *reset* (remove all factors), *generate enrolment invite*
-  (copyable token/link), and *in-person provisioning* (hybrid QR). Plus an MFA
-  status column in the users table.
-- **Invite redemption page** — *NOT YET BUILT*: a pre-auth page where the
-  invited user enters the token + their email + password to open an enrol
-  session, then runs the passkey/TOTP enrolment UI against the enrol-session
-  endpoints. Until it exists, invite tokens can only be redeemed via the API;
-  the in-person hybrid QR and self-service paths are the usable provisioning
-  routes.
+  status, with *reset* (remove all factors), invite issuance, and *in-person
+  provisioning* (hybrid QR). Plus an MFA status column in the users table.
+  Invites are issued two ways: **email it to the user** (server-sent, with
+  step-by-step instructions; the token is never shown to the admin) or
+  **generate a token** to pass over another channel. Email is a fine channel
+  *by design*: the token alone cannot enrol anything — redemption requires the
+  user's password, and the token is single-use and short-lived.
+- **Invite redemption page**: reached from the "Have an MFA enrolment invite?"
+  link on the login screen — token + email + password opens the enrol session,
+  then the passkey/TOTP enrolment UI runs against the enrol-session endpoints.
+  Works on facility frontends too: the enrol-session token travels in the
+  request body (like the mfa_login pass) precisely so facilities can forward
+  every step to central verbatim.
 
 ## Enforcement: force-enrolment, decided
 

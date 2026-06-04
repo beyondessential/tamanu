@@ -127,6 +127,26 @@ describe('Facility MFA login forwarding', () => {
     });
   });
 
+  describe('enrolment-invite forwarding', () => {
+    it.each([
+      ['/api/mfa/enrolInvite/redeem', 'mfa/enrolInvite/redeem'],
+      ['/api/mfa/enrolInvite/webauthn/register-begin', 'mfa/enrolInvite/webauthn/register-begin'],
+      ['/api/mfa/enrolInvite/totp/enrol', 'mfa/enrolInvite/totp/enrol'],
+      ['/api/mfa/enrolInvite/totp/confirm', 'mfa/enrolInvite/totp/confirm'],
+    ])('forwards %s to central verbatim', async (route, centralEndpoint) => {
+      const centralResponse = { anything: 'central said' };
+      centralServer.forwardRequest.mockResolvedValueOnce(centralResponse);
+
+      const response = await baseApp
+        .post(route)
+        .send({ enrolToken: 'session-token', code: '123456' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual(centralResponse);
+      expect(centralServer.forwardRequest).toHaveBeenCalledWith(expect.anything(), centralEndpoint);
+    });
+  });
+
   it('requires no auth (the pending token is the authority)', async () => {
     // unauthenticated request still reaches the forwarder
     centralServer.forwardRequest.mockResolvedValueOnce({ challenge: 'abc' });

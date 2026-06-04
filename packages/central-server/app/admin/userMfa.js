@@ -3,10 +3,12 @@ import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
 import { NotFoundError } from '@tamanu/errors';
-import { MFA_CHALLENGE_TYPES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 import { getRandomBase64String } from '../auth/utils';
 import { getWebAuthnContext, requireMfaEnabled } from '../auth/mfa';
+import { getDefaultFromAddress } from '../services/mailConfig';
 import {
   beginWebAuthnRegistration,
   finishWebAuthnRegistration,
@@ -86,15 +88,44 @@ userMfaRouter.delete(
 
 // Issue an enrolment invite: a single-use, short-lived token the user redeems
 // on their own device (with their password — never the token alone) to enrol
-// without holding `write Mfa` themselves. How the token reaches the user is up
-// to the admin (read out in person, sent through an existing channel); the
-// redeem step requiring the password is what makes interception insufficient.
+// without holding `write Mfa` themselves. Any channel is fine for delivering
+// the token — including email — because the redeem step requiring the password
+// is what makes interception insufficient. With `sendEmail` the server mails
+// it to the user directly, with instructions; otherwise the token is returned
+// for the admin to pass on however suits.
+const enrolInviteSchema = yup.object({
+  sendEmail: yup.boolean().default(false),
+});
+
+const inviteEmailText = ({ user, token, expiresAt }) => `
+      Hi ${user.displayName},
+
+      An administrator has invited you to set up multi-factor authentication
+      (MFA) for your Tamanu account.
+
+      To set it up:
+
+      1. On your own device, open the Tamanu log-in screen.
+      2. Follow the "Have an MFA enrolment invite?" link.
+      3. Enter your email address, your password, and this invite token:
+
+      ${token}
+
+      4. Set up a passkey or an authenticator app when prompted.
+
+      The invite can only be used once and expires at ${expiresAt.toISOString()}.
+      If you weren't expecting this, please ignore this email and let your
+      administrator know.
+
+      tamanu.io`;
+
 userMfaRouter.post(
   '/enrolInvite',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'UserMfa');
     await requireMfaEnabled(req);
     const user = await targetUser(req);
+    const { sendEmail } = await enrolInviteSchema.validate(req.body ?? {});
 
     const expiryMinutes = await req.settings.get('auth.mfa.enrolInvite.expiry');
     const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
@@ -106,6 +137,23 @@ userMfaRouter.post(
       userId: user.id,
       expiresAt,
     });
+
+    if (sendEmail) {
+      const result = await req.emailService.sendEmail({
+        from: getDefaultFromAddress(),
+        to: user.email,
+        subject: 'Tamanu multi-factor authentication invite',
+        text: inviteEmailText({ user, token, expiresAt }),
+      });
+      if (result.status !== COMMUNICATION_STATUSES.SENT) {
+        log.error(`MFA enrol invite: email error: ${result.error}`);
+        throw new Error('Could not send the invite email');
+      }
+      // emailed invites never disclose the token to the admin
+      res.send({ expiresAt, sentTo: user.email });
+      return;
+    }
+
     res.send({ token, expiresAt });
   }),
 );
