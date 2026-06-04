@@ -139,6 +139,20 @@ describe('Login with MFA', () => {
       expect(whoami.body.id).toEqual(user.id);
     });
 
+    it('rejects reuse of the pass after a successful completion (single-use)', async () => {
+      const paused = await login(user);
+      const { token } = paused.body.mfaPending;
+
+      const first = await baseApp.post('/api/mfa/login/totp').send({ mfaToken: token, code: totp.generate() });
+      expect(first).toHaveSucceeded();
+
+      // same pass, fresh valid code — the pass itself is spent
+      const replay = await baseApp
+        .post('/api/mfa/login/totp')
+        .send({ mfaToken: token, code: totp.generate() });
+      expect(replay).toHaveRequestError();
+    });
+
     it('offers webauthn ceremony options when a credential exists', async () => {
       await models.WebAuthnCredential.create({
         userId: user.id,
