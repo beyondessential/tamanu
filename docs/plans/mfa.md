@@ -672,14 +672,15 @@ Each PR lands with its tests; layered per the repo's testing rules
   login unchanged; `off` rejects passwordless assertions and `fallbackOnly`
   rejects TOTP on a WebAuthn-capable surface; facility forwards TOTP to central;
   invite-token redeem **requires token + password** and is single-use/expiring.
-- **E2E** (Playwright, critical journeys) — **self-service** enrolment via the
-  kebab modal for a *non-required* user (`write Mfa`, no `require Mfa`): enrol
-  a passkey, log out, get **challenged** on the next login and complete it —
-  and the same journey for TOTP. This covers the non-forced flows end to end;
-  having no UI to drive would fail these specs, which is exactly the point.
-  Plus: forced-enrolment interstitial (passkey-first) for a required user;
-  factor removal; passwordless (usernameless, UV) login (PR2); admin reset;
-  feature-flag-off path.
+- **E2E** (Playwright, critical journeys) — built: [MFA-0001] forced passkey
+  enrolment then challenge; [MFA-0002] forced TOTP enrolment; [MFA-0003]
+  self-service passkey enrolment via the kebab modal for a non-required user,
+  challenged on next login, then removal; [MFA-0004] admin-issued enrolment
+  invite redeemed at the login screen (admin reset exercised via API as
+  cleanup); [MFA-0005] passwordless usernameless UV login. NOT built (manual
+  coverage for now): an admin-reset journey driven through the admin UI, and
+  the feature-flag-off path; the self-service TOTP modal journey needs a
+  central-frontend harness the suite doesn't have.
 
 WebAuthn in Playwright uses the **Chromium CDP virtual authenticator**
 (`WebAuthn.addVirtualAuthenticator`) behind a fixture — it answers the real
