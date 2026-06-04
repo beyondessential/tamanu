@@ -87,6 +87,7 @@ import { addSurveyFormVisibilityCriteria1773618699809 } from './1773618699809-ad
 import { removePatientTitleColumn1778199200000 } from './1778199200000-removePatientTitleColumn';
 import { addLabTestReferenceRangeColumns1778546880000 } from './1778546880000-addLabTestReferenceRangeColumns';
 import { addSurveyResponseEditMetadata1778560763154 } from './1778560763154-addSurveyResponseEditMetadata';
+import { addTotpConfirmedAtToUsers1780560982670 } from './1780560982670-addTotpConfirmedAtToUsers';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -177,4 +178,5 @@ export const migrationList = [
   removePatientTitleColumn1778199200000,
   addLabTestReferenceRangeColumns1778546880000,
   addSurveyResponseEditMetadata1778560763154,
+  addTotpConfirmedAtToUsers1780560982670,
 ];

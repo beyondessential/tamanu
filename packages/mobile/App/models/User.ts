@@ -61,6 +61,11 @@ export class User extends BaseModel implements IUser {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
+  // synced mirror maintained by central: whether (and when) a confirmed
+  // authenticator app exists; the TOTP seed itself never syncs
+  @Column({ type: 'datetime', nullable: true })
+  totpConfirmedAt?: Date;
+
   isSuperUser() {
     return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
   }

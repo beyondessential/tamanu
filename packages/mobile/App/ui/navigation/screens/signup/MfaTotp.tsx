@@ -105,10 +105,10 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
               {isEnrol ? (
                 <TranslatedText
                   stringId="mfa.enrol.heading"
-                  fallback="Set up two-factor authentication"
+                  fallback="Set up multi-factor authentication"
                 />
               ) : (
-                <TranslatedText stringId="mfa.challenge.heading" fallback="Two-factor authentication" />
+                <TranslatedText stringId="mfa.challenge.heading" fallback="Multi-factor authentication" />
               )}
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE} marginBottom={15}>
