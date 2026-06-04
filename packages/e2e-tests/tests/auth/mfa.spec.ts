@@ -1,7 +1,9 @@
 import { URI } from 'otpauth';
+import type { Page } from '@playwright/test';
 
 import { test, expect } from '../../fixtures/virtualAuthenticator';
 import { LoginPage, MfaLoginPage, SidebarPage } from '../../pages';
+import { MfaSettingsPage } from '../../pages/MfaSettingsPage';
 import { routes } from '../../config/routes';
 import { constructFacilityUrl } from '../../utils/navigation';
 
@@ -19,10 +21,19 @@ import { constructFacilityUrl } from '../../utils/navigation';
  *   MFA_REQUIRED_EMAIL/PASSWORD  a user whose role carries `require Mfa`
  *                                (so login forces enrolment), with no factor
  *                                enrolled yet
+ *   MFA_SELFSERVICE_EMAIL/PASSWORD  a user with `write Mfa` but NOT
+ *                                `require Mfa`, no factor enrolled — for the
+ *                                voluntary enrol-then-challenged journey
  *
  * Run against an isolated stack with MFA enabled and the rpid set to the
  * frontend's domain stem (e.g. `localhost` for local dev — WebAuthn permits
  * localhost without HTTPS).
+ *
+ * Not covered here: the self-service TOTP (authenticator app) modal journey.
+ * This suite drives the facility frontend, where authenticator apps are
+ * deliberately managed centrally; the TOTP enrol/challenge UI itself is
+ * covered by the forced-enrolment journey ([MFA-0002]). Driving the central
+ * webapp's modal needs a central-frontend harness this suite doesn't have.
  */
 
 const shouldRun = process.env.RUN_MFA_E2E === 'true';
@@ -34,10 +45,17 @@ const passkeyEmail = process.env.MFA_REQUIRED_EMAIL ?? '';
 const passkeyPassword = process.env.MFA_REQUIRED_PASSWORD ?? '';
 const totpEmail = process.env.MFA_TOTP_EMAIL ?? '';
 const totpPassword = process.env.MFA_TOTP_PASSWORD ?? '';
+const selfServiceEmail = process.env.MFA_SELFSERVICE_EMAIL ?? '';
+const selfServicePassword = process.env.MFA_SELFSERVICE_PASSWORD ?? '';
 
 // enter credentials and wait for the paused-login interstitial (MFA holds the
 // login rather than reaching the dashboard)
-const startPausedLogin = async (page, mfaLoginPage, email: string, password: string) => {
+const startPausedLogin = async (
+  page: Page,
+  mfaLoginPage: MfaLoginPage,
+  email: string,
+  password: string,
+) => {
   await new LoginPage(page).goto();
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill(password);
@@ -91,6 +109,52 @@ test.describe('MFA login', () => {
     await expect(loginPage.form).toBeVisible();
 
     await loginPage.submitTotpCode(totp.generate());
+    await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
+  });
+
+  test('[MFA-0003] self-service passkey enrolment, then a non-forced challenge', async ({
+    page,
+  }) => {
+    test.skip(
+      !selfServiceEmail,
+      'set MFA_SELFSERVICE_EMAIL/PASSWORD (write Mfa, not require Mfa, no factor) to run',
+    );
+    const settingsPage = new MfaSettingsPage(page);
+
+    // a non-required user with no factor logs straight in — no interstitial
+    await new LoginPage(page).goto();
+    await page.locator('input[name="email"]').fill(selfServiceEmail);
+    await page.locator('input[name="password"]').fill(selfServicePassword);
+    await page.getByTestId('loginbutton-gx21').click();
+    await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
+
+    // voluntarily enrol a passkey via the kebab modal; this exercises the
+    // facility's local registration ceremony
+    await settingsPage.openFromKebab();
+    // on a facility frontend, authenticator apps are managed centrally
+    await expect(settingsPage.totpCentralOnlyNote).toBeVisible();
+    await settingsPage.addPasskey(1);
+    await page.keyboard.press('Escape');
+
+    // having a factor now means the next login is challenged, even though the
+    // role doesn't require MFA — enrolment without enforcement would be a
+    // silent downgrade
+    await new SidebarPage(page).logOutButton.click();
+    const loginPage = new MfaLoginPage(page);
+    await startPausedLogin(page, loginPage, selfServiceEmail, selfServicePassword);
+    await loginPage.usePasskey();
+    await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
+
+    // remove the passkey again so the user is back to password-only and the
+    // test is re-runnable; the login after that must NOT pause
+    await settingsPage.openFromKebab();
+    await settingsPage.removeFirstPasskey(0);
+    await page.keyboard.press('Escape');
+    await new SidebarPage(page).logOutButton.click();
+    await new LoginPage(page).goto();
+    await page.locator('input[name="email"]').fill(selfServiceEmail);
+    await page.locator('input[name="password"]').fill(selfServicePassword);
+    await page.getByTestId('loginbutton-gx21').click();
     await expect(page).toHaveURL(constructFacilityUrl(routes.dashboard));
   });
 });
