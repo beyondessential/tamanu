@@ -201,9 +201,9 @@ describe('Login with MFA', () => {
     });
 
     it('refuses /skip when the enrolment is not skippable', async () => {
-      // skip is only allowed for IP-exempt users (skippable: true), which is
-      // never the case until IP-exemption ships — prove the guard now, since
-      // the endpoint is already reachable with a valid enrol token
+      // skip is only allowed for IP-exempt users (skippable: true); no
+      // exemption is configured in this suite, so the guard must refuse
+      // (the exempt path is covered in ipPolicy.test.js)
       const response = await baseApp.post('/api/mfa/login/skip').send({ mfaToken });
       expect(response).toBeForbidden();
     });

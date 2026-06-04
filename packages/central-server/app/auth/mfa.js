@@ -73,7 +73,7 @@ export async function requireTotpAvailable(req) {
  * than the compiled ability, so a wildcard grant (`manage all`) doesn't
  * silently make every admin MFA-required.
  */
-export async function resolveLoginMfaPolicy(req, user, { authMethod = 'password' } = {}) {
+export async function resolveLoginMfaPolicy(req, user, { authMethod = 'password', ipExempt = false } = {}) {
   const { settings, store } = req;
   const mfaEnabled = await settings.get('auth.mfa.enabled');
   if (!mfaEnabled) return { kind: 'none' };
@@ -94,6 +94,7 @@ export async function resolveLoginMfaPolicy(req, user, { authMethod = 'password'
   return resolveMfaPolicy({
     mfaEnabled,
     authMethod,
+    ipExempt,
     totpAvailability,
     webAuthnAvailable: originIsUnderRpId(config.canonicalHostName, rpId),
     centralReachable: true, // we are central

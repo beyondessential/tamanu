@@ -109,15 +109,22 @@ export async function centralServerLogin({
   deviceId,
   facilityDeviceId,
   settings,
+  req,
 }) {
   // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
+  // the forwarder credential comes from the facility's OWN session (its
+  // device id), separate from this user-credentialed login call
+  const forwarderHeaders = req
+    ? await new CentralServerConnection({ deviceId: facilityDeviceId }).forwarderHeaders(req)
+    : {};
   const response = await centralServer.login(email, password, {
     scopes: [],
     body: {
       facilityIds: selectFacilityIds(config),
       facilityDeviceId,
     },
+    headers: forwarderHeaders,
     backoff: {
       maxAttempts: 1,
     },
@@ -200,6 +207,7 @@ async function centralServerLoginWithLocalFallback({
   password,
   deviceId,
   facilityDeviceId,
+  req,
 }) {
   // always log in locally when testing
   if (shouldSkipCentralLoginForTest()) {
@@ -214,6 +222,7 @@ async function centralServerLoginWithLocalFallback({
       deviceId,
       facilityDeviceId,
       settings,
+      req,
     });
   } catch (e) {
     // if we get an authentication error from central server, throw instead of
@@ -253,6 +262,7 @@ export async function loginHandler(req, res, next) {
       password,
       deviceId,
       facilityDeviceId,
+      req,
     });
 
     // central paused the login pending a second factor: hand the client the

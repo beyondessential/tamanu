@@ -1,4 +1,4 @@
-import { DEVICE_SCOPES } from '@tamanu/constants';
+import { DEVICE_SCOPES, SETTING_KEYS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 
@@ -20,6 +20,13 @@ describe('facility_server device scope', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
+    // sibling suites toggle the registration quota feature; scope behaviour
+    // is orthogonal to quotas, so pin it off here
+    await models.Setting.set(
+      SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED,
+      false,
+      SETTINGS_SCOPES.GLOBAL,
+    );
   });
 
   afterAll(() => ctx.close());
@@ -29,7 +36,9 @@ describe('facility_server device scope', () => {
     await models.Permission.bulkCreate(
       permissions.map(([verb, noun]) => ({ roleId: role.id, verb, noun })),
     );
-    return models.User.create(fake(models.User, { role: role.id, password: PASSWORD }));
+    return models.User.create(
+      fake(models.User, { role: role.id, password: PASSWORD, deviceRegistrationQuota: 10 }),
+    );
   };
 
   const loginWithScopes = (user, deviceId, scopes) =>

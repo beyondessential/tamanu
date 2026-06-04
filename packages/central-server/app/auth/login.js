@@ -11,6 +11,7 @@ import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
 import { resolveLoginMfaPolicy } from './mfa';
+import { assertIpAllowed, isIpExempt, resolveClientIp } from './clientIp';
 
 // short — long enough to complete a fumbly forced enrolment (scan/add to an
 // authenticator app, type a code), but the pass is also single-use (consumed
@@ -135,6 +136,11 @@ export const login = asyncHandler(async (req, res) => {
     settings,
   } = req;
 
+  // IP policy first: the allowlist refuses out-of-range logins before any
+  // credential handling, and exemption feeds the MFA decision below
+  const clientIp = await resolveClientIp(req);
+  await assertIpAllowed(req, clientIp);
+
   const {
     token,
     user,
@@ -150,7 +156,9 @@ export const login = asyncHandler(async (req, res) => {
   );
 
   // The password checked out; does this login owe a second factor?
-  const decision = await resolveLoginMfaPolicy(req, user);
+  const decision = await resolveLoginMfaPolicy(req, user, {
+    ipExempt: await isIpExempt(req, clientIp),
+  });
   if (decision.kind === 'blocked') {
     // nothing the user has can be verified or enrolled here — never downgrade
     // to password-only
