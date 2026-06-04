@@ -684,7 +684,8 @@ All design decisions are settled. Remaining items are build-time UX/detail only
   its window. Make it single-use (a nonce stored in `mfa_challenges`, consumed
   on the terminal completion step) so a paused-login pass can't mint more than
   one session.
-- **Facility-server integration tests for the `/mfa/login` forwarding routes.**
-  The central side is covered; the facility forwarders (`forwardAndFinalise`:
-  local user mirror + device registration + facility token) are not, for want
-  of a central-connection mock harness in facility route tests.
+- *(done)* ~~Facility-server integration tests for the `/mfa/login` forwarding
+  routes~~ — added (`facility-server/__tests__/apiv1/mfaLogin.test.js`): covers
+  pass-through routes, the finalise routes (local user mirror + device
+  registration + facility token), the no-facility-access rejection, and
+  central-failure propagation.
