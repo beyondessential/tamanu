@@ -315,7 +315,7 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
           valueSchema = yup.string();
           break;
         case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
-          valueSchema = signatureSchema();
+          valueSchema = signatureSchema;
           break;
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
