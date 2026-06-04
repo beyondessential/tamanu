@@ -159,17 +159,17 @@ export const getAnswerBody = async (
   }
   let result;
   switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
-    case 'Checkbox':
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;
-    case 'Autocomplete':
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       result = await convertAutocompleteAnswer(models, parsedComponentConfig, answer);
       break;
-    case 'PatientData':
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
