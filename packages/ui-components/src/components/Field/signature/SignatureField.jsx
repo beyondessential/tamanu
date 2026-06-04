@@ -110,13 +110,16 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     [field],
   );
 
-  const commitSessionToValue = useCallback(() => {
-    if (!sessionStrokes.length) return;
+  const commitSessionToValue = useCallback(
+    (pendingStroke = null) => {
+      const strokes = pendingStroke?.length ? [...sessionStrokes, pendingStroke] : sessionStrokes;
+      if (!strokes.length) return;
 
-    const combined = mergeStrokesIntoBody(value, sessionStrokes);
-    setValue(combined);
-    setSessionStrokes([]);
-  }, [sessionStrokes, setValue, value]);
+      setValue(mergeStrokesIntoBody(value, strokes));
+      setSessionStrokes([]);
+    },
+    [sessionStrokes, setValue, value],
+  );
 
   const handleFocus = () => {
     if (disabled) return;
@@ -126,11 +129,17 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   const handleBlur = event => {
     if (padRef.current?.contains(event.relatedTarget)) return;
 
+    /**
+     * pendingStroke handles the edge case where the tab loses focus mid-stroke, ensuring the last
+     * stroke is persisted to the session. This could happen if the user Alt+Tabs out. More likely,
+     * another app may steal focus from the browser.
+     */
+    const pendingStroke = isDrawingRef.current ? currentStroke : null;
     if (isDrawingRef.current) {
       isDrawingRef.current = false;
       setCurrentStroke(null);
     }
-    commitSessionToValue();
+    commitSessionToValue(pendingStroke);
     setIsFocused(false);
     field.onBlur({ target: { name: field.name } });
   };
