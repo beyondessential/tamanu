@@ -2,8 +2,8 @@
  * - survey_response_answers.body for Signature questions is a JSON array of points, representing
  *   centrelines of the strokes in the signature.
  *   e.g.`[[240,75],[242,76],[245,80]]`
- * - survey_response_answers.body is TEXT column, which has huge limit (64 KiB), but table has index
- *   on the column, which constrains it to 8 KiB.
+ * - survey_response_answers.body is TEXT column, which has huge limit (64 KiB), but table has btree
+ *   version 4 index, which constrains the entire index record size to 2704 B.
  * - Uncompressed, a very complex signature may exceed 8 KiB, so we apply compression. (Gzip for
  *   compression; encoded as Base64 for TEXT column.)
  * - Uncompressed Signature data not meaningful to query on anyway.
