@@ -174,11 +174,10 @@ const PatientSummaryViewPatientLink = styled.button`
   font-size: 13px;
   font-weight: 500;
   color: ${Colors.midText};
-  text-decoration: underline;
   text-align: left;
 
   &:hover {
-    opacity: 0.85;
+    text-decoration: underline;
   }
 `;
 
