@@ -7,7 +7,6 @@ import {
   DateDisplay,
   PatientDataDisplayField,
   SignatureAnswerResult,
-  SignaturePathDisplay,
   SurveyResultBadge,
   TranslatedOption,
   TranslatedReferenceData,
