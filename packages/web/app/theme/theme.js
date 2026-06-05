@@ -36,6 +36,13 @@ const cssReset = {
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
   },
+  table: {
+    borderCollapse: 'collapse',
+  },
+  th: {
+    padding: 0,
+    textAlign: 'start',
+  },
 };
 
 const themeConfig = {

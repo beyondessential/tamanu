@@ -20,6 +20,7 @@ import { DateDisplay } from './DateDisplay';
 import { MenuButton } from './MenuButton';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { SurveyResponseChangelogModal } from './SurveyResponseChangelogModal';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DataFetchingTable } from './Table';
 
@@ -78,9 +79,12 @@ export const DataFetchingProgramsTable = ({
   const params = useParams();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [changelogOpen, setChangelogOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
+  const [changelogResponseId, setChangelogResponseId] = useState(null);
+  const [changelogSurveyName, setChangelogSurveyName] = useState(null);
 
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -109,9 +113,20 @@ export const DataFetchingProgramsTable = ({
     [navigate, params],
   );
 
+  const openChangelog = useCallback(({ id, surveyName }) => {
+    setChangelogResponseId(id);
+    setChangelogSurveyName(surveyName ?? null);
+    setChangelogOpen(true);
+  }, []);
+  const closeChangelog = useCallback(() => {
+    setChangelogOpen(false);
+    setChangelogResponseId(null);
+    setChangelogSurveyName(null);
+  }, []);
+
   const buildRowActions = useCallback(
-    data => {
-      const rowActions = [
+    data =>
+      [
         {
           label: <TranslatedText stringId="general.action.print" fallback="Print" />,
           action: () => {
@@ -119,29 +134,27 @@ export const DataFetchingProgramsTable = ({
             setPrintModalOpen(true);
           },
         },
-      ];
-
-      if (ability?.can('write', subject('Survey', { id: data.surveyId }))) {
-        rowActions.push({
+        {
           label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
           action: () => navigateToEdit(data),
-        });
-      }
-
-      if (ability?.can('delete', 'SurveyResponse')) {
-        rowActions.push({
+          hidden: !ability?.can('write', subject('Survey', { id: data.surveyId })),
+        },
+        {
           label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
           action: () => {
             setSelectedResponse(data);
             setDeleteModalOpen(true);
           },
           wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
-        });
-      }
-
-      return rowActions;
-    },
-    [ability, navigateToEdit],
+          hidden: !ability?.can('delete', 'SurveyResponse'),
+        },
+        {
+          label: <TranslatedText stringId="program.action.changeLog" fallback="Change log" />,
+          action: () => openChangelog({ id: data.id, surveyName: data.surveyName }),
+          hidden: !data.isEdited,
+        },
+      ].filter(row => !row.hidden),
+    [ability, navigateToEdit, openChangelog],
   );
 
   const columns = useMemo(
@@ -206,7 +219,15 @@ export const DataFetchingProgramsTable = ({
         surveyResponseId={selectedResponseId}
         onClose={cancelResponse}
         onPrint={() => setPrintModalOpen(true)}
+        onViewChangeLog={id => openChangelog({ id, surveyName: selectedResponse?.surveyName })}
         data-testid="surveyresponsedetailsmodal-lsuo"
+      />
+      <SurveyResponseChangelogModal
+        open={changelogOpen}
+        surveyResponseId={changelogResponseId}
+        surveyName={changelogSurveyName}
+        onClose={closeChangelog}
+        data-testid="surveyresponsechangelogmodal"
       />
       <SurveyResponsesPrintModal
         open={printModalOpen}

@@ -23,6 +23,7 @@ import { useApi } from '../../api';
 import { isErrorUnknownAllow404s } from '../../api/index.js';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
+import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from '../../components';
 import { ForbiddenError } from '@tamanu/errors';
 
@@ -36,6 +37,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
+  const [changelogOpen, setChangelogOpen] = useState(false);
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [programsLoading, setProgramsLoading] = useState(true);
@@ -207,6 +209,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
     },
   );
 
+  const onViewChangeLog = useCallback(() => {
+    setChangelogOpen(true);
+  }, []);
+
   const onCancelEdit = useCallback(() => {
     if (params.encounterId) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
@@ -256,17 +262,27 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   if (surveyResponseId && surveyForEdit) {
     return (
-      <SurveyView
-        onSubmit={submitSurveyResponseEdit}
-        survey={surveyForEdit}
-        onCancel={onCancelEdit}
-        patient={patient}
-        patientAdditionalData={patientAdditionalData}
-        currentUser={currentUser}
-        initialAnswerOverrides={initialAnswerOverrides}
-        editedDataElementIds={editedDataElementIds}
-        data-testid="surveyview-edit"
-      />
+      <>
+        <SurveyView
+          onSubmit={submitSurveyResponseEdit}
+          survey={surveyForEdit}
+          onCancel={onCancelEdit}
+          patient={patient}
+          patientAdditionalData={patientAdditionalData}
+          currentUser={currentUser}
+          initialAnswerOverrides={initialAnswerOverrides}
+          editedDataElementIds={editedDataElementIds}
+          onViewChangeLog={onViewChangeLog}
+          data-testid="surveyview-edit"
+        />
+        <SurveyResponseChangelogModal
+          open={changelogOpen}
+          surveyResponseId={surveyResponseId}
+          surveyName={existingSurveyResponse?.surveyName}
+          onClose={() => setChangelogOpen(false)}
+          data-testid="surveyresponsechangelogmodal-edit"
+        />
+      </>
     );
   }
 
