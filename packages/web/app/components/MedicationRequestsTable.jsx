@@ -143,9 +143,6 @@ export const MedicationRequestsTable = () => {
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
   const { getSetting } = useSettings();
   const [medicationRequests, setMedicationRequests] = useState([]);
-  // The dispense modal is driven by a URL param so that navigating to the
-  // patient record and pressing Back (in-app or browser) re-opens it. The
-  // selected patient is fetched by id, so it survives the round trip.
   const navigate = useNavigate();
   const { search } = useLocation();
   const queryClient = useQueryClient();
@@ -354,8 +351,6 @@ export const MedicationRequestsTable = () => {
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;
     if (!patient?.id) return;
-    // Prime the cache from the row so the modal opens instantly; the query
-    // refreshes it (and serves it on Back) from the patient record.
     queryClient.setQueryData(['patientDetails', patient.id], patient);
     setDispensePatientParam(patient.id);
   };

@@ -688,8 +688,6 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!name && !patientIdentifier) return null;
       const handleViewPatient = () => {
         if (!patient.id) return;
-        // Don't close the modal here: leaving the dispense URL in the history
-        // stack means the in-app and browser Back buttons re-open this modal.
         navigateToPatient(patient.id);
       };
       return (
