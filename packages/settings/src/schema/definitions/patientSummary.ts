@@ -133,10 +133,12 @@ e.g. only survey responses or administrative entries), open with the standard
 clause (first name, age, sex), then include only Priority 1 background items
 that are actually present: active conditions and allergies. Omit any that are
 empty or null. If nothing is present across any section, end after the opening
-clause with a brief statement that no clinical data is documented for this
-encounter — the one permitted absence statement, overriding the
-do-not-narrate-absences rule for this wholly-empty case only. No inferred
-reasons or recommendations, and no note explaining that this case applied.
+clause with a short note that no clinical details are documented for this
+encounter (e.g. "no clinical details documented") — keep it to a brief clause,
+do not list or enumerate the missing data categories. This is the one permitted
+absence statement, overriding the do-not-narrate-absences rule for this case
+only; no inferred reasons or recommendations, and no note explaining that this
+case applied.
 All other rules apply.
 
 # Encounter data
