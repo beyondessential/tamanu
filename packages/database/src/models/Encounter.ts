@@ -620,7 +620,7 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
-      const { formatShort, formatShortDateTime } = await getStoredNoteDateFormatters(Setting);
+      const { formatShort, formatShortDateTime } = getStoredNoteDateFormatters(Setting);
 
       // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;

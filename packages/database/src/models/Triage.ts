@@ -173,7 +173,7 @@ export class Triage extends Model {
         noteLabel: 'arrival mode',
         model: ReferenceData,
       });
-      const { formatShortDateTime } = await getStoredNoteDateFormatters(Setting);
+      const { formatShortDateTime } = getStoredNoteDateFormatters(Setting);
 
       await onChangeTextColumn({
         columnName: 'arrivalTime',
