@@ -63,6 +63,7 @@ export async function createApiApp({
     req.syncConnection = syncConnection;
     req.deviceId = deviceId;
     req.language = req.headers['language'];
+    req.dateTimeLocale = req.headers['date-time-locale'];
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;
     req.dbNotifier = dbNotifier;
