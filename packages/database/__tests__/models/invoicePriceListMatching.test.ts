@@ -597,4 +597,59 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       'Encounter not found: non-existent',
     );
   });
+
+  it('orders matches by evaluationOrder so admins control priority when rules overlap', async () => {
+    // A 71yo Citizen matches both the broad "13+" catch-all and the specific "Citizen 65+"
+    // list. evaluationOrder lets admins make the specific list win regardless of createdAt.
+    const mockEncounter = buildMockEncounter({
+      facilityId: 'facility-1',
+      patientType: 'patientType-Citizen',
+      patientDOB: '1954-01-01',
+    });
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
+    // findAll returns rows already sorted by the order clause; the senior list has the
+    // lower evaluationOrder so it sorts ahead of the catch-all and is selected.
+    const spy = vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
+      {
+        id: 'pl-senior',
+        evaluationOrder: 1,
+        rules: {
+          facilityId: 'facility-1',
+          patientType: 'patientType-Citizen',
+          patientAge: { min: 65 },
+        },
+      },
+      {
+        id: 'pl-catchall',
+        evaluationOrder: 2,
+        rules: { facilityId: 'facility-1', patientAge: { min: 13 } },
+      },
+    ]);
+
+    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    expect(id).toBe('pl-senior');
+
+    // Lock in that selection is ordered by evaluationOrder ahead of createdAt/code.
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        order: [
+          ['evaluationOrder', 'ASC'],
+          ['createdAt', 'ASC'],
+          ['code', 'ASC'],
+        ],
+      }),
+    );
+  });
 });

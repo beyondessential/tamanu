@@ -1,5 +1,8 @@
-import React, { useMemo, useEffect } from 'react';
+import { useIsMutating } from '@tanstack/react-query';
+import React, { useEffect, useMemo } from 'react';
+import { useMatch, useParams } from 'react-router';
 import styled from 'styled-components';
+
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
@@ -10,17 +13,17 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
-import { useTranslation } from '../../contexts/Translation';
-import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useTranslation } from '../../contexts/Translation';
+import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
-  background: ${props => props.theme.palette.primary.main};
+  background-color: ${props => props.theme.palette.primary.main};
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
   text-align: center;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
@@ -37,6 +40,24 @@ const DirtyStateTracker = ({ dirty, setDirty }) => {
   return null;
 };
 
+/** @returns `true` when editing an existing survey response. `false` for a new survey response. */
+function useIsEdit() {
+  const patientProgramsEditMatch = Boolean(
+    useMatch('/patients/:category/:patientId/programs/:surveyResponseId/edit'),
+  );
+  const encounterProgramsEditMatch = Boolean(
+    useMatch(
+      '/patients/:category/:patientId/encounter/:encounterId/programs/:surveyResponseId/edit',
+    ),
+  );
+  return patientProgramsEditMatch || encounterProgramsEditMatch;
+}
+
+function useIsSubmittingEdit() {
+  const { surveyResponseId } = useParams();
+  return useIsMutating({ mutationKey: ['surveyResponseEdit', surveyResponseId] }) > 0;
+}
+
 export const SurveyViewForm = ({
   survey,
   onSubmit,
@@ -47,41 +68,55 @@ export const SurveyViewForm = ({
   patientProgramRegistration,
   showCancelButton,
   setSurveyFormDirty,
+  initialAnswerOverrides = null,
+  editedDataElementIds = null,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
+  const isEdit = useIsEdit();
+  const isSubmittingEdit = useIsSubmittingEdit();
+
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
-  const initialValues = getFormInitialValues({
-    components: currentComponents,
-    additionalData: patientAdditionalData,
+  const initialValues = useMemo(() => {
+    const base = getFormInitialValues({
+      components: currentComponents,
+      additionalData: patientAdditionalData,
+      patient,
+      currentUser,
+      patientProgramRegistration,
+      getCurrentDateTime,
+    });
+    return initialAnswerOverrides ? { ...base, ...initialAnswerOverrides } : base;
+  }, [
+    currentComponents,
+    patientAdditionalData,
     patient,
     currentUser,
     patientProgramRegistration,
     getCurrentDateTime,
-  });
-  const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
-    survey,
-    getTranslation,
+    initialAnswerOverrides,
   ]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(survey, getTranslation),
+    [survey, getTranslation],
+  );
 
-  const renderSurvey = props => {
-    const {
-      submitForm,
-      values,
-      setFieldValue,
-      setValues,
-      validateForm,
-      setErrors,
-      errors,
-      setStatus,
-      status,
-      dirty,
-    } = props;
-
+  const renderSurvey = ({
+    dirty,
+    errors,
+    setErrors,
+    setFieldValue,
+    setStatus,
+    setValues,
+    status,
+    submitForm,
+    validateForm,
+    values,
+  }) => {
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
       const visibleFields = new Set(
@@ -119,6 +154,8 @@ export const SurveyViewForm = ({
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
           encounterType={encounter?.type}
+          completeButtonDisabled={isEdit ? !dirty || isSubmittingEdit : false}
+          editedDataElementIds={editedDataElementIds}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -133,18 +170,24 @@ export const SurveyViewForm = ({
       validationSchema={validationSchema}
       validateOnChange
       validateOnBlur
+      enableReinitialize={Boolean(initialAnswerOverrides)}
       data-testid="form-12o2"
     />
   );
 };
 
+/** @param {React.ComponentPropsWithRef<typeof SurveyViewForm>} props */
 export const SurveyView = props => {
   const { survey } = props;
   return (
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
         <SurveyPaneHeading variant="h6" data-testid="surveypaneheading-b5sc">
-          <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
+          <TranslatedReferenceData
+            category="survey"
+            value={survey.id}
+            fallback={survey.name ?? survey.surveyName}
+          />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
       <SurveyViewForm {...props} />

@@ -55,7 +55,6 @@ describe('CentralSyncManager Edge Cases', () => {
       displayName: 'System',
       role: 'system',
     });
-    await models.Setting.set('audit.changes.enabled', false);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     await models.SyncLookup.truncate({ force: true });
     await models.DebugLog.truncate({ force: true });

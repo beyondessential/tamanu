@@ -441,6 +441,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
     updatedByUserId: fakeUUID(),
     recordUpdate: true,
   }),
+  SurveyResponse: () => ({
+    // editedTime implies “patched after original survey response submission”; must start as NULL
+    editedTime: null,
+  }),
+  SurveyResponseAnswer: () => ({
+    // editedTime implies “patched after original survey response submission”; must start as NULL
+    editedTime: null,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {

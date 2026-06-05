@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
-import { Button, PatientDataDisplayField, TranslatedReferenceData } from '@tamanu/ui-components';
-import { DateDisplay } from './DateDisplay';
+import {
+  Button,
+  DateDisplay,
+  PatientDataDisplayField,
+  SurveyResultBadge,
+  TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { DisplayTextPseudoResult } from './DisplayTextPseudoResult';
 import MultilineResult from './MultilineResult';
+import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { TranslatedOption } from './Translation/TranslatedOptions';
-import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
 const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
@@ -33,7 +38,9 @@ export const SurveyAnswerResult = ({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
-  if (!answer) return 'Answer not submitted';
+  if (answer === null || answer === undefined || answer === '') {
+    return <TranslatedText stringId="surveyResponse.details.noAnswer" fallback="No answer" />;
+  }
 
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
@@ -63,12 +70,9 @@ export const SurveyAnswerResult = ({
             variant="contained"
             color="primary"
             data-testid="button-rzll"
+            style={{ display: 'inline-block' }}
           >
-            <TranslatedText
-              stringId="survey.action.showForm"
-              fallback="Show Form"
-              data-testid="translatedtext-show-form"
-            />
+            <TranslatedText stringId="survey.action.showForm" fallback="Show form" />
           </Button>
           <SurveyResponseDetailsModal
             surveyResponseId={surveyLink}
@@ -89,16 +93,7 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
       return <MultilineResult answer={answer} />;
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(element => (
-        <>
-          <TranslatedOption
-            value={element}
-            referenceDataId={dataElementId}
-            referenceDataCategory="programDataElement"
-          />
-          <br />
-        </>
-      ));
+      return <MultiSelectResult answerBody={answer} dataElementId={dataElementId} />;
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       return (
         <PatientDataDisplayField

@@ -9,6 +9,10 @@ name: CD Restore
 # IMPORTANT: This is a destructive operation on the target deployment.  The
 # current primary cluster is paused and traffic is moved to the restored clone.
 # Confirm you understand the implications before triggering this workflow.
+#
+# The workflow waits (default 10 min) for the restore cluster to become Ready.
+# If that wait times out, the job fails but CNPG keeps restoring in the cluster;
+# increase ready-timeout-seconds or monitor the cluster and cut over manually.
 
 on:
   workflow_dispatch:
@@ -31,6 +35,14 @@ on:
           Leave blank to restore from the most recent backup.
         type: string
         default: ''
+      ready-timeout-seconds:
+        description: |
+          How long to wait for the restored cluster to become Ready (seconds).
+          Default 600 (10 min). Large databases may need 3600 (1 h) or more.
+          If exceeded, the workflow fails but CNPG keeps restoring in the
+          background — check cluster status and run the cutover manually.
+        type: number
+        default: 600
 
 permissions:
   contents: read
@@ -55,6 +67,7 @@ jobs:
           DEPLOY_NAME: ${{ inputs.deploy-name }}
           INPUT_CLUSTER: ${{ inputs.cluster }}
           RECOVERY_TARGET_TIME: ${{ inputs.recovery-target-time }}
+          READY_TIMEOUT_SECONDS: ${{ inputs.ready-timeout-seconds }}
         run: |
           set -euo pipefail
 
@@ -68,10 +81,16 @@ jobs:
             exit 1
           fi
 
-          NS="tamanu-$DEPLOY_NAME"
-          CLUSTER="$INPUT_CLUSTER-db"
-          RESTORE_NAME="${CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)"
-          OBJECT_STORE="${CLUSTER}-object-store"
+          READY_TIMEOUT="${READY_TIMEOUT_SECONDS:-600}"
+          if ! [[ "$READY_TIMEOUT" =~ ^[0-9]+$ ]] || [[ "$READY_TIMEOUT" -lt 60 ]]; then
+            echo "Invalid ready-timeout-seconds: '$READY_TIMEOUT' (must be an integer >= 60)"
+            exit 1
+          fi
+
+          export NS="tamanu-$DEPLOY_NAME"
+          export CLUSTER="$INPUT_CLUSTER-db"
+          export RESTORE_NAME="${INPUT_CLUSTER}-restore-$(date -u +%Y%m%dt%H%M%S)-db"
+          export OBJECT_STORE="${CLUSTER}-object-store"
 
           echo "Restoring '$CLUSTER' in namespace '$NS' as '$RESTORE_NAME'"
           echo "Recovery target time: '${RECOVERY_TARGET_TIME:-<latest>}'"
@@ -79,9 +98,30 @@ jobs:
           # Fetch the source cluster's storage size.
           # kubectl jsonpath returns an empty string (not an error) when the
           # field is missing, so explicitly fall back to 10Gi in that case too.
+          export STORAGE_SIZE
           STORAGE_SIZE=$(kubectl get cluster "$CLUSTER" -n "$NS" \
             -o jsonpath='{.spec.storage.size}' 2>/dev/null || true)
           STORAGE_SIZE="${STORAGE_SIZE:-10Gi}"
+
+          # Inherit the IRSA role ARN from the source cluster so the restored
+          # cluster's pods can assume the same IAM role and access S3.
+          export IRSA_ROLE_ARN
+          IRSA_ROLE_ARN=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+            -o jsonpath='{.spec.serviceAccountTemplate.metadata.annotations.eks\.amazonaws\.com/role-arn}' \
+            2>/dev/null || true)
+
+          # Inherit the exact PostgreSQL image from the source cluster's running
+          # status so the restore pod uses the same major version.  Using a
+          # different major version causes PostgreSQL to refuse to start because
+          # the on-disk data directory format is incompatible.
+          export IMAGE_NAME
+          IMAGE_NAME=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+            -o jsonpath='{.status.image}' 2>/dev/null || true)
+          # Fall back to spec.imageName if status not yet populated.
+          if [[ -z "$IMAGE_NAME" ]]; then
+            IMAGE_NAME=$(kubectl get cluster "$CLUSTER" -n "$NS" \
+              -o jsonpath='{.spec.imageName}' 2>/dev/null || true)
+          fi
 
           # Build and apply the restore manifest using Python so that the
           # RECOVERY_TARGET_TIME value is JSON-encoded and never causes YAML
@@ -94,11 +134,23 @@ jobs:
           cluster         = os.environ['CLUSTER']
           object_store    = os.environ['OBJECT_STORE']
           storage_size    = os.environ['STORAGE_SIZE']
+          irsa_role_arn   = os.environ.get('IRSA_ROLE_ARN', '').strip()
+          image_name      = os.environ.get('IMAGE_NAME', '').strip()
           pitr            = os.environ.get('RECOVERY_TARGET_TIME', '').strip()
 
           recovery = {'source': 'source'}
           if pitr:
               recovery['recoveryTarget'] = {'targetTime': pitr}
+
+          service_account_template = {}
+          if irsa_role_arn:
+              service_account_template = {
+                  'metadata': {
+                      'annotations': {
+                          'eks.amazonaws.com/role-arn': irsa_role_arn,
+                      },
+                  },
+              }
 
           manifest = {
               'apiVersion': 'postgresql.cnpg.io/v1',
@@ -106,15 +158,20 @@ jobs:
               'metadata': {
                   'name': restore_name,
                   'namespace': ns,
+                  'labels': {
+                      'tamanu.io/restored-from': cluster,
+                  },
                   'annotations': {
                       'tamanu.io/restored-from': cluster,
                   },
               },
               'spec': {
                   'instances': 1,
+                  **(({'imageName': image_name}) if image_name else {}),
                   'bootstrap': {
                       'recovery': recovery,
                   },
+                  **(({'serviceAccountTemplate': service_account_template}) if service_account_template else {}),
                   'externalClusters': [{
                       'name': 'source',
                       'plugin': {
@@ -143,20 +200,39 @@ jobs:
               sys.exit(result.returncode)
           PYEOF
 
-          echo "Waiting for restored cluster to become ready (up to 60 minutes)..."
-          kubectl wait cluster/"$RESTORE_NAME" \
+          READY_TIMEOUT_MIN=$(( READY_TIMEOUT / 60 ))
+          echo "Waiting for restored cluster to become ready (up to ${READY_TIMEOUT_MIN} minutes)..."
+          if ! kubectl wait cluster/"$RESTORE_NAME" \
             -n "$NS" \
             --for=condition=Ready \
-            --timeout=3600s
+            --timeout="${READY_TIMEOUT}s"; then
+            echo ""
+            echo "Timed out after ${READY_TIMEOUT}s waiting for Ready."
+            echo "CNPG continues restoring '$RESTORE_NAME' in the background."
+            echo "When Ready, run the cutover manually (see llm/docs/database-backups.md):"
+            echo "       NS=$NS"
+            echo "       RESTORE_NAME=$RESTORE_NAME"
+            echo "       CLUSTER=$CLUSTER"
+            exit 1
+          fi
 
           echo ""
           echo "Restored cluster '$RESTORE_NAME' is ready."
           echo ""
-          echo "Next steps (manual):"
-          echo "  1. Verify the restored data looks correct."
-          echo "  2. Scale the original cluster to 0 replicas or pause it:"
-          echo "       kubectl patch cluster $CLUSTER -n $NS --type=merge \\"
-          echo "         -p '{\"spec\":{\"instances\":0}}'"
-          echo "  3. If you want '$RESTORE_NAME' to take over WAL archiving,"
-          echo "     add the plugin stanza and update its ObjectStore reference."
-          echo "  4. Delete '$CLUSTER' once you are satisfied with the restore."
+          echo "Next steps (manual) — copy the restored data back into the live cluster:"
+          echo ""
+          echo "  Set your shell variables (copy-paste ready):"
+          echo "       NS=$NS"
+          echo "       RESTORE_NAME=$RESTORE_NAME"
+          echo "       CLUSTER=$CLUSTER"
+          echo ""
+          echo "  1. Verify the restored data looks correct by connecting to the restore cluster:"
+          echo "       kubectl exec -it -n $NS ${RESTORE_NAME}-1 -c postgres -- psql -U postgres -d app"
+          echo ""
+          echo "  2. Pipe the restored data into the live cluster (--single-transaction; stop app pods on large DBs — see database-backups.md):"
+          echo "       kubectl exec -n $NS ${RESTORE_NAME}-1 -c postgres -- pg_dump -U postgres -d app -Fc | kubectl exec -i -n $NS ${CLUSTER}-1 -c postgres -- pg_restore -U postgres -d app --clean --if-exists --single-transaction"
+          echo ""
+          echo "  3. Verify the live cluster now has the rolled-back data."
+          echo ""
+          echo "  4. Delete the restore cluster once satisfied:"
+          echo "       kubectl delete cluster $RESTORE_NAME -n $NS"

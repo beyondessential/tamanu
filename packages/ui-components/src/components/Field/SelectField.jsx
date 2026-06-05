@@ -1,20 +1,21 @@
+import IconButton from '@material-ui/core/IconButton';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
-import IconButton from '@material-ui/core/IconButton';
 import { X } from 'lucide-react';
-import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import React, { useCallback } from 'react';
 import Select, { components } from 'react-select';
-import { ChevronIcon } from '../Icons/ChevronIcon';
+import styled from 'styled-components';
+
 import { TAMANU_COLORS } from '../../constants';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { StyledTextField } from './TextField';
-import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/TranslationContext';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { FormFieldTag } from '../Tag';
+import { ThemedTooltip } from '../Tooltip';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumInput';
 import { extractTranslationFromComponent } from '../Translation/utils';
-import { ThemedTooltip } from '../Tooltip';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { StyledTextField } from './TextField';
 
 const ExpandMoreIcon = styled(ChevronIcon)`
   transform: rotate(0);
@@ -24,14 +25,6 @@ const ExpandMoreIcon = styled(ChevronIcon)`
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
-
-  // helper text
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
 `;
 
 const SelectTag = styled(FormFieldTag)`

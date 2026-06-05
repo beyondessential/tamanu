@@ -19,6 +19,7 @@ export * from './useTelegramBotInfoQuery';
 export * from './useChartSurveysQuery';
 export * from './useEncounterChartsQuery';
 export * from './useSurveyResponseQuery';
+export * from './useSurveyResponseChangesQuery';
 export {
   usePatientProgramRegistryConditionsQuery,
   useProgramRegistryConditionsQuery,
@@ -37,3 +38,4 @@ export { useLabTestResultHistoryQuery } from './useLabTestResultHistoryQuery';
 export { useFacilityQuery } from './useFacilityQuery';
 export { usePatientInsurancePlansQuery } from './usePatientInsurancePlansQuery';
 export { usePatientInsurancePlansInUseQuery } from './usePatientInsurancePlansInUseQuery';
+export { useAiPatientSummaryQuery } from './useAiPatientSummaryQuery';

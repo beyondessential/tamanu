@@ -34,6 +34,7 @@ import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
+import { patientSummaryProperties } from './definitions/patientSummary';
 
 const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
@@ -62,16 +63,6 @@ export const globalSettings = {
           properties: {
             enabled: {
               description: 'Enable audit accesses',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
-        },
-        changes: {
-          description: 'Audit changes',
-          properties: {
-            enabled: {
-              description: 'Enable audit changes',
               type: yup.boolean(),
               defaultValue: false,
             },
@@ -1670,6 +1661,7 @@ export const globalSettings = {
         },
       },
     },
+    patientSummary: patientSummaryProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,
