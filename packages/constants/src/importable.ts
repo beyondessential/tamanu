@@ -51,6 +51,7 @@ export const REFERENCE_TYPES = {
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
+  MEDICATION_PRESET_LABEL: 'medicationPresetLabel',
   MEDICATION_TEMPLATE: 'medicationTemplate',
   MEDICATION_SET: 'medicationSet',
   NOTE_TYPE: 'noteType',

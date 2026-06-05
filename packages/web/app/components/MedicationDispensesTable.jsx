@@ -293,10 +293,9 @@ export const MedicationDispensesTable = () => {
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
-      prescription: {
-        date: dispenseData.pharmacyOrderPrescription?.prescription?.date,
-        medication: dispenseData.pharmacyOrderPrescription?.prescription?.medication,
-      },
+      // Full prescription so the modal can derive the original Instructions text.
+      prescription: dispenseData.pharmacyOrderPrescription?.prescription,
+      medicationPresetLabel: dispenseData.medicationPresetLabel,
       patient,
     };
     setSelectedDetailItem(mappedItem);
