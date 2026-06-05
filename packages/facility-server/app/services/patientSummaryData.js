@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { VACCINE_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ageInYears } from '@tamanu/utils/dateTime';
 
 const PATIENT_SUMMARY_DATA_LIMIT = 20;
 
@@ -196,6 +197,7 @@ function formatPatient(p) {
   if (!p) return null;
   return {
     firstName: p.firstName,
+    age: p.dateOfBirth ? ageInYears(p.dateOfBirth) : undefined,
     dateOfDeath: p.dateOfDeath,
     sex: p.sex,
   };
