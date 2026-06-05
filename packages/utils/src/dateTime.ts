@@ -198,7 +198,8 @@ export const format = (date: DateInput, formatStr: string) => {
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
 
-export const locale = globalThis.navigator?.language ?? 'default';
+/** The locale the runtime actually formats with when none is specified. */
+export const locale = Intl.DateTimeFormat().resolvedOptions().locale;
 
 export const isStartOfThisWeek = (date: Date | number) =>
   isSameDay(date, startOfWeek(new Date(), { weekStartsOn: 1 }));
