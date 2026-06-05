@@ -52,6 +52,7 @@ export const SurveyAnswerResult = ({
 
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
       return surveyComponent ? (
         <DisplayTextPseudoResult
           component={surveyComponent}

@@ -9,11 +9,7 @@ const Root = styled.div`
 
 export const InstructionField = ({ label, helperText, ...props }) => (
   <Root {...props}>
-    {label && (
-      <Typography component="h2" variant="body1">
-        {label}
-      </Typography>
-    )}
+    {label && <Typography variant="body1">{label}</Typography>}
     {helperText && <FormHelperText>{helperText}</FormHelperText>}
   </Root>
 );

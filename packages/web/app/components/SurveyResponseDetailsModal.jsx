@@ -96,7 +96,15 @@ export const SurveyResponseDetailsModal = ({
         title: (
           <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
         ),
-        accessor: ({ answer, type, originalBody, componentConfig, dataElementId, wasEdited }) => (
+        accessor: ({
+          answer,
+          type,
+          originalBody,
+          componentConfig,
+          dataElementId,
+          wasEdited,
+          surveyComponent,
+        }) => (
           <>
             <SurveyAnswerResult
               answer={answer}
@@ -105,6 +113,7 @@ export const SurveyResponseDetailsModal = ({
               originalBody={originalBody}
               componentConfig={componentConfig}
               dataElementId={dataElementId}
+              surveyComponent={surveyComponent}
             />
             {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
           </>

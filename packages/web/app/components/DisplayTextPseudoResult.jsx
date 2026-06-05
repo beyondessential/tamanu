@@ -1,3 +1,4 @@
+import { typographyClasses } from '@mui/material/Typography';
 import React from 'react';
 
 import { InstructionField, TranslatedReferenceData } from '@tamanu/ui-components';
@@ -5,7 +6,7 @@ import styled from 'styled-components';
 
 const StyledInstructionField = styled(InstructionField)`
   margin-block: unset;
-  h2 {
+  .${typographyClasses.root} {
     font: inherit;
   }
 `;
