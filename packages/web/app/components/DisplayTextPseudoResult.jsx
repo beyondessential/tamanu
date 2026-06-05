@@ -4,7 +4,9 @@ import React from 'react';
 import { InstructionField, TranslatedReferenceData } from '@tamanu/ui-components';
 import styled from 'styled-components';
 
-const StyledInstructionField = styled(InstructionField)`
+const StyledInstructionField = styled(InstructionField).attrs({
+  'data-testid': 'displaytextpseudoresult-p4n7',
+})`
   margin-block: unset;
   .${typographyClasses.root} {
     font: inherit;
@@ -42,5 +44,5 @@ export function DisplayTextPseudoResult({ component, ...props }) {
     />
   ) : null;
 
-  return <StyledInstructionField label={label} helperText={helperText} {...props} />;
+  return <StyledInstructionField helperText={helperText} label={label} {...props} />;
 }

@@ -54,10 +54,7 @@ export const SurveyAnswerResult = ({
     case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
     case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
       return surveyComponent ? (
-        <DisplayTextPseudoResult
-          component={surveyComponent}
-          data-testid="displaytextpseudoresult-p4n7"
-        />
+        <DisplayTextPseudoResult component={surveyComponent} />
       ) : (
         answer // Fallback (shouldn’t be reached)
       );
