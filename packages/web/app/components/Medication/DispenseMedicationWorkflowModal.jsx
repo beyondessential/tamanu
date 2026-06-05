@@ -689,7 +689,6 @@ export const DispenseMedicationWorkflowModal = memo(
       const handleViewPatient = () => {
         if (!patient.id) return;
         navigateToPatient(patient.id);
-        onClose();
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
@@ -722,7 +721,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ) : null}
         </PatientSummaryPanel>
       );
-    }, [patient, navigateToPatient, onClose]);
+    }, [patient, navigateToPatient]);
 
     const dispenseWithoutLabelsButton = (
       <OutlinedButton
