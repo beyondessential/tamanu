@@ -1,3 +1,4 @@
+import { differenceInYears, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 import { VACCINE_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ageInYears } from '@tamanu/utils/dateTime';
@@ -193,11 +194,18 @@ export async function fetchPatientSummaryData(patientId, models) {
   };
 }
 
+function getPatientAge({ dateOfBirth, dateOfDeath }) {
+  if (!dateOfBirth) return undefined;
+  // For a deceased patient, report age at death rather than current age.
+  if (dateOfDeath) return differenceInYears(parseISO(dateOfDeath), parseISO(dateOfBirth));
+  return ageInYears(dateOfBirth);
+}
+
 function formatPatient(p) {
   if (!p) return null;
   return {
     firstName: p.firstName,
-    age: p.dateOfBirth ? ageInYears(p.dateOfBirth) : undefined,
+    age: getPatientAge(p),
     dateOfDeath: p.dateOfDeath,
     sex: p.sex,
   };
