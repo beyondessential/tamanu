@@ -88,7 +88,7 @@ export const SignInForm: FunctionComponent<any> = ({
   const [existingHost, setExistingHost] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const passwordRef = useRef(null);
-  const { signIn } = useAuth();
+  const { signIn, mfaSignInExpired } = useAuth();
   const { getTranslation } = useTranslation();
 
   const handleSignIn = useCallback(
@@ -161,7 +161,17 @@ export const SignInForm: FunctionComponent<any> = ({
                 label={<TranslatedText stringId="general.country.label" fallback="Country" />}
               />
             )}
-            <ErrorBox errorMessage={errorMessage} />
+            <ErrorBox
+              errorMessage={
+                errorMessage ||
+                (mfaSignInExpired
+                  ? getTranslation(
+                      'mfa.totp.expiredError',
+                      'This sign-in attempt has expired, please try again.',
+                    )
+                  : '')
+              }
+            />
             <Field
               name="email"
               keyboardType="email-address"

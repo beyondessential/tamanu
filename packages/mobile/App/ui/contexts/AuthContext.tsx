@@ -39,6 +39,10 @@ interface AuthContextData {
   // terminal MFA step ('totp' or 'totp/confirm'); signs the user in on success
   completeMfaSignIn: (path: MfaLoginStep, body?: Record<string, unknown>) => Promise<void>;
   cancelMfaSignIn: () => void;
+  // the pending pass died (typically expired while the user was in their
+  // authenticator app): state is discarded and sign-in shows a try-again note
+  expireMfaSignIn: () => void;
+  mfaSignInExpired: boolean;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
   signOutClient: (signedOutFromInactivity: boolean) => void;
@@ -78,6 +82,7 @@ const Provider = ({
     pending: MfaPending;
     params: SyncConnectionParameters;
   } | null>(null);
+  const [mfaSignInExpired, setMfaSignInExpired] = useState(false);
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -146,6 +151,7 @@ const Provider = ({
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<'success' | 'mfa'> => {
+    setMfaSignInExpired(false);
     const network = await NetInfo.fetch();
     let status: 'success' | 'mfa' = 'success';
     if (network.isConnected) {
@@ -193,6 +199,11 @@ const Provider = ({
 
   const cancelMfaSignIn = (): void => {
     setMfaSignIn(null);
+  };
+
+  const expireMfaSignIn = (): void => {
+    setMfaSignIn(null);
+    setMfaSignInExpired(true);
   };
 
   const signOut = (): void => {
@@ -277,6 +288,8 @@ const Provider = ({
         beginMfaSignInStep,
         completeMfaSignIn,
         cancelMfaSignIn,
+        expireMfaSignIn,
+        mfaSignInExpired,
         signOut,
         reconnectWithPassword,
         signOutClient,

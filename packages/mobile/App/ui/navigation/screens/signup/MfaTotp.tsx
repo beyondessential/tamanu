@@ -30,12 +30,12 @@ import { ERROR_TYPE } from '@tamanu/errors';
  */
 export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement => {
   const auth = useAuth();
-  const { mfaPending, beginMfaSignInStep, completeMfaSignIn, cancelMfaSignIn } = auth;
+  const { mfaPending, beginMfaSignInStep, completeMfaSignIn, cancelMfaSignIn, expireMfaSignIn } = auth;
 
   const isEnrol = mfaPending?.kind === 'enrol';
   const [otpauthUrl, setOtpauthUrl] = useState<string | null>(null);
   const [code, setCode] = useState('');
-  const [error, setError] = useState<'enrolFailed' | 'badCode' | 'expired' | 'openFailed' | null>(null);
+  const [error, setError] = useState<'enrolFailed' | 'badCode' | 'openFailed' | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -80,14 +80,20 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
       await completeMfaSignIn(isEnrol ? 'totp/confirm' : 'totp', { code });
       await navigateOnSuccess();
     } catch (err) {
-      // a wrong code is retryable; anything else (typically the short-lived
-      // pending pass expiring while the user was off in their authenticator
-      // app) means this attempt is over and they must log in again
-      setError(err?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID ? 'badCode' : 'expired');
+      if (err?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID) {
+        // a wrong code is retryable in place
+        setError('badCode');
+      } else {
+        // anything else (typically the short-lived pending pass expiring
+        // while the user was off in their authenticator app) means this
+        // attempt is over: discard it for them — the cleared pending state
+        // navigates back to sign-in, which shows the try-again note
+        expireMfaSignIn();
+      }
     } finally {
       setBusy(false);
     }
-  }, [completeMfaSignIn, isEnrol, code, navigateOnSuccess]);
+  }, [completeMfaSignIn, expireMfaSignIn, isEnrol, code, navigateOnSuccess]);
 
   const onCancel = useCallback(() => {
     cancelMfaSignIn();
@@ -184,12 +190,6 @@ export const MfaTotp: FunctionComponent<any> = ({ navigation }): ReactElement =>
                   <TranslatedText
                     stringId="mfa.totp.codeError"
                     fallback="Incorrect code. Please try again."
-                  />
-                )}
-                {error === 'expired' && (
-                  <TranslatedText
-                    stringId="mfa.totp.expiredError"
-                    fallback="This sign-in attempt has expired. Please cancel and log in again."
                   />
                 )}
                 {error === 'openFailed' && (
