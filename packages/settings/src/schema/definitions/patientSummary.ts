@@ -34,7 +34,7 @@ for a receiving clinician as a single flowing paragraph.
 
 You will be given structured patient data in the following sections:
 
-- DEMOGRAPHICS: age, sex, village
+- DEMOGRAPHICS: first name, age, sex
 - ALLERGIES: allergens and reactions
 - CONDITIONS: ongoing diagnoses
 - ISSUES: flagged clinical concerns
