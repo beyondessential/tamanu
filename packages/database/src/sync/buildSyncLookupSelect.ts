@@ -10,26 +10,19 @@ interface Columns {
 }
 
 /**
- * When fully rebuilding we want to use base table's updated_at_sync_tick so that clients don't
- * resync records they already have. Calling this the 'historicalRecordSyncTick'
+ * The lookup row's updated_at_sync_tick: the passed in `updatedAtSyncTick` (usually the
+ * SYNC_LOOKUP_PENDING_UPDATE flag, later bumped to the current tick by updateSyncLookupPendingRecords)
+ * or, when that is null (typically an initial build), the base table's own tick.
  *
- * During regular sync lookup building, we either want to use the passed in `updatedAtSyncTick` variable (which is usually the SYNC_LOOKUP_PENDING_UPDATE_FLAG)
- * or if that value is null (typically for an initial build) we use th base table's updated at sync tick again.
+ * Rebuilds don't go through here for ticks — they refresh row data while leaving updated_at_sync_tick
+ * untouched (see updateLookupTable's rebuild pass).
  */
-const updatedAtSyncTickClause = (table: string, isFullyRebuilding: boolean) => {
-  const historicRecordSyncTick = `${table}.updated_at_sync_tick`;
-  const newRecordSyncTick = `COALESCE(:updatedAtSyncTick, ${table}.updated_at_sync_tick)`;
+const updatedAtSyncTickClause = (table: string) =>
+  `COALESCE(:updatedAtSyncTick, ${table}.updated_at_sync_tick)`;
 
-  return isFullyRebuilding
-    ? `CASE WHEN ${table}.updated_at_sync_tick <= :since THEN ${historicRecordSyncTick} ELSE ${newRecordSyncTick} END`
-    : newRecordSyncTick;
-};
-
-export async function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
+export function buildSyncLookupSelect(model: typeof Model, columns: Columns = {}) {
   const attributes = model.getAttributes();
   const table = model.tableName;
-  const isFullyRebuilding =
-    await model.sequelize.models.LocalSystemFact.isLookupRebuildingModel(table);
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
   const { patientId, facilityId, encounterId, isLabRequestValue } = columns;
 
@@ -38,12 +31,12 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
       ${table}.id,
       '${table}',
       ${table}.deleted_at IS NOT NULL,
-      ${updatedAtSyncTickClause(table, isFullyRebuilding)},
+      ${updatedAtSyncTickClause(table)},
       sync_device_ticks.device_id,
       json_build_object(
         ${Object.keys(attributes)
-          .filter((a) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-          .map((a) => `'${a}', ${table}.${snake(a)}`)}
+          .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+          .map(a => `'${a}', ${table}.${snake(a)}`)}
       ),
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},

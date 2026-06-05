@@ -128,11 +128,6 @@ export class LocalSystemFact extends Model {
     return value.split(',').map(model => model.trim());
   }
 
-  static async isLookupRebuildingModel(modelName: string): Promise<boolean> {
-    const modelsToRebuild = await this.getLookupModelsToRebuild();
-    return modelsToRebuild.includes(modelName);
-  }
-
   static async markLookupModelRebuilt(modelName: string): Promise<void> {
     await this.sequelize.query(
       `
