@@ -13,10 +13,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import config from 'config';
-import { formatShortDateTime, formatShort } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { Model } from './Model';
 import {
@@ -33,6 +30,7 @@ import type { ReferenceData } from './ReferenceData';
 
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import { createChangeRecorders } from '../utils/recordModelChanges';
+import { getStoredNoteDateFormatters } from '../utils/storedNoteDateFormatters';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
@@ -503,7 +501,8 @@ export class Encounter extends Model {
   }
 
   async update(data: any, user?: any): Promise<any> {
-    const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
+    const { Department, Location, EncounterHistory, ReferenceData, Setting, User } =
+      this.sequelize.models;
     // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
     // To collect system note messages describing all changes in this encounter update
@@ -621,19 +620,21 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
+      const { formatShort, formatShortDateTime } = await getStoredNoteDateFormatters(Setting);
+
       // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;
       await onChangeTextColumn({
         columnName: 'startDate',
         noteLabel:
           encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
-        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShortDateTime(date) : '-'),
       });
 
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         noteLabel: 'estimated discharge date',
-        formatText: date => (date ? formatShort(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeForeignKey({
         columnName: 'patientBillingTypeId',

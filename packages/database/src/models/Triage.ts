@@ -1,16 +1,14 @@
 import { Op, DataTypes } from 'sequelize';
-import config from 'config';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { createChangeRecorders } from '../utils/recordModelChanges';
+import { getStoredNoteDateFormatters } from '../utils/storedNoteDateFormatters';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
@@ -142,7 +140,7 @@ export class Triage extends Model {
   }
 
   async update(data: any, user?: any): Promise<any> {
-    const { Encounter, ReferenceData } = this.sequelize.models;
+    const { Encounter, ReferenceData, Setting } = this.sequelize.models;
     // To collect system note messages describing all changes in this triage update
     const systemNoteRows: string[] = [];
 
@@ -175,15 +173,17 @@ export class Triage extends Model {
         noteLabel: 'arrival mode',
         model: ReferenceData,
       });
+      const { formatShortDateTime } = await getStoredNoteDateFormatters(Setting);
+
       await onChangeTextColumn({
         columnName: 'arrivalTime',
         noteLabel: 'arrival date & time',
-        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShortDateTime(date) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
-        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShortDateTime(date) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',
