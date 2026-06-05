@@ -137,9 +137,23 @@ is present across all sections, output only the opening clause, with no note
 explaining that this case applied. No inferred reasons, no recommendations.
 All other rules apply.
 
+Worked example — when only first name and sex are known and nothing else is
+documented:
+- Incorrect (narrates the absence, shows reasoning, repeats): "Mike, male,
+  presented with no documented clinical content. Applying the insufficient-data
+  rule, only demographics are available. Mike, male."
+- Correct (the entire response): "Mike, male."
+
 # Encounter data
 
 {INSERT STRUCTURED ENCOUNTER DATA HERE}
+
+# Now respond
+
+Write the summary now. Your response is the paragraph only: begin with the
+first character of the patient's first name (or age if no name) and stop after
+the final sentence. Nothing may come before or after it — no reasoning, no
+self-correction, no note about which case applied.
 `;
 
 export const patientSummaryProperties = {
