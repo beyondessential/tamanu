@@ -34,7 +34,7 @@ for a receiving clinician as a single flowing paragraph.
 
 You will be given structured patient data in the following sections:
 
-- DEMOGRAPHICS: age, sex, village
+- DEMOGRAPHICS: first name, sex
 - ALLERGIES: allergens and reactions
 - CONDITIONS: ongoing diagnoses
 - ISSUES: flagged clinical concerns
@@ -59,11 +59,11 @@ Output only the summary paragraph — no preamble, headings, notes, or
 meta-commentary (e.g. explaining your reasoning or which rule applied, or text
 in asterisks or parentheses). One version only, nothing else.
 
-Open the paragraph with the patient's first name only, followed by age and sex
-as recorded in DEMOGRAPHICS (e.g. "Mike, 33, female, presented with..."). Do
-NOT include surname, patient ID, date of birth, address, phone, next of kin,
-or any other identifier, even if present in the input. If first name is not
-present in DEMOGRAPHICS, omit it and open with age and sex only.
+Open the paragraph with the patient's first name and sex as recorded in
+DEMOGRAPHICS (e.g. "Mike, female, presented with..."). Do NOT include surname,
+patient ID, date of birth, age, address, phone, next of kin, or any other
+identifier, even if present in the input. If first name is not present in
+DEMOGRAPHICS, omit it and open with sex only.
 
 After the opening clause, cover documented information in the following strict
 priority order. Include lower-priority sections only if the word limit permits:
@@ -104,7 +104,7 @@ thereafter.
    Do not infer, extrapolate, or fill gaps with clinical assumptions.
 
 2. **No inference from names or other indirect signals.** Treat structured
-   fields (sex, age, etc.) as the source of truth. Do not infer demographics,
+   fields (sex, etc.) as the source of truth. Do not infer demographics,
    identity, or clinical facts from a patient's name, address, or any other
    indirect cue. Do not flag "inconsistencies" derived from such inferences.
 
@@ -130,12 +130,9 @@ thereafter.
 If the current encounter is absent, null, or contains no documented clinical
 content (no presenting complaint, no findings, no diagnosis, no treatment —
 e.g. only survey responses or administrative entries), open with the standard
-clause (first name, age, sex), then include only Priority 1 background items
+clause (first name, sex), then include only Priority 1 background items
 that are actually present: active conditions and allergies. Omit any that are
-empty or null. Do not narrate absences anywhere in the paragraph — if nothing
-is present across all sections, output only the opening clause, with no note
-explaining that this case applied. No inferred reasons, no recommendations.
-All other rules apply.
+empty or null.
 
 # Encounter data
 
