@@ -4,6 +4,7 @@ import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 import {
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
+  locale as runtimeLocale,
 } from '@tamanu/utils/dateTime';
 
 const DateTimeContext = createContext(null);
@@ -17,26 +18,34 @@ export const useDateTime = () => {
 };
 
 export const withDateTimeContext = Component => props => {
-  const { settings, getSetting: getSettingProp, primaryTimeZone } = props;
+  const {
+    settings,
+    getSetting: getSettingProp,
+    primaryTimeZone,
+    dateTimeLocale: dateTimeLocaleProp,
+  } = props;
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const facilityTimeZone = getSetting('facilityTimeZone');
   const effectiveTimeZone = facilityTimeZone ?? primaryTimeZone;
+  // The dateTimeLocale setting pins the deployment-wide formatting convention;
+  // otherwise the dateTimeLocale prop carries the requesting browser's locale
+  // (when rendered server-side in a request), falling back to the runtime default.
+  const locale = getSetting('dateTimeLocale') ?? dateTimeLocaleProp;
 
   const value = useMemo(
     () => ({
       primaryTimeZone,
       facilityTimeZone,
+      locale: locale ?? runtimeLocale,
       getCurrentDate: () => getCurrentDateStringInTimezone(effectiveTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      // TODO: Pass a locale configured through settings; until then the
-      // formatters fall back to the runtime's Intl default locale.
       ...mapValues(
         dateTimeFormatters,
-        fn => date => fn(date, primaryTimeZone, facilityTimeZone),
+        fn => date => fn(date, primaryTimeZone, facilityTimeZone, locale ?? undefined),
       ),
     }),
-    [primaryTimeZone, facilityTimeZone, effectiveTimeZone],
+    [primaryTimeZone, facilityTimeZone, effectiveTimeZone, locale],
   );
 
   return (

@@ -93,6 +93,24 @@ export const globalSettings = {
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
+    dateTimeLocale: {
+      description:
+        "BCP-47 locale used for date/time formatting (e.g. 'en-GB'). When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes",
+      exposedToWeb: true,
+      type: yup
+        .string()
+        .nullable()
+        .test('is-bcp47-locale', 'must be a well-formed BCP-47 locale', value => {
+          if (value == null) return true;
+          try {
+            Intl.getCanonicalLocales(value);
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      defaultValue: null,
+    },
     appointments: {
       description: 'Appointment settings',
       exposedToWeb: true,
