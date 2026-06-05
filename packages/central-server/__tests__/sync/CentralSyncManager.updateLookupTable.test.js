@@ -355,6 +355,81 @@ describe('CentralSyncManager.updateLookupTable', () => {
     expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
   });
 
+  it('rebuilds a model with a custom sync lookup filter (encounters)', async () => {
+    // Encounters define a custom buildSyncLookupQueryDetails `where`, which used to short-circuit the
+    // rebuild branch — so a rebuild only re-materialised recent rows, not every row.
+    const facility = await models.Facility.create(fake(models.Facility));
+    const department = await models.Department.create(
+      fake(models.Department, { facilityId: facility.id }),
+    );
+    const location = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id }),
+    );
+    const examiner = await models.User.create(fake(models.User));
+    const patient = await models.Patient.create(fake(models.Patient));
+    const createEncounter = () =>
+      models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: examiner.id,
+        endDate: null,
+      });
+
+    const historicEncounter = await createEncounter();
+
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    // Skip the initial build so the existing encounter counts as historic data.
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      parseInt(historicEncounter.updatedAtSyncTick, 10) + 1,
+    );
+
+    // An incremental refresh skips historic rows.
+    await centralSyncManager.updateLookupTable();
+    expect(
+      await models.SyncLookup.findOne({
+        where: { recordId: historicEncounter.id, recordType: 'encounters' },
+      }),
+    ).toBeNull();
+
+    // A new encounter created after the cursor (the refresh above advanced the clock).
+    const newEncounter = await createEncounter();
+
+    // Flagging the model rebuilds it, re-materialising every row.
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('encounters')`);
+    await centralSyncManager.updateLookupTable();
+
+    const historicLookup = await models.SyncLookup.findOne({
+      where: { recordId: historicEncounter.id, recordType: 'encounters' },
+    });
+    const newLookup = await models.SyncLookup.findOne({
+      where: { recordId: newEncounter.id, recordType: 'encounters' },
+    });
+
+    // Historic row keeps its tick (clients don't re-pull it)...
+    expect(historicLookup).not.toBeNull();
+    expect(historicLookup.updatedAtSyncTick).toEqual(historicEncounter.updatedAtSyncTick);
+    expect(historicLookup.isLabRequest).toBe(false);
+
+    // ...while a row newer than the cursor gets its tick bumped.
+    expect(newLookup).not.toBeNull();
+    expect(parseInt(newLookup.updatedAtSyncTick, 10)).toBeGreaterThan(
+      parseInt(newEncounter.updatedAtSyncTick, 10),
+    );
+
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
+  });
+
   it('allows having the same recordId but different record_type in sync lookup table', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
     await models.ReferenceData.create(

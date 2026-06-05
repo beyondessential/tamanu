@@ -1,4 +1,4 @@
-import { Tabs } from '@material-ui/core';
+import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -12,24 +12,23 @@ const TabBar = styled.div`
 
 const TabContainer = styled(Tabs)`
   background: ${Colors.white};
-  position: relative;
+  border-block-end: 1px solid ${p => p.theme.palette.divider};
+  padding-inline: 24px;
 
-  .MuiTabs-indicator {
-    background-color: ${Colors.primary};
+  .${tabsClasses.indicator} {
+    background-color: ${p => p.theme.palette.primary.main};
+  }
+  .${tabsClasses.scroller} {
+    border-block-end: 0;
   }
 `;
 
 const StyledTab = styled.div.attrs({ role: 'tab' })`
   color: ${props => props.theme.palette.text.tertiary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  min-height: 72px;
-  padding: 9px 12px 6px;
   font-weight: 500;
+  padding-block: 1.25rem;
+  padding-inline: 12px;
   position: relative;
-  flex-shrink: 0;
 
   cursor: grab;
   &:active {
@@ -37,13 +36,11 @@ const StyledTab = styled.div.attrs({ role: 'tab' })`
   }
 
   &:hover {
-    opacity: 1;
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${p => p.theme.palette.action.hover};
   }
 
   &[aria-selected='true'] {
     color: ${props => props.theme.palette.primary.main};
-    opacity: 1;
   }
 
   &[data-dragging='true'] {
@@ -90,19 +87,15 @@ export const TabDisplayDraggable = ({
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd} data-testid="dragdropcontext-v5fu">
+    <DragDropContext onDragEnd={onDragEnd}>
       <TabBar className={className} data-testid="tabbar-zlyy">
-        <Droppable
-          droppableId="tab-display-droppable"
-          direction="horizontal"
-          data-testid="droppable-3q8i"
-        >
+        <Droppable droppableId="tab-display-droppable" direction="horizontal">
           {provided => (
             <TabContainer
               ref={provided.innerRef}
-              variant={scrollable ? 'scrollable' : 'fixed'}
-              scrollButtons={scrollable ? 'on' : 'off'}
-              value={currentTabData?.order || 0}
+              variant={scrollable ? 'scrollable' : undefined}
+              scrollButtons={scrollable ? 'auto' : false}
+              value={currentTabData?.order ?? 0}
               {...provided.droppableProps}
               data-testid="tabcontainer-uai8"
             >
