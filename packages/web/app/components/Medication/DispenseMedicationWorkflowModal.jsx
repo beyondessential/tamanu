@@ -177,6 +177,7 @@ const PatientSummaryViewPatientLink = styled.button`
   text-align: left;
 
   &:hover {
+    color: ${Colors.primary};
     text-decoration: underline;
   }
 `;
