@@ -11,10 +11,10 @@ import {
   Modal,
   TranslatedReferenceData,
   TranslatedText,
+  ViewChangeLogButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
-import { useSurveyResponseQuery } from '../api/queries';
-import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
+import { useSurveyResponseChangesQuery, useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
@@ -68,7 +68,12 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+export const SurveyResponseDetailsModal = ({
+  surveyResponseId,
+  onClose,
+  onPrint,
+  onViewChangeLog = null,
+}) => {
   const {
     data: surveyDetails,
     isLoading,
@@ -185,7 +190,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {hasChanges && <EditedLegend />}
+          {hasChanges && (
+            <EditedLegend>
+              {onViewChangeLog && (
+                <ViewChangeLogButton
+                  onClick={() => onViewChangeLog(surveyResponseId)}
+                  data-testid="surveyresponse-details-view-changelog"
+                />
+              )}
+            </EditedLegend>
+          )}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

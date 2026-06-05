@@ -39,3 +39,4 @@ export { useFacilityQuery } from './useFacilityQuery';
 export { usePatientInsurancePlansQuery } from './usePatientInsurancePlansQuery';
 export { usePatientInsurancePlansInUseQuery } from './usePatientInsurancePlansInUseQuery';
 export { useAiPatientSummaryQuery } from './useAiPatientSummaryQuery';
+export { useSurveyResponseChangesQuery } from './useSurveyResponseChangesQuery';

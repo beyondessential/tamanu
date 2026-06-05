@@ -36,7 +36,7 @@ export class CarePlanModal extends BasePatientModal {
       .getByTestId('formsubmitcancelrow-2egx-confirmButton')
       .filter({ hasText: 'Add note' })
       .first();
-    this.carePlanHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
+    this.carePlanHeader = this.page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.completedCarePlan = this.page.getByTestId('notecontainer-6fi4');
     this.completedMainCarePlan = this.completedCarePlan.filter({ hasText: 'Main care plan' });
     this.completedSystemAdditionalCarePlan = this.completedCarePlan.filter({

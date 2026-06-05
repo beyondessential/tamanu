@@ -70,6 +70,7 @@ export const SurveyViewForm = ({
   setSurveyFormDirty,
   initialAnswerOverrides = null,
   editedDataElementIds = null,
+  onViewChangeLog = null,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
@@ -156,6 +157,7 @@ export const SurveyViewForm = ({
           encounterType={encounter?.type}
           completeButtonDisabled={isEdit ? !dirty || isSubmittingEdit : false}
           editedDataElementIds={editedDataElementIds}
+          onViewChangeLog={onViewChangeLog}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
