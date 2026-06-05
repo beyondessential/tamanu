@@ -1,6 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
+import { useUrlSearchParams } from '../utils/useUrlSearchParams';
+import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
@@ -25,6 +29,8 @@ import { getStockStatus } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
+
+const DISPENSE_PATIENT_PARAM = 'dispensePatientId';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -137,8 +143,15 @@ export const MedicationRequestsTable = () => {
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
   const { getSetting } = useSettings();
   const [medicationRequests, setMedicationRequests] = useState([]);
-  const [isDispenseOpen, setIsDispenseOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  // The dispense modal is driven by a URL param so that navigating to the
+  // patient record and pressing Back (in-app or browser) re-opens it. The
+  // selected patient is fetched by id, so it survives the round trip.
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const queryClient = useQueryClient();
+  const urlParams = useUrlSearchParams();
+  const dispensePatientId = urlParams.get(DISPENSE_PATIENT_PARAM);
+  const { data: dispensePatient } = usePatientDataQuery(dispensePatientId);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -327,22 +340,32 @@ export const MedicationRequestsTable = () => {
     [searchParameters, facilityId],
   );
 
+  const setDispensePatientParam = (patientId, { replace = false } = {}) => {
+    const params = new URLSearchParams(search);
+    if (patientId) {
+      params.set(DISPENSE_PATIENT_PARAM, patientId);
+    } else {
+      params.delete(DISPENSE_PATIENT_PARAM);
+    }
+    const nextSearch = params.toString();
+    navigate({ search: nextSearch ? `?${nextSearch}` : '' }, { replace });
+  };
+
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;
     if (!patient?.id) return;
-    setSelectedPatient(patient);
-    setIsDispenseOpen(true);
+    // Prime the cache from the row so the modal opens instantly; the query
+    // refreshes it (and serves it on Back) from the patient record.
+    queryClient.setQueryData(['patientDetails', patient.id], patient);
+    setDispensePatientParam(patient.id);
   };
 
   return (
     <>
       <DispenseMedicationWorkflowModal
-        open={isDispenseOpen}
-        onClose={() => {
-          setIsDispenseOpen(false);
-          setSelectedPatient(null);
-        }}
-        patient={selectedPatient}
+        open={Boolean(dispensePatientId) && Boolean(dispensePatient)}
+        onClose={() => setDispensePatientParam(null, { replace: true })}
+        patient={dispensePatient}
         onDispenseSuccess={handleTableRefresh}
       />
       <DeleteMedicationRequestModal
