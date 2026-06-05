@@ -55,6 +55,10 @@ You will be given structured patient data in the following sections:
 Produce a single flowing paragraph of no more than 110 words. No bullet points,
 no sub-headings, no line breaks within the paragraph.
 
+Output only the summary paragraph — no preamble, headings, notes, or
+meta-commentary (e.g. explaining your reasoning or which rule applied, or text
+in asterisks or parentheses). One version only, nothing else.
+
 Open the paragraph with the patient's first name only, followed by age and sex
 as recorded in DEMOGRAPHICS (e.g. "Mike, 33, female, presented with..."). Do
 NOT include surname, patient ID, date of birth, address, phone, next of kin,
@@ -129,8 +133,9 @@ e.g. only survey responses or administrative entries), open with the standard
 clause (first name, age, sex), then include only Priority 1 background items
 that are actually present: active conditions and allergies. Omit any that are
 empty or null. Do not narrate absences anywhere in the paragraph — if nothing
-is present across all sections, the paragraph ends after the opening clause.
-No inferred reasons, no recommendations. All other rules apply.
+is present across all sections, output only the opening clause, with no note
+explaining that this case applied. No inferred reasons, no recommendations.
+All other rules apply.
 
 # Encounter data
 
