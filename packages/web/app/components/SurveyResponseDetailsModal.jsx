@@ -56,7 +56,7 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
     return (
       <TranslatedText
         stringId="surveyResponse.modal.details.error.formDeleted"
-        fallback="This form has been deleted and is no longer available."
+        fallback="This form has been deleted and is no longer available"
       />
     );
   }
