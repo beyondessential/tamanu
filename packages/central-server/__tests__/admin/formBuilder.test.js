@@ -1,6 +1,26 @@
+import * as XLSX from 'xlsx';
+
 import { createTestContext } from '../utilities';
 
 jest.setTimeout(120 * 1000);
+
+// A minimal Tamanu program export workbook: a Metadata sheet with the survey
+// table header that marks the file as an exported (existing) program.
+const buildProgramExportBuffer = () => {
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet([
+      ['programName', 'NCD'],
+      ['programCode', 'ncd'],
+      [],
+      ['code', 'name', 'surveyType', 'status'],
+      ['referral', 'Referral form', 'programs', 'publish'],
+    ]),
+    'Metadata',
+  );
+  return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+};
 
 const programDefinition = {
   title: 'Referral form',
@@ -185,6 +205,20 @@ describe('Form Builder Admin', () => {
       'new-session-id',
       '[TEXT DOCUMENT LOADED]\nPatient name\nDate of referral\n\nUse this form',
     );
+  });
+
+  it('declines to update an uploaded existing program export', async () => {
+    const response = await app
+      .post('/v1/admin/form-builder/chat')
+      .field('jsonData', JSON.stringify({ message: 'Change the referral reason wording' }))
+      .attach('file', buildProgramExportBuffer(), 'program.xlsx');
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.message).toMatch(/can't update an existing program/i);
+    expect(response.body.programDefinition).toBeNull();
+    // It shouldn't attempt a build/tweak against the existing program.
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+    expect(aiService.invokeStructured).not.toHaveBeenCalled();
   });
 
   it('interprets uploaded images using the form builder image prompt', async () => {
