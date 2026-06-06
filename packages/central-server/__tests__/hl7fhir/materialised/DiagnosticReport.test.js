@@ -26,7 +26,7 @@ describe('Create DiagnosticReport', () => {
   };
   const INTEGRATION_ROUTE = 'fhir/mat';
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
-  const postBody = (serviceRequestId) => ({
+  const postBody = serviceRequestId => ({
     resourceType: 'DiagnosticReport',
     basedOn: [
       {
@@ -109,8 +109,6 @@ describe('Create DiagnosticReport', () => {
         { status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL },
         { status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL, presentedForm: [testAttachment] },
         { status: FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED },
-        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._ },
-        { status: FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR },
       ];
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -156,10 +154,6 @@ describe('Create DiagnosticReport', () => {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.REJECTED;
-        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INVALIDATED;
-        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
         }
         const response = await app.post(endpoint).send(body);
         await labRequest.reload();
@@ -204,14 +198,13 @@ describe('Create DiagnosticReport', () => {
     });
 
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
+      // Once published, only entered-in-error can transition to invalidated; all others are ignored
       const statuses = [
         FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
         FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
         FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
       ];
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -231,22 +224,55 @@ describe('Create DiagnosticReport', () => {
       const body = postBody(serviceRequestId);
       for (let index = 0; index < statuses.length; index++) {
         body.status = statuses[index];
-        let expectedLabRequestStatus;
-        // Once in a published state, a Lab Request can only transition to invalidated (ignore all other changes to the status)
-        if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INVALIDATED;
-        } else {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.PUBLISHED;
-        }
         const response = await app.post(endpoint).send(body);
         await labRequest.reload();
-        expect(labRequest.status).toBe(expectedLabRequestStatus);
+        expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
         expect(response).toHaveSucceeded();
-
-        // Reset the labRequest status
-        labRequest.set({ status: LAB_REQUEST_STATUSES.PUBLISHED });
-        await labRequest.save();
       }
+    });
+
+    it('entered-in-error transitions a published Lab Request to invalidated', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.PUBLISHED },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = {
+        ...postBody(serviceRequestId),
+        status: FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
+      };
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.INVALIDATED);
+    });
+
+    it('amended transitions an invalidated Lab Request to published', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.INVALIDATED },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = {
+        ...postBody(serviceRequestId),
+        status: FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
+      };
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
     });
 
     it('post a DiagnosticReport with PDF report in presentedForm (Lab Request)', async () => {
@@ -258,7 +284,7 @@ describe('Create DiagnosticReport', () => {
           isWithPanels: true,
         },
         {
-          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          status: LAB_REQUEST_STATUSES.INTERIM_RESULTS,
         },
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
@@ -398,6 +424,92 @@ describe('Create DiagnosticReport', () => {
         }
       });
 
+      it('rejects amended DiagnosticReport when Lab Request is not invalidated', async () => {
+        const nonInvalidatedStatuses = [
+          LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          LAB_REQUEST_STATUSES.VERIFIED,
+          LAB_REQUEST_STATUSES.PUBLISHED,
+        ];
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const labRequestStatus of nonInvalidatedStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            { isWithPanels: true },
+            { status: labRequestStatus },
+          );
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          const serviceRequestId = mat.id;
+          await FhirServiceRequest.resolveUpstreams();
+
+          const body = {
+            ...postBody(serviceRequestId),
+            status: FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
+          };
+          const response = await app.post(endpoint).send(body);
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'transient',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'InvalidOperationError: amended DiagnosticReport can only be applied to an invalidated LabRequest',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(500);
+        }
+      });
+
+      it('rejects entered-in-error DiagnosticReport when Lab Request is not published', async () => {
+        const nonPublishedStatuses = [
+          LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          LAB_REQUEST_STATUSES.VERIFIED,
+          LAB_REQUEST_STATUSES.INVALIDATED,
+        ];
+        const { FhirServiceRequest } = ctx.store.models;
+
+        for (const labRequestStatus of nonPublishedStatuses) {
+          const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+            ctx.store.models,
+            resources,
+            { isWithPanels: true },
+            { status: labRequestStatus },
+          );
+          const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          const serviceRequestId = mat.id;
+          await FhirServiceRequest.resolveUpstreams();
+
+          const body = {
+            ...postBody(serviceRequestId),
+            status: FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
+          };
+          const response = await app.post(endpoint).send(body);
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'transient',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'InvalidOperationError: entered-in-error DiagnosticReport can only be applied to a published LabRequest',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(500);
+        }
+      });
+
       it('reports invalid if using invalid statuses', async () => {
         const { FhirServiceRequest } = ctx.store.models;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -523,7 +635,7 @@ describe('Create DiagnosticReport', () => {
             isWithPanels: true,
           },
           {
-            status: LAB_REQUEST_STATUSES.PUBLISHED,
+            status: LAB_REQUEST_STATUSES.INTERIM_RESULTS,
           },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
