@@ -66,6 +66,7 @@ export const SurveyResponsesPrintModal = React.memo(
 
     return (
       <Modal
+        aria-busy={isLoading}
         title={
           <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
         }
