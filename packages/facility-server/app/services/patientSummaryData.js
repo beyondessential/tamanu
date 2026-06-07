@@ -225,7 +225,7 @@ function formatCondition(c) {
     condition: c.condition?.name,
     resolved: c.resolved,
     recordedDate: c.recordedDate,
-    resolutionDate: c.resolutionDate,
+    resolutionDate: c.resolved ? c.resolutionDate : undefined,
     note: c.note,
   };
 }
