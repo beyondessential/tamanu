@@ -49,6 +49,9 @@ const indicatorColumn = {
 const isHiddenInResponseViews = (component, values, components) => {
   switch (component.dataElement.type) {
     case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+      // `checkVisibility` could be called for all question types, but it’s redundant for other
+      // question types. (A hidden question is always unanswered, which gets hidden anyway.)
+      // DisplayText is a special case that’s expressly un-hidden, hence parsing visibilityCriteria.
       return !checkVisibility(component, values, components);
     case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
       return true;
