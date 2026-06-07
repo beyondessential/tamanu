@@ -11,7 +11,6 @@ import {
   FormGrid,
   FormSubmitButton,
   OutlinedButton,
-  TextButton,
   TextField,
   TextInput,
   TranslatedText,
@@ -52,6 +51,27 @@ const FactorMeta = styled.span`
   color: ${Colors.midText};
   font-size: 12px;
   margin-left: 8px;
+`;
+
+const RowActions = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+// compact outlined buttons for the inline row actions, so they read as
+// buttons and aren't bunched together
+const RowButton = styled(OutlinedButton)`
+  padding: 4px 14px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+`;
+
+const RenameInput = styled(TextInput)`
+  flex: 1;
+  margin-right: 8px;
 `;
 
 const Qr = styled.img`
@@ -100,6 +120,7 @@ export const MfaSettingsModal = ({ open, onClose }) => {
   const [totpEnrol, setTotpEnrol] = useState(null);
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [removeTarget, setRemoveTarget] = useState(null);
+  const [showRemoveTotp, setShowRemoveTotp] = useState(false);
   const [newPasskeyName, setNewPasskeyName] = useState('');
   // credential id being renamed, and the in-progress value
   const [renameId, setRenameId] = useState(null);
@@ -160,7 +181,11 @@ export const MfaSettingsModal = ({ open, onClose }) => {
       setRenameId(null);
       await refresh();
     } catch (e) {
-      setError(getTranslation('mfa.rename.error', 'Could not rename this passkey.'));
+      // eslint-disable-next-line no-console
+      console.error('Passkey rename failed', e);
+      setError(
+        e?.message ?? getTranslation('mfa.rename.error', 'Could not rename this passkey.'),
+      );
     }
   };
 
@@ -194,6 +219,17 @@ export const MfaSettingsModal = ({ open, onClose }) => {
       await refresh();
     } catch (e) {
       setRemoveTarget(null);
+      setError(getTranslation('mfa.remove.error', 'Could not remove this method.'));
+    }
+  };
+
+  const removeTotp = async () => {
+    setError(null);
+    setShowRemoveTotp(false);
+    try {
+      await api.delete('mfa/totp');
+      await refresh();
+    } catch (e) {
       setError(getTranslation('mfa.remove.error', 'Could not remove this method.'));
     }
   };
@@ -235,23 +271,23 @@ export const MfaSettingsModal = ({ open, onClose }) => {
             {methods.webauthn.map(credential =>
               renameId === credential.id ? (
                 <FactorRow key={credential.id} data-testid="mfa-passkey-row">
-                  <TextInput
+                  <RenameInput
                     value={renameValue}
                     onChange={event => setRenameValue(event.target.value)}
                     data-testid="mfa-rename-input"
                   />
-                  <span>
-                    <TextButton
+                  <RowActions>
+                    <RowButton
                       onClick={submitRename}
                       disabled={!renameValue.trim()}
                       data-testid="mfa-rename-save"
                     >
                       <TranslatedText stringId="general.action.save" fallback="Save" />
-                    </TextButton>
-                    <TextButton onClick={() => setRenameId(null)} data-testid="mfa-rename-cancel">
+                    </RowButton>
+                    <RowButton onClick={() => setRenameId(null)} data-testid="mfa-rename-cancel">
                       <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                    </TextButton>
-                  </span>
+                    </RowButton>
+                  </RowActions>
                 </FactorRow>
               ) : (
                 <FactorRow key={credential.id} data-testid="mfa-passkey-row">
@@ -264,20 +300,20 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                       <DateDisplay date={credential.createdAt} />
                     </FactorMeta>
                   </span>
-                  <span>
-                    <TextButton
+                  <RowActions>
+                    <RowButton
                       onClick={() => startRename(credential)}
                       data-testid="mfa-passkey-rename"
                     >
                       <TranslatedText stringId="general.action.rename" fallback="Rename" />
-                    </TextButton>
-                    <TextButton
+                    </RowButton>
+                    <RowButton
                       onClick={() => setRemoveTarget(credential)}
                       data-testid="mfa-passkey-remove"
                     >
                       <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                    </TextButton>
-                  </span>
+                    </RowButton>
+                  </RowActions>
                 </FactorRow>
               ),
             )}
@@ -318,6 +354,14 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                     </FactorMeta>
                   )}
                 </span>
+                {/* removal runs against central, where the seed lives */}
+                {!methods.totp.managedCentrally && (
+                  <RowActions>
+                    <RowButton onClick={() => setShowRemoveTotp(true)} data-testid="mfa-totp-remove">
+                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                    </RowButton>
+                  </RowActions>
+                )}
               </FactorRow>
             ) : methods.totp === null || methods.totp.managedCentrally ? (
               // facility servers know whether an app is set up (it syncs) but
@@ -389,6 +433,22 @@ export const MfaSettingsModal = ({ open, onClose }) => {
         onConfirm={removePasskey}
         onCancel={() => setRemoveTarget(null)}
         data-testid="mfa-remove-confirm"
+      />
+
+      <ConfirmModal
+        open={showRemoveTotp}
+        title={
+          <TranslatedText stringId="mfa.removeTotp.title" fallback="Remove authenticator app" />
+        }
+        text={
+          <TranslatedText
+            stringId="mfa.removeTotp.text"
+            fallback="You will no longer be able to use authenticator app codes to log in."
+          />
+        }
+        onConfirm={removeTotp}
+        onCancel={() => setShowRemoveTotp(false)}
+        data-testid="mfa-remove-totp-confirm"
       />
     </Modal>
   );

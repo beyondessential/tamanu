@@ -1,6 +1,6 @@
 import * as OTPAuth from 'otpauth';
 
-import { SETTINGS_SCOPES, MFA_CHALLENGE_TYPES } from '@tamanu/constants';
+import { SETTINGS_SCOPES, MFA_CHALLENGE_TYPES, MFA_TOTP_AVAILABILITY } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 // Use a fixed 32-byte buffer as the settings PSK so the TOTP seed
@@ -28,6 +28,13 @@ describe('MFA self-service', () => {
     await models.Setting.set('auth.mfa.enabled', true, SETTINGS_SCOPES.GLOBAL);
     // the test server's canonicalHostName is on localhost
     await models.Setting.set('auth.mfa.webauthn.rpid', 'localhost', SETTINGS_SCOPES.GLOBAL);
+    // pin availability so the suite doesn't inherit a leftover 'off' from a
+    // prior run's interrupted restore (the persistent test DB keeps settings)
+    await models.Setting.set(
+      'auth.mfa.totp.availability',
+      MFA_TOTP_AVAILABILITY.ALL,
+      SETTINGS_SCOPES.GLOBAL,
+    );
   });
 
   afterAll(() => ctx.close());
@@ -279,6 +286,27 @@ describe('MFA self-service', () => {
       });
 
       // re-enrolment resets the synced mirror too
+      const mirrorUser = await models.User.findByPk(totpAgent.user.id);
+      expect(mirrorUser.totpConfirmedAt).toBeNull();
+    });
+
+    it('removes the authenticator app, clearing the seed and the synced mirror', async () => {
+      const enrol = await totpAgent.post('/api/mfa/totp/enrol');
+      const code = OTPAuth.URI.parse(enrol.body.otpauthUrl).generate();
+      await totpAgent.post('/api/mfa/totp/confirm').send({ code });
+
+      const remove = await totpAgent.delete('/api/mfa/totp');
+      expect(remove).toHaveSucceeded();
+
+      const methods = await totpAgent.get('/api/mfa/methods');
+      expect(methods.body.totp).toEqual({ enrolled: false, confirmed: false, confirmedAt: null });
+
+      // central-only table is hard-deleted; the synced mirror is cleared
+      const seed = await models.TotpSecret.findOne({
+        where: { userId: totpAgent.user.id },
+        paranoid: false,
+      });
+      expect(seed).toBeNull();
       const mirrorUser = await models.User.findByPk(totpAgent.user.id);
       expect(mirrorUser.totpConfirmedAt).toBeNull();
     });

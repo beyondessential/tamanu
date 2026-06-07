@@ -67,7 +67,7 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
-  const { getTranslation } = useTranslation();
+  const { getTranslation, storedLanguage } = useTranslation();
 
   const canRead = Boolean(ability?.can('read', 'UserMfa'));
   const canWrite = Boolean(ability?.can('write', 'UserMfa'));
@@ -158,6 +158,18 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
   const hasTotp = Boolean(status?.totp?.confirmed);
   const hasAnyFactor = passkeyCount > 0 || hasTotp;
 
+  // the translation system only does token replacement, so pluralise with
+  // Intl.PluralRules against the active language and pick the matching
+  // translated string (English needs one/other; other categories fall to other)
+  const passkeysLabel =
+    new Intl.PluralRules(storedLanguage).select(passkeyCount) === 'one'
+      ? getTranslation('admin.users.mfa.passkeyCount.one', ':count passkey', {
+          replacements: { count: passkeyCount },
+        })
+      : getTranslation('admin.users.mfa.passkeyCount.other', ':count passkeys', {
+          replacements: { count: passkeyCount },
+        });
+
   return (
     <>
       <Box mt="20px">
@@ -179,9 +191,9 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
           <StatusLine data-testid="admin-mfa-status">
             <TranslatedText
               stringId="admin.users.mfa.status"
-              fallback=":passkeys passkey(s) · authenticator app :totp"
+              fallback=":passkeys · authenticator app :totp"
               replacements={{
-                passkeys: passkeyCount,
+                passkeys: passkeysLabel,
                 totp: hasTotp
                   ? getTranslation('admin.users.mfa.totpActive', 'active')
                   : getTranslation('admin.users.mfa.totpNotSetUp', 'not set up'),

@@ -229,6 +229,25 @@ mfa.patch(
 );
 
 mfa.delete(
+  '/totp',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Mfa');
+    await requireMfaEnabled(req);
+    const { TotpSecret, User } = req.store.models;
+
+    // hard delete: central-only table, nothing to sync; clears the synced
+    // confirmation mirror in the same transaction. If the user is otherwise
+    // factorless and MFA-required, the forced-enrolment interstitial covers
+    // them at next login — same as removing a last passkey.
+    await TotpSecret.sequelize.transaction(async () => {
+      await TotpSecret.destroy({ where: { userId: req.user.id }, force: true });
+      await User.update({ totpConfirmedAt: null }, { where: { id: req.user.id } });
+    });
+    res.send({ ok: 'ok' });
+  }),
+);
+
+mfa.delete(
   '/webauthn/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Mfa');
