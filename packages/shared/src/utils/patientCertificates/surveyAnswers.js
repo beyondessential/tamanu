@@ -62,6 +62,11 @@ export const getSurveyAnswerRows = ({ components, answers }) => {
         dataElementId: dataElement.id,
         config: componentConfig,
         originalBody: answerObject?.originalBody,
+        ...(originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT && {
+          componentText: component.text,
+          componentDetail: component.detail,
+          defaultText: dataElement.defaultText,
+        }),
       };
     })
     .filter(row => row != null);

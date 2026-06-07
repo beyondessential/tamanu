@@ -23,6 +23,7 @@ const pageStyles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
+    fontSize: 10,
   },
   groupContainer: {
     display: 'flex',
@@ -41,8 +42,10 @@ const pageStyles = StyleSheet.create({
     marginBottom: 8,
     alignSelf: 'flex-end',
   },
-  itemText: {
-    fontSize: 9,
+  displayText: {
+    marginBottom: 12,
+    marginTop: 12,
+    width: '100%',
   },
   boldDivider: {
     borderBottom: '2pt solid black',
@@ -66,7 +69,7 @@ const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '
 const ResultBox = ({ resultText, resultName }) => (
   <View style={pageStyles.resultBox}>
     <Text>{resultName}</Text>
-    <Text style={pageStyles.itemText}>{resultText}</Text>
+    <Text>{resultText}</Text>
   </View>
 );
 
@@ -117,14 +120,38 @@ const getAnswers = ({
   }
 };
 
+const DisplayText = ({ row, getTranslation }) => {
+  const { id: componentId, dataElementId, componentText, componentDetail, defaultText } = row;
+
+  const label = componentText
+    ? getTranslation(
+        getReferenceDataStringId(componentId, 'surveyScreenComponent.text'),
+        componentText,
+      )
+    : getTranslation(getReferenceDataStringId(dataElementId, 'programDataElement'), defaultText);
+  const detail = componentDetail
+    ? getTranslation(
+        getReferenceDataStringId(componentId, 'surveyScreenComponent.detail'),
+        componentDetail,
+      )
+    : null;
+
+  return (
+    <View style={pageStyles.displayText} wrap={false}>
+      <Text>{label}</Text>
+      {detail && <Text style={{ color: '#888', marginTop: 2 }}>{detail}</Text>}
+    </View>
+  );
+};
+
 const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
-      <Text style={pageStyles.itemText}>
+      <Text>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text bold style={pageStyles.itemText}>
+      <Text bold>
         {getAnswers({
           answer,
           type,
@@ -142,14 +169,18 @@ const ResponseItem = ({ row, getTranslation, formatShort }) => {
 const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
-      {rows.map(row => (
-        <ResponseItem
-          getTranslation={getTranslation}
-          formatShort={formatShort}
-          key={row.id}
-          row={row}
-        />
-      ))}
+      {rows.map(row =>
+        row.type === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT ? (
+          <DisplayText getTranslation={getTranslation} key={row.id} row={row} />
+        ) : (
+          <ResponseItem
+            formatShort={formatShort}
+            getTranslation={getTranslation}
+            key={row.id}
+            row={row}
+          />
+        ),
+      )}
       <View style={pageStyles.boldDivider} />
     </View>
   );
