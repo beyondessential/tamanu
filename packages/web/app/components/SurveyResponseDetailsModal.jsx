@@ -46,8 +46,15 @@ const indicatorColumn = {
   sortable: false,
 };
 
-const isHiddenInResponseViews = component => {
-  return component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+const isHiddenInResponseViews = (component, values, components) => {
+  switch (component.dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+      return !checkVisibility(component, values, components);
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
+      return true;
+    default:
+      return false;
+  }
 };
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
@@ -136,20 +143,10 @@ export const SurveyResponseDetailsModal = ({
 
     return components
       .map(component => {
-        if (isHiddenInResponseViews(component)) return null;
+        if (isHiddenInResponseViews(component, values, components)) return null;
 
         const { dataElement, id, config } = component;
         const { type: originalType, name, id: dataElementId } = dataElement;
-
-        if (
-          originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT &&
-          !checkVisibility(component, values, components)
-        ) {
-          // `checkVisibility` could be unconditionally called, but it’s redundant for all other
-          // question types because of the empty answer check below. (A hidden question is always
-          // unanswered.)
-          return null;
-        }
 
         const answerObject = answers.find(a => a.dataElementId === dataElement.id);
         const answer =
