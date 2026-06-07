@@ -370,8 +370,11 @@ export async function importRows(
           await existing.save();
         }
       } else {
-        await Model.create(normalizedValues);
+        const created = await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
+        if (batchedModels.has(model) && created.id) {
+          existingByModelId.set(`${model}|${created.id}`, created);
+        }
       }
 
       const { createRecords, deleteClause } = generateTranslationsForData(
