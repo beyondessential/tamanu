@@ -143,6 +143,7 @@ export const SurveyResponseDetailsModal = ({
       acc[dataElementId] = body;
       return acc;
     }, {});
+    const answersByDataElementId = new Map(answers.map(a => [a.dataElementId, a]));
 
     return components
       .map(component => {
@@ -151,7 +152,7 @@ export const SurveyResponseDetailsModal = ({
         const { dataElement, id, config } = component;
         const { type: originalType, name, id: dataElementId } = dataElement;
 
-        const answerObject = answers.find(a => a.dataElementId === dataElement.id);
+        const answerObject = answersByDataElementId.get(dataElement.id);
         const answer =
           answerObject?.body ??
           (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
