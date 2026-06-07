@@ -5,7 +5,7 @@ import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 import { checkJSONCriteria, parseSurveyTimeToHHmmss } from '@tamanu/utils';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 import { DateFormats } from './constants';
-import { formatDate, parseDate } from './date';
+import { formatDateForDisplay, parseDate } from './date';
 import { getPatientNameAsString } from './patient';
 
 export const FieldTypes = {
@@ -279,11 +279,13 @@ export function getDisplayNameForModel({
   record,
   getReferenceDataTranslation,
   getEnumTranslation,
+  locale,
 }: {
   modelName: string;
   record: any;
   getReferenceDataTranslation: (data: any) => string;
   getEnumTranslation: (options: any, value: string) => string;
+  locale?: string;
 }): string {
   switch (modelName) {
     case 'ReferenceData':
@@ -298,7 +300,7 @@ export function getDisplayNameForModel({
       return `${getPatientNameAsString(record)} (${record.displayId}) - ${getEnumTranslation(
         SEX_LABELS,
         record.sex,
-      )} - ${record.dateOfBirth ? formatDate(parseDate(record.dateOfBirth), DateFormats.DDMMYY) : ''}`;
+      )} - ${record.dateOfBirth ? formatDateForDisplay(parseDate(record.dateOfBirth), DateFormats.DDMMYY, locale) : ''}`;
     default: {
       const category = camelCase(modelName);
       return getReferenceDataTranslation({

@@ -1,10 +1,10 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { Text } from 'react-native-paper';
-import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { useFormikContext } from 'formik';
 import { ISurveyResponse } from '~/types';
 import { useBackend } from '~/ui/hooks';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 
@@ -12,6 +12,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
   const [surveyResponse, setSurveyResponse] = useState<ISurveyResponse | undefined>();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
+  const { formatStringDate } = useDateFormatter();
   const { source } = config;
 
   useEffect(() => {

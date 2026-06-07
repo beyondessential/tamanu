@@ -2,11 +2,11 @@ import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
-import { formatStringDate } from '/helpers/date';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
 import { DateFormats } from '~/ui/helpers/constants';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const SensitiveResponseLabel = (): ReactElement => (
   <StyledText color={theme.colors.DISABLED_GREY} fontSize={14} fontWeight="500">
@@ -20,6 +20,7 @@ export const SurveyResponseLink = ({
   backgroundColor = theme.colors.WHITE,
 }): ReactElement => {
   const navigation = useNavigation();
+  const { formatStringDate } = useDateFormatter();
 
   if (!surveyResponse) {
     return null;

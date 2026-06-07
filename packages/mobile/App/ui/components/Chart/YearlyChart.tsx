@@ -3,11 +3,11 @@ import { StyleSheet } from 'react-native';
 import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
 import { DateFormats } from '/helpers/constants';
 import { RowView, StyledText, StyledView } from '/styled/common';
-import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getYear } from 'date-fns';
 import { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const styles = StyleSheet.create({
   barChartStyles: {
@@ -39,6 +39,7 @@ const verticalContentInset = { top: 10, bottom: 10, right: 0 };
 
 export const YearlyChart = memo(
   ({ data }: BarChartProps): JSX.Element => {
+    const { formatDate } = useDateFormatter();
     const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), [data]);
 
     const yearRange = `${getYear(data[0].date)} - ${getYear(
