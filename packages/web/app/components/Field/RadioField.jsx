@@ -5,7 +5,7 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import FormHelperText from '@mui/material/FormHelperText';
 import { TranslatedEnumField } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -21,11 +21,6 @@ const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
   margin-top: 2px;
-  .MuiFormHelperText-root.Mui-error {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 15px;
-  }
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`

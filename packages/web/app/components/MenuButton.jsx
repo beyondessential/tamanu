@@ -1,43 +1,26 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { IconButton, MenuItem, MenuList, Paper, Popper } from '@material-ui/core';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import {
-  ClickAwayListener,
-  IconButton,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-} from '@material-ui/core';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import PropTypes from 'prop-types';
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
+
+import { VisuallyHidden } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 
 const OpenButton = styled(IconButton)`
   padding: 5px;
 `;
 
-const Item = styled(MenuItem)`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 15px;
-
-  &:hover {
-    background: ${Colors.veryLightBlue};
-  }
-`;
-
 const List = styled(MenuList)`
   padding: 3px;
   border-radius: 3px;
-
-  .MuiListItem-root {
-    padding: 4px;
-  }
 `;
 
 export const MenuButton = React.memo(
   ({
+    a11yLabel,
     actions,
     className,
     iconDirection,
@@ -74,7 +57,8 @@ export const MenuButton = React.memo(
           ref={anchorRef}
           data-testid="openbutton-d1ec"
         >
-          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid="icon-p0po" />
+          <Icon style={{ color: iconColor }} data-testid="icon-p0po" />
+          {a11yLabel && <VisuallyHidden>{a11yLabel}</VisuallyHidden>}
         </OpenButton>
         <Popper
           open={open}
@@ -85,27 +69,25 @@ export const MenuButton = React.memo(
           style={{ zIndex: 10 }}
           data-testid="popper-0e9z"
         >
-          {() => (
-            <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
-              <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-dxm1">
-                <List data-testid="list-i0ae">
-                  {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
-                    const menuItem = (
-                      <Item
-                        disabled={!action}
-                        key={label.props.fallback}
-                        onClick={event => handleClick(event, action)}
-                        data-testid={`item-8ybn-${index}`}
-                      >
-                        {label}
-                      </Item>
-                    );
-                    return wrapper ? wrapper(menuItem) : menuItem;
-                  })}
-                </List>
-              </ClickAwayListener>
-            </Paper>
-          )}
+          <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
+            <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClose}>
+              <List data-testid="list-i0ae">
+                {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
+                  const menuItem = (
+                    <MenuItem
+                      disabled={!action}
+                      key={label.props.fallback}
+                      onClick={event => handleClick(event, action)}
+                      data-testid={`item-8ybn-${index}`}
+                    >
+                      {label}
+                    </MenuItem>
+                  );
+                  return wrapper ? wrapper(menuItem) : menuItem;
+                })}
+              </List>
+            </ClickAwayListener>
+          </Paper>
         </Popper>
       </div>
     );
@@ -113,6 +95,7 @@ export const MenuButton = React.memo(
 );
 
 MenuButton.propTypes = {
+  a11yLabel: PropTypes.node,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.node.isRequired,

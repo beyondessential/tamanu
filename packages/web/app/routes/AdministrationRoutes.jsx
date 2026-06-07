@@ -1,27 +1,33 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
 import { LocationAssignmentsContextProvider } from '../contexts/LocationAssignments';
-import { ReportAdminRoutes } from './ReportAdminRoutes';
-import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
+  AiFormBuilderView,
   DesignationsAdminView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
+  ManageProgramRegistriesRoutes,
+  ManageProgramsAdminView,
   PatientMergeView,
   PermissionsAdminView,
+  ProgramRegistriesAdminView,
   ProgramsAdminView,
+  ProgramsExportTab,
+  ProgramsImportTab,
+  ReferenceDataAdminView,
   RolesAdminView,
   RolesAndDesignationsAdminView,
+  SettingsView,
   SurveyResponsesAdminView,
-  ReferenceDataAdminView,
   SyncView,
   TemplateView,
   TranslationAdminView,
-  SettingsView,
   UserProfilesAdminView,
 } from '../views';
+import { FhirAdminRoutes } from './FhirAdminRoutes';
+import { ReportAdminRoutes } from './ReportAdminRoutes';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
@@ -29,7 +35,20 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
-    <Route path="programs" element={<ProgramsAdminView />} />
+    <Route path="programs">
+      <Route index element={<Navigate to="forms" replace />} />
+      <Route path="forms/*" element={<ProgramsAdminView />}>
+        <Route index element={<Navigate to="aiFormBuilder" replace />} />
+        <Route path="aiFormBuilder" element={<AiFormBuilderView />} />
+        <Route path="manage" element={<ManageProgramsAdminView />} />
+        <Route path="manage/:programId" element={<ManageProgramsAdminView />} />
+        <Route path="import" element={<ProgramsImportTab />} />
+        <Route path="export" element={<ProgramsExportTab />} />
+      </Route>
+      <Route path="registries" element={<ProgramRegistriesAdminView />}>
+        <Route path=":programRegistryId/*" element={<ManageProgramRegistriesRoutes />} />
+      </Route>
+    </Route>
     <Route path="referenceData" element={<ReferenceDataAdminView />} />
     <Route path="reports/*" element={<ReportAdminRoutes />} />
     <Route path="settings" element={<SettingsView />} />

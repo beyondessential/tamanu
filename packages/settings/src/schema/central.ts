@@ -4,6 +4,7 @@ import {
   durationStringSchema,
   dhis2IdSchemeSchema,
   emailSchema,
+  formBuilderProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
@@ -15,6 +16,37 @@ export const centralSettings = {
   name: 'Central server settings',
   description: 'Settings that apply only to a central server',
   properties: {
+    ai: {
+      name: 'AI',
+      description: 'Settings for AI-powered features',
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description: 'Enable or disable all AI-powered features',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        anthropicApiKey: {
+          name: 'Anthropic API key',
+          description: 'API key for the Anthropic API',
+          type: yup.string(),
+          secret: true,
+        },
+        anthropicModel: {
+          name: 'Anthropic model',
+          description: 'The Anthropic model to use for AI features',
+          type: yup.string(),
+          defaultValue: 'claude-sonnet-4-20250514',
+        },
+        anthropicFastModel: {
+          name: 'Anthropic fast model',
+          description:
+            'Optional faster Anthropic model for non-conversational tasks (PDF/image interpretation, structured tweaks, ProgramDefinition build). Falls back to anthropicModel when empty.',
+          type: yup.string(),
+          defaultValue: '',
+        },
+      },
+    },
     disk: {
       name: 'Disk',
       description: 'Disk settings',
@@ -218,6 +250,7 @@ export const centralSettings = {
         },
       },
     },
+    formBuilder: formBuilderProperties,
     integrations: {
       description: 'Integrations with external services',
       properties: {
@@ -230,6 +263,18 @@ export const centralSettings = {
                 .string()
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
+            },
+            username: {
+              name: 'Username',
+              description: 'Username for DHIS2 API authentication',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            password: {
+              name: 'Password',
+              description: 'Password for DHIS2 API authentication',
+              type: yup.string(),
+              secret: true,
             },
             reportIds: {
               name: 'Reports',

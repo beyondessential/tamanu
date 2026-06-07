@@ -199,7 +199,7 @@ patientRoute.put(
 );
 
 patientRoute.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
     const {
@@ -295,7 +295,7 @@ patientRoute.get(
 );
 
 patientRoute.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { Patient },
@@ -377,7 +377,7 @@ patientRoute.get(
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
 
-    // ReadSettings.get uses cached getAll() per facility (see packages/settings cache; ~60s TTL).
+    // ReadSettings.get caches getAll() per facility (see packages/settings cache).
     const additionalSearchFields =
       isAllPatientsListing && filterParams.facilityId
         ? (await settings[filterParams.facilityId]?.get(
@@ -814,6 +814,10 @@ patientRoute.get(
                   attributes: ['id', 'name'],
                   required: false,
                 },
+                {
+                  association: 'orderingClinician',
+                  attributes: ['id', 'displayName'],
+                },
               ],
             },
             {
@@ -825,6 +829,10 @@ patientRoute.get(
                 'units',
                 'frequency',
                 'route',
+                'durationValue',
+                'durationUnit',
+                'indication',
+                'notes',
                 'isVariableDose',
                 'isPrn',
               ],
@@ -854,8 +862,20 @@ patientRoute.get(
           attributes: ['id', 'displayName'],
           required: true,
         },
+        {
+          association: 'medicationPresetLabel',
+          attributes: ['id', 'code', 'name'],
+          required: false,
+        },
       ],
-      attributes: ['id', 'quantity', 'instructions', 'dispensedAt', 'dispensedByUserId'],
+      attributes: [
+        'id',
+        'quantity',
+        'instructions',
+        'dispensedAt',
+        'dispensedByUserId',
+        'medicationPresetLabelId',
+      ],
       where: medicationFilter,
       order: [
         [...orderBy.split('.'), orderDirection],

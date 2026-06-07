@@ -1,5 +1,5 @@
 import { TAMANU_COLORS } from '@tamanu/ui-components';
-import { createGlobalStyle } from 'styled-components';
+import { css } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;
 
@@ -9,25 +9,30 @@ export { MUI_SPACING_UNIT };
 export const Colors = TAMANU_COLORS;
 
 export const denseTableStyle = {
-  container: 'border: 0px solid white; overflow: visible;',
-  cell: `
+  container: css`
+    border: 0px solid white;
+    overflow: visible;
+  `,
+  cell: css`
     &.MuiTableCell-body {
-      padding: 4px 30px 4px 0px;
+      padding-block: 4px;
+      padding-inline: 0 30px;
     }
     &:first-child {
-      padding-left: 0px;
+      padding-inline-start: 0px;
     }
     &:last-child {
-      padding-right: 5px;
+      padding-inline-end: 5px;
     }
   `,
-  head: `
+  head: css`
     .MuiTableCell-head {
       color: ${Colors.midText};
       font-weight: 400;
-      padding: 8px 30px 8px 0px;
+      padding-block: 8px;
+      padding-inline: 0 30px;
       &:last-child {
-        padding-right: 5px;
+        padding-inline-end: 5px;
       }
     }
     .MuiTableSortLabel-root.MuiTableSortLabel-active {
@@ -35,15 +40,11 @@ export const denseTableStyle = {
       font-weight: 400;
     }
   `,
-  statusCell: `
+  statusCell: css`
     &.MuiTableCell-body {
-      padding: 12px 0px; text-align: left;
+      padding-block: 12px;
+      padding-inline: 0px;
+      text-align: start;
     }
   `,
 };
-
-export const GlobalStyles = createGlobalStyle`
-  .pointer-events-none {
-    pointer-events: none;
-  }
-`;

@@ -112,7 +112,7 @@ function createSuggesterRoute(
   },
 ) {
   suggestions.get(
-    `/${endpoint}$`,
+    `/${endpoint}`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -214,7 +214,7 @@ function createAllRecordsRoute(
   { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
-    `/${endpoint}/all$`,
+    `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -446,13 +446,20 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName, req }) => {
+    ({ endpoint, modelName, req, search }) => {
       const { parentId } = req.query;
 
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
+
+      // The medication preset label autocomplete displays the code (not the name),
+      // so the search term must match the code column rather than the default
+      // (translatable) name search.
+      if (typeName === REFERENCE_TYPES.MEDICATION_PRESET_LABEL) {
+        baseWhere[Op.or] = [{ code: { [Op.iLike]: search } }];
+      }
 
       // Filter by parent using subquery to avoid self-join ambiguity issues
       if (parentId) {
@@ -537,6 +544,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         REFERENCE_TYPES.LAB_SAMPLE_SITE,
         REFERENCE_TYPES.TASK_TEMPLATE,
         REFERENCE_TYPES.TASK_SET,
+        REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
       ];
       if (facilityFilterTypes.includes(typeName)) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
@@ -1290,7 +1298,7 @@ const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
 const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
 suggestions.get(
-  '/timeZone$',
+  '/timeZone',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const searchQuery = (req.query.q || '').trim().toLowerCase();
@@ -1301,11 +1309,14 @@ suggestions.get(
   }),
 );
 
+// Named wildcard for Express 5 / path-to-regexp v8, so multi-segment IDs like
+// "Africa/Algiers" match the whole path.
 suggestions.get(
-  '/timeZone/:id',
+  '/timeZone/*id',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const tz = TIME_ZONES.find(t => t.id === req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id.join('/') : req.params.id;
+    const tz = TIME_ZONES.find(t => t.id === id);
     if (!tz) throw new NotFoundError();
     res.send(tz);
   }),

@@ -53,3 +53,10 @@ notification has been sent.
 {% docs survey_responses__metadata %}
 Metadata for a survey response, (eg: if a survey response is linked to another survey response)
 {% enddocs %}
+
+{% docs survey_responses__edited_time %}
+The last time this survey response was edited by a user (via `PATCH /surveyResponse` request).
+`NULL` if and only if this survey response has never been meaningfully edited by a user before.
+
+Not to be confused with `survey_responses.updated_at`, which is database-level record metadata.
+{% enddocs %}

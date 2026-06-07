@@ -1395,6 +1395,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             } else if (
               [
                 LAB_REQUEST_STATUSES.CANCELLED,
+                LAB_REQUEST_STATUSES.REJECTED,
                 LAB_REQUEST_STATUSES.INVALIDATED,
                 LAB_REQUEST_STATUSES.DELETED,
               ].includes(status)

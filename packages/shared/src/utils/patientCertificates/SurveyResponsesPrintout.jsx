@@ -101,7 +101,7 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(translateOption);
+      return JSON.parse(answer).map(translateOption).join(', ');
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return translateReferenceData(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@mui/icons-material/Lock';
+import KeyIcon from '@mui/icons-material/Key';
 
 import { isSetting } from '@tamanu/settings';
 
@@ -12,8 +13,15 @@ import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
-  font-size: 1.125rem;
-  margin-inline-start: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+`;
+
+const StyledSecretIcon = styled(KeyIcon)`
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
 `;
 
 const Wrapper = styled.div`
@@ -35,7 +43,10 @@ const SettingLine = styled(BodyText)`
 
 const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
-  // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
+  // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
   font-size: 15px;
@@ -62,15 +73,21 @@ const CategoryTitle = memo(({ name, path, description }) => {
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled }) => (
+const SettingName = memo(({ name, path, description, disabled, isSecret }) => (
   <ThemedTooltip
-    disableHoverListener={!description && !disabled}
+    disableHoverListener={!description && !disabled && !isSecret}
     title={
       disabled ? (
         <TranslatedText
           stringId="admin.settings.highRiskSettingTooltip"
           fallback="User does not required permissions to update this setting"
           data-testid="translatedtext-2xq4"
+        />
+      ) : isSecret ? (
+        <TranslatedText
+          stringId="admin.settings.secretSettingTooltip"
+          fallback="This is a secret setting. The current value is hidden."
+          data-testid="translatedtext-secret"
         />
       ) : (
         description
@@ -80,7 +97,11 @@ const SettingName = memo(({ name, path, description, disabled }) => (
   >
     <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
       {formatSettingName(name, path.split('.').pop())}
-      {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
+      {disabled ? (
+        <StyledLockIcon data-testid="styledlockicon-x3w0" />
+      ) : (
+        isSecret && <StyledSecretIcon data-testid="styledsecreticon-z8xp" />
+      )}
     </SettingNameLabel>
   </ThemedTooltip>
 ));
@@ -97,7 +118,14 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
+export const Category = ({
+  schema,
+  path = '',
+  getSettingValue,
+  resolveSettingsPath,
+  handleChangeSetting,
+  facilityId,
+}) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -122,9 +150,13 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           unit,
           highRisk,
           suggesterEndpoint,
+          secret,
+          editor,
+          options,
         } = propertySchema;
 
-        const isHighRisk = schema.highRisk || highRisk;
+        const isSecret = Boolean(secret);
+        const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
@@ -134,18 +166,25 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               path={newPath}
               name={name}
               description={description}
+              isSecret={isSecret}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
               typeSchema={type}
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
+              settingsPath={resolveSettingsPath(newPath)}
               defaultValue={defaultValue}
               path={newPath}
+              name={name}
+              description={description}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
+              options={options}
               disabled={disabled}
               facilityId={facilityId}
+              isSecret={isSecret}
+              editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -156,6 +195,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             // Pass down highRisk from parent category to now top level subcategory
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
+            resolveSettingsPath={resolveSettingsPath}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

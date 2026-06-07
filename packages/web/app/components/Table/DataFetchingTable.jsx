@@ -11,16 +11,21 @@ import { withPermissionCheck } from '../withPermissionCheck';
 import { useSettings } from '../../contexts/Settings';
 import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
-const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
+const DEFAULT_SORT = /** @type {const} */ ({ order: 'asc', orderBy: undefined });
 
-const initialiseFetchState = (lastUpdatedAt = '') => ({
-  page: 0,
-  count: 0,
-  data: [],
-  lastUpdatedAt,
-  sorting: DEFAULT_SORT,
-  fetchOptions: {},
-});
+/**
+ * @template {string} T
+ * @param {T} lastUpdatedAt
+ */
+const initialiseFetchState = (lastUpdatedAt = '') =>
+  /** @type {const} */ ({
+    page: 0,
+    count: 0,
+    data: [],
+    lastUpdatedAt,
+    sorting: DEFAULT_SORT,
+    fetchOptions: {},
+  });
 
 export const DataFetchingTable = memo(
   ({
@@ -61,7 +66,7 @@ export const DataFetchingTable = memo(
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
-      setForcedRefreshCount((prevCount) => prevCount + 1);
+      setForcedRefreshCount(prevCount => prevCount + 1);
     }, []);
 
     const manualRefresh = useCallback(() => {
@@ -71,7 +76,7 @@ export const DataFetchingTable = memo(
     }, [initialSort, refreshTable]);
 
     const handleChangeOrderBy = useCallback(
-      (columnKey) => {
+      columnKey => {
         const { order, orderBy } = sorting;
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
@@ -81,8 +86,8 @@ export const DataFetchingTable = memo(
       [sorting],
     );
 
-    const fetchData = async () => {
-      const { data, count, ...rest } = await api.get(
+    const fetchData = async () =>
+      await api.get(
         endpoint,
         {
           page,
@@ -90,12 +95,8 @@ export const DataFetchingTable = memo(
           ...sorting,
           ...fetchOptions,
         },
-        {
-          showUnknownErrorToast: false,
-        },
+        { showUnknownErrorToast: false },
       );
-      return { data, count, ...rest };
-    };
 
     const highlightDataRows = (data, newRows) => {
       const highlightedData = data.map((row, i) => {
@@ -144,13 +145,7 @@ export const DataFetchingTable = memo(
         updateFetchState(data, count);
 
         // Use custom function on data if provided
-        if (onDataFetched) {
-          onDataFetched({
-            data,
-            count,
-            otherData,
-          });
-        }
+        onDataFetched?.({ data, count, otherData });
       },
       [onDataFetched, updateFetchState],
     );
@@ -337,7 +332,7 @@ export const DataFetchingTable = memo(
           orderBy={orderBy}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
-          rowStyle={(row) => {
+          rowStyle={row => {
             const rowStyle = [];
             if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
             if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');

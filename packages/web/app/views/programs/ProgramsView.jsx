@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +11,8 @@ import { SurveySelector } from './SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { useSurveyResponseEditMutation } from './useSurveyResponseEditMutation';
+import { usePatientAdditionalDataQuery, useSurveyResponseQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -19,8 +20,10 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
+import { isErrorUnknownAllow404s } from '../../api/index.js';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
+import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from '../../components';
 import { ForbiddenError } from '@tamanu/errors';
 
@@ -33,6 +36,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const dispatch = useDispatch();
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
+  const surveyResponseId = params.surveyResponseId;
+  const [changelogOpen, setChangelogOpen] = useState(false);
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [programsLoading, setProgramsLoading] = useState(true);
@@ -101,7 +106,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${programId}/surveys`, {
+        const { data } = await api.get(`program/${encodeURIComponent(programId)}/surveys`, {
           ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);
@@ -150,8 +155,78 @@ const SurveyFlow = ({ patient, currentUser }) => {
     error,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  if (isLoading || programsLoading || !programs) {
-    return <LoadingIndicator data-testid="loadingindicator-43uf" />;
+  const {
+    data: existingSurveyResponse,
+    isLoading: isLoadingSurveyResponse,
+    isError: isSurveyResponseError,
+    error: surveyResponseError,
+  } = useSurveyResponseQuery(surveyResponseId, {
+    enabled: Boolean(surveyResponseId),
+    isErrorUnknown: isErrorUnknownAllow404s,
+  });
+
+  const surveyForEdit = useMemo(() => {
+    if (!existingSurveyResponse) return null;
+    return {
+      id: existingSurveyResponse.surveyId,
+      name: existingSurveyResponse.surveyName,
+      components: existingSurveyResponse.components,
+    };
+  }, [existingSurveyResponse]);
+
+  const initialAnswerOverrides = useMemo(() => {
+    if (!existingSurveyResponse?.answers?.length) return null;
+    return Object.fromEntries(
+      existingSurveyResponse.answers.map(a => {
+        const value = a.originalBody ?? a.body;
+        return [a.dataElementId, value];
+      }),
+    );
+  }, [existingSurveyResponse]);
+
+  const editedDataElementIds = useMemo(() => {
+    const ids = new Set();
+    for (const answer of existingSurveyResponse?.answers ?? []) {
+      if (answer.editedTime) ids.add(answer.dataElementId);
+    }
+    return ids;
+  }, [existingSurveyResponse]);
+
+  const { mutateAsync: submitSurveyResponseEdit } = useSurveyResponseEditMutation(
+    { surveyResponseId, survey: surveyForEdit },
+    {
+      onSuccess: async () => {
+        dispatch(reloadPatient(patient.id));
+        queryClient.invalidateQueries(['surveyResponseAnswer', 'latest-answer', patient.id]);
+        if (params?.encounterId && encounter && !encounter.endDate) {
+          navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+        } else {
+          queryClient.resetQueries(['patientFields', patient.id]);
+          await dispatch(reloadPatient(patient.id));
+          navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+        }
+      },
+    },
+  );
+
+  const onViewChangeLog = useCallback(() => {
+    setChangelogOpen(true);
+  }, []);
+
+  const onCancelEdit = useCallback(() => {
+    if (params.encounterId) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+    } else {
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
+  }, [navigateToEncounter, navigateToPatient, params.encounterId, patient.id]);
+
+  if (
+    isLoading ||
+    (!surveyResponseId && (programsLoading || !programs)) ||
+    (surveyResponseId && isLoadingSurveyResponse)
+  ) {
+    return <LoadingIndicator />;
   }
 
   if (isError) {
@@ -160,13 +235,54 @@ const SurveyFlow = ({ patient, currentUser }) => {
         title={
           <TranslatedText
             stringId="program.modal.selectSurvey.error.title"
-            fallback="Error"
-            data-testid="translatedtext-cz5r"
+            fallback="Couldn’t load form"
           />
         }
         error={error}
         data-testid="errormessage-kl46"
       />
+    );
+  }
+
+  if (surveyResponseId && isSurveyResponseError) {
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="program.modal.surveyResponse.error.title"
+            fallback="Couldn’t load form response :id"
+            replacements={{ id: surveyResponseId }}
+          />
+        }
+        error={surveyResponseError}
+        data-testid="errormessage-survey-edit"
+      />
+    );
+  }
+
+  if (surveyResponseId && surveyForEdit) {
+    return (
+      <>
+        <SurveyView
+          onSubmit={submitSurveyResponseEdit}
+          survey={surveyForEdit}
+          onCancel={onCancelEdit}
+          patient={patient}
+          patientAdditionalData={patientAdditionalData}
+          currentUser={currentUser}
+          initialAnswerOverrides={initialAnswerOverrides}
+          editedDataElementIds={editedDataElementIds}
+          onViewChangeLog={onViewChangeLog}
+          data-testid="surveyview-edit"
+        />
+        <SurveyResponseChangelogModal
+          open={changelogOpen}
+          surveyResponseId={surveyResponseId}
+          surveyName={existingSurveyResponse?.surveyName}
+          onClose={() => setChangelogOpen(false)}
+          data-testid="surveyresponsechangelogmodal-edit"
+        />
+      </>
     );
   }
 
@@ -195,7 +311,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
-                data-testid="translatedtext-30u8"
               />
             }
             data-testid="selectinput-5hi2"
@@ -211,7 +326,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
-                data-testid="translatedtext-htq6"
               />
             }
             data-testid="surveyselector-bn1a"

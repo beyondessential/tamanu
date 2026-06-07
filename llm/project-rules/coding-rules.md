@@ -31,6 +31,7 @@ Readability is the highest priority. Every line of code is read many times over 
 - NEVER mix DDL and DML in the same migration (see `packages/database/CLAUDE.md`)
 - Bulk `UPDATE`s trigger FHIR rematerialisation for every touched row — consider volume impact
 - Write corresponding mobile (TypeORM) migrations alongside server (Sequelize) migrations
+- Schema changes (added/removed/changed tables or columns) require updating the dbt source models in `database/model/` — see `packages/database/CLAUDE.md`
 
 ### Sync
 
@@ -54,7 +55,7 @@ Tamanu operates across facilities in different timezones while maintaining a sin
 ## Conventions
 
 - Australian/NZ English in all text: "finalise", "colour", "centre", "cancelled"
-- User-facing strings must use `TranslatedText`, not hardcoded English
+- All user-facing strings (including prop values like titles, labels, toasts) must be wrapped in `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData` — see @llm/project-rules/translations.md
 - Parameterised queries only — never interpolate user input into SQL
 - Consider index usage for new queries on large tables
 

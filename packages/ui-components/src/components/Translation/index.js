@@ -8,3 +8,7 @@ export { TranslatedEnumField } from './TranslatedEnumInput';
 export { DebugTooltip } from './DebugTooltip';
 export { TranslatedOptionSelectField, TranslatedOption } from './TranslatedOptions';
 export * from './getCurrentLanguageCode';
+export {
+  TranslatedVisibilityStatus,
+  VISIBILITY_STATUS_TRANSLATIONS,
+} from './TranslatedVisibilityStatus';

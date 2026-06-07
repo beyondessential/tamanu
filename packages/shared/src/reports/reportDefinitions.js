@@ -1,10 +1,9 @@
 import {
+  GENERIC_SURVEY_EXPORT_REPORT_ID,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DEFAULT_DATE_RANGES,
 } from '@tamanu/constants';
-
-export const GENERIC_SURVEY_EXPORT_REPORT_ID = 'generic-survey-export-line-list';
 
 export const REPORT_DEFINITIONS = [
   {

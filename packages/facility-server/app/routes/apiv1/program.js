@@ -17,10 +17,10 @@ export const program = express.Router();
 
 program.get('/:id', simpleGet('Program'));
 program.put('/:id', simplePut('Program'));
-program.post('/$', simplePost('Program'));
+program.post('/', simplePost('Program'));
 
 program.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Program');
     const { models, ability } = req;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Navigate, useParams } from 'react-router';
 import { Colors } from '../../constants';
@@ -34,6 +34,10 @@ export const ProgramRegistryView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
 
+  useEffect(() => {
+    setSearchParameters({});
+  }, [programRegistryId]);
+
   if (isLoading) return <LoadingIndicator data-testid="loadingindicator-08mp" />;
   if (
     isSuccess &&
@@ -49,7 +53,6 @@ export const ProgramRegistryView = () => {
               fallback={searchParams.get('name')}
               value={programRegistryId}
               category="programRegistry"
-              data-testid="translatedreferencedata-ouwu"
             />
           </h1>
         </ViewHeader>
@@ -58,10 +61,10 @@ export const ProgramRegistryView = () => {
             <TranslatedText
               stringId="programRegistry.patientSearch.title"
               fallback="Program patient search"
-              data-testid="translatedtext-4bug"
             />
           </span>
           <ProgramRegistrySearchBar
+            key={programRegistryId}
             searchParameters={searchParameters}
             setSearchParameters={setSearchParameters}
             data-testid="programregistrysearchbar-nyxg"

@@ -115,7 +115,7 @@ export const SyncView = React.memo(() => {
         <p>
           <TranslatedText
             stringId="admin.syncStatus.times.message"
-            fallback="Times are in the server's timezone"
+            fallback="Times are in the server’s timezone"
             data-testid="translatedtext-6i96"
           />
         </p>

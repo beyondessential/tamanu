@@ -6,6 +6,9 @@ export * from './LocalSystemFact';
 export * from './PortalUser';
 export * from './Device';
 
+export * from './AiChatSession';
+export * from './FormBuilderChatJob';
+
 export * from './Patient';
 export * from './PatientFamilyHistory';
 export * from './PatientCondition';
@@ -158,3 +161,5 @@ export * from './LocationAssignmentTemplate';
 export * from './LocationAssignment';
 export * from './DHIS2PushLog';
 export * from './MSupplyPushLog';
+
+export * from './AiDocument';

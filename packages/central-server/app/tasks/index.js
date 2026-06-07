@@ -19,6 +19,7 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
+import { FormBuilderChatCleaner } from './FormBuilderChatCleaner';
 import { FhirMissingResources } from './FhirMissingResources';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
@@ -30,6 +31,7 @@ import { AutoDeleteMedicationRequests } from './AutoDeleteMedicationRequests';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
+import { ProgramRegistryPltfuFlagger } from './ProgramRegistryPltfuFlagger';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -51,6 +53,7 @@ export async function startScheduledTasks(context) {
     CovidClearanceCertificatePublisher,
     SnapshotTableCleaner,
     StaleSyncSessionCleaner,
+    FormBuilderChatCleaner,
     PlannedMoveTimeout,
     FhirMissingResources,
     SurveyCompletionNotifierProcessor,
@@ -61,6 +64,7 @@ export async function startScheduledTasks(context) {
     MedicationDiscontinuer,
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
+    ProgramRegistryPltfuFlagger,
     SendStatusToMetaServer,
   ];
 

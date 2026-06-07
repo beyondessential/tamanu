@@ -63,6 +63,10 @@ function api(ctx, limiters) {
 export async function createApi(ctx) {
   const { store, emailService, reportSchemaStores } = ctx;
   const express = defineExpress();
+  // Express 5 defaults to the "simple" query parser (Node querystring). Bracket
+  // keys like includedDataTypes[0]=x become flat keys, breaking many callers and
+  // tests that rely on Express 4's extended (qs) parsing.
+  express.set('query parser', 'extended');
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {
@@ -110,6 +114,7 @@ export async function createApi(ctx) {
     req.db = store.sequelize;
     req.store = store;
     req.emailService = emailService;
+    req.aiService = ctx.aiService;
     req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
     req.language = req.headers['language'];
@@ -118,7 +123,7 @@ export async function createApi(ctx) {
 
   express.use(settingsReaderMiddleware);
 
-  express.get('/$', (req, res) => {
+  express.get('/', (req, res) => {
     res.send({
       index: true,
     });
@@ -138,7 +143,7 @@ export async function createApi(ctx) {
   express.use('/v1', api(ctx, limiters));
 
   // Dis-allow all other routes
-  express.use('*', (req, res) => {
+  express.use((req, res) => {
     res.status(404).end();
   });
 

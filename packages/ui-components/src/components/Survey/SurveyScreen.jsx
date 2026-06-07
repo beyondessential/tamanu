@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { Typography } from '@material-ui/core';
+import Typography from '@mui/material/Typography';
+import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
-import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
-
-import { OutlinedButton, ButtonRow, Button } from '../Button';
-import { SurveyQuestion } from './SurveyQuestion';
-import { checkVisibility } from '../../utils/survey';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { TAMANU_COLORS } from '../../constants/colors';
+import { checkVisibility } from '../../utils/survey';
+import { Button, ButtonRow, OutlinedButton } from '../Button';
 import { FormGrid } from '../Form/FormGrid';
 import { TranslatedText } from '../Translation';
+import { SurveyQuestion } from './SurveyQuestion';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
@@ -26,14 +25,27 @@ const CancelButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
+/** @param {string | null | undefined} answer */
+export function isNonAnswer(answer) {
+  return answer == null || answer === '';
+}
+
+/**
+ * @param {...(string | null | undefined)} answers
+ */
+function areNonAnswers(...answers) {
+  return answers.every(isNonAnswer);
+}
+
+/** Recalculates dynamic fields, writing them back into form values. */
 const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
-    // recalculate dynamic fields
     const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v, false));
+    for (const [k, v] of Object.entries(calculatedValues)) {
+      const prev = values[k];
+      if (prev === v || areNonAnswers(prev, v)) continue;
+      setFieldValue(k, v, false);
+    }
   }, [components, values, setFieldValue]);
 };
 
@@ -69,6 +81,15 @@ const useScrollToFirstError = () => {
   return { setQuestionToRef, scrollToQuestion };
 };
 
+const emptyStateMessage = (
+  <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
+    <TranslatedText
+      stringId="general.form.blankPage"
+      fallback="This page has been intentionally left blank"
+    />
+  </EmptyStateText>
+);
+
 export const SurveyScreen = ({
   allComponents,
   screenComponents = allComponents,
@@ -88,6 +109,8 @@ export const SurveyScreen = ({
   onCancel,
   showCancelButton = false,
   getComponentForQuestionType,
+  editedDataElementIds = null,
+  onViewChangeLog = null,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -119,9 +142,9 @@ export const SurveyScreen = ({
     }
   };
 
-  const getVisibleComponents = useCallback(
-    (components, allComponents) =>
-      components
+  const visibleComponents = useMemo(
+    () =>
+      screenComponents
         .filter(c => checkVisibility(c, values, allComponents))
         .map((c, index) => (
           <SurveyQuestion
@@ -131,22 +154,22 @@ export const SurveyScreen = ({
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
             encounterType={encounterType}
+            isEdited={editedDataElementIds?.has(c.dataElementId) ?? false}
+            onViewChangeLog={onViewChangeLog}
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
-    [encounterType, getComponentForQuestionType, patient, setQuestionToRef, values],
-  );
-
-  const visibleComponents = getVisibleComponents(screenComponents, allComponents);
-
-  const emptyStateMessage = (
-    <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
-      <TranslatedText
-        stringId="general.form.blankPage"
-        fallback="This page has been intentionally left blank"
-        data-testid="translatedtext-o60f"
-      />
-    </EmptyStateText>
+    [
+      allComponents,
+      editedDataElementIds,
+      onViewChangeLog,
+      encounterType,
+      getComponentForQuestionType,
+      patient,
+      screenComponents,
+      setQuestionToRef,
+      values,
+    ],
   );
 
   return (
@@ -165,11 +188,7 @@ export const SurveyScreen = ({
               disabled={!onStepBack}
               data-testid="outlinedbutton-0o9b"
             >
-              <TranslatedText
-                stringId="general.action.previous"
-                fallback="Prev"
-                data-testid="translatedtext-6y2g"
-              />
+              <TranslatedText stringId="general.action.previous" fallback="Prev" />
             </OutlinedButton>
             <Button
               color="primary"
@@ -177,11 +196,7 @@ export const SurveyScreen = ({
               onClick={validateAndStep}
               data-testid="button-m3a6"
             >
-              <TranslatedText
-                stringId="general.action.next"
-                fallback="Next"
-                data-testid="translatedtext-67nh"
-              />
+              <TranslatedText stringId="general.action.next" fallback="Next" />
             </Button>
           </>
         )}

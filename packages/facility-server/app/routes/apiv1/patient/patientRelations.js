@@ -83,16 +83,15 @@ patientRelations.get(
           ON locations.facility_id = facilities.id
         LEFT JOIN location_groups
           ON location_groups.id = locations.location_group_id
-        LEFT JOIN (
-          SELECT DISTINCT ON (encounter_id)
-            encounter_id,
-            discharger_id
+        LEFT JOIN LATERAL (
+          SELECT discharger_id
           FROM discharges
-          WHERE deleted_at IS NULL
-          ORDER BY encounter_id, (discharger_id IS NULL), discharger_id
-        ) AS discharge
-          ON discharge.encounter_id = encounters.id
-        LEFT JOIN users AS dischargingClinician 
+          WHERE discharges.encounter_id = encounters.id
+            AND deleted_at IS NULL
+          ORDER BY (discharger_id IS NULL), discharger_id
+          LIMIT 1
+        ) AS discharge ON true
+        LEFT JOIN users AS dischargingClinician
           ON dischargingClinician.id = discharge.discharger_id`;
 
     const whereClause = `
@@ -351,7 +350,8 @@ patientRelations.get(
           surveys.name as survey_name,
           encounters.examiner_id,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
-          programs.name as program_name
+          programs.name as program_name,
+          survey_responses.edited_time IS NOT NULL AS is_edited
         FROM
           survey_responses
           LEFT JOIN encounters
@@ -439,7 +439,9 @@ patientRelations.get(
       lab_requests.sample_time, JSONB_BUILD_OBJECT(
         'result', lab_tests.result,
         'id', lab_tests.id,
-        'isEdited', COALESCE(edited_tests.is_edited, FALSE)
+        'isEdited', COALESCE(edited_tests.is_edited, FALSE),
+        'referenceRangeMin', lab_tests.reference_range_min,
+        'referenceRangeMax', lab_tests.reference_range_max
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}

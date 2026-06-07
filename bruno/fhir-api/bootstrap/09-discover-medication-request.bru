@@ -1,0 +1,33 @@
+meta {
+  name: Discover MedicationRequest
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/integration/fhir/mat/MedicationRequest
+  body: none
+  auth: bearer
+}
+
+params:query {
+  _count: 1
+  _sort: -_lastUpdated
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const body = res.getBody && res.getBody();
+  const id = body && body.entry && body.entry[0] && body.entry[0].resource && body.entry[0].resource.id;
+  bru.setVar("medicationRequestId", id || "");
+}
+
+tests {
+
+  test("MedicationRequest record found", function() {
+    expect(bru.getVar("medicationRequestId"), "No MedicationRequest found in this environment").to.be.a("string").and.not.empty;
+  });
+}

@@ -66,6 +66,7 @@ import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
+import { ai } from './ai';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -206,6 +207,18 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.post('/refresh', refreshHandler);
   apiv1.post('/setFacility', setFacilityHandler);
+
+  apiv1.get(
+    '/settings/frontEnd',
+    asyncHandler(async (req, res) => {
+      // Same payload as /login and /setFacility, so no extra permission check needed.
+      req.flagPermissionChecked();
+      const { facilityId } = req;
+      const reader = facilityId ? req.settings[facilityId] : null;
+      const settings = reader ? await reader.getFrontEndSettings() : null;
+      res.send({ settings });
+    }),
+  );
   apiv1.use(patientDataRoutes); // see below for specifics
   apiv1.use(referenceDataRoutes); // see below for specifics
   apiv1.use(syncRoutes); // see below for specifics
@@ -237,6 +250,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/vitals', vitals);
   patientDataRoutes.use('/tasks', tasks);
   patientDataRoutes.use('/notifications', notifications);
+  patientDataRoutes.use('/ai', ai);
   
   // reference data endpoints
   referenceDataRoutes.use('/asset', asset);

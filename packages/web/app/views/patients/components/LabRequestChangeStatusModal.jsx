@@ -66,6 +66,7 @@ export const LabRequestChangeStatusModal = React.memo(
                 LAB_REQUEST_STATUSES.DELETED,
                 LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
                 LAB_REQUEST_STATUSES.CANCELLED,
+                LAB_REQUEST_STATUSES.REJECTED,
               ].includes(option.value) ||
                 option.value === values.status) &&
               (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED ||

@@ -1,19 +1,21 @@
-import React from 'react';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { Box } from '@mui/material';
+import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
+import React from 'react';
+
 import {
-  LimitedTextField,
-  MultilineTextField,
-  BaseSelectField,
   BaseMultiselectField,
-  ReadOnlyTextField,
-  InstructionField,
-  NumberField,
+  BaseSelectField,
   DateField,
   DateTimeField,
+  InstructionField,
+  LimitedTextField,
+  MultilineTextField,
   NullableBooleanField,
-  PhotoField,
+  NumberField,
   PatientDataDisplayField,
+  PhotoField,
+  ReadOnlyNumberField,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -40,12 +42,13 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyNumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: UnsupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: LimitedTextField,
@@ -54,23 +57,23 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: UnsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: UnsupportedField,
-};
+} as const satisfies Record<DataElementType, React.ComponentType<any>>;
 
 interface GetComponentForQuestionTypeOptions {
   source?: string;
   writeToPatient?: {
-    fieldType?: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
+    fieldType?: DataElementType;
   };
 }
 
 export function getComponentForQuestionType(
-  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES,
+  type: DataElementType,
   { source, writeToPatient: { fieldType } = {} }: GetComponentForQuestionTypeOptions = {},
-) {
-  let Component = QUESTION_COMPONENTS[type];
+): React.ComponentType<any> {
+  let Component: React.ComponentType<any> = QUESTION_COMPONENTS[type];
 
   if (Component === UnsupportedField) {
-    const TypedComponent = Component as React.ComponentType<any>;
+    const TypedComponent = Component;
     return (props: any) => <TypedComponent {...props} type={type} />;
   }
 
@@ -84,5 +87,5 @@ export function getComponentForQuestionType(
       Component = PatientDataDisplayField as any;
     }
   }
-  return Component as React.ComponentType<any>;
+  return Component;
 }

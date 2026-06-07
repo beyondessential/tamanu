@@ -30,10 +30,10 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
 });
 
 templateRoutes.get(
-  '/$',
+  '/',
   simpleGetList('Template', null, {
     additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   }),
 );
-templateRoutes.post('/$', checkUniqueName, simplePost('Template'));
+templateRoutes.post('/', checkUniqueName, simplePost('Template'));
 templateRoutes.put('/:id', checkUniqueName, simplePut('Template'));

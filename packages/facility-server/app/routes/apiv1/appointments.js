@@ -18,7 +18,10 @@ import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
-import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import {
+  getCurrentPrimaryTimeZoneDateString,
+  getCurrentPrimaryTimeZoneDateTimeString,
+} from '@tamanu/shared/utils/primaryDateTime';
 
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -96,17 +99,23 @@ appointments.put(
 );
 
 /**
- * @param {string} intervalStart Some valid PostgreSQL Date/Time input.
- * @param {string} intervalEnd Some valid PostgreSQL Date/Time input.
- * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-INPUT
+ * Equivalent to `(start_time, end_time) OVERLAPS ($start, $end)`, including OVERLAPS' point
+ * semantics when `end_time IS NULL`. Written as plain string inequalities so the partial index
+ * on `(location_group_id, start_time)` can be used.
+ *
+ * @param {string} intervalStart ISO 9075 datetime string (`yyyy-MM-dd HH:mm:ss`).
+ * @param {string} intervalEnd ISO 9075 datetime string.
  */
 const buildTimeQuery = (intervalStart, intervalEnd) => {
   const whereClause = literal(
-    '("Appointment"."start_time"::TIMESTAMP, "Appointment"."end_time"::TIMESTAMP) OVERLAPS ($apptTimeQueryStart, $apptTimeQueryEnd)',
+    `"Appointment"."start_time" < $apptTimeQueryEnd AND (
+       ("Appointment"."end_time" IS NULL AND "Appointment"."start_time" >= $apptTimeQueryStart)
+       OR "Appointment"."end_time" > $apptTimeQueryStart
+     )`,
   );
   const bindParams = {
-    apptTimeQueryStart: `'${intervalStart}'`,
-    apptTimeQueryEnd: `'${intervalEnd}'`,
+    apptTimeQueryStart: intervalStart,
+    apptTimeQueryEnd: intervalEnd,
   };
 
   return [whereClause, bindParams];
@@ -181,7 +190,7 @@ const sendAppointmentReminder = async ({
 };
 
 appointments.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
     const {
@@ -365,19 +374,15 @@ const buildPatientNameOrIdQuery = patientNameOrId => {
 };
 
 appointments.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkListOrReadPermission('Appointment');
 
     const {
       models: { Appointment },
       query: {
-        /**
-         * Midnight today
-         * @see https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-DATETIME-SPECIAL-VALUES
-         */
-        after = 'today',
-        before = 'infinity',
+        after,
+        before,
         facilityId,
         rowsPerPage = 10,
         page = 0,
@@ -391,7 +396,11 @@ appointments.get(
       },
     } = req;
 
-    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
+    // Defaults are midnight today (start) and a sentinel far-future timestamp (end). Plain
+    // ISO 9075 strings are required so the varchar comparison in buildTimeQuery is correct.
+    const intervalStart = after ?? `${getCurrentPrimaryTimeZoneDateString()} 00:00:00`;
+    const intervalEnd = before ?? '9999-12-31 23:59:59';
+    const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(intervalStart, intervalEnd);
 
     const cancelledStatusWhereClause = includeCancelled
       ? null
@@ -446,21 +455,48 @@ appointments.get(
       return _filters;
     }, []);
 
-    const { rows, count } = await Appointment.findAndCountAll({
+    // The COUNT subquery only needs the joins that are actually referenced by the WHERE
+    // clauses — pulling the full list of reference associations doubles planning time
+    // for what's a hot path on the appointments dashboard.
+    const needsLocation = facilityIdField === '$location.facility_id$' || Boolean(bookableWhereClause);
+    const needsPatient =
+      Boolean(patientNameOrId) ||
+      Object.keys(queries).some(k => k.startsWith('patient.'));
+    const includeForCount = ['locationGroup', 'schedule'];
+    if (needsLocation) {
+      includeForCount.push(
+        bookableWhereClause
+          ? { association: 'location', include: ['locationGroup'] }
+          : 'location',
+      );
+    }
+    if (needsPatient) {
+      includeForCount.push('patient');
+    }
+
+    const whereClause = {
+      [Op.and]: [
+        facilityIdWhereClause,
+        timeQueryWhereClause,
+        cancelledStatusWhereClause,
+        isBeforeScheduleUntilDateWhereClause,
+        buildPatientNameOrIdQuery(patientNameOrId),
+        bookableWhereClause,
+        ...filters,
+      ],
+    };
+
+    const count = await Appointment.count({
+      where: whereClause,
+      include: includeForCount,
+      bind: timeQueryBindParams,
+    });
+
+    const rows = await Appointment.findAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
-      where: {
-        [Op.and]: [
-          facilityIdWhereClause,
-          timeQueryWhereClause,
-          cancelledStatusWhereClause,
-          isBeforeScheduleUntilDateWhereClause,
-          buildPatientNameOrIdQuery(patientNameOrId),
-          bookableWhereClause,
-          ...filters,
-        ],
-      },
+      where: whereClause,
       include: Appointment.getListReferenceAssociations(),
       bind: timeQueryBindParams,
     });

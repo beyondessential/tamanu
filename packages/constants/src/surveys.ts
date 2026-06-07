@@ -40,7 +40,10 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
   COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
-};
+} as const;
+
+export type DataElementType =
+  (typeof PROGRAM_DATA_ELEMENT_TYPES)[keyof typeof PROGRAM_DATA_ELEMENT_TYPES];
 
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
@@ -69,13 +72,17 @@ export const SURVEY_TYPES = {
   SIMPLE_CHART: 'simpleChart',
   COMPLEX_CHART: 'complexChart',
   COMPLEX_CHART_CORE: 'complexChartCore',
-};
+} as const;
 
+/**
+ * @privateRemarks
+ * Wider type than necessary for simpler membership checking with {@link Array.prototype.includes}
+ */
 export const CHARTING_SURVEY_TYPES = [
   SURVEY_TYPES.SIMPLE_CHART,
   SURVEY_TYPES.COMPLEX_CHART,
   SURVEY_TYPES.COMPLEX_CHART_CORE,
-];
+] as readonly (typeof SURVEY_TYPES)[keyof typeof SURVEY_TYPES][];
 
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
 const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';
@@ -225,10 +232,10 @@ export const RESULT_COLORS = {
   red: '#ff2222',
   deepred: '#971a1a',
   purple: '#971a1a',
-};
+} as const;
 
 export const PORTAL_SURVEY_ASSIGNMENTS_STATUSES = {
   OUTSTANDING: 'outstanding',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
-};
+} as const;

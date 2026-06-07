@@ -20,7 +20,7 @@ export const pullRecordsInBatches = async (
     return { records, pullTime };
   };
 
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
   let current = await fetchPage(limit);

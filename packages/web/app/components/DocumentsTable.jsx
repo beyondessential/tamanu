@@ -51,7 +51,6 @@ const getDepartmentName = ({ department }) =>
       fallback={department.name}
       value={department.id}
       category="department"
-      data-testid="translatedreferencedata-vi1d"
     />
   ) : (
     ''
@@ -88,82 +87,40 @@ export const DocumentsTable = React.memo(
     const COLUMNS = [
       {
         key: 'name',
-        title: (
-          <TranslatedText
-            stringId="general.table.column.name"
-            fallback="Name"
-            data-testid="translatedtext-57ad"
-          />
-        ),
+        title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'type',
-        title: (
-          <TranslatedText
-            stringId="document.table.column.type"
-            fallback="Type"
-            data-testid="translatedtext-tl4g"
-          />
-        ),
+        title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
         accessor: getAttachmentType,
       },
       {
         key: 'documentUploadedAt',
-        title: (
-          <TranslatedText
-            stringId="document.table.column.uploadedDate"
-            fallback="Upload"
-            data-testid="translatedtext-pwph"
-          />
-        ),
+        title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
         accessor: getUploadedDate,
       },
       {
         key: 'documentOwner',
-        title: (
-          <TranslatedText
-            stringId="document.table.column.owner"
-            fallback="Owner"
-            data-testid="translatedtext-5luo"
-          />
-        ),
+        title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'department.name',
-        title: (
-          <TranslatedText
-            stringId="general.department.label"
-            fallback="Department"
-            data-testid="translatedtext-l1p0"
-          />
-        ),
+        title: <TranslatedText stringId="general.department.label" fallback="Department" />,
         accessor: getDepartmentName,
         CellComponent: LimitedLinesCell,
         sortable: false,
       },
       {
         key: 'note',
-        title: (
-          <TranslatedText
-            stringId="document.table.column.comments"
-            fallback="Comments"
-            data-testid="translatedtext-87f5"
-          />
-        ),
+        title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
         sortable: false,
         CellComponent: LimitedLinesCell,
       },
       {
         key: 'actions',
-        title: (
-          <TranslatedText
-            stringId="document.table.column.actions"
-            fallback="Actions"
-            data-testid="translatedtext-dpbk"
-          />
-        ),
+        title: <TranslatedText stringId="general.actions.label" fallback="Actions" />,
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => (
@@ -179,7 +136,15 @@ export const DocumentsTable = React.memo(
             >
               <GetAppIcon fontSize="small" data-testid="getappicon-dpgk" />
             </StyledIconButton>
-            {actions.length > 0 && <MenuButton actions={actions} data-testid="menubutton-5s3g" />}
+            {actions.length > 0 && (
+              <MenuButton
+                a11yLabel={
+                  <TranslatedText stringId="document.table.actions" fallback="Document actions" />
+                }
+                actions={actions}
+                data-testid="menubutton-5s3g"
+              />
+            )}
           </ActionWrapper>
         ),
       },

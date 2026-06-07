@@ -100,7 +100,7 @@ labRequest.put(
 );
 
 labRequest.post(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     const { panelIds, labTestTypeIds = [], note } = body;
@@ -126,7 +126,7 @@ labRequest.post(
 );
 
 labRequest.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const {
       models: { LabRequest },
@@ -714,7 +714,7 @@ labTest.get(
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 labTestType.get(
-  '/$',
+  '/',
   asyncHandler(async (req, res) => {
     const { models, query } = req;
     req.checkPermission('list', 'LabTestType');

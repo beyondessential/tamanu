@@ -205,13 +205,23 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 action: () => setOpenModal({ action: 'Remove', data: row }),
               },
             ];
-          return <MenuButton onClick={() => {}} actions={actions} />;
+          return (
+            <MenuButton
+              a11yLabel={
+                <TranslatedText
+                  stringId="programRegistry.patientActions"
+                  fallback="Patient actions"
+                />
+              }
+              actions={actions}
+            />
+          );
         },
         sortable: false,
         dontCallRowInput: true,
       },
     ];
-  }, []);
+  }, [getEnumTranslation, getTranslation]);
 
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 

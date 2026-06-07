@@ -375,7 +375,15 @@ const DISPENSED_MEDICATION_COLUMNS = (
       ];
       return (
         <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-          <MenuButton actions={actions} />
+          <MenuButton
+            a11yLabel={
+              <TranslatedText
+                stringId="patient.medication.table.actions"
+                fallback="Patient medication actions"
+              />
+            }
+            actions={actions}
+          />
         </div>
       );
     },
@@ -478,7 +486,7 @@ export const PatientMedicationPane = ({ patient }) => {
           quantity,
           units: prescription?.units,
           remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
-          prescriberName: prescription?.prescriber?.displayName,
+          prescriberName: pharmacyOrderPrescription?.pharmacyOrder?.orderingClinician?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,
           dispensedAt,
         },

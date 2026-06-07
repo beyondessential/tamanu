@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/fake-data",
-  "version": "2.55.0",
+  "version": "2.58.0",
   "private": true,
   "description": "TODO",
   "main": "dist/cjs/index.js",
@@ -62,6 +62,8 @@
     "chance": "^1.1.8",
     "date-fns": "^2.25.0",
     "lodash": "^4.17.21",
+    "p-limit": "^6.2.0",
+    "sequelize": "^6.37.8",
     "zocker": "^2.2.2",
     "zod": "^4.0.17"
   }
