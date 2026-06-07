@@ -154,28 +154,33 @@ export async function importRows(
                   })
                 : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (
-              fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.findOne({
-                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                  })
-                : await models[fkSchema.model].findOne({
-                    where: {
-                      name: { [Op.iLike]: fkFieldValue },
-                    },
-                  })
-            )?.id;
-
             if (hasRemoteId) {
               delete values[fkFieldName];
               values[fkNameLowerId] = fkFieldValue;
-            } else if (idByRemoteName) {
-              delete values[fkFieldName];
-              values[fkNameLowerId] = idByRemoteName;
             } else {
-              throw new Error(
-                `valid foreign key expected in column ${fkFieldName} (corresponding to ${fkNameLowerId}) but found: ${fkFieldValue}`,
-              );
+              // Only fall back to the (expensive, unindexed ILIKE) name lookup
+              // when the value isn't already a valid id. Computing this for every
+              // row regardless was the main cost of large imports.
+              const idByRemoteName = (
+                fkSchema.model === 'ReferenceData'
+                  ? await models.ReferenceData.findOne({
+                      where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                    })
+                  : await models[fkSchema.model].findOne({
+                      where: {
+                        name: { [Op.iLike]: fkFieldValue },
+                      },
+                    })
+              )?.id;
+
+              if (idByRemoteName) {
+                delete values[fkFieldName];
+                values[fkNameLowerId] = idByRemoteName;
+              } else {
+                throw new Error(
+                  `valid foreign key expected in column ${fkFieldName} (corresponding to ${fkNameLowerId}) but found: ${fkFieldValue}`,
+                );
+              }
             }
           }
         }
