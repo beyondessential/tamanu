@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import { TranslatedText } from '../Translation';
 
 const FullIframe = styled.iframe`
-  width: 100%;
-  height: 100%;
-  min-height: 50vh;
+  block-size: 100%;
+  border: 1px solid ${props => props.theme.palette.divider};
+  inline-size: 100%;
+  min-block-size: 50dvb;
 `;
 
 const Loader = styled.div`
@@ -23,7 +24,7 @@ const Loader = styled.div`
   .MuiTypography-root {
     margin-top: 40px;
     font-size: 16px;
-    color: ${(props) => props.theme.palette.text.secondary};
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 
@@ -31,11 +32,7 @@ const LoadingIndicator = () => (
   <Loader data-testid="loader-h17a">
     <CircularProgress size="5rem" data-testid="circularprogress-o1ud" />
     <Typography data-testid="typography-nd30">
-      <TranslatedText
-        stringId="general.status.loading"
-        fallback="Loading…"
-        data-testid="translatedtext-0lyw"
-      />
+      <TranslatedText stringId="general.status.loading" fallback="Loading…" />
     </Typography>
   </Loader>
 );
@@ -78,7 +75,7 @@ const PDFViewer = React.memo(({ id, children }) => {
   );
 });
 
-export const printPDF = (elementId) => {
+export const printPDF = elementId => {
   const iframe = document.getElementById(elementId);
   iframe.contentWindow.print();
 };
