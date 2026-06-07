@@ -416,7 +416,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
                 <Divider sx={{ borderColor: Colors.outline }} />
                 <UserLeaveSection user={user} />
-                <UserMfaSection user={user} />
+                <UserMfaSection user={user} onMfaChanged={handleRefresh} />
                 <Box mt="34px">
                   <Divider sx={{ borderColor: Colors.outline }} />
                 </Box>

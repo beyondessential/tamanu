@@ -98,6 +98,9 @@ export const MfaLoginForm = () => {
       }
       // success dispatches LOGIN_SUCCESS and this form unmounts
     } catch (e) {
+      // login boundary: keep the message generic, but leave a trace
+      // eslint-disable-next-line no-console
+      console.error('WebAuthn login ceremony failed', e);
       setError(webauthnError(getTranslation));
     } finally {
       setBusy(false);

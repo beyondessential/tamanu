@@ -15,6 +15,7 @@ import {
 import { ConfirmModal } from '../../../../components/ConfirmModal';
 import { Colors } from '../../../../constants';
 import { useApi } from '../../../../api';
+import { webauthnErrorMessage } from '../../../../utils/webauthn';
 import { useAuth } from '../../../../contexts/Auth';
 import { useTranslation } from '../../../../contexts/Translation';
 
@@ -62,7 +63,7 @@ const InviteBox = styled(Box)`
  * Admin view/management of another user's MFA. Read state needs `read
  * UserMfa`; the actions need `write UserMfa`.
  */
-export const UserMfaSection = ({ user }) => {
+export const UserMfaSection = ({ user, onMfaChanged }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -83,7 +84,14 @@ export const UserMfaSection = ({ user }) => {
 
   if (!canRead) return null;
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['admin-user-mfa', user.id] });
+  // await so callers see the refetch settle (the status query is observed
+  // here, so invalidation refetches it and the count updates in place). Also
+  // nudge the parent so the users table's MFA column refetches — it's a
+  // separate data source that won't pick up the change otherwise.
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['admin-user-mfa', user.id] });
+    onMfaChanged?.();
+  };
 
   const reset = async () => {
     setShowResetConfirm(false);
@@ -92,7 +100,7 @@ export const UserMfaSection = ({ user }) => {
       toast.success(
         getTranslation('admin.users.mfa.resetSuccess', 'All authentication methods removed.'),
       );
-      refresh();
+      await refresh();
     } catch (error) {
       toast.error(error.message);
     }
@@ -138,11 +146,9 @@ export const UserMfaSection = ({ user }) => {
         registrationResponse,
       });
       toast.success(getTranslation('admin.users.mfa.provisionSuccess', 'Passkey enrolled.'));
-      refresh();
+      await refresh();
     } catch (error) {
-      toast.error(
-        getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'),
-      );
+      toast.error(webauthnErrorMessage(error, getTranslation));
     } finally {
       setBusy(false);
     }

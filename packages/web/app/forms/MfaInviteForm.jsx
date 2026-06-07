@@ -19,6 +19,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { LoginAlert } from './LoginForm';
 import { useApi } from '../api';
+import { webauthnErrorMessage } from '../utils/webauthn';
 
 const Heading = styled(Typography)`
   color: ${Colors.darkestText};
@@ -112,7 +113,7 @@ export const MfaInviteForm = ({ onNavToLogin, initialEmail }) => {
       });
       setStep('done');
     } catch (e) {
-      setError(getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'));
+      setError(webauthnErrorMessage(e, getTranslation));
     } finally {
       setBusy(false);
     }

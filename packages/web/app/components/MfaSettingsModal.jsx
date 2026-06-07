@@ -22,6 +22,7 @@ import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
+import { webauthnErrorMessage } from '../utils/webauthn';
 
 const Section = styled.div`
   padding: 12px 0;
@@ -141,7 +142,7 @@ export const MfaSettingsModal = ({ open, onClose }) => {
       setNewPasskeyName('');
       await refresh();
     } catch (e) {
-      setError(getTranslation('mfa.webauthn.error', 'Passkey could not be used. Please try again.'));
+      setError(webauthnErrorMessage(e, getTranslation));
     } finally {
       setBusy(false);
     }
