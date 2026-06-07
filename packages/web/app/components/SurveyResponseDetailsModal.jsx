@@ -6,6 +6,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import {
   Button,
+  checkVisibility,
   EditedLegend,
   EditedOrnament,
   Modal,
@@ -45,8 +46,9 @@ const indicatorColumn = {
   sortable: false,
 };
 
-const isHiddenInResponseViews = component =>
-  component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+const isHiddenInResponseViews = component => {
+  return component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+};
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
   if (isLoading) {
@@ -125,50 +127,69 @@ export const SurveyResponseDetailsModal = ({
   );
 
   const { components = [], answers = [] } = surveyDetails ?? {};
-  const answerRows = components
-    .map(component => {
-      if (isHiddenInResponseViews(component)) return null; // Filter out
 
-      const { dataElement, id, config } = component;
-      const { type: originalType, name, id: dataElementId } = dataElement;
-      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer =
-        answerObject?.body ??
-        (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
-          ? getDisplayTextAnswer(component)
-          : undefined);
+  const answerRows = useMemo(() => {
+    const values = answers.reduce((acc, { dataElementId, body }) => {
+      acc[dataElementId] = body;
+      return acc;
+    }, {});
 
-      if (answer === undefined) return null; // Filter out
+    return components
+      .map(component => {
+        if (isHiddenInResponseViews(component)) return null;
 
-      const originalBody = answerObject?.originalBody;
-      const sourceType = answerObject?.sourceType;
-      const sourceConfig = answerObject?.sourceConfig;
-      const componentConfig =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
-      const type =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
+        const { dataElement, id, config } = component;
+        const { type: originalType, name, id: dataElementId } = dataElement;
 
-      const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+        if (
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT &&
+          !checkVisibility(component, values, components)
+        ) {
+          // `checkVisibility` could be unconditionally called, but it’s redundant for all other
+          // question types because of the empty answer check below. (A hidden question is always
+          // unanswered.)
+          return null;
+        }
 
-      return {
-        id,
-        dataElementId,
-        type,
-        answer,
-        originalBody,
-        wasEdited,
-        name: (
-          <TranslatedReferenceData
-            category="programDataElement"
-            value={dataElementId}
-            fallback={name}
-          />
-        ),
-        componentConfig,
-        surveyComponent: component,
-      };
-    })
-    .filter(r => r !== null);
+        const answerObject = answers.find(a => a.dataElementId === dataElement.id);
+        const answer =
+          answerObject?.body ??
+          (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
+            ? getDisplayTextAnswer(component)
+            : undefined);
+
+        if (answer === undefined) return null;
+
+        const originalBody = answerObject?.originalBody;
+        const sourceType = answerObject?.sourceType;
+        const sourceConfig = answerObject?.sourceConfig;
+        const componentConfig =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
+        const type =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
+
+        const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+
+        return {
+          id,
+          dataElementId,
+          type,
+          answer,
+          originalBody,
+          wasEdited,
+          name: (
+            <TranslatedReferenceData
+              category="programDataElement"
+              value={dataElementId}
+              fallback={name}
+            />
+          ),
+          componentConfig,
+          surveyComponent: component,
+        };
+      })
+      .filter(r => r !== null);
+  }, [answers, components, editedAnswerIds]);
 
   return (
     <Modal
