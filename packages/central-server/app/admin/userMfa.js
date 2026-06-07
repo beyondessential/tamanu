@@ -185,7 +185,14 @@ userMfaRouter.post(
     const { rpId } = await getWebAuthnContext(req);
     const user = await targetUser(req);
 
-    const options = await beginWebAuthnRegistration({ models: req.store.models, rpId, user });
+    // in-person provisioning lands the passkey on the USER's device via the
+    // QR/hybrid flow, never the admin's own authenticator
+    const options = await beginWebAuthnRegistration({
+      models: req.store.models,
+      rpId,
+      user,
+      preferredAuthenticatorType: 'remoteDevice',
+    });
     res.send(options);
   }),
 );

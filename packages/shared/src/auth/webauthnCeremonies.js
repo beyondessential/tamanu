@@ -89,7 +89,7 @@ async function consumeChallenge({ models, type, token, userId }) {
  * `navigator.credentials.create()` (via `@simplewebauthn/browser`'s
  * `startRegistration`).
  */
-export async function beginWebAuthnRegistration({ models, rpId, user }) {
+export async function beginWebAuthnRegistration({ models, rpId, user, preferredAuthenticatorType }) {
   const existingCredentials = await models.WebAuthnCredential.findAll({
     where: { userId: user.id, rpId },
   });
@@ -101,6 +101,11 @@ export async function beginWebAuthnRegistration({ models, rpId, user }) {
     userName: user.email,
     userDisplayName: user.displayName,
     attestationType: 'none',
+    // steer the ceremony where the caller knows the device should live (e.g.
+    // 'remoteDevice' for admin in-person provisioning, which goes straight to
+    // the phone-over-QR/hybrid flow rather than letting the browser dither
+    // over the local authenticator)
+    ...(preferredAuthenticatorType ? { preferredAuthenticatorType } : {}),
     // stop the same authenticator being enrolled twice
     excludeCredentials: existingCredentials.map(credential => ({
       id: credential.credentialId,

@@ -175,6 +175,11 @@ describe('Admin MFA management and enrolment invites', () => {
       expect(begin).toHaveSucceeded();
       expect(begin.body.user.name).toEqual(target.email);
 
+      // steered to the user's own remote device (phone over QR/hybrid), not
+      // the admin's local authenticator: cross-platform + a hybrid hint
+      expect(begin.body.authenticatorSelection?.authenticatorAttachment).toBe('cross-platform');
+      expect(begin.body.hints ?? []).toContain('hybrid');
+
       const challenge = await models.MfaChallenge.findOne({
         where: { token: begin.body.challenge, type: MFA_CHALLENGE_TYPES.WEBAUTHN_REGISTER },
       });
