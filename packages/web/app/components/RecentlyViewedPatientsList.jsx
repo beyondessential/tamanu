@@ -9,10 +9,12 @@ import React, { useCallback, useId, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import {
   DateDisplay,
   TAMANU_COLORS,
   ThemedTooltip,
+  TranslatedEnum,
   TranslatedSex,
   TranslatedText,
   useApi,
@@ -111,7 +113,17 @@ const CardText = styled(Typography)`
   }
 `;
 
-const PatientStatusIndicator = styled.div`
+const PatientStatusIndicator = styled.div.attrs(({ $encounterType, $isPatientDeceased }) => ({
+  children: (
+    <VisuallyHidden>
+      {$isPatientDeceased ? (
+        <TranslatedText stringId="death.deceased.label" fallback="Deceased" />
+      ) : (
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={$encounterType} />
+      )}
+    </VisuallyHidden>
+  ),
+}))`
   background-color: ${getPatientStatusColor};
   block-size: 3lh;
   border-radius: calc(1px * infinity);
@@ -173,9 +185,7 @@ const Card = ({ patient, handleClick, isDashboard, index }) => {
         $encounterType={patient.encounter_type}
         $isPatientDeceased={isPatientDeceased}
         data-testid={`patientstatusindicator-a5ir-${index}`}
-      >
-        <VisuallyHidden>{patient.encounter_type}</VisuallyHidden>
-      </PatientStatusIndicator>
+      />
       <CardComponentContent data-testid={`cardcomponentcontent-${index}`}>
         <ThemedTooltip
           title={`${patient.firstName || ''} ${patient.lastName || ''}`}
