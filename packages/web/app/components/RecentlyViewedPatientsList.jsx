@@ -188,7 +188,7 @@ const Card = ({ patient, handleClick, isDashboard, index }) => {
       />
       <CardComponentContent data-testid={`cardcomponentcontent-${index}`}>
         <ThemedTooltip
-          title={`${patient.firstName || ''} ${patient.lastName || ''}`}
+          title={[patient.firstName, patient.lastName].filter(Boolean).join(' ')}
           data-testid="themedtooltip-i98w"
         >
           <CardTitle
