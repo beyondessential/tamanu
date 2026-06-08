@@ -152,10 +152,14 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const prescriberNameLength = data.prescriberName?.length || 0;
   const instructionsLength = data.instructions?.length || 0;
 
-  // 1. Medication name: scale based on length
+  // 1. Medication name: scale down for longer names so they collapse toward a
+  // single line instead of wrapping and eating vertical space (length is a
+  // proxy for "would wrap" on the default-width label).
   let medicationNameFontSize = labelHeight * 0.09;
   if (medicationNameLength > 50) {
-    medicationNameFontSize = labelHeight * 0.075;
+    medicationNameFontSize = labelHeight * 0.06;
+  } else if (medicationNameLength > 40) {
+    medicationNameFontSize = labelHeight * 0.07;
   } else if (medicationNameLength > 35) {
     medicationNameFontSize = labelHeight * 0.08;
   } else if (medicationNameLength < 25) {
