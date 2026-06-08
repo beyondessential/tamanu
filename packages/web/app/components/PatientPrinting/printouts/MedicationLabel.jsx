@@ -29,7 +29,7 @@ const Label = styled.div`
 `;
 
 const LabelContent = styled.div`
-  padding: 1.5mm 2mm 0 2mm;
+  padding: 0.7mm 2mm 0 2mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -39,8 +39,8 @@ const LabelContent = styled.div`
 const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
-  margin-bottom: 0.708mm;
+  gap: 0.4mm;
+  margin-bottom: 0.2mm;
 `;
 
 const LabelMedicationName = styled.div`
@@ -121,8 +121,8 @@ const LabelDetailRow = styled.div`
 
 const LabelFooter = styled.div`
   border-top: 0.177mm solid ${Colors.black};
-  padding: 1.416mm 0;
-  margin-top: 0.708mm;
+  padding: 0.6mm 0;
+  margin-top: 0.354mm;
   display: flex;
   justify-content: center;
   align-items: center;
