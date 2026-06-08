@@ -152,14 +152,10 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const prescriberNameLength = data.prescriberName?.length || 0;
   const instructionsLength = data.instructions?.length || 0;
 
-  // 1. Medication name: scale down for longer names so they collapse toward a
-  // single line instead of wrapping and eating vertical space (length is a
-  // proxy for "would wrap" on the default-width label).
+  // 1. Medication name: scale based on length
   let medicationNameFontSize = labelHeight * 0.09;
   if (medicationNameLength > 50) {
-    medicationNameFontSize = labelHeight * 0.06;
-  } else if (medicationNameLength > 40) {
-    medicationNameFontSize = labelHeight * 0.07;
+    medicationNameFontSize = labelHeight * 0.075;
   } else if (medicationNameLength > 35) {
     medicationNameFontSize = labelHeight * 0.08;
   } else if (medicationNameLength < 25) {
@@ -181,6 +177,13 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
     instructionsFontSize = labelHeight * 0.085;
   } else if (instructionsLength > 50 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.1;
+  }
+
+  // When the medication name is long enough to shrink AND wrap to two lines it
+  // costs an extra line, so step long instructions down (kept as large as fits)
+  // to drop a line and keep the footer on a fixed-size label.
+  if (medicationNameLength > 45 && instructionsLength > 75 * widthHeightScale) {
+    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.075);
   }
 
 
