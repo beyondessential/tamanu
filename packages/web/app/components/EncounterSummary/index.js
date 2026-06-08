@@ -1,1 +1,1 @@
-export { DischargeEncounterSummaryContent } from './DischargeEncounterSummaryContent';
+export { EncounterSummaryContent } from './EncounterSummaryContent';

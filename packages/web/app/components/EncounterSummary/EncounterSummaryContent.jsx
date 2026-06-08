@@ -35,11 +35,11 @@ import {
 
 const SectionTitle = () => (
   <SectionLabel>
-    <TranslatedText stringId="discharge.encounterSummary.label" fallback="Encounter summary" />
+    <TranslatedText stringId="ai.encounterSummary.label" fallback="Encounter summary" />
   </SectionLabel>
 );
 
-export const DischargeEncounterSummaryContent = ({ encounterId }) => {
+export const EncounterSummaryContent = ({ encounterId }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
@@ -137,7 +137,7 @@ export const DischargeEncounterSummaryContent = ({ encounterId }) => {
             />
           </ErrorText>
         )}
-        {showGenerate && !generateError && (
+        {showGenerate && (
           <GenerateButton
             startIcon={<SparkleIcon />}
             onClick={handleGenerate}

@@ -49,7 +49,7 @@ import { getPatientStatus } from '../utils/getPatientStatus';
 import { useTranslation } from '../contexts/Translation';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
-import { DischargeEncounterSummaryContent } from '../components/EncounterSummary';
+import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
@@ -1001,7 +1001,7 @@ export const DischargeForm = ({
             data-testid="field-0uma"
           />
           <div style={{ gridColumn: '1 / -1' }}>
-            <DischargeEncounterSummaryContent encounterId={encounter.id} />
+            <EncounterSummaryContent encounterId={encounter.id} />
           </div>
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}

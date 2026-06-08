@@ -13,11 +13,15 @@ clinical information explicitly documented in the encounter record provided.
 # Previous feedback
 
 The following are summaries for this encounter that were previously generated and
-then edited by a clinician. Each pair shows the original AI output and the
-clinician's corrected version. Identify what changed between each pair and apply
-the same corrections to the current summary. Do not treat the edited content as
-a source of clinical facts — use only the encounter data below for all clinical
-information.
+then edited by a clinician, ordered from oldest to most recent. Each pair shows
+the original AI output and the clinician's corrected version. Identify what
+changed between each pair and apply the same corrections to the current summary.
+If corrections across multiple pairs contradict one another, treat the last
+correction in this list as authoritative, as pairs are ordered from oldest to
+most recent. If multiple corrections build on the same phrase, apply all changes
+cumulatively, using the last correction in the list as the final target output
+for that phrase. Do not treat the edited content as a source of clinical facts —
+use only the encounter data below for all clinical information.
 
 {FEEDBACK_ARRAY}
 
@@ -45,6 +49,10 @@ You will be given structured encounter data in the following sections:
 
 Produce a single flowing paragraph of no more than 100 words. No bullet points,
 no sub-headings, no line breaks within the paragraph.
+
+Output only the summary paragraph — no preamble, headings, notes, or
+meta-commentary (e.g. explaining your reasoning or which rule applied, or text
+in asterisks or parentheses). One version only, nothing else.
 
 Cover documented information in the following strict priority order. Include
 lower-priority sections only if the word limit permits:

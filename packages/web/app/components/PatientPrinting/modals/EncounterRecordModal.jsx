@@ -329,7 +329,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       ) : (
         <WorkerRenderedPDFViewer
           id="encounter-record"
-          queryDeps={[encounter.id]}
+          queryDeps={[encounter.id, encounterSummary]}
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           vitalsData={vitalsData}

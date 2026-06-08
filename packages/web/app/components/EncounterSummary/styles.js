@@ -31,6 +31,7 @@ export const Body = styled.div`
 `;
 
 export const GenerateButton = styled(Button)`
+  margin-top 10px;
   padding: 8px 16px;
   background: ${Colors.background};
   color: ${Colors.primary};
@@ -114,6 +115,7 @@ export const LoadingContainer = styled.div`
 export const ErrorText = styled(BodyText)`
   color: ${Colors.alert};
   font-size: 13px;
+  margin-bottom: 10px;
 `;
 
 export const StyledEditIcon = styled(EditIcon)`
