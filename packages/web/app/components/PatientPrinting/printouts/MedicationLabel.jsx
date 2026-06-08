@@ -170,9 +170,9 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   // text per row than the default.
   const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
   let instructionsFontSize = labelHeight * 0.108;
-  if (instructionsLength > 110 * widthHeightScale) {
+  if (instructionsLength > 150 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.065;
-  } else if (instructionsLength > 75 * widthHeightScale) {
+  } else if (instructionsLength > 110 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.075;
   } else if (instructionsLength > 50 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.085;
