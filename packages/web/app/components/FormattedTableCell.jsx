@@ -1,5 +1,4 @@
 import { useTheme } from '@mui/material';
-import { tableCellClasses } from '@mui/material/TableCell';
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
