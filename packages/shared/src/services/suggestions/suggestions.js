@@ -282,6 +282,21 @@ const DEFAULT_MAPPER = ({ name, code, id }) => ({
   id,
 });
 
+// Natural sort by code using the en_numeric ICU collation (as locations.name does).
+const codeNaturalOrder = Sequelize.literal('"ReferenceData"."code" COLLATE public.en_numeric');
+
+// Per-type order overrides consulted by the reference data suggester below.
+const REFERENCE_DATA_ORDER_OVERRIDES = {
+  // Prioritise treatment plan at the top.
+  [REFERENCE_TYPES.NOTE_TYPE]: [
+    Sequelize.literal(
+      `CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END`,
+    ),
+  ],
+  // The dropdown displays the code, so order by code rather than the translatable name.
+  [REFERENCE_TYPES.MEDICATION_PRESET_LABEL]: [codeNaturalOrder],
+};
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -630,16 +645,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
-      orderBuilder: () => {
-        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
-          return [
-            // Prioritize treatment plan at the top
-            Sequelize.literal(`
-              CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-              `),
-          ];
-        }
-      },
+      orderBuilder: () => REFERENCE_DATA_ORDER_OVERRIDES[typeName],
     },
     true,
   );
