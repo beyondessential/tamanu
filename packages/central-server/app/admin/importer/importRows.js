@@ -67,9 +67,7 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
-// Bulk-load existing rows for a chunk: one query per model (default-loader,
-// id-keyed models only), with deduplicated ids. Composite-key models fall back
-// to the per-row loadExisting.
+// One findAll per model; composite-key models (with custom loaders) fall back to per-row loadExisting.
 async function preloadExistingForChunk(models, chunkRows) {
   const idsByModel = new Map();
   for (const { model, values } of chunkRows) {
@@ -90,7 +88,6 @@ async function preloadExistingForChunk(models, chunkRows) {
   return { existingByModelId, batchedModels: new Set(idsByModel.keys()) };
 }
 
-// Cached when a foreign key value resolves to no record (negative result).
 const FK_NOT_FOUND = Symbol('fk-not-found');
 
 // Configuration for fields to ignore when checking for changes per model
@@ -151,8 +148,7 @@ export async function importRows(
   }
 
   log.debug('Resolving foreign keys', { rows: rows.length });
-  // Resolve each distinct foreign key value once (e.g. the handful of roles
-  // shared across thousands of permission rows).
+  // Resolve each distinct FK value once (e.g. the handful of roles shared across thousands of permission rows).
   const fkResolutionCache = new Map();
   const resolvedRows = [];
   for (const { model, sheetRow, values } of rows) {
@@ -289,8 +285,7 @@ export async function importRows(
   };
   await validateTableRows(models, validRows, pushErrorFn);
 
-  // Upsert in chunks, bulk-loading each chunk's existing rows just before it.
-  // Reassigning at each boundary keeps peak memory proportional to the chunk.
+  // Reassigning the chunk maps at each boundary keeps peak memory proportional to the chunk.
   log.debug('Upserting database rows', { rows: validRows.length });
   const UPSERT_CHUNK_SIZE = 1000;
   let existingByModelId = new Map();
