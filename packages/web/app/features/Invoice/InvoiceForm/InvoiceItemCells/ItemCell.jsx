@@ -4,4 +4,5 @@ import { Box } from '@mui/material';
 export const ItemCell = styled(Box)`
   min-width: ${props => props.$width};
   width: ${props => props.$width};
+  flex-shrink: 0;
 `;

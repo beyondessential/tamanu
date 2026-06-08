@@ -28,9 +28,7 @@ export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS }) => {
       <ItemHeadCell $width={cellWidths.DATE}>
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </ItemHeadCell>
-      <ItemHeadCell
-        style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-      >
+      <ItemHeadCell style={{ flex: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </ItemHeadCell>
       <ItemHeadCell $width={cellWidths.QUANTITY}>
