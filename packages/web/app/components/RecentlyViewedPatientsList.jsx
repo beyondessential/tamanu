@@ -78,7 +78,6 @@ const ListItem = styled.li`
   display: flex;
   flex-direction: row;
   gap: 5px;
-  padding-bottom: 15px;
   padding: 10px;
   &:hover {
     background-color: ${p => p.theme.palette.action.hover};
