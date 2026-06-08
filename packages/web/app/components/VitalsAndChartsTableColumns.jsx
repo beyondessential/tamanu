@@ -1,10 +1,9 @@
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import React from 'react';
-import styled from 'styled-components';
 
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   USER_PREFERENCES_KEYS,
