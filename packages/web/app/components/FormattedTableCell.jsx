@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '@mui/material';
 
-import { PlainTimeDisplay } from '@tamanu/ui-components';
+import { EditedOrnament, PlainTimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
@@ -213,7 +213,7 @@ export const LimitedLinesCell = ({
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
-      {isEdited && isClamped && <span>*</span>}
+      {isEdited && isClamped && <EditedOrnament />}
     </LimitedLinesCellContainer>
   );
 };
@@ -246,8 +246,6 @@ export const RangeValidatedCell = React.memo(
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(value, config);
-    const isEditedSuffix = isEdited ? '*' : '';
-    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(
       () => getValidationState(float, config, validationCriteria),
       [float, config, validationCriteria],
@@ -260,7 +258,16 @@ export const RangeValidatedCell = React.memo(
         {...props}
         data-testid="cellcontainer-4zzh"
       >
-        <ValueWrapper value={formattedValue} isEdited={isEdited} data-testid="valuewrapper-nbfj" />
+        <ValueWrapper
+          value={
+            <>
+              {formatValue(value, config)}
+              {isEdited && <EditedOrnament />}
+            </>
+          }
+          isEdited={isEdited}
+          data-testid="valuewrapper-nbfj"
+        />
       </CellContainer>
     );
 
