@@ -117,7 +117,11 @@ export const EncounterSummaryContent = ({ encounterId }) => {
             >
               <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
             </CancelButton>
-            <SaveButton onClick={handleSave} disabled={isBusy} data-testid="encounter-summary-save">
+            <SaveButton
+              onClick={handleSave}
+              disabled={isBusy || !editContent.trim()}
+              data-testid="encounter-summary-save"
+            >
               <TranslatedText stringId="general.action.save" fallback="Save" />
             </SaveButton>
           </EditActions>

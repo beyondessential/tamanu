@@ -53,9 +53,13 @@ export async function regenerateAiEncounterSummary({ encounterId, models, db, de
   const editFeedback = await getEncounterSummaryEditFeedback(encounterId, models, db);
 
   const centralServer = new CentralServerConnection({ deviceId });
+  // Disable the sync connection's default retry/backoff so an offline central fails
+  // fast and surfaces an error in the UI, rather than retrying for ~90s while the
+  // user stares at a spinner.
   const aiResponse = await centralServer.fetch('ai/encounter/summary', {
     method: 'POST',
     body: { encounterData, editFeedback },
+    backoff: false,
   });
 
   const [doc] = await models.AiDocument.upsert({

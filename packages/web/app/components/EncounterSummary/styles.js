@@ -116,6 +116,7 @@ export const ErrorText = styled(BodyText)`
   color: ${Colors.alert};
   font-size: 13px;
   margin-bottom: 10px;
+  margin-top: 10px;
 `;
 
 export const StyledEditIcon = styled(EditIcon)`
@@ -145,9 +146,7 @@ export const EditTextarea = styled.textarea`
 export const EditActions = styled.div`
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
+  margin-bottom: 5px;
 `;
 
 export const CancelButton = styled(TextButton)`
