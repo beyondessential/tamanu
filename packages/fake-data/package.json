@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@tamanu/api-client": "*",
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
