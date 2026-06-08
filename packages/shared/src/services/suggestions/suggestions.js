@@ -282,6 +282,11 @@ const DEFAULT_MAPPER = ({ name, code, id }) => ({
   id,
 });
 
+// Natural sort on the `code` column using the same en_numeric ICU collation that
+// locations.name uses (see the collateLocationsNaturally migration): numbers sort
+// ahead of letters and numeric runs compare numerically (Q6H before Q12H).
+const codeNaturalOrder = Sequelize.literal('"ReferenceData"."code" COLLATE public.en_numeric');
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -638,6 +643,11 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
               `),
           ];
+        }
+        // The preset label dropdown displays the code, so order by code rather
+        // than the (translatable) name the default order uses.
+        if (typeName === REFERENCE_TYPES.MEDICATION_PRESET_LABEL) {
+          return [codeNaturalOrder];
         }
       },
     },

@@ -4,6 +4,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  REFERENCE_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
@@ -436,6 +437,40 @@ describe('Suggestions', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.length).toEqual(1);
       expect(result.body[0].name).toEqual('AA-used');
+    });
+  });
+
+  describe('medicationPresetLabel', () => {
+    it('should order preset labels by code, numbers before letters and numerically', async () => {
+      await models.ReferenceData.destroy({
+        where: { type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL },
+        force: true,
+      });
+
+      // Created out of order; codes mix numeric prefixes, plain letters, and
+      // multi-digit runs to exercise the natural ordering.
+      const codes = ['Q12H', 'W17', 'AMA', '2Q4H', 'Q6H', 'W1P1', '1Q4H'];
+      for (const code of codes) {
+        await models.ReferenceData.create({
+          id: `medicationPresetLabel-${code}`,
+          type: REFERENCE_TYPES.MEDICATION_PRESET_LABEL,
+          code,
+          name: `Preset ${code}`,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      }
+
+      const result = await userApp.get('/api/suggestions/medicationPresetLabel');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ code }) => code)).toEqual([
+        '1Q4H',
+        '2Q4H',
+        'AMA',
+        'Q6H',
+        'Q12H',
+        'W1P1',
+        'W17',
+      ]);
     });
   });
 
