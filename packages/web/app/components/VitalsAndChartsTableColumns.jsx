@@ -1,13 +1,20 @@
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
 import React from 'react';
 import styled from 'styled-components';
-import { getNormalRangeByAge, useDateTime } from '@tamanu/ui-components';
+
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
-  VISIBILITY_STATUSES,
   USER_PREFERENCES_KEYS,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
+import { getNormalRangeByAge, useDateTime, VisuallyHidden } from '@tamanu/ui-components';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { useChartData } from '../contexts/ChartData';
+import { useVitalChartData } from '../contexts/VitalChartData';
 import {
   DateBodyCell,
   DateHeadCell,
@@ -16,16 +23,19 @@ import {
   RangeValidatedCell,
   TimeBodyCell,
 } from './FormattedTableCell';
-import { VitalVectorIcon } from './Icons/VitalVectorIcon';
-import { useVitalChartData } from '../contexts/VitalChartData';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useChartData } from '../contexts/ChartData';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
-const IconButton = styled(IconButtonComponent)`
-  padding: 9px 5px;
-`;
+function VitalChartButton(props) {
+  return (
+    <IconButton color="primary" size="small" {...props}>
+      <ShowChartIcon fontSize="small" />
+      <VisuallyHidden>
+        <TranslatedText stringId="vitals.showChart" fallback="Show chart" />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
 
 const parseMultiselectValue = value => {
   if (!value) return;
@@ -75,8 +85,7 @@ const MeasureCell = React.memo(({ value, data }) => {
     >
       {value}
       {hasVitalChart && (
-        <IconButton
-          size="small"
+        <VitalChartButton
           onClick={() => {
             setChartKeys([chartKey]);
             setIsInMultiChartsView(false);
@@ -84,9 +93,7 @@ const MeasureCell = React.memo(({ value, data }) => {
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-t7kq"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-b8jn" />
-        </IconButton>
+        />
       )}
     </Box>
   );
@@ -128,8 +135,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
     >
       {value}
       {isSuccess && allGraphedChartKeys.length > 1 && (
-        <IconButton
-          size="small"
+        <VitalChartButton
           onClick={() => {
             setChartKeys(chartKeys);
             setIsInMultiChartsView(true);
@@ -137,11 +143,9 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-u6iz"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
-        </IconButton>
+        />
       )}
-      {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
+      {isLoading && <CircularProgress size="1em" data-testid="circularprogress-wtcr" />}
     </Box>
   );
 });
