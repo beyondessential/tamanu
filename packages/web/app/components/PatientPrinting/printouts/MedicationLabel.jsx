@@ -169,13 +169,13 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   // and the font scales with `labelHeight`, so a tall-thin label fits LESS
   // text per row than the default.
   const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
-  let instructionsFontSize = labelHeight * 0.108;
+  let instructionsFontSize = labelHeight * 0.125;
   if (instructionsLength > 150 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.065;
+    instructionsFontSize = labelHeight * 0.07;
   } else if (instructionsLength > 110 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.075;
-  } else if (instructionsLength > 50 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.085;
+  } else if (instructionsLength > 50 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.1;
   }
 
 
