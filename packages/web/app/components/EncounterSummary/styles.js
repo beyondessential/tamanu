@@ -164,6 +164,6 @@ export const SaveButton = styled(Button)`
 `;
 
 export const EditedText = styled.span`
-  margin-left: 8px;
+  margin-left: 3px;
   font-style: italic;
 `;
