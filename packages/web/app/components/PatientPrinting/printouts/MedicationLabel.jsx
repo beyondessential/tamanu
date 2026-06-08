@@ -29,18 +29,18 @@ const Label = styled.div`
 `;
 
 const LabelContent = styled.div`
-  padding: 1.5mm 2mm 0 2mm;
+  padding: 0.7mm 2mm 0 2mm;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-grow: 1;
 `;
 
 const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
-  margin-bottom: 0.708mm;
+  gap: 0.4mm;
+  margin-bottom: 0.2mm;
 `;
 
 const LabelMedicationName = styled.div`
@@ -69,6 +69,7 @@ const LabelBottomSection = styled.div`
 const LabelPatientDateRow = styled.div`
   display: flex;
   gap: 2mm;
+  margin-top: auto;
   border-bottom: 0.354mm solid ${Colors.black};
   padding-bottom: 0.354mm;
 `;
@@ -121,8 +122,8 @@ const LabelDetailRow = styled.div`
 
 const LabelFooter = styled.div`
   border-top: 0.177mm solid ${Colors.black};
-  padding: 1.416mm 0;
-  margin-top: 0.708mm;
+  padding: 0.6mm 0;
+  margin-top: 0.354mm;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -169,13 +170,20 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   // and the font scales with `labelHeight`, so a tall-thin label fits LESS
   // text per row than the default.
   const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
-  let instructionsFontSize = labelHeight * 0.108;
-  if (instructionsLength > 110 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.065;
-  } else if (instructionsLength > 75 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.075;
-  } else if (instructionsLength > 50 * widthHeightScale) {
+  let instructionsFontSize = labelHeight * 0.125;
+  if (instructionsLength > 150 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.07;
+  } else if (instructionsLength > 110 * widthHeightScale) {
     instructionsFontSize = labelHeight * 0.085;
+  } else if (instructionsLength > 50 * widthHeightScale) {
+    instructionsFontSize = labelHeight * 0.1;
+  }
+
+  // When the medication name is long enough to shrink AND wrap to two lines it
+  // costs an extra line, so step long instructions down (kept as large as fits)
+  // to drop a line and keep the footer on a fixed-size label.
+  if (medicationNameLength > 45 && instructionsLength > 75 * widthHeightScale) {
+    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.08);
   }
 
 
