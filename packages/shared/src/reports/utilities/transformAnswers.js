@@ -117,7 +117,7 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
   }
 };
 
-/** @param {`[[${string}]] | ''`} answer */
+/** @param {string | null | undefined} answer */
 async function convertSignatureAnswer(answer) {
   return await decompressSignatureBody(answer);
 }
