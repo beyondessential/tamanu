@@ -111,29 +111,47 @@ export class FhirDiagnosticReport extends FhirResource {
         `No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`,
       );
     }
+    if (
+      this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._ &&
+      labRequest.status !== LAB_REQUEST_STATUSES.INVALIDATED
+    ) {
+      throw new InvalidOperationError(
+        `amended DiagnosticReport can only be applied to an invalidated LabRequest`,
+      );
+    }
+    if (
+      this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR &&
+      labRequest.status !== LAB_REQUEST_STATUSES.PUBLISHED
+    ) {
+      throw new InvalidOperationError(
+        `entered-in-error DiagnosticReport can only be applied to a published LabRequest`,
+      );
+    }
     await this.sequelize.transaction(async () => {
       const newStatus = this.getLabRequestStatus();
 
-      if (this.shouldUpdateLabRequestStatus(labRequest, newStatus)) {
-        labRequest.set({ status: newStatus });
-        if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
-          labRequest.set({ publishedDate: getCurrentDateTimeString() });
-        }
-        await labRequest.save();
+      if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
+        return;
+      }
 
-        if (!requesterId)
-          throw new InvalidOperationError('No user found for LabRequest status change.');
-        await this.sequelize.models.LabRequestLog.create({
-          status: newStatus,
-          labRequestId: labRequest.id,
-          updatedById: requesterId,
-        });
+      labRequest.set({ status: newStatus });
+      if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+        labRequest.set({ publishedDate: getCurrentDateTimeString() });
+      }
+      await labRequest.save();
+
+      if (!requesterId)
+        throw new InvalidOperationError('No user found for LabRequest status change.');
+      await this.sequelize.models.LabRequestLog.create({
+        status: newStatus,
+        labRequestId: labRequest.id,
+        updatedById: requesterId,
+      });
+      if (this.presentedForm) {
+        await this.saveAttachment(labRequest);
       }
     });
 
-    if (this.presentedForm) {
-      await this.saveAttachment(labRequest);
-    }
     return labRequest;
   }
 
@@ -171,11 +189,11 @@ export class FhirDiagnosticReport extends FhirResource {
     }
 
     if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {
-      return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+      return LAB_REQUEST_STATUSES.INVALIDATED;
     }
 
     if (this.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
-      return LAB_REQUEST_STATUSES.INVALIDATED;
+      return LAB_REQUEST_STATUSES.PUBLISHED;
     }
 
     if (
@@ -189,22 +207,22 @@ export class FhirDiagnosticReport extends FhirResource {
     throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
   }
 
-  shouldUpdateLabRequestStatus(labRequest: LabRequest, newStatus: LabRequest['status']) {
+  shouldUpdateLabRequest(
+    labRequest: LabRequest,
+    fhirStatus: string,
+    newStatus: LabRequest['status'],
+  ) {
     if (!labRequest.status) {
-      return false; // Don't update a status for a labRequest that doesn't support it
+      return false;
     }
 
     if (labRequest.status === newStatus) {
-      return false; // No need to update if not changing the status
+      return false;
     }
 
     if (labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED) {
-      // Once a labRequest has been published, we can only change the status to INVALIDATED. Ignore all other status changes
-      if (newStatus === LAB_REQUEST_STATUSES.INVALIDATED) {
-        return true;
-      }
-
-      return false;
+      // Once published, only entered-in-error (which transitions to Invalidated) can change the status
+      return fhirStatus === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR;
     }
 
     return true;

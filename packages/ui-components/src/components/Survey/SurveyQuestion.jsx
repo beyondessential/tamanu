@@ -1,3 +1,5 @@
+/** @typedef {import('@tamanu/constants').ProgramDataElementType} ProgramDataElementType */
+
 import { Box, Typography } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
@@ -16,6 +18,22 @@ import { Field, FieldWithTooltip } from '../Field';
 import SurveyResultQuestion from '../Field/SurveyResultQuestion';
 import { RequiredOrnament } from '../RequiredOrnament';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
+import { ViewChangeLogButton } from '../ViewChangeLogButton';
+
+/** @type {ReadonlySet<ProgramDataElementType>} */
+const suppressChangelogQuestionTypes = new Set([
+  PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+  PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+  PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER,
+  PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT,
+]);
+
+/** @type {ProgramDataElementType} type */
+function shouldSuppressChangelog(type) {
+  return suppressChangelogQuestionTypes.has(type);
+}
 
 const Text = styled(Typography)`
   margin-block-end: 10px;
@@ -97,6 +115,7 @@ export const SurveyQuestion = ({
   encounterType,
   getComponentForQuestionType,
   isEdited = false,
+  onViewChangeLog,
 }) => {
   const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -129,12 +148,23 @@ export const SurveyQuestion = ({
       fallback={componentDetail}
     />
   );
+  const showChangeLogButton = onViewChangeLog && !shouldSuppressChangelog(type);
   const helperText = (
     <>
       {detail}
       {isEdited && (
         <span data-testid="survey-question-edited-indicator" style={{ display: 'block' }}>
           <TranslatedText stringId="general.label.edited" fallback="Edited" />
+          {showChangeLogButton && (
+            <>
+              {' '}
+              &ndash;{' '}
+              <ViewChangeLogButton
+                onClick={onViewChangeLog}
+                data-testid="survey-question-view-changelog"
+              />
+            </>
+          )}
         </span>
       )}
     </>
