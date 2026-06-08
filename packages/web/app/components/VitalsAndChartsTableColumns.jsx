@@ -208,13 +208,7 @@ export const useChartsTableColumns = (
   return [
     {
       key: 'measure',
-      title: (
-        <TranslatedText
-          stringId="general.table.column.measure"
-          fallback="Measure"
-          data-testid="translatedtext-l9f5"
-        />
-      ),
+      title: <TranslatedText stringId="general.table.column.measure" fallback="Measure" />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
