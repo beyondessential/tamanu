@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('@tamanu/constants').EncounterType} EncounterType
+ * @typedef {import('react').CSSProperties['color']} CssColor
+ */
+
 import { Collapse } from '@material-ui/core';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
 import NavigateNext from '@mui/icons-material/NavigateNext';
@@ -23,6 +28,7 @@ import {
 import { reloadPatient } from '../store/patient';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
+/** @satisfies {Record<EncounterType, CssColor>} */
 const colorFromEncounterType = /** @type {const} */ ({
   admission: TAMANU_COLORS.green,
   clinic: '#E9AC50',

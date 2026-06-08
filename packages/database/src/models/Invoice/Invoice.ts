@@ -6,6 +6,7 @@ import {
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
+  type EncounterType,
 } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -116,7 +117,10 @@ export class Invoice extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
-  static getFullReferenceAssociations(invoicePriceListId?: string, includeRefundingPayments?: boolean) {
+  static getFullReferenceAssociations(
+    invoicePriceListId?: string,
+    includeRefundingPayments?: boolean,
+  ) {
     const { models } = this.sequelize;
 
     return [
@@ -140,11 +144,13 @@ export class Invoice extends Model {
         as: 'payments',
         required: false,
         include: models.InvoicePayment.getListReferenceAssociations(models),
-        ...(!includeRefundingPayments ? {
-          where: {
-            'original_payment_id': null,
-          }
-        } : {}),
+        ...(!includeRefundingPayments
+          ? {
+              where: {
+                original_payment_id: null,
+              },
+            }
+          : {}),
       },
       {
         model: models.InvoiceInsurancePlan,
@@ -254,7 +260,7 @@ export class Invoice extends Model {
 
   static async automaticallyCreateForEncounter(
     encounterId: string,
-    encounterType: string,
+    encounterType: EncounterType,
     date: string,
     settings: ReadSettings,
     options?: { transaction?: Transaction },
