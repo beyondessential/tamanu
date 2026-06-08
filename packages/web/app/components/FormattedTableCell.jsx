@@ -1,6 +1,7 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useTheme } from '@mui/material';
 
 import { PlainTimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../constants';
@@ -30,12 +31,6 @@ const ClickableCellWrapper = styled(CellWrapper)`
 const HeadCellWrapper = styled.div`
   display: block;
   width: fit-content;
-  div {
-    color: ${Colors.midText};
-    :first-child {
-      color: ${Colors.darkText};
-    }
-  }
 `;
 
 function round(float, { rounding } = {}) {
@@ -95,20 +90,31 @@ export const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
-    <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div>
-        <DateDisplay noTooltip date={value} format="shortest" />
-      </div>
-      <div>
-        <TimeDisplay noTooltip date={value} />
-      </div>
-    </HeadCellWrapper>
-  </TableTooltip>
-));
+export const DateHeadCell = ({ value }) => {
+  const theme = useTheme();
+  return (
+    <TableTooltip
+      title={<DateDisplay date={value} format="long" />}
+      data-testid="tabletooltip-5w9x"
+    >
+      <HeadCellWrapper data-testid="headcellwrapper-jcsy">
+        <DateDisplay
+          date={value}
+          format="shortest"
+          noTooltip
+          style={{ color: theme.palette.text.secondary, display: 'block' }}
+        />
+        <TimeDisplay
+          date={value}
+          noTooltip
+          style={{ color: theme.palette.text.tertiary, display: 'block' }}
+        />
+      </HeadCellWrapper>
+    </TableTooltip>
+  );
+};
 
-export const DateBodyCell = React.memo(({ value, onClick }) => {
+export const DateBodyCell = ({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
@@ -116,16 +122,12 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div>
-          <DateDisplay noTooltip date={value} format="shortest" />
-        </div>
-        <div>
-          <TimeDisplay noTooltip date={value} />
-        </div>
+        <DateDisplay date={value} format="shortest" noTooltip style={{ display: 'block' }} />
+        <TimeDisplay date={value} noTooltip style={{ display: 'block' }} />
       </CellContainer>
     </TableTooltip>
   );
-});
+};
 
 export function TimeBodyCell({ value, onClick }) {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
