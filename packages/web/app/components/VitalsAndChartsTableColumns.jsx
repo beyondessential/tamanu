@@ -14,6 +14,7 @@ import {
   LimitedLinesCell,
   RangeTooltipCell,
   RangeValidatedCell,
+  TimeBodyCell,
 } from './FormattedTableCell';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
@@ -179,6 +180,10 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
 
     if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
       return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
+    }
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TIME && value) {
+      return <TimeBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
     }
 
     return (

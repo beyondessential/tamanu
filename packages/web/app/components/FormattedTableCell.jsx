@@ -1,6 +1,8 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+
+import { PlainTimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
@@ -124,6 +126,15 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
     </TableTooltip>
   );
 });
+
+export function TimeBodyCell({ value, onClick }) {
+  const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+  return (
+    <CellContainer onClick={onClick} data-testid="cellcontainer-time">
+      <PlainTimeDisplay time={value} />
+    </CellContainer>
+  );
+}
 
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
