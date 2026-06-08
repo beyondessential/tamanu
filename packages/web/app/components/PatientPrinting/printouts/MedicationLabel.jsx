@@ -40,7 +40,7 @@ const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.4mm;
-  margin-bottom: 0.2mm;
+  margin-bottom: 1mm;
 `;
 
 const LabelMedicationName = styled.div`
@@ -97,7 +97,7 @@ const LabelDate = styled.div`
 const LabelLeftColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
+  gap: 0.4mm;
   flex: 1;
   min-width: 0;
 `;
@@ -105,7 +105,7 @@ const LabelLeftColumn = styled.div`
 const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.708mm;
+  gap: 0.4mm;
   flex-shrink: 0;
   text-align: right;
   white-space: nowrap;
@@ -122,7 +122,7 @@ const LabelDetailRow = styled.div`
 
 const LabelFooter = styled.div`
   border-top: 0.177mm solid ${Colors.black};
-  padding: 0.6mm 0;
+  padding: 0.4mm 0;
   margin-top: 0.354mm;
   display: flex;
   justify-content: center;
@@ -148,8 +148,6 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
 
 const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
-  const patientNameLength = data.patientName?.length || 0;
-  const prescriberNameLength = data.prescriberName?.length || 0;
   const instructionsLength = data.instructions?.length || 0;
 
   // 1. Medication name: scale based on length
@@ -170,47 +168,29 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   // and the font scales with `labelHeight`, so a tall-thin label fits LESS
   // text per row than the default.
   const widthHeightScale = (labelWidth * 40) / (labelHeight * 80);
-  let instructionsFontSize = labelHeight * 0.125;
+  let instructionsFontSize = labelHeight * 0.145;
   if (instructionsLength > 150 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.07;
+    instructionsFontSize = labelHeight * 0.09;
   } else if (instructionsLength > 110 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.085;
+    instructionsFontSize = labelHeight * 0.11;
   } else if (instructionsLength > 50 * widthHeightScale) {
-    instructionsFontSize = labelHeight * 0.1;
+    instructionsFontSize = labelHeight * 0.125;
   }
 
   // When the medication name is long enough to shrink AND wrap to two lines it
   // costs an extra line, so step long instructions down (kept as large as fits)
   // to drop a line and keep the footer on a fixed-size label.
   if (medicationNameLength > 45 && instructionsLength > 75 * widthHeightScale) {
-    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.08);
+    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.095);
   }
 
 
-  // 3. Patient name and date: scale based on patient name length to stay on one line
-  let patientDateFontSize = labelHeight * 0.09;
-  if (patientNameLength > 30) {
-    patientDateFontSize = labelHeight * 0.075;
-  } else if (patientNameLength > 25) {
-    patientDateFontSize = labelHeight * 0.08;
-  } else if (patientNameLength < 15) {
-    patientDateFontSize = labelHeight * 0.095;
-  }
-  
-  // 4. Details (Total prescribed, Repeats, Pres., Request): scale based on prescriber name
-  // Prescriber name is the longest, so scale to fit it on one line
-  let detailFontSize = labelHeight * 0.08; // Base detail size
-  
-  if (prescriberNameLength > 35) {
-    detailFontSize = labelHeight * 0.06; // Smallest: 2.4mm
-  } else if (prescriberNameLength > 28) {
-    detailFontSize = labelHeight * 0.07; // 2.8mm
-  } else if (prescriberNameLength < 20) {
-    detailFontSize = labelHeight * 0.085; // 3.4mm
-  }
-  
-  // 5. Footer: never scale - fixed readable size
+  // 3 & 4. Patient name/date and the detail rows (Pres, Request, quantity,
+  // Repeats) are secondary info — sized to match the footer to free vertical
+  // space for the medication name and instructions. Long values truncate.
   const footerFontSize = labelHeight * 0.075; // Fixed 3mm for 40mm height
+  const patientDateFontSize = footerFontSize;
+  const detailFontSize = footerFontSize;
   
   return {
     medicationNameFontSize,
