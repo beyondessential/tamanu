@@ -32,7 +32,7 @@ const LabelContent = styled.div`
   padding: 0.7mm 2mm 0 2mm;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-grow: 1;
 `;
 
