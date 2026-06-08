@@ -38,7 +38,7 @@ const DrawArea = styled.div.attrs({ 'data-testid': 'signaturefield-draw-area' })
   border-radius: ${p => p.theme.shape.borderRadius}px;
   border: 1px solid ${p => p.theme.palette.divider};
   position: relative;
-  width: min(100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
+  width: clamp(10rem, 100%, ${SIGNATURE_VIEWBOX_WIDTH}px);
   &:focus {
     background-color: ${p => p.theme.palette.background.paper};
     border-color: ${p => p.theme.palette.primary.main};
