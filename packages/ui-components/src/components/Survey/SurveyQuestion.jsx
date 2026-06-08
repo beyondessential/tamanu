@@ -39,8 +39,8 @@ const Text = styled(Typography)`
   margin-block-end: 10px;
 `;
 
-export const FullWidthCol = styled.div`
-  grid-column: 1/-1;
+const FullWidthCol = styled.div`
+  grid-column: 1 / -1;
 `;
 
 const GeolocateQuestion = ({ text, component, required }) => {
