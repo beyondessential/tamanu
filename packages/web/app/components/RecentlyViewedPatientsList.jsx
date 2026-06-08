@@ -59,8 +59,8 @@ const CardListContainer = styled.div`
   ${p =>
     p.$isDashboard &&
     css`
-      background-color: ${p => p.theme.palette.background.paper};
-      border: 1px solid ${p => p.theme.palette.divider};
+      background-color: ${p.theme.palette.background.paper};
+      border: 1px solid ${p.theme.palette.divider};
       padding-block: 10px;
     `}
 `;
