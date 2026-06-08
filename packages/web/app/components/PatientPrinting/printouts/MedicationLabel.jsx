@@ -183,7 +183,7 @@ const calculateDynamicFontSizes = (data, labelWidth, labelHeight) => {
   // costs an extra line, so step long instructions down (kept as large as fits)
   // to drop a line and keep the footer on a fixed-size label.
   if (medicationNameLength > 45 && instructionsLength > 75 * widthHeightScale) {
-    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.075);
+    instructionsFontSize = Math.min(instructionsFontSize, labelHeight * 0.08);
   }
 
 
