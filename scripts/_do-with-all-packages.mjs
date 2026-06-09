@@ -13,15 +13,26 @@ function cleanupLeadingGarbage(jsonStr) {
 function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
 
-  Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
-    let dependencies = [];
-    if (info.dependencies) {
-      dependencies = Object.keys(info.dependencies).filter(dependency =>
-        workspaces.has(dependency),
-      );
+  for (const [workspace, info] of Object.entries(workspaceTree.dependencies)) {
+    if (!workspaces.has(workspace)) continue;
+
+    const { resolved } = info;
+    const location = extractLocation(resolved);
+    let pkg;
+    try {
+      pkg = JSON.parse(readFileSync(`./${location}/package.json`));
+    } catch (err) {
+      dependencyTree[workspace] = [];
+      continue;
     }
-    dependencyTree[workspace] = dependencies;
-  });
+
+    // Use declared production dependencies only. `npm ls` also includes devDependencies, which can
+    // introduce false build-order cycles between packages that only depend on each other for tests
+    // (e.g. shared ↔ fake-data).
+    dependencyTree[workspace] = Object.keys(pkg.dependencies ?? {}).filter(dependency =>
+      workspaces.has(dependency),
+    );
+  }
 
   return dependencyTree;
 }
@@ -40,7 +51,11 @@ export function doWithAllPackages(fn) {
     ),
   );
 
-  const workspaces = new Set(Object.keys(workspaceTree.dependencies));
+  const workspaces = new Set(
+    Object.entries(workspaceTree.dependencies)
+      .filter(([, info]) => info.resolved?.includes('packages/'))
+      .map(([workspace]) => workspace),
+  );
   const processed = new Set();
 
   const dependencyTree = extractDependencyTree(workspaceTree, workspaces);

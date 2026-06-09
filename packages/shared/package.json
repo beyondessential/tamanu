@@ -150,7 +150,6 @@
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
-    "@tamanu/database": "*",
     "@tamanu/errors": "*",
     "@tamanu/utils": "*",
     "case": "^1.6.3",
