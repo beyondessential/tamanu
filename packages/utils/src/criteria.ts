@@ -19,21 +19,29 @@ function getComponentsByCode(allComponents: Component[]): Map<string, Component>
   return map;
 }
 
-type Binaryish = boolean | 'true' | 'false' | 'Yes' | 'No';
-type BinaryAnswer = Binaryish | null | undefined;
+export type Binaryish = boolean | 'true' | 'false' | 'Yes' | 'No' | '1' | '0';
+export type BinaryAnswer = Binaryish | null | undefined;
 
 function isBinaryLikeQuestionType(type: DataElementType | undefined): boolean {
   return type === PROGRAM_DATA_ELEMENT_TYPES.BINARY || type === PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX;
 }
 
-function normalizeBinaryAnswer(answer: BinaryAnswer): boolean | null | undefined {
+/**
+ * - Desktop form state uses and persists to database 'true' | 'false'
+ * - Mobile persists to database 'Yes' | 'No'
+ * - `visibilityCriteria` has historically used 'Yes' | 'No'
+ * - Reports may receive '1' | '0' from some clients
+ */
+export function normalizeBinaryAnswer(answer: BinaryAnswer): boolean | null | undefined {
   switch (answer) {
     case true:
     case 'true':
+    case '1':
     case 'Yes':
       return true;
     case false:
     case 'false':
+    case '0':
     case 'No':
       return false;
     default:
@@ -41,11 +49,15 @@ function normalizeBinaryAnswer(answer: BinaryAnswer): boolean | null | undefined
   }
 }
 
-/**
- * - Desktop form state uses and persists to database 'true' | 'false'
- * - Mobile persists to database 'Yes' | 'No'
- * - `visibilityCriteria` has historically used 'Yes' | 'No'
- */
+export function convertBinaryToYesNo(
+  answer: BinaryAnswer,
+): 'Yes' | 'No' | Exclude<BinaryAnswer, Binaryish> {
+  const normalized = normalizeBinaryAnswer(answer);
+  if (normalized === true) return 'Yes';
+  if (normalized === false) return 'No';
+  return answer as Exclude<BinaryAnswer, Binaryish>;
+}
+
 function isBinaryishEqual(a: BinaryAnswer, b: BinaryAnswer): boolean {
   return normalizeBinaryAnswer(a) === normalizeBinaryAnswer(b);
 }

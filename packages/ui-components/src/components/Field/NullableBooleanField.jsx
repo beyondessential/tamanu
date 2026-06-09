@@ -6,6 +6,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import styled from 'styled-components';
 
+import { normalizeBinaryAnswer } from '@tamanu/utils/criteria';
 import { TAMANU_COLORS } from '../../constants';
 import { useTranslation } from '../../contexts';
 import { TranslatedText } from '../Translation';
@@ -47,22 +48,11 @@ const RequiredLabel = styled.span`
 const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
   const handleChange = (e, next) => onChange({ ...e, target: { ...e.target, name, value: next } });
 
-  /**
-   * - Form context expects and uses <ToggleButton> values 'true' | 'false'
-   * - Desktop persists 'true' | 'false' to `survey_response_answers.body`
-   * - Mobile persists 'Yes' | 'No' to `survey_response_answers.body`
-   * - `visibilityCriteria` uses 'Yes' | 'No'
-   */
-  const logicalValue = (() => {
-    switch (value) {
-      case 'Yes':
-        return 'true';
-      case 'No':
-        return 'false';
-      default:
-        return value;
-    }
-  })();
+  const normalized = normalizeBinaryAnswer(value);
+  const logicalValue =
+    typeof normalized === 'boolean'
+      ? /** @type {'true' | 'false'} */ (normalized.toString())
+      : /** @type {null | undefined} */ (value);
 
   return (
     <ToggleButtonGroup

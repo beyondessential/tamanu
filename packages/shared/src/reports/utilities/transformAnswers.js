@@ -1,5 +1,8 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
+
+import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { convertBinaryToYesNo } from '@tamanu/utils/criteria';
 import {
   differenceInMilliseconds,
   format,
@@ -7,7 +10,6 @@ import {
   isISOString,
   parseDate,
 } from '@tamanu/utils/dateTime';
-import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
@@ -56,24 +58,6 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
   }
 
   return getDisplayNameForModel(componentConfig.source, result);
-};
-
-/**
- * @template {'Yes' | 'No' | 'true' | 'false' | '1' | '0' | null | undefined} T
- * @param {T} answer
- * @returns {T extends string ? 'Yes' | 'No' : T}
- */
-const convertBinaryToYesNo = answer => {
-  switch (answer) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return answer;
-  }
 };
 
 const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate = false }) => {
