@@ -1,5 +1,8 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
+
+import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { convertBinaryToYesNo } from '@tamanu/utils/criteria';
 import {
   differenceInMilliseconds,
   format,
@@ -7,7 +10,6 @@ import {
   isISOString,
   parseDate,
 } from '@tamanu/utils/dateTime';
-import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
@@ -58,19 +60,6 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
   return getDisplayNameForModel(componentConfig.source, result);
 };
 
-const convertBinaryToYesNo = answer => {
-  switch (answer) {
-    case 'true':
-    case '1':
-      return 'Yes';
-    case 'false':
-    case '0':
-      return 'No';
-    default:
-      return answer;
-  }
-};
-
 const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate = false }) => {
   if (notTransformDate) return answer;
   if (isISOString(answer)) {
@@ -79,7 +68,12 @@ const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate
   return '';
 };
 
-export const getPatientDataFieldAssociationData = async ({ models, modelName, fieldName, answer }) => {
+export const getPatientDataFieldAssociationData = async ({
+  models,
+  modelName,
+  fieldName,
+  answer,
+}) => {
   const model = models[modelName];
   const associations = Object.values(model.associations || {});
   const foreignKeyAssociation = associations.find(
@@ -153,17 +147,18 @@ export const getAnswerBody = async (
   }
   let result;
   switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
-    case 'Checkbox':
+    case PROGRAM_DATA_ELEMENT_TYPES.BINARY:
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;
-    case 'Autocomplete':
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       result = await convertAutocompleteAnswer(models, parsedComponentConfig, answer);
       break;
-    case 'PatientData':
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
       break;
     default:
