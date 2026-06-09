@@ -33,7 +33,6 @@
     "clean:deps": "rimraf node_modules"
   },
   "devDependencies": {
-    "@types/date-fns": "^2.6.3",
     "@types/node": "^18.14.6",
     "rimraf": "^6.0.1"
   }
