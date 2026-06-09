@@ -97,13 +97,6 @@ const LongTextFlexbox = styled(Flexbox)`
   align-items: flex-start;
 `;
 
-const LongTextActions = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-block-start: 13px;
-`;
-
 const ListInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -164,6 +157,42 @@ const SETTING_TYPES = {
 
 const normalize = val => (val === null || val === '' ? '' : val);
 
+/**
+ * Reset-to-default action for a setting, rendered in the row's actions column
+ * (not bundled with the input) so it lines up across every row. Disabled — with
+ * an explanatory tooltip — when the value already equals the default.
+ */
+export const ResetToDefaultButton = ({ value, defaultValue, onReset, 'data-testid': dataTestId }) => {
+  const isUnchangedFromDefault = isEqual(normalize(value), normalize(defaultValue));
+  return (
+    <ConditionalTooltip
+      visible={isUnchangedFromDefault}
+      title={
+        isUnchangedFromDefault && (
+          <TranslatedText
+            stringId="admin.settings.action.resetToDefault.unchangedTooltip"
+            fallback="This setting is already at its default value"
+          />
+        )
+      }
+      data-testid="conditionaltooltip-qp1v"
+    >
+      <div>
+        <DefaultSettingButton
+          disabled={isUnchangedFromDefault}
+          onClick={onReset}
+          data-testid={dataTestId ?? 'defaultsettingbutton-4vbq'}
+        >
+          <TranslatedText
+            stringId="admin.settings.action.resetToDefault"
+            fallback="Reset to default"
+          />
+        </DefaultSettingButton>
+      </div>
+    </ConditionalTooltip>
+  );
+};
+
 const formatCategoryPath = path =>
   path
     .split('.')
@@ -180,7 +209,6 @@ const MarkdownSettingInput = ({
   defaultValue,
   disabled,
   onChange,
-  DefaultButton,
   'data-testid': dataTestId,
 }) => {
   const { initialValues } = useFormikContext();
@@ -217,7 +245,6 @@ const MarkdownSettingInput = ({
           <TranslatedText stringId="general.label.edited" fallback="Edited" />
         </MarkdownEditorStatus>
       )}
-      <DefaultButton data-testid="defaultbutton-5efq" />
       {markdownModalOpen && (
         <MarkdownEditorModal
           open={markdownModalOpen}
@@ -488,14 +515,6 @@ export const SettingInput = ({
 
   const isMaskedSecret = isSecret && value === SECRET_PLACEHOLDER;
 
-  const isUnchangedFromDefault = useMemo(() => {
-    if (isSecret) {
-      // For secrets, we can't compare to default since value is hidden
-      return !secretEdited;
-    }
-    return isEqual(normalize(value), normalize(defaultValue));
-  }, [value, defaultValue, isSecret, secretEdited]);
-
   useEffect(() => {
     if (isMaskedSecret && secretEdited) {
       setSecretEdited(false);
@@ -524,40 +543,6 @@ export const SettingInput = ({
       setError(err);
     }
   }, [value, typeSchema, type, isSecret, isMaskedSecret, secretEdited]);
-
-  const DefaultButton = () => {
-    if (disabled) return null;
-    // Don't show reset button for secrets - they can only be set, not reset
-    if (isSecret) return null;
-
-    return (
-      <ConditionalTooltip
-        visible={isUnchangedFromDefault}
-        title={
-          isUnchangedFromDefault && (
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault.unchangedTooltip"
-              fallback="This setting is already at its default value"
-            />
-          )
-        }
-        data-testid="conditionaltooltip-qp1v"
-      >
-        <div>
-          <DefaultSettingButton
-            disabled={isUnchangedFromDefault}
-            onClick={() => handleChangeSetting(path, defaultValue)}
-            data-testid="defaultsettingbutton-4vbq"
-          >
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault"
-              fallback="Reset to default"
-            />
-          </DefaultSettingButton>
-        </div>
-      </ConditionalTooltip>
-    );
-  };
 
   const handleChangeValue = newValue => handleChangeSetting(path, newValue);
   const defaultHandleChange = e => handleChangeValue(e.target.value);
@@ -656,7 +641,6 @@ export const SettingInput = ({
               error={error}
               helperText={error?.message}
             />
-            <DefaultButton data-testid="defaultbutton-qsdq" />
           </Flexbox>
         );
       case SETTING_TYPES.STRING:
@@ -670,7 +654,6 @@ export const SettingInput = ({
               error={error}
               helperText={error?.message}
             />
-            <DefaultButton data-testid="defaultbutton-qsdq" />
           </Flexbox>
         );
       default:
@@ -697,7 +680,6 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="switch-b88q"
           />
-          <DefaultButton data-testid="defaultbutton-urt3" />
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
@@ -726,7 +708,6 @@ export const SettingInput = ({
               data-testid="styledtextinput-fpam"
             />
           )}
-          <DefaultButton data-testid="defaultbutton-iw4g" />
         </Flexbox>
       );
     case SETTING_TYPES.NUMBER:
@@ -742,7 +723,6 @@ export const SettingInput = ({
             data-testid="stylednumberinput-v04t"
           />
           <Unit data-testid="unit-ip4s">{unit}</Unit>
-          <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
     case SETTING_TYPES.MULTILINE: {
@@ -759,9 +739,6 @@ export const SettingInput = ({
             disabled={disabled}
             data-testid="styledtextinput-9fw2"
           />
-          <LongTextActions data-testid="longtextactions-y1pc">
-            <DefaultButton data-testid="defaultbutton-5efq" />
-          </LongTextActions>
         </LongTextFlexbox>
       );
     }
@@ -776,7 +753,6 @@ export const SettingInput = ({
           defaultValue={defaultValue}
           disabled={disabled}
           onChange={handleChangeValue}
-          DefaultButton={DefaultButton}
           data-testid={dataTestId}
         />
       );
@@ -797,9 +773,6 @@ export const SettingInput = ({
               error={error}
               bounds={arrayLengthBounds}
             />
-            <LongTextActions data-testid="longtextactions-list">
-              <DefaultButton data-testid="defaultbutton-list" />
-            </LongTextActions>
           </LongTextFlexbox>
         );
       }
@@ -818,7 +791,6 @@ export const SettingInput = ({
             error={error}
             data-testid="jsoneditor-6t9w"
           />
-          <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
       );
     default:

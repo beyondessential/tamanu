@@ -33,7 +33,11 @@ const CategoryOptions = styled(Box)`
 const CategoriesWrapper = styled.div`
   display: grid;
   column-gap: 1rem;
-  grid-template-columns: minmax(min-content, 30rem) minmax(min-content, max-content);
+  // Three columns shared (via subgrid) by every row: label | input | actions.
+  // The label track flexes to fill, pushing the input and its reset action to
+  // the right and giving every input/action a common column edge — so a narrow
+  // number input and a wide text input still line up, and reset buttons align.
+  grid-template-columns: minmax(min-content, 1fr) max-content max-content;
   padding: 1.25rem;
 `;
 

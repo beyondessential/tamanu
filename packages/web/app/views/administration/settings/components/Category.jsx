@@ -8,7 +8,7 @@ import { isSetting } from '@tamanu/settings';
 import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
-import { SettingInput } from './SettingInput';
+import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
@@ -59,6 +59,15 @@ const SettingLine = styled(BodyText)`
   &:focus-within {
     background-color: ${Colors.veryLightBlue};
   }
+`;
+
+// the row's third column: the reset-to-default action, top-aligned so it sits
+// against the first line of tall inputs (multiline, list, JSON) too
+const RowActions = styled.div`
+  align-self: start;
+  display: flex;
+  justify-content: flex-end;
+  margin-block: 13px;
 `;
 
 const SettingNameLabel = styled(LargeBodyText)`
@@ -223,6 +232,17 @@ export const Category = ({
               editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
+            {/* actions column: reset to default — not shown for secrets (set
+                only, never reset) or when the user can't edit this setting */}
+            {!disabled && !isSecret && (
+              <RowActions>
+                <ResetToDefaultButton
+                  value={getSettingValue(newPath)}
+                  defaultValue={defaultValue}
+                  onReset={() => handleChangeSetting(newPath, defaultValue)}
+                />
+              </RowActions>
+            )}
           </SettingLine>
         );
       })}
