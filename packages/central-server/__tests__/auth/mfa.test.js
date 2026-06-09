@@ -130,6 +130,27 @@ describe('MFA self-service', () => {
       }
     });
 
+    it('relaxes user verification to preferred when the setting allows it', async () => {
+      await models.Setting.set(
+        'auth.mfa.webauthn.userVerification',
+        'preferred',
+        SETTINGS_SCOPES.GLOBAL,
+      );
+      try {
+        const response = await agent.post('/api/mfa/webauthn/register-begin');
+        expect(response).toHaveSucceeded();
+        expect(response.body.authenticatorSelection).toMatchObject({
+          userVerification: 'preferred',
+        });
+      } finally {
+        await models.Setting.set(
+          'auth.mfa.webauthn.userVerification',
+          'required',
+          SETTINGS_SCOPES.GLOBAL,
+        );
+      }
+    });
+
     it('forces a discoverable credential on the requireResidentKey retry', async () => {
       // the warn-mode "try again for passwordless" retry, default setting
       const response = await agent

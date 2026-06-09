@@ -286,6 +286,8 @@ must be **non-disruptive**, and every security-sensitive list defaults to its
 | `auth.mfa.webauthn.rpid` | string | **`""` (unset)** | No safe guess for the domain; empty ⇒ WebAuthn unavailable (fail-safe) ⇒ TOTP/password. Set the common stem to enable passkeys. |
 | `auth.mfa.totp.availability` | `all\|fallbackOnly\|off` | **`all`** | Once on, TOTP usable everywhere; deployments tighten as desired. |
 | `auth.mfa.passwordless` | `off\|onRequest\|promoted` | **`onRequest`** | Capability available without changing the password-first default UX. |
+| `auth.mfa.webauthn.residentKey` | `preferred\|warn\|required` | **`preferred`** | Enrol permissively and record passwordless capability via `credProps`; `required` guarantees passwordless but rejects authenticators that can't store a resident key. |
+| `auth.mfa.webauthn.userVerification` | `preferred\|required` | **`required`** | `required` rejects presence-only authenticators (e.g. basic U2F keys); `preferred` lets them enrol as a second factor only (never passwordless, which always requires user verification). |
 | `auth.ipAllowlist` | CIDR[] | **`[]`** | Empty ⇒ no login IP restriction; a non-empty default would lock people out. |
 | `auth.mfa.ipExempt` | CIDR[] | **`[]`** | Empty ⇒ no one exempt ⇒ everyone gets MFA. Fail-closed. |
 | `auth.mfa.enrolInvite.expiry` | duration | **short** (mirror `auth.resetPassword.tokenExpiry`) | Invite tokens are powerful; single-use + short-lived, redeem requires token + password. |
@@ -302,8 +304,9 @@ explicit step of granting `require Mfa`.
   **`read`/`write UserMfa` to admin roles only**, and **never** default-grant
   `require Mfa`.
 - *Fixed constants* (deliberately not exposed) — TOTP digits 6 / period 30s /
-  SHA-1 / window ±1 (authenticator compatibility); WebAuthn
-  `userVerification: required`, `residentKey: preferred` + `credProps`, ceremony timeout ~60s.
+  SHA-1 / window ±1 (authenticator compatibility); WebAuthn `credProps`
+  extension, ceremony timeout ~60s. (`userVerification` and `residentKey` are
+  settings — see the table above.)
 
 ## Permissions
 
@@ -555,6 +558,27 @@ phishing-resistant path.
 - **Offline payoff**: a passkey-only UV login works **offline at an in-zone
   facility** — local public-key verification, no password, no central — strictly
   better than the password+TOTP path offline.
+
+### C. Presence-only authenticators (user verification)
+
+Basic security keys (cheap U2F) prove *presence* (a touch) but can't *verify*
+the user (no PIN/biometric). With UV required everywhere they can't enrol at
+all. `auth.mfa.webauthn.userVerification` (`preferred | required`, default
+`required`) relaxes this:
+
+- `required` — UV demanded at enrolment and second-factor assertion;
+  presence-only authenticators are rejected. The secure default.
+- `preferred` — presence-only authenticators may enrol and act as a **second
+  factor** (the password supplies the other factor). They're inherently
+  non-discoverable, so the `discoverable` flag already keeps them out of
+  passwordless; passwordless ceremonies stay hardcoded to UV-required
+  regardless of this setting.
+
+Threaded through every enrolment entry point and the second-factor
+`assert-begin`/`assert-finish`; passwordless `assert-*` deliberately ignore it.
+**Trade-off:** a presence-only second factor is weaker (possession-only) — an
+accepted posture for deployments standardising on cheap keys, enabled
+knowingly.
 
 ## Scope / endpoints (initial)
 

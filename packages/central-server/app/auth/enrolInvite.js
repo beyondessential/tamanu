@@ -137,12 +137,13 @@ enrolInvite.post(
   '/webauthn/register-begin',
   asyncHandler(async (req, res) => {
     await requireMfaEnabled(req);
-    const { rpId, residentKey } = await getWebAuthnContext(req);
+    const { rpId, residentKey, userVerification } = await getWebAuthnContext(req);
     const options = await beginWebAuthnRegistration({
       models: req.store.models,
       rpId,
       user: req.user,
       residentKey,
+      userVerification,
     });
     res.send(options);
   }),
@@ -157,7 +158,7 @@ enrolInvite.post(
   '/webauthn/register-finish',
   asyncHandler(async (req, res) => {
     await requireMfaEnabled(req);
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, userVerification } = await getWebAuthnContext(req);
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     const credential = await finishWebAuthnRegistration({
       models: req.store.models,
@@ -165,6 +166,7 @@ enrolInvite.post(
       user: req.user,
       registrationResponse,
       friendlyName,
+      userVerification,
     });
     res.send({ id: credential.id, friendlyName: credential.friendlyName });
   }),

@@ -30,6 +30,7 @@ import {
   isValidAdditionalSearchField,
   MFA_RESIDENT_KEY,
   MFA_TOTP_AVAILABILITY,
+  MFA_USER_VERIFICATION,
   SETTING_EDITORS,
 } from '@tamanu/constants';
 import {
@@ -113,6 +114,13 @@ export const globalSettings = {
                     'How hard passkey enrolment pushes for a discoverable (resident) credential, which is what passwordless ("sign in with a passkey") login needs. "preferred" enrols permissively and marks passkeys that turn out not to be passwordless-capable; "warn" is like preferred but, when passwordless is available, warns the user and offers to retry requiring passwordless; "required" guarantees every passkey can be used passwordless but rejects authenticators that can\'t store a resident key',
                   type: yup.string().oneOf(Object.values(MFA_RESIDENT_KEY)),
                   defaultValue: MFA_RESIDENT_KEY.PREFERRED,
+                },
+                userVerification: {
+                  name: 'Passkey user-verification requirement',
+                  description:
+                    'Whether passkey enrolment and second-factor sign-in demand the authenticator verify the user (PIN or biometric) or merely confirm their presence (a touch). "required" rejects presence-only authenticators such as basic security keys; "preferred" lets them enrol and act as a second factor only (they cannot be used for passwordless login, which always requires user verification)',
+                  type: yup.string().oneOf(Object.values(MFA_USER_VERIFICATION)),
+                  defaultValue: MFA_USER_VERIFICATION.REQUIRED,
                 },
               },
             },

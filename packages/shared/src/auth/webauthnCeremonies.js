@@ -96,6 +96,7 @@ export async function beginWebAuthnRegistration({
   preferredAuthenticatorType,
   residentKey = 'preferred',
   forceResident = false,
+  userVerification = 'required',
 }) {
   const existingCredentials = await models.WebAuthnCredential.findAll({
     where: { userId: user.id, rpId },
@@ -132,9 +133,11 @@ export async function beginWebAuthnRegistration({
     })),
     authenticatorSelection: {
       residentKey: effectiveResidentKey,
-      // biometric/PIN so a passkey is possession + inherence, satisfying MFA
-      // by itself
-      userVerification: 'required',
+      // 'required' demands biometric/PIN so a passkey is possession +
+      // inherence (a factor by itself); 'preferred' also accepts a
+      // presence-only authenticator (e.g. a basic security key), which can
+      // then serve only as a second factor
+      userVerification,
     },
   });
 
@@ -158,6 +161,7 @@ export async function finishWebAuthnRegistration({
   user,
   registrationResponse,
   friendlyName,
+  userVerification = 'required',
 }) {
   const clientData = parseClientData(registrationResponse);
   const expectedOrigin = expectedOriginFor(clientData, rpId);
@@ -183,7 +187,7 @@ export async function finishWebAuthnRegistration({
       expectedChallenge: token,
       expectedOrigin,
       expectedRPID: rpId,
-      requireUserVerification: true,
+      requireUserVerification: userVerification === 'required',
     });
   } catch (err) {
     throw new InvalidOperationError(`Passkey registration could not be verified: ${err.message}`);
@@ -219,14 +223,17 @@ export async function finishWebAuthnRegistration({
  * listed in allowCredentials; without one, an empty list lets discoverable
  * credentials drive a usernameless picker.
  */
-export async function beginWebAuthnAssertion({ models, rpId, user }) {
+export async function beginWebAuthnAssertion({ models, rpId, user, userVerification = 'required' }) {
   const credentials = user
     ? await models.WebAuthnCredential.findAll({ where: { userId: user.id, rpId } })
     : [];
 
   const options = await generateAuthenticationOptions({
     rpID: rpId,
-    userVerification: 'required',
+    // 'required' for passwordless (a passkey alone must carry two factors);
+    // second-factor sign-in may relax this per the userVerification setting so
+    // presence-only authenticators can be used
+    userVerification,
     allowCredentials: credentials.map(credential => ({
       id: credential.credentialId,
       transports: credential.transports ?? undefined,
@@ -251,7 +258,12 @@ export async function beginWebAuthnAssertion({ models, rpId, user }) {
  * signature counter is deliberately passed as 0 — never stored, never
  * enforced; see the WebAuthnCredential model.
  */
-export async function finishWebAuthnAssertion({ models, rpId, assertionResponse }) {
+export async function finishWebAuthnAssertion({
+  models,
+  rpId,
+  assertionResponse,
+  userVerification = 'required',
+}) {
   const clientData = parseClientData(assertionResponse);
   const expectedOrigin = expectedOriginFor(clientData, rpId);
   const token = clientData.challenge;
@@ -287,7 +299,7 @@ export async function finishWebAuthnAssertion({ models, rpId, assertionResponse 
         publicKey: isoBase64URL.toBuffer(credential.publicKey),
         counter: 0,
       },
-      requireUserVerification: true,
+      requireUserVerification: userVerification === 'required',
     });
   } catch (err) {
     throw new InvalidCredentialError(`Passkey assertion could not be verified: ${err.message}`);

@@ -94,3 +94,20 @@ export const MFA_RESIDENT_KEY = {
   REQUIRED: 'required',
 } as const;
 export type MfaResidentKey = (typeof MFA_RESIDENT_KEY)[keyof typeof MFA_RESIDENT_KEY];
+
+// Values for auth.mfa.webauthn.userVerification: whether enrolment and
+// second-factor assertion demand the authenticator verify the user (PIN,
+// biometric) or merely confirm their presence (a touch). 'required' rejects
+// presence-only authenticators (e.g. basic U2F keys); 'preferred' lets them
+// enrol as a second factor only — they're non-discoverable, so the existing
+// passwordless gate already excludes them. Passwordless ceremonies always
+// require user verification regardless of this setting. Mirror the WebAuthn
+// userVerification values.
+export const MFA_USER_VERIFICATION = {
+  // permissive: accept presence-only (touch) authenticators as a second factor
+  PREFERRED: 'preferred',
+  // demand user verification (rejects presence-only authenticators)
+  REQUIRED: 'required',
+} as const;
+export type MfaUserVerification =
+  (typeof MFA_USER_VERIFICATION)[keyof typeof MFA_USER_VERIFICATION];

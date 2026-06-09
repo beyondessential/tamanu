@@ -50,7 +50,8 @@ const getWebAuthnContext = async req => {
     throw new ForbiddenError('WebAuthn is not available on this server');
   }
   const residentKey = await settings.get('auth.mfa.webauthn.residentKey');
-  return { rpId, residentKey };
+  const userVerification = await settings.get('auth.mfa.webauthn.userVerification');
+  return { rpId, residentKey, userVerification };
 };
 
 const credentialSummary = credential => ({
@@ -72,13 +73,14 @@ mfa.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Mfa');
     await requireMfaEnabled(req);
-    const { rpId, residentKey } = await getWebAuthnContext(req);
+    const { rpId, residentKey, userVerification } = await getWebAuthnContext(req);
 
     const options = await beginWebAuthnRegistration({
       models: req.models,
       rpId,
       user: req.user,
       residentKey,
+      userVerification,
       forceResident: req.body?.requireResidentKey === true,
     });
     res.send(options);
@@ -95,7 +97,7 @@ mfa.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Mfa');
     await requireMfaEnabled(req);
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, userVerification } = await getWebAuthnContext(req);
 
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     const credential = await finishWebAuthnRegistration({
@@ -104,6 +106,7 @@ mfa.post(
       user: req.user,
       registrationResponse,
       friendlyName,
+      userVerification,
     });
     res.send(credentialSummary(credential));
   }),

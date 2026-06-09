@@ -169,9 +169,16 @@ mfaLogin.post(
     await requireMfaEnabled(req);
     const { user, payload } = await pendingFromBody(req);
     requireKind(payload, 'challenge');
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, userVerification } = await getWebAuthnContext(req);
 
-    const options = await beginWebAuthnAssertion({ models: req.store.models, rpId, user });
+    // second-factor sign-in: honour the userVerification setting (the password
+    // is the other factor), so a presence-only authenticator can answer
+    const options = await beginWebAuthnAssertion({
+      models: req.store.models,
+      rpId,
+      user,
+      userVerification,
+    });
     res.send(options);
   }),
 );
@@ -187,13 +194,14 @@ mfaLogin.post(
     await requireMfaEnabled(req);
     const { user, payload } = await pendingFromBody(req);
     requireKind(payload, 'challenge');
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, userVerification } = await getWebAuthnContext(req);
 
     const { assertionResponse } = await assertFinishSchema.validate(req.body);
     const credential = await finishWebAuthnAssertion({
       models: req.store.models,
       rpId,
       assertionResponse,
+      userVerification,
     });
     if (credential.userId !== user.id) {
       throw new InvalidTokenError('Passkey does not belong to this login');
@@ -212,9 +220,15 @@ mfaLogin.post(
     await requireMfaEnabled(req);
     const { user, payload } = await pendingFromBody(req);
     requireKind(payload, 'enrol');
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, residentKey, userVerification } = await getWebAuthnContext(req);
 
-    const options = await beginWebAuthnRegistration({ models: req.store.models, rpId, user });
+    const options = await beginWebAuthnRegistration({
+      models: req.store.models,
+      rpId,
+      user,
+      residentKey,
+      userVerification,
+    });
     res.send(options);
   }),
 );
@@ -231,7 +245,7 @@ mfaLogin.post(
     await requireMfaEnabled(req);
     const { user, payload } = await pendingFromBody(req);
     requireKind(payload, 'enrol');
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, userVerification } = await getWebAuthnContext(req);
 
     const { registrationResponse, friendlyName } = await registerFinishSchema.validate(req.body);
     await finishWebAuthnRegistration({
@@ -240,6 +254,7 @@ mfaLogin.post(
       user,
       registrationResponse,
       friendlyName,
+      userVerification,
     });
 
     await completeLogin(req, res, { user, payload });
