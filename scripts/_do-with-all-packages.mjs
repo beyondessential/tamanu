@@ -40,7 +40,16 @@ export function doWithAllPackages(fn) {
     ),
   );
 
-  const workspaces = new Set(Object.keys(workspaceTree.dependencies));
+  // `npm ls --workspaces` can list non-workspace entries — e.g. a dependency
+  // that's installed in node_modules but extraneous at the current commit
+  // (common when working mid-stack, below where a dep is declared). Those have
+  // no `resolved` path into packages/, so only treat real local workspaces as
+  // packages to build; otherwise extractLocation below crashes on undefined.
+  const workspaces = new Set(
+    Object.entries(workspaceTree.dependencies)
+      .filter(([, info]) => typeof info.resolved === 'string' && info.resolved.includes('packages'))
+      .map(([name]) => name),
+  );
   const processed = new Set();
 
   const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
