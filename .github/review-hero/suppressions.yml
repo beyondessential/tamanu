@@ -1,9 +1,3 @@
-- pattern: "Flagging styled-components attrs usage for injecting children as fragile or unusual without confirming actual misuse in call sites"
-  context: "When styled.attrs is used to provide default children/content to a styled component and no evidence shows callers are passing conflicting children that get overridden"
-  reason: "The pattern itself is not inherently fragile if the component is designed as a closed component that doesn't accept children from callers. The concern requires evidence of actual override conflicts, not theoretical ones."
-- pattern: "Suggesting refactoring styled components into function components solely because they use attrs to manage internal content rendering"
-  context: "When a styled component uses attrs for legitimate internal state or content management without demonstrated issues"
-  reason: "Styled components with attrs is a valid pattern when the component owns its content. Suggesting refactoring without a concrete problem or confirmed accessibility issue is overly prescriptive."
-- pattern: "Flagging accessibility label injection via styled.attrs as a violation of accessibility best practices without demonstrating actual accessibility failure"
-  context: "When VisuallyHidden or accessible content is injected via attrs and the resulting DOM/accessibility tree is correct"
-  reason: "The implementation method (attrs vs direct rendering) is less important than the outcome. If accessible labels are properly rendered to assistive technologies, the approach is sound."
+- pattern: Flagging styled-components attrs usage for injecting children as fragile or unusual without confirming actual misuse in call sites
+  context: When styled.attrs is used to provide default children/content to a styled component and no evidence shows callers are passing conflicting children that get overridden
+  reason: styled.attrs is expressly used to set default prop values; consumers providing an override is perfectly legitimate.
