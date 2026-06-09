@@ -147,6 +147,11 @@ const ListError = styled.span`
   font-size: 12px;
 `;
 
+const BoundsHintText = styled.span`
+  color: ${Colors.midText};
+  font-size: 12px;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -263,7 +268,55 @@ const coerceNumericInput = rawValue => {
  * array is kept in setting state; each row validates against the schema's inner
  * type so a bad entry (e.g. a malformed CIDR) is flagged in place.
  */
-const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error }) => {
+const BoundsHint = ({ bounds }) => {
+  const { min, max } = bounds;
+  if (min === max) {
+    return (
+      <TranslatedText
+        stringId="admin.settings.list.bounds.exact"
+        fallback="Number of entries: exactly :count"
+        replacements={{ count: min }}
+      />
+    );
+  }
+  if (min != null && max != null) {
+    return (
+      <TranslatedText
+        stringId="admin.settings.list.bounds.range"
+        fallback="Number of entries: :min–:max"
+        replacements={{ min, max }}
+      />
+    );
+  }
+  if (min != null) {
+    return (
+      <TranslatedText
+        stringId="admin.settings.list.bounds.min"
+        fallback="Number of entries: at least :count"
+        replacements={{ count: min }}
+      />
+    );
+  }
+  return (
+    <TranslatedText
+      stringId="admin.settings.list.bounds.max"
+      fallback="Number of entries: at most :count"
+      replacements={{ count: max }}
+    />
+  );
+};
+
+/**
+ * Edits an array of primitives (strings or numbers) as a stack of inputs with a
+ * per-row remove and an add button, instead of hand-written JSON. The whole
+ * array is kept in setting state; each row validates against the schema's inner
+ * type so a bad entry (e.g. a malformed CIDR) is flagged in place.
+ *
+ * `bounds` (from the schema's built-in length constraints) caps add/remove: at
+ * max you can't add, at min you can't remove — so a fixed-length array
+ * (min === max) becomes value-only editing.
+ */
+const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, error, bounds }) => {
   const itemErrors = useMemo(
     () =>
       items.map(item => {
@@ -277,6 +330,9 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
       }),
     [items, innerType],
   );
+
+  const atMax = bounds?.max != null && items.length >= bounds.max;
+  const atMin = bounds?.min != null && items.length <= bounds.min;
 
   const updateItem = (index, rawValue) => {
     const next = items.slice();
@@ -302,7 +358,9 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
             style={{ width: isNumeric ? '6rem' : '317px' }}
             data-testid={`listsettinginput-input-${index}`}
           />
-          {!disabled && (
+          {/* at the minimum length removing is hidden, not just disabled, so a
+              fixed-length array shows no add/remove affordances at all */}
+          {!disabled && !atMin && (
             <RemoveItemButton
               onClick={() => removeItem(index)}
               size="small"
@@ -319,7 +377,12 @@ const ListSettingInput = ({ items, onChange, disabled, innerType, isNumeric, err
           <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
         </EmptyListText>
       )}
-      {!disabled && (
+      {bounds && (
+        <BoundsHintText data-testid="listsettinginput-bounds">
+          <BoundsHint bounds={bounds} />
+        </BoundsHintText>
+      )}
+      {!disabled && !atMax && (
         <AddItemButton
           onClick={addItem}
           startIcon={<AddIcon style={{ fontSize: 16 }} />}
@@ -394,6 +457,28 @@ export const SettingInput = ({
     }
   }, [type, typeSchema]);
   const isPrimitiveArray = arrayInnerType === 'string' || arrayInnerType === 'number';
+
+  // Built-in length constraints (yup `.min`/`.max`/`.length`) are surfaced in
+  // describe().tests; the list editor uses them to bound add/remove and show
+  // the expected count. A `.length(n)` reads as a fixed count (min === max).
+  const arrayLengthBounds = useMemo(() => {
+    if (type !== SETTING_TYPES.ARRAY) return null;
+    try {
+      const tests = typeSchema.describe?.().tests ?? [];
+      let min;
+      let max;
+      for (const test of tests) {
+        if (test.name === 'length' && test.params?.length != null) {
+          return { min: test.params.length, max: test.params.length };
+        }
+        if (test.name === 'min' && test.params?.min != null) min = test.params.min;
+        if (test.name === 'max' && test.params?.max != null) max = test.params.max;
+      }
+      return min == null && max == null ? null : { min, max };
+    } catch {
+      return null;
+    }
+  }, [type, typeSchema]);
 
   const [error, setError] = useState(null);
   const [showSecretValue, setShowSecretValue] = useState(false);
@@ -710,6 +795,7 @@ export const SettingInput = ({
               innerType={typeSchema.innerType}
               isNumeric={arrayInnerType === 'number'}
               error={error}
+              bounds={arrayLengthBounds}
             />
             <LongTextActions data-testid="longtextactions-list">
               <DefaultButton data-testid="defaultbutton-list" />

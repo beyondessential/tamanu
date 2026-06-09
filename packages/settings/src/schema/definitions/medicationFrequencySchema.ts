@@ -27,15 +27,7 @@ const hasUniqueTimeWindows = (times) => {
   return true;
 };
 
-const validateAdministrationIdealTimes = (value, ctx, frequencyKey) => {
-  // Check if array length equals the expected number of doses per day
-  const expectedDosesPerDay = Math.ceil(ADMINISTRATION_FREQUENCY_DETAILS[frequencyKey].dosesPerDay);
-  if (value.length !== expectedDosesPerDay) {
-    return ctx.createError({
-      message: `You must specify a number of ${expectedDosesPerDay} administration windows.`,
-    });
-  }
-
+const validateAdministrationIdealTimes = (value, ctx) => {
   // Ensure there are no duplicate 2-hour windows
   if (!hasUniqueTimeWindows(value)) {
     return ctx.createError({
@@ -56,18 +48,27 @@ const validateAdministrationIdealTimes = (value, ctx, frequencyKey) => {
   return true;
 };
 
-// Define the schema with modular validation
-export const medicationFrequencySchema = (frequencyKey) =>
-  yup
+// Define the schema with modular validation. The exact number of administration
+// windows is a built-in `.length()` (rather than a check inside the test below)
+// so it's discoverable via `schema.describe()` — the settings editor reads it to
+// render a fixed set of time inputs.
+export const medicationFrequencySchema = (frequencyKey) => {
+  const expectedDosesPerDay = Math.ceil(ADMINISTRATION_FREQUENCY_DETAILS[frequencyKey].dosesPerDay);
+  return yup
     .array(yup.string())
     .nullable()
+    .length(
+      expectedDosesPerDay,
+      `You must specify a number of ${expectedDosesPerDay} administration windows.`,
+    )
     .test({
       name: 'validate-administration-ideal-times',
       test(value, ctx) {
         if (!value) return true;
-        return validateAdministrationIdealTimes(value, ctx, frequencyKey);
+        return validateAdministrationIdealTimes(value, ctx);
       },
     });
+};
 
 export const medicationFrequencyDefault = Object.entries(ADMINISTRATION_FREQUENCY_DETAILS).reduce(
   (acc, [key, value]) => {

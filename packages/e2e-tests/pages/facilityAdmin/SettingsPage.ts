@@ -17,12 +17,16 @@ import { constructAdminUrl } from '../../utils/navigation';
  */
 export class SettingsPage extends BasePage {
   readonly scopeSelect: Locator;
+  readonly facilitySelect: Locator;
   readonly categorySelect: Locator;
+  readonly subCategorySelect: Locator;
 
   constructor(page: Page) {
     super(page, '/admin/settings');
     this.scopeSelect = page.getByTestId('scopeselectinput-zxel');
+    this.facilitySelect = page.getByTestId('scopedynamicselectinput-z7sz');
     this.categorySelect = page.getByTestId('styledselectinput-kvyx');
+    this.subCategorySelect = page.getByTestId('styleddynamicselectfield-d62r');
   }
 
   // override BasePage.goto: the settings editor is on the admin frontend
@@ -44,12 +48,36 @@ export class SettingsPage extends BasePage {
     await this.chooseOption(this.scopeSelect, label);
   }
 
+  // facility scope needs a facility chosen before the editor appears; the test
+  // environment's facility name isn't fixed, so just take the first option
+  async selectFirstFacility(): Promise<void> {
+    await this.facilitySelect.locator('.react-select__control').click();
+    await this.page.locator('.react-select__option').first().click();
+  }
+
   async selectCategory(label: string): Promise<void> {
     await this.chooseOption(this.categorySelect, label);
+  }
+
+  async selectSubCategory(label: string): Promise<void> {
+    await this.chooseOption(this.subCategorySelect, label);
   }
 
   // the unique per-setting wrapper; settings path dots become dashes
   settingLine(settingPath: string): Locator {
     return this.page.getByTestId(`settingline-55rw-${settingPath.replace(/\./g, '-')}`);
+  }
+
+  // list-editor helpers, scoped to a setting line
+  listRows(setting: Locator): Locator {
+    return setting.getByTestId(/^listsettinginput-row-/);
+  }
+
+  listItemInput(setting: Locator, index: number): Locator {
+    return setting.getByTestId(`listsettinginput-input-${index}`).locator('input');
+  }
+
+  async resetToDefault(setting: Locator): Promise<void> {
+    await setting.getByTestId('defaultsettingbutton-4vbq').click();
   }
 }
