@@ -26,6 +26,7 @@ export async function fetchPatientSummaryData(patientId, models) {
     AdministeredVaccine,
     LabRequest,
     ImagingRequest,
+    PatientDeathData,
   } = models;
 
   // 1. Demographics
@@ -177,8 +178,25 @@ export async function fetchPatientSummaryData(patientId, models) {
     limit: PATIENT_SUMMARY_DATA_LIMIT,
   });
 
+  // 12. Death information (deceased patients only)
+  let deathData = null;
+  if (patient?.dateOfDeath) {
+    deathData = await PatientDeathData.findOne({
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { association: 'primaryCauseCondition' },
+        { association: 'antecedentCause1Condition' },
+        { association: 'antecedentCause2Condition' },
+        { association: 'antecedentCause3Condition' },
+        { association: 'contributingCauses', include: ['condition'] },
+      ],
+    });
+  }
+
   return {
     patient: formatPatient(patient),
+    death: formatDeath(deathData, patient?.dateOfDeath),
     allergies: allergies.map(formatAllergy),
     conditions: conditions.map(formatCondition),
     issues: issues.map(formatIssue),
@@ -208,6 +226,29 @@ function formatPatient(p) {
     age: getPatientAge(p),
     dateOfDeath: p.dateOfDeath,
     sex: p.sex,
+  };
+}
+
+function formatDeath(deathData, dateOfDeath) {
+  if (!dateOfDeath) return null;
+
+  const formatCause = (condition, timeAfterOnset) =>
+    condition ? { condition: condition.name, timeAfterOnset } : null;
+
+  return {
+    dateOfDeath,
+    manner: deathData?.manner,
+    primaryCause: formatCause(
+      deathData?.primaryCauseCondition,
+      deathData?.primaryCauseTimeAfterOnset,
+    ),
+    antecedentCauses: [
+      formatCause(deathData?.antecedentCause1Condition, deathData?.antecedentCause1TimeAfterOnset),
+      formatCause(deathData?.antecedentCause2Condition, deathData?.antecedentCause2TimeAfterOnset),
+      formatCause(deathData?.antecedentCause3Condition, deathData?.antecedentCause3TimeAfterOnset),
+    ].filter(Boolean),
+    contributingCauses:
+      deathData?.contributingCauses?.map(c => c.condition?.name).filter(Boolean) ?? [],
   };
 }
 
