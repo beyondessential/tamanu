@@ -3,30 +3,30 @@ import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructAdminUrl } from '../../utils/navigation';
 
+// SelectField (the scope/category/sub-category/enum controls) wraps react-select
+// and exposes its own testids: `<id>-select` on the container and `<id>-option`
+// on each option. There is no react-select__* class prefix, so we drive these
+// selects purely through those testids.
+const SCOPE = 'scopeselectinput-zxel';
+const FACILITY = 'scopedynamicselectinput-z7sz';
+const CATEGORY = 'styledselectinput-kvyx';
+const SUBCATEGORY = 'styleddynamicselectfield-d62r';
+
 /**
  * Admin settings editor (`/admin/settings`). Covers the editor tab: scope and
  * category selection, and reaching an individual setting's input by its
  * settings path (e.g. `dhis2.idSchemes.idScheme`).
  *
  * Lives in the admin panel (central-server frontend), so it navigates against
- * the admin origin and the suite runs these specs in the 'admin' Playwright
- * project (admin storageState), not the facility one.
- *
- * The scope/category pickers and the enum setting input are all react-select,
- * driven via the shared `.react-select__*` classes (see EditEncounterModal).
+ * the admin origin. The shared auth setup logs into both frontends, so the
+ * session is already authenticated there — no dedicated project needed.
  */
 export class SettingsPage extends BasePage {
   readonly scopeSelect: Locator;
-  readonly facilitySelect: Locator;
-  readonly categorySelect: Locator;
-  readonly subCategorySelect: Locator;
 
   constructor(page: Page) {
     super(page, '/admin/settings');
-    this.scopeSelect = page.getByTestId('scopeselectinput-zxel');
-    this.facilitySelect = page.getByTestId('scopedynamicselectinput-z7sz');
-    this.categorySelect = page.getByTestId('styledselectinput-kvyx');
-    this.subCategorySelect = page.getByTestId('styleddynamicselectfield-d62r');
+    this.scopeSelect = page.getByTestId(`${SCOPE}-select`);
   }
 
   // override BasePage.goto: the settings editor is on the admin frontend
@@ -34,33 +34,35 @@ export class SettingsPage extends BasePage {
     await this.page.goto(constructAdminUrl('/admin/settings'));
   }
 
-  // open a react-select scoped to `control` and click the option matching text
-  private async chooseOption(control: Locator, optionText: string): Promise<void> {
-    await control.locator('.react-select__control').click();
+  // open a SelectField (by its base testid) and click the option matching text
+  private async chooseOption(baseTestId: string, optionText: string): Promise<void> {
+    await this.page.getByTestId(`${baseTestId}-select`).click();
     await this.page
-      .locator('.react-select__option')
+      .getByTestId(`${baseTestId}-option`)
       .filter({ hasText: optionText })
       .first()
       .click();
   }
 
   async selectScope(label: string): Promise<void> {
-    await this.chooseOption(this.scopeSelect, label);
+    await this.chooseOption(SCOPE, label);
   }
 
-  // facility scope needs a facility chosen before the editor appears; the test
-  // environment's facility name isn't fixed, so just take the first option
+  // facility scope needs a facility chosen before the editor appears. The
+  // facility picker is a DynamicSelectField; with more than a handful of
+  // facilities (as in the e2e DB) it renders as an autocomplete, so focus its
+  // input and take the first suggestion.
   async selectFirstFacility(): Promise<void> {
-    await this.facilitySelect.locator('.react-select__control').click();
-    await this.page.locator('.react-select__option').first().click();
+    await this.page.getByTestId(`${FACILITY}-input`).click();
+    await this.page.getByTestId(`${FACILITY}-option`).first().click();
   }
 
   async selectCategory(label: string): Promise<void> {
-    await this.chooseOption(this.categorySelect, label);
+    await this.chooseOption(CATEGORY, label);
   }
 
   async selectSubCategory(label: string): Promise<void> {
-    await this.chooseOption(this.subCategorySelect, label);
+    await this.chooseOption(SUBCATEGORY, label);
   }
 
   // the unique per-setting wrapper; settings path dots become dashes

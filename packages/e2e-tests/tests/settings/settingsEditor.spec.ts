@@ -26,22 +26,22 @@ test.describe('Admin settings editor — select inputs', () => {
   test('[SET-0001] shows the current value, changes it, and resets to default', async ({ page }) => {
     // integrations.dhis2.idSchemes.idScheme is yup.string().oneOf([...]) defaulting to 'uid'
     const setting = settingsPage.settingLine('dhis2.idSchemes.idScheme');
-    const currentValue = setting.locator('.react-select__single-value');
+    const select = setting.getByTestId('selectinput-settings-string-enum-select');
 
     // (1) current value is still the default, shown verbatim
-    await expect(currentValue).toHaveText('uid');
+    await expect(select).toContainText('uid');
 
-    // (2) change between values via the dropdown
-    await setting.locator('.react-select__control').click();
-    const options = page.locator('.react-select__option');
+    // (2) change between values via the dropdown (options are labelled verbatim)
+    await select.click();
+    const options = page.getByTestId('selectinput-settings-string-enum-option');
     await expect(options.filter({ hasText: 'name' })).toBeVisible();
     await expect(options.filter({ hasText: 'code' })).toBeVisible();
     await options.filter({ hasText: 'name' }).first().click();
-    await expect(currentValue).toHaveText('name');
+    await expect(select).toContainText('name');
 
     // (3) reset to default restores 'uid'
     await settingsPage.resetToDefault(setting);
-    await expect(currentValue).toHaveText('uid');
+    await expect(select).toContainText('uid');
   });
 });
 
