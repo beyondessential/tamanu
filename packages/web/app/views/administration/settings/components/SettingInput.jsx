@@ -27,6 +27,10 @@ import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutoco
 import { useSuggester } from '../../../../api';
 import { formatSettingName } from '../EditorView';
 
+// Shared width for the main setting inputs so they all fill the input column
+// consistently (the grid's input track sizes to this).
+const SETTING_INPUT_WIDTH = '353px';
+
 const Unit = styled.div`
   font-size: 15px; // Match TextField
 `;
@@ -44,7 +48,7 @@ const StyledNumberInput = styled(NumberInput)`
 `;
 
 const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
-  width: 353px;
+  width: ${SETTING_INPUT_WIDTH};
 
   .MuiInputBase-root.Mui-disabled {
     background: ${Colors.background};
@@ -101,7 +105,7 @@ const ListInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  width: 353px;
+  width: ${SETTING_INPUT_WIDTH};
 `;
 
 const ListRow = styled.div`
@@ -588,7 +592,7 @@ export const SettingInput = ({
             name={secretInputName}
             value={secretDisplayValue}
             onChange={handleSecretChange}
-            style={{ width: '353px' }}
+            style={{ width: SETTING_INPUT_WIDTH }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
@@ -690,7 +694,7 @@ export const SettingInput = ({
               value={displayValue ?? ''}
               onChange={defaultHandleChange}
               isClearable={false}
-              style={{ width: '353px' }}
+              style={{ width: SETTING_INPUT_WIDTH }}
               options={selectOptions}
               error={error}
               helperText={error?.message}
@@ -701,7 +705,7 @@ export const SettingInput = ({
             <StyledTextInput
               value={displayValue ?? ''}
               onChange={defaultHandleChange}
-              style={{ width: '353px' }}
+              style={{ width: SETTING_INPUT_WIDTH }}
               error={error}
               helperText={error?.message}
               disabled={disabled}
@@ -712,11 +716,13 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.NUMBER:
       return (
-        <Flexbox data-testid="flexbox-w2c5">
+        <Flexbox style={{ width: SETTING_INPUT_WIDTH }} data-testid="flexbox-w2c5">
           <StyledNumberInput
             value={displayValue}
             onChange={handleChangeNumber}
-            style={{ width: '6rem' }}
+            // flex (not a fixed width) so the input fills the column but still
+            // leaves room for the unit label beside it
+            style={{ flex: 1, minWidth: 0 }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
@@ -731,7 +737,7 @@ export const SettingInput = ({
           <StyledTextInput
             value={displayValue}
             onChange={defaultHandleChange}
-            style={{ width: '353px', minHeight: '156px' }}
+            style={{ width: SETTING_INPUT_WIDTH, minHeight: '156px' }}
             multiline
             rows={6}
             error={error}
@@ -784,7 +790,7 @@ export const SettingInput = ({
         <Flexbox data-testid="flexbox-bpq4">
           <JSONEditor
             height="156px"
-            width="353px"
+            width={SETTING_INPUT_WIDTH}
             editMode={!disabled}
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
             onChange={handleChangeJSON}
