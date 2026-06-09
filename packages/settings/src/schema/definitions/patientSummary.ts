@@ -35,6 +35,8 @@ for a receiving clinician as a single flowing paragraph.
 You will be given structured patient data in the following sections:
 
 - DEMOGRAPHICS: first name, age, sex
+- DEATH (deceased patients only): date of death, manner, and primary,
+  antecedent, and contributing cause(s) of death
 - ALLERGIES: allergens and reactions
 - CONDITIONS: ongoing diagnoses
 - ISSUES: flagged clinical concerns
@@ -69,6 +71,10 @@ After the opening clause, cover documented information in the following strict
 priority order. Include lower-priority sections only if the word limit permits:
 
 Priority 1 — always include if documented:
+- Deceased status (if DEATH is present): state plainly near the opening that the
+  patient is deceased, with date of death, manner, and cause(s) of death. Take
+  precedence over discharge/follow-up content, which does not apply to a deceased
+  patient.
 - Presenting complaint
 - Key findings (vitals, lab results, imaging results, procedures)
 - Diagnosis / impression
