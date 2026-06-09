@@ -1,11 +1,45 @@
 import { describe, expect, it } from 'vitest';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { checkJSONCriteria } from '../src/criteria';
+import { checkJSONCriteria, convertBinaryToYesNo, normalizeBinaryAnswer } from '../src/criteria';
 
 const binaryComponents = [
   { dataElement: { code: 'gate', type: PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX } },
 ];
+
+describe('normalizeBinaryAnswer', () => {
+  it.each([
+    [true, true],
+    [false, false],
+    ['true', true],
+    ['false', false],
+    ['Yes', true],
+    ['No', false],
+    ['1', true],
+    ['0', false],
+    [null, null],
+    [undefined, undefined],
+  ] as const)('should normalize %j to %j', (answer, expected) => {
+    expect(normalizeBinaryAnswer(answer)).toBe(expected);
+  });
+});
+
+describe('convertBinaryToYesNo', () => {
+  it.each([
+    [true, 'Yes'],
+    [false, 'No'],
+    ['true', 'Yes'],
+    ['false', 'No'],
+    ['Yes', 'Yes'],
+    ['No', 'No'],
+    ['1', 'Yes'],
+    ['0', 'No'],
+    [null, null],
+    [undefined, undefined],
+  ] as const)('should convert %j to %j', (answer, expected) => {
+    expect(convertBinaryToYesNo(answer)).toBe(expected);
+  });
+});
 
 describe('checkJSONCriteria', () => {
   describe('Binary and Checkbox questions', () => {
