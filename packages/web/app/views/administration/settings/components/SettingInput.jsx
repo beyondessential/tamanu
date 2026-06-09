@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormikContext } from 'formik';
@@ -102,6 +104,44 @@ const LongTextActions = styled.div`
   margin-block-start: 13px;
 `;
 
+const ListInputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 353px;
+`;
+
+const ListRow = styled.div`
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const RemoveItemButton = styled(IconButton)`
+  color: ${Colors.midText};
+  margin-block-start: 4px; // align with the input, not its helper text
+  padding: 4px;
+
+  &:hover {
+    color: ${Colors.alert};
+  }
+`;
+
+const AddItemButton = styled(TextButton)`
+  align-self: flex-start;
+  color: ${Colors.primary};
+  font-size: 13px;
+  font-weight: 500;
+  padding-inline: 0;
+  text-transform: none;
+`;
+
+const EmptyListText = styled.span`
+  color: ${Colors.midText};
+  font-size: 13px;
+  font-style: italic;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -184,6 +224,96 @@ const MarkdownSettingInput = ({
   );
 };
 
+const toArrayValue = value => {
+  if (Array.isArray(value)) return value;
+  if (isString(value)) {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
+/**
+ * Edits an array of primitives (strings or numbers) as a stack of inputs with a
+ * per-row remove and an add button, instead of hand-written JSON. The whole
+ * array is kept in setting state; each row validates against the schema's inner
+ * type so a bad entry (e.g. a malformed CIDR) is flagged in place.
+ */
+const ListSettingInput = ({ value, onChange, disabled, innerType, isNumeric }) => {
+  const items = toArrayValue(value);
+
+  const itemErrors = useMemo(
+    () =>
+      items.map(item => {
+        if (!innerType) return null;
+        try {
+          innerType.validateSync(item);
+          return null;
+        } catch (err) {
+          return err.message;
+        }
+      }),
+    [items, innerType],
+  );
+
+  const updateItem = (index, rawValue) => {
+    const next = items.slice();
+    next[index] = isNumeric ? Number(rawValue) : rawValue;
+    onChange(next);
+  };
+  const removeItem = index => onChange(items.filter((_, i) => i !== index));
+  const addItem = () => onChange([...items, isNumeric ? 0 : '']);
+
+  const ItemInput = isNumeric ? StyledNumberInput : StyledTextInput;
+
+  return (
+    <ListInputWrapper data-testid="listsettinginput">
+      {items.map((item, index) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <ListRow key={index} data-testid={`listsettinginput-row-${index}`}>
+          <ItemInput
+            value={item ?? (isNumeric ? 0 : '')}
+            onChange={e => updateItem(index, e.target.value)}
+            disabled={disabled}
+            error={Boolean(itemErrors[index])}
+            helperText={itemErrors[index]}
+            style={{ width: isNumeric ? '6rem' : '317px' }}
+            data-testid={`listsettinginput-input-${index}`}
+          />
+          {!disabled && (
+            <RemoveItemButton
+              onClick={() => removeItem(index)}
+              size="small"
+              aria-label="remove item"
+              data-testid={`listsettinginput-remove-${index}`}
+            >
+              <DeleteOutlineIcon style={{ fontSize: 18 }} />
+            </RemoveItemButton>
+          )}
+        </ListRow>
+      ))}
+      {items.length === 0 && (
+        <EmptyListText data-testid="listsettinginput-empty">
+          <TranslatedText stringId="admin.settings.list.empty" fallback="No entries" />
+        </EmptyListText>
+      )}
+      {!disabled && (
+        <AddItemButton
+          onClick={addItem}
+          startIcon={<AddIcon style={{ fontSize: 16 }} />}
+          data-testid="listsettinginput-add"
+        >
+          <TranslatedText stringId="general.action.add" fallback="Add" />
+        </AddItemButton>
+      )}
+    </ListInputWrapper>
+  );
+};
+
 export const SettingInput = ({
   path,
   settingsPath,
@@ -203,8 +333,39 @@ export const SettingInput = ({
   options,
 }) => {
   const { type } = typeSchema;
-  const hasSelectOptions =
-    type === SETTING_TYPES.STRING && Array.isArray(options) && options.length > 0;
+
+  // A string setting constrained with yup `.oneOf([...])` becomes a dropdown:
+  // pull the allowed values straight off the schema so there's no second list
+  // to keep in sync. An explicit `options` prop still wins when a setting wants
+  // bespoke labels.
+  const selectOptions = useMemo(() => {
+    if (Array.isArray(options) && options.length > 0) return options;
+    if (type !== SETTING_TYPES.STRING) return null;
+    try {
+      const allowed = typeSchema.describe?.().oneOf;
+      if (!Array.isArray(allowed) || allowed.length === 0) return null;
+      return allowed.map(allowedValue => ({
+        value: allowedValue,
+        label: startCase(allowedValue),
+      }));
+    } catch {
+      return null;
+    }
+  }, [options, type, typeSchema]);
+  const hasSelectOptions = Array.isArray(selectOptions) && selectOptions.length > 0;
+
+  // Arrays of primitives get the per-row list editor; arrays of objects/arrays
+  // (cancellation reasons, fee scales, …) keep the JSON editor.
+  const arrayInnerType = useMemo(() => {
+    if (type !== SETTING_TYPES.ARRAY) return null;
+    try {
+      return typeSchema.describe?.().innerType?.type ?? null;
+    } catch {
+      return null;
+    }
+  }, [type, typeSchema]);
+  const isPrimitiveArray = arrayInnerType === 'string' || arrayInnerType === 'number';
+
   const [error, setError] = useState(null);
   const [showSecretValue, setShowSecretValue] = useState(false);
   const [secretEdited, setSecretEdited] = useState(false);
@@ -426,7 +587,7 @@ export const SettingInput = ({
               onChange={defaultHandleChange}
               isClearable={false}
               style={{ width: '353px' }}
-              options={options}
+              options={selectOptions}
               error={error}
               helperText={error?.message}
               disabled={disabled}
@@ -498,8 +659,26 @@ export const SettingInput = ({
         />
       );
     }
-    case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
+      if (isPrimitiveArray) {
+        return (
+          <LongTextFlexbox data-testid="flexbox-list">
+            <ListSettingInput
+              value={displayValue}
+              onChange={handleChangeValue}
+              disabled={disabled}
+              innerType={typeSchema.innerType}
+              isNumeric={arrayInnerType === 'number'}
+            />
+            <LongTextActions data-testid="longtextactions-list">
+              <DefaultButton data-testid="defaultbutton-list" />
+            </LongTextActions>
+          </LongTextFlexbox>
+        );
+      }
+    // falls through to the JSON editor for arrays of objects/arrays
+    // eslint-disable-next-line no-fallthrough
+    case SETTING_TYPES.OBJECT:
       return (
         <Flexbox data-testid="flexbox-bpq4">
           <JSONEditor
