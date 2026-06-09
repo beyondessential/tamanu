@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 
 const RESERVED_KEYS = ['_conjunction', 'hidden'];
 
@@ -7,7 +7,7 @@ const parsedCriteriaCache = new Map<string, any>();
 const componentsByCodeCache = new WeakMap<Component[], Map<string, Component>>();
 
 interface Component {
-  dataElement?: { code?: string; type?: string };
+  dataElement?: { code?: string; type?: DataElementType };
 }
 
 function getComponentsByCode(allComponents: Component[]): Map<string, Component> {
@@ -17,6 +17,37 @@ function getComponentsByCode(allComponents: Component[]): Map<string, Component>
     componentsByCodeCache.set(allComponents, map);
   }
   return map;
+}
+
+type Binaryish = boolean | 'true' | 'false' | 'Yes' | 'No';
+type BinaryAnswer = Binaryish | null | undefined;
+
+function isBinaryLikeQuestionType(type: DataElementType | undefined): boolean {
+  return type === PROGRAM_DATA_ELEMENT_TYPES.BINARY || type === PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX;
+}
+
+function normalizeBinaryAnswer(answer: BinaryAnswer): boolean | null | undefined {
+  switch (answer) {
+    case true:
+    case 'true':
+    case 'Yes':
+      return true;
+    case false:
+    case 'false':
+    case 'No':
+      return false;
+    default:
+      return answer;
+  }
+}
+
+/**
+ * - Desktop form state uses and persists to database 'true' | 'false'
+ * - Mobile persists to database 'Yes' | 'No'
+ * - `visibilityCriteria` has historically used 'Yes' | 'No'
+ */
+function isBinaryishEqual(a: BinaryAnswer, b: BinaryAnswer): boolean {
+  return normalizeBinaryAnswer(a) === normalizeBinaryAnswer(b);
 }
 
 export function checkJSONCriteria(
@@ -39,7 +70,10 @@ export function checkJSONCriteria(
 
   const byCode = getComponentsByCode(allComponents);
 
-  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]: [string, any]): boolean => {
+  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]: [
+    string,
+    any,
+  ]): boolean => {
     const matchingComponent = byCode.get(questionCode);
     const value = values[questionCode];
     if (answersEnablingFollowUp.type === 'range') {
@@ -54,20 +88,28 @@ export function checkJSONCriteria(
       return false;
     }
 
-    const isMultiSelect =
-      matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const questionType = matchingComponent?.dataElement?.type;
+    const isMultiSelect = questionType === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const isBinaryLike = isBinaryLikeQuestionType(questionType);
 
     if (Array.isArray(answersEnablingFollowUp)) {
-      return isMultiSelect
-        ? (value ? JSON.parse(value) : []).some((selected: string) =>
-            answersEnablingFollowUp.includes(selected),
-          )
-        : answersEnablingFollowUp.includes(value);
+      if (isMultiSelect) {
+        return (value ? JSON.parse(value) : []).some((selected: string) =>
+          answersEnablingFollowUp.includes(selected),
+        );
+      }
+      if (isBinaryLike) {
+        // For edge cases where `visibilityCriteria` is, say, `{ gate: ["Yes", "No"] }`.
+        // i.e. Question with code `gate` has been answered.
+        return answersEnablingFollowUp.some(expected => isBinaryishEqual(value, expected));
+      }
+      return answersEnablingFollowUp.includes(value);
     }
 
-    return isMultiSelect
-      ? value?.includes(answersEnablingFollowUp)
-      : answersEnablingFollowUp === value;
+    if (isMultiSelect) return value?.includes(answersEnablingFollowUp);
+    if (isBinaryLike) return isBinaryishEqual(value, answersEnablingFollowUp);
+
+    return answersEnablingFollowUp === value;
   };
 
   return conjunction === 'and'
@@ -99,7 +141,7 @@ export function getQuestionCodesFromFormVisibilityCriteria(visibilityCriteria: s
 export function checkFormVisibilityCriteria(
   criteria: string,
   valuesByCode: Record<string, any>,
-  dataElementTypesByCode: Record<string, string> = {},
+  dataElementTypesByCode: Record<string, DataElementType> = {},
 ): boolean {
   if (!criteria || !criteria.trim()) return true;
   const allComponents = Object.entries(dataElementTypesByCode).map(([code, type]) => ({

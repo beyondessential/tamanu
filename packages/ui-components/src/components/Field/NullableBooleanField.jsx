@@ -39,13 +39,31 @@ const RequiredLabel = styled.span`
  * @param {Omit<
  *   import('@mui/material/ToggleButtonGroup').ToggleButtonGroupProps, 'onChange' | 'value'
  * > & {
- *   value: 'true' | 'false';
+ *   value: 'true' | 'false' | 'Yes' | 'No' | null | undefined;
  *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
  *   name: string;
  * }} props
  */
 const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
   const handleChange = (e, next) => onChange({ ...e, target: { ...e.target, name, value: next } });
+
+  /**
+   * - Form context expects and uses <ToggleButton> values 'true' | 'false'
+   * - Desktop persists 'true' | 'false' to `survey_response_answers.body`
+   * - Mobile persists 'Yes' | 'No' to `survey_response_answers.body`
+   * - `visibilityCriteria` uses 'Yes' | 'No'
+   */
+  const logicalValue = (() => {
+    switch (value) {
+      case 'Yes':
+        return 'true';
+      case 'No':
+        return 'false';
+      default:
+        return value;
+    }
+  })();
+
   return (
     <ToggleButtonGroup
       color="primary"
@@ -54,7 +72,7 @@ const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
       name={name}
       onChange={handleChange}
       size="small"
-      value={value}
+      value={logicalValue}
       {...props}
     >
       <ToggleButton key="true" value="true">

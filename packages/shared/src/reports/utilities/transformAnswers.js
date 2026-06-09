@@ -52,6 +52,11 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
   return getDisplayNameForModel(componentConfig.source, result);
 };
 
+/**
+ * @template {'Yes' | 'No' | 'true' | 'false' | '1' | '0' | null | undefined} T
+ * @param {T} answer
+ * @returns {T extends string ? 'Yes' | 'No' : T}
+ */
 const convertBinaryToYesNo = answer => {
   switch (answer) {
     case 'true':
@@ -156,6 +161,7 @@ export const getAnswerBody = async (
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
+    case PROGRAM_DATA_ELEMENT_TYPES.BINARY:
     case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;
