@@ -28,7 +28,7 @@ import {
 import { reloadPatient } from '../store/patient';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
-/** @satisfies {Record<EncounterType, CssColor>} */
+/** @satisfies {Partial<Record<EncounterType, CssColor>> & { default: CssColor }} */
 const colorFromEncounterType = /** @type {const} */ ({
   admission: TAMANU_COLORS.green,
   clinic: '#E9AC50',
