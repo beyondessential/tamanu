@@ -57,6 +57,8 @@ userMfaRouter.get(
         friendlyName: credential.friendlyName,
         createdAt: credential.createdAt,
         lastUsedAt: credential.lastUsedAt,
+        discoverable: credential.discoverable,
+        userVerified: credential.userVerified,
       })),
       totp: {
         enrolled: Boolean(totpSecret),
@@ -182,7 +184,7 @@ userMfaRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'UserMfa');
     await requireMfaEnabled(req);
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, residentKey } = await getWebAuthnContext(req);
     const user = await targetUser(req);
 
     // in-person provisioning lands the passkey on the USER's device via the
@@ -191,6 +193,7 @@ userMfaRouter.post(
       models: req.store.models,
       rpId,
       user,
+      residentKey,
       preferredAuthenticatorType: 'remoteDevice',
     });
     res.send(options);

@@ -13,6 +13,7 @@ import {
   TranslatedText,
 } from '../../../../components';
 import { ConfirmModal } from '../../../../components/ConfirmModal';
+import { PasskeyCapabilities } from '../../../../components/PasskeyCapabilities';
 import { Colors } from '../../../../constants';
 import { useApi } from '../../../../api';
 import { webauthnErrorMessage } from '../../../../utils/webauthn';
@@ -42,6 +43,30 @@ const Actions = styled(Box)`
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+`;
+
+const PasskeyList = styled.ul`
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+`;
+
+const PasskeyListItem = styled.li`
+  border-top: 1px solid ${Colors.outline};
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 8px 0;
+
+  &:last-child {
+    border-bottom: 1px solid ${Colors.outline};
+  }
+`;
+
+const PasskeyName = styled.span`
+  color: ${Colors.darkestText};
+  font-size: 14px;
 `;
 
 const InviteBox = styled(Box)`
@@ -200,6 +225,24 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
               }}
             />
           </StatusLine>
+        )}
+
+        {passkeyCount > 0 && (
+          <PasskeyList data-testid="admin-mfa-passkey-list">
+            {status.webauthn.map(credential => (
+              <PasskeyListItem key={credential.id} data-testid="admin-mfa-passkey">
+                <PasskeyName>
+                  {credential.friendlyName ?? (
+                    <TranslatedText stringId="admin.users.mfa.unnamedPasskey" fallback="Passkey" />
+                  )}
+                </PasskeyName>
+                <PasskeyCapabilities
+                  discoverable={credential.discoverable}
+                  userVerified={credential.userVerified}
+                />
+              </PasskeyListItem>
+            ))}
+          </PasskeyList>
         )}
 
         {canWrite && status && (

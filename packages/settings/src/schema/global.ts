@@ -28,6 +28,7 @@ import {
 import {
   ADMINISTRATION_FREQUENCIES,
   isValidAdditionalSearchField,
+  MFA_RESIDENT_KEY,
   MFA_TOTP_AVAILABILITY,
   SETTING_EDITORS,
 } from '@tamanu/constants';
@@ -105,6 +106,13 @@ export const globalSettings = {
                   type: yup.string(),
                   defaultValue: '',
                   highRisk: true,
+                },
+                residentKey: {
+                  name: 'Passkey resident-key requirement',
+                  description:
+                    'How hard passkey enrolment pushes for a discoverable (resident) credential, which is what passwordless ("sign in with a passkey") login needs. "preferred" enrols permissively and marks passkeys that turn out not to be passwordless-capable; "required" guarantees every passkey can be used passwordless but rejects authenticators that can\'t store a resident key',
+                  type: yup.string().oneOf(Object.values(MFA_RESIDENT_KEY)),
+                  defaultValue: MFA_RESIDENT_KEY.PREFERRED,
                 },
               },
             },

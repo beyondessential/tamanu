@@ -76,3 +76,15 @@ export const MFA_TOTP_AVAILABILITY = {
 } as const;
 export type MfaTotpAvailability =
   (typeof MFA_TOTP_AVAILABILITY)[keyof typeof MFA_TOTP_AVAILABILITY];
+
+// Values for auth.mfa.webauthn.residentKey: how hard enrolment pushes for a
+// discoverable (resident) credential, which is what passwordless login needs.
+// 'preferred' enrols permissively and records actual capability via credProps;
+// 'required' forces discoverable (guarantees passwordless capability but
+// rejects authenticators that can't store a resident key). These mirror the
+// WebAuthn residentKey requirement values.
+export const MFA_RESIDENT_KEY = {
+  PREFERRED: 'preferred',
+  REQUIRED: 'required',
+} as const;
+export type MfaResidentKey = (typeof MFA_RESIDENT_KEY)[keyof typeof MFA_RESIDENT_KEY];

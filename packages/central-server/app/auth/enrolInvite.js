@@ -137,11 +137,12 @@ enrolInvite.post(
   '/webauthn/register-begin',
   asyncHandler(async (req, res) => {
     await requireMfaEnabled(req);
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, residentKey } = await getWebAuthnContext(req);
     const options = await beginWebAuthnRegistration({
       models: req.store.models,
       rpId,
       user: req.user,
+      residentKey,
     });
     res.send(options);
   }),

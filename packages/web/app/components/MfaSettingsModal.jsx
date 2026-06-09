@@ -21,6 +21,7 @@ import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
+import { PasskeyCapabilities } from './PasskeyCapabilities';
 import { webauthnErrorMessage } from '../utils/webauthn';
 
 const Section = styled.div`
@@ -51,6 +52,10 @@ const FactorMeta = styled.span`
   color: ${Colors.midText};
   font-size: 12px;
   margin-left: 8px;
+`;
+
+const PasskeyCapabilityLine = styled.div`
+  margin-top: 4px;
 `;
 
 const RowActions = styled.div`
@@ -299,6 +304,12 @@ export const MfaSettingsModal = ({ open, onClose }) => {
                       <TranslatedText stringId="mfa.settings.addedOn" fallback="added" />{' '}
                       <DateDisplay date={credential.createdAt} />
                     </FactorMeta>
+                    <PasskeyCapabilityLine>
+                      <PasskeyCapabilities
+                        discoverable={credential.discoverable}
+                        userVerified={credential.userVerified}
+                      />
+                    </PasskeyCapabilityLine>
                   </span>
                   <RowActions>
                     <RowButton

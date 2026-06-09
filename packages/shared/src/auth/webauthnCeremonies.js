@@ -89,7 +89,13 @@ async function consumeChallenge({ models, type, token, userId }) {
  * `navigator.credentials.create()` (via `@simplewebauthn/browser`'s
  * `startRegistration`).
  */
-export async function beginWebAuthnRegistration({ models, rpId, user, preferredAuthenticatorType }) {
+export async function beginWebAuthnRegistration({
+  models,
+  rpId,
+  user,
+  preferredAuthenticatorType,
+  residentKey = 'preferred',
+}) {
   const existingCredentials = await models.WebAuthnCredential.findAll({
     where: { userId: user.id, rpId },
   });
@@ -106,16 +112,22 @@ export async function beginWebAuthnRegistration({ models, rpId, user, preferredA
     // the phone-over-QR/hybrid flow rather than letting the browser dither
     // over the local authenticator)
     ...(preferredAuthenticatorType ? { preferredAuthenticatorType } : {}),
+    // ask the browser to report whether the credential ended up discoverable
+    // (resident). Usernameless passwordless login only works with discoverable
+    // credentials; rather than force residentKey 'required' (which blocks
+    // authenticators that can't store one), we enrol permissively and record
+    // each credential's passwordless capability from credProps.rk.
+    extensions: { credProps: true },
     // stop the same authenticator being enrolled twice
     excludeCredentials: existingCredentials.map(credential => ({
       id: credential.credentialId,
       transports: credential.transports ?? undefined,
     })),
     authenticatorSelection: {
-      // discoverable where the authenticator supports it (usernameless login),
-      // degrading gracefully on constrained authenticators rather than
-      // hard-failing enrolment
-      residentKey: 'preferred',
+      // 'preferred' (default): enrol permissively and let credProps record
+      // what we got; 'required' (per the auth.mfa.webauthn.residentKey
+      // setting): force a discoverable credential so passwordless always works
+      residentKey,
       // biometric/PIN so a passkey is possession + inherence, satisfying MFA
       // by itself
       userVerification: 'required',
@@ -176,7 +188,11 @@ export async function finishWebAuthnRegistration({
     throw new InvalidOperationError('Passkey registration could not be verified');
   }
 
-  const { credential, aaguid } = verification.registrationInfo;
+  const { credential, aaguid, userVerified } = verification.registrationInfo;
+  // credProps.rk: true ⇒ discoverable (passwordless-capable), false ⇒ second
+  // factor only. Absent (older browsers/authenticators) ⇒ unknown (null), so
+  // we don't falsely mark a credential ineligible.
+  const rk = registrationResponse?.clientExtensionResults?.credProps?.rk;
   return models.WebAuthnCredential.create({
     userId: user.id,
     credentialId: credential.id,
@@ -186,6 +202,10 @@ export async function finishWebAuthnRegistration({
     aaguid: aaguid || null,
     enrolmentOrigin: expectedOrigin,
     friendlyName: friendlyName ?? null,
+    discoverable: typeof rk === 'boolean' ? rk : null,
+    // UV flag from the authenticator data (always present): true ⇒ the
+    // authenticator can verify the user (PIN/biometric), false ⇒ presence-only
+    userVerified: typeof userVerified === 'boolean' ? userVerified : null,
   });
 }
 

@@ -50,3 +50,15 @@ in security-method lists.
 {% docs webauthn_credentials__last_used_at %}
 When the credential last successfully completed an assertion (login).
 {% enddocs %}
+
+{% docs webauthn_credentials__discoverable %}
+Whether the authenticator stored this passkey as a discoverable (resident) credential, captured from the WebAuthn credProps extension at registration.
+
+`true` means it can be used for passwordless ("sign in with a passkey") login; `false` means it works only as a second factor after a password; `null` means the browser/authenticator didn't report it (older clients, or enrolled before this was tracked).
+{% enddocs %}
+
+{% docs webauthn_credentials__user_verified %}
+Whether the authenticator verified the user (PIN or biometric) at registration, captured from the WebAuthn authenticator data user-verification flag.
+
+`true` means it is a user-verifying factor (possession plus inherence); `false` means it only confirmed user presence (e.g. a basic security key) and can serve only as a second factor; `null` means it was enrolled before this was tracked.
+{% enddocs %}

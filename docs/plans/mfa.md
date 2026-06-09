@@ -303,7 +303,7 @@ explicit step of granting `require Mfa`.
   `require Mfa`.
 - *Fixed constants* (deliberately not exposed) — TOTP digits 6 / period 30s /
   SHA-1 / window ±1 (authenticator compatibility); WebAuthn
-  `userVerification: required`, `residentKey: preferred`, ceremony timeout ~60s.
+  `userVerification: required`, `residentKey: preferred` + `credProps`, ceremony timeout ~60s.
 
 ## Permissions
 
@@ -517,11 +517,22 @@ phishing-resistant path.
   UV is possession + inherence, so it satisfies "MFA" by itself. The policy
   function treats a verified passkey assertion as fully authenticated — no
   separate second factor.
-- **Discoverable credentials, degrade gracefully** (`residentKey: 'preferred'` at
-  registration): usernameless ("Sign in with a passkey", no email typed) where
-  the authenticator supports it, falling back to username-first on constrained
-  authenticators (e.g. hardware keys with full resident-key slots) — so enrolment
-  never hard-fails. User handle = the Tamanu user UUID (stable, not PII).
+- **Discoverable credentials, detected not forced** (`residentKey: 'preferred'`
+  + the `credProps` extension at registration): usernameless ("Sign in with a
+  passkey", no email typed) only works if the authenticator stored the
+  credential as discoverable. Rather than force `'required'` (which blocks
+  authenticators that can't store a resident key), enrol permissively and read
+  `credProps.rk` from the registration response into
+  `webauthn_credentials.discoverable` (true = passwordless-capable, false =
+  second factor only, null = unknown). The UI marks non-discoverable passkeys
+  as "second factor only", so a user without a passwordless-capable device can
+  still enrol — they just see why passwordless isn't offered for that key.
+  (A device that only creates a resident key under `'required'` won't be
+  passwordless-capable under `'preferred'`; deployments that want to guarantee
+  passwordless capability — at the cost of rejecting authenticators that can't
+  store a resident key — set `auth.mfa.webauthn.residentKey` to `'required'`,
+  which is then used at every enrolment entry point.) User handle = the Tamanu
+  user UUID (stable, not PII).
 - **New parallel login entry**: `assert-begin` / `assert-finish` with no
   password, separate from the password path that gates in `loginFromCredential`.
   The password still exists underneath for admin reset / recovery — passwordless

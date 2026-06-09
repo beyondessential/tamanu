@@ -26,6 +26,8 @@ export class WebAuthnCredential extends Model {
   declare enrolmentOrigin?: string;
   declare friendlyName?: string;
   declare lastUsedAt?: Date;
+  declare discoverable?: boolean | null;
+  declare userVerified?: boolean | null;
   declare userId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -51,6 +53,16 @@ export class WebAuthnCredential extends Model {
         enrolmentOrigin: { type: DataTypes.TEXT, allowNull: true },
         friendlyName: { type: DataTypes.TEXT, allowNull: true },
         lastUsedAt: { type: DataTypes.DATE, allowNull: true },
+        // whether the authenticator stored this as a discoverable (resident)
+        // credential, from the credProps extension at registration: true =
+        // usable for passwordless login, false = second factor only, null =
+        // unknown (browser/authenticator didn't report it)
+        discoverable: { type: DataTypes.BOOLEAN, allowNull: true },
+        // whether the authenticator verified the user (PIN/biometric) at
+        // registration, from the authenticator data UV flag: true = a
+        // user-verifying factor, false = presence-only (e.g. a basic security
+        // key), null = enrolled before this was tracked
+        userVerified: { type: DataTypes.BOOLEAN, allowNull: true },
       },
       {
         ...options,

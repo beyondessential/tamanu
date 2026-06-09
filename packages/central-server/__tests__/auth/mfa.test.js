@@ -104,6 +104,8 @@ describe('MFA self-service', () => {
         residentKey: 'preferred',
         userVerification: 'required',
       });
+      // credProps is requested so we can record passwordless capability
+      expect(body.extensions).toMatchObject({ credProps: true });
 
       const challenge = await models.MfaChallenge.findOne({
         where: { token: body.challenge, type: MFA_CHALLENGE_TYPES.WEBAUTHN_REGISTER },
@@ -111,6 +113,21 @@ describe('MFA self-service', () => {
       expect(challenge).toBeTruthy();
       expect(challenge.usedAt).toBeNull();
       expect(challenge.expiresAt.getTime()).toBeGreaterThan(Date.now());
+    });
+
+    it('forces a discoverable credential when residentKey is required', async () => {
+      await models.Setting.set('auth.mfa.webauthn.residentKey', 'required', SETTINGS_SCOPES.GLOBAL);
+      try {
+        const response = await agent.post('/api/mfa/webauthn/register-begin');
+        expect(response).toHaveSucceeded();
+        expect(response.body.authenticatorSelection).toMatchObject({ residentKey: 'required' });
+      } finally {
+        await models.Setting.set(
+          'auth.mfa.webauthn.residentKey',
+          'preferred',
+          SETTINGS_SCOPES.GLOBAL,
+        );
+      }
     });
 
     it('rejects a finish with no matching challenge', async () => {
@@ -188,6 +205,11 @@ describe('MFA self-service', () => {
 
       const list = await agent.get('/api/mfa/methods');
       expect(list.body.webauthn.map(c => c.id)).toContain(credential.id);
+      // the passwordless and user-verification capability flags are surfaced
+      // per credential
+      const summary = list.body.webauthn.find(c => c.id === credential.id);
+      expect(summary).toHaveProperty('discoverable');
+      expect(summary).toHaveProperty('userVerified');
 
       const del = await agent.delete(`/api/mfa/webauthn/${credential.id}`);
       expect(del).toHaveSucceeded();

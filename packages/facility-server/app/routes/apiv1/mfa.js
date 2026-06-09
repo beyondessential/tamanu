@@ -44,11 +44,13 @@ const requireMfaEnabled = async req => {
  * browser would refuse the ceremony anyway).
  */
 const getWebAuthnContext = async req => {
-  const rpId = await globalSettings(req).get('auth.mfa.webauthn.rpid');
+  const settings = globalSettings(req);
+  const rpId = await settings.get('auth.mfa.webauthn.rpid');
   if (!originIsUnderRpId(canonicalHostName, rpId)) {
     throw new ForbiddenError('WebAuthn is not available on this server');
   }
-  return { rpId };
+  const residentKey = await settings.get('auth.mfa.webauthn.residentKey');
+  return { rpId, residentKey };
 };
 
 const credentialSummary = credential => ({
@@ -57,6 +59,10 @@ const credentialSummary = credential => ({
   transports: credential.transports,
   createdAt: credential.createdAt,
   lastUsedAt: credential.lastUsedAt,
+  // true ⇒ usable passwordless; false ⇒ second factor only; null ⇒ unknown
+  discoverable: credential.discoverable,
+  // true ⇒ user-verifying (PIN/biometric); false ⇒ presence-only; null ⇒ unknown
+  userVerified: credential.userVerified,
 });
 
 export const mfa = express.Router();
@@ -66,12 +72,13 @@ mfa.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Mfa');
     await requireMfaEnabled(req);
-    const { rpId } = await getWebAuthnContext(req);
+    const { rpId, residentKey } = await getWebAuthnContext(req);
 
     const options = await beginWebAuthnRegistration({
       models: req.models,
       rpId,
       user: req.user,
+      residentKey,
     });
     res.send(options);
   }),
