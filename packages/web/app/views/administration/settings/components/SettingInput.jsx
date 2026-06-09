@@ -369,9 +369,13 @@ export const SettingInput = ({
       // skip those so they don't render as a blank, unlabelled option
       return allowed
         .filter(allowedValue => allowedValue != null)
+        // label with the raw value, not a prettified form: these are the exact
+        // tokens stored, referenced in config files, docs, and the setting
+        // descriptions — start-casing would mislead (e.g. "attribute:ID" →
+        // "Attribute Id"). A setting wanting friendly labels passes `options`.
         .map(allowedValue => ({
           value: allowedValue,
-          label: startCase(allowedValue),
+          label: String(allowedValue),
         }));
     } catch {
       return null;

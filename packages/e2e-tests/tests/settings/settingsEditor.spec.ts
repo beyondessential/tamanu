@@ -28,16 +28,17 @@ test.describe('Admin settings editor inputs', () => {
     const select = setting.getByTestId('selectinput-settings-string-enum');
     await expect(select).toBeVisible();
 
-    // open the dropdown and confirm the allowed values are offered (start-cased)
+    // open the dropdown and confirm the allowed values are offered verbatim
+    // (labelled with the raw stored token, not a prettified form)
     await setting.locator('.react-select__control').click();
     const options = page.locator('.react-select__option');
-    await expect(options.filter({ hasText: 'Uid' })).toBeVisible();
-    await expect(options.filter({ hasText: 'Name' })).toBeVisible();
-    await expect(options.filter({ hasText: 'Code' })).toBeVisible();
+    await expect(options.filter({ hasText: 'uid' })).toBeVisible();
+    await expect(options.filter({ hasText: 'name' })).toBeVisible();
+    await expect(options.filter({ hasText: 'code' })).toBeVisible();
 
     // selecting one reflects in the control
-    await options.filter({ hasText: 'Name' }).first().click();
-    await expect(setting.locator('.react-select__single-value')).toHaveText('Name');
+    await options.filter({ hasText: 'name' }).first().click();
+    await expect(setting.locator('.react-select__single-value')).toHaveText('name');
   });
 
   test('[SET-0002] renders a primitive array setting as an editable list with add/remove', async () => {
