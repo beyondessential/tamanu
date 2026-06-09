@@ -26,9 +26,11 @@ const StyledSecretIcon = styled(KeyIcon)`
 
 const Wrapper = styled.div`
   display: grid;
-  row-gap: 0.5rem;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  // no row-gap: rows stack contiguously so the zebra/hover bands are an
+  // unbroken stripe; the label/actions block margins (which sit inside the
+  // band) give the vertical breathing room
 
   &:not(:first-child) {
     border-top: 1px solid ${Colors.outline};
@@ -68,6 +70,8 @@ const RowActions = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-block: 13px;
+  // inset from the band's right edge (the container itself has no padding)
+  padding-inline-end: 1.25rem;
 `;
 
 const SettingNameLabel = styled(LargeBodyText)`
@@ -78,6 +82,8 @@ const SettingNameLabel = styled(LargeBodyText)`
   gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
+  // inset from the band's left edge (the container itself has no padding)
+  margin-inline-start: 1.25rem;
   font-size: 15px;
   inline-size: fit-content;
 `;
@@ -85,6 +91,8 @@ const SettingNameLabel = styled(LargeBodyText)`
 const StyledHeading = styled(Heading4)`
   grid-column: 1 / -1;
   margin-block: 1rem;
+  // align the heading text with the row labels' left inset
+  margin-inline-start: 1.25rem;
   inline-size: fit-content;
 `;
 

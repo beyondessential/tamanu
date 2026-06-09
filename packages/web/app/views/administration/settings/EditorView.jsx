@@ -38,7 +38,8 @@ const CategoriesWrapper = styled.div`
   // the right and giving every input/action a common column edge — so a narrow
   // number input and a wide text input still line up, and reset buttons align.
   grid-template-columns: minmax(min-content, 1fr) max-content max-content;
-  padding: 1.25rem;
+  // no padding: rows, headings and group separators run flush to the borders;
+  // each row's own padding (see Category) insets the text within its band
 `;
 
 const ButtonGroup = styled.div`
