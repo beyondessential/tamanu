@@ -58,6 +58,11 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
   return getDisplayNameForModel(componentConfig.source, result);
 };
 
+/**
+ * @template {'Yes' | 'No' | 'true' | 'false' | '1' | '0' | null | undefined} T
+ * @param {T} answer
+ * @returns {T extends string ? 'Yes' | 'No' : T}
+ */
 const convertBinaryToYesNo = answer => {
   switch (answer) {
     case 'true':
@@ -79,7 +84,12 @@ const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate
   return '';
 };
 
-export const getPatientDataFieldAssociationData = async ({ models, modelName, fieldName, answer }) => {
+export const getPatientDataFieldAssociationData = async ({
+  models,
+  modelName,
+  fieldName,
+  answer,
+}) => {
   const model = models[modelName];
   const associations = Object.values(model.associations || {});
   const foreignKeyAssociation = associations.find(
@@ -153,17 +163,18 @@ export const getAnswerBody = async (
   }
   let result;
   switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
-    case 'Checkbox':
+    case PROGRAM_DATA_ELEMENT_TYPES.BINARY:
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;
-    case 'Autocomplete':
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       result = await convertAutocompleteAnswer(models, parsedComponentConfig, answer);
       break;
-    case 'PatientData':
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
       break;
     default:
