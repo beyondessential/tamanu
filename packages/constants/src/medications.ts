@@ -1,3 +1,4 @@
+import type { Duration } from 'date-fns';
 import { ENCOUNTER_TYPES } from './encounters';
 
 export const DRUG_ROUTES = {
@@ -244,30 +245,30 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 };
 
-export const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
+export const MEDICATION_DURATION_UNITS = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',
   MONTHS: 'months',
-};
+} as const satisfies Record<string, keyof Duration>;
 
 export const MEDICATION_DURATION_DISPLAY_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'Hours',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'Days',
-  [MEDICATION_DURATION_UNITS.WEEKS!]: 'Weeks',
-  [MEDICATION_DURATION_UNITS.MONTHS!]: 'Months',
+  [MEDICATION_DURATION_UNITS.HOURS]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
+  [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
+  [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
 };
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
-  [MEDICATION_DURATION_UNITS.WEEKS!]: 'week (s)',
-  [MEDICATION_DURATION_UNITS.MONTHS!]: 'month (s)',
+  [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
+  [MEDICATION_DURATION_UNITS.WEEKS]: 'week (s)',
+  [MEDICATION_DURATION_UNITS.MONTHS]: 'month (s)',
 };
 
 export const MEDICATION_PAUSE_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
+  [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
 };
 
 export const ADMINISTRATION_STATUS = {

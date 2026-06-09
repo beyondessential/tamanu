@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.14.6",
+    "date-fns": "^2.25.0",
     "rimraf": "^6.0.1"
   }
 }
