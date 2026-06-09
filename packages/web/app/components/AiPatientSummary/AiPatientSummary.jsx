@@ -152,7 +152,7 @@ export const AiPatientSummary = ({ patient }) => {
         </Collapse>
       </Container>
       <DiscardAiSummaryConfirmModal
-        title={<TranslatedText stringId="ai.patientSummary.discardModal.title" fallback="Discard AI patient summary" />}
+        title={<TranslatedText stringId="ai.patientSummary.discardModal.title" fallback="Discard AI summary" />}
         subText={<TranslatedText stringId="ai.patientSummary.discardModal.text" fallback="Are you sure you would like to discard the AI patient summary? You can regenerate a new AI summary at any time." />}
         open={isDiscardConfirmOpen}
         onCancel={handleCancelDiscard}

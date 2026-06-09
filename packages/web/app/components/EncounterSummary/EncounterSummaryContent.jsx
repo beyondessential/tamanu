@@ -194,7 +194,7 @@ export const EncounterSummaryContent = ({ encounterId }) => {
         title={
           <TranslatedText
             stringId="ai.encounterSummary.discardModal.title"
-            fallback="Discard AI encounter summary"
+            fallback="Discard AI summary"
           />
         }
         subText={
