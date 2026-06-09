@@ -84,7 +84,13 @@ export type MfaTotpAvailability =
 // rejects authenticators that can't store a resident key). These mirror the
 // WebAuthn residentKey requirement values.
 export const MFA_RESIDENT_KEY = {
+  // permissive: enrol whatever the authenticator offers, record capability
   PREFERRED: 'preferred',
+  // permissive like preferred, but the client warns the user and offers a
+  // retry forcing a resident key when the enrolled passkey can't do
+  // passwordless and passwordless login is available
+  WARN: 'warn',
+  // force a discoverable credential (rejects authenticators that can't)
   REQUIRED: 'required',
 } as const;
 export type MfaResidentKey = (typeof MFA_RESIDENT_KEY)[keyof typeof MFA_RESIDENT_KEY];

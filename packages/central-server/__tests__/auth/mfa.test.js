@@ -130,6 +130,15 @@ describe('MFA self-service', () => {
       }
     });
 
+    it('forces a discoverable credential on the requireResidentKey retry', async () => {
+      // the warn-mode "try again for passwordless" retry, default setting
+      const response = await agent
+        .post('/api/mfa/webauthn/register-begin')
+        .send({ requireResidentKey: true });
+      expect(response).toHaveSucceeded();
+      expect(response.body.authenticatorSelection).toMatchObject({ residentKey: 'required' });
+    });
+
     it('rejects a finish with no matching challenge', async () => {
       const clientDataJSON = Buffer.from(
         JSON.stringify({ type: 'webauthn.create', challenge: 'bogus-challenge' }),
@@ -191,6 +200,8 @@ describe('MFA self-service', () => {
         webauthn: expect.any(Array),
         totp: { enrolled: false, confirmed: false },
       });
+      // the resident-key policy is exposed so the client can warn/retry
+      expect(response.body.residentKeyMode).toEqual(expect.any(String));
     });
 
     it('soft-deletes an owned credential and 404s on unknown ids', async () => {

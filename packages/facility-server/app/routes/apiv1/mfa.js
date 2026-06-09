@@ -79,6 +79,7 @@ mfa.post(
       rpId,
       user: req.user,
       residentKey,
+      forceResident: req.body?.requireResidentKey === true,
     });
     res.send(options);
   }),
@@ -129,6 +130,7 @@ mfa.get(
         confirmedAt: req.user.totpConfirmedAt ?? null,
         managedCentrally: true,
       },
+      residentKeyMode: await globalSettings(req).get('auth.mfa.webauthn.residentKey'),
     });
   }),
 );

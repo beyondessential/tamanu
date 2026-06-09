@@ -99,6 +99,16 @@ const ErrorText = styled(BodyText)`
   color: ${Colors.alert};
 `;
 
+const PasswordlessWarning = styled.div`
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid ${Colors.alert};
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
 const AddPasskeyRow = styled.div`
   display: flex;
   gap: 12px;
@@ -130,14 +140,21 @@ export const MfaSettingsModal = ({ open, onClose }) => {
   // credential id being renamed, and the in-progress value
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState('');
+  // whether the server offers passwordless login (so a non-passwordless passkey
+  // is worth warning about), and the just-enrolled credential to warn about
+  const [passwordlessAvailable, setPasswordlessAvailable] = useState(false);
+  const [retryTarget, setRetryTarget] = useState(null);
 
   const refresh = useCallback(async () => {
     try {
-      setMethods(await api.get('mfa/methods'));
+      const data = await api.get('mfa/methods');
+      setMethods(data);
       setUnavailable(false);
+      return data;
     } catch (e) {
       setMethods(null);
       setUnavailable(true);
+      return null;
     }
   }, [api]);
 
@@ -145,8 +162,15 @@ export const MfaSettingsModal = ({ open, onClose }) => {
     if (!open) return;
     setError(null);
     setTotpEnrol(null);
+    setRetryTarget(null);
     refresh();
-  }, [open, refresh]);
+    // the passwordless capability endpoint is public; absent (older server) ⇒
+    // treat as unavailable, so we never warn about a feature that isn't there
+    api
+      .get('public/loginFeatures')
+      .then(features => setPasswordlessAvailable(features?.passwordless && features.passwordless !== 'off'))
+      .catch(() => setPasswordlessAvailable(false));
+  }, [open, refresh, api]);
 
   useEffect(() => {
     if (!totpEnrol) return;
@@ -155,23 +179,51 @@ export const MfaSettingsModal = ({ open, onClose }) => {
       .catch(() => setQrDataUrl(null));
   }, [totpEnrol]);
 
-  const addPasskey = async () => {
+  const addPasskey = async ({ forceResident = false } = {}) => {
     setError(null);
+    setRetryTarget(null);
     setBusy(true);
     try {
-      const optionsJSON = await api.post('mfa/webauthn/register-begin');
+      const optionsJSON = await api.post(
+        'mfa/webauthn/register-begin',
+        forceResident ? { requireResidentKey: true } : {},
+      );
       const registrationResponse = await startRegistration({ optionsJSON });
-      await api.post('mfa/webauthn/register-finish', {
+      const created = await api.post('mfa/webauthn/register-finish', {
         registrationResponse,
         friendlyName: newPasskeyName.trim() || null,
       });
       setNewPasskeyName('');
-      await refresh();
+      const data = await refresh();
+      // in 'warn' mode, if this passkey can't do passwordless (and passwordless
+      // is on offer), surface it and let the user retry forcing a resident key
+      if (
+        !forceResident &&
+        created?.discoverable === false &&
+        data?.residentKeyMode === 'warn' &&
+        passwordlessAvailable
+      ) {
+        setRetryTarget(created.id);
+      }
     } catch (e) {
       setError(webauthnErrorMessage(e, getTranslation));
     } finally {
       setBusy(false);
     }
+  };
+
+  // "try again for passwordless": drop the non-discoverable key and re-enrol
+  // forcing a resident credential (the same authenticator is then free to
+  // re-create it as discoverable)
+  const retryPasswordless = async () => {
+    const credentialId = retryTarget;
+    setRetryTarget(null);
+    try {
+      await api.delete(`mfa/webauthn/${credentialId}`);
+    } catch (e) {
+      // if the cleanup fails, still attempt the forced enrolment
+    }
+    await addPasskey({ forceResident: true });
   };
 
   const startRename = credential => {
@@ -252,6 +304,31 @@ export const MfaSettingsModal = ({ open, onClose }) => {
       data-testid="mfa-settings-modal"
     >
       {!!error && <ErrorText data-testid="mfa-settings-error">{error}</ErrorText>}
+
+      {retryTarget && (
+        <PasswordlessWarning data-testid="mfa-passwordless-warning">
+          <BodyText>
+            <TranslatedText
+              stringId="mfa.settings.notPasswordlessCapable"
+              fallback="This passkey was saved, but your device didn't make it usable for passwordless sign-in. You can try again on a device that supports it, or keep it as a second factor."
+            />
+          </BodyText>
+          <RowActions>
+            <RowButton onClick={retryPasswordless} disabled={busy} data-testid="mfa-passwordless-retry">
+              <TranslatedText
+                stringId="mfa.settings.retryPasswordless"
+                fallback="Try again for passwordless"
+              />
+            </RowButton>
+            <RowButton onClick={() => setRetryTarget(null)} data-testid="mfa-passwordless-keep">
+              <TranslatedText
+                stringId="mfa.settings.keepSecondFactor"
+                fallback="Keep as second factor"
+              />
+            </RowButton>
+          </RowActions>
+        </PasswordlessWarning>
+      )}
 
       {unavailable && (
         <BodyText data-testid="mfa-settings-unavailable">

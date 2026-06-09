@@ -134,6 +134,8 @@ mfa.post(
       rpId,
       user: req.user,
       residentKey,
+      // the warn-mode "try again for passwordless" retry forces a resident key
+      forceResident: req.body?.requireResidentKey === true,
     });
     res.send(options);
   }),
@@ -210,6 +212,8 @@ mfa.get(
         confirmed: Boolean(totpSecret?.confirmedAt),
         confirmedAt: totpSecret?.confirmedAt ?? null,
       },
+      // drives the passwordless-capability warning + retry in the UI
+      residentKeyMode: await req.settings.get('auth.mfa.webauthn.residentKey'),
     });
   }),
 );

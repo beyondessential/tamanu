@@ -95,10 +95,17 @@ export async function beginWebAuthnRegistration({
   user,
   preferredAuthenticatorType,
   residentKey = 'preferred',
+  forceResident = false,
 }) {
   const existingCredentials = await models.WebAuthnCredential.findAll({
     where: { userId: user.id, rpId },
   });
+
+  // WebAuthn only understands 'discouraged'|'preferred'|'required'. The
+  // residentKey setting adds a 'warn' value that behaves like 'preferred' at
+  // enrolment (the warning is client-side); only 'required' (or an explicit
+  // forceResident retry) demands a discoverable credential.
+  const effectiveResidentKey = forceResident || residentKey === 'required' ? 'required' : 'preferred';
 
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
@@ -124,10 +131,7 @@ export async function beginWebAuthnRegistration({
       transports: credential.transports ?? undefined,
     })),
     authenticatorSelection: {
-      // 'preferred' (default): enrol permissively and let credProps record
-      // what we got; 'required' (per the auth.mfa.webauthn.residentKey
-      // setting): force a discoverable credential so passwordless always works
-      residentKey,
+      residentKey: effectiveResidentKey,
       // biometric/PIN so a passkey is possession + inherence, satisfying MFA
       // by itself
       userVerification: 'required',

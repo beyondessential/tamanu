@@ -110,7 +110,7 @@ export const globalSettings = {
                 residentKey: {
                   name: 'Passkey resident-key requirement',
                   description:
-                    'How hard passkey enrolment pushes for a discoverable (resident) credential, which is what passwordless ("sign in with a passkey") login needs. "preferred" enrols permissively and marks passkeys that turn out not to be passwordless-capable; "required" guarantees every passkey can be used passwordless but rejects authenticators that can\'t store a resident key',
+                    'How hard passkey enrolment pushes for a discoverable (resident) credential, which is what passwordless ("sign in with a passkey") login needs. "preferred" enrols permissively and marks passkeys that turn out not to be passwordless-capable; "warn" is like preferred but, when passwordless is available, warns the user and offers to retry requiring passwordless; "required" guarantees every passkey can be used passwordless but rejects authenticators that can\'t store a resident key',
                   type: yup.string().oneOf(Object.values(MFA_RESIDENT_KEY)),
                   defaultValue: MFA_RESIDENT_KEY.PREFERRED,
                 },
