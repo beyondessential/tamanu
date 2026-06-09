@@ -425,6 +425,7 @@ patientRelations.get(
     lab_test_types.options AS test_options,
     lab_test_types.id AS test_type_id,
     FIRST(lab_test_types.unit) AS unit,
+    FIRST(lab_test_types.range_text) AS range_text,
     JSONB_BUILD_OBJECT(
       'male', JSONB_BUILD_OBJECT(
         'min', MIN(lab_test_types.male_min),
