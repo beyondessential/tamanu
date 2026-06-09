@@ -39,6 +39,26 @@ const SettingLine = styled(BodyText)`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  transition: background-color 100ms ease;
+
+  // Subtle zebra shading so adjacent settings are easy to tell apart. nth-of-type
+  // (not nth-child) keys off the element tag: the category heading is an <h4> and
+  // settings sort before any nested sub-category groups (see sortProperties), so
+  // the setting rows are the leading, contiguous <div> siblings and alternate
+  // cleanly. Background only — no padding/margin — to leave subgrid alignment
+  // untouched.
+  &:nth-of-type(even) {
+    background-color: ${Colors.background};
+  }
+
+  // Highlight on hover, and keep it while a control on the row is focused —
+  // including when a <select> is open and the pointer has moved down into its
+  // menu (react-select keeps focus on the control inside the row, so
+  // :focus-within holds even if the menu portals out of this subtree).
+  &:hover,
+  &:focus-within {
+    background-color: ${Colors.veryLightBlue};
+  }
 `;
 
 const SettingNameLabel = styled(LargeBodyText)`
@@ -159,7 +179,23 @@ export const Category = ({
         const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
 
-        return type ? (
+        if (!type) {
+          return (
+            <Category
+              key={newPath}
+              path={newPath}
+              // Pass down highRisk from parent category to now top level subcategory
+              schema={{ ...propertySchema, highRisk: isHighRisk }}
+              getSettingValue={getSettingValue}
+              resolveSettingsPath={resolveSettingsPath}
+              handleChangeSetting={handleChangeSetting}
+              facilityId={facilityId}
+              data-testid={`category-9y74-${testIdSuffix}`}
+            />
+          );
+        }
+
+        return (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
               disabled={disabled}
@@ -188,18 +224,6 @@ export const Category = ({
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
-        ) : (
-          <Category
-            key={newPath}
-            path={newPath}
-            // Pass down highRisk from parent category to now top level subcategory
-            schema={{ ...propertySchema, highRisk: isHighRisk }}
-            getSettingValue={getSettingValue}
-            resolveSettingsPath={resolveSettingsPath}
-            handleChangeSetting={handleChangeSetting}
-            facilityId={facilityId}
-            data-testid={`category-9y74-${testIdSuffix}`}
-          />
         );
       })}
     </Wrapper>
