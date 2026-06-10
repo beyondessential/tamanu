@@ -1,6 +1,9 @@
 import express from 'express';
+import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings';
+import { effectivePasswordlessMode } from '@tamanu/shared/auth/mfaPolicy';
 import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
@@ -25,6 +28,19 @@ if (cors.allowedOrigin) {
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
+
+// what the login screen may offer before anyone is authenticated; computed
+// server-side so off stays server-enforced
+publicRoutes.get(
+  '/loginFeatures',
+  asyncHandler(async (req, res) => {
+    const passwordless = await effectivePasswordlessMode({
+      settings: new ReadSettings(req.models),
+      origin: config.canonicalHostName,
+    });
+    res.send({ passwordless });
+  }),
+);
 
 publicRoutes.get('/translation/languageOptions', async (req, res) => {
   const { TranslatedString } = req.models;

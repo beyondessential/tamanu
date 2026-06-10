@@ -1,4 +1,5 @@
-import { MFA_FACTORS, MFA_TOTP_AVAILABILITY } from '@tamanu/constants';
+import { MFA_FACTORS, MFA_PASSWORDLESS, MFA_TOTP_AVAILABILITY } from '@tamanu/constants';
+import { originIsUnderRpId } from './webauthn';
 
 /**
  * @typedef {Object} MfaPolicyContext
@@ -126,4 +127,17 @@ export function resolveMfaPolicy({
   }
 
   return { kind: 'blocked' };
+}
+
+/**
+ * The effective passwordless mode for a given server origin: `off` unless MFA
+ * is enabled, the origin is under the rpid stem, and the setting allows it.
+ * One definition for the login gates and the public capability endpoint, on
+ * both servers.
+ */
+export async function effectivePasswordlessMode({ settings, origin }) {
+  if (!(await settings.get('auth.mfa.enabled'))) return MFA_PASSWORDLESS.OFF;
+  const rpId = await settings.get('auth.mfa.webauthn.rpid');
+  if (!originIsUnderRpId(origin, rpId)) return MFA_PASSWORDLESS.OFF;
+  return (await settings.get('auth.mfa.passwordless')) ?? MFA_PASSWORDLESS.OFF;
 }

@@ -76,7 +76,6 @@ export const MFA_TOTP_AVAILABILITY = {
 } as const;
 export type MfaTotpAvailability =
   (typeof MFA_TOTP_AVAILABILITY)[keyof typeof MFA_TOTP_AVAILABILITY];
-
 // Values for auth.mfa.webauthn.residentKey: how hard enrolment pushes for a
 // discoverable (resident) credential, which is what passwordless login needs.
 // 'preferred' enrols permissively and records actual capability via credProps;
@@ -111,3 +110,15 @@ export const MFA_USER_VERIFICATION = {
 } as const;
 export type MfaUserVerification =
   (typeof MFA_USER_VERIFICATION)[keyof typeof MFA_USER_VERIFICATION];
+
+// Whether a user-verifying passkey can be a complete login by itself (no
+// password). off vs (onRequest|promoted) is server-enforced (whether
+// passwordless assertions are accepted at all); onRequest vs promoted is
+// client presentation only (whether conditional-UI autofill actively offers
+// it).
+export const MFA_PASSWORDLESS = {
+  OFF: 'off',
+  ON_REQUEST: 'onRequest',
+  PROMOTED: 'promoted',
+} as const;
+export type MfaPasswordless = (typeof MFA_PASSWORDLESS)[keyof typeof MFA_PASSWORDLESS];

@@ -28,6 +28,7 @@ import {
 import {
   ADMINISTRATION_FREQUENCIES,
   isValidAdditionalSearchField,
+  MFA_PASSWORDLESS,
   MFA_RESIDENT_KEY,
   MFA_TOTP_AVAILABILITY,
   MFA_USER_VERIFICATION,
@@ -123,6 +124,13 @@ export const globalSettings = {
                   defaultValue: MFA_USER_VERIFICATION.REQUIRED,
                 },
               },
+            },
+            passwordless: {
+              name: 'Passwordless passkey login',
+              description:
+                'Whether a user-verifying passkey can be a complete login by itself, with no password: "off" = never (passkeys serve only as a second factor); "onRequest" = available behind a "Sign in with a passkey" action on the login screen; "promoted" = additionally offered proactively via browser autofill',
+              type: yup.string().oneOf(Object.values(MFA_PASSWORDLESS)),
+              defaultValue: MFA_PASSWORDLESS.ON_REQUEST,
             },
             totp: {
               description: 'Authenticator app (TOTP) options',

@@ -1,7 +1,8 @@
 import express from 'express';
+import config from 'config';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { settingsCache } from '@tamanu/settings';
+import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { suggestions } from '@tamanu/shared/services/suggestions';
 
@@ -40,6 +41,8 @@ import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { mfa } from './mfa';
 import { mfaEnrolInvite } from './mfaEnrolInvite';
+import { passwordlessLogin } from './passwordlessLogin';
+import { effectivePasswordlessMode } from '@tamanu/shared/auth/mfaPolicy';
 import { mfaLogin } from './mfaLogin';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
@@ -96,12 +99,29 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use('/changePassword', limiter, changePassword);
   apiv1.use('/mfa/login', limiter, mfaLogin);
   apiv1.use('/mfa/enrolInvite', limiter, mfaEnrolInvite);
+  // pre-auth: a user-verifying passkey assertion IS the credential, verified
+  // fully locally against the synced public keys
+  apiv1.use('/login/webauthn', limiter, passwordlessLogin);
   
   apiv1.get(
     '/public/ping',
     asyncHandler((req, res) => {
       req.flagPermissionChecked();
       return res.send({ ok: 'ok' });
+    }),
+  );
+  
+  // what the login screen may offer before anyone is authenticated; computed
+  // server-side so off stays server-enforced
+  apiv1.get(
+    '/public/loginFeatures',
+    asyncHandler(async (req, res) => {
+      req.flagPermissionChecked();
+      const passwordless = await effectivePasswordlessMode({
+        settings: new ReadSettings(req.models),
+        origin: config.canonicalHostName ?? 'localhost',
+      });
+      res.send({ passwordless });
     }),
   );
   

@@ -54,6 +54,17 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
 };
 
 /**
+ * Passwordless login: the component has already run the browser WebAuthn
+ * ceremony (it involves user-interaction prompts); this finishes it against
+ * the server and lands the session exactly like a password login. Throws on
+ * failure so the login screen can surface the error inline.
+ */
+export const passwordlessLogin = assertionResponse => async (dispatch, getState, { api }) => {
+  const loginInfo = await api.finishPasswordlessLogin(assertionResponse);
+  await handleLoginSuccess(dispatch, loginInfo);
+};
+
+/**
  * Complete a terminal MFA login step (verify a code / finish an assertion /
  * confirm an enrolment) using the pending token held in state. Throws on
  * failure so the MFA screen can surface "wrong code" etc. inline; the
