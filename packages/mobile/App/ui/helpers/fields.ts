@@ -136,7 +136,9 @@ function fallbackParseVisibilityCriteria(
   values: any,
   allComponents: ISurveyScreenComponent[],
 ): boolean {
-  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria
+    .split(':')
+    .map(part => part.trim());
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
