@@ -7,7 +7,9 @@ export const ENCOUNTER_TYPES = {
   TRIAGE: 'triage',
   SURVEY_RESPONSE: 'surveyResponse',
   VACCINATION: 'vaccination',
-};
+} as const;
+
+export type EncounterType = (typeof ENCOUNTER_TYPES)[keyof typeof ENCOUNTER_TYPES];
 
 export const ENCOUNTER_TYPE_LABELS = {
   [ENCOUNTER_TYPES.ADMISSION]: 'Hospital admission',
@@ -18,7 +20,7 @@ export const ENCOUNTER_TYPE_LABELS = {
   [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED care',
   [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'Form response',
   [ENCOUNTER_TYPES.VACCINATION]: 'Vaccination record',
-};
+} as const;
 
 export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
 
@@ -31,4 +33,4 @@ export const ENCOUNTER_TYPE_ABBREVIATION_LABELS = {
   [ENCOUNTER_TYPES.OBSERVATION]: 'AEC',
   [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'FR',
   [ENCOUNTER_TYPES.VACCINATION]: 'VR',
-};
+} as const;

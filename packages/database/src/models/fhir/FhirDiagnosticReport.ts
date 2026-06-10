@@ -21,6 +21,7 @@ export class FhirDiagnosticReport extends FhirResource {
   declare status: string;
   declare code: Record<string, any>;
   declare presentedForm?: { data: string; title: string; contentType: string }[];
+  declare conclusion?: string;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -39,6 +40,10 @@ export class FhirDiagnosticReport extends FhirResource {
         },
         presentedForm: {
           type: DataTypes.JSONB,
+        },
+        conclusion: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
       options,
@@ -68,6 +73,7 @@ export class FhirDiagnosticReport extends FhirResource {
         }),
       ),
       result: yup.array().of(FhirReference.asYup()), // result is not used in the DiagnosticReport model but can be present in a bundle
+      conclusion: yup.string(),
     });
   }
 
@@ -137,6 +143,9 @@ export class FhirDiagnosticReport extends FhirResource {
       labRequest.set({ status: newStatus });
       if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
         labRequest.set({ publishedDate: getCurrentDateTimeString() });
+      }
+      if (this.conclusion) {
+        labRequest.set({ resultsInterpretation: this.conclusion });
       }
       await labRequest.save();
 
