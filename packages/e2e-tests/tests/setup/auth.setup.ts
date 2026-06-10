@@ -1,5 +1,6 @@
 import { test as setup } from '../../fixtures/baseFixture';
 import path from 'path';
+import { writeFile } from 'fs/promises';
 
 import { adminFrontend } from '../../utils/navigation';
 
@@ -19,9 +20,9 @@ setup('authenticate', async ({ loginPage, page }) => {
   await loginPage.goto();
   await loginPage.login(email, password);
   // the facility session writes facilityId to localStorage shortly after the
-  // dashboard loads; wait for it before navigating away so the saved state
-  // carries it (specs read facilityId from localStorage)
+  // dashboard loads; wait for it before capturing (specs read it from there)
   await page.waitForFunction(() => window.localStorage.getItem('facilityId') !== null);
+  const facilityState = await page.context().storageState();
 
   // admin / central frontend — same context. The URL isn't an auth signal here
   // (the admin app routes to /admin even while showing the login screen), so we
@@ -31,6 +32,15 @@ setup('authenticate', async ({ loginPage, page }) => {
   await page.locator('input[name="password"]').fill(password);
   await page.getByTestId('loginbutton-gx21').click();
   await page.getByTestId('logoutbutton-4zn4').waitFor({ state: 'visible', timeout: 60_000 });
+  const adminState = await page.context().storageState();
 
-  await page.context().storageState({ path: path.join(__dirname, '../../.auth/user.json') });
+  // storageState() only retains localStorage for the currently-loaded origin,
+  // so capturing after navigating to admin drops the facility session. Merge
+  // each frontend's origins into one combined state (facility entry wins for
+  // its own origin, since it was captured while facilityId was present).
+  const originsByUrl = new Map(adminState.origins.map(origin => [origin.origin, origin]));
+  for (const origin of facilityState.origins) originsByUrl.set(origin.origin, origin);
+  const combined = { cookies: adminState.cookies, origins: [...originsByUrl.values()] };
+
+  await writeFile(path.join(__dirname, '../../.auth/user.json'), JSON.stringify(combined));
 });
