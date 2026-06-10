@@ -1,6 +1,6 @@
 import { test as setup } from '../../fixtures/baseFixture';
 import path from 'path';
-import { writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 
 import { adminFrontend } from '../../utils/navigation';
 
@@ -42,5 +42,7 @@ setup('authenticate', async ({ loginPage, page }) => {
   for (const origin of facilityState.origins) originsByUrl.set(origin.origin, origin);
   const combined = { cookies: adminState.cookies, origins: [...originsByUrl.values()] };
 
-  await writeFile(path.join(__dirname, '../../.auth/user.json'), JSON.stringify(combined));
+  const authDir = path.join(__dirname, '../../.auth');
+  await mkdir(authDir, { recursive: true });
+  await writeFile(path.join(authDir, 'user.json'), JSON.stringify(combined));
 });
