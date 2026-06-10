@@ -9,6 +9,11 @@ import { Colors } from '../constants';
  * for passwordless sign-in (from the credProps `discoverable` flag) and whether
  * it verifies the user (from the registration UV flag). Each is shown in all
  * three states — yes / no / unknown — so a key is never silently ambiguous.
+ *
+ * Passwordless login always requires user verification (a passkey signing in
+ * alone must carry two factors), so a key known not to verify the user
+ * (`userVerified === false`) is reported as passwordless-incapable regardless of
+ * its discoverable flag, with that as the stated reason.
  */
 
 const Wrapper = styled.span`
@@ -26,24 +31,38 @@ const Chip = styled.span`
 
 export const PasskeyCapabilities = ({ discoverable, userVerified, 'data-testid': dataTestId }) => (
   <Wrapper data-testid={dataTestId ?? 'passkey-capabilities'}>
-    <Chip $on={discoverable === true} data-testid="passkey-capability-passwordless">
-      {discoverable === true && (
+    <Chip
+      $on={discoverable === true && userVerified !== false}
+      data-testid="passkey-capability-passwordless"
+    >
+      {userVerified === false ? (
+        // passwordless requires UV, so a key that doesn't verify the user can't
+        // do it whatever its discoverable flag says
         <TranslatedText
-          stringId="mfa.capability.passwordless.yes"
-          fallback="Passwordless: supported"
+          stringId="mfa.capability.passwordless.requiresUserVerification"
+          fallback="Passwordless: not supported (requires user verification)"
         />
-      )}
-      {discoverable === false && (
-        <TranslatedText
-          stringId="mfa.capability.passwordless.no"
-          fallback="Passwordless: not supported (second factor only)"
-        />
-      )}
-      {discoverable == null && (
-        <TranslatedText
-          stringId="mfa.capability.passwordless.unknown"
-          fallback="Passwordless: unknown"
-        />
+      ) : (
+        <>
+          {discoverable === true && (
+            <TranslatedText
+              stringId="mfa.capability.passwordless.yes"
+              fallback="Passwordless: supported"
+            />
+          )}
+          {discoverable === false && (
+            <TranslatedText
+              stringId="mfa.capability.passwordless.no"
+              fallback="Passwordless: not supported (second factor only)"
+            />
+          )}
+          {discoverable == null && (
+            <TranslatedText
+              stringId="mfa.capability.passwordless.unknown"
+              fallback="Passwordless: unknown"
+            />
+          )}
+        </>
       )}
     </Chip>
     <Chip $on={userVerified === true} data-testid="passkey-capability-uv">
