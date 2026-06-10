@@ -24,8 +24,12 @@ const Wrapper = styled.span`
 `;
 
 const Chip = styled.span`
-  // green when the capability is present, muted otherwise (incl. unknown)
-  color: ${props => (props.$on ? Colors.green : Colors.midText)};
+  // red to flag a disallowed capability, green when present, muted otherwise
+  // (incl. unknown)
+  color: ${props => {
+    if (props.$danger) return Colors.alert;
+    return props.$on ? Colors.green : Colors.midText;
+  }};
   white-space: nowrap;
 `;
 
@@ -33,14 +37,15 @@ export const PasskeyCapabilities = ({ discoverable, userVerified, 'data-testid':
   <Wrapper data-testid={dataTestId ?? 'passkey-capabilities'}>
     <Chip
       $on={discoverable === true && userVerified !== false}
+      $danger={userVerified === false}
       data-testid="passkey-capability-passwordless"
     >
       {userVerified === false ? (
         // passwordless requires UV, so a key that doesn't verify the user can't
         // do it whatever its discoverable flag says
         <TranslatedText
-          stringId="mfa.capability.passwordless.requiresUserVerification"
-          fallback="Passwordless: not supported (requires user verification)"
+          stringId="mfa.capability.passwordless.notAllowed"
+          fallback="Passwordless: not allowed"
         />
       ) : (
         <>
