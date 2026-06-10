@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
+import type { ISurveyScreenComponent } from '~/types';
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatStringDate } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
@@ -133,18 +134,30 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
     flexDirection="row"
     flexGrow={1}
     alignItems="center"
-    paddingLeft={16}
-    paddingRight={16}
+    paddingHorizontal={16}
+    paddingVertical={8}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledView maxWidth="40%">
-      <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-        {question.dataElement.name}
-      </StyledText>
-    </StyledView>
-    <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
-      {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
-    </StyledView>
+    {question.dataElement.type === FieldTypes.DISPLAY_TEXT ? (
+      <StyledView width="100%">
+        <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+          {question.dataElement.name}
+        </StyledText>
+        <StyledText color={theme.colors.TEXT_DARK}>{question.dataElement.defaultText}</StyledText>
+        <StyledText color={theme.colors.TEXT_MID}>{question.detail}</StyledText>
+      </StyledView>
+    ) : (
+      <>
+        <StyledView maxWidth="40%">
+          <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+            {question.dataElement.name}
+          </StyledText>
+        </StyledView>
+        <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
+          {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
+        </StyledView>
+      </>
+    )}
   </StyledView>
 );
 
@@ -173,22 +186,39 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { encounter, survey, questions, answers } = surveyResponse;
   const { patient } = encounter;
 
-  const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+  const answersByDataElementId = new Map(answers.map(a => [a.dataElement.id, a.body] as const));
+  const attachAnswer = <T extends ISurveyScreenComponent>(
+    q: T,
+  ): { answer: string | null; question: T } => {
     return {
       question: q,
-      answer: (answerObject || null) && answerObject.body,
+      answer: answersByDataElementId.get(q.dataElement.id) ?? null,
     };
   };
 
-  const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
-    <AnswerItem key={question.id} index={i} question={question} answer={answer} />
+  const questionToAnswerItem = ({
+    question,
+    answer,
+  }: {
+    answer: string | null;
+    question: ISurveyScreenComponent;
+  }): ReactElement => (
+    <AnswerItem
+      key={question.id}
+      index={question.dataElement.id}
+      question={question}
+      answer={answer}
+    />
   );
 
   const answerItems = questions
     .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
+    .filter(
+      q =>
+        (q.answer != null && q.answer !== '') ||
+        q.question.dataElement.type === FieldTypes.DISPLAY_TEXT,
+    )
     .map(questionToAnswerItem);
 
   return (
