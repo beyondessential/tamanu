@@ -16,6 +16,7 @@ import {
 } from '@tamanu/shared/auth/webauthnCeremonies';
 
 import { sendLoginSuccessResponse } from './login';
+import { assertIpAllowed, isIpExempt, resolveClientIp } from './clientIp';
 import {
   getWebAuthnContext,
   requireMfaEnabled,
@@ -38,6 +39,16 @@ import { confirmTotp, enrolTotp, verifyTotp } from './totp';
  */
 
 export const mfaLogin = express.Router();
+
+// completions are part of a login: the IP allowlist applies here exactly as
+// at /login, or an exfiltrated pending pass could be finished from a blocked
+// network (the facility mounts its gate on the whole /mfa/login path too)
+mfaLogin.use(
+  asyncHandler(async (req, _res, next) => {
+    await assertIpAllowed(req, await resolveClientIp(req));
+    next();
+  }),
+);
 
 const pendingFromBody = async req => {
   const mfaToken = req.body?.mfaToken;
@@ -124,17 +135,20 @@ const userSettingsFor = async (req, payload) =>
   payload.withSettings ? await req.settings.getFrontEndSettings() : undefined;
 
 // Skip a forced enrolment without enrolling. Only succeeds when the policy,
-// re-evaluated now, genuinely allows it (an IP-exempt required user): the
-// interstitial is a nudge there, not a gate. The pending token's kind is not
-// trusted — the live decision is — so this can never be used to bypass a real
-// requirement. (Until IP-exemption ships, this always refuses.)
+// re-evaluated now with the live IP exemption, genuinely allows it (an
+// IP-exempt required user): the interstitial is a nudge there, not a gate.
+// The pending token's kind is not trusted — the live decision is — so this
+// can never be used to bypass a real requirement.
 mfaLogin.post(
   '/skip',
   asyncHandler(async (req, res) => {
     await requireMfaEnabled(req);
     const { user, payload } = await pendingFromBody(req);
 
-    const decision = await resolveLoginMfaPolicy(req, user);
+    const clientIp = await resolveClientIp(req);
+    const decision = await resolveLoginMfaPolicy(req, user, {
+      ipExempt: await isIpExempt(req, clientIp),
+    });
     if (!(decision.kind === 'enrol' && decision.skippable)) {
       throw new ForbiddenError('Enrolment cannot be skipped');
     }

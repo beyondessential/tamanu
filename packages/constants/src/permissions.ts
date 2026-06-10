@@ -163,6 +163,9 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Triage: [List, Read, Write, Create],
   User: [List, Read, Write, Create],
   UserDesignation: [List, Read, Write, Create],
+  // register/upgrade a device with the facility_server scope (trusted to
+  // forward end-client IPs); for facility servers' sync users, never clinical roles
+  FacilityDevice: [Create],
   // own MFA factors (write = enrol/remove own; require = role must have MFA)
   Mfa: [Write, Require],
   // another user's MFA factors (admin reset / provisioning)

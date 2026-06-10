@@ -495,10 +495,24 @@ in `config.proxy.trusted`, `req.ip` is the proxy's own address, which won't matc
 any intranet CIDR, so the MFA exemption simply doesn't apply and everyone gets
 MFA. A spoofed `X-Forwarded-For` cannot manufacture an exemption.
 
-**Where evaluated:** at the point of first contact, since that is where the
-user's real IP is visible — **facility** for facility logins (central only sees
-the facility's IP otherwise), **central** for direct/admin/mobile. CIDR settings
-sync, so a facility evaluates locally even offline.
+**Where evaluated:** the client IP is **captured** at the point of first
+contact — **facility** for facility logins (central only sees the facility's
+IP otherwise), **central** for direct/admin/mobile. The facility enforces
+`auth.ipAllowlist` locally at its own door (synced settings, works offline)
+and **forwards the captured client IP** with login/MFA forwards; central
+evaluates both knobs itself against the same synced settings.
+
+**Trusting the forwarded IP:** central only honours a forwarded client IP
+when the request proves it came from a facility server, else a browser could
+assert an exempt IP directly — a clean MFA bypass. The facility-channel proof
+reuses existing primitives: a new device scope (`facility_server`) carried by
+the facility's own registered device and presented with forwards; devices
+cannot self-upgrade scopes, so acquiring it requires the authenticating
+(sync) user's role to hold a dedicated literal permission, granted
+deliberately by the deployment and never to clinical roles (mobile devices
+register as `sync_client` under end users, who don't have it). Ungranted ⇒
+forwarded IPs ignored ⇒ the exemption never matches facility-mediated logins
+⇒ everyone gets MFA. Fail-closed at every step.
 
 **Deliberate trade-off:** MFA-exempt-by-IP makes *network position* a factor — a
 compromised host inside the trusted range bypasses MFA. This is an accepted
@@ -658,14 +672,15 @@ Each PR lands with its tests; layered per the repo's testing rules
   login unchanged; `off` rejects passwordless assertions and `fallbackOnly`
   rejects TOTP on a WebAuthn-capable surface; facility forwards TOTP to central;
   invite-token redeem **requires token + password** and is single-use/expiring.
-- **E2E** (Playwright, critical journeys) — **self-service** enrolment via the
-  kebab modal for a *non-required* user (`write Mfa`, no `require Mfa`): enrol
-  a passkey, log out, get **challenged** on the next login and complete it —
-  and the same journey for TOTP. This covers the non-forced flows end to end;
-  having no UI to drive would fail these specs, which is exactly the point.
-  Plus: forced-enrolment interstitial (passkey-first) for a required user;
-  factor removal; passwordless (usernameless, UV) login (PR2); admin reset;
-  feature-flag-off path.
+- **E2E** (Playwright, critical journeys) — built: [MFA-0001] forced passkey
+  enrolment then challenge; [MFA-0002] forced TOTP enrolment; [MFA-0003]
+  self-service passkey enrolment via the kebab modal for a non-required user,
+  challenged on next login, then removal; [MFA-0004] admin-issued enrolment
+  invite redeemed at the login screen (admin reset exercised via API as
+  cleanup); [MFA-0005] passwordless usernameless UV login. NOT built (manual
+  coverage for now): an admin-reset journey driven through the admin UI, and
+  the feature-flag-off path; the self-service TOTP modal journey needs a
+  central-frontend harness the suite doesn't have.
 
 WebAuthn in Playwright uses the **Chromium CDP virtual authenticator**
 (`WebAuthn.addVirtualAuthenticator`) behind a fixture — it answers the real

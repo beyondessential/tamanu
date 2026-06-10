@@ -14,6 +14,7 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 
 import { getWebAuthnContext, resolveLoginMfaPolicy } from './mfa';
+import { assertIpAllowed, resolveClientIp } from './clientIp';
 import { sendLoginSuccessResponse } from './login';
 
 /**
@@ -46,6 +47,7 @@ export const passwordlessLogin = express.Router();
 passwordlessLogin.post(
   '/assert-begin',
   asyncHandler(async (req, res) => {
+    await assertIpAllowed(req, await resolveClientIp(req));
     const { rpId } = await requirePasswordlessAvailable(req);
     // no user: discoverable-credential ceremony, the authenticator picks
     const options = await beginWebAuthnAssertion({ models: req.store.models, rpId });
@@ -62,6 +64,7 @@ const assertFinishSchema = yup.object({
 passwordlessLogin.post(
   '/assert-finish',
   asyncHandler(async (req, res) => {
+    await assertIpAllowed(req, await resolveClientIp(req));
     const { rpId } = await requirePasswordlessAvailable(req);
     const { models } = req.store;
     const { assertionResponse, deviceId, facilityIds } = await assertFinishSchema.validate(

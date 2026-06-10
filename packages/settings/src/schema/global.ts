@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { isValidCidr } from '@tamanu/utils';
 import { extractDefaults } from './utils';
 import {
   ageDisplayFormatDefault,
@@ -88,6 +89,14 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        ipAllowlist: {
+          name: 'Login IP allowlist',
+          description:
+            'CIDR ranges (e.g. "10.0.0.0/8") that logins are allowed from; anyone outside every range is refused outright. Empty means no restriction. Evaluated where the client connects: at the facility server for facility logins, at central otherwise. WARNING: a wrong entry here can lock everyone out',
+          type: yup.array(yup.string().test('is-cidr', 'must be a CIDR range', isValidCidr)),
+          defaultValue: [],
+          highRisk: true,
+        },
         mfa: {
           description: 'Multi-factor authentication',
           properties: {
@@ -124,6 +133,14 @@ export const globalSettings = {
                   defaultValue: MFA_USER_VERIFICATION.REQUIRED,
                 },
               },
+            },
+            ipExempt: {
+              name: 'MFA-exempt IP ranges',
+              description:
+                'CIDR ranges (e.g. an intranet) from which logins skip the second factor; everywhere else MFA applies as normal. Empty means no one is exempt. This deliberately makes network position a factor — a compromised host inside the range bypasses MFA — so enable it knowingly. For facility logins this requires the facility server to be granted the forwarded-IP trust (facility_server device scope)',
+              type: yup.array(yup.string().test('is-cidr', 'must be a CIDR range', isValidCidr)),
+              defaultValue: [],
+              highRisk: true,
             },
             passwordless: {
               name: 'Passwordless passkey login',

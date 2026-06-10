@@ -42,6 +42,7 @@ import { medication } from './medication';
 import { mfa } from './mfa';
 import { mfaEnrolInvite } from './mfaEnrolInvite';
 import { passwordlessLogin } from './passwordlessLogin';
+import { ipAllowlistGate } from '../../middleware/ipAllowlist';
 import { effectivePasswordlessMode } from '@tamanu/shared/auth/mfaPolicy';
 import { mfaLogin } from './mfaLogin';
 import { notes } from './note';
@@ -94,14 +95,14 @@ export function createApiv1({ authLimiter } = {}) {
   const syncRoutes = express.Router();
 
   // auth endpoints (added pre auth check)
-  apiv1.post('/login', limiter, loginHandler);
+  apiv1.post('/login', limiter, ipAllowlistGate, loginHandler);
   apiv1.use('/resetPassword', limiter, resetPassword);
   apiv1.use('/changePassword', limiter, changePassword);
-  apiv1.use('/mfa/login', limiter, mfaLogin);
+  apiv1.use('/mfa/login', limiter, ipAllowlistGate, mfaLogin);
   apiv1.use('/mfa/enrolInvite', limiter, mfaEnrolInvite);
   // pre-auth: a user-verifying passkey assertion IS the credential, verified
   // fully locally against the synced public keys
-  apiv1.use('/login/webauthn', limiter, passwordlessLogin);
+  apiv1.use('/login/webauthn', limiter, ipAllowlistGate, passwordlessLogin);
   
   apiv1.get(
     '/public/ping',

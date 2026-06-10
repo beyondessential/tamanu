@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { ReadSettings } from '@tamanu/settings';
 
-import { CentralServerConnection } from '../../sync';
+import { getForwarderConnection } from '../../sync/forwarderConnection';
 import { finaliseCentralLogin, sendFacilityLoginResponse } from '../../middleware/auth';
 
 /**
@@ -30,7 +30,7 @@ export const forwardThrough = endpoint =>
     // authority (mfa_login pending pass or mfa_enrol session)
     req.flagPermissionChecked();
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = getForwarderConnection(deviceId);
     const response = await centralServer.forwardRequest(req, endpoint);
 
     res.send(response);
@@ -42,7 +42,7 @@ const forwardAndFinalise = endpoint =>
     // no permission needed: the mfa_login token in the body is the authority
     req.flagPermissionChecked();
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = getForwarderConnection(deviceId);
     const response = await centralServer.forwardRequest(req, endpoint);
 
     // central only sends the full payload once the factor has been satisfied

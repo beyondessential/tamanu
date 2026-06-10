@@ -89,7 +89,10 @@ export class CentralServerConnection extends TamanuApi {
     return await this.login(email, password, {
       backoff,
       timeout,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      // facility_server is the forwarded-IP trust for the IP policy; central
+      // only grants it when this server's sync user holds create FacilityDevice,
+      // and silently drops it otherwise — requesting it is always safe
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT, DEVICE_SCOPES.FACILITY_SERVER],
     }).then(loginData => {
       return (this.#loginData = loginData);
     });
@@ -222,10 +225,29 @@ export class CentralServerConnection extends TamanuApi {
     return this.fetch('whoami');
   }
 
+  /**
+   * Headers that let central trust the end-client IP we saw: the IP itself,
+   * authenticated by our own central session (whose device carries the
+   * permission-gated facility_server scope when the deployment has opted in).
+   * If we can't authenticate, the IP still travels but central ignores it —
+   * fail-closed into "evaluated as the facility's own address".
+   */
+  async forwarderHeaders(req) {
+    const headers = { 'X-Tamanu-Client-Ip': req.ip };
+    try {
+      await this.loginData();
+      headers['X-Tamanu-Forwarder-Auth'] = this.getAuthToken();
+    } catch (err) {
+      log.warn(`forwarderHeaders: could not authenticate as forwarder: ${err}`);
+    }
+    return headers;
+  }
+
   async forwardRequest(req, endpoint) {
     return this.fetch(endpoint, {
       method: req.method,
       body: req.body,
+      headers: await this.forwarderHeaders(req),
     });
   }
 }

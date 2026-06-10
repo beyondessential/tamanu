@@ -137,10 +137,35 @@ export class Device extends Model {
         // If the same user tries to register two devices concurrently, the second will wait until the first is complete.
         await Device.acquireRegistrationLockForUser(user.id);
 
+        // the facility_server scope is a trust anchor (forwarded-IP trust for
+        // the IP policy): it is only ever stored when the authenticating
+        // user's role holds the literal grant, whether at first registration
+        // or as an upgrade. Ungranted requests degrade rather than fail —
+        // the scope is dropped and the device works as a plain sync client —
+        // so deployments that haven't opted in are unaffected.
+        const facilityScopeGranted =
+          scopes.includes(DEVICE_SCOPES.FACILITY_SERVER) &&
+          (await this.sequelize.models.Permission.count({
+            where: { roleId: user.role, verb: 'create', noun: 'FacilityDevice' },
+          })) > 0;
+        const effectiveScopes =
+          scopes.includes(DEVICE_SCOPES.FACILITY_SERVER) && !facilityScopeGranted
+            ? scopes.filter(scope => scope !== DEVICE_SCOPES.FACILITY_SERVER)
+            : scopes;
+
         const syncDevice = await Device.findByPk(deviceId);
         if (syncDevice) {
-          if (difference(scopes, syncDevice.scopes).length > 0) {
-            throw new AuthPermissionError('Requested more scopes than the device has');
+          const requestedNew = difference(effectiveScopes, syncDevice.scopes);
+          if (requestedNew.length > 0) {
+            // devices never self-upgrade; the only permitted expansion is the
+            // single permission-gated facility_server scope (anything
+            // ungranted was already filtered out of effectiveScopes above)
+            const onlyTheFacilityScope =
+              requestedNew.length === 1 && requestedNew[0] === DEVICE_SCOPES.FACILITY_SERVER;
+            if (!onlyTheFacilityScope) {
+              throw new AuthPermissionError('Requested more scopes than the device has');
+            }
+            await syncDevice.update({ scopes: [...syncDevice.scopes, ...requestedNew] });
           }
 
           await syncDevice.markSeen();
@@ -150,7 +175,7 @@ export class Device extends Model {
         const device = new Device({
           id: deviceId,
           registeredById: user.id,
-          scopes,
+          scopes: effectiveScopes,
         });
 
         const deviceRegistrationQuotaEnabled = await settings.get(

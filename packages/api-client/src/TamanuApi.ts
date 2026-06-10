@@ -400,6 +400,11 @@ export class TamanuApi {
     return Boolean(this.#authToken);
   }
 
+  /** The current access token, e.g. to present as a forwarder credential. */
+  getAuthToken(): string | undefined {
+    return this.#authToken;
+  }
+
   async fetch(
     endpoint: string,
     query: Record<string, any> = {},
