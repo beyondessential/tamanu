@@ -86,7 +86,9 @@ export function checkVisibilityCriteria(component, allComponents, values) {
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
 function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents) {
-  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria
+    .split(':')
+    .map(part => part.trim());
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
