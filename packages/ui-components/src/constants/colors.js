@@ -1,7 +1,7 @@
 // These should match the figma colour library
 // https://www.figma.com/design/0zuHw8wmEMhEL5IJ0apjBd/Tamanu-Design-System?node-id=748-43&t=LNpNE3ODzbeEbdyN-0
 
-export const TAMANU_COLORS = {
+export const TAMANU_COLORS = /** @type {const} */ ({
   primary: '#326699',
   primary30: '#C2D2E1',
   primary10: '#EBF0F5',
@@ -31,4 +31,4 @@ export const TAMANU_COLORS = {
   green: '#19934E',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
-};
+});
