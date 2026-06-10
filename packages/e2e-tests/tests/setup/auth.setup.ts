@@ -36,11 +36,17 @@ setup('authenticate', async ({ loginPage, page }) => {
 
   // storageState() only retains localStorage for the currently-loaded origin,
   // so capturing after navigating to admin drops the facility session. Merge
-  // each frontend's origins into one combined state (facility entry wins for
-  // its own origin, since it was captured while facilityId was present).
-  const originsByUrl = new Map(adminState.origins.map(origin => [origin.origin, origin]));
-  for (const origin of facilityState.origins) originsByUrl.set(origin.origin, origin);
-  const combined = { cookies: adminState.cookies, origins: [...originsByUrl.values()] };
+  // both frontends' origins into one combined state. Facility origins come
+  // FIRST: helpers like getItemFromLocalStorage fall back to origins[0] when the
+  // page hasn't navigated yet (e.g. createPatient reads facilityId at about:blank
+  // during fixture setup), and the bulk of the suite drives the facility
+  // frontend — so facility is the right default.
+  const facilityUrls = new Set(facilityState.origins.map(origin => origin.origin));
+  const adminOnlyOrigins = adminState.origins.filter(origin => !facilityUrls.has(origin.origin));
+  const combined = {
+    cookies: [...facilityState.cookies, ...adminState.cookies],
+    origins: [...facilityState.origins, ...adminOnlyOrigins],
+  };
 
   const authDir = path.join(__dirname, '../../.auth');
   await mkdir(authDir, { recursive: true });
