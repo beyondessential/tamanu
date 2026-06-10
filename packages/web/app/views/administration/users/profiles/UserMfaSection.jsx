@@ -55,6 +55,7 @@ const PasskeyListItem = styled.li`
   border-top: 1px solid ${Colors.outline};
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 4px 16px;
   padding: 8px 0;
@@ -64,9 +65,35 @@ const PasskeyListItem = styled.li`
   }
 `;
 
+const PasskeyInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
 const PasskeyName = styled.span`
   color: ${Colors.darkestText};
   font-size: 14px;
+`;
+
+const PasskeyMeta = styled.span`
+  color: ${Colors.midText};
+  font-size: 12px;
+`;
+
+const RowActions = styled(Box)`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+// compact outlined button for the inline per-passkey action
+const RowButton = styled(OutlinedButton)`
+  padding: 4px 14px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
 `;
 
 const InviteBox = styled(Box)`
@@ -98,6 +125,7 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
   const canWrite = Boolean(ability?.can('write', 'UserMfa'));
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState(null);
   const [invite, setInvite] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -125,6 +153,20 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
       toast.success(
         getTranslation('admin.users.mfa.resetSuccess', 'All authentication methods removed.'),
       );
+      await refresh();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // remove one passkey, leaving the user's other factors intact — the granular
+  // alternative to a full reset (e.g. they lost one device but keep others)
+  const removePasskey = async () => {
+    const credential = removeTarget;
+    setRemoveTarget(null);
+    try {
+      await api.delete(`admin/users/${user.id}/mfa/webauthn/${credential.id}`);
+      toast.success(getTranslation('admin.users.mfa.passkeyRemoved', 'Passkey removed.'));
       await refresh();
     } catch (error) {
       toast.error(error.message);
@@ -231,15 +273,46 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
           <PasskeyList data-testid="admin-mfa-passkey-list">
             {status.webauthn.map(credential => (
               <PasskeyListItem key={credential.id} data-testid="admin-mfa-passkey">
-                <PasskeyName>
-                  {credential.friendlyName ?? (
-                    <TranslatedText stringId="admin.users.mfa.unnamedPasskey" fallback="Passkey" />
-                  )}
-                </PasskeyName>
-                <PasskeyCapabilities
-                  discoverable={credential.discoverable}
-                  userVerified={credential.userVerified}
-                />
+                <PasskeyInfo>
+                  <PasskeyName>
+                    {credential.friendlyName ?? (
+                      <TranslatedText stringId="admin.users.mfa.unnamedPasskey" fallback="Passkey" />
+                    )}
+                  </PasskeyName>
+                  <PasskeyMeta>
+                    <TranslatedText stringId="admin.users.mfa.addedOn" fallback="added" />{' '}
+                    <DateDisplay date={credential.createdAt} />
+                    {' · '}
+                    {credential.lastUsedAt ? (
+                      <>
+                        <TranslatedText
+                          stringId="admin.users.mfa.lastUsedOn"
+                          fallback="last used"
+                        />{' '}
+                        <DateDisplay date={credential.lastUsedAt} />
+                      </>
+                    ) : (
+                      <TranslatedText
+                        stringId="admin.users.mfa.neverUsed"
+                        fallback="never used"
+                      />
+                    )}
+                  </PasskeyMeta>
+                  <PasskeyCapabilities
+                    discoverable={credential.discoverable}
+                    userVerified={credential.userVerified}
+                  />
+                </PasskeyInfo>
+                {canWrite && (
+                  <RowActions>
+                    <RowButton
+                      onClick={() => setRemoveTarget(credential)}
+                      data-testid="admin-mfa-passkey-remove"
+                    >
+                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                    </RowButton>
+                  </RowActions>
+                )}
               </PasskeyListItem>
             ))}
           </PasskeyList>
@@ -325,6 +398,22 @@ export const UserMfaSection = ({ user, onMfaChanged }) => {
           </InviteBox>
         )}
       </Box>
+
+      <ConfirmModal
+        open={Boolean(removeTarget)}
+        title={
+          <TranslatedText stringId="admin.users.mfa.removePasskey.title" fallback="Remove passkey" />
+        }
+        text={
+          <TranslatedText
+            stringId="admin.users.mfa.removePasskey.text"
+            fallback="This passkey will no longer be able to log in to this account. The user's other authentication methods are unaffected."
+          />
+        }
+        onConfirm={removePasskey}
+        onCancel={() => setRemoveTarget(null)}
+        data-testid="admin-mfa-passkey-remove-confirm"
+      />
 
       <ConfirmModal
         open={showResetConfirm}

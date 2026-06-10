@@ -103,6 +103,25 @@ userMfaRouter.delete(
   }),
 );
 
+// Remove a single passkey — the granular alternative to a full reset, for when
+// a user loses one device but keeps others (or an old credential should be
+// retired). Soft delete: the tombstone must sync out so other servers stop
+// accepting the credential.
+userMfaRouter.delete(
+  '/webauthn/:credentialId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'UserMfa');
+    const user = await targetUser(req);
+    const { WebAuthnCredential } = req.store.models;
+
+    const deleted = await WebAuthnCredential.destroy({
+      where: { id: req.params.credentialId, userId: user.id },
+    });
+    if (!deleted) throw new NotFoundError('No such passkey');
+    res.send({ ok: 'ok' });
+  }),
+);
+
 // Issue an enrolment invite: a single-use, short-lived token the user redeems
 // on their own device (with their password — never the token alone) to enrol
 // without holding `write Mfa` themselves. Any channel is fine for delivering

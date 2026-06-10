@@ -46,6 +46,7 @@ describe('Admin MFA management and enrolment invites', () => {
       const responses = await Promise.all([
         lowPrivilegeAgent.get(`/api/admin/users/${target.id}/mfa`),
         lowPrivilegeAgent.delete(`/api/admin/users/${target.id}/mfa`),
+        lowPrivilegeAgent.delete(`/api/admin/users/${target.id}/mfa/webauthn/some-credential`),
         lowPrivilegeAgent.post(`/api/admin/users/${target.id}/mfa/enrolInvite`),
         lowPrivilegeAgent.post(`/api/admin/users/${target.id}/mfa/webauthn/register-begin`),
       ]);
@@ -114,6 +115,84 @@ describe('Admin MFA management and enrolment invites', () => {
 
       // and the user can be re-enrolled afterwards
       await models.TotpSecret.create({ userId: victim.id, secret: 'S1:CCCC:DDDD' });
+    });
+
+    it('exposes each passkey’s enrolment and last-used timestamps', async () => {
+      const owner = await models.User.create(fake(models.User));
+      await models.WebAuthnCredential.create({
+        userId: owner.id,
+        credentialId: `dated-${owner.id}`,
+        publicKey: 'dGVzdA',
+        rpId: 'localhost',
+        friendlyName: 'Work laptop',
+        lastUsedAt: new Date(),
+      });
+
+      const status = await adminAgent.get(`/api/admin/users/${owner.id}/mfa`);
+      expect(status.body.webauthn).toHaveLength(1);
+      expect(status.body.webauthn[0]).toMatchObject({
+        friendlyName: 'Work laptop',
+        createdAt: expect.any(String),
+        lastUsedAt: expect.any(String),
+      });
+    });
+
+    it('removes a single passkey, leaving the user’s other factors intact', async () => {
+      const owner = await models.User.create(fake(models.User));
+      const [keep, drop] = await Promise.all([
+        models.WebAuthnCredential.create({
+          userId: owner.id,
+          credentialId: `keep-${owner.id}`,
+          publicKey: 'dGVzdA',
+          rpId: 'localhost',
+        }),
+        models.WebAuthnCredential.create({
+          userId: owner.id,
+          credentialId: `drop-${owner.id}`,
+          publicKey: 'dGVzdA',
+          rpId: 'localhost',
+        }),
+      ]);
+
+      const response = await adminAgent.delete(
+        `/api/admin/users/${owner.id}/mfa/webauthn/${drop.id}`,
+      );
+      expect(response).toHaveSucceeded();
+
+      const after = await adminAgent.get(`/api/admin/users/${owner.id}/mfa`);
+      expect(after.body.webauthn.map(credential => credential.id)).toEqual([keep.id]);
+
+      // soft delete: the tombstone must sync out to retire the credential
+      const tombstoned = await models.WebAuthnCredential.findByPk(drop.id, { paranoid: false });
+      expect(tombstoned.deletedAt).not.toBeNull();
+    });
+
+    it('won’t remove a passkey belonging to a different user', async () => {
+      const [owner, bystander] = await Promise.all([
+        models.User.create(fake(models.User)),
+        models.User.create(fake(models.User)),
+      ]);
+      const credential = await models.WebAuthnCredential.create({
+        userId: bystander.id,
+        credentialId: `other-${bystander.id}`,
+        publicKey: 'dGVzdA',
+        rpId: 'localhost',
+      });
+
+      // scoped to the path user: deleting via the wrong user 404s and leaves
+      // the credential in place
+      const response = await adminAgent.delete(
+        `/api/admin/users/${owner.id}/mfa/webauthn/${credential.id}`,
+      );
+      expect(response.status).toBe(404);
+      expect(await models.WebAuthnCredential.findByPk(credential.id)).not.toBeNull();
+    });
+
+    it('404s removing an unknown passkey', async () => {
+      const response = await adminAgent.delete(
+        `/api/admin/users/${target.id}/mfa/webauthn/no-such-credential`,
+      );
+      expect(response.status).toBe(404);
     });
 
     it('reports whether the user could self-enrol instead', async () => {
