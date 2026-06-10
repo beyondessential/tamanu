@@ -1,20 +1,14 @@
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const path = require('path');
 
 const { FileStore } = require('metro-cache');
 
-// still works with npm
+// still works with npm workspaces
 const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
 
-module.exports = {
+const config = {
   projectRoot: path.resolve(__dirname, '.'),
 
   watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
@@ -30,11 +24,9 @@ module.exports = {
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
   },
 
-  // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
   transformer: {
     getTransformOptions: async () => ({
       transform: {
-        experimentalImportSupport: false,
         inlineRequires: false,
       },
     }),
@@ -46,3 +38,5 @@ module.exports = {
     }),
   ],
 };
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
