@@ -3,7 +3,7 @@ import mitt from 'mitt';
 import { MODELS_MAP } from '~/models/modelsMap';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
-import { CentralServerConnection } from '~/services/sync';
+import { MfaEnrolResponse, MfaLoginStep, CentralServerConnection, LoginResponse } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
 import {
   AuthenticationError,
@@ -104,11 +104,12 @@ export class AuthService {
   }
 
   async remoteSignIn(params: SyncConnectionParameters): Promise<{
-    user: IUser;
-    token: string;
-    refreshToken: string;
-    localisation: object;
-    settings: object;
+    user?: IUser;
+    token?: string;
+    refreshToken?: string;
+    localisation?: object;
+    settings?: object;
+    mfaPending?: LoginResponse['mfaPending'];
   }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
@@ -119,10 +120,59 @@ export class AuthService {
     // create the sync source and log in to it
     await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token, refreshToken, settings, localisation, permissions } =
-      await this.centralServer.login(params.email, params.password);
+    const data = await this.centralServer.login(params.email, params.password);
+
+    // password accepted but a second factor is owed: surface the pending
+    // state so the UI can run the TOTP step, then call completeMfaSignIn
+    if (data.mfaPending) {
+      return { mfaPending: data.mfaPending };
+    }
+
+    return this.finaliseRemoteSignIn(data, params);
+  }
+
+  /**
+   * A non-terminal MFA step ('totp/enrol' returns the otpauth URI to set the
+   * authenticator app up with); no session handling.
+   */
+  async beginMfaSignInStep(
+    mfaToken: string,
+    path: MfaLoginStep,
+    body: Record<string, unknown> = {},
+  ): Promise<MfaEnrolResponse> {
+    return (this.centralServer.completeMfaLogin(
+      path,
+      mfaToken,
+      body,
+    ) as unknown) as Promise<MfaEnrolResponse>;
+  }
+
+  /**
+   * Complete a paused login from the TOTP step, then finalise the session the
+   * same way a plain remote sign-in does. `path` is relative to mfa/login
+   * ('totp' to verify, 'totp/enrol'/'totp/confirm' for forced enrolment).
+   */
+  async completeMfaSignIn(
+    params: SyncConnectionParameters,
+    mfaToken: string,
+    path: MfaLoginStep,
+    body: Record<string, unknown> = {},
+  ): Promise<{
+    user: IUser;
+    token: string;
+    refreshToken: string;
+    localisation: object;
+    settings: object;
+  }> {
+    const data = await this.centralServer.completeMfaLogin(path, mfaToken, body);
+    return this.finaliseRemoteSignIn(data, params);
+  }
+
+  private async finaliseRemoteSignIn(data: LoginResponse, params: SyncConnectionParameters) {
+    const { user, token, refreshToken, settings, localisation, permissions } = data;
     console.log(`Signed in as ${user.displayName}`);
 
+    const syncServerLocation = await readConfig('syncServerLocation');
     if (!syncServerLocation) {
       // after a successful login, if we didn't already read the server from
       // stored config, write the one we did use to config

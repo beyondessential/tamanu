@@ -80,11 +80,15 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
+export const SignInForm: FunctionComponent<any> = ({
+  onOutdatedVersionError,
+  onSuccess,
+  onMfaRequired,
+}) => {
   const [existingHost, setExistingHost] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const passwordRef = useRef(null);
-  const { signIn } = useAuth();
+  const { signIn, mfaSignInExpired } = useAuth();
   const { getTranslation } = useTranslation();
 
   const handleSignIn = useCallback(
@@ -94,7 +98,12 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
         if (!existingHost && !values.server) {
           throw new Error('Please select a server to connect to');
         }
-        await signIn(values);
+        const status = await signIn(values);
+        if (status === 'mfa') {
+          // password accepted but a second factor is owed
+          onMfaRequired();
+          return;
+        }
         onSuccess();
       } catch (error) {
         if (error instanceof OutdatedVersionError) {
@@ -105,7 +114,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
         }
       }
     },
-    [existingHost, signIn,onOutdatedVersionError, onSuccess],
+    [existingHost, signIn, onOutdatedVersionError, onSuccess, onMfaRequired],
   );
 
   useEffect(() => {
@@ -152,7 +161,17 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
                 label={<TranslatedText stringId="general.country.label" fallback="Country" />}
               />
             )}
-            <ErrorBox errorMessage={errorMessage} />
+            <ErrorBox
+              errorMessage={
+                errorMessage ||
+                (mfaSignInExpired
+                  ? getTranslation(
+                      'mfa.totp.expiredError',
+                      'This sign-in attempt has expired, please try again.',
+                    )
+                  : '')
+              }
+            />
             <Field
               name="email"
               keyboardType="email-address"

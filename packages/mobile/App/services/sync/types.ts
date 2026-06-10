@@ -38,6 +38,26 @@ export interface SyncRecordData {
   [key: string]: any;
 }
 
+// the mfa/login completion endpoints mobile drives — a fixed allowlist, so a
+// caller can never steer the request into an arbitrary URL path
+export const MFA_LOGIN_STEPS = ['totp', 'totp/enrol', 'totp/confirm'] as const;
+export type MfaLoginStep = (typeof MFA_LOGIN_STEPS)[number];
+
+// what the non-terminal totp/enrol step answers with
+export interface MfaEnrolResponse {
+  otpauthUrl: string;
+}
+
+export interface MfaPending {
+  // mobile only completes 'challenge'/'enrol' via TOTP (WebAuthn on mobile is
+  // a separate future effort)
+  kind: string;
+  factors: string[];
+  skippable?: boolean;
+  // short-lived token for the mfa/login completion endpoints
+  token: string;
+}
+
 export interface LoginResponse {
   token: string;
   refreshToken: string;
@@ -46,6 +66,8 @@ export interface LoginResponse {
   settings: object;
   permissions: [];
   allowedFacilities: { id: string }[] | 'ALL';
+  // present instead of the tokens when a second factor is still owed
+  mfaPending?: MfaPending;
 }
 
 export type FetchOptions = {

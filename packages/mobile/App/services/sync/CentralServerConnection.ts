@@ -4,7 +4,7 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
-import { FetchOptions, LoginResponse, SyncRecord } from './types';
+import { FetchOptions, LoginResponse, MFA_LOGIN_STEPS, MfaLoginStep, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
@@ -105,7 +105,9 @@ export class CentralServerConnection {
       'X-Version': version,
       ...(extraHeaders || {}),
     };
-    const isLogin = path.startsWith('login');
+    // mfa/login is part of the login exchange too: its problems must reach the
+  // UI with their type intact (wrong code vs expired pass differ)
+  const isLogin = path.startsWith('login') || path.startsWith('mfa/login');
     try {
       const response = await callWithBackoff(async () => {
         const configAxios: AxiosRequestConfig = {
@@ -335,6 +337,13 @@ export class CentralServerConnection {
         { backoff: { maxAttempts: 1 } },
       );
 
+      // password accepted but a second factor is owed: no tokens yet, hand the
+      // pending state back so the caller can run the TOTP step
+      if (data.mfaPending) {
+        this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+        return data;
+      }
+
       const facilityId = await readConfig('facilityId', '');
       const { token, refreshToken, user, allowedFacilities } = data;
       if (
@@ -351,6 +360,34 @@ export class CentralServerConnection {
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
       }
+      this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+      return data;
+    } catch (err) {
+      this.throwError(err);
+    }
+  }
+
+  /**
+   * Complete a paused login by satisfying the second factor. `path` is relative
+   * to mfa/login (mobile uses 'totp' to verify, and 'totp/enrol' + 'totp/confirm'
+   * for forced enrolment). The pending token authorises the call; the terminal
+   * step returns the full login payload.
+   */
+  async completeMfaLogin(
+    path: MfaLoginStep,
+    mfaToken: string,
+    body: Record<string, unknown> = {},
+  ): Promise<LoginResponse> {
+    if (!MFA_LOGIN_STEPS.includes(path)) {
+      throw new Error(`Unknown MFA login step: ${path}`);
+    }
+    try {
+      const data = await this.post<LoginResponse>(
+        `mfa/login/${path}`,
+        {},
+        { mfaToken, ...body },
+        { backoff: { maxAttempts: 1 } },
+      );
       this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
       return data;
     } catch (err) {
