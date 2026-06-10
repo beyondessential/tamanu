@@ -51,14 +51,11 @@ function transformPatientData(
         case 'Patient':
           return patient[fieldName];
         case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
+          return additionalData?.[fieldName];
         case 'PatientProgramRegistration':
-          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
+          return patientProgramRegistration?.[fieldName];
         default:
-          if (customPatientFieldValues?.[column]) {
-            return customPatientFieldValues[column][0].value;
-          }
-          return undefined;
+          return customPatientFieldValues?.[column]?.[0].value;
       }
     }
   }
@@ -117,6 +114,7 @@ function getFieldValidator(
 ): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
+    case FieldTypes.DISPLAY_TEXT:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return undefined;

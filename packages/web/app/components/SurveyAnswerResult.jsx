@@ -3,14 +3,19 @@ import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
-import { Button, PatientDataDisplayField, SurveyResultBadge } from '@tamanu/ui-components';
-import { DateDisplay } from './DateDisplay';
+import {
+  Button,
+  DateDisplay,
+  PatientDataDisplayField,
+  SurveyResultBadge,
+  TranslatedOption,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { DisplayTextPseudoResult } from './DisplayTextPseudoResult';
 import MultilineResult from './MultilineResult';
 import MultiSelectResult from './MultiSelectResult';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { TranslatedReferenceData } from './Translation/index.js';
-import { TranslatedOption } from './Translation/TranslatedOptions';
-import { TranslatedText } from './Translation/TranslatedText';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
 const EmptyState = styled.span.attrs({
@@ -36,6 +41,7 @@ export const SurveyAnswerResult = ({
   originalBody,
   componentConfig,
   dataElementId,
+  surveyComponent,
 }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
@@ -45,6 +51,13 @@ export const SurveyAnswerResult = ({
   }
 
   switch (type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
+      return surveyComponent ? (
+        <DisplayTextPseudoResult component={surveyComponent} />
+      ) : (
+        answer // Fallback (shouldn’t be reached)
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
