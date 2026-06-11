@@ -7,16 +7,16 @@ import { regenerateAiEncounterSummary } from '../../../../services/encounterSumm
 
 const MAX_SUMMARY_CONTENT_LENGTH = 10000;
 
-const updateBodySchema = z.discriminatedUnion('status', [
+const updateBodySchema = z.union([
   z
     .object({
-      status: z.literal('edited'),
-      content: z.string().min(1).max(MAX_SUMMARY_CONTENT_LENGTH),
+      status: z.literal('discarded'),
     })
     .strict(),
   z
     .object({
-      status: z.literal('discarded'),
+      status: z.literal('edited').optional(),
+      content: z.string().min(1).max(MAX_SUMMARY_CONTENT_LENGTH),
     })
     .strict(),
 ]);

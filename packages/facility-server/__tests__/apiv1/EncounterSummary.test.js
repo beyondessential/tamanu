@@ -45,7 +45,7 @@ describe('EncounterSummary', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        type: 'discharge',
+        type: 'encounter_summary',
         recordType: 'Encounter',
         recordId: encounter.id,
         content: mockAiContent,
@@ -76,15 +76,15 @@ describe('EncounterSummary', () => {
     describe('with db-defined permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('should reject when user lacks Discharge write permission', async () => {
+      it('should reject when user lacks EncounterSummary create permission', async () => {
         const app = await baseApp.asNewRole([['read', 'Encounter']]);
         const result = await app.post(SUMMARY_URL(encounter.id)).send();
 
         expect(result).toBeForbidden();
       });
 
-      it('should succeed when user has Discharge write permission', async () => {
-        const app = await baseApp.asNewRole([['write', 'Discharge']]);
+      it('should succeed when user has EncounterSummary create permission', async () => {
+        const app = await baseApp.asNewRole([['create', 'EncounterSummary']]);
         const result = await app.post(SUMMARY_URL(encounter.id)).send();
 
         expect(result).toHaveSucceeded();
@@ -96,7 +96,7 @@ describe('EncounterSummary', () => {
   describe('GET /:encounterId', () => {
     it('should return an existing AiDocument', async () => {
       const doc = await models.AiDocument.create({
-        type: 'discharge',
+        type: 'encounter_summary',
         recordType: 'Encounter',
         recordId: encounter.id,
         content: 'Existing encounter summary',
@@ -127,15 +127,15 @@ describe('EncounterSummary', () => {
     describe('with db-defined permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('should reject when user lacks Discharge write permission', async () => {
+      it('should reject when user lacks EncounterSummary write permission', async () => {
         const app = await baseApp.asNewRole([]);
         const result = await app.get(SUMMARY_URL(encounter.id));
 
         expect(result).toBeForbidden();
       });
 
-      it('should succeed with Discharge write permission', async () => {
-        const app = await baseApp.asNewRole([['write', 'Discharge']]);
+      it('should succeed with EncounterSummary read permission', async () => {
+        const app = await baseApp.asNewRole([['read', 'EncounterSummary']]);
         const result = await app.get(SUMMARY_URL(encounter.id));
 
         expect(result).toHaveSucceeded();
@@ -149,7 +149,7 @@ describe('EncounterSummary', () => {
 
     async function createAiDocument() {
       return models.AiDocument.create({
-        type: 'discharge',
+        type: 'encounter_summary',
         recordType: 'Encounter',
         recordId: encounter.id,
         content: 'Original AI content',
@@ -206,7 +206,7 @@ describe('EncounterSummary', () => {
     describe('with db-defined permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('should reject when user lacks Discharge write permission', async () => {
+      it('should reject when user lacks EncounterSummary write permission', async () => {
         const doc = await createAiDocument();
         const app = await baseApp.asNewRole([['read', 'Encounter']]);
         const result = await app.put(DOC_URL(doc.id)).send({ content: 'Edited' });
@@ -214,9 +214,9 @@ describe('EncounterSummary', () => {
         expect(result).toBeForbidden();
       });
 
-      it('should succeed with Discharge write permission', async () => {
+      it('should succeed with EncounterSummary write permission', async () => {
         const doc = await createAiDocument();
-        const app = await baseApp.asNewRole([['write', 'Discharge']]);
+        const app = await baseApp.asNewRole([['write', 'EncounterSummary']]);
         const result = await app.put(DOC_URL(doc.id)).send({ content: 'Edited' });
 
         expect(result).toHaveSucceeded();
