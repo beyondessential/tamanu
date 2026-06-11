@@ -37,6 +37,7 @@ export const FieldByType = {
   [FieldTypes.PATIENT_DATA]: ReadOnlyField,
   [FieldTypes.USER_DATA]: ReadOnlyField,
   [FieldTypes.PHOTO]: UploadPhoto,
+  [FieldTypes.DISPLAY_TEXT]: null,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,

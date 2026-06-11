@@ -105,6 +105,7 @@ export const DataElementType = {
   FreeText: 'FreeText',
   Geolocate: 'Geolocate',
   Instruction: 'Instruction',
+  DisplayText: 'DisplayText',
   MonthsSince: 'MonthsSince',
   Multiline: 'Multiline',
   MultiSelect: 'MultiSelect',

@@ -20,9 +20,11 @@ import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../tra
 
 const pageStyles = StyleSheet.create({
   body: {
+    fontFamily: 'Helvetica',
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
+    fontSize: 10,
   },
   groupContainer: {
     display: 'flex',
@@ -37,18 +39,20 @@ const pageStyles = StyleSheet.create({
     flexDirection: 'column',
     gap: 2,
     paddingBottom: 4,
-    borderBottom: '0.5px solid black',
+    borderBottom: '0.5pt solid black',
     marginBottom: 8,
     alignSelf: 'flex-end',
   },
-  itemText: {
-    fontSize: 9,
+  displayText: {
+    marginBottom: 12,
+    marginTop: 12,
+    width: '100%',
   },
   boldDivider: {
-    borderBottom: '2px solid black',
+    borderBottom: '2pt solid black',
     height: 2,
     width: '100%',
-    marginTop: '-6px',
+    marginTop: -6,
   },
   resultBox: {
     paddingTop: 7,
@@ -56,11 +60,8 @@ const pageStyles = StyleSheet.create({
     paddingBottom: 6,
     marginBottom: 14,
     fontSize: 11,
-    border: '0.5px solid black',
+    border: '0.5pt solid black',
     gap: 5,
-  },
-  robotoFont: {
-    fontFamily: 'Roboto',
   },
 });
 
@@ -69,11 +70,19 @@ const SectionSpacing = ({ height }) => <View style={{ paddingBottom: height ?? '
 const ResultBox = ({ resultText, resultName }) => (
   <View style={pageStyles.resultBox}>
     <Text>{resultName}</Text>
-    <Text style={[pageStyles.itemText, pageStyles.robotoFont]}>{resultText}</Text>
+    <Text>{resultText}</Text>
   </View>
 );
 
-const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody, formatShort }) => {
+const getAnswers = ({
+  answer,
+  type,
+  getTranslation,
+  dataElementId,
+  config,
+  originalBody,
+  formatShort,
+}) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -114,14 +123,38 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
   }
 };
 
+const DisplayText = ({ row, getTranslation }) => {
+  const { id: componentId, dataElementId, componentText, componentDetail, defaultText } = row;
+
+  const label = componentText
+    ? getTranslation(
+        getReferenceDataStringId(componentId, 'surveyScreenComponent.text'),
+        componentText,
+      )
+    : getTranslation(getReferenceDataStringId(dataElementId, 'programDataElement'), defaultText);
+  const detail = componentDetail
+    ? getTranslation(
+        getReferenceDataStringId(componentId, 'surveyScreenComponent.detail'),
+        componentDetail,
+      )
+    : null;
+
+  return (
+    <View style={pageStyles.displayText} wrap={false}>
+      <Text>{label}</Text>
+      {detail && <Text style={{ color: '#888', marginTop: 2 }}>{detail}</Text>}
+    </View>
+  );
+};
+
 const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
-      <Text style={pageStyles.itemText}>
+      <Text>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text bold style={[pageStyles.itemText]}>
+      <Text bold>
         {getAnswers({
           answer,
           type,
@@ -139,9 +172,18 @@ const ResponseItem = ({ row, getTranslation, formatShort }) => {
 const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
-      {rows.map(row => (
-        <ResponseItem getTranslation={getTranslation} formatShort={formatShort} key={row.id} row={row} />
-      ))}
+      {rows.map(row =>
+        row.type === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT ? (
+          <DisplayText getTranslation={getTranslation} key={row.id} row={row} />
+        ) : (
+          <ResponseItem
+            formatShort={formatShort}
+            getTranslation={getTranslation}
+            key={row.id}
+            row={row}
+          />
+        ),
+      )}
       <View style={pageStyles.boldDivider} />
     </View>
   );
@@ -161,16 +203,7 @@ const SurveyResponsesPrintoutComponent = ({
   const { watermark, logo } = certificateData;
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
-
-  const groupedAnswerRows = Object.values(
-    surveyAnswerRows.reduce((acc, item) => {
-      if (!acc[item.screenIndex]) {
-        acc[item.screenIndex] = [];
-      }
-      acc[item.screenIndex].push(item);
-      return acc;
-    }, {}),
-  );
+  const groupedAnswerRows = Object.values(Object.groupBy(surveyAnswerRows, row => row.screenIndex));
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
 
@@ -197,10 +230,7 @@ const SurveyResponsesPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails
-          patient={patientData}
-          getSetting={getSetting}
-        />
+        <PatientDetails patient={patientData} getSetting={getSetting} />
 
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />
@@ -213,7 +243,12 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup getTranslation={getTranslation} formatShort={formatShort} key={index} rows={group} />
+          <ResponsesGroup
+            getTranslation={getTranslation}
+            formatShort={formatShort}
+            key={index}
+            rows={group}
+          />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />

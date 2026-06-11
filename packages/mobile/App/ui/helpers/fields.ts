@@ -19,6 +19,7 @@ export const FieldTypes = {
   DATE_TIME: 'DateTime',
   TIME: 'Time',
   SUBMISSION_DATE: 'SubmissionDate',
+  DISPLAY_TEXT: 'DisplayText',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
   BINARY: 'Binary',
@@ -147,7 +148,9 @@ function fallbackParseVisibilityCriteria(
   values: any,
   allComponents: ISurveyScreenComponent[],
 ): boolean {
-  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria
+    .split(':')
+    .map(part => part.trim());
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
