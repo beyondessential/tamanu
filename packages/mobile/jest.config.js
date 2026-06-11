@@ -34,8 +34,6 @@ module.exports = {
     '^/domain(.*)$': '<rootDir>/App/domain$1',
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
-    'react-native-sqlite-storage': 'react-native-quick-sqlite',
-    'react-native-quick-sqlite': '<rootDir>/__mocks__/react-native-quick-sqlite.ts',
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };
