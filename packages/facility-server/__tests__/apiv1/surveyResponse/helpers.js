@@ -2,7 +2,27 @@ import { fake } from '@tamanu/fake-data/fake';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-export const buildPatchBody = overrides => ({ editedTime: getCurrentDateTimeString(), ...overrides });
+export const buildPatchBody = overrides => ({
+  editedTime: getCurrentDateTimeString(),
+  ...overrides,
+});
+
+/** Uncompressed centreline JSON for a single-stroke signature answer. */
+export const SIGNATURE_ANSWER_BODY = JSON.stringify([
+  [
+    [240, 75],
+    [242, 76],
+    [245, 80],
+  ],
+]);
+
+/** Alternate uncompressed signature for edit/changelog tests. */
+export const SIGNATURE_ANSWER_BODY_ALT = JSON.stringify([
+  [
+    [100, 50],
+    [102, 51],
+  ],
+]);
 
 export const createSurveyResponseTestHelpers = models => {
   const setupAutocompleteSurvey = async (sscConfig, answerBody) => {
@@ -193,9 +213,130 @@ export const createSurveyResponseTestHelpers = models => {
     return { answer, response, dataElement, survey, facilityId: facility.id };
   };
 
+  const setupSignatureSurvey = async answerBody => {
+    const {
+      Facility,
+      Location,
+      Department,
+      Patient,
+      User,
+      Encounter,
+      Program,
+      Survey,
+      SurveyResponse,
+      ProgramDataElement,
+      SurveyScreenComponent,
+      SurveyResponseAnswer,
+    } = models;
+
+    const facility = await Facility.create(fake(Facility));
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+    const examiner = await User.create(fake(User));
+    const patient = await Patient.create(fake(Patient));
+    const encounter = await Encounter.create({
+      ...fake(Encounter),
+      patientId: patient.id,
+      departmentId: department.id,
+      locationId: location.id,
+      examinerId: examiner.id,
+    });
+    const program = await Program.create(fake(Program));
+    const survey = await Survey.create({
+      ...fake(Survey),
+      programId: program.id,
+    });
+    const response = await SurveyResponse.create({
+      ...fake(SurveyResponse),
+      surveyId: survey.id,
+      encounterId: encounter.id,
+    });
+    const dataElement = await ProgramDataElement.create({
+      ...fake(ProgramDataElement),
+      type: PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE,
+    });
+    await SurveyScreenComponent.create({
+      ...fake(SurveyScreenComponent),
+      dataElementId: dataElement.id,
+      surveyId: survey.id,
+    });
+    const answer = await SurveyResponseAnswer.create({
+      ...fake(SurveyResponseAnswer),
+      dataElementId: dataElement.id,
+      responseId: response.id,
+      body: answerBody,
+    });
+
+    return { answer, dataElement, response, facilityId: facility.id };
+  };
+
+  const setupSignatureSurveyWithoutAnswer = async () => {
+    const {
+      Facility,
+      Location,
+      Department,
+      Patient,
+      User,
+      Encounter,
+      Program,
+      Survey,
+      SurveyResponse,
+      ProgramDataElement,
+      SurveyScreenComponent,
+    } = models;
+
+    const facility = await Facility.create(fake(Facility));
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+    const examiner = await User.create(fake(User));
+    const patient = await Patient.create(fake(Patient));
+    const encounter = await Encounter.create({
+      ...fake(Encounter),
+      patientId: patient.id,
+      departmentId: department.id,
+      locationId: location.id,
+      examinerId: examiner.id,
+    });
+    const program = await Program.create(fake(Program));
+    const survey = await Survey.create({
+      ...fake(Survey),
+      programId: program.id,
+    });
+    const response = await SurveyResponse.create({
+      ...fake(SurveyResponse),
+      surveyId: survey.id,
+      encounterId: encounter.id,
+    });
+    const dataElement = await ProgramDataElement.create({
+      ...fake(ProgramDataElement),
+      type: PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE,
+    });
+    await SurveyScreenComponent.create({
+      ...fake(SurveyScreenComponent),
+      dataElementId: dataElement.id,
+      surveyId: survey.id,
+    });
+
+    return { dataElement, response, facilityId: facility.id };
+  };
+
   return {
     setupAutocompleteSurvey,
     setupAutocompleteSurveyWithoutAnswer,
     setupComplexChartSurvey,
+    setupSignatureSurvey,
+    setupSignatureSurveyWithoutAnswer,
   };
 };
