@@ -41,6 +41,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
+    "clean-build": "npm run clean && npm run build",
     "build:src": "swc --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
     "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",

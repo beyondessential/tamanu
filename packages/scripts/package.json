@@ -4,6 +4,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "swc --out-dir dist --copy-files --source-maps true src",
+    "clean-build": "npm run clean && npm run build",
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
     "test": "npm run build && tape 'tests/**/*.test.*js'",

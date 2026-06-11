@@ -73,6 +73,7 @@
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
     "build": "concurrently -n esm,cjs,types -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" \"npm run build:types\"",
+    "clean-build": "npm run clean && npm run build",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
