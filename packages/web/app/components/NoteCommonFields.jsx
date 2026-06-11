@@ -296,7 +296,7 @@ export const NoteTypeField = ({
         isDisabled:
           noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
       }));
-  }, [noteTypes]);
+  }, [noteTypes, noteTypeCountByType]);
 
   return (
     <Field
