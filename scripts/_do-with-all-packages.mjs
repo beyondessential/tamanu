@@ -31,6 +31,17 @@ function extractLocation(resolvedPath) {
   return resolvedPath.slice(packageIndex);
 }
 
+const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+
+function runInGroup(title, fn) {
+  if (isGitHubActions) console.log(`::group::${title}`);
+  try {
+    fn();
+  } finally {
+    if (isGitHubActions) console.log('::endgroup::');
+  }
+}
+
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
     cleanupLeadingGarbage(
@@ -69,7 +80,9 @@ export function doWithAllPackages(fn) {
           continue;
         }
 
-        fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
+        runInGroup(workspace, () => {
+          fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
+        });
       }
     }
   }
