@@ -7,7 +7,7 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -277,6 +277,50 @@ describe('Triage', () => {
     );
 
     await emergencyDepartment.update({ facilityId: facility.id });
+  });
+
+  it('should not leave an orphaned encounter when the vitals default location is misconfigured', async () => {
+    const [facilityId] = selectFacilityIds(config);
+    // Point the default location code at something that doesn't exist so resolving
+    // the vitals default throws, reproducing the misconfigured-facility report.
+    await models.Setting.set(
+      'survey.defaultCodes.location',
+      'nonexistent-location-code',
+      SETTINGS_SCOPES.FACILITY,
+      facilityId,
+    );
+
+    try {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const triageBody = await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+      });
+
+      const response = await app
+        .post('/api/triage')
+        .send({ ...triageBody, facilityId, vitals: {} });
+      expect(response).toHaveStatus(500);
+
+      // The encounter creation must have rolled back, so the patient has no active
+      // encounter and can be re-triaged once the config is fixed.
+      const encounters = await models.Encounter.findAll({
+        where: { patientId: encounterPatient.id },
+      });
+      expect(encounters).toHaveLength(0);
+
+      const retry = await app
+        .post('/api/triage')
+        .send({ ...triageBody, facilityId });
+      expect(retry).toHaveSucceeded();
+    } finally {
+      await models.Setting.set(
+        'survey.defaultCodes.location',
+        'GeneralClinic',
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+    }
   });
 
   describe('Listing & filtering', () => {

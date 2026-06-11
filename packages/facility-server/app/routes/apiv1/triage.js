@@ -59,59 +59,76 @@ triage.post(
     };
     const departmentId = await getDepartmentId();
 
-    const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
-
-    if (vitals) {
+    // Resolve the vitals survey response's default location/department from
+    // settings (survey.defaultCodes.*) before any writes. getDefaultId throws if
+    // the configured code doesn't exist for the facility; doing it up front means a
+    // config error fails before the encounter is created rather than after, which
+    // previously left the patient with an orphaned active encounter they couldn't
+    // re-triage.
+    const resolveVitalsDefaults = async () => {
       const getDefaultId = async type =>
         models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
-      const updatedBody = {
+      return {
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),
-        encounterId: triageRecord.encounterId,
-        userId: req.user.id,
-        facilityId,
-        ...vitals,
       };
-      await db.transaction(async () => {
-        return models.SurveyResponse.createWithAnswers(updatedBody);
+    };
+    const vitalsDefaults = vitals ? await resolveVitalsDefaults() : null;
+
+    // Create the triage, its encounter and all derived records atomically. If any
+    // step fails the whole thing rolls back, so the patient isn't left with a
+    // half-created active encounter that blocks them from being re-triaged.
+    const triageRecord = await db.transaction(async () => {
+      const triage = await models.Triage.create({ ...body, departmentId, actorId: user.id });
+
+      if (vitals) {
+        await models.SurveyResponse.createWithAnswers({
+          ...vitalsDefaults,
+          encounterId: triage.encounterId,
+          userId: req.user.id,
+          facilityId,
+          ...vitals,
+        });
+      }
+
+      // The triage form groups notes as a single string for submission
+      // so put it into a single note record
+      if (notes) {
+        await triage.createNote({
+          noteTypeId: NOTE_TYPES.OTHER,
+          content: notes,
+        });
+      }
+
+      const encounter = await models.Encounter.findOne({
+        where: { id: triage.encounterId },
       });
-    }
 
-    // The triage form groups notes as a single string for submission
-    // so put it into a single note record
-    if (notes) {
-      await triageRecord.createNote({
-        noteTypeId: NOTE_TYPES.OTHER,
-        content: notes,
+      const department = await models.Department.findOne({
+        where: { id: encounter.departmentId },
       });
-    }
 
-    const encounter = await models.Encounter.findOne({
-      where: { id: triageRecord.encounterId },
-    });
+      if (!department) {
+        throw new InvalidOperationError(
+          `Couldn’t record triage score as system note; no department found with with ID ‘${encounter.departmentId}’`,
+        );
+      }
 
-    const department = await models.Department.findOne({
-      where: { id: encounter.departmentId },
-    });
-
-    if (!department) {
-      throw new InvalidOperationError(
-        `Couldn’t record triage score as system note; no department found with with ID ‘${encounter.departmentId}’`,
+      await encounter.addSystemNote(
+        `${department.name} triage score: ${triage.score}`,
+        triage.triageTime,
+        user,
       );
-    }
 
-    await encounter.addSystemNote(
-      `${department.name} triage score: ${triageRecord.score}`,
-      triageRecord.triageTime,
-      user,
-    );
+      await models.Invoice.automaticallyCreateForEncounter(
+        encounter.id,
+        encounter.encounterType,
+        encounter.startDate,
+        settings[facilityId],
+      );
 
-    await models.Invoice.automaticallyCreateForEncounter(
-      encounter.id,
-      encounter.encounterType,
-      encounter.startDate,
-      settings[facilityId],
-    );
+      return triage;
+    });
 
     res.send(triageRecord);
   }),
