@@ -2,8 +2,14 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { fake } from '@tamanu/fake-data/fake';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 
+import { decompressSignatureBody } from '@tamanu/shared/utils/signature';
+
 import { createTestContext } from '../../utilities';
-import { buildPatchBody, createSurveyResponseTestHelpers } from './helpers';
+import {
+  buildPatchBody,
+  createSurveyResponseTestHelpers,
+  SIGNATURE_ANSWER_BODY,
+} from './helpers';
 
 describe('SurveyResponse PATCH /:id', () => {
   let app;
@@ -12,13 +18,15 @@ describe('SurveyResponse PATCH /:id', () => {
   let ctx;
   let setupAutocompleteSurvey;
   let setupComplexChartSurvey;
+  let setupSignatureSurveyWithoutAnswer;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    ({ setupAutocompleteSurvey, setupComplexChartSurvey } = createSurveyResponseTestHelpers(models));
+    ({ setupAutocompleteSurvey, setupComplexChartSurvey, setupSignatureSurveyWithoutAnswer } =
+      createSurveyResponseTestHelpers(models));
   });
   afterAll(() => ctx.close());
 
@@ -252,6 +260,30 @@ describe('SurveyResponse PATCH /:id', () => {
     });
   });
   
+  describe('program survey PATCH Signature answers', () => {
+    it('should compress a signature answer body before storing it', async () => {
+      const { dataElement, response, facilityId } = await setupSignatureSurveyWithoutAnswer();
+
+      const patch = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [dataElement.id]: SIGNATURE_ANSWER_BODY },
+        }),
+      );
+      expect(patch).toHaveSucceeded();
+
+      const storedAnswer = await models.SurveyResponseAnswer.findOne({
+        where: {
+          responseId: response.id,
+          dataElementId: dataElement.id,
+        },
+      });
+      expect(storedAnswer).toBeTruthy();
+      expect(storedAnswer.body).not.toBe(SIGNATURE_ANSWER_BODY);
+      expect(await decompressSignatureBody(storedAnswer.body)).toBe(SIGNATURE_ANSWER_BODY);
+    });
+  });
+
   describe('program survey PATCH CalculatedQuestion answers', () => {
     const INPUT_CODE = 'PATCH_CALC_INPUT';
     const CALC_CODE = 'PATCH_CALC_CALC';

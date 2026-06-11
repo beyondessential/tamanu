@@ -66,6 +66,10 @@
       "require": "./dist/cjs/utils/patientCertificates/index.js",
       "import": "./dist/esm/utils/patientCertificates/index.js"
     },
+    "./utils/signature": {
+      "require": "./dist/cjs/utils/signature/index.js",
+      "import": "./dist/esm/utils/signature/index.js"
+    },
     "./utils/uvci": {
       "require": "./dist/cjs/utils/uvci/index.js",
       "import": "./dist/esm/utils/uvci/index.js"
@@ -171,6 +175,7 @@
     "multiparty": "^4.2.3",
     "nanoid": "^3.3.12",
     "node-schedule": "^2.0.0",
+    "perfect-freehand": "^1.2.3",
     "pg-notify": "^1.0.5",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

@@ -69,6 +69,20 @@ export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);
 }
 
+export function formatPlainTime<T extends `${number}:${number}:${number}`>(
+  time: T,
+): `${string}:${string}${'am' | 'pm'}` | T {
+  const match = time.match(/^(\d{2}):(\d{2})/);
+  if (match) {
+    const [, HH, mm] = match;
+    const hour = Number.parseInt(HH, 10);
+    const hh = (hour % 12).toString().padStart(2, '0');
+    const a = hour < 12 ? 'am' : 'pm';
+    return `${hh}:${mm}${a}`;
+  }
+  return time;
+}
+
 export function getAgeFromDate(date: string): number {
   return differenceInYears(new Date(), parseISO(date));
 }

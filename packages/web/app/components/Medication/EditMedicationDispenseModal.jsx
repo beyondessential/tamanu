@@ -24,6 +24,7 @@ import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   buildInstructionText,
+  buildLabelText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -97,12 +98,14 @@ export const EditMedicationDispenseModal = memo(
 
     // Derived from the prescription, not the dispense's saved instructions, so
     // it shows the original even after the label text has been edited.
+    const prescription = medicationDispense?.pharmacyOrderPrescription?.prescription;
     const defaultInstructions = medicationDispense
-      ? buildInstructionText(
-          medicationDispense.pharmacyOrderPrescription?.prescription,
-          getTranslation,
-          getEnumTranslation,
-        )
+      ? buildInstructionText(prescription, getTranslation, getEnumTranslation)
+      : '';
+    // Label text has its own default formatting (verb prefix, long/plural units,
+    // lowercased unit/frequency/route) and is what clearing a preset reverts to.
+    const defaultLabelText = medicationDispense
+      ? buildLabelText(prescription, getTranslation, getEnumTranslation)
       : '';
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
@@ -167,7 +170,7 @@ export const EditMedicationDispenseModal = memo(
 
     // Functional setters so a quick preset-then-type doesn't lose the typing.
     const handlePresetLabelChange = ({ target: { value: presetId } }) => {
-      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultInstructions);
+      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultLabelText);
       setItem(prev => ({
         ...prev,
         medicationPresetLabelId: presetId || null,

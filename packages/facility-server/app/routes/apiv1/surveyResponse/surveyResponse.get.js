@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
@@ -37,16 +38,25 @@ export const surveyResponseGetHandler = asyncHandler(async (req, res) => {
     facilityId: query.facilityId,
   });
 
+  const transformedAnswersById = new Map(transformedAnswers.map(a => [a.id, a]));
+
+  const dataElementTypesById = new Map(components.map(c => [c.dataElementId, c.dataElement?.type]));
+  function isSignature(answer) {
+    const type = dataElementTypesById.get(answer.dataElementId);
+    return type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
+  }
+
   res.send({
     ...surveyResponseRecord.forResponse(),
     surveyName: survey.name,
     components,
     answers: answers.map(answer => {
-      const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+      const transformedAnswer = transformedAnswersById.get(answer.id);
+      const apiBody = transformedAnswer?.body;
       return {
         ...answer.dataValues,
-        originalBody: answer.body,
-        body: transformedAnswer?.body,
+        originalBody: isSignature(answer) ? apiBody : answer.body,
+        body: apiBody,
         sourceType: transformedAnswer?.sourceType,
         sourceConfig: transformedAnswer?.sourceConfig,
       };
