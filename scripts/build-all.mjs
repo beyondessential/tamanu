@@ -17,17 +17,17 @@ if (target) {
 doWithAllPackages((name, pkg, _pkgPath, isShared) => {
   console.log(`Checking ${name}...`);
   if (values['shared-only'] && !isShared) {
-    console.log(`Skipping ${name} as it's not a shared package...`);
+    console.log(`Skipping ${name} as it’s not a shared package`);
     return;
   }
 
   if (!pkg.scripts?.build) {
-    console.log(`Skipping ${name} as it doesn't have a build script...`);
+    console.log(`Skipping ${name} as it doesn’t have a build script`);
     return;
   }
 
   if (target && !isShared && name != target) {
-    console.log(`Skipping ${name} as it's not the target...`);
+    console.log(`Skipping ${name} as it’s not the target`);
     return;
   }
 
