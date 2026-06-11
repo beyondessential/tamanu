@@ -1,4 +1,4 @@
-import { INJECTION_SITE_VALUES, VACCINE_STATUS } from '@tamanu/constants';
+import { INJECTION_SITE_VALUES, VACCINE_STATUS, type InjectionSite } from '@tamanu/constants';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -81,13 +81,13 @@ function vaccineCode(scheduledVaccine?: ScheduledVaccine) {
   const KNOWN_VACCINE_IDS = {
     PFIZER: 'drug-COVID-19-Pfizer',
     ASTRAZENECA: 'drug-COVAX',
-  };
+  } as const;
 
   // All currently supported AIRV vaccine codes
   const KNOWN_AIRV_CODES = {
     COMIRN: 'COMIRN',
     COVAST: 'COVAST',
-  };
+  } as const;
 
   const code = vaccineIdToAIRVCode(scheduledVaccine?.vaccine?.id);
 
@@ -108,7 +108,7 @@ function vaccineCode(scheduledVaccine?: ScheduledVaccine) {
 function patientReference(patient?: Patient) {
   return new FhirReference({
     reference: `Patient/${patient?.id}`,
-    display: [patient?.firstName, patient?.lastName].filter((x) => x).join(' '),
+    display: [patient?.firstName, patient?.lastName].filter(x => x).join(' '),
   });
 }
 
@@ -118,7 +118,7 @@ function encounterReference(encounter?: Encounter) {
   });
 }
 
-function site(injectionSite?: string) {
+function site(injectionSite?: InjectionSite) {
   const HL7_INJECTION_SITE_URL = 'http://terminology.hl7.org/CodeSystem/v3-ActSite';
 
   // Dictionary that maps Tamanu injection site to HL7 code
@@ -127,13 +127,14 @@ function site(injectionSite?: string) {
     [INJECTION_SITE_VALUES.LEFT_ARM]: 'LA',
     [INJECTION_SITE_VALUES.RIGHT_THIGH]: 'RT',
     [INJECTION_SITE_VALUES.LEFT_THIGH]: 'LT',
-  };
+  } as const;
 
   return [
     new FhirCodeableConcept({
       coding: [
         new FhirCoding({
           system: HL7_INJECTION_SITE_URL,
+          // @ts-expect-error - Not all have mapping, hence fallback to null
           code: INJECTION_SITE_TO_HL7_CODE[injectionSite!] || null,
           display: injectionSite,
         }),

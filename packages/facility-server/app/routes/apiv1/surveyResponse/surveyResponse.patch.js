@@ -131,7 +131,7 @@ export const surveyResponsePatchHandler = asyncHandler(async (req, res) => {
     for (const [dataElementId, value] of Object.entries(calculatedValues)) {
       if (!validDataElementIds.has(dataElementId)) continue;
       const dataElementType = componentByDataElementId.get(dataElementId)?.dataElement?.type;
-      const bodyValue = getStringValue(dataElementType, value) ?? '';
+      const bodyValue = (await getStringValue(dataElementType, value)) ?? '';
       const existingAnswer = answerByDataElementId.get(dataElementId);
       if (existingAnswer) {
         if (!isEquivalent(existingAnswer.body, bodyValue)) {

@@ -1,13 +1,8 @@
-import { parseISO } from 'date-fns';
-import { groupBy, keyBy } from 'lodash';
-import {
-  differenceInMilliseconds,
-  format,
-  formatShort,
-  isISOString,
-  parseDate,
-} from '@tamanu/utils/dateTime';
+import { keyBy } from 'lodash';
+
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { format, formatShort, isISOString, parseDate } from '@tamanu/utils/dateTime';
+import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
@@ -79,7 +74,12 @@ const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate
   return '';
 };
 
-export const getPatientDataFieldAssociationData = async ({ models, modelName, fieldName, answer }) => {
+export const getPatientDataFieldAssociationData = async ({
+  models,
+  modelName,
+  fieldName,
+  answer,
+}) => {
   const model = models[modelName];
   const associations = Object.values(model.associations || {});
   const foreignKeyAssociation = associations.find(
@@ -117,6 +117,11 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
   }
 };
 
+/** @param {string | null | undefined} answer */
+async function convertSignatureAnswer(answer) {
+  return await decompressSignatureBody(answer);
+}
+
 export const getAnswerBody = async (
   models,
   componentConfig,
@@ -153,18 +158,24 @@ export const getAnswerBody = async (
   }
   let result;
   switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
-    case 'Checkbox':
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      result = answer;
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;
-    case 'Autocomplete':
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       result = await convertAutocompleteAnswer(models, parsedComponentConfig, answer);
       break;
-    case 'PatientData':
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      result = await convertSignatureAnswer(answer);
       break;
     default:
       result = answer;
@@ -226,21 +237,4 @@ export const transformAnswers = async (
   }
 
   return transformedAnswers;
-};
-
-export const takeMostRecentAnswers = answers => {
-  const answersPerElement = groupBy(
-    answers,
-    a => `${a.patientId}|${a.surveyId}|${a.dataElementId}`,
-  );
-
-  const results = [];
-  for (const groupedAnswers of Object.values(answersPerElement)) {
-    const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
-    );
-    results.push(sortedLatestToOldestAnswers[0]);
-  }
-
-  return results;
 };

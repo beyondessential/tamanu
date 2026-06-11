@@ -1,13 +1,25 @@
 #!/usr/bin/env node
 
-import { promises as fs } from 'fs';
 import { glob } from 'glob';
 import _ from 'lodash';
+import { promises as fs } from 'node:fs';
+import { styleText } from 'node:util';
 import { ensureDirectoryExists } from './dirs.mjs';
+import path from 'node:path';
 
-/** Escape $ in replacement string so it is not interpreted as $&, $1, etc. */
+/** @param {string} pathLike */
+function stylePath(pathLike) {
+  const dir = styleText(['dim'], `${path.dirname(pathLike)}/`);
+  const base = styleText(['green'], path.basename(pathLike));
+  return `${dir}${base}`;
+}
+
+/**
+ * Escape `$` in replacement string so it is not interpreted as `$&`, `$1`, etc.
+ * @param {string} s
+ */
 function escapeReplacement(s) {
-  return String(s).replace(/\$/g, '$$');
+  return s.replaceAll('$', '$$');
 }
 
 const src = process.argv[2];
@@ -30,11 +42,11 @@ for (const file of files) {
   for (const [i, d] of dst) {
     const dest = file.replace(srcPattern, escapeReplacement(d));
     ensureDirectoryExists(dest);
-    console.error(`put ${file} in ${dest}`);
     if (i === 1) {
       await fs.rename(file, dest);
     } else {
       await fs.copyFile(file, dest);
     }
+    console.log(`Wrote ${stylePath(dest)}`);
   }
 }

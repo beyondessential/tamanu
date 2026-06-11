@@ -3,7 +3,14 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { TextInput, DateDisplay, TimeDisplay, ThemedTooltip, ConditionalTooltip } from '@tamanu/ui-components';
+import {
+  TextInput,
+  DateDisplay,
+  TimeDisplay,
+  ThemedTooltip,
+  ConditionalTooltip,
+  RequiredOrnament,
+} from '@tamanu/ui-components';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 
 import { Colors } from '../../constants/styles';
@@ -37,7 +44,7 @@ const StyledTable = styled(Table)`
     div {
       font-weight: 400;
     }
-    span:not(.required-indicator),
+    span:not(${RequiredOrnament}),
     div {
       color: ${Colors.midText};
     }
@@ -333,10 +340,7 @@ const getColumns = (
           error={hasError}
           helperText={
             hasError && (
-              <TranslatedText
-                stringId="validation.required.inline"
-                fallback="*Required"
-              />
+              <TranslatedText stringId="validation.required.inline" fallback="*Required" />
             )
           }
           data-testid="textinput-rxbh"

@@ -4,14 +4,10 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-
 import {
   BaseModal,
   Button,
   OutlinedButton,
-  TextInput,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -21,7 +17,7 @@ import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { notifyError, notifySuccess, singularize } from '../../utils';
+import { notifyError, notifySuccess } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
 import { trimToDate } from '@tamanu/utils/dateTime';
@@ -32,15 +28,23 @@ import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
+  buildInstructionText,
+  buildLabelText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
+  InstructionsInput,
+  QuantityInput,
+  resolvePresetLabelText,
+  StyledPresetLabelAutocomplete,
+  usePresetLabelsQuery,
 } from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
   REVIEW: 'review',
 };
+
 
 const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
 
@@ -182,72 +186,6 @@ const PatientSummaryViewPatientLink = styled.button`
   }
 `;
 
-const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
-  if (!prescription) return '';
-
-  const {
-    frequency: prescriptionFrequency,
-    route: prescriptionRoute,
-    durationValue,
-    durationUnit,
-    indication,
-    notes,
-  } = prescription;
-
-  const dose = getMedicationDoseDisplay(
-    prescription,
-    getTranslation,
-    getEnumTranslation,
-  ).toLowerCase();
-  const frequency = prescriptionFrequency
-    ? getTranslatedFrequency(prescriptionFrequency, getTranslation)
-    : null;
-  const route = prescriptionRoute ? getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute) : null;
-
-  const unitLabel = getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, durationUnit);
-
-  const duration =
-    durationValue && durationUnit
-      ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`
-      : null;
-
-  const base = [];
-  if (dose) base.push(dose);
-  if (frequency) base.push(frequency);
-  let output = base.join(' ').trim();
-
-  const forText = getTranslation('medication.dispense.for', 'for');
-
-  if (route) output += `${output ? ',' : ''} ${route}`;
-  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
-  if (indication) output += `${output ? `, ` : ''}${indication}`;
-  if (output && !output.endsWith('.')) output += '.';
-
-  if (notes) {
-    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
-  }
-  return output.trim();
-};
-
-const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} value={value} onChange={handleChange} />;
-});
-
-const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(defaultValue);
-  const handleChange = e => {
-    setValue(e.target.value);
-    onChange(e);
-  };
-
-  return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
-});
 
 export const DispenseMedicationWorkflowModal = memo(
   ({ open, onClose, patient, onDispenseSuccess }) => {
@@ -256,6 +194,10 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
+    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+      enabled: open,
+      facilityId,
+    });
     const { navigateToPatient } = usePatientNavigation();
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
@@ -315,9 +257,10 @@ export const DispenseMedicationWorkflowModal = memo(
             selected: true,
             quantity: quantity ?? 1,
             instructions:
-              buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
+              buildLabelText(prescription, getTranslation, getEnumTranslation) ||
               instructions ||
               '',
+            medicationPresetLabelId: null,
           };
         })
         .sort((a, b) => {
@@ -399,6 +342,33 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
+    const handlePresetLabelChange = (rowIndex, { target: { value: presetId } }) => {
+      setItems(prev => {
+        const next = [...prev];
+        const current = next[rowIndex];
+        if (!current) return prev;
+
+        const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
+        const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, fallback);
+
+        next[rowIndex] = {
+          ...current,
+          medicationPresetLabelId: presetId || null,
+          instructions: nextLabelText,
+        };
+
+        setItemErrors(prevErrors => ({
+          ...prevErrors,
+          [current.id]: {
+            ...prevErrors[current.id],
+            hasInstructionsError: current.selected && !String(nextLabelText || '').trim(),
+          },
+        }));
+
+        return next;
+      });
+    };
+
     const validateDispenseStep = (currentItems, currentSelectedItems, currentDispensedByUserId) => {
       let isValid = true;
 
@@ -468,11 +438,14 @@ export const DispenseMedicationWorkflowModal = memo(
         await api.post('medication/dispense', {
           dispensedByUserId,
           facilityId,
-          items: selectedItems.map(({ id, quantity, instructions }) => ({
-            pharmacyOrderPrescriptionId: id,
-            quantity,
-            instructions,
-          })),
+          items: selectedItems.map(
+            ({ id, quantity, instructions, medicationPresetLabelId }) => ({
+              pharmacyOrderPrescriptionId: id,
+              quantity,
+              instructions,
+              medicationPresetLabelId: medicationPresetLabelId || null,
+            }),
+          ),
         });
 
         await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
@@ -548,7 +521,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'medication',
-          width: '250px',
+          width: '200px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
           accessor: ({ prescription }) => (
             <TranslatedReferenceData
@@ -560,7 +533,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'quantity',
-          width: '94px',
+          width: '84px',
           title: (
             <>
               <TranslatedText stringId="pharmacyOrder.table.column.quantity" fallback="Quantity" />
@@ -593,7 +566,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'remainingRepeats',
-          width: '94px',
+          width: '80px',
           title: (
             <TranslatedText
               stringId="medication.dispense.remainingRepeats"
@@ -603,10 +576,46 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
         {
-          key: 'instructions',
+          key: 'instructionsReadOnly',
+          title: (
+            <TranslatedText stringId="medication.dispense.instructions" fallback="Instructions" />
+          ),
+          accessor: item => (
+            <InstructionsInput
+              value={buildInstructionText(item.prescription, getTranslation, getEnumTranslation)}
+              disabled
+              testId="dispense-instructions-readonly"
+            />
+          ),
+        },
+        ...(hasPresetLabels
+          ? [
+              {
+                key: 'presetLabel',
+                width: '150px',
+                title: (
+                  <TranslatedText
+                    stringId="medication.dispense.presetLabel"
+                    fallback="Preset labels"
+                  />
+                ),
+                accessor: (item, rowIndex) => (
+                  <StyledPresetLabelAutocomplete
+                    name={`presetLabel-${item.id}`}
+                    value={item.medicationPresetLabelId ?? ''}
+                    suggester={presetLabelSuggester}
+                    onChange={e => handlePresetLabelChange(rowIndex, e)}
+                    data-testid={`dispense-preset-label-${rowIndex}`}
+                  />
+                ),
+              },
+            ]
+          : []),
+        {
+          key: 'labelText',
           title: (
             <>
-              <TranslatedText stringId="medication.dispense.instructions" fallback="Instructions" />
+              <TranslatedText stringId="medication.dispense.labelText" fallback="Label text" />
               <Box component="span" color={Colors.alert}>
                 {' '}
                 *
@@ -622,8 +631,7 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={e => handleInstructionsChange(rowIndex, e)}
                 error={showValidationErrors && hasInstructionsError}
                 required={selected}
-                disabled={!selected}
-                testId="dispense-instructions"
+                testId="dispense-label-text"
                 helperText={
                   showValidationErrors && hasInstructionsError
                     ? getTranslation('validation.required.inline', '*Required')
@@ -635,7 +643,7 @@ export const DispenseMedicationWorkflowModal = memo(
         },
         {
           key: 'lastDispensedAt',
-          width: '120px',
+          width: '100px',
           title: (
             <TranslatedText
               stringId="medication.dispense.lastDispensed"
@@ -658,7 +666,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (stockColumnEnabled) {
         base.push({
           key: 'stock',
-          width: '90px',
+          width: '76px',
           title: (
             <TranslatedText
               stringId="medication-requests.table.column.stockStatus"

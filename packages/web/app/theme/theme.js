@@ -20,6 +20,9 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  iframe: {
+    border: 0,
+  },
   /**
    * WebKit doesn’t apply implicit ‘list’ role from <ol>s and <ul>s when list-style-type is
    * ‘none’ unless nested in a <nav>. Intentional on WebKit’s part, but usually undesirable.
@@ -35,6 +38,13 @@ const cssReset = {
   },
   ':where(table, time)': {
     fontVariantNumeric: 'lining-nums slashed-zero tabular-nums',
+  },
+  table: {
+    borderCollapse: 'collapse',
+  },
+  th: {
+    padding: 0,
+    textAlign: 'start',
   },
 };
 

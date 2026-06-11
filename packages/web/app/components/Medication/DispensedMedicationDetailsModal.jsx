@@ -12,6 +12,8 @@ import {
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
+import { useTranslation } from '../../contexts/Translation';
+import { buildInstructionText } from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -53,6 +55,7 @@ const ActionRow = styled(Box)`
 
 export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   const { formatShortest } = useDateTime();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   if (!item || !open) return null;
 
   const {
@@ -64,7 +67,12 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     dispensedAt,
     dispensedBy,
     patient,
+    medicationPresetLabel,
   } = item;
+
+  // The dispense stores the label text in `instructions`; the clinical Instructions
+  // shown here are derived from the prescription, mirroring the dispense modals.
+  const derivedInstructions = buildInstructionText(prescription, getTranslation, getEnumTranslation);
 
   const leftDetails = [
     {
@@ -107,7 +115,16 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
           fallback="Instructions"
         />
       ),
-      value: instructions || '-',
+      value: derivedInstructions || '-',
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="medication.dispenseDetails.presetLabels"
+          fallback="Preset labels"
+        />
+      ),
+      value: medicationPresetLabel?.code || '-',
     },
   ];
 
@@ -150,6 +167,12 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
         />
       ),
       value: remainingRepeats ?? 0,
+    },
+    {
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.labelText" fallback="Label text" />
+      ),
+      value: instructions || '-',
     },
   ];
 

@@ -8,7 +8,7 @@
  *   id: ChangeLog['id'];
  *   recordId: ChangeLog['recordId'];
  *   recordData: Pick<SurveyResponseAnswer, 'body' | 'editedTime' | 'id'>;
- *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'> | null;
+ *   programDataElement: Pick<ProgramDataElement, 'id' | 'name' | 'type'>;
  *   updatedByUser: Pick<User, 'id' | 'displayName'>;
  *   from: SurveyResponseAnswer['body'];
  *   to: SurveyResponseAnswer['body'];

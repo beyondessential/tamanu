@@ -28,6 +28,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Tests
 
 - [ ] **Run E2E tests** <!-- #e2e -->
+- [ ] **Run DAST scan** <!-- #dast -->
 
 ### Review Hero
 

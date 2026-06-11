@@ -20,7 +20,9 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
   DATE_TIME: 'DateTime',
+  TIME: 'Time',
   SUBMISSION_DATE: 'SubmissionDate',
+  DISPLAY_TEXT: 'DisplayText',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
   BINARY: 'Binary',
@@ -36,6 +38,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
   GEOLOCATE: 'Geolocate',
+  SIGNATURE: 'Signature',
   COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
@@ -55,6 +58,7 @@ export const COMPLEX_CORE_DATA_ELEMENT_TYPES = [
 ];
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
+  PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT,
   PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
   PROGRAM_DATA_ELEMENT_TYPES.RESULT,
 ];

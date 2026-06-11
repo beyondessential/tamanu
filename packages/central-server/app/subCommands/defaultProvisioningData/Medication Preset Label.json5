@@ -1,0 +1,46 @@
+{
+  "sheetName": "Medication Preset Label",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "medicationpresetlabel-once-daily",
+      "code": "OD",
+      "name": "Take one once daily"
+    },
+    {
+      "id": "medicationpresetlabel-twice-daily",
+      "code": "BD",
+      "name": "Take one twice daily"
+    },
+    {
+      "id": "medicationpresetlabel-three-times-daily",
+      "code": "TDS",
+      "name": "Take one three times daily"
+    },
+    {
+      "id": "medicationpresetlabel-four-times-daily",
+      "code": "QDS",
+      "name": "Take one four times daily"
+    },
+    {
+      "id": "medicationpresetlabel-as-required",
+      "code": "PRN",
+      "name": "Take as required"
+    },
+    {
+      "id": "medicationpresetlabel-at-night",
+      "code": "NOC",
+      "name": "Take one at night"
+    },
+    {
+      "id": "medicationpresetlabel-in-morning",
+      "code": "MANE",
+      "name": "Take one in the morning"
+    }
+  ]
+}

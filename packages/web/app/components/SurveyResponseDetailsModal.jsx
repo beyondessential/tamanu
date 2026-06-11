@@ -3,17 +3,19 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import {
   Button,
+  checkVisibility,
   EditedLegend,
   EditedOrnament,
   Modal,
   TranslatedReferenceData,
   TranslatedText,
+  ViewChangeLogButton,
 } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s } from '../api';
-import { useSurveyResponseQuery } from '../api/queries';
-import { useSurveyResponseChangesQuery } from '../api/queries/useSurveyResponseChangesQuery';
+import { useSurveyResponseChangesQuery, useSurveyResponseQuery } from '../api/queries';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
 import { Table } from './Table';
@@ -44,8 +46,19 @@ const indicatorColumn = {
   sortable: false,
 };
 
-const isShowable = component =>
-  component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION;
+const isHiddenInResponseViews = (component, values, allComponents) => {
+  switch (component.dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT:
+      // `checkVisibility` could be called for all question types, but it’s redundant for other
+      // question types. (A hidden question is always unanswered, which gets hidden anyway.)
+      // DisplayText is a special case that’s expressly un-hidden, hence parsing visibilityCriteria.
+      return !checkVisibility(component, values, allComponents);
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
+      return true;
+    default:
+      return false;
+  }
+};
 
 const PendingMessage = ({ isLoading, isNotFound }) => {
   if (isLoading) {
@@ -55,7 +68,7 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
     return (
       <TranslatedText
         stringId="surveyResponse.modal.details.error.formDeleted"
-        fallback="This form has been deleted and is no longer available."
+        fallback="This form has been deleted and is no longer available"
       />
     );
   }
@@ -67,7 +80,12 @@ const PendingMessage = ({ isLoading, isNotFound }) => {
   );
 };
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
+export const SurveyResponseDetailsModal = ({
+  surveyResponseId,
+  onClose,
+  onPrint,
+  onViewChangeLog = null,
+}) => {
   const {
     data: surveyDetails,
     isLoading,
@@ -90,7 +108,15 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         title: (
           <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />
         ),
-        accessor: ({ answer, type, originalBody, componentConfig, dataElementId, wasEdited }) => (
+        accessor: ({
+          answer,
+          type,
+          originalBody,
+          componentConfig,
+          dataElementId,
+          wasEdited,
+          surveyComponent,
+        }) => (
           <>
             <SurveyAnswerResult
               answer={answer}
@@ -99,6 +125,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               originalBody={originalBody}
               componentConfig={componentConfig}
               dataElementId={dataElementId}
+              surveyComponent={surveyComponent}
             />
             {wasEdited ? <EditedOrnament style={{ marginInlineStart: '0.25em' }} /> : null}
           </>
@@ -110,45 +137,60 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   );
 
   const { components = [], answers = [] } = surveyDetails ?? {};
-  const answerRows = components
-    .map(component => {
-      if (!isShowable(component)) return null; // Filter out
 
-      const { dataElement, id, config } = component;
-      const { type: originalType, name, id: dataElementId } = dataElement;
-      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject?.body;
+  const answerRows = useMemo(() => {
+    const values = answers.reduce((acc, { dataElementId, body }) => {
+      acc[dataElementId] = body;
+      return acc;
+    }, {});
+    const answersByDataElementId = new Map(answers.map(a => [a.dataElementId, a]));
 
-      if (answer === undefined) return null; // Filter out
+    return components
+      .map(component => {
+        if (isHiddenInResponseViews(component, values, components)) return null;
 
-      const originalBody = answerObject?.originalBody;
-      const sourceType = answerObject?.sourceType;
-      const sourceConfig = answerObject?.sourceConfig;
-      const componentConfig =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
-      const type =
-        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
+        const { dataElement, id, config } = component;
+        const { type: originalType, name, id: dataElementId } = dataElement;
 
-      const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+        const answerObject = answersByDataElementId.get(dataElement.id);
+        const answer =
+          answerObject?.body ??
+          (originalType === PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT
+            ? getDisplayTextAnswer(component)
+            : undefined);
 
-      return {
-        id,
-        dataElementId,
-        type,
-        answer,
-        originalBody,
-        wasEdited,
-        name: (
-          <TranslatedReferenceData
-            category="programDataElement"
-            value={dataElementId}
-            fallback={name}
-          />
-        ),
-        componentConfig,
-      };
-    })
-    .filter(r => r !== null);
+        if (answer === undefined) return null;
+
+        const originalBody = answerObject?.originalBody;
+        const sourceType = answerObject?.sourceType;
+        const sourceConfig = answerObject?.sourceConfig;
+        const componentConfig =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
+        const type =
+          originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
+
+        const wasEdited = answerObject?.id && editedAnswerIds.has(answerObject.id);
+
+        return {
+          id,
+          dataElementId,
+          type,
+          answer,
+          originalBody,
+          wasEdited,
+          name: (
+            <TranslatedReferenceData
+              category="programDataElement"
+              value={dataElementId}
+              fallback={name}
+            />
+          ),
+          componentConfig,
+          surveyComponent: component,
+        };
+      })
+      .filter(r => r !== null);
+  }, [answers, components, editedAnswerIds]);
 
   return (
     <Modal
@@ -179,7 +221,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
               data-testid="table-3xqx"
             />
           </TableContainer>
-          {hasChanges && <EditedLegend />}
+          {hasChanges && (
+            <EditedLegend>
+              {onViewChangeLog && (
+                <ViewChangeLogButton
+                  onClick={() => onViewChangeLog(surveyResponseId)}
+                  data-testid="surveyresponse-details-view-changelog"
+                />
+              )}
+            </EditedLegend>
+          )}
           <ModalCancelRow
             onConfirm={onClose}
             confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

@@ -11,11 +11,13 @@ import {
   PatientDataDisplayField,
   ReadOnlyNumberField,
   ReadOnlyTextField,
+  SignatureField,
 } from '@tamanu/ui-components';
 import {
   ChartInstanceNameField,
   DateField,
   DateTimeField,
+  TimeField,
   NullableBooleanField,
   NumberField,
   SurveyAnswerField,
@@ -35,6 +37,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
@@ -45,6 +48,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
     <BasePhotoField
@@ -53,6 +57,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
       ViewPhotoLinkComponent={ViewPhotoLink}
     />
   ),
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,

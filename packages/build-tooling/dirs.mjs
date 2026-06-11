@@ -1,20 +1,10 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync } from 'fs';
-
-function createOrMakeDir(dirPath) {
-  if (!existsSync(dirPath)){
-    mkdirSync(dirPath);
-  }
-}
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 export function ensureDirectoryExists(dest) {
-  const dirs = dest.split('/');
-  dirs.pop();
-
-  let path = '';
-  dirs.forEach(dir => {
-    path += `${dir}/`;
-    createOrMakeDir(path);
-  });
+  const dirPath = dirname(dest);
+  if (dirPath === '.') return;
+  mkdirSync(dirPath, { recursive: true });
 }

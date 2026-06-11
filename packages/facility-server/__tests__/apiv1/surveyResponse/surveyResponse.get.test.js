@@ -1,8 +1,12 @@
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
+import { compressSignatureBody } from '@tamanu/shared/utils/signature';
 
 import { createTestContext } from '../../utilities';
-import { createSurveyResponseTestHelpers } from './helpers';
+import {
+  createSurveyResponseTestHelpers,
+  SIGNATURE_ANSWER_BODY,
+} from './helpers';
 
 describe('SurveyResponse GET /:id', () => {
   let app;
@@ -10,13 +14,14 @@ describe('SurveyResponse GET /:id', () => {
   let models;
   let ctx;
   let setupAutocompleteSurvey;
+  let setupSignatureSurvey;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    ({ setupAutocompleteSurvey } = createSurveyResponseTestHelpers(models));
+    ({ setupAutocompleteSurvey, setupSignatureSurvey } = createSurveyResponseTestHelpers(models));
   });
   afterAll(() => ctx.close());
 
@@ -34,6 +39,25 @@ describe('SurveyResponse GET /:id', () => {
 
     expect(result).toHaveSucceeded();
     expect(result.body.surveyName).toEqual(survey.name);
+  });
+
+  describe('signature', () => {
+    it('should decompress a stored signature answer for the API response', async () => {
+      const compressedBody = await compressSignatureBody(SIGNATURE_ANSWER_BODY);
+      const { answer, response } = await setupSignatureSurvey(compressedBody);
+
+      const result = await app.get(`/api/surveyResponse/${encodeURIComponent(response.id)}`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.answers).toHaveLength(1);
+      expect(result.body.answers[0]).toMatchObject({
+        id: answer.id,
+        body: SIGNATURE_ANSWER_BODY,
+        originalBody: SIGNATURE_ANSWER_BODY,
+      });
+      expect(result.body.answers[0].body).not.toBe(compressedBody);
+      expect(result.body.answers[0].originalBody).not.toBe(compressedBody);
+    });
   });
 
   describe('autocomplete', () => {
