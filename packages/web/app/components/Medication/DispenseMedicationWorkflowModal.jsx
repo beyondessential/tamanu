@@ -178,11 +178,11 @@ const PatientSummaryViewPatientLink = styled.button`
   font-size: 13px;
   font-weight: 500;
   color: ${Colors.midText};
-  text-decoration: underline;
   text-align: left;
 
   &:hover {
-    opacity: 0.85;
+    color: ${Colors.primary};
+    text-decoration: underline;
   }
 `;
 
@@ -698,7 +698,6 @@ export const DispenseMedicationWorkflowModal = memo(
       const handleViewPatient = () => {
         if (!patient.id) return;
         navigateToPatient(patient.id);
-        onClose();
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
@@ -731,7 +730,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ) : null}
         </PatientSummaryPanel>
       );
-    }, [patient, navigateToPatient, onClose]);
+    }, [patient, navigateToPatient]);
 
     const dispenseWithoutLabelsButton = (
       <OutlinedButton
