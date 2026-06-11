@@ -84,6 +84,7 @@ test.describe('AI encounter summary', () => {
     await installAiEncounterSummaryMock({ page, generatedSummary });
 
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToFirstEncounter();
     await patientDetailsPage.prepareDischargeButton.click();
 
     const summarySection = page.getByTestId('discharge-encounter-summary');
@@ -111,6 +112,7 @@ test.describe('AI encounter summary', () => {
     await installAiEncounterSummaryMock({ page, generatedSummary });
 
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToFirstEncounter();
     await patientDetailsPage.prepareDischargeButton.click();
 
     const summarySection = page.getByTestId('discharge-encounter-summary');
