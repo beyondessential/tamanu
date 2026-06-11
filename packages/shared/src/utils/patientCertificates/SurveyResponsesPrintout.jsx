@@ -1,22 +1,23 @@
-import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
+import React from 'react';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { formatPlainTime } from '@tamanu/utils/dateFormatters';
-import { CertificateHeader, Watermark } from './Layout';
-import { LetterheadSection } from './LetterheadSection';
-import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
-import { Footer } from './printComponents/Footer';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { PatientDetails } from './printComponents/PatientDetails';
-import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
-import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
-import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
+import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
+import { CertificateHeader, Watermark } from './Layout';
+import { LetterheadSection } from './LetterheadSection';
+import { Footer } from './printComponents/Footer';
+import { MultiPageHeader } from './printComponents/MultiPageHeader';
+import { PatientDetails } from './printComponents/PatientDetails';
+import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
+import { SignaturePdfDisplay } from './SignaturePdfDisplay';
+import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -149,22 +150,28 @@ const DisplayText = ({ row, getTranslation }) => {
 
 const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
+  const isSignature = type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
+
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text bold>
-        {getAnswers({
-          answer,
-          type,
-          getTranslation,
-          dataElementId,
-          config,
-          originalBody,
-          formatShort,
-        })}
-      </Text>
+      {isSignature ? (
+        <SignaturePdfDisplay body={answer} />
+      ) : (
+        <Text bold>
+          {getAnswers({
+            answer,
+            type,
+            getTranslation,
+            dataElementId,
+            config,
+            originalBody,
+            formatShort,
+          })}
+        </Text>
+      )}
     </View>
   );
 };

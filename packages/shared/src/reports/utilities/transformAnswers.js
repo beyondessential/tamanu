@@ -2,6 +2,7 @@ import { keyBy } from 'lodash';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { format, formatShort, isISOString, parseDate } from '@tamanu/utils/dateTime';
+import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
@@ -116,6 +117,11 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
   }
 };
 
+/** @param {string | null | undefined} answer */
+async function convertSignatureAnswer(answer) {
+  return await decompressSignatureBody(answer);
+}
+
 export const getAnswerBody = async (
   models,
   componentConfig,
@@ -167,6 +173,9 @@ export const getAnswerBody = async (
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      result = await convertSignatureAnswer(answer);
       break;
     default:
       result = answer;

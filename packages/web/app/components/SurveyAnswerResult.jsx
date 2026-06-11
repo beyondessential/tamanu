@@ -8,6 +8,7 @@ import {
   DateDisplay,
   PatientDataDisplayField,
   PlainTimeDisplay,
+  SignatureAnswerResult,
   SurveyResultBadge,
   TranslatedOption,
   TranslatedReferenceData,
@@ -117,6 +118,8 @@ export const SurveyAnswerResult = ({
           originalBody={originalBody}
         />
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return <SignatureAnswerResult path={answer} />;
     default:
       return answer;
   }

@@ -2,8 +2,15 @@ import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
+import { compressSignatureBody } from '@tamanu/shared/utils/signature';
+
 import { createTestContext } from '../../utilities';
-import { buildPatchBody, createSurveyResponseTestHelpers } from './helpers';
+import {
+  buildPatchBody,
+  createSurveyResponseTestHelpers,
+  SIGNATURE_ANSWER_BODY,
+  SIGNATURE_ANSWER_BODY_ALT,
+} from './helpers';
 
 describe('SurveyResponse GET /:id/changes', () => {
   let app;
@@ -13,14 +20,19 @@ describe('SurveyResponse GET /:id/changes', () => {
   let setupAutocompleteSurvey;
   let setupAutocompleteSurveyWithoutAnswer;
   let setupComplexChartSurvey;
+  let setupSignatureSurvey;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    ({ setupAutocompleteSurvey, setupAutocompleteSurveyWithoutAnswer, setupComplexChartSurvey } =
-      createSurveyResponseTestHelpers(models));
+    ({
+      setupAutocompleteSurvey,
+      setupAutocompleteSurveyWithoutAnswer,
+      setupComplexChartSurvey,
+      setupSignatureSurvey,
+    } = createSurveyResponseTestHelpers(models));
   });
   afterAll(() => ctx.close());
 
@@ -210,6 +222,33 @@ describe('SurveyResponse GET /:id/changes', () => {
 
       const answerChanges = changelog.body.filter(c => c.recordId === answer.id);
       expect(answerChanges).toHaveLength(2);
+    });
+
+    it('should decompress signature answer bodies in from/to fields', async () => {
+      const initialCompressedBody = await compressSignatureBody(SIGNATURE_ANSWER_BODY);
+      const { answer, response, facilityId } = await setupSignatureSurvey(initialCompressedBody);
+
+      const edit = await app.patch(`/api/surveyResponse/${encodeURIComponent(response.id)}`).send(
+        buildPatchBody({
+          facilityId,
+          answers: { [answer.dataElementId]: SIGNATURE_ANSWER_BODY_ALT },
+        }),
+      );
+      expect(edit).toHaveSucceeded();
+
+      const changelog = await app.get(
+        `/api/surveyResponse/${encodeURIComponent(response.id)}/changes`,
+      );
+      expect(changelog).toHaveSucceeded();
+
+      const answerChanges = changelog.body.filter(c => c.recordId === answer.id);
+      expect(answerChanges).toHaveLength(1);
+      expect(answerChanges[0]).toMatchObject({
+        from: SIGNATURE_ANSWER_BODY,
+        to: SIGNATURE_ANSWER_BODY_ALT,
+      });
+      expect(answerChanges[0].from).not.toBe(initialCompressedBody);
+      expect(answerChanges[0].to).not.toBe(await compressSignatureBody(SIGNATURE_ANSWER_BODY_ALT));
     });
 
     it('should return changes in reverse chronological order by edit time', async () => {

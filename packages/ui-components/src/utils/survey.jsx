@@ -9,10 +9,11 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
+import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import { TranslatedText } from '../components';
+import { TranslatedText } from '../components/Translation';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
@@ -252,6 +253,22 @@ export const getAnswersFromData = async (data, survey) => {
   return answers;
 };
 
+/**
+ * Signature is stored as compressed Base64 in database. For extremely complex signatures, it may
+ * cause `survey_response_answers` index record to exceed btree’s limit of 2704 bytes (1/3 of page
+ * size). This enforces an already-generous limit, with comfortable headroom.
+ */
+const SIGNATURE_MAX_COMPRESSED_BASE64_LENGTH = 2240;
+export const SIGNATURE_TOO_COMPLEX_STRING_ID = 'program.question.signature.tooComplex';
+
+const signatureSchema = yup
+  .string()
+  .test('signature-complexity', SIGNATURE_TOO_COMPLEX_STRING_ID, async function (value) {
+    const compressedLength = await estimateCompressedSize(value);
+    if (compressedLength <= SIGNATURE_MAX_COMPRESSED_BASE64_LENGTH) return true;
+    return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
+  });
+
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
@@ -297,6 +314,9 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
         case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
           valueSchema = yup.string();
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+          valueSchema = signatureSchema;
           break;
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:

@@ -11,6 +11,7 @@ import {
   PatientDataDisplayField,
   ReadOnlyNumberField,
   ReadOnlyTextField,
+  SignatureField,
 } from '@tamanu/ui-components';
 import {
   ChartInstanceNameField,
@@ -56,6 +57,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
       ViewPhotoLinkComponent={ViewPhotoLink}
     />
   ),
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
