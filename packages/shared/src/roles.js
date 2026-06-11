@@ -52,6 +52,10 @@ export const practitioner = [
   { verb: 'write', noun: 'Encounter' },
   { verb: 'delete', noun: 'Encounter' },
 
+  { verb: 'read', noun: 'EncounterSummary' },
+  { verb: 'create', noun: 'EncounterSummary' },
+  { verb: 'write', noun: 'EncounterSummary' },
+
   { verb: 'read', noun: 'Procedure' },
   { verb: 'list', noun: 'Procedure' },
   { verb: 'create', noun: 'Procedure' },
@@ -290,7 +294,7 @@ export const practitioner = [
   { verb: 'list', noun: 'SensitiveMedication' },
   { verb: 'create', noun: 'SensitiveMedication' },
   { verb: 'write', noun: 'SensitiveMedication' },
-  
+
   { verb: 'read', noun: 'LocationSchedule' },
   { verb: 'list', noun: 'LocationSchedule' },
   { verb: 'create', noun: 'LocationSchedule' },

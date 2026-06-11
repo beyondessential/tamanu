@@ -11,7 +11,8 @@ import {
 } from '../../api/mutations/useAiPatientSummaryMutation';
 import { AiPatientSummaryContent } from './AiPatientSummaryContent';
 import { AiPatientSummaryHeader } from './AiPatientSummaryHeader';
-import { DiscardSummaryConfirmModal } from './DiscardSummaryConfirmModal';
+import { DiscardAiSummaryConfirmModal } from '../DiscardAiSummaryConfirmModal';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -150,7 +151,9 @@ export const AiPatientSummary = ({ patient }) => {
           />
         </Collapse>
       </Container>
-      <DiscardSummaryConfirmModal
+      <DiscardAiSummaryConfirmModal
+        title={<TranslatedText stringId="ai.patientSummary.discardModal.title" fallback="Discard AI summary" />}
+        subText={<TranslatedText stringId="ai.patientSummary.discardModal.text" fallback="Are you sure you would like to discard the AI patient summary? You can regenerate a new AI summary at any time." />}
         open={isDiscardConfirmOpen}
         onCancel={handleCancelDiscard}
         onConfirm={handleConfirmDiscard}

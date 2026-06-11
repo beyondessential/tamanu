@@ -394,6 +394,11 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
   }
 
+  async navigateToFirstEncounter() {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
+  }
+
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
     await this.initiateNewOngoingConditionAddButton.click();
     await this.ongoingConditionNameField.fill(conditionName);
