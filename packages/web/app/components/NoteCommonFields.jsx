@@ -1,4 +1,3 @@
-import Divider from '@material-ui/core/Divider';
 import { NON_EDITABLE_NOTE_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
@@ -21,11 +20,6 @@ import {
 } from '@tamanu/ui-components';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 import { InfoCard, InfoCardItem } from './InfoCard';
-
-export const StyledDivider = styled(Divider)`
-  margin-top: 30px;
-  margin-bottom: 30px;
-`;
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;

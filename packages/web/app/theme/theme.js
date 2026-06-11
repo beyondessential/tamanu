@@ -70,6 +70,7 @@ const themeConfig = {
     action: {
       hover: Colors.veryLightBlue,
     },
+    divider: Colors.outline,
     spacing: {
       unit: MUI_SPACING_UNIT,
     },
