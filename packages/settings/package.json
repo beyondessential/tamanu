@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
-    "@jest/globals": "^29.4.3",
+    "@jest/globals": "^29.7.0",
     "@swc/jest": "^0.2.24",
     "@tamanu/build-tooling": "*",
     "@types/config": "^3.3.0",

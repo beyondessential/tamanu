@@ -1,7 +1,8 @@
 import { snakeCase } from 'lodash';
 
-import { getDependentAssociations } from '@tamanu/database';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+
+import { getDependentAssociations } from './getDependentAssociations';
 
 /**
  * Update child records by setting updated_at_sync_tick = 1

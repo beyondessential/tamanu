@@ -1,6 +1,7 @@
 import config from 'config';
-import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
-import { VRSActionRetrier } from '@tamanu/central-server/app/tasks/VRSActionRetrier';
+
+import { VRSActionRetrier } from '../../../app/tasks/VRSActionRetrier';
+import { createTestContext } from '../../utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
 const { host } = config.integrations.fijiVrs;
