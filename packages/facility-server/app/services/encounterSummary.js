@@ -1,18 +1,18 @@
 import { QueryTypes } from 'sequelize';
 
 import { CentralServerConnection } from '../sync';
-import { fetchPatientSummaryData } from './patientSummaryData';
+import { fetchEncounterSummaryData } from './encounterSummaryData';
 
 /**
- * Query logs.changes for ai_documents that were edited by a human for a given patient.
+ * Query logs.changes for ai_documents that were edited by a human for a given encounter.
  * Returns each non-empty human edit paired with the most recent prior AI-generated content.
  */
-export async function getPatientSummaryEditFeedback(patientId, models, sequelize) {
+export async function getEncounterSummaryEditFeedback(encounterId, models, sequelize) {
   const doc = await models.AiDocument.findOne({
     where: {
-      recordType: 'Patient',
-      recordId: patientId,
-      type: 'patient_summary',
+      recordType: 'Encounter',
+      recordId: encounterId,
+      type: 'encounter_summary',
     },
   });
 
@@ -48,28 +48,24 @@ export async function getPatientSummaryEditFeedback(patientId, models, sequelize
   );
 }
 
-export async function regenerateAiPatientSummary({ patientId, models, db, deviceId }) {
-  const patientData = await fetchPatientSummaryData(patientId, models);
-  const editFeedback = await getPatientSummaryEditFeedback(patientId, models, db);
+export async function regenerateAiEncounterSummary({ encounterId, models, db, deviceId }) {
+  const encounterData = await fetchEncounterSummaryData(encounterId, models);
+  const editFeedback = await getEncounterSummaryEditFeedback(encounterId, models, db);
 
   const centralServer = new CentralServerConnection({ deviceId });
   // Disable the sync connection's default retry/backoff so an offline central fails
   // fast and surfaces an error in the UI, rather than retrying for ~90s while the
   // user stares at a spinner.
-  const aiResponse = await centralServer.fetch('ai/patient/summary', {
+  const aiResponse = await centralServer.fetch('ai/encounter/summary', {
     method: 'POST',
-    body: { patientData, editFeedback },
+    body: { encounterData, editFeedback },
     backoff: false,
   });
 
-  // The composite primary key (type, record_type, record_id) makes this
-  // upsert a no-op when a row already exists for this patient: existing summaries
-  // (including edited or discarded ones) are reset to a fresh AI-generated state,
-  // and concurrent regenerations across facilities converge on the same row.
   const [doc] = await models.AiDocument.upsert({
-    type: 'patient_summary',
-    recordType: 'Patient',
-    recordId: patientId,
+    type: 'encounter_summary',
+    recordType: 'Encounter',
+    recordId: encounterId,
     content: aiResponse.content,
     status: 'generated',
     source: 'ai',
