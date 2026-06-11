@@ -98,6 +98,8 @@ export const DataElementType = {
   Condition: 'Condition',
   ConditionQuestion: 'ConditionQuestion',
   Date: 'Date',
+  DateTime: 'DateTime',
+  Time: 'Time',
   DaysSince: 'DaysSince',
   Entity: 'Entity',
   FreeText: 'FreeText',

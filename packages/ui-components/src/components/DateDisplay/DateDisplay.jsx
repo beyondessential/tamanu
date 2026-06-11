@@ -138,14 +138,17 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
 export const TimeDisplay = React.memo(
-  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
+  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, ...props }) => {
     const { primaryTimeZone, facilityTimeZone } = useDateTime();
     const displayTime = useFormattedDate(dateValue, { timeFormat });
 
     const content = (
-      <span style={style} {...props}>
+      <time
+        {...props}
+        dateTime={typeof dateValue === 'string' ? dateValue : dateValue?.toISOString()}
+      >
         {displayTime}
-      </span>
+      </time>
     );
 
     if (noTooltip) return content;
