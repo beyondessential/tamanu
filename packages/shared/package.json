@@ -126,7 +126,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "npm run clean && concurrently -n esm,cjs,types -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" \"npm run build:types\"",
+    "build": "concurrently -n esm,cjs,types -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" \"npm run build:types\"",
     "build:dev": "npm run build",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",

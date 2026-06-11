@@ -23,13 +23,13 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run clean && concurrently -n esm,cjs -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" && move-dts --copy dist/esm dist/cjs",
+    "build": "concurrently -n esm,cjs -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" && move-dts --copy dist/esm dist/cjs",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:cjs": "swc --copy-files --source-maps true --out-dir dist/cjs src",
     "build:esm": "tsc",
     "build:types:cjs": "tsc --emitDeclarationOnly --outDir dist/cjs",
     "build-watch": "npm run build:dev:watch",
-    "clean": "rimraf -- dist *.tsbuildInfo",
+    "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules"
   },
   "devDependencies": {

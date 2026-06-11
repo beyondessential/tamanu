@@ -13,7 +13,6 @@
     "resolveJsonModule": true,
     "rootDir": "./src",
     "strict": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "verbatimModuleSyntax": false
   },
   "extends": "../../common.tsconfig.json",

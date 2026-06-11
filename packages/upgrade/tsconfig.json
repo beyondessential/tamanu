@@ -12,7 +12,6 @@
     "removeComments": false,
     "resolveJsonModule": true,
     "strict": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "verbatimModuleSyntax": true,
     "lib": ["es2021"]
   },
