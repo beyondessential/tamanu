@@ -174,25 +174,16 @@ export const LargeOutlineButton = props => (
   <StyledLargeButton variant="outlined" color="primary" {...props} />
 );
 
-const StyledDeleteButton = styled(Button)`
-  background: ${red[600]};
+export const DeleteButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+  variant: 'contained',
+})`
+  background-color: ${red[600]};
   color: ${TAMANU_COLORS.white};
-
-  :hover {
-    background: ${red[800]};
+  &:hover {
+    background-color: ${red[800]};
   }
 `;
-
-export function DeleteButton({
-  children = <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-  ...props
-}) {
-  return (
-    <StyledDeleteButton variant="contained" {...props}>
-      {children}
-    </StyledDeleteButton>
-  );
-}
 
 const StyledTextButton = styled(Button)`
   color: #5b84ad;
