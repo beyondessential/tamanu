@@ -29,8 +29,8 @@ export async function compressSignatureBody(body) {
   const byteArray = new TextEncoder().encode(body);
   const cs = new CompressionStream(encoding);
   const writer = cs.writable.getWriter();
-  writer.write(byteArray);
-  writer.close();
+  await writer.write(byteArray);
+  await writer.close();
   const buffer = await new Response(cs.readable).arrayBuffer();
 
   return typeof Uint8Array.prototype.toBase64 === 'function'
@@ -51,8 +51,8 @@ export async function decompressSignatureBody(base64String) {
       : new Uint8Array(Buffer.from(base64String, 'base64'));
   const cs = new DecompressionStream(encoding);
   const writer = cs.writable.getWriter();
-  writer.write(byteArray);
-  writer.close();
+  await writer.write(byteArray);
+  await writer.close();
   const arrayBuffer = await new Response(cs.readable).arrayBuffer();
   return new TextDecoder().decode(arrayBuffer);
 }
