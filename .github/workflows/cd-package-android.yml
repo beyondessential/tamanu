@@ -100,10 +100,10 @@ jobs:
           node-version-file: '.node-version'
           cache: npm
 
-      - name: Run npm install
-        working-directory: packages/mobile
-        run: |
-          npm install
+      - name: Install dependencies
+        # Ideally we’d scope to --workspace=@tamanu/mobile, but `build-shared` builds all depended-
+        # on packages, regardless of whether @tamanu/mobile depends on it.
+        run: npm install
 
       - name: Build shared packages
         run: |
