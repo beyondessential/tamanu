@@ -81,6 +81,7 @@ export const SurveyScreenPaginator = ({
   onScreenIndexChange = undefined,
   completeButtonDisabled = false,
   editedDataElementIds = null,
+  onViewChangeLog = null,
 }) => {
   const { components } = survey;
 
@@ -124,6 +125,7 @@ export const SurveyScreenPaginator = ({
         encounterType={encounterType}
         getComponentForQuestionType={getComponentForQuestionType}
         editedDataElementIds={editedDataElementIds}
+        onViewChangeLog={onViewChangeLog}
         data-testid="surveyscreen-2tj0"
       />
     );

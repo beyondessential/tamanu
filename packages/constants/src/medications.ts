@@ -111,6 +111,81 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.wafer]: 'Wafer',
 };
 
+// Long-form unit labels in plural. Used for dispensed-medication label text when
+// the dose is greater than 1 (e.g. '2 tablets'). Units of measurement (mg, mL, %,
+// etc.) are invariant, so their plural is the same as the singular long form.
+export const DRUG_UNIT_PLURAL_LABELS = {
+  [DRUG_UNITS.percentage]: '%',
+  [DRUG_UNITS.capsule]: 'Capsules',
+  [DRUG_UNITS.disc]: 'Discs',
+  [DRUG_UNITS.douche]: 'Douches',
+  [DRUG_UNITS.drop]: 'Drops',
+  [DRUG_UNITS.ffu]: 'FFU',
+  [DRUG_UNITS.g]: 'g',
+  [DRUG_UNITS.iu]: 'IU',
+  [DRUG_UNITS.l]: 'L',
+  [DRUG_UNITS.lozenge]: 'Lozenges',
+  [DRUG_UNITS.mg]: 'mg',
+  [DRUG_UNITS.mcg]: 'mcg',
+  [DRUG_UNITS.ml]: 'mL',
+  [DRUG_UNITS.mmol]: 'mmol',
+  [DRUG_UNITS.mol]: 'mol',
+  [DRUG_UNITS.patch]: 'Patches',
+  [DRUG_UNITS.pellet]: 'Pellets',
+  [DRUG_UNITS.pouch]: 'Pouches',
+  [DRUG_UNITS.puff]: 'Puffs',
+  [DRUG_UNITS.ring]: 'Rings',
+  [DRUG_UNITS.smear]: 'Smears',
+  [DRUG_UNITS.spray]: 'Sprays',
+  [DRUG_UNITS.stick]: 'Sticks',
+  [DRUG_UNITS.strip]: 'Strips',
+  [DRUG_UNITS.suppository]: 'Suppositories',
+  [DRUG_UNITS.swab]: 'Swabs',
+  [DRUG_UNITS.tablet]: 'Tablets',
+  [DRUG_UNITS.tbsp]: 'tbsp',
+  [DRUG_UNITS.tsp]: 'tsp',
+  [DRUG_UNITS.u]: 'U',
+  [DRUG_UNITS.vial]: 'Vials',
+  [DRUG_UNITS.wafer]: 'Wafers',
+};
+
+// Administration verb prefixed to dispensed-medication label text, chosen per
+// dosing unit (e.g. 'Take 1 tablet...', 'Apply 1 patch...').
+export const DRUG_UNIT_VERBS = {
+  [DRUG_UNITS.percentage]: 'Administer',
+  [DRUG_UNITS.capsule]: 'Take',
+  [DRUG_UNITS.disc]: 'Administer',
+  [DRUG_UNITS.douche]: 'Administer',
+  [DRUG_UNITS.drop]: 'Administer',
+  [DRUG_UNITS.ffu]: 'Administer',
+  [DRUG_UNITS.g]: 'Administer',
+  [DRUG_UNITS.iu]: 'Administer',
+  [DRUG_UNITS.l]: 'Administer',
+  [DRUG_UNITS.lozenge]: 'Take',
+  [DRUG_UNITS.mg]: 'Give',
+  [DRUG_UNITS.mcg]: 'Give',
+  [DRUG_UNITS.ml]: 'Give',
+  [DRUG_UNITS.mmol]: 'Give',
+  [DRUG_UNITS.mol]: 'Give',
+  [DRUG_UNITS.patch]: 'Apply',
+  [DRUG_UNITS.pellet]: 'Administer',
+  [DRUG_UNITS.pouch]: 'Administer',
+  [DRUG_UNITS.puff]: 'Inhale',
+  [DRUG_UNITS.ring]: 'Insert',
+  [DRUG_UNITS.smear]: 'Apply',
+  [DRUG_UNITS.spray]: 'Administer',
+  [DRUG_UNITS.stick]: 'Administer',
+  [DRUG_UNITS.strip]: 'Administer',
+  [DRUG_UNITS.suppository]: 'Insert',
+  [DRUG_UNITS.swab]: 'Apply',
+  [DRUG_UNITS.tablet]: 'Take',
+  [DRUG_UNITS.tbsp]: 'Give',
+  [DRUG_UNITS.tsp]: 'Give',
+  [DRUG_UNITS.u]: 'Administer',
+  [DRUG_UNITS.vial]: 'Give',
+  [DRUG_UNITS.wafer]: 'Take',
+};
+
 export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 

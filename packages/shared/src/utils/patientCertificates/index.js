@@ -19,3 +19,4 @@ export * from './IDCardPrintout'
 export * from './IDLabelPrintout';
 export * from './QRCodeIDCardPrintout';
 export * from './SurveyResponsesPrintout';
+export { getDisplayTextAnswer, getSurveyAnswerRows } from './surveyAnswers';

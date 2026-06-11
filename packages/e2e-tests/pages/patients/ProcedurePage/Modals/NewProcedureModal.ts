@@ -31,7 +31,6 @@ export class NewProcedureModal extends BasePage {
   readonly dialogActions!: Locator;
   readonly modalTitle!: Locator;
   readonly assistantCliniciansInput!: Locator;
-  readonly procedureModalHeader!: Locator;
 
   readonly saveProcedureButton: Locator;
   
@@ -62,7 +61,6 @@ export class NewProcedureModal extends BasePage {
      completedCheckbox: 'field-uaz4-controlcheck',
      completedNotesCollapse: 'collapse-e9ow',
      dialogActions: 'dialogactions-jkc6',
-     procedureModalHeader: 'verticalcenteredtext-ni4s'
     } as const;
    
 

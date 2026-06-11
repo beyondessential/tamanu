@@ -45,7 +45,10 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'chromium',
+      // single project: the setup logs into both frontends and saves one
+      // combined session, so specs can drive the facility (:5173) or admin
+      // (:5174) frontend authenticated, including within the same test
+      name: 'e2e',
       use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
       dependencies: ['setup'],
     },
