@@ -3,9 +3,9 @@
 import { glob } from 'glob';
 import _ from 'lodash';
 import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import { parseArgs, styleText } from 'node:util';
+import { styleText } from 'node:util';
 import { ensureDirectoryExists } from './dirs.mjs';
+import path from 'node:path';
 
 /** @param {string} pathLike */
 function stylePath(pathLike) {
@@ -22,23 +22,15 @@ function escapeReplacement(s) {
   return s.replaceAll('$', '$$');
 }
 
-const { values, positionals } = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    copy: {
-      type: 'boolean',
-      default: false,
-    },
-  },
-  allowPositionals: true,
-});
+const args = process.argv.slice(2);
+const copyOnly = args[0] === '--copy';
+const positional = copyOnly ? args.slice(1) : args;
 
-const copyOnly = values.copy;
-const src = positionals[0];
-const dst = positionals.slice(1).map((d, i) => [
+const src = positional[0];
+const dst = positional.slice(1).map((d, i) => [
   // enumerate backwards so that 1 is always the last dst,
   // so we can switch from copy to rename below
-  positionals.slice(1).length - i,
+  positional.slice(1).length - i,
 
   // normalise dst paths to always end with a /
   d.replace(/\/?$/, '/'),
