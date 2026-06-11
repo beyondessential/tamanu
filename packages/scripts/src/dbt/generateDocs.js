@@ -16,6 +16,7 @@ async function run() {
   const db = await dbConfig('central-server');
   await db.client.end();
 
+  console.log(' | delete old docs if any');
   const base = join('database', 'docs');
   await fs.rm(base, { recursive: true, force: true });
 
