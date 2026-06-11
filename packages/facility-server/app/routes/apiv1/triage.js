@@ -59,12 +59,7 @@ triage.post(
     };
     const departmentId = await getDepartmentId();
 
-    // Resolve the vitals survey response's default location/department from
-    // settings (survey.defaultCodes.*) before any writes. getDefaultId throws if
-    // the configured code doesn't exist for the facility; doing it up front means a
-    // config error fails before the encounter is created rather than after, which
-    // previously left the patient with an orphaned active encounter they couldn't
-    // re-triage.
+    // Resolve defaults before any writes so a bad config fails before the encounter is created.
     const resolveVitalsDefaults = async () => {
       const getDefaultId = async type =>
         models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
@@ -75,9 +70,7 @@ triage.post(
     };
     const vitalsDefaults = vitals ? await resolveVitalsDefaults() : null;
 
-    // Create the triage, its encounter and all derived records atomically. If any
-    // step fails the whole thing rolls back, so the patient isn't left with a
-    // half-created active encounter that blocks them from being re-triaged.
+    // Single transaction so any failure rolls the encounter back rather than orphaning it.
     const triageRecord = await db.transaction(async () => {
       const triage = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 

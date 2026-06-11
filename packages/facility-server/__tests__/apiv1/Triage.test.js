@@ -281,8 +281,6 @@ describe('Triage', () => {
 
   it('should not leave an orphaned encounter when the vitals default location is misconfigured', async () => {
     const [facilityId] = selectFacilityIds(config);
-    // Point the default location code at something that doesn't exist so resolving
-    // the vitals default throws, reproducing the misconfigured-facility report.
     await models.Setting.set(
       'survey.defaultCodes.location',
       'nonexistent-location-code',
@@ -302,8 +300,6 @@ describe('Triage', () => {
         .send({ ...triageBody, facilityId, vitals: {} });
       expect(response).toHaveStatus(500);
 
-      // The encounter creation must have rolled back, so the patient has no active
-      // encounter and can be re-triaged once the config is fixed.
       const encounters = await models.Encounter.findAll({
         where: { patientId: encounterPatient.id },
       });
