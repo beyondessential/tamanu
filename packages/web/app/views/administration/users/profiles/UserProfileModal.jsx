@@ -29,6 +29,7 @@ import { useAuth } from '../../../../contexts/Auth';
 import { useTranslation } from '../../../../contexts/Translation';
 import { foreignKey } from '../../../../utils/validation';
 import { UserLeaveSection } from './UserLeaveSection';
+import { UserMfaSection } from './UserMfaSection';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -415,6 +416,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
                 <Divider sx={{ borderColor: Colors.outline }} />
                 <UserLeaveSection user={user} />
+                <UserMfaSection user={user} onMfaChanged={handleRefresh} />
                 <Box mt="34px">
                   <Divider sx={{ borderColor: Colors.outline }} />
                 </Box>

@@ -3,6 +3,12 @@ export const JWT_TOKEN_TYPES = {
   ACCESS: 'access',
   PATIENT_PORTAL_ACCESS: 'patient_portal_access',
   PATIENT_PORTAL_REFRESH: 'patient_portal_refresh',
+  // short-lived token minted by redeeming an MFA enrolment invite; authorises
+  // only the enrolment ceremony endpoints, not a session
+  MFA_ENROL: 'mfa_enrol',
+  // short-lived token returned by login when a second factor (or forced
+  // enrolment) is still owed; authorises only the MFA completion endpoints
+  MFA_LOGIN: 'mfa_login',
 };
 
 // we hardcode this as we don't support multiple keys yet, but still want
@@ -42,3 +48,66 @@ export const LOGIN_ATTEMPT_OUTCOMES = {
 };
 
 export const LOCKED_OUT_ERROR_MESSAGE = 'User is locked out';
+
+// Ephemeral single-use MFA tokens (mfa_challenges table): WebAuthn ceremony
+// challenges, and admin-issued enrolment invite tokens.
+export const MFA_CHALLENGE_TYPES = {
+  WEBAUTHN_REGISTER: 'webauthn_register',
+  WEBAUTHN_ASSERT: 'webauthn_assert',
+  ENROL_INVITE: 'enrol_invite',
+  // single-use nonce for a paused login's completion pass (mfa_login JWT)
+  LOGIN: 'login',
+} as const;
+export type MfaChallengeType = (typeof MFA_CHALLENGE_TYPES)[keyof typeof MFA_CHALLENGE_TYPES];
+
+export const MFA_FACTORS = {
+  WEBAUTHN: 'webauthn',
+  TOTP: 'totp',
+} as const;
+export type MfaFactor = (typeof MFA_FACTORS)[keyof typeof MFA_FACTORS];
+
+// Values for the auth.mfa.totp.availability setting: where TOTP may be used as
+// a factor. fallbackOnly offers it only where WebAuthn is unavailable (mobile,
+// and servers outside the relying party ID stem).
+export const MFA_TOTP_AVAILABILITY = {
+  ALL: 'all',
+  FALLBACK_ONLY: 'fallbackOnly',
+  OFF: 'off',
+} as const;
+export type MfaTotpAvailability =
+  (typeof MFA_TOTP_AVAILABILITY)[keyof typeof MFA_TOTP_AVAILABILITY];
+
+// Values for auth.mfa.webauthn.residentKey: how hard enrolment pushes for a
+// discoverable (resident) credential, which is what passwordless login needs.
+// 'preferred' enrols permissively and records actual capability via credProps;
+// 'required' forces discoverable (guarantees passwordless capability but
+// rejects authenticators that can't store a resident key). These mirror the
+// WebAuthn residentKey requirement values.
+export const MFA_RESIDENT_KEY = {
+  // permissive: enrol whatever the authenticator offers, record capability
+  PREFERRED: 'preferred',
+  // permissive like preferred, but the client warns the user and offers a
+  // retry forcing a resident key when the enrolled passkey can't do
+  // passwordless and passwordless login is available
+  WARN: 'warn',
+  // force a discoverable credential (rejects authenticators that can't)
+  REQUIRED: 'required',
+} as const;
+export type MfaResidentKey = (typeof MFA_RESIDENT_KEY)[keyof typeof MFA_RESIDENT_KEY];
+
+// Values for auth.mfa.webauthn.userVerification: whether enrolment and
+// second-factor assertion demand the authenticator verify the user (PIN,
+// biometric) or merely confirm their presence (a touch). 'required' rejects
+// presence-only authenticators (e.g. basic U2F keys); 'preferred' lets them
+// enrol as a second factor only — they're non-discoverable, so the existing
+// passwordless gate already excludes them. Passwordless ceremonies always
+// require user verification regardless of this setting. Mirror the WebAuthn
+// userVerification values.
+export const MFA_USER_VERIFICATION = {
+  // permissive: accept presence-only (touch) authenticators as a second factor
+  PREFERRED: 'preferred',
+  // demand user verification (rejects presence-only authenticators)
+  REQUIRED: 'required',
+} as const;
+export type MfaUserVerification =
+  (typeof MFA_USER_VERIFICATION)[keyof typeof MFA_USER_VERIFICATION];

@@ -28,6 +28,9 @@ import {
 import {
   ADMINISTRATION_FREQUENCIES,
   isValidAdditionalSearchField,
+  MFA_RESIDENT_KEY,
+  MFA_TOTP_AVAILABILITY,
+  MFA_USER_VERIFICATION,
   SETTING_EDITORS,
 } from '@tamanu/constants';
 import {
@@ -83,6 +86,70 @@ export const globalSettings = {
           description: 'Restrict users from being able to sync based on permissions',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        mfa: {
+          description: 'Multi-factor authentication',
+          properties: {
+            enabled: {
+              name: 'Enable MFA',
+              description:
+                'Make multi-factor authentication available. Enabling this alone is non-disruptive: it only lets users (with the relevant permission) enrol a factor — nobody is challenged until they have enrolled, or forced to enrol unless their role requires MFA',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            webauthn: {
+              description: 'WebAuthn (passkey) options',
+              properties: {
+                rpid: {
+                  name: 'Relying party ID',
+                  description:
+                    'The WebAuthn relying party ID: the common stem of the central and facility server domain names (e.g. "foo.bar.com" for central.foo.bar.com and facility-a.foo.bar.com), which lets one passkey work across all of them. Servers whose origin is not under this stem do not offer WebAuthn. Empty disables WebAuthn entirely. WARNING: changing this after users have enrolled invalidates every existing passkey',
+                  type: yup.string(),
+                  defaultValue: '',
+                  highRisk: true,
+                },
+                residentKey: {
+                  name: 'Passkey resident-key requirement',
+                  description:
+                    'How hard passkey enrolment pushes for a discoverable (resident) credential, which is what passwordless ("sign in with a passkey") login needs. "preferred" enrols permissively and marks passkeys that turn out not to be passwordless-capable; "warn" is like preferred but, when passwordless is available, warns the user and offers to retry requiring passwordless; "required" guarantees every passkey can be used passwordless but rejects authenticators that can\'t store a resident key',
+                  type: yup.string().oneOf(Object.values(MFA_RESIDENT_KEY)),
+                  defaultValue: MFA_RESIDENT_KEY.PREFERRED,
+                },
+                userVerification: {
+                  name: 'Passkey user-verification requirement',
+                  description:
+                    'Whether passkey enrolment and second-factor sign-in demand the authenticator verify the user (PIN or biometric) or merely confirm their presence (a touch). "required" rejects presence-only authenticators such as basic security keys; "preferred" lets them enrol and act as a second factor only (they cannot be used for passwordless login, which always requires user verification)',
+                  type: yup.string().oneOf(Object.values(MFA_USER_VERIFICATION)),
+                  defaultValue: MFA_USER_VERIFICATION.REQUIRED,
+                },
+              },
+            },
+            totp: {
+              description: 'Authenticator app (TOTP) options',
+              properties: {
+                availability: {
+                  name: 'TOTP availability',
+                  description:
+                    'Where authenticator-app codes may be used as a factor: "all" = every surface; "fallbackOnly" = only where WebAuthn is unavailable (mobile, and servers outside the relying party ID stem), enforcing passkeys on capable surfaces; "off" = nowhere (WebAuthn-only deployment)',
+                  type: yup.string().oneOf(Object.values(MFA_TOTP_AVAILABILITY)),
+                  defaultValue: MFA_TOTP_AVAILABILITY.ALL,
+                },
+              },
+            },
+            enrolInvite: {
+              description: 'Admin-issued MFA enrolment invite tokens',
+              properties: {
+                expiry: {
+                  name: 'Invite expiry',
+                  description:
+                    'How long an MFA enrolment invite token stays redeemable. Invites are single-use, and redemption also requires the user to enter their password',
+                  type: yup.number().positive(),
+                  defaultValue: 60,
+                  unit: 'minutes',
+                },
+              },
+            },
+          },
         },
       },
     },

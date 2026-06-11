@@ -98,6 +98,7 @@ const StyledCheckboxField = styled(Field)`
 const LoginFormComponent = ({
   errorMessage,
   onNavToResetPassword,
+  onNavToMfaInvite,
   setFieldError,
   rememberEmail,
 }) => {
@@ -209,12 +210,23 @@ const LoginFormComponent = ({
           data-testid="translatedtext-427q"
         />
       </ForgotPasswordButton>
+      <ForgotPasswordButton
+        onClick={onNavToMfaInvite}
+        color="default"
+        variant="text"
+        data-testid="mfa-invite-link"
+      >
+        <TranslatedText
+          stringId="login.mfaInvite.label"
+          fallback="Have an MFA enrolment invite?"
+        />
+      </ForgotPasswordButton>
     </FormGrid>
   );
 };
 
 export const LoginForm = React.memo(
-  ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
+  ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword, onNavToMfaInvite }) => {
     const { getTranslation } = useTranslation();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
@@ -231,6 +243,7 @@ export const LoginForm = React.memo(
         setAdvancedExpanded={setAdvancedExpanded}
         setFieldValue={setFieldValue}
         onNavToResetPassword={onNavToResetPassword}
+        onNavToMfaInvite={onNavToMfaInvite}
         setFieldError={setFieldError}
         rememberEmail={rememberEmail}
         data-testid="loginformcomponent-g9rh"

@@ -5,8 +5,11 @@ import { getPermissions } from '@tamanu/shared/permissions/middleware';
 
 import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
+import { enrolInvite } from './enrolInvite';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
+import { mfa } from './mfa';
+import { mfaLogin } from './mfaLogin';
 import { refresh } from './refresh';
 import { setFacility } from './setFacility';
 import { userInfo, userMiddleware } from './userMiddleware';
@@ -25,12 +28,19 @@ export const authModule = ({ authLimiter } = {}) => {
 
   router.use('/resetPassword', limiter, resetPassword);
   router.use('/changePassword', limiter, changePassword);
+  // pre-auth: authorised by invite token + password, then a scoped JWT —
+  // registered before the userMiddleware-gated /mfa router takes the rest of
+  // that path space
+  router.use('/mfa/enrolInvite', limiter, enrolInvite);
+  // pre-auth: authorised by the short-lived mfa_login token from /login
+  router.use('/mfa/login', limiter, mfaLogin);
   router.post('/login', limiter, login);
   router.post('/refresh', limiter, refresh);
 
   router.use(userMiddleware);
   router.post('/setFacility', setFacility);
   router.get('/user/me', userInfo);
+  router.use('/mfa', mfa);
 
   router.get('/permissions', asyncHandler(getPermissions));
   router.get(

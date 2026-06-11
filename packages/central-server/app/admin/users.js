@@ -22,7 +22,11 @@ import { isBcryptHash } from '@tamanu/utils/password';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
+import { userMfaRouter } from './userMfa';
+
 export const usersRouter = express.Router();
+
+usersRouter.use('/:userId/mfa', userMfaRouter);
 
 const createUserFilters = (filterParams, models) => {
   const includeDeactivated = filterParams.includeDeactivated !== 'false';
@@ -74,7 +78,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, UserDesignation, ReferenceData, Role },
+        models: { User, UserDesignation, ReferenceData, Role, WebAuthnCredential },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page, ...filterParams },
     } = req;
@@ -154,6 +158,15 @@ usersRouter.get(
     });
     const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
+    // passkey presence for the MFA column, batched over the page (TOTP
+    // presence is already on the user row via the synced mirror)
+    const userIds = users.map(user => user.id);
+    const webauthnRows = await WebAuthnCredential.findAll({
+      attributes: ['userId'],
+      where: { userId: userIds },
+    });
+    const usersWithPasskeys = new Set(webauthnRows.map(row => row.userId));
+
     res.send({
       count,
       data: await Promise.all(
@@ -176,6 +189,10 @@ usersRouter.get(
             roleName,
             allowedFacilities,
             designations,
+            mfa: {
+              webauthn: usersWithPasskeys.has(user.id),
+              totp: Boolean(user.totpConfirmedAt),
+            },
           };
         }),
       ),

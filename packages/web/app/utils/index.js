@@ -1,6 +1,7 @@
 export { getImageSourceFromData, getFileInDocumentsPath, imageDataIsFileName } from './image';
 export * from './utils';
 export * from './getConfigObject';
+export { webauthnErrorMessage } from './webauthn';
 export { flattenObject } from './flattenObject';
 export * from './getVisibleQuestions';
 export * from './invalidatePatientDataQueries';

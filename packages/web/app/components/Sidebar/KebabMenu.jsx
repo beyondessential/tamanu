@@ -5,8 +5,10 @@ import Launch from '@mui/icons-material/Launch';
 import MoreVert from '@mui/icons-material/MoreVert';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
+import { MfaSettingsModal } from '../MfaSettingsModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 
 const SupportDesktopLink = styled.a`
@@ -52,10 +54,15 @@ const StyledMenu = styled(Menu)`
 export const KebabMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isChangingLanguage, setChangingLanguage] = useState(false);
+  const [isManagingMfa, setManagingMfa] = useState(false);
   const open = Boolean(anchorEl);
   const { data = {} } = useTranslationLanguagesQuery();
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
   const { languageDisplayNames, languagesInDb = [] } = data;
+  // whether MFA is enabled is a server-side setting the modal surfaces; the
+  // menu item only needs the permission
+  const canManageMfa = Boolean(ability?.can('write', 'Mfa'));
 
   const languageOptions = languagesInDb.map(language => {
     return {
@@ -108,6 +115,20 @@ export const KebabMenu = () => {
             />
           </KebabMenuItem>
         )}
+        {canManageMfa && (
+          <KebabMenuItem
+            onClick={() => {
+              setManagingMfa(true);
+              handleCloseKebabMenu();
+            }}
+            data-testid="kebabmenuitem-mfa"
+          >
+            <TranslatedText
+              stringId="mfa.settings.menuItem"
+              fallback="Multi-factor authentication"
+            />
+          </KebabMenuItem>
+        )}
         <KebabMenuItem onClick={handleCloseKebabMenu} data-testid="kebabmenuitem-ukga">
           <SupportDesktopLink
             href={supportUrl}
@@ -130,6 +151,9 @@ export const KebabMenu = () => {
         onClose={() => setChangingLanguage(false)}
         data-testid="changelanguagemodal-mgtk"
       />
+      {canManageMfa && (
+        <MfaSettingsModal open={isManagingMfa} onClose={() => setManagingMfa(false)} />
+      )}
     </>
   );
 };

@@ -13,6 +13,7 @@ export const NON_SYNCING_TABLES = [
   'public.fhir_materialise_jobs',
   'public.form_builder_chat_jobs',
   'public.local_system_facts',
+  'public.mfa_challenges',
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
@@ -22,6 +23,7 @@ export const NON_SYNCING_TABLES = [
   'public.sync_lookup_ticks',
   'public.sync_queued_devices',
   'public.sync_sessions',
+  'public.totp_secrets',
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',
   'public.portal_one_time_tokens',
@@ -32,8 +34,10 @@ export const NON_LOGGED_TABLES = [
   'logs.*',
 
   // internal authentication tables
+  'public.mfa_challenges',
   'public.one_time_logins',
   'public.refresh_tokens',
+  'public.totp_secrets',
 
   // internal sync tables
   'public.sync_sessions',

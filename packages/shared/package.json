@@ -38,6 +38,10 @@
       "require": "./dist/cjs/schemas/facility/requests/*.js",
       "import": "./dist/esm/schemas/facility/requests/*.js"
     },
+    "./auth/*": {
+      "require": "./dist/cjs/auth/*.js",
+      "import": "./dist/esm/auth/*.js"
+    },
     "./subCommands/*": {
       "require": "./dist/cjs/subCommands/*.js",
       "import": "./dist/esm/subCommands/*.js"
@@ -148,6 +152,7 @@
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@react-pdf/renderer": "^3.4.4",
+    "@simplewebauthn/server": "^13.3.1",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/utils": "*",
