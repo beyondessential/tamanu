@@ -3,14 +3,14 @@ export const VACCINE_CATEGORIES = {
   CATCHUP: 'Catchup',
   CAMPAIGN: 'Campaign',
   OTHER: 'Other',
-};
+} as const;
 
 export const VACCINE_CATEGORY_LABELS = {
   [VACCINE_CATEGORIES.ROUTINE]: 'Routine',
   [VACCINE_CATEGORIES.CATCHUP]: 'Catch-up',
   [VACCINE_CATEGORIES.CAMPAIGN]: 'Campaign',
   [VACCINE_CATEGORIES.OTHER]: 'Other',
-};
+} as const;
 
 export const VACCINE_CATEGORY_OPTIONS = [
   { value: VACCINE_CATEGORIES.ROUTINE, label: VACCINE_CATEGORY_LABELS[VACCINE_CATEGORIES.ROUTINE] },
@@ -20,7 +20,7 @@ export const VACCINE_CATEGORY_OPTIONS = [
     label: VACCINE_CATEGORY_LABELS[VACCINE_CATEGORIES.CAMPAIGN],
   },
   { value: VACCINE_CATEGORIES.OTHER, label: VACCINE_CATEGORY_LABELS[VACCINE_CATEGORIES.OTHER] },
-];
+] as const;
 
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
 
@@ -31,7 +31,9 @@ export const INJECTION_SITE_VALUES = {
   RIGHT_THIGH: 'right_thigh',
   ORAL: 'oral',
   OTHER: 'other',
-};
+} as const;
+
+export type InjectionSite = (typeof INJECTION_SITE_VALUES)[keyof typeof INJECTION_SITE_VALUES];
 
 export const INJECTION_SITE_LABELS = {
   [INJECTION_SITE_VALUES.LEFT_ARM]: 'Left arm',
@@ -40,7 +42,7 @@ export const INJECTION_SITE_LABELS = {
   [INJECTION_SITE_VALUES.RIGHT_THIGH]: 'Right thigh',
   [INJECTION_SITE_VALUES.ORAL]: 'Oral',
   [INJECTION_SITE_VALUES.OTHER]: 'Other',
-};
+} as const;
 
 export const ICAO_DOCUMENT_TYPES = {
   PROOF_OF_TESTING: {
@@ -51,19 +53,18 @@ export const ICAO_DOCUMENT_TYPES = {
     DOCTYPE: 'NV',
     JSON: 'icao.vacc',
   },
-};
+} as const;
 
 export const COVID_19_CLEARANCE_CERTIFICATE = 'covid_19_clearance';
 
 export const VACCINATION_CERTIFICATE = 'vaccination_certificate';
-
 
 export const CERTIFICATE_NOTIFICATION_STATUSES = {
   QUEUED: 'Queued',
   PROCESSED: 'Processed',
   ERROR: 'Error',
   IGNORE: 'Ignore',
-};
+} as const;
 
 export const VACCINE_STATUS = {
   UNKNOWN: 'UNKNOWN',
@@ -76,7 +77,7 @@ export const VACCINE_STATUS = {
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
   HISTORICAL: 'HISTORICAL',
-};
+} as const;
 
 export const VACCINE_STATUS_LABELS = {
   [VACCINE_STATUS.UNKNOWN]: 'Unknown',
@@ -89,9 +90,9 @@ export const VACCINE_STATUS_LABELS = {
   [VACCINE_STATUS.OVERDUE]: 'Overdue',
   [VACCINE_STATUS.RECORDED_IN_ERROR]: 'Recorded in error',
   [VACCINE_STATUS.HISTORICAL]: 'Historical',
-};
+} as const;
 
 export const VACCINE_RECORDING_TYPES = {
   GIVEN: VACCINE_STATUS.GIVEN,
   NOT_GIVEN: VACCINE_STATUS.NOT_GIVEN,
-};
+} as const;
