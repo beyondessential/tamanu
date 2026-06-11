@@ -7,7 +7,7 @@ import {
   TASK_DURATION_UNIT,
   TASK_TYPES,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import config from 'config';
 import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
@@ -324,7 +324,7 @@ export class Task extends Model {
       // Use a while loop to generate tasks until we reach maxDueTime or endDateTime
       while (nextDueTime.getTime() <= maxDueTime.getTime() && nextDueTime.getTime() <= endDate) {
         const nextTask = {
-          id: uuidv4(),
+          id: randomUUID(),
           encounterId: task.encounterId,
           requestedByUserId: task.requestedByUserId,
           name: task.name,

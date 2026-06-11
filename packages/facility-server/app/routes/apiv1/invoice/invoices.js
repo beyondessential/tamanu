@@ -7,7 +7,7 @@ import {
   INVOICE_STATUSES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
@@ -133,7 +133,7 @@ const createInvoiceSchema = z
   .strip()
   .transform(data => ({
     ...data,
-    id: uuidv4(),
+    id: randomUUID(),
     displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
@@ -172,7 +172,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z.string().uuid().default(randomUUID),
         percentage: z.coerce
           .number()
           .min(0)
@@ -185,7 +185,7 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z.string().uuid().default(randomUUID),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -198,7 +198,7 @@ const updateInvoiceSchema = z
         sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(uuidv4),
+            id: z.string().uuid().default(randomUUID),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),
@@ -424,7 +424,7 @@ invoiceRoute.put(
             for (const insurancePlanItem of item.product.invoiceInsurancePlanItems) {
               await InvoiceItemFinalisedInsurance.create(
                 {
-                  id: uuidv4(),
+                  id: randomUUID(),
                   invoiceItemId: item.id,
                   coverageValueFinal: insurancePlanItem.coverageValue,
                   invoiceInsurancePlanId: insurancePlanItem.invoiceInsurancePlanId,

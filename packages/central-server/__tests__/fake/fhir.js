@@ -8,7 +8,7 @@ import {
   FHIR_INTEGRATION_PERMISSIONS,
   SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 const allPermsMap = new Map();
 for (const noun of [
@@ -202,7 +202,7 @@ export const fakeTestTypes = async function (numberOfTests, LabTestType, categor
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
-      externalCode: uuidv4(),
+      externalCode: randomUUID(),
     });
     testTypes.push(currentLabTest);
   }

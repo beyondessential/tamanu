@@ -14,7 +14,7 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { pluralize } from 'inflection';
 import { isEmpty, isNil } from 'lodash';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
@@ -482,7 +482,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   }
 
   const newTaskTemplate = {
-    id: existingTaskTemplate?.id || uuidv4(),
+    id: existingTaskTemplate?.id || randomUUID(),
     referenceDataId: taskId,
     frequencyValue,
     frequencyUnit,
@@ -547,7 +547,7 @@ export async function drugLoader(item, { models, pushError }) {
     });
   }
 
-  const referenceDrugId = existingDrug?.id || uuidv4();
+  const referenceDrugId = existingDrug?.id || randomUUID();
   const newDrug = {
     id: referenceDrugId,
     referenceDataId: drugId,
@@ -655,7 +655,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
   const [durationValue, durationUnit] = duration?.toString()?.split(' ') || [];
 
   const newTemplate = {
-    id: existingTemplate?.id || uuidv4(),
+    id: existingTemplate?.id || randomUUID(),
     referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn: prnMedication,
@@ -831,7 +831,7 @@ export async function invoiceProductLoader(item, { models, pushError }) {
       {
         model: 'InvoiceProduct',
         values: {
-          id: uuidv4(),
+          id: randomUUID(),
           ...item,
         },
       },
@@ -871,7 +871,7 @@ export async function invoiceProductLoader(item, { models, pushError }) {
   }
 
   const newInvoiceProduct = {
-    id: uuidv4(),
+    id: randomUUID(),
     ...item,
     category,
     sourceRecordId,

@@ -1,5 +1,5 @@
 import config from 'config';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 import {
   DRUG_STOCK_STATUSES,
@@ -396,7 +396,7 @@ describe('Medication', () => {
           quantity: 10,
           repeats,
         }),
-        id: uuidv4(),
+        id: randomUUID(),
       });
       return { pharmacyOrderPrescription, encounter, prescription };
     };
@@ -573,7 +573,7 @@ describe('Medication', () => {
           quantity: 10,
           repeats: 1,
         }),
-        id: uuidv4(),
+        id: randomUUID(),
       });
       const dispense = await models.MedicationDispense.create(
         fake(models.MedicationDispense, {
@@ -608,7 +608,7 @@ describe('Medication', () => {
     });
 
     it('should return 404 when the dispense does not exist', async () => {
-      const result = await app.put(`/api/medication/dispense/${uuidv4()}`).send({
+      const result = await app.put(`/api/medication/dispense/${randomUUID()}`).send({
         dispensedByUserId: app.user.id,
         quantity: 1,
         instructions: 'whatever',

@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
 import { getEntryResourceSubject } from '../utils';
@@ -28,7 +28,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
     const allergyCodingDisplay = 'No known allergies';
     return [
       {
-        id: uuidv4(),
+        id: randomUUID(),
         ...allergyIntolerancesHeader,
         code: {
           coding: [
@@ -48,7 +48,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
   }
 
   return patientAllergies.map(patientAllergy => ({
-    id: uuidv4(),
+    id: randomUUID(),
     ...allergyIntolerancesHeader,
     code: {
       coding: [

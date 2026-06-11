@@ -1,5 +1,5 @@
 import config from 'config';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
@@ -79,12 +79,12 @@ export const generateIPSBundle = async (fhirPatientId, user, models) => {
   });
 
   const bundle = {
-    id: uuidv4(),
+    id: randomUUID(),
     resourceType: FHIR_RESOURCE_TYPES.BUNDLE,
     language: 'en-AU',
     identifier: {
       system: 'urn:oid:2.16.724.4.8.10.200.10',
-      value: uuidv4(),
+      value: randomUUID(),
     },
     type: 'document',
     timestamp: formatFhirDate(now),
