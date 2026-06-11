@@ -9,7 +9,6 @@ import {
 } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
 import { datetimeCustomValidation, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const taskRoutes = express.Router();
@@ -248,7 +247,7 @@ taskRoutes.put(
         await task.destroy();
 
         //copy info from the selected task and set the new task as todo with todo info
-        const newId = uuidv4();
+        const newId = crypto.randomUUID();
         await req.models.Task.create({
           ...task.dataValues,
           id: newId,
@@ -319,7 +318,7 @@ taskRoutes.post(
 
         return {
           ...task,
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           designations,
           dueTime: startTime,
           requestedByUserId,

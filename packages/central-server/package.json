@@ -109,7 +109,6 @@
     "timesimp": "^1.0.2",
     "tiny-async-pool": "^1.2.0",
     "undici": "^7.5.0",
-    "uuid": "^11.0.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9",
     "zod": "^4.0.17"
