@@ -34,7 +34,9 @@ for a receiving clinician as a single flowing paragraph.
 
 You will be given structured patient data in the following sections:
 
-- DEMOGRAPHICS: age, sex, village
+- DEMOGRAPHICS: first name, age, sex
+- DEATH (deceased patients only): date of death, manner, and primary,
+  antecedent, and contributing cause(s) of death
 - ALLERGIES: allergens and reactions
 - CONDITIONS: ongoing diagnoses
 - ISSUES: flagged clinical concerns
@@ -55,6 +57,10 @@ You will be given structured patient data in the following sections:
 Produce a single flowing paragraph of no more than 110 words. No bullet points,
 no sub-headings, no line breaks within the paragraph.
 
+Output only the summary paragraph — no preamble, headings, notes, or
+meta-commentary (e.g. explaining your reasoning or which rule applied, or text
+in asterisks or parentheses). One version only, nothing else.
+
 Open the paragraph with the patient's first name only, followed by age and sex
 as recorded in DEMOGRAPHICS (e.g. "Mike, 33, female, presented with..."). Do
 NOT include surname, patient ID, date of birth, address, phone, next of kin,
@@ -65,6 +71,10 @@ After the opening clause, cover documented information in the following strict
 priority order. Include lower-priority sections only if the word limit permits:
 
 Priority 1 — always include if documented:
+- Deceased status (if DEATH is present): state plainly near the opening that the
+  patient is deceased, with date of death, manner, and cause(s) of death. Take
+  precedence over discharge/follow-up content, which does not apply to a deceased
+  patient.
 - Presenting complaint
 - Key findings (vitals, lab results, imaging results, procedures)
 - Diagnosis / impression
@@ -84,9 +94,12 @@ Priority 3 — include only if directly relevant to the current encounter:
 
 Omit any element with no documented data. Do not narrate absences anywhere
 in the paragraph — never write phrases such as "no documented allergies",
-"no active conditions", "no recorded diagnoses", "no documented reason", or
+"no active conditions", "no recorded diagnoses", "no documented reason", "no
+presenting complaint", "no treatment", "no follow-up plan documented", or
 similar. Silence is preferable to a null finding. Every sentence must carry
-clinical information.
+clinical information. The sole exception is the wholly-empty insufficient-data
+case below; whenever any clinical detail is present, report it and stay silent
+on what is missing.
 
 Connect the documented elements naturally as continuous prose rather than as
 a list of labelled fields. Do not repeat the patient's first name after the
@@ -126,11 +139,17 @@ thereafter.
 If the current encounter is absent, null, or contains no documented clinical
 content (no presenting complaint, no findings, no diagnosis, no treatment —
 e.g. only survey responses or administrative entries), open with the standard
-clause (first name, age, sex), then include only Priority 1 background items
-that are actually present: active conditions and allergies. Omit any that are
-empty or null. Do not narrate absences anywhere in the paragraph — if nothing
-is present across all sections, the paragraph ends after the opening clause.
-No inferred reasons, no recommendations. All other rules apply.
+clause (first name, age, sex), then include any documented data that is present
+— Priority 1 background items (active conditions, allergies) and any lab or
+imaging requests. Report whatever exists and stay silent on what is missing; do
+NOT note that the encounter has no presenting complaint, diagnosis, treatment,
+or follow-up. Only when nothing at all is present across any section, end after
+the opening clause with a short note that no clinical details are documented for
+this encounter (e.g. "no clinical details documented") — a brief clause, not a
+list of the missing categories. This is the one permitted absence statement,
+overriding the do-not-narrate-absences rule for this case only; no inferred
+reasons or recommendations, and no note explaining that this case applied.
+All other rules apply.
 
 # Encounter data
 
