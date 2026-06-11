@@ -1,4 +1,3 @@
-import { Box } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 import { NON_EDITABLE_NOTE_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import React, { useMemo } from 'react';
@@ -128,7 +127,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
 /* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
-const NoteContentBox = styled(Box)`
+const NoteContentBox = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
