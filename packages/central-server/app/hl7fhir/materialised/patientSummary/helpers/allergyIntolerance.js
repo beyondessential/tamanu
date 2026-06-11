@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
 import { getEntryResourceSubject } from '../utils';
@@ -28,7 +27,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
     const allergyCodingDisplay = 'No known allergies';
     return [
       {
-        id: randomUUID(),
+        id: crypto.randomUUID(),
         ...allergyIntolerancesHeader,
         code: {
           coding: [
@@ -48,7 +47,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
   }
 
   return patientAllergies.map(patientAllergy => ({
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     ...allergyIntolerancesHeader,
     code: {
       coding: [

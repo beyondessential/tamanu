@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import { randomUUID } from 'node:crypto';
 
 function defaultValueExtractor(value) {
   const parsedValue = Number(value);
@@ -116,7 +115,7 @@ export function productMatrixByCodeLoaderFactory(config) {
       }
 
       const key = `${parentId}:${invoiceProductId}`;
-      const id = existingItemsMap.get(key) || randomUUID();
+      const id = existingItemsMap.get(key) || crypto.randomUUID();
 
       rows.push({
         model: itemModel,

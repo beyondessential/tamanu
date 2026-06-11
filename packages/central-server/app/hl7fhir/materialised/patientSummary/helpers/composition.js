@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
@@ -13,7 +12,7 @@ export const getComposition = ({
   immunizations,
 }) => {
   return {
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     resourceType: FHIR_RESOURCE_TYPES.COMPOSITION,
     text: {
       status: 'generated',

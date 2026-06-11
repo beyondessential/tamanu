@@ -1,5 +1,4 @@
 import { DEFAULT_PATIENT_DISPLAY_ID_PATTERN } from '@tamanu/constants';
-import { randomUUID } from 'node:crypto';
 
 const generators: Record<string, () => string> = {
   A: () => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
@@ -92,7 +91,7 @@ export const isGeneratedDisplayId = (displayId: string) =>
  * accompanying FAKE_UUID_PATTERN constant for the SQL LIKE pattern to use.
  */
 export const fakeUUID = () => {
-  return randomUUID().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
+  return crypto.randomUUID().replace(/(.{8}-.{4})-.{4}-(.+)/, '$1-0000-$2');
 };
 
 export const FAKE_UUID_PATTERN = '________-____-0000-____-____________';

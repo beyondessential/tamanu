@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
@@ -32,7 +31,7 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
     const immunizationCodingDisplay = 'No information about immunizations';
     return [
       {
-        id: randomUUID(),
+        id: crypto.randomUUID(),
         ...administeredVaccinesHeader,
         vaccineCode: {
           coding: [
@@ -54,7 +53,7 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
   }
 
   return administeredVaccines.map(administeredVaccine => ({
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     ...administeredVaccinesHeader,
     vaccineCode: {
       coding: [

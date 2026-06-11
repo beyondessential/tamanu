@@ -9,7 +9,6 @@ import {
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeTestTypes,
 } from '../../fake/fhir';
-import { randomUUID } from 'node:crypto';
 
 describe('Create Observation', () => {
   let ctx;
@@ -490,7 +489,7 @@ describe('Create Observation', () => {
 
     describe('errors', () => {
       it('returns invalid value if the ServiceRequest does not exist', async () => {
-        const nonExistentServiceRequestId = randomUUID();
+        const nonExistentServiceRequestId = crypto.randomUUID();
 
         const body = {
           resourceType: 'Observation',
