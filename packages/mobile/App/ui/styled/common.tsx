@@ -26,9 +26,9 @@ import {
   width,
   zIndex,
 } from 'styled-system';
-import SafeAreaView from 'react-native-safe-area-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Value } from 'react-native-reanimated';
+import { SharedValue } from 'react-native-reanimated';
 import { GestureResponderEvent } from 'react-native';
 
 const sizes = [];
@@ -52,18 +52,18 @@ export const themeSystem = {
 interface TextProps {
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   lineHeight?: number | string;
-  fontSize?: number | string | Value<number>;
+  fontSize?: number | string | SharedValue<number>;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
-  minHeight?: string | number | Value<number>;
-  minWidth?: string | number | Value<number>;
-  maxHeight?: string | number | Value<number>;
-  maxWidth?: string | number | Value<number>;
-  height?: string | number | Value<number>;
-  width?: string | number | Value<number>;
+  minHeight?: string | number | SharedValue<number>;
+  minWidth?: string | number | SharedValue<number>;
+  maxHeight?: string | number | SharedValue<number>;
+  maxWidth?: string | number | SharedValue<number>;
+  height?: string | number | SharedValue<number>;
+  width?: string | number | SharedValue<number>;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
@@ -78,10 +78,10 @@ export interface SpacingProps {
 
 interface PositionProps {
   position?: 'absolute' | 'relative';
-  top?: string | number | Value<number>;
-  left?: string | number | Value<number>;
-  right?: string | number | Value<number>;
-  bottom?: string | number | Value<number>;
+  top?: string | number | SharedValue<number>;
+  left?: string | number | SharedValue<number>;
+  right?: string | number | SharedValue<number>;
+  bottom?: string | number | SharedValue<number>;
   zIndex?: number;
 }
 
@@ -106,7 +106,7 @@ interface BorderProps {
 }
 
 interface VisibilityProps {
-  opacity?: string | number | Value<number>;
+  opacity?: string | number | SharedValue<number>;
 }
 
 export interface StyledTextProps extends SpacingProps, FlexProps, BorderProps, TextProps {}

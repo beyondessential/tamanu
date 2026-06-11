@@ -20,13 +20,16 @@ type TabNavigationConfig = {
 
 type TabNavigationOptions = {
   title?: string;
+  tabBarLabelStyle?: object;
 };
 
 type TabNavigationEventMap = {
   tabPress: { isAlreadyFocused: boolean };
 };
 
-type Props = DefaultNavigatorOptions<TabNavigationOptions> & TabRouterOptions & TabNavigationConfig;
+type Props = DefaultNavigatorOptions<any, any, TabNavigationOptions, any, any> &
+  TabRouterOptions &
+  TabNavigationConfig;
 
 function TabNavigator({
   initialRouteName,
@@ -35,34 +38,33 @@ function TabNavigator({
   ...rest
 }: Props): React.ReactElement {
   const { state, navigation, descriptors } = useNavigationBuilder<
-    TabNavigationState,
+    TabNavigationState<any>,
     TabRouterOptions,
+    {},
     TabNavigationOptions,
     TabNavigationEventMap
   >(TabRouter, {
     children,
-    screenOptions,
+    screenOptions: {
+      tabBarStyle: { height: 50 },
+      tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
+      tabBarInactiveTintColor: theme.colors.TEXT_MID,
+      tabBarIndicatorStyle: {
+        height: 4,
+        backgroundColor: theme.colors.PRIMARY_MAIN,
+      },
+      tabBarLabelStyle: {
+        fontWeight: '500',
+        textTransform: 'none',
+      },
+      ...(typeof screenOptions === 'object' ? screenOptions : {}),
+    },
     initialRouteName,
   });
 
   return (
     <MaterialTopTabView
       {...rest}
-      tabBarOptions={{
-        style: {
-          height: 50,
-        },
-        activeTintColor: theme.colors.PRIMARY_MAIN,
-        inactiveTintColor: theme.colors.TEXT_MID,
-        indicatorStyle: {
-          height: 4,
-          backgroundColor: theme.colors.PRIMARY_MAIN,
-        },
-        labelStyle: {
-          fontWeight: '500',
-          textTransform: 'none',
-        },
-      }}
       state={state}
       navigation={navigation}
       descriptors={descriptors}

@@ -7,12 +7,11 @@ import {
   TabRouterOptions,
   useNavigationBuilder,
 } from '@react-navigation/native';
-import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import {
-  MaterialTopTabBarOptions,
-  MaterialTopTabNavigationConfig,
-} from '@react-navigation/material-top-tabs/lib/typescript/src/types';
+  MaterialTopTabView,
+  MaterialTopTabNavigationOptions,
+} from '@react-navigation/material-top-tabs';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
@@ -35,9 +34,8 @@ type TabNavigationOptions = {
   title?: string;
 };
 
-type Props = DefaultNavigatorOptions<TabNavigationOptions> &
-  MaterialTopTabBarOptions &
-  MaterialTopTabNavigationConfig &
+type Props = DefaultNavigatorOptions<any, any, TabNavigationOptions, any, any> &
+  MaterialTopTabNavigationOptions &
   TabNavigationConfig &
   TabRouterOptions &
   WithPatientStoreProps;

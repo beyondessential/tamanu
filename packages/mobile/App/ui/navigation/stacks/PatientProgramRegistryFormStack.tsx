@@ -29,7 +29,7 @@ const PatientProgramRegistryForm_ = ({ navigation }: PatientProgramRegistryProps
           }
           onGoBack={() => navigation.goBack()}
         />
-        <Stack.Navigator headerMode="none">
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
             name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}
             component={PatientProgramRegistryForm}

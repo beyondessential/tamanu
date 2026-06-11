@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Root } from 'popup-ui';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
@@ -16,6 +17,7 @@ import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <Root>
         <Provider store={store}>
@@ -39,5 +41,6 @@ export const RootStack = (): ReactElement => {
         </Provider>
       </Root>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 };

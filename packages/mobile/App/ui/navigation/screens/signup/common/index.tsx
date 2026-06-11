@@ -1,15 +1,16 @@
 import React, { ReactElement } from 'react';
 import { UserIcon } from '/components/Icons';
 import { StyledView } from '/styled/common';
-import Animated, { Value } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { SharedValue } from 'react-native-reanimated';
 import { theme } from '/styled/theme';
 
 export const UserIconContainer = ({
   size,
 }: {
-  size: Value<number>;
+  size: SharedValue<number> | number;
 }): ReactElement => (
-  <StyledView as={Animated.View} height={size} width={size}>
+  <StyledView as={Animated.View} height={size as number} width={size as number}>
     <UserIcon fill={theme.colors.SECONDARY_MAIN} />
   </StyledView>
 );

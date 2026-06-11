@@ -18,8 +18,8 @@ export const VaccineTableTabs = (): ReactElement => {
 
   return (
     <Tabs.Navigator
-      tabBarOptions={{
-        labelStyle: { textTransform: 'none' },
+      screenOptions={{
+        tabBarLabelStyle: { textTransform: 'none' },
       }}
       swipeEnabled={false}
     >
