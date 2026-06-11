@@ -1,15 +1,22 @@
-import { execFileSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
+import { parseArgs } from 'node:util';
 import { doWithAllPackages } from './_do-with-all-packages.mjs';
 
-const args = process.argv.slice(2);
-const target = args.filter((arg) => !arg.startsWith('--'))[0];
+const { values, positionals } = parseArgs({
+  options: {
+    'shared-only': { type: 'boolean', default: false },
+  },
+  allowPositionals: true,
+});
+
+const target = positionals[0];
 if (target) {
   console.log(`Building shared+target: ${target}`);
 }
 
 doWithAllPackages((name, pkg, _pkgPath, isShared) => {
   console.log(`Checking ${name}...`);
-  if (args.includes('--shared-only') && !isShared) {
+  if (values['shared-only'] && !isShared) {
     console.log(`Skipping ${name} as it's not a shared package...`);
     return;
   }
