@@ -156,6 +156,9 @@ export const getAnswerBody = async (
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       result = convertDateAnswer(answer, transformConfig);
       break;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      result = answer;
+      break;
     case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       result = convertBinaryToYesNo(answer);
       break;

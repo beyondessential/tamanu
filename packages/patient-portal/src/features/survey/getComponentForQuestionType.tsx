@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
-import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 import React from 'react';
 
+import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 import {
   BaseMultiselectField,
   BaseSelectField,
@@ -16,6 +16,7 @@ import {
   PhotoField,
   ReadOnlyNumberField,
   ReadOnlyTextField,
+  TimeField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -38,6 +39,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
+  [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
