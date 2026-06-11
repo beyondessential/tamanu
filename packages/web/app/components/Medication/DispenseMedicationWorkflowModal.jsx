@@ -29,6 +29,7 @@ import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   buildInstructionText,
+  buildLabelText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -256,7 +257,7 @@ export const DispenseMedicationWorkflowModal = memo(
             selected: true,
             quantity: quantity ?? 1,
             instructions:
-              buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
+              buildLabelText(prescription, getTranslation, getEnumTranslation) ||
               instructions ||
               '',
             medicationPresetLabelId: null,
@@ -347,11 +348,7 @@ export const DispenseMedicationWorkflowModal = memo(
         const current = next[rowIndex];
         if (!current) return prev;
 
-        const fallback = buildInstructionText(
-          current.prescription,
-          getTranslation,
-          getEnumTranslation,
-        );
+        const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
         const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, fallback);
 
         next[rowIndex] = {
