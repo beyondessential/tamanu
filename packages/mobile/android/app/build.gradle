@@ -21,8 +21,13 @@ react {
     // root = file("../")
     //   The folder where the react-native NPM package is. Default is ../../../node_modules/react-native
     reactNativeDir = file("../../../../packages/mobile/node_modules/react-native")
+    //   The folder where the react-native-codegen package lives. Default is ../../../node_modules/@react-native/codegen
+    codegenDir = file("../../../../node_modules/@react-native/codegen")
     //   The cli.js file which is the React Native CLI entrypoint. Default is ../../../node_modules/react-native/cli.js
     cliFile = file("../../../../packages/mobile/node_modules/react-native/cli.js")
+
+    // Required in monorepo setups: adds autolinked library projects as implementation dependencies
+    autolinkLibrariesWithApp()
 
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
