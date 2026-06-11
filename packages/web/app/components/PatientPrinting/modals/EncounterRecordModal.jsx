@@ -187,7 +187,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     title: discharge ? (
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
-        fallback="Encounter Record"
+        fallback="Encounter record"
         data-testid="translatedtext-fzew"
       />
     ) : (
