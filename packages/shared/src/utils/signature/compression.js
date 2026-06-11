@@ -45,7 +45,10 @@ export async function compressSignatureBody(body) {
 export async function decompressSignatureBody(base64String) {
   if (!base64String) return '';
 
-  const byteArray = new Uint8Array(Buffer.from(base64String, 'base64'));
+  const byteArray =
+    typeof Uint8Array.fromBase64 === 'function'
+      ? Uint8Array.fromBase64(base64String) // Requires Node 25+. Fine in supported Chromium versions.
+      : new Uint8Array(Buffer.from(base64String, 'base64'));
   const cs = new DecompressionStream(encoding);
   const writer = cs.writable.getWriter();
   writer.write(byteArray);
