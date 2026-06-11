@@ -1,27 +1,27 @@
+import { Box } from '@material-ui/core';
+import Divider from '@material-ui/core/Divider';
+import { NON_EDITABLE_NOTE_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import Divider from '@material-ui/core/Divider';
-import { NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
-import { InfoCard, InfoCardItem } from './InfoCard';
+
 import {
   AutocompleteField,
   AutocompleteInput,
+  ConditionalTooltip,
+  DateDisplay,
   DateTimeField,
-  Field,
   DateTimeInput,
-  TextField,
+  Field,
   FormGrid,
   SelectField,
-  ConditionalTooltip,
+  TextField,
   TranslatedReferenceData,
+  TranslatedText,
+  useSettings,
+  useSuggester,
 } from '@tamanu/ui-components';
-
-import { useSuggester } from '../api';
-import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useSettings } from '../contexts/Settings';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
+import { InfoCard, InfoCardItem } from './InfoCard';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
