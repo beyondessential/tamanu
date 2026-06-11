@@ -5,7 +5,6 @@ const { join } = require('node:path');
 const fs = require('node:fs/promises');
 const { availableParallelism } = require('node:os');
 
-const { rimraf } = require('rimraf');
 const YAML = require('yaml');
 
 const { dbConfig } = require('./dbConfig.js');
@@ -17,9 +16,8 @@ async function run() {
   const db = await dbConfig('central-server');
   await db.client.end();
 
-  console.log(' | delete old docs if any');
   const base = join('database', 'docs');
-  await rimraf(base);
+  await fs.rm(base, { recursive: true, force: true });
 
   console.log(' | make new docs dir');
   await fs.mkdir(join(base, 'config'), { recursive: true });
@@ -33,7 +31,7 @@ async function run() {
       version,
       'config-version': 2,
       profile: 'tamanu',
-      'model-paths': (await sourceFolders()).map(path => join( '..', '..', path)),
+      'model-paths': (await sourceFolders()).map(path => join('..', '..', path)),
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
       sources: { tamanu: { '+enabled': true } },
@@ -44,9 +42,7 @@ async function run() {
   await fs.writeFile(
     join(base, 'packages.yml'),
     YAML.stringify({
-      packages: [
-        { package: 'dbt-labs/dbt_utils', version: '1.3.0' },
-      ],
+      packages: [{ package: 'dbt-labs/dbt_utils', version: '1.3.0' }],
     }),
   );
 
