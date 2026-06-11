@@ -8,6 +8,7 @@ const Svg = styled(SignaturePathDisplay)`
   border: 1px solid ${p => p.theme.palette.divider};
 `;
 
-export function SignatureAnswerResult({ answer, ...props }) {
-  return <Svg data-testid="signatureanswerresult" path={answer} {...props} />;
+/** @param {React.ComponentPropsWithRef<typeof SignaturePathDisplay>} props */
+export function SignatureAnswerResult(props) {
+  return <Svg data-testid="signatureanswerresult" {...props} />;
 }
