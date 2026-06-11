@@ -1,6 +1,5 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import { intervalToDuration, parseISO } from 'date-fns';
-import React from 'react';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
 
@@ -11,7 +10,7 @@ import {
 } from '@tamanu/constants';
 import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import { TranslatedText } from '../components/Translation';
 import { notify } from './notify';
@@ -328,6 +327,24 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
             }
             return value;
           });
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+          valueSchema = yup
+            .string()
+            .nullable()
+            .transform((value, originalValue) => {
+              if (originalValue == null) return null;
+              if (typeof originalValue === 'string' && originalValue.trim() === '') return null;
+              return value;
+            })
+            .test(
+              'survey-time-hms',
+              getTranslation(
+                'validation.surveyTime.invalid',
+                'Must be a valid time of day (HH:mm:ss)',
+              ),
+              value => value == null || value === '' || isValidSurveyTimeBody(value),
+            );
           break;
         default:
           valueSchema = yup.mixed();

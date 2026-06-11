@@ -20,6 +20,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
   DATE_TIME: 'DateTime',
+  TIME: 'Time',
   SUBMISSION_DATE: 'SubmissionDate',
   DISPLAY_TEXT: 'DisplayText',
   INSTRUCTION: 'Instruction',

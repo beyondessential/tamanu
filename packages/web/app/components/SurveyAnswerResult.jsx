@@ -7,6 +7,7 @@ import {
   Button,
   DateDisplay,
   PatientDataDisplayField,
+  PlainTimeDisplay,
   SignatureAnswerResult,
   SurveyResultBadge,
   TranslatedOption,
@@ -44,7 +45,6 @@ export const SurveyAnswerResult = ({
   dataElementId,
   surveyComponent,
 }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
   if (answer === null || answer === undefined || answer === '') {
@@ -69,6 +69,8 @@ export const SurveyAnswerResult = ({
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-gd3v" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      return <PlainTimeDisplay time={answer} data-testid="plaintimedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return (
         <>

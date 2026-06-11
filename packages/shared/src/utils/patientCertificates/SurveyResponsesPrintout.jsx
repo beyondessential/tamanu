@@ -2,6 +2,7 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { formatPlainTime } from '@tamanu/utils/dateFormatters';
 import { getName } from '../patientAccessors';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -110,6 +111,8 @@ const getAnswers = ({
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+      return formatPlainTime(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return JSON.parse(answer).map(translateOption).join(', ');
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
