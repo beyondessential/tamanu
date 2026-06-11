@@ -45,7 +45,7 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
-      run-build-shared: ${{ steps.plan.outputs.run-build-shared }}
+      run-build-shared: true # ${{ steps.plan.outputs.run-build-shared }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
