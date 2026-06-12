@@ -13,7 +13,7 @@ COPY scripts/ scripts/
 COPY packages/ packages/
 
 RUN npm ci
-RUN npm run build-shared
+RUN npm run build -- --filter=@tamanu/synthetic-tests^...
 RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
 
 FROM node:20-slim

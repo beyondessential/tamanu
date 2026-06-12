@@ -55,7 +55,12 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=scripts
 
       - name: Install and start postgres
         run: |
@@ -65,10 +70,8 @@ jobs:
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
           createdb -O tamanu central
 
-      - name: Build
-        run: |
-          npm run build-shared
-          npm run --workspace @tamanu/central-server build
+      - name: Build central server
+        run: npm run build -- --filter=@tamanu/central-server...
 
       - name: Configure Tamanu
         run: |

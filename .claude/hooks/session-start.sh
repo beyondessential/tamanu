@@ -26,7 +26,7 @@ fi
 # ── 2. Build shared packages ──────────────────────────────────────────────────
 if [ ! -d packages/database/dist ]; then
   echo "[session-start] Building shared packages..."
-  npm run build-shared
+  npm run build
 else
   echo "[session-start] Shared packages already built, skipping."
 fi
