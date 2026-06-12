@@ -6,6 +6,7 @@ COPY package.json package-lock.json turbo.jsonc COPYRIGHT LICENSE-GPL LICENSE-BS
 COPY patches/ patches/
 
 FROM base AS build-base
+ENV TURBO_TELEMETRY_DISABLED=1
 RUN apk add --no-cache \
   --virtual .build-deps \
   bash \

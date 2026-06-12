@@ -1,5 +1,8 @@
 name: CD Package Android
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 permissions:
   contents: write # to update the release notes
   id-token: write # OIDC token for AWS

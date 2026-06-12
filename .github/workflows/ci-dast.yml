@@ -19,6 +19,7 @@ permissions:
   contents: read
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
   NODE_MODULES_PATHS: |

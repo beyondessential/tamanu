@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+ENV TURBO_TELEMETRY_DISABLED=1
+
 COPY package.json package-lock.json turbo.jsonc ./
 COPY patches/ patches/
 COPY common.* ./

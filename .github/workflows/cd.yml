@@ -37,6 +37,9 @@ permissions:
   issues: read # to parse special deploy issues
   id-token: write # OIDC token for AWS (only for release tags)
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   # This job sets everything up. It parses the run metadata, event payload, PR or issue bodies,
   # and figures out git commit hashes and refs from the actual git content, not the pseudo commit

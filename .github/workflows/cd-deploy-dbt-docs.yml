@@ -8,6 +8,7 @@ on:
       - release/*
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
