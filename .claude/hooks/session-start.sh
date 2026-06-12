@@ -23,18 +23,10 @@ else
   echo "[session-start] node_modules already present, skipping install."
 fi
 
-# ── 2. Build shared packages ──────────────────────────────────────────────────
-if [ ! -d packages/database/dist ]; then
-  echo "[session-start] Building shared packages..."
-  npm run build
-else
-  echo "[session-start] Shared packages already built, skipping."
-fi
-
 # ── 3. Build central server ───────────────────────────────────────────────────
 if [ ! -d packages/central-server/dist ]; then
-  echo "[session-start] Building central server..."
-  npm run --workspace @tamanu/central-server build
+  echo "[session-start] Building central server and dependencies..."
+  npm run build -- --filter=@tamanu/central-server...
 else
   echo "[session-start] Central server already built, skipping."
 fi
