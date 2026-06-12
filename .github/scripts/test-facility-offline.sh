@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-
-## Test that the facility server starts without any central server running
+# Test that the facility server starts without any central server running.
+#
+# REMARK
+#   test-facility-offline.sh assumes @tamanu/central-server, @tamanu/facility-server, and their
+#   dependencies are already built.
 
 # Use `set -m` to enable Bash job-control to handle process trees easily.
 # (Commands will have different process group ids from the process for this shell script itself.)
@@ -13,11 +16,6 @@ test_facility_offline_setup_postgres() {
 
     createdb -O tamanu central
     createdb -O tamanu facility
-}
-
-# Build both the facility and central servers.
-test_facility_offline_build() {
-    npm run build -- --filter=@tamanu/central-server^... --filter=@tamanu/facility-server^...
 }
 
 # Start the central server.
