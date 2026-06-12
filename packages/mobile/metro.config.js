@@ -22,6 +22,19 @@ const config = {
       },
     ),
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+    // Force packages that exist in both root and mobile node_modules to always
+    // resolve from mobile, preventing duplicate native component registration.
+    resolveRequest: (context, moduleName, platform) => {
+      const dedupedPackages = ['react-native-svg'];
+      if (dedupedPackages.includes(moduleName)) {
+        return context.resolveRequest(
+          { ...context, originModulePath: path.resolve(__dirname, 'index.js') },
+          moduleName,
+          platform,
+        );
+      }
+      return context.resolveRequest(context, moduleName, platform);
+    },
   },
 
   serializer: {
