@@ -4,7 +4,7 @@ import { afterAll, beforeAll } from '@jest/globals';
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
+import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { getDateTimeSubtractedFromNow } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 

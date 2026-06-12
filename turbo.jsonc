@@ -5,18 +5,6 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    // `shared` only depends on `fake-data` as a test (dev) dependency, while
-    // `fake-data` depends on `shared` in production. Turbo's `^build` follows
-    // devDependencies too, so it sees that as a build cycle. Pin shared#build to
-    // its real production build-deps to break the spurious test-only edge.
-    "@tamanu/shared#build": {
-      "dependsOn": [
-        "@tamanu/constants#build",
-        "@tamanu/errors#build",
-        "@tamanu/utils#build"
-      ],
-      "outputs": ["dist/**"]
-    },
     // ui-components is bundled directly from source by the web frontend; its
     // `build` is a no-op, so it produces no output files.
     "@tamanu/ui-components#build": {

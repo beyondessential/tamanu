@@ -22,6 +22,14 @@
       "import": "./dist/mjs/fake/*.js",
       "require": "./dist/cjs/fake/*.js"
     },
+    "./test-helpers": {
+      "import": "./dist/mjs/test-helpers/index.js",
+      "require": "./dist/cjs/test-helpers/index.js"
+    },
+    "./test-helpers/*": {
+      "import": "./dist/mjs/test-helpers/*.js",
+      "require": "./dist/cjs/test-helpers/*.js"
+    },
     "./services/*": {
       "import": "./dist/mjs/services/*.js",
       "require": "./dist/cjs/services/*.js"
