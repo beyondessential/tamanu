@@ -114,6 +114,11 @@ const themeConfig = {
         paddingInline: 12,
       },
     },
+    MuiTableCell: {
+      root: {
+        borderBottom: `1px solid ${Colors.outline}`,
+      },
+    },
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
@@ -159,6 +164,13 @@ const themeConfig = {
         root: {
           minHeight: '48px',
           textTransform: 'none',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: `1px solid ${Colors.outline}`,
         },
       },
     },
