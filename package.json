@@ -8,7 +8,6 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
-    "prepare": "patch-package && npm run patch-package --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
@@ -53,7 +52,6 @@
     "node": ">=20.9.0"
   },
   "packageManager": "npm@10.8.0",
-  "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
@@ -94,8 +92,7 @@
   },
   "dependencies": {
     "concurrently": "^9.2.1",
-    "node": "^20.19.4",
-    "patch-package": "^8.0.0"
+    "node": "^20.19.4"
   },
   "overrides": {
     "protobufjs": ">=7.5.5",

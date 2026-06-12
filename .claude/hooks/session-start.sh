@@ -15,8 +15,6 @@ cd "$CLAUDE_PROJECT_DIR"
 if [ ! -d node_modules/.bin ]; then
   echo "[session-start] Installing npm dependencies..."
   npm install --ignore-scripts
-  echo "[session-start] Applying patches..."
-  npx patch-package
   echo "[session-start] Rebuilding native modules..."
   npm rebuild
 else

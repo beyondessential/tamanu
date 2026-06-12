@@ -42,12 +42,14 @@ const getSectionConfig = (index, data, getRowSectionLabel) => {
   return { sectionLabel, shouldRenderSection: sectionLabel !== lastSectionLabel };
 };
 
-const TR = ({ style, ...props }) => <View {...props} style={[tableStyles.tr, style]} />;
+const TR = ({ style, ...props }) => (
+  <View wrap={false} {...props} style={[tableStyles.tr, style]} />
+);
 const TH = ({ customStyles, ...props }) => (
   <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
-  <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
+  <Text {...props} style={[tableStyles.td, customStyles]} />
 );
 
 const SectionRow = ({ label, columnStyle }) => (
@@ -87,13 +89,15 @@ export const Table = ({
         ))}
       </TR>
       {data.map((row, rowIndex) => {
-        const { sectionLabel, shouldRenderSection } = getSectionConfig(rowIndex, data, getRowSectionLabel);
+        const { sectionLabel, shouldRenderSection } = getSectionConfig(
+          rowIndex,
+          data,
+          getRowSectionLabel,
+        );
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && <SectionRow label={sectionLabel} columnStyle={columnStyle} />}
-            <TR
-              style={hideRowDividers && getHiddenRowDividerStyle(rowIndex, data.length)}
-            >
+            <TR style={hideRowDividers && getHiddenRowDividerStyle(rowIndex, data.length)}>
               {visibleColumns.map(({ accessor, key, customStyles = {} }, index) => {
                 const isFirstColumn = index === 0;
                 return (
