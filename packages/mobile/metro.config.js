@@ -24,6 +24,14 @@ const config = {
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
   },
 
+  serializer: {
+    // @react-native/metro-config resolves this from root node_modules which
+    // has no react-native in this monorepo setup; resolve from here instead.
+    getModulesRunBeforeMainModule: () => [
+      require.resolve('react-native/Libraries/Core/InitializeCore'),
+    ],
+  },
+
   transformer: {
     getTransformOptions: async () => ({
       transform: {
