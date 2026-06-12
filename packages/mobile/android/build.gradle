@@ -25,6 +25,11 @@ subprojects {
         if (it.hasProperty('android')) {
             android {
                 compileSdkVersion rootProject.ext.compileSdkVersion
+                if (defaultConfig.minSdkVersion.apiLevel < 24) {
+                    defaultConfig {
+                        minSdkVersion 24
+                    }
+                }
             }
         }
     }
