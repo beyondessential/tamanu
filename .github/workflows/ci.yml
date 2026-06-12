@@ -255,7 +255,7 @@ jobs:
         working-directory: packages/mobile
 
   test-facility-offline:
-    needs: [plan, node_modules_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
@@ -271,6 +271,10 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
       - name: Install dependencies
         run: |
           npm install \
@@ -282,8 +286,6 @@ jobs:
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 18
           .github/scripts/test-facility-offline.sh setup-postgres
-      - name: Build central and facility servers
-        run: .github/scripts/test-facility-offline.sh build
       - name: Start a central server
         run: .github/scripts/test-facility-offline.sh central-start
       - name: Start a facility server
