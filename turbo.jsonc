@@ -5,16 +5,31 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    // ui-components is bundled directly from source by the web frontend; its
-    // `build` is a no-op, so it produces no output files.
+    // No build step or output. @tamanu/ui-components is a just-in-time package.
+    // @see https://turborepo.dev/docs/core-concepts/internal-packages#just-in-time-packages
     "@tamanu/ui-components#build": {
       "dependsOn": ["^build"],
       "outputs": []
     },
-    // The default-translations step scans source across the whole monorepo, which
-    // Turbo can't capture as inputs, so disable caching to avoid stale output.
+    // default-translations scans source across whole monorepo, which Turbo can't capture as inputs.
+    // Disable caching to avoid stale output.
     "@tamanu/upgrade#build": {
       "dependsOn": ["^build"],
+      "cache": false
+    },
+
+    "clean-build": {
+      "dependsOn": ["^clean-build"],
+      "cache": false,
+      "outputs": ["dist/**"]
+    },
+    "@tamanu/ui-components#clean-build": {
+      "dependsOn": ["^clean-build"],
+      "cache": false,
+      "outputs": []
+    },
+    "@tamanu/upgrade#clean-build": {
+      "dependsOn": ["^clean-build"],
       "cache": false
     }
   }
