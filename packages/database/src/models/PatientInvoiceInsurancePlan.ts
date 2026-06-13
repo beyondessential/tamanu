@@ -10,12 +10,24 @@ export class PatientInvoiceInsurancePlan extends Model {
   declare patientId: string;
   declare invoiceInsurancePlanId: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  // The composite primary key gives each (patient, plan) pair exactly one row for its whole
+  // lifecycle: removing a plan soft-deletes the row and re-adding it restores the same row,
+  // so restores pushed from facility servers must be applied on central
+  static acceptsFacilityRestores = true;
+
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // Deterministic id from (patient_id, invoice_insurance_plan_id), same pattern as patient_facilities
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("invoice_insurance_plan_id", ';', ':')) STORED`,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
+        },
         patientId: {
           type: DataTypes.STRING,
+          primaryKey: true,
           references: {
             model: 'patients',
             key: 'id',
@@ -23,6 +35,7 @@ export class PatientInvoiceInsurancePlan extends Model {
         },
         invoiceInsurancePlanId: {
           type: DataTypes.STRING,
+          primaryKey: true,
           references: {
             model: 'invoice_insurance_plans',
             key: 'id',

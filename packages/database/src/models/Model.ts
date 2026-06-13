@@ -35,6 +35,13 @@ export class Model<
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
   declare static incomingSyncHook?: (changes: SyncSnapshotAttributes[]) => Promise<SyncHookSnapshotChanges | undefined>;
+  // Restores normally only originate from the central server; models that revive
+  // soft-deleted rows in place (rather than inserting a new record) can opt in to
+  // having facility-originated restores applied on central. Note there is no tick-based
+  // conflict resolution on deletion state, so a live copy pushed by a facility that
+  // hasn't yet pulled a deletion will resurrect the record — only opt in where
+  // re-add-wins is acceptable.
+  static acceptsFacilityRestores = false;
 
   static init(
     modelAttributes: ModelAttributes,
