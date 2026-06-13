@@ -48,7 +48,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
