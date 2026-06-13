@@ -17,8 +17,8 @@
     "build:esm": "tsc",
     "build:types:cjs": "tsc --emitDeclarationOnly --outDir dist/cjs",
     "build-watch": "npm run build:dev:watch",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules"
+    "clean": "rimraf -- dist *.tsbuildInfo",
+    "clean:deps": "rimraf -- node_modules"
   },
   "dependencies": {
     "@tamanu/constants": "*",

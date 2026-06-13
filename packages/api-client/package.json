@@ -25,8 +25,8 @@
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
     "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
-    "clean": "rimraf dist",
-    "clean:deps": "rimraf node_modules"
+    "clean": "rimraf -- dist",
+    "clean:deps": "rimraf -- node_modules"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
