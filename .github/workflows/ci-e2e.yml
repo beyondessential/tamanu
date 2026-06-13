@@ -100,7 +100,8 @@ jobs:
             --workspace=@tamanu/facility-server \
             --workspace=@tamanu/web-frontend
 
-      - run: |
+      - name: Build servers & web-frontend
+        run: |
           npm run build -- \
             --filter=@tamanu/central-server... \
             --filter=@tamanu/facility-server... \

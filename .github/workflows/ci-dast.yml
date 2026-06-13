@@ -131,7 +131,8 @@ jobs:
             --workspace=@tamanu/central-server \
             --workspace=@tamanu/facility-server
 
-      - run: |
+      - name: Build central & facility servers
+        run: |
           npm run build -- \
             --filter=@tamanu/central-server... \
             --filter=@tamanu/facility-server...
