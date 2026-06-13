@@ -92,7 +92,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -100,7 +100,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -118,11 +118,11 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         id: build-cache
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
@@ -132,7 +132,7 @@ jobs:
       - if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build-shared
       - if: steps.build-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v5
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
@@ -154,11 +154,11 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
@@ -192,7 +192,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -212,7 +212,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -241,11 +241,11 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
@@ -272,11 +272,11 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
@@ -299,7 +299,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -332,7 +332,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -352,11 +352,11 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-build-shared-${{ github.sha }}
           path: ${{ env.BUILD_SHARED_PATHS }}
@@ -413,7 +413,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
