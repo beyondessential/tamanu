@@ -5,7 +5,7 @@
   "main": "index.mjs",
   "type": "module",
   "scripts": {
-    "clean:deps": "rimraf node_modules"
+    "clean:deps": "rimraf -- node_modules"
   },
   "bin": {
     "nodemon": "./node_modules/.bin/nodemon",

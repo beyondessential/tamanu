@@ -34,8 +34,8 @@
     "build:types": "npm run build:types:esm && npm run build:types:cjs",
     "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
     "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules",
+    "clean": "rimraf -- dist *.tsbuildInfo",
+    "clean:deps": "rimraf -- node_modules",
     "build-watch": "npm run build:dev:watch",
     "test": "vitest run",
     "test:watch": "vitest --watch"

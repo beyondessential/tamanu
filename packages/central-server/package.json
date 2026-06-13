@@ -18,8 +18,8 @@
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "build-watch": "npm run build -- --watch",
-    "clean": "rimraf dist __disttests__",
-    "clean:deps": "rimraf node_modules",
+    "clean": "rimraf -- dist __disttests__",
+    "clean:deps": "rimraf -- node_modules",
     "setup-dev": "node dist setup",
     "shell": "npm run build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",

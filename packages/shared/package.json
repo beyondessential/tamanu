@@ -133,8 +133,8 @@
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/esm --rootDir src",
     "build-watch": "npm run build:dev:watch",
-    "clean": "rimraf dist",
-    "clean:deps": "rimraf node_modules",
+    "clean": "rimraf -- dist",
+    "clean:deps": "rimraf -- node_modules",
     "test": "NODE_ENV=test jest"
   },
   "private": true,

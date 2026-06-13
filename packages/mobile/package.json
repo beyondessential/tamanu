@@ -5,7 +5,7 @@
   "scripts": {
     "android": "npx react-native start --reset-cache",
     "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
-    "clean:deps": "rimraf node_modules",
+    "clean:deps": "rimraf -- node_modules",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
     "test:coverage": "npm run test -- --coverage",
