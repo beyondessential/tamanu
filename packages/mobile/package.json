@@ -46,7 +46,6 @@
     "khmer-unicode-converter": "^0.0.6",
     "lodash": "^4.17.21",
     "mathjs": "^12.1.0",
-    "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
     "patch-package": "^8.0.0",
