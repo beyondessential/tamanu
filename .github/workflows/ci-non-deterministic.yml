@@ -50,7 +50,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i -g '@swc/cli@^0.1.63'
