@@ -95,14 +95,14 @@ jobs:
       - uses: actions/cache/restore@v3
         id: cache
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
   build_shared_cache:
@@ -120,7 +120,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v3
         id: build-cache
@@ -156,7 +156,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v3
         with:
@@ -194,7 +194,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
@@ -214,7 +214,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - run: npm i
 
@@ -243,7 +243,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v3
         with:
@@ -274,7 +274,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v3
         with:
@@ -301,7 +301,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - run: npm i
 
@@ -334,7 +334,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - run: npm i
       - run: git diff --exit-code
@@ -354,7 +354,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v3
         with:
@@ -415,7 +415,7 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
