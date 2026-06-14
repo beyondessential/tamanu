@@ -106,7 +106,7 @@
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "case": "^1.6.3",
     "config": "^3.3.9",
     "date-fns": "^2.25.0",
