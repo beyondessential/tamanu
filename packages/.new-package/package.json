@@ -22,7 +22,7 @@
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
     "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
-    "clean": "rimraf -- dist",
+    "clean": "rimraf -- dist .tsbuild",
     "clean:deps": "rimraf -- node_modules",
     "test": "NODE_ENV=test jest"
   },
