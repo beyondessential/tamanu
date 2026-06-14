@@ -8,24 +8,33 @@ const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
 
+const mobileNodeModules = path.resolve(__dirname, 'node_modules');
+
 const config = {
   projectRoot: path.resolve(__dirname, '.'),
 
   watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
 
   resolver: {
-    // https://github.com/facebook/metro/issues/1#issuecomment-453450709
+    // Always resolve from packages/mobile/node_modules, not process.cwd() or root.
     extraNodeModules: new Proxy(
       {},
       {
-        get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
+        get: (target, name) => path.join(mobileNodeModules, String(name)),
       },
     ),
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
     // Force packages that exist in both root and mobile node_modules to always
-    // resolve from mobile, preventing duplicate native component registration.
+    // resolve from mobile, preventing duplicate native component registration
+    // and multiple React copies in the bundle.
     resolveRequest: (context, moduleName, platform) => {
-      const dedupedPackages = ['react-native-svg'];
+      const dedupedPackages = [
+        'react',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'react-native',
+        'react-native-svg',
+      ];
       if (dedupedPackages.includes(moduleName)) {
         return context.resolveRequest(
           { ...context, originModulePath: path.resolve(__dirname, 'index.js') },
