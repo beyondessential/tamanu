@@ -51,14 +51,11 @@ function transformPatientData(
         case 'Patient':
           return patient[fieldName];
         case 'PatientAdditionalData':
-          return additionalData ? additionalData[fieldName] : undefined;
+          return additionalData?.[fieldName];
         case 'PatientProgramRegistration':
-          return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
+          return patientProgramRegistration?.[fieldName];
         default:
-          if (customPatientFieldValues?.[column]) {
-            return customPatientFieldValues[column][0].value;
-          }
-          return undefined;
+          return customPatientFieldValues?.[column]?.[0].value;
       }
     }
   }
@@ -117,11 +114,26 @@ function getFieldValidator(
 ): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
+    case FieldTypes.DISPLAY_TEXT:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return undefined;
     case FieldTypes.DATE:
       return Yup.date();
+    case FieldTypes.TIME:
+      return Yup.string().transform(
+        /**
+         * Transform to plain time string (HH:mm:ss) without date or time zone
+         * @param _value Value which Yup coerced from original `Date`. Useless.
+         * @param original `Date` object from time picker
+         */
+        (_value: string, original: Date): `${string}:${string}:${string}` => {
+          const hours = original.getHours().toString().padStart(2, '0');
+          const minutes = original.getMinutes().toString().padStart(2, '0');
+          const seconds = original.getSeconds().toString().padStart(2, '0');
+          return `${hours}:${minutes}:${seconds}`;
+        },
+      );
     case FieldTypes.BINARY:
       return Yup.bool();
     case FieldTypes.NUMBER: {

@@ -413,4 +413,34 @@ describe('Exposed keys', () => {
       expect(keys).not.toContain('integrations');
     });
   });
+
+  describe('Medication administration-time arrays', () => {
+    const dailySchema =
+      globalSettings.properties.medications.properties.defaultAdministrationTimes.properties.Daily
+        .type;
+    const fourTimesSchema =
+      globalSettings.properties.medications.properties.defaultAdministrationTimes.properties[
+        'Four times daily'
+      ].type;
+
+    // the settings editor reads the required count from describe().tests to pin
+    // the list of time inputs, so the count must be a built-in `.length()`
+    it('expose the required number of windows as a discoverable length constraint', () => {
+      const lengthOf = schema =>
+        schema.describe().tests.find(test => test.name === 'length')?.params?.length;
+      expect(lengthOf(dailySchema)).toBe(1);
+      expect(lengthOf(fourTimesSchema)).toBe(4);
+    });
+
+    it('still reject the wrong number of windows, duplicates and bad formats', () => {
+      expect(() => fourTimesSchema.validateSync(['08:00', '12:00'])).toThrow(
+        /number of 4 administration windows/,
+      );
+      expect(() => fourTimesSchema.validateSync(['08:00', '09:00', '10:00', '11:00'])).toThrow(
+        /Duplicate 2-hour time blocks/,
+      );
+      expect(() => dailySchema.validateSync(['25:00'])).toThrow(/Invalid time format/);
+      expect(dailySchema.validateSync(['08:00'])).toEqual(['08:00']);
+    });
+  });
 });

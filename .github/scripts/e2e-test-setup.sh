@@ -108,6 +108,9 @@ EOF
                 patientSummary: {
                     enabled: true,
                 },
+                encounterSummary: {
+                    enabled: true,
+                },
             },
         },
 

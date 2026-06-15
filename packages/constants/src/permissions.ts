@@ -76,6 +76,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Encounter: [List, Read, Write, Create, Delete],
   EncounterDiagnosis: [List, Read, Write, Create],
   EncounterNote: [List, Read, Write, Create],
+  EncounterSummary: [Read, Write, Create],
   Facility: [List, Read, Write, Create, Login],
   FormBuilder: [Write],
   ...FHIR_RESOURCE_PERMISSION_SCHEMA,

@@ -16,6 +16,7 @@ import { useSettings, useTranslation } from '../../contexts';
 import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
 import SurveyResultQuestion from '../Field/SurveyResultQuestion';
+import { RequiredOrnament } from '../RequiredOrnament';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { ViewChangeLogButton } from '../ViewChangeLogButton';
 
@@ -38,13 +39,8 @@ const Text = styled(Typography)`
   margin-block-end: 10px;
 `;
 
-export const FullWidthCol = styled.div`
-  grid-column: 1/-1;
-`;
-
-const OuterLabelRequired = styled.span`
-  color: ${TAMANU_COLORS.alert};
-  padding-left: 3px;
+const FullWidthCol = styled.div`
+  grid-column: 1 / -1;
 `;
 
 const GeolocateQuestion = ({ text, component, required }) => {
@@ -55,9 +51,7 @@ const GeolocateQuestion = ({ text, component, required }) => {
         data-testid="typography-7mxf"
       >
         {text}
-        {required && (
-          <OuterLabelRequired data-testid="outerlabelrequired-uroc">*</OuterLabelRequired>
-        )}
+        {required && <RequiredOrnament />}
       </Typography>
       <Typography
         style={{ fontSize: '14px', color: TAMANU_COLORS.darkText }}
@@ -104,7 +98,8 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 
   if (
     component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
-    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE
   ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }

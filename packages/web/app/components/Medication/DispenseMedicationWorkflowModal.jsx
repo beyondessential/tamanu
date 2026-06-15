@@ -29,6 +29,7 @@ import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   buildInstructionText,
+  buildLabelText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -177,11 +178,11 @@ const PatientSummaryViewPatientLink = styled.button`
   font-size: 13px;
   font-weight: 500;
   color: ${Colors.midText};
-  text-decoration: underline;
   text-align: left;
 
   &:hover {
-    opacity: 0.85;
+    color: ${Colors.primary};
+    text-decoration: underline;
   }
 `;
 
@@ -256,7 +257,7 @@ export const DispenseMedicationWorkflowModal = memo(
             selected: true,
             quantity: quantity ?? 1,
             instructions:
-              buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
+              buildLabelText(prescription, getTranslation, getEnumTranslation) ||
               instructions ||
               '',
             medicationPresetLabelId: null,
@@ -347,11 +348,7 @@ export const DispenseMedicationWorkflowModal = memo(
         const current = next[rowIndex];
         if (!current) return prev;
 
-        const fallback = buildInstructionText(
-          current.prescription,
-          getTranslation,
-          getEnumTranslation,
-        );
+        const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
         const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, fallback);
 
         next[rowIndex] = {
@@ -701,7 +698,6 @@ export const DispenseMedicationWorkflowModal = memo(
       const handleViewPatient = () => {
         if (!patient.id) return;
         navigateToPatient(patient.id);
-        onClose();
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
@@ -734,7 +730,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ) : null}
         </PatientSummaryPanel>
       );
-    }, [patient, navigateToPatient, onClose]);
+    }, [patient, navigateToPatient]);
 
     const dispenseWithoutLabelsButton = (
       <OutlinedButton

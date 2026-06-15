@@ -188,6 +188,7 @@ describe('Create DiagnosticReport', () => {
       const body = postBody(serviceRequestId);
       body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
       body.presentedForm = [testAttachment];
+      body.conclusion = 'Positive for markers X and Y';
 
       const response = await app.post(endpoint).send(body);
       await labRequest.reload();
@@ -195,6 +196,7 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
       expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
       expect((await labRequest.getLatestAttachment()).title).toBe(testAttachment.title);
+      expect(labRequest.resultsInterpretation).toBe('Positive for markers X and Y');
     });
 
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {

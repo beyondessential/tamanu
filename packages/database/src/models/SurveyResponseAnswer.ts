@@ -193,7 +193,7 @@ export class SurveyResponseAnswer extends Model {
       }
 
       // Sanitize value
-      const stringValue = getStringValue(
+      const stringValue = await getStringValue(
         component.dataElement.type,
         calculatedValues[component.dataElement.id],
       );

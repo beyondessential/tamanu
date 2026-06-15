@@ -209,7 +209,9 @@ export class PatientDetailsPage extends BasePatientPage {
       .filter({ hasText: 'Other patient issuesAdd' })
       .getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
-    this.savedIssueType = this.page.getByTestId('collapse-0a33').getByText('Type*Issue');
+    this.savedIssueType = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-lwpd-select');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
     this.savedOtherPatientIssueDate = this.page
       .getByTestId('collapse-0a33')
@@ -390,6 +392,11 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
+  }
+
+  async navigateToFirstEncounter() {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {

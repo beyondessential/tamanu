@@ -141,6 +141,7 @@ export class AIService {
   async refreshContexts(settings) {
     await this.registerFormBuilderContext(settings);
     await this.registerPatientSummaryContext(settings);
+    await this.registerEncounterSummaryContext(settings);
   }
 
   /**
@@ -160,6 +161,11 @@ export class AIService {
   async registerPatientSummaryContext(settings) {
     const { prompts } = await settings.get('patientSummary');
     this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
+  }
+
+  async registerEncounterSummaryContext(settings) {
+    const { prompts } = await settings.get('encounterSummary');
+    this.registerContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, prompts);
   }
 
   /**

@@ -1,22 +1,29 @@
+/*
+ * Using `console` instead of `{ log } from '../services/logging'` because this module sometimes
+ * runs in browser.
+ */
+
 /** @typedef {import('@tamanu/constants').DataElementType} DataElementType */
 
 import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { log } from '../services/logging';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { compressSignatureBody } from './signature';
 
 /**
  * @template {V}
  * @param {DataElementType} type
  * @param {any} value
- * @returns {V extends null | undefined ? null : string}
+ * @returns {Promise<V extends null | undefined ? null : string>}
  */
-export function getStringValue(type, value) {
+export async function getStringValue(type, value) {
   if (value == null) {
     return null;
   }
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return await compressSignatureBody(value);
     default:
       return `${value}`;
   }
@@ -71,7 +78,7 @@ export function checkVisibilityCriteria(component, allComponents, values) {
   try {
     return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
-    log.warn(
+    console.warn(
       `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
     );
 
@@ -86,7 +93,9 @@ export function checkVisibilityCriteria(component, allComponents, values) {
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
 function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents) {
-  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria
+    .split(':')
+    .map(part => part.trim());
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
@@ -97,7 +106,7 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
   const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
 
   if (!comparisonComponent) {
-    log.warn(`Comparison component ${elementCode} not found!`);
+    console.warn(`Comparison component ${elementCode} not found!`);
     return false;
   }
 

@@ -109,6 +109,8 @@ export const TableFormFields = React.memo(
       setPageRows(data.slice(0, newRowsPerPage));
     };
 
+    const displayRows = pagination ? pageRows : data;
+
     return (
       <>
         <TableContainer data-testid="tablecontainer-aex2">
@@ -132,8 +134,8 @@ export const TableFormFields = React.memo(
               </TableRow>
             </StyledTableHead>
             <TableBody data-testid="tablebody-l659">
-              {pageRows && pageRows.length > 0 ? (
-                pageRows.map((rowData, i) => (
+              {displayRows && displayRows.length > 0 ? (
+                displayRows.map((rowData, i) => (
                   <TableRow key={rowData.id || i} data-testid={`tablerow-r1a3-${i}`}>
                     {columns.map(({ key, accessor }) => (
                       <StyledTableDataCell

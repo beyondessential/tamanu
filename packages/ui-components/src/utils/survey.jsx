@@ -1,17 +1,19 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
-import React from 'react';
-import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
+import React from 'react';
 import { toast } from 'react-toastify';
-import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import * as yup from 'yup';
+
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
+import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
+import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
-import { TranslatedText } from '../components';
+import { TranslatedText } from '../components/Translation';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
@@ -251,6 +253,22 @@ export const getAnswersFromData = async (data, survey) => {
   return answers;
 };
 
+/**
+ * Signature is stored as compressed Base64 in database. For extremely complex signatures, it may
+ * cause `survey_response_answers` index record to exceed btree’s limit of 2704 bytes (1/3 of page
+ * size). This enforces an already-generous limit, with comfortable headroom.
+ */
+const SIGNATURE_MAX_COMPRESSED_BASE64_LENGTH = 2240;
+export const SIGNATURE_TOO_COMPLEX_STRING_ID = 'program.question.signature.tooComplex';
+
+const signatureSchema = yup
+  .string()
+  .test('signature-complexity', SIGNATURE_TOO_COMPLEX_STRING_ID, async function (value) {
+    const compressedLength = await estimateCompressedSize(value);
+    if (compressedLength <= SIGNATURE_MAX_COMPRESSED_BASE64_LENGTH) return true;
+    return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
+  });
+
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
@@ -297,6 +315,9 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
           valueSchema = yup.string();
           break;
+        case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+          valueSchema = signatureSchema;
+          break;
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
         case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
@@ -307,6 +328,24 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
             }
             return value;
           });
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.TIME:
+          valueSchema = yup
+            .string()
+            .nullable()
+            .transform((value, originalValue) => {
+              if (originalValue == null) return null;
+              if (typeof originalValue === 'string' && originalValue.trim() === '') return null;
+              return value;
+            })
+            .test(
+              'survey-time-hms',
+              getTranslation(
+                'validation.surveyTime.invalid',
+                'Must be a valid time of day (HH:mm:ss)',
+              ),
+              value => value == null || value === '' || isValidSurveyTimeBody(value),
+            );
           break;
         default:
           valueSchema = yup.mixed();

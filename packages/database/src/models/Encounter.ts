@@ -9,6 +9,7 @@ import {
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
+  type EncounterType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
@@ -36,9 +37,14 @@ import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
+const encounterTypes = new Set<string>(ENCOUNTER_TYPE_VALUES);
+function isEncounterType(value: unknown): value is EncounterType {
+  return typeof value === 'string' && encounterTypes.has(value);
+}
+
 export class Encounter extends Model {
   declare id: string;
-  declare encounterType?: string;
+  declare encounterType?: EncounterType;
   declare startDate: string;
   declare endDate?: string;
   declare estimatedEndDate?: string;
@@ -66,7 +72,7 @@ export class Encounter extends Model {
     if (!hackToSkipEncounterValidation) {
       validate = {
         mustHaveValidEncounterType() {
-          if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType as string)) {
+          if (!this.deletedAt && !isEncounterType(this.encounterType)) {
             throw new InvalidOperationError('An encounter must have a valid encounter type.');
           }
         },

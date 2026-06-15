@@ -6,8 +6,9 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import styled from 'styled-components';
 
+import { normalizeBinaryAnswer } from '@tamanu/utils/criteria';
 import { TAMANU_COLORS } from '../../constants';
-import { useTranslation } from '../../contexts';
+import { RequiredOrnament } from '../RequiredOrnament';
 import { TranslatedText } from '../Translation';
 
 const ControlLabel = styled(FormLabel).attrs({
@@ -27,25 +28,24 @@ const ControlLabel = styled(FormLabel).attrs({
   }
 `;
 
-const RequiredLabel = styled.span`
-  color: ${TAMANU_COLORS.alert};
-  padding-inline-start: 3px;
-  &::after {
-    content: '*' / ${p => p.altText};
-  }
-`;
-
 /**
  * @param {Omit<
  *   import('@mui/material/ToggleButtonGroup').ToggleButtonGroupProps, 'onChange' | 'value'
  * > & {
- *   value: 'true' | 'false';
+ *   value: 'true' | 'false' | 'Yes' | 'No' | null | undefined;
  *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
  *   name: string;
  * }} props
  */
 const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
   const handleChange = (e, next) => onChange({ ...e, target: { ...e.target, name, value: next } });
+
+  const normalized = normalizeBinaryAnswer(value);
+  const logicalValue =
+    typeof normalized === 'boolean'
+      ? /** @type {'true' | 'false'} */ (normalized.toString())
+      : /** @type {null | undefined} */ (value);
+
   return (
     <ToggleButtonGroup
       color="primary"
@@ -54,7 +54,7 @@ const NullableBooleanControl = ({ value, onChange, name, ...props }) => {
       name={name}
       onChange={handleChange}
       size="small"
-      value={value}
+      value={logicalValue}
       {...props}
     >
       <ToggleButton key="true" value="true">
@@ -77,7 +77,6 @@ export const NullableBooleanInput = ({
   style,
   ...props
 }) => {
-  const { getTranslation } = useTranslation();
   return (
     <FormControl
       style={style}
@@ -90,12 +89,10 @@ export const NullableBooleanInput = ({
         labelPlacement="top"
         control={<NullableBooleanControl {...props} data-testid="nullable-boolean-field-control" />}
         label={
-          <div>
+          <>
             {label}
-            {required && (
-              <RequiredLabel altText={getTranslation('general.label.required', 'Required')} />
-            )}
-          </div>
+            {required && <RequiredOrnament />}
+          </>
         }
       />
       {helperText && (

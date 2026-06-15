@@ -7,6 +7,7 @@ import {
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  COLORS,
 } from '@tamanu/constants';
 import { parseDate, trimToDate } from '@tamanu/utils/dateTime';
 
@@ -268,8 +269,7 @@ const NoteFooter = ({ note }) => {
     !isTreatmentPlan && note.revisedBy?.author ? note.revisedBy.author : note.author;
   const originalOnBehalf =
     !isTreatmentPlan && note.revisedBy ? note.revisedBy.onBehalfOf : note.onBehalfOf;
-  const originalDate =
-    !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
+  const originalDate = !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
 
   const baseLine = [
     isTreatmentPlan && `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
@@ -285,7 +285,7 @@ const NoteFooter = ({ note }) => {
     .filter(Boolean)
     .join(' ');
 
-  const editCount = !isTreatmentPlan ? note.editCount ?? 0 : 0;
+  const editCount = !isTreatmentPlan ? (note.editCount ?? 0) : 0;
   if (editCount <= 0) {
     return <Text style={textStyles.tableCellFooter}>{baseLine}</Text>;
   }
@@ -361,6 +361,32 @@ const NotesSection = ({ notes }) => {
   );
 };
 
+const EncounterSummarySection = ({ summary }) => {
+  const { getTranslation } = useLanguageContext();
+  const paragraphs = summary.split(/\n+/).filter(Boolean);
+  return (
+    <View wrap={false} minPresenceAhead={80} style={{ marginTop: 10 }}>
+      <MultipageTableHeading
+        title={getTranslation('pdf.encounterRecord.section.encounterSummary', 'Encounter summary')}
+      />
+      <View style={{ border: borderStyle, padding: 7 }}>
+        {paragraphs.map((paragraph, i) => (
+          <Text key={i} style={[textStyles.tableCellContent, i > 0 && { marginTop: 6 }]}>
+            {paragraph}
+          </Text>
+        ))}
+      </View>
+      <Text bold style={[textStyles.tableCellFooter, { color: COLORS.grey, marginTop: 4 }]}>
+        {getTranslation(
+          'ai.encounterSummary.disclaimer',
+          'This is AI generated and may contain inaccuracies. Please check carefully.',
+        )}
+      </Text>
+      <SectionSpacing />
+    </View>
+  );
+};
+
 const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
@@ -377,6 +403,7 @@ const EncounterRecordPrintoutComponent = ({
   vitalsData,
   recordedDates,
   settings,
+  encounterSummary,
 }) => {
   const getSetting = key => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
@@ -652,6 +679,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
+        {encounterSummary && <EncounterSummarySection summary={encounterSummary} />}
         <Footer />
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (

@@ -22,8 +22,9 @@ import asyncHandler from 'express-async-handler';
 import { omit } from 'lodash';
 import { QueryTypes } from 'sequelize';
 
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { decompressSignatureBody } from '@tamanu/shared/utils/signature';
 
 /**
  * Prior vs current `survey_response_answers.body`, or `null` if unchanged / no current row.
@@ -109,18 +110,26 @@ export const surveyResponseChangesGetHandler = asyncHandler(async (req, res) => 
     revisions.push(revision);
   }
 
-  const changes = revisions
-    .map(revision => {
-      if (!revision.recordData.editedTime) return null; // Edits only, no creates
+  const changes = (
+    await Promise.all(
+      revisions.map(async revision => {
+        if (!revision.recordData.editedTime) return null; // Edits only, no creates
 
-      const prevRevision = revisionHistoryById.get(revision.recordId)?.[revision._revision - 1];
-      const diff = diffAnswerBody(prevRevision?.recordData, revision.recordData);
+        const prevRevision = revisionHistoryById.get(revision.recordId)?.[revision._revision - 1];
+        const diff = diffAnswerBody(prevRevision?.recordData, revision.recordData);
 
-      if (!diff) return null; // No meaningful change (shouldn’t really happen)
+        if (!diff) return null; // No meaningful change (shouldn’t really happen)
 
-      // Done with revision number; omit from response
-      return { ...omit(revision, '_revision'), ...diff };
-    })
+        const isSignature =
+          revision.programDataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
+        const from = isSignature ? await decompressSignatureBody(diff.from) : diff.from;
+        const to = isSignature ? await decompressSignatureBody(diff.to) : diff.to;
+
+        // Done with revision number; omit from response
+        return { ...omit(revision, '_revision'), from, to };
+      }),
+    )
+  )
     .filter(change => change !== null)
     .reverse(); // Reverse chronological order (recent edits first)
 

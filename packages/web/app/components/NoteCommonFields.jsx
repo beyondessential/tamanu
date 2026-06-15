@@ -1,32 +1,25 @@
+import { NON_EDITABLE_NOTE_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import Divider from '@material-ui/core/Divider';
-import { NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
-import { InfoCard, InfoCardItem } from './InfoCard';
+
 import {
   AutocompleteField,
   AutocompleteInput,
+  ConditionalTooltip,
+  DateDisplay,
   DateTimeField,
-  Field,
   DateTimeInput,
-  TextField,
+  Field,
   FormGrid,
   SelectField,
-  ConditionalTooltip,
+  TextField,
   TranslatedReferenceData,
+  TranslatedText,
+  useSettings,
+  useSuggester,
 } from '@tamanu/ui-components';
-
-import { useSuggester } from '../api';
-import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useSettings } from '../contexts/Settings';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
-
-export const StyledDivider = styled(Divider)`
-  margin-top: 30px;
-  margin-bottom: 30px;
-`;
+import { InfoCard, InfoCardItem } from './InfoCard';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -53,7 +46,6 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
           fallback="This note type already exists for this encounter"
         />
       }
-      data-testid="styledtooltip-tj9s"
     >
       <div>{label}</div>
     </ConditionalTooltip>
@@ -62,11 +54,7 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
 
 export const PreviouslyWrittenByField = ({
   label = (
-    <TranslatedText
-      stringId="note.writtenBy.label"
-      fallback="Written by (or on behalf of)"
-      data-testid="translatedtext-rzft"
-    />
+    <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
   ),
   value,
   size,
@@ -92,11 +80,7 @@ export const PreviousDateTimeField = ({
 
 export const WrittenByField = ({
   label = (
-    <TranslatedText
-      stringId="note.writtenBy.label"
-      fallback="Written by (or on behalf of)"
-      data-testid="translatedtext-rzgt"
-    />
+    <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
   ),
   required,
   disabled,
@@ -124,13 +108,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   return (
     <Field
       name="date"
-      label={
-        <TranslatedText
-          stringId="note.dateTime.label"
-          fallback="Date & time"
-          data-testid="translatedtext-jrp9"
-        />
-      }
+      label={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
@@ -143,7 +121,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
 /* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
-const NoteContentBox = styled(Box)`
+const NoteContentBox = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -181,13 +159,7 @@ const textareaSx = {
 };
 
 export const NoteContentField = ({
-  label = (
-    <TranslatedText
-      stringId="note.edit.label"
-      fallback="Edit note"
-      data-testid="translatedtext-7pw2"
-    />
-  ),
+  label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
   onChange,
   size,
   isEditMode = false,
@@ -239,13 +211,7 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label={
-        <TranslatedText
-          stringId="note.noteType.label"
-          fallback="Note type"
-          data-testid="translatedtext-w7oa"
-        />
-      }
+      label={<TranslatedText stringId="note.noteType.label" fallback="Note type" />}
       value={noteType}
       borderHeight={50}
       data-testid="infocarditem-tpuk"
@@ -296,18 +262,12 @@ export const NoteTypeField = ({
         isDisabled:
           noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
       }));
-  }, [noteTypes]);
+  }, [noteTypes, noteTypeCountByType]);
 
   return (
     <Field
       name="noteTypeId"
-      label={
-        <TranslatedText
-          stringId="note.type.label"
-          fallback="Type"
-          data-testid="translatedtext-43jz"
-        />
-      }
+      label={<TranslatedText stringId="note.type.label" fallback="Type" />}
       required={required}
       component={SelectField}
       options={noteTypeOptions}
@@ -331,13 +291,7 @@ export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled
   return (
     <Field
       name="template"
-      label={
-        <TranslatedText
-          stringId="note.template.label"
-          fallback="Template"
-          data-testid="translatedtext-xgj5"
-        />
-      }
+      label={<TranslatedText stringId="note.template.label" fallback="Template" />}
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
