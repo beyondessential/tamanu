@@ -6,13 +6,31 @@ const datetimepickerRoot = path.join(
 );
 const datetimepickerAndroid = path.join(datetimepickerRoot, 'android');
 
+const configRoot = path.join(__dirname, 'node_modules/react-native-config');
+const configAndroid = path.join(configRoot, 'android');
+
 /**
- * @react-native-community/datetimepicker@9.1.0 extends BaseReactPackage, which
- * the RN CLI autolinker does not detect. Declare it manually so Gradle runs
- * codegen and registers the RNCDatePicker TurboModule.
+ * Packages that extend BaseReactPackage are not detected by the RN CLI autolinker.
+ * Declare them manually so Gradle runs codegen and registers their TurboModules.
  */
 module.exports = {
   dependencies: {
+    'react-native-config': {
+      root: configRoot,
+      platforms: {
+        android: {
+          sourceDir: configAndroid,
+          packageImportPath: 'import com.lugg.RNCConfig.RNCConfigPackage;',
+          packageInstance: 'new RNCConfigPackage()',
+          libraryName: 'RNCConfigSpec',
+          componentDescriptors: [],
+          cmakeListsPath: path.join(
+            configAndroid,
+            'build/generated/source/codegen/jni/CMakeLists.txt',
+          ),
+        },
+      },
+    },
     '@react-native-community/datetimepicker': {
       root: datetimepickerRoot,
       platforms: {

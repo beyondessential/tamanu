@@ -9,7 +9,7 @@ project.ext.envConfigFiles = [
     release: ".env",
 ]
 
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+apply from: file("../../node_modules/react-native-config/android/dotenv.gradle")
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -160,8 +160,6 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:hermes-android")
-
-    implementation project(':react-native-config')
 
     implementation 'org.jetbrains:annotations:16.0.2'
 
