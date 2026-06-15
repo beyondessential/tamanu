@@ -1,5 +1,8 @@
 name: CD Package Android
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 permissions:
   contents: write # to update the release notes
   id-token: write # OIDC token for AWS
@@ -101,13 +104,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # Ideally we’d scope to --workspace=@tamanu/mobile, but `build-shared` builds all depended-
-        # on packages, regardless of whether @tamanu/mobile depends on it.
-        run: npm install
+        run: npm install --include-workspace-root --workspace=@tamanu/mobile
 
-      - name: Build shared packages
-        run: |
-          npm run build-shared
+      - name: Build mobile dependencies
+        run: npm run build -- --filter=@tamanu/mobile^...
 
       - name: Build release
         working-directory: packages/mobile/android

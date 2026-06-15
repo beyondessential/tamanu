@@ -17,7 +17,7 @@ import {
   splitIds,
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';

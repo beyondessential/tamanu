@@ -14,6 +14,9 @@ permissions:
   contents: read
   id-token: write # for Tailscale OIDC authentication
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,6 +29,17 @@ jobs:
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - run: npm ci --include-workspace-root --workspace=scripts
+      - run: npm run build -- --filter=scripts^...
+
+      - name: Configure tamanu to connect to the database in k8s
+        run: |
+          ns="tamanu-${{ inputs.deploy-name }}"
+          pgpass=$(kubectl get -n "$ns" secrets central-db-app -o jsonpath='{.data.password}' | base64 -d)
+          echo "::add-mask::$pgpass"
+          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" | tee -a $GITHUB_ENV
+          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
 
       - name: Add fake data to the deployment
         run: |
