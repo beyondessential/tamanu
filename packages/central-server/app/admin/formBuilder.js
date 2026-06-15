@@ -143,6 +143,23 @@ const readWorkbookContext = file => {
   }).join('\n\n');
 };
 
+// Detect an uploaded Tamanu program export: a workbook with a Metadata sheet
+// whose survey table header (a row starting with "code" that includes
+// "surveyType") marks it as an exported program rather than a new-form source.
+const isProgramExportUpload = ({ file, fileName }) => {
+  if (!file) return false;
+  if (!WORKBOOK_FILE_EXTENSIONS.has(extname(fileName || '').toLowerCase())) return false;
+  try {
+    const metadataSheet = readFile(file).Sheets.Metadata;
+    if (!metadataSheet) return false;
+    const rows = utils.sheet_to_json(metadataSheet, { header: 1, blankrows: false });
+    return rows.some(row => row[0] === 'code' && row.includes('surveyType'));
+  } catch (error) {
+    log.warn({ error }, 'AI form builder could not inspect uploaded workbook');
+    return false;
+  }
+};
+
 const sanitizeFileNameForPrompt = fileName => {
   if (!fileName) return undefined;
 
@@ -390,6 +407,13 @@ const tryTweakProgramDefinition = async ({ aiService, currentProgramDefinition, 
   }
 };
 
+// Reuse the client's session when it's still valid (it may have expired, or
+// belonged to a different process), otherwise start a fresh one.
+const resolveFormBuilderSession = async (aiService, sessionId) =>
+  sessionId && (await aiService.hasSession(sessionId))
+    ? sessionId
+    : aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
+
 const processChatRequest = async ({
   aiService,
   sessionId: existingSessionId,
@@ -401,14 +425,41 @@ const processChatRequest = async ({
   deleteFileAfterImport,
 }) => {
   try {
+    // The form builder only creates new forms; it can't update an existing
+    // program yet (saving would create a duplicate survey rather than versioning
+    // the original). Decline before parsing the workbook or provisioning a
+    // session — both are wasted work for a request we reject outright.
+    if (isProgramExportUpload({ file, fileName })) {
+      const refusal =
+        "I can't update an existing program yet — I can only help you build a new form. " +
+        'Remove the uploaded program export and describe the form you would like to create.';
+      // Persist the refusal to keep history coherent, but only reuse an existing
+      // session — don't create one just to store a declined turn.
+      const sessionId =
+        existingSessionId && (await aiService.hasSession(existingSessionId))
+          ? existingSessionId
+          : null;
+      if (sessionId) {
+        await aiService
+          .addSessionMessages(sessionId, {
+            userMessage: message?.trim() || '[Uploaded program export]',
+            assistantMessage: refusal,
+          })
+          .catch(error => {
+            log.warn({ error }, 'AI form builder failed to persist chat history');
+          });
+      }
+      return {
+        sessionId,
+        message: refusal,
+        attachToProgramCode: null,
+        programDefinition: null,
+      };
+    }
+
     const fileContext = await getFileContext({ aiService, file, fileName, fileContentType });
     const userMessage = buildUserMessage({ message, fileContext });
-    // Fall back to a fresh session if the client's sessionId is stale (e.g. it
-    // expired, or referred to a session that no longer exists).
-    const sessionId =
-      existingSessionId && (await aiService.hasSession(existingSessionId))
-        ? existingSessionId
-        : await aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
+    const sessionId = await resolveFormBuilderSession(aiService, existingSessionId);
 
     if (currentProgramDefinition) {
       const tweakResult = await tryTweakProgramDefinition({
@@ -509,12 +560,8 @@ formBuilderRouter.post(
       // return it with the jobId, so the client retains the conversation even
       // if it stops before the job result arrives. Otherwise a stopped first
       // turn loses the sessionId and the next message starts a fresh session,
-      // dropping any uploaded image's interpretation. A stale sessionId (lost on
-      // restart / a different process) also falls back to a fresh session.
-      const sessionId =
-        payload.sessionId && (await req.aiService.hasSession(payload.sessionId))
-          ? payload.sessionId
-          : await req.aiService.createSession(AI_CONTEXT_NAMES.FORM_BUILDER);
+      // dropping any uploaded image's interpretation.
+      const sessionId = await resolveFormBuilderSession(req.aiService, payload.sessionId);
       const jobId = await startChatJob({
         aiService: req.aiService,
         models: req.models,

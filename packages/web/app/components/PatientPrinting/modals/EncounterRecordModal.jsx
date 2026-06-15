@@ -14,6 +14,7 @@ import { combineQueries } from '../../../api/combineQueries';
 import { useImagingRequestsQuery } from '../../../api/queries/useImagingRequestsQuery';
 import { useEncounterNotesQuery } from '../../../api/queries/useEncounterNotesQuery';
 import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
+import { useAiEncounterSummaryQuery } from '../../../api/queries/useAiEncounterSummaryQuery';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -157,6 +158,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const dischargeQuery = useEncounterDischargeQuery(encounter);
   const discharge = dischargeQuery.data;
 
+  const aiEncounterSummaryQuery = useAiEncounterSummaryQuery(encounter.id);
+  const aiDocument = aiEncounterSummaryQuery.data?.aiDocument;
+  const encounterSummary =
+    aiDocument && aiDocument.status !== 'discarded' ? aiDocument.content : null;
+
   const villageQuery = useReferenceDataQuery(patient?.villageId);
   const village = villageQuery.data;
 
@@ -181,7 +187,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     title: discharge ? (
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
-        fallback="Encounter Record"
+        fallback="Encounter record"
         data-testid="translatedtext-fzew"
       />
     ) : (
@@ -323,7 +329,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       ) : (
         <WorkerRenderedPDFViewer
           id="encounter-record"
-          queryDeps={[encounter.id]}
+          queryDeps={[encounter.id, encounterSummary]}
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           vitalsData={vitalsData}
@@ -343,6 +349,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           translations={translations}
           settings={settings}
           primaryTimeZone={primaryTimeZone}
+          encounterSummary={encounterSummary}
           data-testid="encounterrecordprintout-yqe1"
         />
       )}

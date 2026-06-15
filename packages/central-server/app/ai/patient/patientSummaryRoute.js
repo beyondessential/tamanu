@@ -14,6 +14,7 @@ const patientSummaryBodySchema = z
     patientData: z
       .object({
         patient: z.unknown(),
+        death: z.unknown().optional(),
         allergies: z.array(z.unknown()).optional(),
         conditions: z.array(z.unknown()).optional(),
         issues: z.array(z.unknown()).optional(),

@@ -501,7 +501,7 @@ export class SurveyResponse extends Model {
       return attachmentId; // Store attachment ID as answer body
     }
 
-    return getStringValue(dataElementType, value);
+    return await getStringValue(dataElementType, value);
   }
 
   static async createPatientIssues(...args: Parameters<typeof _createPatientIssues>) {

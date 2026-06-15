@@ -1,0 +1,230 @@
+name: DAST
+
+# Dynamic Application Security Testing with OWASP ZAP.
+#
+# Runs a *full active scan* (real attack payloads) against the central and
+# facility server APIs, both authenticated and unauthenticated. Because active
+# scanning mutates and can destroy data, it only ever runs against the throwaway
+# stack stood up here in CI — never against a real deployment.
+#
+# Opt-in on PRs via the `#dast` checkbox, and runs automatically in the merge
+# queue.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  merge_group:
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: e2e
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
+jobs:
+  plan:
+    name: Plan DAST
+    runs-on: ubuntu-latest
+    outputs:
+      requested: ${{ steps.plan.outputs.requested }}
+    steps:
+      - uses: actions/github-script@v7
+        id: plan
+        with:
+          script: |
+            // Merge-queue runs always scan. On PRs, scan only when the #dast
+            // checkbox is ticked. Parse the body line-by-line so the marker is
+            // load-bearing but the checkbox's label text is free to change.
+            if (context.eventName === 'merge_group') {
+              core.setOutput('requested', 'true');
+              return;
+            }
+            const body = context.payload.pull_request?.body ?? '';
+            const ticked = /^\s*-\s+\[x\]\s+.*<!--\s*#dast\s*-->/im.test(body);
+            core.info(`DAST requested: ${ticked}`);
+            core.setOutput('requested', String(ticked));
+
+  node_modules_cache:
+    needs: plan
+    if: needs.plan.outputs.requested == 'true'
+    name: Cache node modules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v5
+        id: cache
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - name: Clean-install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          npm ci \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+  dast:
+    needs: [plan, node_modules_cache]
+    if: needs.plan.outputs.requested == 'true'
+    name: ZAP ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Facility servers are usually on a local network — authenticated
+          # coverage is the priority, but the anonymous surface is cheap signal.
+          - name: facility-authenticated
+            server: facility
+            target: http://localhost:4000
+            authenticated: true
+          - name: facility-unauthenticated
+            server: facility
+            target: http://localhost:4000
+            authenticated: false
+          # Central is often internet-exposed, so the unauthenticated (anonymous
+          # attacker) view matters most here.
+          - name: central-authenticated
+            server: central
+            target: http://localhost:3000
+            authenticated: true
+          - name: central-unauthenticated
+            server: central
+            target: http://localhost:3000
+            authenticated: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+      - uses: actions/cache/restore@v5
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server
+
+      - name: Build central & facility servers
+        run: |
+          npm run build -- \
+            --filter=@tamanu/central-server... \
+            --filter=@tamanu/facility-server...
+
+      - name: Setup postgres dbs
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 18
+          .github/scripts/e2e-test-setup.sh setup-postgres
+      - name: Setup central server
+        run: .github/scripts/e2e-test-setup.sh setup-central
+      - name: Setup facility server
+        run: .github/scripts/e2e-test-setup.sh setup-facility
+      - name: Start servers
+        run: .github/scripts/e2e-test-setup.sh start-servers
+
+      - name: Prepare scan auth
+        run: |
+          # Fail loudly on any error: a silently-empty token would make an
+          # 'authenticated' leg scan as anonymous while reporting as authed,
+          # producing meaningless results with no visible failure.
+          set -euo pipefail
+
+          # Unauthenticated run: nothing to inject, scan as an anonymous client.
+          if [ "${{ matrix.authenticated }}" != "true" ]; then
+            echo "ZAP_CMD_OPTIONS=" >> "$GITHUB_ENV"
+            echo "Scanning ${{ matrix.target }} unauthenticated."
+            exit 0
+          fi
+
+          # Authenticated run: log in as the provisioned admin so the scan
+          # exercises endpoints behind auth, not just the login page.
+          login_token=$(curl -sf -X POST ${{ matrix.target }}/api/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@tamanu.io","password":"admin","deviceId":"dast-scanner"}' \
+            | jq -er .token)
+          [ -n "$login_token" ] || { echo "Empty login token from ${{ matrix.target }}"; exit 1; }
+
+          if [ "${{ matrix.server }}" = "facility" ]; then
+            # Facility tokens carry a facility scope, obtained via setFacility.
+            token=$(curl -sf -X POST ${{ matrix.target }}/api/setFacility \
+              -H 'Content-Type: application/json' \
+              -H "Authorization: Bearer $login_token" \
+              -d '{"facilityId":"facility-1"}' \
+              | jq -er .token)
+          else
+            # Central's setFacility doesn't reissue a token — the login token is
+            # what authenticated central requests carry.
+            token="$login_token"
+          fi
+          [ -n "$token" ] || { echo "Empty auth token for ${{ matrix.server }}"; exit 1; }
+
+          # Keep the token out of the logs, then inject it on every request via a
+          # ZAP replacer rule so spidered and attacked requests are authenticated.
+          echo "::add-mask::$token"
+          echo "ZAP_CMD_OPTIONS=-z \"-config replacer.full_list(0).description=authheader -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Authorization -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=Bearer $token\"" >> "$GITHUB_ENV"
+
+      - name: OWASP ZAP full scan
+        uses: zaproxy/action-full-scan@v0.13.0
+        with:
+          target: ${{ matrix.target }}
+          rules_file_name: .zap/rules.tsv
+          cmd_options: ${{ env.ZAP_CMD_OPTIONS }}
+          # Fail the job on any non-ignored alert (suppress false positives in
+          # .zap/rules.tsv). Don't open GitHub issues from CI.
+          fail_action: true
+          allow_issue_writing: false
+          artifact_name: zap-dast-report-${{ matrix.name }}
+
+      - name: Print server logs on failure
+        if: failure()
+        run: |
+          echo "::group::central-server.out"
+          cat central-server.out || true
+          echo "::endgroup::"
+          echo "::group::facility-server.out"
+          cat facility-server.out || true
+          echo "::endgroup::"
+
+  # Single, stable check name (independent of the scan matrix) to require in
+  # branch protection so a failing scan blocks the merge.
+  dast-required:
+    name: DAST Required
+    if: always()
+    needs: [plan, dast]
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.plan.outputs.requested == 'true'
+        name: Enforce passing DAST scan
+        run: |
+          if [ "${{ needs.dast.result }}" != "success" ]; then
+            echo "DAST scan did not pass."
+            exit 1
+          fi
+
+          echo "DAST passed."

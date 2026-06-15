@@ -15,7 +15,8 @@ import {
 import { Problem } from '@tamanu/errors';
 import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
-import { asNewRole, showError } from '@tamanu/shared/test-helpers';
+import { showError } from '@tamanu/shared/test-helpers';
+import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { initReporting } from '@tamanu/database/services/reporting';
 
 import { createApiApp } from '../dist/createApiApp';

@@ -140,6 +140,8 @@ export class AIService {
    */
   async refreshContexts(settings) {
     await this.registerFormBuilderContext(settings);
+    await this.registerPatientSummaryContext(settings);
+    await this.registerEncounterSummaryContext(settings);
   }
 
   /**
@@ -154,6 +156,16 @@ export class AIService {
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER, processMessage);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD, buildSurveyDefinition);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, tweakSurveyDefinition);
+  }
+
+  async registerPatientSummaryContext(settings) {
+    const { prompts } = await settings.get('patientSummary');
+    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
+  }
+
+  async registerEncounterSummaryContext(settings) {
+    const { prompts } = await settings.get('encounterSummary');
+    this.registerContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, prompts);
   }
 
   /**
@@ -351,19 +363,19 @@ export class AIService {
       .join('\n\n');
   }
 
-    /**
+  /**
    * Stateless one-shot invocation using a registered context.
    *
    * @param {string} contextName
    * @param {string} userMessage
    * @returns {Promise<import('@langchain/core/messages').AIMessage>}
    */
-    async invoke(contextName, userMessage) {
-      return this.chatModel.invoke([
-        new SystemMessage(await this.getContext(contextName)),
-        ['human', userMessage],
-      ]);
-    }
+  async invoke(contextName, userMessage) {
+    return this.chatModel.invoke([
+      new SystemMessage(await this.getContext(contextName)),
+      ['human', userMessage],
+    ]);
+  }
 
   /**
    * Stateless structured invocation using a registered context.

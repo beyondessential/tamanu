@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/constants",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "private": true,
   "description": "Shared constants",
   "main": "dist/cjs/index.js",
@@ -23,18 +23,21 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types:cjs",
+    "build": "concurrently -n esm,cjs -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" && move-dts --copy dist/esm dist/cjs",
+    "clean-build": "npm run clean && npm run build",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:cjs": "swc --copy-files --source-maps true --out-dir dist/cjs src",
     "build:esm": "tsc",
     "build:types:cjs": "tsc --emitDeclarationOnly --outDir dist/cjs",
     "build-watch": "npm run build:dev:watch",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules"
+    "clean": "rimraf -- dist",
+    "clean:deps": "rimraf -- node_modules"
   },
   "devDependencies": {
-    "@types/date-fns": "^2.6.3",
+    "@tamanu/build-tooling": "*",
     "@types/node": "^18.14.6",
-    "rimraf": "^6.0.1"
+    "date-fns": "^2.25.0",
+    "concurrently": "^9.2.1",
+    "rimraf": "^6.1.3"
   }
 }

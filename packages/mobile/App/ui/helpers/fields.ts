@@ -1,11 +1,12 @@
+import { format, formatISO9075 } from 'date-fns';
 import { camelCase } from 'lodash';
-import { formatISO9075 } from 'date-fns';
-import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
-import { checkJSONCriteria } from '@tamanu/utils';
-import { formatDate, parseDate } from './date';
-import { DateFormats } from './constants';
-import { getPatientNameAsString } from './patient';
+
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
+import { checkJSONCriteria, parseSurveyTimeToHHmmss } from '@tamanu/utils';
+import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
+import { DateFormats } from './constants';
+import { formatDate, parseDate } from './date';
+import { getPatientNameAsString } from './patient';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -16,7 +17,9 @@ export const FieldTypes = {
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
   DATE_TIME: 'DateTime',
+  TIME: 'Time',
   SUBMISSION_DATE: 'SubmissionDate',
+  DISPLAY_TEXT: 'DisplayText',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
   BINARY: 'Binary',
@@ -36,13 +39,13 @@ export const FieldTypes = {
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
   COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
-};
+} as const;
 
 export const PatientFieldDefinitionTypes = {
   STRING: 'string',
   NUMBER: 'number',
   SELECT: 'select',
-};
+} as const;
 export const PatientFieldDefinitionTypeValues = Object.values(PatientFieldDefinitionTypes);
 
 export const getPatientDataDbLocation = fieldName => {
@@ -64,6 +67,16 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
       return value && formatISO9075(value);
+    case FieldTypes.TIME: {
+      if (value == null) return null;
+      if (value instanceof Date) return format(value, 'HH:mm:ss');
+      if (typeof value === 'string') {
+        const normalized = parseSurveyTimeToHHmmss(value);
+        if (normalized !== null) return normalized;
+        if (!value.trim()) return null;
+      }
+      throw new Error(`Invalid time value: ${value}`);
+    }
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
@@ -135,7 +148,9 @@ function fallbackParseVisibilityCriteria(
   values: any,
   allComponents: ISurveyScreenComponent[],
 ): boolean {
-  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria
+    .split(':')
+    .map(part => part.trim());
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
@@ -155,9 +170,14 @@ function fallbackParseVisibilityCriteria(
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
-const componentsByCodeCache = new WeakMap<ISurveyScreenComponent[], Map<string, ISurveyScreenComponent>>();
+const componentsByCodeCache = new WeakMap<
+  ISurveyScreenComponent[],
+  Map<string, ISurveyScreenComponent>
+>();
 
-function getComponentsByCode(allComponents: ISurveyScreenComponent[]): Map<string, ISurveyScreenComponent> {
+function getComponentsByCode(
+  allComponents: ISurveyScreenComponent[],
+): Map<string, ISurveyScreenComponent> {
   let map = componentsByCodeCache.get(allComponents);
   if (!map) {
     map = new Map(allComponents.map(c => [c.dataElement?.code, c]));

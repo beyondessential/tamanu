@@ -49,6 +49,7 @@ import { getPatientStatus } from '../utils/getPatientStatus';
 import { useTranslation } from '../contexts/Translation';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
+import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
@@ -707,6 +708,11 @@ export const DischargeForm = ({
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
+  const encounterSummaryEnabled = getSetting('encounterSummary.enabled');
+  const canCreateEncounterSummary = ability.can('create', 'EncounterSummary');
+  const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
+  const showEncounterSummary =
+    encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
     d => !['error', 'disproven'].includes(d.certainty),
@@ -999,6 +1005,11 @@ export const DischargeForm = ({
             required={dischargeNoteMandatory}
             data-testid="field-0uma"
           />
+          {showEncounterSummary && (
+            <div style={{ gridColumn: '1 / -1' }}>
+              <EncounterSummaryContent encounterId={encounter.id} />
+            </div>
+          )}
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
             data-testid="divider-lj2w"

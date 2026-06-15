@@ -360,7 +360,7 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
       ? 'pointer-events: none;'
       : ''
     }

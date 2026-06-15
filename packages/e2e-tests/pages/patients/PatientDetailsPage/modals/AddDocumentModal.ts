@@ -16,7 +16,6 @@ export class AddDocumentModal {
     this.page = page;
 
     const testIds = {
-      modalTitle: 'verticalcenteredtext-ni4s',
       fileInput: 'input-q5no',
       fileNameInput: 'field-b9rq-input',
       documentOwnerInput: 'field-yn8l-input',

@@ -1,30 +1,40 @@
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
 import React from 'react';
-import styled from 'styled-components';
-import { getNormalRangeByAge, useDateTime } from '@tamanu/ui-components';
+
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
-  VISIBILITY_STATUSES,
   USER_PREFERENCES_KEYS,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
+import { getNormalRangeByAge, useDateTime, VisuallyHidden } from '@tamanu/ui-components';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { useChartData } from '../contexts/ChartData';
+import { useVitalChartData } from '../contexts/VitalChartData';
 import {
   DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
   RangeValidatedCell,
+  TimeBodyCell,
 } from './FormattedTableCell';
-import { VitalVectorIcon } from './Icons/VitalVectorIcon';
-import { useVitalChartData } from '../contexts/VitalChartData';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useChartData } from '../contexts/ChartData';
 import { ViewPhotoLink } from './ViewPhotoLink';
 
-const IconButton = styled(IconButtonComponent)`
-  padding: 9px 5px;
-`;
+function VitalChartButton(props) {
+  return (
+    <IconButton color="primary" size="small" {...props}>
+      <ShowChartIcon fontSize="small" />
+      <VisuallyHidden>
+        <TranslatedText stringId="vitals.showChart" fallback="Show chart" />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
 
 const parseMultiselectValue = value => {
   if (!value) return;
@@ -35,14 +45,8 @@ const parseMultiselectValue = value => {
   }
 };
 
-const VitalsLimitedLinesCell = ({ value, isEdited }) => (
-  <LimitedLinesCell
-    value={value}
-    maxWidth="75px"
-    maxLines={2}
-    isEdited={isEdited}
-    data-testid="limitedlinescell-r6w3"
-  />
+const VitalsLimitedLinesCell = props => (
+  <LimitedLinesCell maxWidth="75px" maxLines={2} data-testid="limitedlinescell-r6w3" {...props} />
 );
 
 const MeasureCell = React.memo(({ value, data }) => {
@@ -80,8 +84,7 @@ const MeasureCell = React.memo(({ value, data }) => {
     >
       {value}
       {hasVitalChart && (
-        <IconButton
-          size="small"
+        <VitalChartButton
           onClick={() => {
             setChartKeys([chartKey]);
             setIsInMultiChartsView(false);
@@ -89,9 +92,7 @@ const MeasureCell = React.memo(({ value, data }) => {
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-t7kq"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-b8jn" />
-        </IconButton>
+        />
       )}
     </Box>
   );
@@ -133,8 +134,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
     >
       {value}
       {isSuccess && allGraphedChartKeys.length > 1 && (
-        <IconButton
-          size="small"
+        <VitalChartButton
           onClick={() => {
             setChartKeys(chartKeys);
             setIsInMultiChartsView(true);
@@ -142,11 +142,9 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-u6iz"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
-        </IconButton>
+        />
       )}
-      {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
+      {isLoading && <CircularProgress size="1em" data-testid="circularprogress-wtcr" />}
     </Box>
   );
 });
@@ -181,6 +179,10 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
     }
 
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.TIME && value) {
+      return <TimeBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
+    }
+
     return (
       <RangeValidatedCell
         value={isMultiSelect ? parseMultiselectValue(value) : value}
@@ -206,13 +208,7 @@ export const useChartsTableColumns = (
   return [
     {
       key: 'measure',
-      title: (
-        <TranslatedText
-          stringId="general.table.column.measure"
-          fallback="Measure"
-          data-testid="translatedtext-l9f5"
-        />
-      ),
+      title: <TranslatedText stringId="general.table.column.measure" fallback="Measure" />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell

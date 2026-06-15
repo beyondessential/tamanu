@@ -46,10 +46,9 @@ const FooterBottomRow = styled.div`
 `;
 
 const Disclaimer = styled.div`
-  font-size: 11px;
+  font-size: 10px;
   color: ${Colors.darkText};
   font-weight: 500;
-  white-space: nowrap;
 `;
 
 const EditedText = styled.span`

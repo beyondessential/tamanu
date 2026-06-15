@@ -161,14 +161,6 @@ const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
   background: white;
-
-  .MuiTabs-root {
-    margin-left: -12px;
-  }
-
-  .MuiTabs-scroller {
-    border-bottom: 1px solid #ebebeb;
-  }
 `;
 
 export const EncounterView = () => {

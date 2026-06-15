@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkMandatory, checkVisibility } from '@tamanu/ui-components';
+import { checkMandatory, checkVisibility, getValidationSchema } from '@tamanu/ui-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 describe('checkVisibility()', () => {
   const generateAllComponents = components =>
@@ -157,5 +158,48 @@ describe('checkVisibility()', () => {
         expect(result).toBe(expected);
       },
     );
+  });
+});
+
+describe('getValidationSchema() Time question', () => {
+  const fallbackTranslate = (_key, fallback) => fallback;
+
+  const timeSurvey = {
+    components: [
+      {
+        id: 'ssc-1',
+        dataElementId: 'pde-time-1',
+        dataElement: {
+          id: 'pde-time-1',
+          type: PROGRAM_DATA_ELEMENT_TYPES.TIME,
+          defaultText: 'Time of event',
+        },
+        validationCriteria: '{}',
+        config: '{}',
+        text: '',
+      },
+    ],
+  };
+
+  it('accepts canonical HH:mm:ss', async () => {
+    const schema = getValidationSchema(timeSurvey, fallbackTranslate);
+    await expect(schema.validate({ 'pde-time-1': '14:30:05' })).resolves.toEqual({
+      'pde-time-1': '14:30:05',
+    });
+  });
+
+  it('rejects invalid wall time', async () => {
+    const schema = getValidationSchema(timeSurvey, fallbackTranslate);
+    await expect(schema.validate({ 'pde-time-1': '24:00:00' })).rejects.toThrow();
+  });
+
+  it('rejects HH:mm without seconds', async () => {
+    const schema = getValidationSchema(timeSurvey, fallbackTranslate);
+    await expect(schema.validate({ 'pde-time-1': '14:30' })).rejects.toThrow();
+  });
+
+  it('treats blank as optional empty', async () => {
+    const schema = getValidationSchema(timeSurvey, fallbackTranslate);
+    await expect(schema.validate({ 'pde-time-1': '' })).resolves.toEqual({ 'pde-time-1': null });
   });
 });
