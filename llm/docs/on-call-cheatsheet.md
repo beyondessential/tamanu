@@ -274,6 +274,48 @@ respond @denied 429
 
 In this case there might be fkey conflict errors that don't make sense like somehow the server is not getting the rows it's requesting. This is probably due to the sync_lookup table for the device being "in the future" compared to the local sync status. An easy fix at the cost of longer sync for all devices for the next session is to truncate the sync_lookup table.
 
+## Rebuilding the sync_lookup for a single entity (targeted)
+
+When sync fails with a foreign key violation on pull — e.g. a child row arrives
+on the facility but its parent is missing:
+
+```
+insert or update on table "pharmacy_order_prescriptions" violates foreign key constraint "pharmacy_order_prescriptions_pharmacy_order_id_fkey"
+```
+
+it usually means the parent table's `sync_lookup` rows have diverged from the
+actual data (the child is flagged as belonging to the device but the parent
+isn't). Truncating the whole `sync_lookup` (above) fixes it but slows the next
+sync for **every** device. The surgical alternative is to rebuild the lookup for
+just the affected model(s).
+
+Run on **central** (in read-write mode):
+
+```sql
+SELECT flag_lookup_model_to_rebuild('pharmacy_orders');
+SELECT flag_lookup_model_to_rebuild('pharmacy_order_prescriptions');
+```
+
+Pass the **table name** (e.g. `pharmacy_orders`, `encounters`, `notes`). This
+appends the table to the `lookupModelsToRebuild` key in `local_system_facts`. On
+the next sync_lookup refresh, the central server fully rebuilds that model's
+lookup rows (reselecting every row instead of the incremental `since` filter),
+then clears the flag automatically. No restart needed — just wait for the next
+refresh, then have the affected facility sync again.
+
+Flag the parent and the child together when a fkey conflict points at the child:
+the parent's lookup is what's stale, but rebuilding both is safe and avoids a
+second round trip. To confirm the actual orphan before deciding, check central
+for a child whose parent is genuinely gone (that's a data problem, not a lookup
+one — rebuilding won't help):
+
+```sql
+SELECT pop.id, pop.pharmacy_order_id
+FROM pharmacy_order_prescriptions pop
+LEFT JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+WHERE po.id IS NULL;
+```
+
 ## Sync pull page limit is not scaling properly
 
 You might see in the sync log something like
