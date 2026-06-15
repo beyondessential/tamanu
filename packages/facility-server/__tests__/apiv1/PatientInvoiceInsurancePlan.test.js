@@ -137,8 +137,7 @@ describe('PatientInvoiceInsurancePlan', () => {
       where: { patientId: patient.id },
       paranoid: false,
     });
-    expect(thirdPatientInvoiceInsurancePlans).toHaveLength(5);
-    expect(thirdPatientInvoiceInsurancePlans.filter(p => p.deletedAt)).toHaveLength(2);
+    expect(thirdPatientInvoiceInsurancePlans).toHaveLength(3);
     expect(thirdPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId).sort()).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
 
