@@ -53,6 +53,7 @@ export const createEncounter = async ({
       fake(EncounterDiagnosis, {
         diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
         encounterId: encounter.id,
+        clinicianId: userId || (await randomRecordId(models, 'User')),
       }),
     );
   }

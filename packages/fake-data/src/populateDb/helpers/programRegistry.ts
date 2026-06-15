@@ -61,6 +61,7 @@ export const createProgramRegistry = async ({
         patientProgramRegistrationId,
         programRegistryConditionId: condition.id,
         programRegistryConditionCategoryId: conditionCategory.id,
+        clinicianId: resolvedUserId,
       }),
     );
   }

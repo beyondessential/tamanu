@@ -35,7 +35,8 @@ export const createLabRequest = async ({
     fake(LabRequest, {
       departmentId: resolvedDepartmentId,
       collectedById: resolvedUserId,
-      encounter: resolvedEncounterId,
+      requestedById: resolvedUserId,
+      encounterId: resolvedEncounterId,
     }),
   );
 
@@ -43,6 +44,7 @@ export const createLabRequest = async ({
     fake(LabRequestLog, {
       status: 'reception_pending',
       labRequestId: labRequest.id,
+      updatedById: resolvedUserId,
     }),
   );
 

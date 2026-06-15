@@ -29,6 +29,7 @@ export const createPatient = async ({
   await PatientAdditionalData.create(
     fake(PatientAdditionalData, {
       patientId: patient.id,
+      registeredById: userId || (await randomRecordId(models, 'User')),
     }),
   );
 
