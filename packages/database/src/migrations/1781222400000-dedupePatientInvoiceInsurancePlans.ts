@@ -6,30 +6,33 @@ export async function up(query: QueryInterface): Promise<void> {
   // The released insert-new-on-re-add behaviour can leave a live row plus soft-deleted
   // tombstones for the same pair. Keep the live row if one exists, otherwise the
   // soft-deleted row with the highest id (deterministic across servers since ids are synced).
+  //
+  // Their changelog (logs.changes) and sync_lookup entries are removed by record_id, not by
+  // table_name/record_type: neither large table is usefully indexed on its type column
+  // (sync_lookup is unique on (record_id, record_type); logs.changes has a hash index on
+  // record_id), so driving both deletes off the small set of just-deleted ids stays
+  // index-assisted and avoids a sequential scan of millions of rows. Chained data-modifying
+  // CTEs share that id set without a temp table or recomputing the survivor query. Surviving
+  // rows' sync_lookup entries are remapped to the new ids in the next migration, so no
+  // rebuild/re-pull is needed — and on facilities (no sync_lookup rows) it is a no-op.
   await query.sequelize.query(`
-    DELETE FROM patient_invoice_insurance_plans
-    WHERE id NOT IN (
-      SELECT DISTINCT ON (patient_id, invoice_insurance_plan_id) id
-      FROM patient_invoice_insurance_plans
-      ORDER BY patient_id, invoice_insurance_plan_id, (deleted_at IS NULL) DESC, id DESC
-    );
-  `);
-
-  // Remove changelog entries for the hard-deleted duplicates, including the delete
-  // entries the audit trigger writes for the dedupe above.
-  await query.sequelize.query(`
+    WITH deleted_duplicates AS (
+      DELETE FROM patient_invoice_insurance_plans
+      WHERE id NOT IN (
+        SELECT DISTINCT ON (patient_id, invoice_insurance_plan_id) id
+        FROM patient_invoice_insurance_plans
+        ORDER BY patient_id, invoice_insurance_plan_id, (deleted_at IS NULL) DESC, id DESC
+      )
+      RETURNING id
+    ),
+    cleared_sync_lookup AS (
+      DELETE FROM sync_lookup
+      WHERE record_id IN (SELECT id FROM deleted_duplicates)
+        AND record_type = 'patient_invoice_insurance_plans'
+    )
     DELETE FROM logs.changes
-    WHERE table_name = 'patient_invoice_insurance_plans'
-    AND record_id NOT IN (SELECT id FROM patient_invoice_insurance_plans);
-  `);
-
-  // Remove sync_lookup entries for the hard-deleted duplicates (orphans). Surviving rows'
-  // entries are remapped to the new ids in the next migration, so no rebuild/re-pull is
-  // needed — central only runs sync_lookup, on facilities this is a no-op.
-  await query.sequelize.query(`
-    DELETE FROM sync_lookup
-    WHERE record_type = 'patient_invoice_insurance_plans'
-    AND record_id NOT IN (SELECT id FROM patient_invoice_insurance_plans);
+    WHERE record_id IN (SELECT id FROM deleted_duplicates)
+      AND table_name = 'patient_invoice_insurance_plans';
   `);
 }
 
