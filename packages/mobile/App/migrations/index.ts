@@ -85,7 +85,7 @@ import { addSecondaryResultToLabTest1768527821000 } from './1768527821000-addSec
 import { updateEncountersTableSetPatientIdNotNull1771277667000 } from './1771277667000-updateEncountersTableSetPatientIdNotNull';
 import { removePatientTitleColumn1778199200000 } from './1778199200000-removePatientTitleColumn';
 import { addLabTestReferenceRangeColumns1778546880000 } from './1778546880000-addLabTestReferenceRangeColumns';
-
+import { removeDietIdFromEncounter1781501076000 } from './1781501076000-removeDietIdFromEncounter';
 export const migrationList = [
   databaseSetup1661160427226,
   updatePatientDateTimeColumns1661717539000,
@@ -173,4 +173,5 @@ export const migrationList = [
   updateEncountersTableSetPatientIdNotNull1771277667000,
   removePatientTitleColumn1778199200000,
   addLabTestReferenceRangeColumns1778546880000,
+  removeDietIdFromEncounter1781501076000,
 ];
