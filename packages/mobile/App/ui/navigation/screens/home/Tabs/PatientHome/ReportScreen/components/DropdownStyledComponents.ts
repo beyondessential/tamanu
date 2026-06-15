@@ -13,7 +13,7 @@ export const ReportSelectorContainer = styled.View`
   border-radius: 12px;
   height: 32px;
   margin: 0 15px;
-  margin-top: ${screenPercentageToDP(2.43, Orientation.Height)};
+  margin-top: ${screenPercentageToDP(2.43, Orientation.Height)}px;
 `;
 
 export const DropdownContainer = styled.View`

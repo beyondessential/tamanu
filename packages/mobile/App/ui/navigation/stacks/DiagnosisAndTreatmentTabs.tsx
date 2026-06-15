@@ -43,7 +43,7 @@ const TabNavigator = ({
         <Tabs.Navigator screenOptions={{ headerShown: false }}>
           <Tabs.Screen
             options={{
-              title: () => (
+              tabBarLabel: () => (
                 <TranslatedText
                   stringId="patient.diagnosisAndTreatment.heading.addDetails"
                   fallback="Add details"
@@ -55,7 +55,7 @@ const TabNavigator = ({
           />
           <Tabs.Screen
             options={{
-              title: () => (
+              tabBarLabel: () => (
                 <TranslatedText
                   stringId="patient.diagnosisAndTreatment.heading.prescribeMedication"
                   fallback="Prescribe medication"

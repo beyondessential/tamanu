@@ -30,13 +30,15 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
       return theme.colors.DEFAULT_OFF;
     }};
   border-radius: 5px;
-  font-size: ${({ fieldFontSize }) =>
-    fieldFontSize || screenPercentageToDP(2.18, Orientation.Height)};
-  line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
+  font-size: ${({ fieldFontSize }) => {
+    const v = fieldFontSize || screenPercentageToDP(2.18, Orientation.Height);
+    return typeof v === 'number' ? `${v}px` : v;
+  }};
+  line-height: ${screenPercentageToDP(2.58, Orientation.Height)}px;
   font-weight: 400;
   justify-content: flex-start;
   color: ${(props: StyledTextInputProps): string => {
     return props.hasValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT;
   }};
-  padding-left: ${screenPercentageToDP(3, Orientation.Width)};
+  padding-left: ${screenPercentageToDP(3, Orientation.Width)}px;
 `;

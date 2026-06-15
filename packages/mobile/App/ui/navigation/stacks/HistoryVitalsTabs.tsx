@@ -11,7 +11,7 @@ export const HistoryVitalsTabs = (): ReactElement => (
   <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
     <Tabs.Screen
       options={{
-        title: () => (
+        tabBarLabel: () => (
           <TranslatedText
             stringId="patient.history.visits.title"
             fallback="VISITS"
@@ -24,7 +24,7 @@ export const HistoryVitalsTabs = (): ReactElement => (
     />
     <Tabs.Screen
       options={{
-        title: () => (
+        tabBarLabel: () => (
           <TranslatedText
             stringId="patient.history.vaccines.title"
             fallback="VACCINES"

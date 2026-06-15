@@ -104,6 +104,7 @@ export const Routes = {
     },
     HistoryVitalsStack: {
       Index: '',
+      View: '',
       HistoryVitalsTabs: {
         Index: '',
         Visits: '',

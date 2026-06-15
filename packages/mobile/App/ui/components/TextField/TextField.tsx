@@ -133,7 +133,7 @@ export const TextField = React.memo(
             autoFocus={autoFocus}
             returnKeyType={returnKeyType}
             autoCorrect={hints}
-            accessibilityLabel={label?.props?.fallback || label}
+            accessibilityLabel={label?.props?.fallback || (typeof label === 'string' ? label : undefined)}
             keyboardType={keyboardType}
             onChangeText={onChange}
             onFocus={onFocusInput}
@@ -142,7 +142,7 @@ export const TextField = React.memo(
             editable={!readOnly && !disabled}
             style={multiline ? styles.multiLineText : styles.singleLineText}
             secureTextEntry={secure}
-            placeholder={placeholder?.props?.fallback || placeholder}
+            placeholder={placeholder?.props?.fallback || (typeof placeholder === 'string' ? placeholder : undefined)}
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}

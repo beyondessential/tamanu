@@ -35,8 +35,10 @@ export interface StyledButtonProps extends ButtonContainerProps {
 
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
-  height: ${(props): StrNumType =>
-    props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
+  height: ${(props): string => {
+    const v = props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height);
+    return typeof v === 'number' ? `${v}px` : v;
+  }};
   width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
@@ -67,8 +69,10 @@ interface ButtonTextProps {
 }
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
-  font-size: ${(props): StrNumType =>
-    props.fontSize ? props.fontSize : screenPercentageToDP(1.94, Orientation.Height)};
+  font-size: ${(props): string => {
+    const v = props.fontSize ? props.fontSize : screenPercentageToDP(1.94, Orientation.Height);
+    return typeof v === 'number' ? `${v}px` : v;
+  }};
   font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${(props): string => {
     if (props.textColor) return props.textColor;
@@ -100,8 +104,8 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
-    testID={id || buttonText?.props?.stringId || buttonText}
-    accessibilityLabel={buttonText?.props?.stringId || buttonText}
+    testID={id || buttonText?.props?.stringId || (typeof buttonText === 'string' ? buttonText : undefined)}
+    accessibilityLabel={buttonText?.props?.stringId || (typeof buttonText === 'string' ? buttonText : undefined)}
     flex={flex}
     onPress={onPress}
     {...rest}

@@ -33,7 +33,7 @@ const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps):
         />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
-            name={Routes.HomeStack.HistoryVitalsStack.Index}
+            name={Routes.HomeStack.HistoryVitalsStack.View}
             component={HistoryVitalsTabs}
           />
         </Stack.Navigator>

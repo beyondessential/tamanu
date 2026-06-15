@@ -35,7 +35,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
             selectedPatient,
           }}
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText
                 stringId="patient.referral.heading.referPatient"
                 fallback="Refer patient"
@@ -47,7 +47,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
         />
         <Tabs.Screen
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText
                 stringId="patient.referral.heading.viewReferral"
                 fallback="View referrals"

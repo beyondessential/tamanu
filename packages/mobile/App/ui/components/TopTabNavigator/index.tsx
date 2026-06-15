@@ -20,6 +20,7 @@ type TabNavigationConfig = {
 
 type TabNavigationOptions = {
   title?: string;
+  tabBarLabel?: string | ((props: { focused: boolean; color: string }) => React.ReactNode);
   tabBarLabelStyle?: object;
 };
 
