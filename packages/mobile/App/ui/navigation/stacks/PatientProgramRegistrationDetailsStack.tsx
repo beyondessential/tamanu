@@ -57,7 +57,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
         />
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="PatientProgramRegistrationDetails">
           <Stack.Screen
-            name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index}
+            name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
             component={PatientProgramRegistrationDetails}
             initialParams={{ patientProgramRegistration: registration }}
           />

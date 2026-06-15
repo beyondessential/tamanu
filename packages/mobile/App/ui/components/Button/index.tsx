@@ -39,7 +39,10 @@ const ButtonContainer = styled(RowView)<ButtonContainerProps>`
     const v = props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height);
     return typeof v === 'number' ? `${v}px` : v;
   }};
-  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
+  width: ${(props): string => {
+    const v = props.width ? props.width : '100%';
+    return typeof v === 'number' ? `${v}px` : v;
+  }};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {

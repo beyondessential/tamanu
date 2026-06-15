@@ -20,7 +20,7 @@ export const ReferralStack = (): ReactElement => {
   return (
     <ErrorBoundary>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name={Routes.HomeStack.ReferralStack.Index} component={ReferralScreen} />
+        <Stack.Screen name={Routes.HomeStack.ReferralStack.View} component={ReferralScreen} />
         <Stack.Screen
           name={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
           component={SurveyResponseDetailsScreen}

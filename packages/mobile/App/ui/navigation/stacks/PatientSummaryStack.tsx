@@ -43,7 +43,7 @@ const PatientSummary = ({
       />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
-          name={Routes.HomeStack.PatientSummaryStack.Index}
+          name={Routes.HomeStack.PatientSummaryStack.View}
           component={PatientProgramRegistrySummary}
         />
       </Stack.Navigator>

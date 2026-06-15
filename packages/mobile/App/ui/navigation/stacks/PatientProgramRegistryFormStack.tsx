@@ -31,7 +31,7 @@ const PatientProgramRegistryForm_ = ({ navigation }: PatientProgramRegistryProps
         />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
-            name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}
+            name={Routes.HomeStack.PatientProgramRegistryFormStack.View}
             component={PatientProgramRegistryForm}
           />
         </Stack.Navigator>

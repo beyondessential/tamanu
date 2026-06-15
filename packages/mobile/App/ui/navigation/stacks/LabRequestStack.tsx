@@ -10,7 +10,7 @@ export const LabRequestStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
-        name={Routes.HomeStack.LabRequestStack.Index}
+        name={Routes.HomeStack.LabRequestStack.View}
         component={LabRequestTabs}
       />
     </Stack.Navigator>

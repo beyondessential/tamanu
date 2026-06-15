@@ -1,20 +1,21 @@
 import React, { ReactElement } from 'react';
-import { RowView, StyledView } from '/styled/common';
+import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientMenuButton } from '/components/PatientMenuButton';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 
 interface VisitTypeButtonsProps {
   list: MenuOptionButtonProps[];
 }
 
-const StyledRowView = styled(RowView)`
-  width: 100%;
+const StyledRowView = styled.View`
+  flex-direction: row;
   flex-wrap: wrap;
+  width: 100%;
 `;
 
-const MenuButtonContainer = styled(StyledView)`
+const MenuButtonContainer = styled.View`
   width: 33%;
   justify-content: center;
   align-items: center;
