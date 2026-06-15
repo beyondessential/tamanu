@@ -58,7 +58,7 @@
     "@tamanu/upgrade": "*",
     "@tamanu/utils": "*",
     "basic-auth": "^2.0.1",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "body-parser": "^1.18.3",
     "case": "^1.6.3",
     "chance": "^1.1.8",
