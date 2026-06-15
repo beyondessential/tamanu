@@ -43,7 +43,6 @@
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
     "clean": "rimraf -- dist *.tsbuildInfo",
     "clean:deps": "rimraf -- node_modules",
-    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
