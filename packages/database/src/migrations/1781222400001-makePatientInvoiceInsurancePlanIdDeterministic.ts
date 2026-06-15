@@ -47,15 +47,16 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // DESTRUCTIVE: the original random uuids are gone; existing rows keep their deterministic
-  // value as a plain text id, new rows get gen_random_uuid(). DROP EXPRESSION converts the
-  // generated column in place (no row UPDATE), so this stays pure DDL and avoids pending
-  // audit trigger events. logs.changes is left pointing at the deterministic ids.
+  // DESTRUCTIVE: the deterministic ids are dropped and existing rows get fresh random uuids
+  // (the original uuids are unrecoverable). logs.changes / sync_lookup keep pointing at the
+  // deterministic ids; re-running up recomputes the same deterministic id (a pure function of
+  // patient_id + invoice_insurance_plan_id), which restores the linkage. Pure DDL with no DML
+  // on the table, and no DROP EXPRESSION (which requires Postgres 13+).
   await query.sequelize.query(`
     ALTER TABLE patient_invoice_insurance_plans DROP CONSTRAINT patient_invoice_insurance_plans_pkey;
     ALTER TABLE patient_invoice_insurance_plans DROP CONSTRAINT patient_invoice_insurance_plans_id_key;
-    ALTER TABLE patient_invoice_insurance_plans ALTER COLUMN id DROP EXPRESSION;
-    ALTER TABLE patient_invoice_insurance_plans ALTER COLUMN id SET DEFAULT gen_random_uuid()::text;
+    ALTER TABLE patient_invoice_insurance_plans DROP COLUMN id;
+    ALTER TABLE patient_invoice_insurance_plans ADD COLUMN id TEXT NOT NULL DEFAULT gen_random_uuid()::text;
     ALTER TABLE patient_invoice_insurance_plans ADD PRIMARY KEY (id);
 
     CREATE UNIQUE INDEX idx_patient_invoice_insurance_plans_patient_id_invoice_insurance_plan_id
