@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.56.3",
+  "version": "2.56.4",
   "private": true,
   "dependencies": {
     "@tamanu/api-client": "*",
