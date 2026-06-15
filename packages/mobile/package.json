@@ -14,7 +14,6 @@
     "test:commit": "npm run test -- --findRelatedTests",
     "test:watch": "npm run test -- --watchAll",
     "typecheck": "tsc --project tsconfig.json",
-    "patch-package": "patch-package",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "dependencies": {
@@ -49,7 +48,6 @@
     "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
-    "patch-package": "^8.0.0",
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",

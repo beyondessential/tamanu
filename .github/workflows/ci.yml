@@ -16,22 +16,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
-  BUILD_SHARED_PATHS: |
-    packages/api-client/dist
-    packages/constants/dist
-    packages/database/dist
-    packages/errors/dist
-    packages/fake-data/dist
-    packages/settings/dist
-    packages/shared/dist
-    packages/ui-components/dist
-    packages/upgrade/dist
-    packages/utils/dist
+  BUILD_PATHS: |
+    packages/*/dist
 
 jobs:
   plan:
@@ -45,7 +37,6 @@ jobs:
       run-mobile: ${{ steps.plan.outputs.run-mobile }}
       run-facility-offline: ${{ steps.plan.outputs.run-facility-offline }}
       run-dbt-model: ${{ steps.plan.outputs.run-dbt-model }}
-      run-build-shared: ${{ steps.plan.outputs.run-build-shared }}
       allowed-skips: ${{ steps.plan.outputs.allowed-skips }}
     steps:
       - uses: actions/checkout@v6
@@ -105,10 +96,9 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-  build_shared_cache:
-    needs: [plan, node_modules_cache]
-    if: needs.plan.outputs.run-build-shared == 'true'
-    name: Build shared packages
+  build:
+    needs: node_modules_cache
+    name: Build all packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -125,20 +115,20 @@ jobs:
       - uses: actions/cache/restore@v5
         id: build-cache
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
       - if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm i
+        run: npm install --include-workspace-root
       - if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build-shared
+        run: npm run build
       - if: steps.build-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
 
   test:
-    needs: [plan, node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-test == 'true'
     strategy:
       fail-fast: false
@@ -160,11 +150,10 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v5
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
 
-      - run: npm i
-      - run: npm run --workspace ${{ matrix.package }} build
+      - run: npm install --include-workspace-root --workspace=${{ matrix.package }}
 
       - name: Install and start postgres if needed
         if: matrix.postgres
@@ -179,26 +168,6 @@ jobs:
         run: |
           [[ -z "$shard" ]] || shard="--shard $shard"
           npm run --workspace "$package" test -- $shard
-
-  build-all:
-    needs: node_modules_cache
-    name: Build all packages
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
-      - uses: actions/cache/restore@v5
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-      - run: npm i
-      - run: npm run build
 
   lint:
     needs: node_modules_cache
@@ -216,7 +185,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm i
+      - run: npm install --include-workspace-root
 
       - name: Lint errors
         run: npm run lint-all -- --quiet
@@ -225,7 +194,7 @@ jobs:
         run: npm run lint-all
 
   migrations:
-    needs: [plan, node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-migrations == 'true'
     strategy:
       fail-fast: false
@@ -247,10 +216,10 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v5
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
 
-      - run: npm i
+      - run: npm install --include-workspace-root --workspace=@tamanu/${{ matrix.server }}
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
@@ -260,7 +229,7 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    needs: [plan, node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-mobile == 'true'
     name: Test mobile
     runs-on: ubuntu-latest
@@ -278,16 +247,16 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v5
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
 
-      - run: npm i
+      - run: npm install --include-workspace-root --workspace=@tamanu/mobile
 
       - run: npm run test
         working-directory: packages/mobile
 
   test-facility-offline:
-    needs: [plan, node_modules_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-facility-offline == 'true'
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
@@ -303,14 +272,21 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm i
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server
 
       - name: Install and start postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 18
           .github/scripts/test-facility-offline.sh setup-postgres
-      - name: Build central and facility servers
-        run: .github/scripts/test-facility-offline.sh build
       - name: Start a central server
         run: .github/scripts/test-facility-offline.sh central-start
       - name: Start a facility server
@@ -336,11 +312,11 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm i
+      - run: npm install --include-workspace-root
       - run: git diff --exit-code
 
   dbt-model:
-    needs: [plan, node_modules_cache, build_shared_cache]
+    needs: [plan, node_modules_cache, build]
     if: needs.plan.outputs.run-dbt-model == 'true'
     name: DBT model up to date
     runs-on: ubuntu-latest
@@ -358,8 +334,8 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - uses: actions/cache/restore@v5
         with:
-          key: ${{ runner.os }}-build-shared-${{ github.sha }}
-          path: ${{ env.BUILD_SHARED_PATHS }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          path: ${{ env.BUILD_PATHS }}
 
       - name: Install and start postgres
         run: |
@@ -370,10 +346,12 @@ jobs:
           createdb -O tamanu central
           createdb -O tamanu facility
 
-      - name: Build
-        run: |
-          npm i
-          npm run --workspace @tamanu/central-server build
+      - run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=scripts
+
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
@@ -418,7 +396,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i
+      - run: npm install --include-workspace-root --workspace=scripts
       - run: npm run dbt-check-todos
 
   typos:
@@ -438,9 +416,8 @@ jobs:
     needs:
       - plan
       - node_version
-      - build_shared_cache
+      - build
       - test
-      - build-all
       - lint
       - migrations
       - test-mobile

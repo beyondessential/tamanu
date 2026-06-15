@@ -1,6 +1,6 @@
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { chance } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
