@@ -1,5 +1,6 @@
 import { times } from 'lodash';
 
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import type { Patient } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
@@ -50,9 +51,14 @@ export const createPatient = async ({
   }
 
   for (const _ of times(allergyCount)) {
+    const allergy = await models.ReferenceData.findOne({
+      where: { type: REFERENCE_TYPES.ALLERGY },
+      order: models.ReferenceData.sequelize.random(),
+    });
     await PatientAllergy.create(
       fake(PatientAllergy, {
         patientId: patient.id,
+        allergyId: allergy?.id ?? null,
       }),
     );
   }
