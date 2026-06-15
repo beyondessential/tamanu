@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json turbo.jsonc ./
 COPY patches/ patches/
 COPY common.* ./
 COPY scripts/ scripts/
