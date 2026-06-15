@@ -96,7 +96,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id]);
   });
 
-  it('should create new patient invoice insurance plans when re-adding previously deleted plans', async () => {
+  it('should restore patient invoice insurance plans when re-adding previously deleted plans', async () => {
     // Create the patient invoice insurance plans
     const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
