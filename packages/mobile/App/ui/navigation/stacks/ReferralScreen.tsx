@@ -29,7 +29,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
-      <Tabs.Navigator swipeEnabled={false}>
+      <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
         <Tabs.Screen
           initialParams={{
             selectedPatient,

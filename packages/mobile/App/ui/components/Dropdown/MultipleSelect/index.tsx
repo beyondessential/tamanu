@@ -8,7 +8,6 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  UIManager,
   View,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -25,11 +24,6 @@ const nodeTypes = PropTypes.oneOfType([
   PropTypes.bool,
   PropTypes.func,
 ]);
-
-// set UIManager LayoutAnimationEnabledExperimental
-if (UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);

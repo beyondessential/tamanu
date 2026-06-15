@@ -73,7 +73,7 @@ export const PatientAdditionalDataForm = ({
       );
 
       // Navigate back to patient details
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+      navigation.navigate(Routes.HomeStack.PatientDetailsStack.View);
     },
     [navigation, patient.id],
   );

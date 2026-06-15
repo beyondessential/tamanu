@@ -17,6 +17,7 @@ export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
   return (
     <Tabs.Navigator
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
         tabBarInactiveTintColor: theme.colors.TEXT_DARK,
         tabBarLabelStyle: {

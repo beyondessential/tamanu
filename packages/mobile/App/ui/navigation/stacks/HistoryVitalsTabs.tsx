@@ -8,7 +8,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 const Tabs = createTopTabNavigator();
 
 export const HistoryVitalsTabs = (): ReactElement => (
-  <Tabs.Navigator swipeEnabled={false}>
+  <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
     <Tabs.Screen
       options={{
         title: () => (

@@ -18,7 +18,7 @@ export const PatientDetailsStack = (): ReactElement => (
     <ReminderContactProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
-          name={Routes.HomeStack.PatientDetailsStack.Index}
+          name={Routes.HomeStack.PatientDetailsStack.View}
           component={PatientDetailsScreen}
         />
         <Stack.Screen

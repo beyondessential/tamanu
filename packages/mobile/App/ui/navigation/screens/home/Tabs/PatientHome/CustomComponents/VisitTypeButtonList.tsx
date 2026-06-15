@@ -30,8 +30,8 @@ export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactEleme
     >
       {
         <StyledRowView>
-          {list.map(buttonProps => (
-            <MenuButtonContainer key={buttonProps.key}>
+          {list.map(({ key, ...buttonProps }) => (
+            <MenuButtonContainer key={key}>
               <PatientMenuButton {...buttonProps} />
             </MenuButtonContainer>
           ))}

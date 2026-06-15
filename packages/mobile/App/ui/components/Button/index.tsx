@@ -42,7 +42,8 @@ const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {
     if (props.borderRadius) {
-      return props.borderRadius;
+      const r = props.borderRadius;
+      return typeof r === 'number' ? `${r}px` : r;
     } else if (props.bordered) {
       return '50px;';
     }

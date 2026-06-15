@@ -40,7 +40,7 @@ const TabNavigator = ({
           subtitle={joinNames(selectedPatient)}
           onGoBack={goBack}
         />
-        <Tabs.Navigator>
+        <Tabs.Navigator screenOptions={{ headerShown: false }}>
           <Tabs.Screen
             options={{
               title: () => (

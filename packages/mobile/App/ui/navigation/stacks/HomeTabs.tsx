@@ -177,7 +177,7 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
 
   return (
     <ErrorBoundary>
-      <Tabs.Navigator tabBar={MyTabBar}>
+      <Tabs.Navigator tabBar={MyTabBar} screenOptions={{ headerShown: false }}>
         <Tabs.Screen
           options={HomeScreenOptions}
           name={Routes.HomeStack.HomeTabs.Home}

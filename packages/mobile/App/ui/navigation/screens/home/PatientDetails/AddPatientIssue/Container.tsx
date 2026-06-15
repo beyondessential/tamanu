@@ -25,7 +25,7 @@ const Container = ({
   }, [navigation]);
 
   const navigateToDetails = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.View);
   }, [navigation]);
 
   const onRecordPatientIssue = useCallback(

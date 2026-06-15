@@ -129,6 +129,7 @@ export const Routes = {
     },
     PatientDetailsStack: {
       Index: '',
+      View: '',
       AddPatientIssue: '',
       ReminderContacts: '',
       AddReminderContact: '',

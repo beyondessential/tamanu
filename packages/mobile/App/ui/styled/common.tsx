@@ -122,6 +122,9 @@ export interface StyledViewProps
   pose?: string;
 }
 
+const toPx = (v: string | number | undefined): string | undefined =>
+  v !== undefined ? (typeof v === 'number' ? `${v}px` : v) : undefined;
+
 export const StyledView = styled.View<StyledViewProps>`
   ${size}
   ${position}
@@ -135,6 +138,16 @@ export const StyledView = styled.View<StyledViewProps>`
     borderLeftWidth ? `border-left-width: ${borderLeftWidth}` : 0};
   ${({ borderBottomWidth }): string | number =>
     borderBottomWidth ? `border-bottom-width: ${borderBottomWidth}` : 0};
+  ${({ borderRadius }): string =>
+    borderRadius !== undefined ? `border-radius: ${toPx(borderRadius)}` : ''};
+  ${({ borderWidth }): string =>
+    borderWidth !== undefined ? `border-width: ${toPx(borderWidth)}` : ''};
+  ${({ borderColor }): string => (borderColor ? `border-color: ${borderColor}` : '')};
+  ${({ borderStyle }): string => (borderStyle ? `border-style: ${borderStyle}` : '')};
+  ${({ borderTopWidth }): string =>
+    borderTopWidth !== undefined ? `border-top-width: ${toPx(borderTopWidth)}` : ''};
+  ${({ borderRightWidth }): string =>
+    borderRightWidth !== undefined ? `border-right-width: ${toPx(borderRightWidth)}` : ''};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
@@ -216,6 +229,11 @@ export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpa
   ${padding}
   ${flexbox}
   ${background}
+  ${({ borderRadius }): string =>
+    borderRadius !== undefined ? `border-radius: ${toPx(borderRadius)}` : ''};
+  ${({ borderWidth }): string =>
+    borderWidth !== undefined ? `border-width: ${toPx(borderWidth)}` : ''};
+  ${({ borderColor }): string => (borderColor ? `border-color: ${borderColor}` : '')};
 `;
 
 export const FullView = styled(StyledView)`
