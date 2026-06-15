@@ -11,6 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "clean-build": "npm run clean && npm run build",
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
     "preview": "vite preview",

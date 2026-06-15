@@ -16,7 +16,8 @@
     ]
   },
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
+    "build": "swc --out-dir dist --copy-files --source-maps true app",
+    "clean-build": "npm run clean && npm run build",
     "build-watch": "npm run build -- --watch",
     "clean": "rimraf -- dist __disttests__",
     "clean:deps": "rimraf -- node_modules",

@@ -13,7 +13,8 @@
     ".": "./src/index.js"
   },
   "scripts": {
-    "build": "echo 'builds with client frontend'"
+    "build": "echo 'builds with client frontend'",
+    "clean-build": "echo 'builds with client frontend'"
   },
   "dependencies": {
     "@tamanu/shared": "*",

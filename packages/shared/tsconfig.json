@@ -16,6 +16,7 @@
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
+    "incremental": true,
     "outDir": "./dist/types",
     "rootDir": "./src"
   },
