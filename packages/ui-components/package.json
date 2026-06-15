@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/ui-components",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "description": "Tamanu UI components",
   "private": true,
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -13,7 +13,8 @@
     ".": "./src/index.js"
   },
   "scripts": {
-    "build": "echo 'builds with client frontend'"
+    "build": "echo 'builds with client frontend'",
+    "clean-build": "echo 'builds with client frontend'"
   },
   "dependencies": {
     "@tamanu/shared": "*",

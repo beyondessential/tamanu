@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "private": true,
   "description": "BES - Settings",
   "main": "dist/cjs/index.js",
@@ -41,12 +41,13 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
+    "clean-build": "npm run clean && npm run build",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
     "build-watch": "npm run build && concurrently \"npm run build:src  -- --delete-dir-on-start=false --watch\" \"npm run build:cjs -- --delete-dir-on-start=false --watch\"",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules",
+    "clean": "rimraf -- dist .tsbuild",
+    "clean:deps": "rimraf -- node_modules",
     "test": "NODE_ENV=test jest --passWithNoTests",
     "lint:check": "eslint src",
     "lint:types": "tsc"
@@ -60,6 +61,7 @@
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
+    "concurrently": "^9.2.1",
     "eslint": "^8.35.0",
     "jest": "^29.4.3",
     "rimraf": "^6.1.3"

@@ -10,4 +10,4 @@ fi
 cd "$(dirname "$BASH_SOURCE")/../../"
 
 echo "Building shared packages"
-npm run build-shared
+npm run build -- --filter=@tamanu/mobile^...

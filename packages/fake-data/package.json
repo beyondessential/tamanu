@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/fake-data",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "private": true,
   "description": "TODO",
   "main": "dist/cjs/index.js",
@@ -22,6 +22,14 @@
       "import": "./dist/mjs/fake/*.js",
       "require": "./dist/cjs/fake/*.js"
     },
+    "./test-helpers": {
+      "import": "./dist/mjs/test-helpers/index.js",
+      "require": "./dist/cjs/test-helpers/index.js"
+    },
+    "./test-helpers/*": {
+      "import": "./dist/mjs/test-helpers/*.js",
+      "require": "./dist/cjs/test-helpers/*.js"
+    },
     "./services/*": {
       "import": "./dist/mjs/services/*.js",
       "require": "./dist/cjs/services/*.js"
@@ -37,12 +45,13 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
+    "clean-build": "npm run clean && npm run build",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
+    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules",
+    "clean": "rimraf -- dist .tsbuild",
+    "clean:deps": "rimraf -- node_modules",
     "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
@@ -50,6 +59,7 @@
     "@swc/jest": "^0.2.24",
     "@tamanu/build-tooling": "*",
     "@types/node": "^18.14.6",
+    "concurrently": "^9.2.1",
     "jest": "^29.4.3",
     "rimraf": "^6.1.3"
   },

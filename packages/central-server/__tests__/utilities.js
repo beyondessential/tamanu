@@ -5,7 +5,7 @@ import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/c
 import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
-import { asNewRole } from '@tamanu/shared/test-helpers';
+import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
 

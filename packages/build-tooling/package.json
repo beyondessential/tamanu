@@ -1,11 +1,11 @@
 {
   "name": "@tamanu/build-tooling",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "description": "Build tooling for Tamanu packages",
   "main": "index.mjs",
   "type": "module",
   "scripts": {
-    "clean:deps": "rimraf node_modules"
+    "clean:deps": "rimraf -- node_modules"
   },
   "bin": {
     "nodemon": "./node_modules/.bin/nodemon",

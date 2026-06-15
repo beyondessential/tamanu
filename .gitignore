@@ -23,6 +23,7 @@ deploy
 build
 packages/*/dist
 *.tsbuildinfo
+.turbo
 packages/*/{src,app}/**/*.d.ts
 database/docs
 

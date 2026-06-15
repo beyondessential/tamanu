@@ -1,11 +1,12 @@
 {
   "name": "scripts",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "swc --out-dir dist --copy-files --source-maps true src",
-    "clean": "rimraf dist *.tsbuildInfo",
-    "clean:deps": "rimraf node_modules",
+    "clean-build": "npm run clean && npm run build",
+    "clean": "rimraf -- dist",
+    "clean:deps": "rimraf -- node_modules",
     "test": "npm run build && tape 'tests/**/*.test.*js'",
     "test-determinism": "npm run build && node dist/testDeterminism.js"
   },
@@ -22,7 +23,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "@types/umzug": "^2.3.9",
     "rimraf": "^6.1.3",
     "tape": "^5.7.5"
   }
