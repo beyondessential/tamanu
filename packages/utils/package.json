@@ -7,16 +7,19 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
     },
     "./invoice": {
+      "source": "./src/invoice/index.ts",
       "import": "./dist/esm/invoice/index.js",
       "require": "./dist/cjs/invoice/index.js",
       "types": "./dist/esm/invoice/index.d.ts"
     },
     "./*": {
+      "source": "./src/*.ts",
       "import": "./dist/esm/*.js",
       "require": "./dist/cjs/*.js",
       "types": "./dist/esm/*.d.ts"

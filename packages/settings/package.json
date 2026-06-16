@@ -7,30 +7,37 @@
   "module": "dist/mjs/index.js",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": "./dist/mjs/index.js",
       "require": "./dist/cjs/index.js"
     },
     "./cache": {
+      "source": "./src/cache/index.ts",
       "import": "./dist/mjs/cache/index.js",
       "require": "./dist/cjs/cache/index.js"
     },
     "./schema": {
+      "source": "./src/schema/index.ts",
       "import": "./dist/mjs/schema/index.js",
       "require": "./dist/cjs/schema/index.js"
     },
     "./types": {
+      "source": "./src/types/index.ts",
       "import": "./dist/mjs/types/index.js",
       "require": "./dist/cjs/types/index.js"
     },
     "./test": {
+      "source": "./src/test/index.ts",
       "import": "./dist/mjs/test/index.js",
       "require": "./dist/cjs/test/index.js"
     },
     "./reader": {
+      "source": "./src/reader/index.ts",
       "import": "./dist/mjs/reader/index.js",
       "require": "./dist/cjs/reader/index.js"
     },
     "./middleware": {
+      "source": "./src/middleware/index.ts",
       "import": "./dist/mjs/middleware/index.js",
       "require": "./dist/cjs/middleware/index.js"
     }
