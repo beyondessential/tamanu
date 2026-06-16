@@ -1,91 +1,67 @@
-import { readFileSync } from 'fs';
-import { execFileSync } from 'child_process';
+import { readFileSync, globSync } from 'fs';
 
-function cleanupLeadingGarbage(jsonStr) {
-  if (jsonStr.startsWith('{')) return jsonStr;
+// Invoke `fn` for each workspace package in dependency order (a package is only
+// visited once all the workspace packages it depends on have been visited).
+//
+// The workspace list and dependency graph are read straight from the
+// package.json files rather than from `npm ls`. `npm ls` exits non-zero whenever
+// the tree has any "ELSPROBLEMS" — e.g. react being pinned via `overrides` to a
+// version that doesn't satisfy @material-ui v4's (stale) peer range, or the
+// `node` dependency's node-bin-setup looking extraneous — none of which affect
+// the build-order graph but would crash this script.
 
-  // some environments come with garbage characters at the beginning
-  const firstOpenBrace = jsonStr.indexOf('{');
-  if (firstOpenBrace === -1) return jsonStr;
-  return jsonStr.slice(firstOpenBrace);
+function readJson(path) {
+  return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function extractDependencyTree(workspaceTree, workspaces) {
-  const dependencyTree = {};
+// name -> { pkg, pkgPath }, for every workspace package with a readable package.json
+function locateWorkspaces() {
+  const root = readJson('./package.json');
+  const patterns = root.workspaces?.packages ?? root.workspaces ?? [];
 
-  for (const [workspace, info] of Object.entries(workspaceTree.dependencies)) {
-    if (!workspaces.has(workspace)) continue;
-
-    const { resolved } = info;
-    const location = extractLocation(resolved);
-    let pkg;
-    try {
-      pkg = JSON.parse(readFileSync(`./${location}/package.json`));
-    } catch (err) {
-      dependencyTree[workspace] = [];
-      continue;
+  const byName = new Map();
+  for (const pattern of patterns) {
+    for (const dir of globSync(pattern)) {
+      const pkgPath = `./${dir}/package.json`;
+      let pkg;
+      try {
+        pkg = readJson(pkgPath);
+      } catch {
+        continue; // not an actual package directory
+      }
+      if (pkg.name) byName.set(pkg.name, { pkg, pkgPath });
     }
-
-    // Use declared production dependencies only. `npm ls` also includes devDependencies, which can
-    // introduce false build-order cycles between packages that only depend on each other for tests
-    // (e.g. shared ↔ fake-data).
-    dependencyTree[workspace] = Object.keys(pkg.dependencies ?? {}).filter(dependency =>
-      workspaces.has(dependency),
-    );
   }
-
-  return dependencyTree;
-}
-
-function extractLocation(resolvedPath) {
-  const packageIndex = resolvedPath.indexOf('packages');
-  return resolvedPath.slice(packageIndex);
+  return byName;
 }
 
 export function doWithAllPackages(fn) {
-  const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(
-      execFileSync('npm', ['ls', '--workspaces', '--legacy-peer-deps', '--json'], {
-        encoding: 'utf8',
-      }),
-    ),
-  );
+  const byName = locateWorkspaces();
+  const workspaces = new Set(byName.keys());
 
-  const workspaces = new Set(
-    Object.entries(workspaceTree.dependencies)
-      .filter(([, info]) => info.resolved?.includes('packages/'))
-      .map(([workspace]) => workspace),
-  );
-  const processed = new Set();
-
-  const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
+  // Inter-workspace dependency graph from declared *production* dependencies only.
+  // devDependencies are excluded because they introduce false build-order cycles
+  // between packages that only depend on each other for tests (e.g. shared ↔ fake-data).
+  const dependencyTree = {};
+  for (const [name, { pkg }] of byName) {
+    dependencyTree[name] = Object.keys(pkg.dependencies ?? {}).filter(dependency =>
+      workspaces.has(dependency),
+    );
+  }
   const packagesThatAreDependedOn = new Set(Object.values(dependencyTree).flat());
 
-  // find and build dependencies for each workspace
-  // max number of iterations is pow(workspaces.size, 2)
+  // visit each workspace once all of its workspace dependencies have been visited;
+  // bounded by workspaces.size passes (a clean DAG settles in far fewer).
+  const processed = new Set();
   for (let i = 0; i <= workspaces.size; i++) {
     if (processed.size === workspaces.size) break;
-    for (const workspace of workspaces) {
-      if (processed.has(workspace)) continue;
+    for (const name of workspaces) {
+      if (processed.has(name)) continue;
+      if (!dependencyTree[name].every(dependency => processed.has(dependency))) continue;
 
-      const { resolved } = workspaceTree.dependencies[workspace];
-      const location = extractLocation(resolved);
-      const workspaceDependencies = dependencyTree[workspace];
-
-      if (workspaceDependencies.every(dep => processed.has(dep))) {
-        processed.add(workspace);
-
-        const pkgPath = `./${location}/package.json`;
-        let pkg;
-        try {
-          pkg = JSON.parse(readFileSync(pkgPath));
-        } catch (err) {
-          console.error(`Skipping ${workspace} as we can't read its package.json...`);
-          continue;
-        }
-
-        fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
-      }
+      processed.add(name);
+      const { pkg, pkgPath } = byName.get(name);
+      fn(name, pkg, pkgPath, packagesThatAreDependedOn.has(name));
     }
   }
 }
