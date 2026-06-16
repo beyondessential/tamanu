@@ -50,7 +50,16 @@ const ValueText = ({ children, ...props }) => (
   </Text>
 );
 
-export const Footer = ({ printDate, printFacility, printedBy, style }) => {
+export const Footer = ({
+  printDate,
+  printFacility,
+  printedBy,
+  style,
+  // When a document is split into chunks and merged afterwards, react-pdf's per-document
+  // page counter can't span the merge. Such documents set showPageNumber={false} and have a
+  // continuous count stamped on after merging instead.
+  showPageNumber = true,
+}) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime, getCurrentDateTime } = useDateTime();
   const dateToFormat = printDate || getCurrentDateTime();
@@ -78,19 +87,21 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
           </>
         )}
       </View>
-      <View style={styles.footerRightContent}>
-        <Text
-          style={styles.valueText}
-          render={({ pageNumber, totalPages }) =>
-            getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              replacements: {
-                currentPage: pageNumber,
-                totalPages,
-              },
-            })
-          }
-        />
-      </View>
+      {showPageNumber && (
+        <View style={styles.footerRightContent}>
+          <Text
+            style={styles.valueText}
+            render={({ pageNumber, totalPages }) =>
+              getTranslation('pdf.pagination', ':currentPage of :totalPages', {
+                replacements: {
+                  currentPage: pageNumber,
+                  totalPages,
+                },
+              })
+            }
+          />
+        </View>
+      )}
     </View>
   );
 };
