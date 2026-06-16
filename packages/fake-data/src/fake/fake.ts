@@ -787,6 +787,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     discontinued: false,
     endDate: null,
     idealTimes: null,
+    pharmacyNotes: null,
   }),
   User: () => ({
     email: chance.email({ length: 20 }),
