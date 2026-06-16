@@ -57,7 +57,7 @@ const hashUserAgent = userAgent => {
 
 export const readCachedDecision = () => {
   try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    const cached = JSON.parse(window?.localStorage?.getItem(CACHE_KEY));
     if (!cached || cached.uaHash !== hashUserAgent(window.navigator.userAgent)) return null;
     if (Date.now() - cached.checkedAt >= CACHE_TTL_MS) return null;
     return { allowed: true };
@@ -71,7 +71,7 @@ export const writeCachedDecision = decision => {
   // load so a policy change that now permits it is picked up immediately.
   if (!decision.allowed) return;
   try {
-    localStorage.setItem(
+    window?.localStorage?.setItem(
       CACHE_KEY,
       JSON.stringify({
         uaHash: hashUserAgent(window.navigator.userAgent),

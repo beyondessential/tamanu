@@ -20,10 +20,10 @@ export const prepareToastMessage = msg => {
 };
 
 export const getDeviceId = () => {
-  let deviceId = localStorage.getItem('deviceId');
+  let deviceId = window?.localStorage?.getItem('deviceId');
   if (!deviceId) {
     deviceId = `web-${shortid.generate()}`;
-    localStorage.setItem('deviceId', deviceId);
+    window?.localStorage?.setItem('deviceId', deviceId);
   }
   return deviceId;
 };

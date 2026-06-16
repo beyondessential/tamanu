@@ -72,6 +72,11 @@ export default async () => {
       // rebuild. Node/jest/swc don't honour this condition and keep using built dist.
       conditions: ['source', 'module', 'browser', 'development|production'],
       dedupe: ['@mui/x-date-pickers'],
+      alias: {
+        // Browser polyfill for node's `path`. The old `path` package used
+        // util.isString (removed in Node 23+), breaking jsdom unit tests under Node 24+.
+        path: 'path-browserify',
+      },
     },
 
     define: {

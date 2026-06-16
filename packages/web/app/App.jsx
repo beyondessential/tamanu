@@ -41,13 +41,13 @@ export function App({ sidebar, children }) {
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
-    localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
+    window?.localStorage?.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
   // Browser/device support is decided server-side against configurable settings
   // (see the /public/browser-support endpoint), so it can be loosened/tightened
   // per deployment. Falls back to the static build-time check on error/timeout.
   // DEBUG_PROD bypasses the gate entirely.
-  const isDebugMode = localStorage.getItem('DEBUG_PROD');
+  const isDebugMode = window?.localStorage?.getItem('DEBUG_PROD');
   const {
     status: browserSupportStatus,
     reason: unsupportedReason,

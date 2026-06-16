@@ -3,8 +3,8 @@ const readEnv = (name) => {
     return window.env[name];
   }
 
-  if (localStorage.getItem(name)) {
-    return localStorage.getItem(name);
+  if (window?.localStorage?.getItem(name)) {
+    return window?.localStorage?.getItem(name);
   }
 
   if (process?.env?.[name]) {
