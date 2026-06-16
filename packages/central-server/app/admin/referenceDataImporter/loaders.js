@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
   DRUG_STOCK_STATUSES,
+  DRUG_UNITS,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
@@ -530,6 +531,16 @@ export async function drugLoader(item, { models, pushError }) {
   } = item;
   /* eslint-enable no-unused-vars */
   const rows = [];
+
+  const validDrugUnits = Object.values(DRUG_UNITS);
+  if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
+  if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
+    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    return [];
+  }
 
   let existingDrug;
   if (drugId) {
