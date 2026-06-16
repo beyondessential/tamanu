@@ -211,8 +211,8 @@ export async function initDatabase(dbOptions) {
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   // eslint-disable-next-line require-atomic-updates
-  sequelize.migrate = async direction => {
-    await migrate(log, sequelize, direction);
+  sequelize.migrate = async (direction, options) => {
+    await migrate(log, sequelize, direction, options);
   };
 
   sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);

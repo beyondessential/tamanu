@@ -3,6 +3,7 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
+import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
@@ -217,7 +218,7 @@ export async function migrateUpTo({
   });
 }
 
-async function migrateUp(log, sequelize, upOpts = undefined) {
+async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
   const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
@@ -226,6 +227,21 @@ async function migrateUp(log, sequelize, upOpts = undefined) {
   } else {
     log.info('Migrations already up-to-date.');
   }
+
+  await syncDatabaseServerVersionAfterMigrateUp(sequelize, options);
+}
+
+async function syncDatabaseServerVersionAfterMigrateUp(sequelize, options) {
+  const models = sequelize.models;
+  if (!models?.LocalSystemFact) {
+    return;
+  }
+
+  await syncDatabaseServerVersion({
+    models,
+    serverVersion: options.serverVersion,
+    skipVersionCompatibilityCheck: options.skipVersionCompatibilityCheck,
+  });
 }
 
 async function migrateDown(log, sequelize, options) {
@@ -285,9 +301,9 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, direction) {
+export async function migrate(log, sequelize, direction, options = {}) {
   if (direction === 'up') {
-    return migrateUp(log, sequelize);
+    return migrateUp(log, sequelize, undefined, options);
   }
   if (direction === 'down') {
     return migrateDown(log, sequelize);
@@ -297,35 +313,39 @@ export async function migrate(log, sequelize, direction) {
   }
   if (direction === 'redoLatest') {
     await migrateDown(log, sequelize);
-    return migrateUp(log, sequelize);
+    return migrateUp(log, sequelize, undefined, options);
   }
   throw new Error(`Unrecognised migrate direction: ${direction}`);
 }
 
 export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
   const migrateCommand = new Command(name).description('Apply or roll back database migrations');
+  migrateCommand.option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check',
+  );
 
   migrateCommand
     .command('up', { isDefault: true })
     .description('Run all unrun migrations until up to date')
-    .action(() => migrateCallback('up'));
+    .action(() => migrateCallback('up', migrateCommand.opts()));
 
   migrateCommand
     .command('down')
     .description('Reverse the most recent migration')
-    .action(() => migrateCallback('down'));
+    .action(() => migrateCallback('down', migrateCommand.opts()));
 
   migrateCommand
     .command('downToLastReversibleMigration')
     .description(
       'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
     )
-    .action(() => migrateCallback('downToLastReversibleMigration'));
+    .action(() => migrateCallback('downToLastReversibleMigration', migrateCommand.opts()));
 
   migrateCommand
     .command('redoLatest')
     .description('Run database migrations down 1 and then up 1')
-    .action(() => migrateCallback('redoLatest'));
+    .action(() => migrateCallback('redoLatest', migrateCommand.opts()));
 
   return migrateCommand;
 }
