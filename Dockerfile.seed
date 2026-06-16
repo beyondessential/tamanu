@@ -2,15 +2,16 @@ FROM node:20-alpine AS build
 RUN apk add --no-cache bash g++ gcc git jq make python3 py3-setuptools && \
     npm install -g node-gyp
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json turbo.jsonc ./
 COPY patches/ patches/
 COPY common.* ./
 COPY scripts/ scripts/
 COPY packages/ packages/
+# Build only what the seed CMD runs (central-server migrate + scripts fake.js)
+# plus their internal deps (shared, database, fake-data, ...) via turbo's graph.
+# The old `build-shared`/`-w` scripts were removed in the Turborepo migration.
 RUN npm ci && \
-    npm run build-shared && \
-    npm run build -w packages/central-server && \
-    npm run build -w packages/scripts && \
+    npm run build -- --filter=@tamanu/central-server... --filter=scripts... && \
     npm prune --production && \
     npm cache clean --force && \
     rm -rf packages/web packages/patient-portal packages/mobile \

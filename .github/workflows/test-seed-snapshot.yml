@@ -34,7 +34,7 @@ jobs:
           push: true
           no-cache: true
           platforms: linux/arm64
-          tags: ghcr.io/beyondessential/tamanu-seed:2.54.0
+          tags: ghcr.io/beyondessential/tamanu-seed:2.59.0
           build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
 
   trigger:
