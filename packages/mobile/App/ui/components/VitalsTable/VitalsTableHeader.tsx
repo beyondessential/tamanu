@@ -1,42 +1,40 @@
 import React from 'react';
 import { parseISO } from 'date-fns';
-import { StyledText, StyledView } from '/styled/common';
+import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import styled from 'styled-components';
 import { TableHeader } from '../Table';
-
-const VitalsHeaderWrapper = styled(StyledView)`
-  width: ${screenPercentageToDP(23.68, Orientation.Width)}px;
-  height: ${screenPercentageToDP(6.86, Orientation.Height)}px;
-  justify-content: center;
-  align-items: center;
-  background: ${theme.colors.WHITE};
-  border-color: ${theme.colors.BOX_OUTLINE};
-  border-bottom-width: 1px;
-`;
 
 export const vitalsTableHeader: TableHeader = {
   key: 'date',
-  accessor: (date) => (
-    <VitalsHeaderWrapper
-    >
-      <StyledText
-        fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-        fontWeight={500}
-        color="#326699"
-      >
-        {formatDate(parseISO(date), DateFormats.DDMMYY)}
-      </StyledText>
-      <StyledText
-        fontSize={screenPercentageToDP(1.2, Orientation.Height)}
-        fontWeight={500}
-        color="#326699"
-      >
-        {formatDate(parseISO(date), DateFormats.TIME)}
-      </StyledText>
-    </VitalsHeaderWrapper>
+  accessor: date => (
+    <View style={styles.container}>
+      <Text style={styles.dateText}>{formatDate(parseISO(date), DateFormats.DDMMYY)}</Text>
+      <Text style={styles.timeText}>{formatDate(parseISO(date), DateFormats.TIME)}</Text>
+    </View>
   ),
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: screenPercentageToDP(23.68, Orientation.Width),
+    height: screenPercentageToDP(6.86, Orientation.Height),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.WHITE,
+    borderColor: theme.colors.BOX_OUTLINE,
+    borderBottomWidth: 1,
+  },
+  dateText: {
+    fontSize: screenPercentageToDP(1.45, Orientation.Height),
+    fontWeight: '500',
+    color: '#326699',
+  },
+  timeText: {
+    fontSize: screenPercentageToDP(1.2, Orientation.Height),
+    fontWeight: '500',
+    color: '#326699',
+  },
+});

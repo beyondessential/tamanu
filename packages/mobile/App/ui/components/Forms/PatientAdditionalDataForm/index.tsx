@@ -10,7 +10,6 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Patient } from '~/models/Patient';
-import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
@@ -72,8 +71,7 @@ export const PatientAdditionalDataForm = ({
         ),
       );
 
-      // Navigate back to patient details
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.View);
+      navigation.goBack();
     },
     [navigation, patient.id],
   );

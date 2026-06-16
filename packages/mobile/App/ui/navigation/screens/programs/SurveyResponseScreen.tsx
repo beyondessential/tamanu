@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { subject } from '@casl/ability';
 
 import { CenterView, FullView, RowView } from '~/ui/styled/common';
@@ -104,17 +104,40 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       if (!response) return;
       if (isReferral) {
-        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
-          surveyId: surveyId,
-          latestResponseId: response.id,
-        });
-        return;
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: Routes.HomeStack.ReferralStack.View,
+                state: {
+                  routes: [{ name: Routes.HomeStack.ReferralStack.ViewHistory.Index }],
+                  index: 0,
+                },
+              },
+            ],
+          }),
+        );
       } else {
-        navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory, {
-          selectedPatient,
-          latestResponseId: response.id,
-        });
-        return;
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: Routes.HomeStack.ProgramStack.ProgramTabs.Index,
+                state: {
+                  routes: [
+                    {
+                      name: Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory,
+                      params: { latestResponseId: response.id },
+                    },
+                  ],
+                  index: 0,
+                },
+              },
+            ],
+          }),
+        );
       }
     },
     [survey, components],
@@ -128,11 +151,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   }, []);
   const onExit = () => {
     closeModalCallback();
-    if (isReferral) {
-      navigation.navigate(Routes.HomeStack.ReferralStack.Index);
-      return;
-    }
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index);
+    navigation.goBack();
   };
   const onGoBack = () => {
     if (currentScreenIndex > 0) {

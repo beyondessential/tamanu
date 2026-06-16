@@ -48,14 +48,17 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
               category="programRegistry"
             />
           }
-          onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
+          onGoBack={() => navigation.goBack()}
           status={
             <PatientProgramRegistryRegistrationStatus
               registrationStatus={registration.registrationStatus}
             />
           }
         />
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="PatientProgramRegistrationDetails">
+        <Stack.Navigator
+          screenOptions={{ headerShown: false }}
+          initialRouteName={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
+        >
           <Stack.Screen
             name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
             component={PatientProgramRegistrationDetails}
