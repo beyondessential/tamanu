@@ -1,5 +1,5 @@
 import type { Model } from 'models/Model';
-import type { ExpressRequest } from '../../types/express';
+import type { ExpressRequest } from '../../types/express.ts';
 
 interface InitAuditActionsParams {
   enabled: boolean;

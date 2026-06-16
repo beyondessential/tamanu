@@ -2,11 +2,11 @@ import { DataTypes } from 'sequelize';
 
 import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { Model } from './Model';
-import type { Patient } from './Patient';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { Model } from './Model.ts';
+import type { Patient } from './Patient.ts';
 
 const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
 export class PatientIssue extends Model {

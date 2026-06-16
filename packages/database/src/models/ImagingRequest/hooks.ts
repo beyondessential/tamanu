@@ -5,7 +5,7 @@ import {
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import type { ImagingRequest } from './ImagingRequest';
+import type { ImagingRequest } from './ImagingRequest.ts';
 import type { InstanceUpdateOptions } from 'sequelize';
 import type { InvoiceProduct } from 'models/Invoice';
 

@@ -3,7 +3,7 @@
 import {
   MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE,
   MATERIALIZED_VIEWS,
-} from './materializedView.js';
+} from './materializedView.ts';
 
 export const FACT_TIME_OFFSET = 'timeOffset';
 

@@ -1,1 +1,1 @@
-export * from './settingsReaderMiddleware';
+export * from './settingsReaderMiddleware.ts';

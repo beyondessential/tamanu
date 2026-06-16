@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 import {
   AUDIT_USERID_KEY,
   FACT_DEVICE_ID,

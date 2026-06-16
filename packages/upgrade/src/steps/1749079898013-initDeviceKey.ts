@@ -1,6 +1,6 @@
 import { FACT_DEVICE_KEY } from '@tamanu/constants';
 import type { Steps, StepArgs } from '../step.ts';
-import { END, needsMigration } from '../step.js';
+import { END, needsMigration } from '../step.ts';
 
 export const STEPS: Steps = [
   {

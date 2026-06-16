@@ -1,28 +1,28 @@
 import { DataTypes } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { Model } from '../Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
 import {
   dateTimeType,
   type InitOptions,
   type ModelProperties,
   type Models,
-} from '../../types/model';
+} from '../../types/model.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
-import type { SessionConfig } from '../../types/sync';
-import type { LabTest } from '../LabTest';
-import type { ReferenceData } from '../ReferenceData';
-import type { Encounter } from '../Encounter';
-import type { User } from '../User';
-import type { Note } from '../Note';
-import type { LabTestPanelRequest } from '../LabTestPanelRequest';
+import type { SessionConfig } from '../../types/sync.ts';
+import type { LabTest } from '../LabTest/index.ts';
+import type { ReferenceData } from '../ReferenceData.ts';
+import type { Encounter } from '../Encounter.ts';
+import type { User } from '../User.ts';
+import type { Note } from '../Note.ts';
+import type { LabTestPanelRequest } from '../LabTestPanelRequest.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../../sync/buildEncounterLinkedLookupFilter';
-import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks';
+} from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks.ts';
 
 interface LabRequestData {
   labTestTypeIds?: string[];

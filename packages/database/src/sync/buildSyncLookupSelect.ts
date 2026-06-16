@@ -1,6 +1,6 @@
 import { snake } from 'case';
-import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
-import type { Model } from '../models/Model';
+import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants.ts';
+import type { Model } from '../models/Model.ts';
 
 interface Columns {
   patientId?: string;

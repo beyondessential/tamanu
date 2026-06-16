@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { type QueryInterface, DataTypes } from 'sequelize';
 
 export async function up(query: QueryInterface) {
   await query.removeColumn('invoice_products', 'discountable');

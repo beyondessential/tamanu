@@ -1,4 +1,4 @@
-import { DataMigration } from './DataMigration';
+import { DataMigration } from './DataMigration.js';
 
 /*
  * CursorDataMigration is for SQL data migrations that can return the id of the

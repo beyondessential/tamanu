@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE_NAME = 'portal_one_time_tokens';
 

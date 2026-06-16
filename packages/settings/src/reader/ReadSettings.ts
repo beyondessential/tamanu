@@ -1,11 +1,12 @@
-import { get as lodashGet, pick } from 'lodash';
-import { ExposedFlag, SettingPath, SettingsSchema } from '../types';
-import { buildSettings } from '..';
-import { settingsCache } from '../cache';
-import { Models } from './readers/SettingsDBReader';
-import { globalSettings } from '../schema/global';
-import { facilitySettings } from '../schema/facility';
-import { centralSettings } from '../schema/central';
+import lodashGet from 'lodash/get.js';
+import pick from 'lodash/pick.js';
+import { type ExposedFlag, type SettingPath, type SettingsSchema } from '../types/index.ts';
+import { buildSettings } from '../index.ts';
+import { settingsCache } from '../cache/index.ts';
+import { type Models } from './readers/SettingsDBReader.ts';
+import { globalSettings } from '../schema/global.ts';
+import { facilitySettings } from '../schema/facility.ts';
+import { centralSettings } from '../schema/central.ts';
 
 const allSchemas = [globalSettings, facilitySettings, centralSettings];
 const getSchemasForSettingsContext = (facilityId?: string): SettingsSchema[] =>

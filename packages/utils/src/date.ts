@@ -9,7 +9,7 @@ import {
   startOfDay,
   type Duration,
 } from 'date-fns';
-import { isISOString, parseDate } from './dateTime';
+import { isISOString, parseDate } from './dateTime.ts';
 
 export const getAgeDurationFromDate = (date: string | Date | null | undefined) => {
   const start = parseDate(date);

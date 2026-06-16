@@ -1,5 +1,5 @@
 import type { Duration } from 'date-fns';
-import { ENCOUNTER_TYPES } from './encounters';
+import { ENCOUNTER_TYPES } from './encounters.ts';
 
 export const DRUG_ROUTES = {
   dermal: 'dermal',

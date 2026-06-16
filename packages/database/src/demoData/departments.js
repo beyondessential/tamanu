@@ -1,6 +1,6 @@
 import config from 'config';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { splitIds } from './utilities';
+import { splitIds } from './utilities.js';
 
 export const DEPARTMENTS = splitIds(`
   Medical

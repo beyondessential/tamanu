@@ -1,6 +1,6 @@
 import { RemoteUnreachableError } from '@tamanu/errors';
 
-import type { LoggerType } from './TamanuApi';
+import type { LoggerType } from './TamanuApi.ts';
 
 export interface BaseFetchOptions extends RequestInit {
   fetch?: typeof fetch;

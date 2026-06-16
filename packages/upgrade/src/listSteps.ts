@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import { basename, extname, join } from 'node:path';
 import toposort from 'toposort';
 import type { MigrationStr, Step, Steps, StepStr } from './step.ts';
-import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
+import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.ts';
 
 const STEPS_DIR = join(__dirname, 'steps');
 export const MIGRATIONS_START = MIGRATION_PREFIX + START;

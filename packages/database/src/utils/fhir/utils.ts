@@ -1,5 +1,4 @@
-import { isPlainObject } from 'lodash';
-
+import isPlainObject from 'lodash/isPlainObject.js';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 function mapAndCompactArray(input: object[]): object[] {

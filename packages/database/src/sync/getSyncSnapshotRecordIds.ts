@@ -1,6 +1,6 @@
-import { QueryTypes, Sequelize } from 'sequelize';
-import { getSnapshotTableName } from './manageSnapshotTable';
-import type { RecordType, SyncSessionDirectionValues } from '../types/sync';
+import { QueryTypes, type Sequelize } from 'sequelize';
+import { getSnapshotTableName } from './manageSnapshotTable.ts';
+import type { RecordType, SyncSessionDirectionValues } from '../types/sync.ts';
 
 export const getSyncSnapshotRecordIds = async (
   sequelize: Sequelize,

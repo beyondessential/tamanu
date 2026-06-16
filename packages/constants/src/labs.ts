@@ -1,5 +1,5 @@
-import { VISIBILITY_STATUSES } from './importable.js';
-import { COLORS } from './colors.js';
+import { VISIBILITY_STATUSES } from './importable.ts';
+import { COLORS } from './colors.ts';
 
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',

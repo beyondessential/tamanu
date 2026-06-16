@@ -1,5 +1,5 @@
 import { snake } from 'case';
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 
 const SCHEMA = 'sync_snapshots';
 

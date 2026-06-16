@@ -1,4 +1,4 @@
-import type { Models } from '../../../types/model';
+import type { Models } from '../../../types/model.ts';
 
 export function filterFromLabRequests(models: Models, table: string) {
   const { LabRequest } = models;

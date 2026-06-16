@@ -1,12 +1,12 @@
 import { QueryTypes } from 'sequelize';
-import { keyBy, mapValues } from 'lodash';
-
+import keyBy from 'lodash/keyBy.js';
+import mapValues from 'lodash/mapValues.js';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import type { Appointment, AppointmentSchedule } from 'models';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { sanitizeRecord } from './sanitizeRecord';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
+import { sanitizeRecord } from './sanitizeRecord.ts';
 
 /**
  * The new changes will be persisted in the sync_snapshot table

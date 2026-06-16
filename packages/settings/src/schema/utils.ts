@@ -1,13 +1,11 @@
-import {
-  isObject,
-  isUndefined,
-  mapValues,
-  omitBy,
-  get as getAtPath,
-  set as setAtPath,
-  cloneDeep,
-} from 'lodash';
-import { Setting, SettingsSchema } from '../types';
+import isObject from 'lodash/isObject.js';
+import isUndefined from 'lodash/isUndefined.js';
+import mapValues from 'lodash/mapValues.js';
+import omitBy from 'lodash/omitBy.js';
+import getAtPath from 'lodash/get.js';
+import setAtPath from 'lodash/set.js';
+import cloneDeep from 'lodash/cloneDeep.js';
+import { type Setting, type SettingsSchema } from '../types/index.ts';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
   return Boolean(value) && isObject(value) && 'type' in value;

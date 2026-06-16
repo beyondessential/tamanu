@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 import { JOB_PRIORITIES } from '@tamanu/constants';
 
 const MIGRATION_PRIORITY = (JOB_PRIORITIES as Record<string, number>).MIGRATION;

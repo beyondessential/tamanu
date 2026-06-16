@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
+import { FhirResource } from './Resource.ts';
 import { FhirReference } from '@tamanu/shared/services/fhirTypes';
 import {
   getQueryOptions,
@@ -9,8 +9,8 @@ import {
   fromEncounters,
   searchParameters,
   filterFromEncounters,
-} from '../../utils/fhir/Encounter';
-import type { InitOptions, Models } from '../../types/model';
+} from '../../utils/fhir/Encounter/index.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 
 export class FhirEncounter extends FhirResource {
   declare status: string;

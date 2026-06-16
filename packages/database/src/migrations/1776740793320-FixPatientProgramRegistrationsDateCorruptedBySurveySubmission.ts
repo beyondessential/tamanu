@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // A bug caused patient_program_registrations.date to be overwritten whenever a survey was

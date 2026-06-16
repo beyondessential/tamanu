@@ -1,13 +1,13 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;

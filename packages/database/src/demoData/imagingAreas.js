@@ -1,4 +1,4 @@
-import { splitIds } from './utilities';
+import { splitIds } from './utilities.js';
 
 export const CT_SCAN_IMAGING_AREAS = splitIds(`
   Head - NCE

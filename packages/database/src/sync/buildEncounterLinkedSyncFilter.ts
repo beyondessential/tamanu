@@ -1,6 +1,7 @@
 import { Utils } from 'sequelize';
-import { isObject, isString } from 'lodash';
-import { Model } from '../models/Model';
+import isObject from 'lodash/isObject.js';
+import isString from 'lodash/isString.js';
+import { type Model } from '../models/Model.ts';
 
 export type JoinConfig =
   | string

@@ -1,5 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import type { SyncSessionDirectionValues } from '../types/sync';
+import type { SyncSessionDirectionValues } from '../types/sync.ts';
 import type { Model } from 'models/Model';
 
 export const getModelsForDirections = (

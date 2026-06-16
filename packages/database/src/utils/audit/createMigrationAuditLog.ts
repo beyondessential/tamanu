@@ -1,6 +1,6 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Migration } from 'umzug';
-import type { PreMigrationDbSnapshot } from './gatherPreMigrationDbSnapshot';
+import type { PreMigrationDbSnapshot } from './gatherPreMigrationDbSnapshot.ts';
 
 export type MigrationLogStats = {
   /** Duration (ms) per migration file in this batch. */

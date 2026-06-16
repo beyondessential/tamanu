@@ -1,10 +1,9 @@
-import { times } from 'lodash';
-
+import times from 'lodash/times.js';
 import type { Patient } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { fake, chance } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreatePatientParams extends CommonParams {
   facilityId?: string;

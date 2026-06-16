@@ -1,10 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { INVOICE_ITEMS_CATEGORIES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
-import { ReferenceData } from '../ReferenceData';
-import { LabTestType } from '../LabTestType';
-import { LabTestPanel } from '../LabTestPanel';
+import { Model } from '../Model.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
+import { type ReferenceData } from '../ReferenceData.ts';
+import { type LabTestType } from '../LabTestType.ts';
+import { type LabTestPanel } from '../LabTestPanel.ts';
 
 export class InvoiceProduct extends Model {
   declare id: string;

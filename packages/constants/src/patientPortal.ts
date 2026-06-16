@@ -1,4 +1,4 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from './importable';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from './importable.ts';
 
 export const PORTAL_ONE_TIME_TOKEN_TYPES = {
   LOGIN: 'LOGIN',

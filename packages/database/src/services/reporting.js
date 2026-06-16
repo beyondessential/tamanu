@@ -2,7 +2,7 @@ import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_SCHEMAS } from '@tamanu/constants';
-import { openDatabase } from './database';
+import { openDatabase } from './database.js';
 
 const validateUser = async (existingStore, username) => {
   const [result] = await existingStore.sequelize.query(

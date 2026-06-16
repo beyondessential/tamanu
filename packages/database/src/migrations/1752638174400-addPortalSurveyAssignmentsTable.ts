@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {

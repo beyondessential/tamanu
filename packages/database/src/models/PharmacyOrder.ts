@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
-import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription/PharmacyOrderPrescription';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync/index.ts';
+import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription/PharmacyOrderPrescription.ts';
 
 export class PharmacyOrder extends Model {
   declare id: string;

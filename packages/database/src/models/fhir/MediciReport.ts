@@ -1,14 +1,14 @@
 import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
+import { FhirResource } from './Resource.ts';
 
-import type { InitOptions, Models } from '../../types/model';
+import type { InitOptions, Models } from '../../types/model.ts';
 import {
   filterFromEncounters,
   fromEncounters,
   getMaterialisedValues,
-} from '../../utils/fhir/MediciReport';
+} from '../../utils/fhir/MediciReport/index.ts';
 
 export class MediciReport extends FhirResource {
   declare patientId: string;

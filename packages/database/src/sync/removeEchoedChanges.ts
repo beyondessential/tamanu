@@ -1,6 +1,6 @@
-import type { Store } from '../types/sync';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { getSnapshotTableName } from './manageSnapshotTable';
+import type { Store } from '../types/sync.ts';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
+import { getSnapshotTableName } from './manageSnapshotTable.ts';
 
 export const removeEchoedChanges = async (store: Store, sessionId: string) => {
   const tableName = getSnapshotTableName(sessionId);

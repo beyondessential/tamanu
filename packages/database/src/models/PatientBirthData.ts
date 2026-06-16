@@ -3,10 +3,10 @@ import Sequelize, { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
-import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class PatientBirthData extends Model {
   declare id: string;

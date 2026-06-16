@@ -9,8 +9,8 @@ import {
   passportSchema,
   questionCodeIdsDescription,
   datelessTimeStringSchema,
-} from './definitions';
-import { extractDefaults } from './utils';
+} from './definitions/index.ts';
+import { extractDefaults } from './utils.ts';
 
 export const centralSettings = {
   name: 'Central server settings',

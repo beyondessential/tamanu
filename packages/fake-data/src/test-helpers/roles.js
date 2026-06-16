@@ -1,4 +1,4 @@
-import { fake } from '../fake/index.js';
+import { fake } from '../fake/index.ts';
 
 export const asNewRole = async (baseApp, models, permissions = [], roleOverrides = {}) => {
   const { Role, Permission } = models;

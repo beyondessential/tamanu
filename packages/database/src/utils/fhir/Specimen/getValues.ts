@@ -2,9 +2,9 @@ import config from 'config';
 
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '@tamanu/shared/services/fhirTypes';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
-import type { Models } from '../../../types/model';
-import type { LabRequest } from '../../../models';
-import type { Model } from '../../../models/Model';
+import type { Models } from '../../../types/model.ts';
+import type { LabRequest } from '../../../models/index.ts';
+import type { Model } from '../../../models/Model.ts';
 
 export async function getValues(upstream: Model, models: Models) {
   const { LabRequest } = models;

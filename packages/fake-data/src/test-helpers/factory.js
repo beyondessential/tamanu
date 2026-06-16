@@ -1,4 +1,4 @@
-import { fake } from '../fake/index.js';
+import { fake } from '../fake/index.ts';
 
 const addAssociations = async (models, model, record) => {
   const newRecord = { ...record };

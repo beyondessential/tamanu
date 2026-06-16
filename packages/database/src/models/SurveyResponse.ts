@@ -17,17 +17,17 @@ import {
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { Encounter } from './Encounter';
-import type { Facility } from './Facility';
-import { Model } from './Model';
-import type { Patient } from './Patient';
-import type { PatientIssue } from './PatientIssue';
-import type { ProgramDataElement } from './ProgramDataElement';
-import type { Survey } from './Survey';
-import type { User } from './User';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import type { Encounter } from './Encounter.ts';
+import type { Facility } from './Facility.ts';
+import { Model } from './Model.ts';
+import type { Patient } from './Patient.ts';
+import type { PatientIssue } from './PatientIssue.ts';
+import type { ProgramDataElement } from './ProgramDataElement.ts';
+import type { Survey } from './Survey.ts';
+import type { User } from './User.ts';
 
 /** @internal Use {@link SurveyResponse.createPatientIssues} instead. */
 async function _createPatientIssues(

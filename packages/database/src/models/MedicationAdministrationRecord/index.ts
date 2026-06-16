@@ -1,1 +1,1 @@
-export * from './MedicationAdministrationRecord';
+export * from './MedicationAdministrationRecord.ts';

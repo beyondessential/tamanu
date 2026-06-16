@@ -1,8 +1,8 @@
 import { FhirIdentifier } from '@tamanu/shared/services/fhirTypes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import type { Models } from '../../../types/model';
-import type { Model } from '../../../models/Model';
-import type { Facility } from '../../../models/Facility';
+import type { Models } from '../../../types/model.ts';
+import type { Model } from '../../../models/Model.ts';
+import type { Facility } from '../../../models/Facility.ts';
 
 export async function getValues(upstream: Model, models: Models) {
   const { Facility } = models;

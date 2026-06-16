@@ -1,13 +1,13 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import type { SessionConfig } from '../types/sync';
-import type { InitOptions, Models } from '../types/model';
-import type { LabTestPanel } from './LabTestPanel';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import type { SessionConfig } from '../types/sync.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { LabTestPanel } from './LabTestPanel.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class LabTestPanelRequest extends Model {
   declare id: string;

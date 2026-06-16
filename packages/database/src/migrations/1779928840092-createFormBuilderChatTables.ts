@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 const AI_CHAT_SESSIONS_TABLE = { tableName: 'ai_chat_sessions', schema: 'public' };
 const FORM_BUILDER_CHAT_JOBS_TABLE = { tableName: 'form_builder_chat_jobs', schema: 'public' };

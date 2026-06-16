@@ -1,9 +1,9 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildSyncLookupSelect } from '../sync';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { buildSyncLookupSelect } from '../sync/index.ts';
 
 export class PatientProgramRegistrationCondition extends Model {
   declare id: string;

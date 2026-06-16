@@ -1,7 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 import { REFERENCE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class ReferenceDrug extends Model {
   declare id: string;

@@ -1,5 +1,5 @@
 import config from 'config';
-import { splitIds } from './utilities';
+import { splitIds } from './utilities.js';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 export const FACILITIES = splitIds(`

@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 const NEW_UPCOMING_VACCINATIONS_VIEW = `
 CREATE VIEW public.upcoming_vaccinations AS

@@ -1,14 +1,14 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { SessionConfig } from '../types/sync';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import type { SessionConfig } from '../types/sync.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class VitalLog extends Model {
   declare id: string;

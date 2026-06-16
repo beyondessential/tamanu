@@ -1,10 +1,10 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 
-import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { getSyncSnapshotRecordIds } from './getSyncSnapshotRecordIds';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import type { Models } from '../types/model';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords.ts';
+import { getSyncSnapshotRecordIds } from './getSyncSnapshotRecordIds.ts';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
+import type { Models } from '../types/model.ts';
 
 export const adjustDataPostSyncPush = async (
   sequelize: Sequelize,

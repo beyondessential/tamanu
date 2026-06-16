@@ -4,11 +4,11 @@ import {
   getCovidClearanceCertificateFilter,
   getLabTestsFromLabRequests,
 } from '@tamanu/shared/utils';
-import { Model } from './Model';
-import type { PatientAdditionalData } from './PatientAdditionalData';
-import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds';
+import { Model } from './Model.ts';
+import type { PatientAdditionalData } from './PatientAdditionalData.ts';
+import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds.ts';
 
-import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
+import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model.ts';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
 
 export class Patient extends Model {

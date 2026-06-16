@@ -1,8 +1,8 @@
 import { REPORT_DB_CONNECTIONS, REPORT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { fake } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateDbReportParams extends CommonParams {
   userId: string;

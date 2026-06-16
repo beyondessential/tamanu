@@ -4,7 +4,7 @@ import {
   NOTIFICATION_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import type { LabRequest } from './LabRequest';
+import type { LabRequest } from './LabRequest.ts';
 import type { InstanceUpdateOptions } from 'sequelize';
 
 export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {

@@ -1,2 +1,2 @@
-export * from './populateDb/index.js';
-export * from './fake/index.js';
+export * from './populateDb/index.ts';
+export * from './fake/index.ts';

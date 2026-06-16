@@ -1,6 +1,6 @@
 import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
-import { shouldAddLabRequestToInvoice } from '../LabRequest/hooks';
-import type { LabTest } from './LabTest';
+import { shouldAddLabRequestToInvoice } from '../LabRequest/hooks.ts';
+import type { LabTest } from './LabTest.ts';
 
 const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
   const labRequest = await instance.sequelize.models.LabRequest.findByPk(instance.labRequestId);

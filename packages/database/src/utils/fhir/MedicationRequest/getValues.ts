@@ -1,6 +1,5 @@
 import config from 'config';
-import { isNaN } from 'lodash';
-
+import isNaN from 'lodash/isNaN.js';
 import {
   FhirReference,
   FhirIdentifier,
@@ -13,8 +12,8 @@ import {
   FhirPeriod,
 } from '@tamanu/shared/services/fhirTypes';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
-import type { Models } from '../../../types/model';
-import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
+import type { Models } from '../../../types/model.ts';
+import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models/index.ts';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 

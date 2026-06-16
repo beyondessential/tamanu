@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { AVPU_OPTIONS, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+} from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 const AVPU_VALUES = AVPU_OPTIONS.map((x) => x.value);
 

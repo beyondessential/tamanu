@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 const NOTES_BATCH_SIZE = 10000;
 

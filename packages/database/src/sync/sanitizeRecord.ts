@@ -1,5 +1,5 @@
 import type { SyncSnapshotData } from 'types/sync';
-import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
+import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants.ts';
 import type { Model } from 'models/Model';
 
 export const sanitizeRecord = (record: Model): SyncSnapshotData =>

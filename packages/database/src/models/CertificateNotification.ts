@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { Model } from './Model.ts';
 
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { dateType, type InitOptions, type Models } from '../types/model.ts';
 
 export class CertificateNotification extends Model {
   declare id: string;

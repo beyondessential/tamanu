@@ -1,8 +1,8 @@
 import { SYNC_DIRECTIONS, SETTING_KEYS, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 import { DataTypes, Sequelize, Op } from 'sequelize';
-import { ReadSettings } from '@tamanu/settings';
+import { type ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';
 import { log } from '@tamanu/shared/services/logging';
 

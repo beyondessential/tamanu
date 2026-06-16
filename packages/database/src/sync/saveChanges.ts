@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
-import { mergeRecord } from './mergeRecord';
-import type { Model } from '../models/Model';
+import { mergeRecord } from './mergeRecord.ts';
+import type { Model } from '../models/Model.ts';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 

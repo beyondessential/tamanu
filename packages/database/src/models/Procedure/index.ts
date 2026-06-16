@@ -1,1 +1,1 @@
-export * from './Procedure';
+export * from './Procedure.ts';

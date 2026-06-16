@@ -1,7 +1,7 @@
 import { FhirContactPoint, FhirHumanName, FhirIdentifier } from '@tamanu/shared/services/fhirTypes';
-import type { Model } from '../../../models/Model';
-import type { Models } from '../../../types/model';
-import type { User } from '../../../models';
+import type { Model } from '../../../models/Model.ts';
+import type { Models } from '../../../types/model.ts';
+import type { User } from '../../../models/index.ts';
 
 export async function getValues(upstream: Model, models: Models) {
   const { User } = models;

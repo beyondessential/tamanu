@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 // Backfill ProgramDataElement.name for surveys saved by the AI form builder
 // before TAM-2394 fixed the prompt. The build prompt used to tell the AI to

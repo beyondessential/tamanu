@@ -1,14 +1,14 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
-import type { Department } from '../Department';
-import type { User } from '../User';
-import type { Location } from '../Location';
-import type { Encounter } from '../Encounter';
-import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks';
+import { Model } from '../Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model.ts';
+import type { Department } from '../Department.ts';
+import type { User } from '../User.ts';
+import type { Location } from '../Location.ts';
+import type { Encounter } from '../Encounter.ts';
+import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks.ts';
 
 export class Procedure extends Model {
   declare id: string;

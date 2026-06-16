@@ -1,1 +1,1 @@
-export * from './ImagingRequestArea';
+export * from './ImagingRequestArea.ts';

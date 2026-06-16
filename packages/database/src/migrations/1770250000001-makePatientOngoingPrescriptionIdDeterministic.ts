@@ -1,4 +1,4 @@
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 
 // Deterministic id from (patient_id, prescription_id), same pattern as patient_facilities.
 // REPLACE avoids collisions if ';' appears in ids. Updates logs.changes and sync_lookup so audit and sync stay consistent.

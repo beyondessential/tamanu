@@ -1,8 +1,8 @@
-import { centralSettings } from '../schema/central';
-import { facilitySettings } from '../schema/facility';
-import { globalSettings } from '../schema/global';
-import { Setting } from './Setting';
-import { SettingsSchema } from './SettingsSchema';
+import { type centralSettings } from '../schema/central.ts';
+import { type facilitySettings } from '../schema/facility.ts';
+import { type globalSettings } from '../schema/global.ts';
+import { type Setting } from './Setting.ts';
+import { type SettingsSchema } from './SettingsSchema.ts';
 
 // Type to generate the dot prefix
 type Subscript<T extends string> = T extends '' ? '' : `.${T}`;

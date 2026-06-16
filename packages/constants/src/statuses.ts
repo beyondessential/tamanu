@@ -1,4 +1,4 @@
-import { COLORS } from './colors.js';
+import { COLORS } from './colors.ts';
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',

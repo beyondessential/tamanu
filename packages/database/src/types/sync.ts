@@ -1,7 +1,7 @@
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 import type { SYNC_DIRECTIONS } from '@tamanu/constants';
-import type { Models } from './model';
-import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
+import type { Models } from './model.ts';
+import type { SYNC_SESSION_DIRECTION } from '../sync/constants.ts';
 import type { ChangeLog } from 'models/ChangeLog';
 
 export interface SessionConfig {

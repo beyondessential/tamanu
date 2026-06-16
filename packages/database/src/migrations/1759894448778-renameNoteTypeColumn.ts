@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 const NOTES_NOTE_TYPE_ID_FKEY = 'notes_note_type_id_fkey';
 

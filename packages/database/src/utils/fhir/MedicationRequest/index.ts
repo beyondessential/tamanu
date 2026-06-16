@@ -1,3 +1,3 @@
-export * from './getQueryToFindUpstreamIds';
-export * from './getValues';
-export * from './searchParameters';
+export * from './getQueryToFindUpstreamIds.ts';
+export * from './getValues.ts';
+export * from './searchParameters.ts';

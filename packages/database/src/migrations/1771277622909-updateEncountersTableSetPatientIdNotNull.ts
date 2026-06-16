@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 // Migration 2 of 2: Set patient_id NOT NULL
 // Backfill of null patient_id is in 1771277622908-backfillEncountersPatientIdToTestPatient.ts

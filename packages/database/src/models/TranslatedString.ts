@@ -4,10 +4,11 @@ import {
   LANGUAGE_NAME_STRING_ID,
 } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
-import { Model } from './Model';
-import { keyBy, mapValues } from 'lodash';
+import { Model } from './Model.ts';
+import keyBy from 'lodash/keyBy.js';
+import mapValues from 'lodash/mapValues.js';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
-import type { InitOptions } from '../types/model';
+import type { InitOptions } from '../types/model.ts';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 export type Casing = 'lower' | 'upper' | 'sentence';

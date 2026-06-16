@@ -1,5 +1,5 @@
-import { splitIds } from './utilities';
-import { DIAGNOSES } from './diagnoses';
+import { splitIds } from './utilities.js';
+import { DIAGNOSES } from './diagnoses.js';
 
 export const TRIAGE_DIAGNOSES = splitIds(`
  Cardiorespiratory arrest

@@ -1,6 +1,6 @@
-import { times } from 'lodash';
-import { fake, chance } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import times from 'lodash/times.js';
+import { fake, chance } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,

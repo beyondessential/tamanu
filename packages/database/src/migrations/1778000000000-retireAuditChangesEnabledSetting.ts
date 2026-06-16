@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {

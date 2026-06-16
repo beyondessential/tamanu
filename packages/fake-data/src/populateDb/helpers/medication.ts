@@ -1,6 +1,6 @@
 import type { Models } from '@tamanu/database';
-import { fake } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { fake } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateMedicationParams extends CommonParams {
   models: Models;

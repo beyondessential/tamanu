@@ -7,15 +7,15 @@ import {
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
-import type { Model } from '../../../models/Model';
-import type { Models } from '../../../types/model';
+import type { Model } from '../../../models/Model.ts';
+import type { Models } from '../../../types/model.ts';
 import type {
   AdministeredVaccine,
   Encounter,
   Patient,
   ScheduledVaccine,
   User,
-} from '../../../models';
+} from '../../../models/index.ts';
 
 export async function getValues(upstream: Model, models: Models) {
   const { AdministeredVaccine } = models;

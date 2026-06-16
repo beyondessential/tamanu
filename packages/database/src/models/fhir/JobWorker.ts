@@ -1,7 +1,7 @@
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
-import type { InitOptions } from '../../types/model';
+import { Model } from '../Model.ts';
+import type { InitOptions } from '../../types/model.ts';
 
 export class FhirJobWorker extends Model {
   declare id: string;

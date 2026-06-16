@@ -7,11 +7,11 @@ import { formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { createChangeRecorders } from '../utils/recordModelChanges';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import { createChangeRecorders } from '../utils/recordModelChanges.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class Triage extends Model {
   declare id: string;

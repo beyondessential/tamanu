@@ -1,4 +1,4 @@
-import { Setting } from './Setting';
+import { type Setting } from './Setting.ts';
 
 export type ExposedFlag = 'exposedToWeb' | 'exposedToPatientPortal';
 

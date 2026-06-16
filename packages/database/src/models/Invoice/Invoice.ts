@@ -1,4 +1,4 @@
-import { DataTypes, Transaction } from 'sequelize';
+import { DataTypes, type Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -8,12 +8,12 @@ import {
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
   type EncounterType,
 } from '@tamanu/constants';
-import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
-import type { Procedure } from '../Procedure';
-import type { InvoiceProduct } from './InvoiceProduct';
+import { Model } from '../Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model.ts';
+import type { Procedure } from '../Procedure/index.ts';
+import type { InvoiceProduct } from './InvoiceProduct.ts';
 import type { ImagingRequest } from 'models/ImagingRequest';
 import type { LabTestPanelRequest } from 'models/LabTestPanelRequest';
 import type { LabTest } from 'models/LabTest';

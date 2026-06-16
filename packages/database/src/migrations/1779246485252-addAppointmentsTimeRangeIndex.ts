@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 const INDEX_NAME = 'idx_appointments_location_group_start_time';
 

@@ -1,5 +1,5 @@
-import { BaseError } from '../BaseError';
-import { ERROR_TYPE } from '../constants';
+import { BaseError } from '../BaseError.ts';
+import { ERROR_TYPE } from '../constants.ts';
 
 /**
  * Generic database error. Also consider the more specific `DatabaseConstraintError`,

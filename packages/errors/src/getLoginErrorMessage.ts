@@ -1,6 +1,6 @@
-import { ERROR_TYPE } from './constants';
-import { BaseError } from './BaseError';
-import { Problem } from './Problem';
+import { ERROR_TYPE } from './constants.ts';
+import { BaseError } from './BaseError.ts';
+import { type Problem } from './Problem.ts';
 
 export function getLoginErrorMessage(error: Problem | BaseError): string {
   if (error instanceof BaseError) {

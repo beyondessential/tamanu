@@ -1,5 +1,5 @@
 import { TEST_PATIENT_ID } from '@tamanu/constants';
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 
 // Migration 1 of 2: Backfill data (DML)
 // Updates encounters with null patient_id to the test patient (TEST_PATIENT_ID).

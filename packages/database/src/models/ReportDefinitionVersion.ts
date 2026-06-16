@@ -1,4 +1,4 @@
-import { QueryTypes, DataTypes, Sequelize } from 'sequelize';
+import { QueryTypes, DataTypes, type Sequelize } from 'sequelize';
 import * as yup from 'yup';
 import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
@@ -7,8 +7,8 @@ import {
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 const optionsValidator = yup.object({
   parameters: yup

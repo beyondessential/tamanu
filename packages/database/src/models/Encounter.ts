@@ -1,6 +1,6 @@
 import { Op, DataTypes } from 'sequelize';
-import { capitalize, isEqual } from 'lodash';
-
+import capitalize from 'lodash/capitalize.js';
+import isEqual from 'lodash/isEqual.js';
 import {
   ENCOUNTER_TYPE_VALUES,
   ENCOUNTER_TYPES,
@@ -18,24 +18,24 @@ import { formatShortDateTime, formatShort } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import {
   dateTimeType,
   dateType,
   type InitOptions,
   type ModelProperties,
   type Models,
-} from '../types/model';
-import type { Location } from './Location';
-import type { Patient } from './Patient';
-import type { Discharge } from './Discharge';
-import type { ReferenceData } from './ReferenceData';
+} from '../types/model.ts';
+import type { Location } from './Location.ts';
+import type { Patient } from './Patient.ts';
+import type { Discharge } from './Discharge.ts';
+import type { ReferenceData } from './ReferenceData.ts';
 
-import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
-import { createChangeRecorders } from '../utils/recordModelChanges';
-import type { SessionConfig } from '../types/sync';
-import type { User } from './User';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync.ts';
+import { createChangeRecorders } from '../utils/recordModelChanges.ts';
+import type { SessionConfig } from '../types/sync.ts';
+import type { User } from './User.ts';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 const encounterTypes = new Set<string>(ENCOUNTER_TYPE_VALUES);
 function isEncounterType(value: unknown): value is EncounterType {

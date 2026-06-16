@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'migrations' };
 const UPGRADE_RUN_INDEX = 'migration_logs_upgrade_run_id_idx';

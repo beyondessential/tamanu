@@ -1,6 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
-import { intlFormatDate, locale, parseSurveyTimeToHHmmss, type DateInput } from './dateTime';
+import { intlFormatDate, locale, parseSurveyTimeToHHmmss, type DateInput } from './dateTime.ts';
 
 const createFormatter =
   (

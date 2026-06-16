@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 /**
  * Migration to add an index on the 'resource' field within the JSONB payload column

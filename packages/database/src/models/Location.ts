@@ -5,10 +5,10 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { Facility } from './Facility';
-import type { LocationGroup } from './LocationGroup';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { Facility } from './Facility.ts';
+import type { LocationGroup } from './LocationGroup.ts';
 
 export class Location extends Model {
   declare id: string;

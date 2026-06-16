@@ -4,9 +4,9 @@ import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
-import { getInvoiceSummary } from './invoice';
-import { formatDisplayPrice, round } from './display';
-import type { Invoice, Payment } from './types';
+import { getInvoiceSummary } from './invoice.ts';
+import { formatDisplayPrice, round } from './display.ts';
+import type { Invoice, Payment } from './types.ts';
 
 const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
 const RECEIPT_NUMBER_LENGTH = 8;

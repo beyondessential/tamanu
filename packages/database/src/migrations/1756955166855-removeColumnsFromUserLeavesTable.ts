@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 const tableName = 'user_leaves';
 

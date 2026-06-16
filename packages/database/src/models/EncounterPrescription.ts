@@ -1,10 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import type { InitOptions, Models } from '../types/model';
-import type { Encounter } from './Encounter';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { Encounter } from './Encounter.ts';
 
 export class EncounterPrescription extends Model {
   declare id: string;

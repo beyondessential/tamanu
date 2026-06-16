@@ -5,8 +5,8 @@ import { DataTypes, QueryTypes, Sequelize } from 'sequelize';
 import { JOB_PRIORITIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
-import { Model } from '../Model';
-import type { InitOptions } from '../../types/model';
+import { Model } from '../Model.ts';
+import type { InitOptions } from '../../types/model.ts';
 
 export class FhirJob extends Model {
   declare id: string;

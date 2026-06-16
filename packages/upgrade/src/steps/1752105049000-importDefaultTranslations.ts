@@ -1,9 +1,9 @@
 import { QueryTypes } from 'sequelize';
-import { uniqBy } from 'lodash';
+import uniqBy from 'lodash/uniqBy.js';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
-import { END, type Steps, type StepArgs } from '../step.js';
+import { END, type Steps, type StepArgs } from '../step.ts';
 import {
   DEFAULT_LANGUAGE_CODE,
   ENGLISH_LANGUAGE_CODE,

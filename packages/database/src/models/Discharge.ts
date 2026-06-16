@@ -1,11 +1,11 @@
 import { DataTypes, QueryTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import type { InitOptions, Models } from '../types/model';
-import { Facility } from './Facility';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import { Facility } from './Facility.ts';
 import { log } from '@tamanu/shared/services/logging';
 
 export interface Address {

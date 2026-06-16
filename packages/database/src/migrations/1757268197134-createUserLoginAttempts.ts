@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('user_login_attempts', {

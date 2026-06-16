@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VACCINE_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { ReferenceData } from './ReferenceData';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { ReferenceData } from './ReferenceData.ts';
 
 export class ScheduledVaccine extends Model {
   declare id: string;

@@ -4,8 +4,8 @@ import { subMinutes } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions } from '../types/model.ts';
 
 const SYNC_READY_WINDOW_MINUTES = 5;
 

@@ -1,10 +1,10 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
-import { runPostMigration, runPreMigration } from './migrationHooks';
-import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
+import { runPostMigration, runPreMigration } from './migrationHooks.ts';
+import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit/index.ts';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
-import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
+import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable.ts';
 
 /**
  * Enhances PostgreSQL "pending trigger events" errors with helpful guidance.

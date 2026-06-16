@@ -1,9 +1,9 @@
 import {
   buildEncounterLinkedSyncFilterJoins,
   type JoinConfig,
-} from './buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from './buildSyncLookupSelect';
-import type { Model } from '../models/Model';
+} from './buildEncounterLinkedSyncFilter.ts';
+import { buildSyncLookupSelect } from './buildSyncLookupSelect.ts';
+import type { Model } from '../models/Model.ts';
 
 /**
  * Helper to determine if a facility_id should be populated in sync lookup

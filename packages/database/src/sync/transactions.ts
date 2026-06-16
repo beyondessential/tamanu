@@ -1,4 +1,4 @@
-import { Sequelize, Transaction, type TransactionOptions } from 'sequelize';
+import { type Sequelize, Transaction, type TransactionOptions } from 'sequelize';
 
 const wrapTransaction = async <T>(
   sequelize: Sequelize,

@@ -1,4 +1,4 @@
-import { LOCATION_BOOKABLE_VIEW } from "./importable";
+import { LOCATION_BOOKABLE_VIEW } from "./importable.ts";
 
 export const DAYS_OF_WEEK = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 

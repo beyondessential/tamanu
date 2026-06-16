@@ -1,4 +1,4 @@
-import type { Models } from '../types/model';
+import type { Models } from '../types/model.ts';
 
 export function sortInDependencyOrder(models: Models): Array<Models[keyof Models]> {
   const sorted: Array<Models[keyof Models]> = [];

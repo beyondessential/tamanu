@@ -3,7 +3,7 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { fake } from '../../fake/index.js';
+import { fake } from '../../fake/index.ts';
 
 import type {
   Department,

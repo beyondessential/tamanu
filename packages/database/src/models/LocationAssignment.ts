@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class LocationAssignment extends Model {
   declare id: string;

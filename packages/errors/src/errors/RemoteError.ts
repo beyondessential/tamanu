@@ -1,5 +1,5 @@
-import { BaseError } from '../BaseError';
-import { ERROR_TYPE, type ErrorType } from '../constants';
+import { BaseError } from '../BaseError.ts';
+import { ERROR_TYPE, type ErrorType } from '../constants.ts';
 
 /** Do not construct outside of the errors package, use only for instanceof checks. */
 export class BaseRemoteError extends BaseError {

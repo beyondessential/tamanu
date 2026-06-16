@@ -5,12 +5,12 @@ import {
   DataTypes,
   Model as BaseModel,
   type ModelAttributes,
-  Sequelize,
+  type Sequelize,
 } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
-import type { InitOptions, Models } from '../types/model';
-import type { SyncHookSnapshotChanges, ModelSanitizeArgs, SessionConfig, SyncSnapshotAttributes } from '../types/sync';
+import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { SyncHookSnapshotChanges, ModelSanitizeArgs, SessionConfig, SyncSnapshotAttributes } from '../types/sync.ts';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 

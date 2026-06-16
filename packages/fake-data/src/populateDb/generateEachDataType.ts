@@ -15,7 +15,7 @@ import {
   createMedication,
   createAccessLog,
   generateImportData,
-} from './helpers/index.js';
+} from './helpers/index.ts';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   const { default: pLimit } = await import('p-limit');

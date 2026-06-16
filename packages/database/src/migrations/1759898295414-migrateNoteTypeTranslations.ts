@@ -1,4 +1,4 @@
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 const makeNoteTypeId = (noteType: string): string => `notetype-${noteType}`;

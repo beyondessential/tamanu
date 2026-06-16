@@ -5,36 +5,36 @@ import {
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
-} from './patientFields';
+} from './patientFields.ts';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-} from './invoices';
-import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
+} from './invoices.ts';
+import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters.ts';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
-} from './statuses';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
+} from './statuses.ts';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines.ts';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_LABELS,
-} from './births';
+} from './births.ts';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_CONNECTION_LABELS,
   REPORT_STATUS_LABELS,
-} from './reports';
-import { TEMPLATE_TYPE_LABELS } from './templates';
-import { LAB_REQUEST_STATUS_LABELS } from './labs';
-import { ASSET_NAME_LABELS } from './importable';
-import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
+} from './reports.ts';
+import { TEMPLATE_TYPE_LABELS } from './templates.ts';
+import { LAB_REQUEST_STATUS_LABELS } from './labs.ts';
+import { ASSET_NAME_LABELS } from './importable.ts';
+import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.ts';
 import {
   ADMINISTRATION_STATUS_LABELS,
   DRUG_ROUTE_LABELS,
@@ -47,18 +47,18 @@ import {
   REPEATS_LABELS,
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
-} from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS, FSM_MARITAL_STATUS_LABELS } from './deaths';
-import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
-import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
-import { IMAGING_TYPES } from './imaging';
+} from './medications.ts';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS, FSM_MARITAL_STATUS_LABELS } from './deaths.ts';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.ts';
+import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks.ts';
+import { IMAGING_TYPES } from './imaging.ts';
 import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
-} from './appointments';
-import { DEPRECATED_PRCC_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
-import { BINARY_LABELS } from './binary';
+} from './appointments.ts';
+import { DEPRECATED_PRCC_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry.ts';
+import { BINARY_LABELS } from './binary.ts';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];

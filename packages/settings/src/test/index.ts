@@ -1,3 +1,3 @@
-export * from './facillity';
-export * from './global';
-export * from './central';
+export * from './facillity.ts';
+export * from './global.ts';
+export * from './central.ts';

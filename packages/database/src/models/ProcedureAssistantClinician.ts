@@ -1,11 +1,11 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
   buildEncounterLinkedSyncFilter,
-} from '../sync';
+} from '../sync/index.ts';
 
 export class ProcedureAssistantClinician extends Model {
   declare procedureId: string;

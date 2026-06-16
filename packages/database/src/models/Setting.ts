@@ -1,12 +1,16 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash';
+import isPlainObject from 'lodash/isPlainObject.js';
+import getAtPath from 'lodash/get.js';
+import setAtPath from 'lodash/set.js';
+import isEqual from 'lodash/isEqual.js';
+import keyBy from 'lodash/keyBy.js';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
 import { encryptSecret, getSettingsPskKeyBuffer } from '@tamanu/shared/utils/crypto';
-import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 import type { SettingPath } from '@tamanu/settings/types';
 
 const SETTINGS_SCOPES_VALUES = Object.values(SETTINGS_SCOPES);

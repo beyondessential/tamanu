@@ -1,3 +1,3 @@
-export * from './filterFromEncounters';
-export * from './getMaterialisedValues';
-export * from './getQueryToFindUpstreamIds';
+export * from './filterFromEncounters.ts';
+export * from './getMaterialisedValues.ts';
+export * from './getQueryToFindUpstreamIds.ts';

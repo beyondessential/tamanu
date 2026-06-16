@@ -1,5 +1,6 @@
 import { randomInt } from 'crypto';
-import { isFunction, snakeCase } from 'lodash';
+import isFunction from 'lodash/isFunction.js';
+import snakeCase from 'lodash/snakeCase.js';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
@@ -36,7 +37,7 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
-import { Model } from '@tamanu/database/models/Model';
+import { type Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed

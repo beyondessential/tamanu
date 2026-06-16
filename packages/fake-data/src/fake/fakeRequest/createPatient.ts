@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 
 import { DEFAULT_PATIENT_DISPLAY_ID_PATTERN } from '@tamanu/constants';
 import { createPatientSchema } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
 import { generateIdFromPattern } from '@tamanu/utils/generateId';
-import { keysFor, type WithRequired } from '../utils/types.js';
-import { createFakeSchemaFactory } from '../utils/schemaFaker.js';
+import { keysFor, type WithRequired } from '../utils/types.ts';
+import { createFakeSchemaFactory } from '../utils/schemaFaker.ts';
 
 type Schema = z.infer<typeof createPatientSchema>;
 

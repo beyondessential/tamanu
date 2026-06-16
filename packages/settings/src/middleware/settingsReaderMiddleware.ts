@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { ReadSettings } from '../reader';
+import { ReadSettings } from '../reader/index.ts';
 
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;

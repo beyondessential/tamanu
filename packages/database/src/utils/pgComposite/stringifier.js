@@ -1,6 +1,6 @@
 import { Utils } from 'sequelize';
 import { formatISO9075 } from 'date-fns';
-import { Composite } from './sequelizeType';
+import { Composite } from './sequelizeType.js';
 
 let QUERY_GENERATOR;
 /**

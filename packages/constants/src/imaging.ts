@@ -1,4 +1,4 @@
-import { IMAGING_REQUEST_STATUS_TYPES } from './statuses.js';
+import { IMAGING_REQUEST_STATUS_TYPES } from './statuses.ts';
 
 export const IMAGING_AREA_TYPES = {
   ANGIOGRAM_IMAGING_AREA: 'angiogramImagingArea',

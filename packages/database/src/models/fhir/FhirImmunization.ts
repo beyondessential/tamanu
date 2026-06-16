@@ -1,14 +1,14 @@
 import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
+import { FhirResource } from './Resource.ts';
 import {
   getQueryOptions,
   getValues,
   fromAdministeredVaccines,
   searchParameters,
-} from '../../utils/fhir/Immunization';
-import type { InitOptions, Models } from '../../types/model';
+} from '../../utils/fhir/Immunization/index.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 
 export class FhirImmunization extends FhirResource {
   declare status: string;

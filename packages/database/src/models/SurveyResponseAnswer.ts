@@ -1,19 +1,19 @@
-import { upperFirst } from 'lodash';
+import upperFirst from 'lodash/upperFirst.js';
 import { DataTypes, Op } from 'sequelize';
 import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
-import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
-import type { SessionConfig } from '../types/sync';
-import type { User } from './User';
-import type { SurveyResponse } from './SurveyResponse';
-import type { ProgramDataElement } from './ProgramDataElement';
+import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model.ts';
+import type { SessionConfig } from '../types/sync.ts';
+import type { User } from './User.ts';
+import type { SurveyResponse } from './SurveyResponse.ts';
+import type { ProgramDataElement } from './ProgramDataElement.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;

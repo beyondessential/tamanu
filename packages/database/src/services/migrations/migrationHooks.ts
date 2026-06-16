@@ -4,9 +4,9 @@ import config from 'config';
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
-import { SYNC_TICK_FLAGS } from '../../sync/constants';
-import { tablesWithoutColumn, tablesWithoutTrigger, tablesWithTrigger } from '../../utils';
+import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants.ts';
+import { SYNC_TICK_FLAGS } from '../../sync/constants.ts';
+import { tablesWithoutColumn, tablesWithoutTrigger, tablesWithTrigger } from '../../utils/index.ts';
 
 export async function runPreMigration(log: Logger, sequelize: Sequelize) {
   // remove sync tick trigger before migrations

@@ -1,4 +1,4 @@
-import { splitIds } from './utilities';
+import { splitIds } from './utilities.js';
 
 const buildProcedure = ({ id, name: nameAndCode }) => {
   const [code, name] = nameAndCode.split(/\t/);

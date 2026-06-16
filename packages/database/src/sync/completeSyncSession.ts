@@ -1,5 +1,5 @@
-import type { Store } from '../types/sync';
-import { dropSnapshotTable, dropMarkedForSyncPatientsTable } from './manageSnapshotTable';
+import type { Store } from '../types/sync.ts';
+import { dropSnapshotTable, dropMarkedForSyncPatientsTable } from './manageSnapshotTable.ts';
 
 export const completeSyncSession = async (store: Store, sessionId: string, error: string) => {
   // Sessions themselves stay as an artefact that forms a paper trail.

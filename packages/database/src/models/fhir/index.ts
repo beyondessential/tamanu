@@ -1,18 +1,18 @@
-export * from './FhirDiagnosticReport';
-export * from './FhirObservation';
-export * from './FhirEncounter';
-export * from './FhirImagingStudy';
-export * from './FhirImmunization';
-export * from './FhirOrganization';
-export * from './FhirPatient';
-export * from './FhirPractitioner';
-export * from './FhirServiceRequest';
-export * from './FhirSpecimen';
-export * from './FhirMedicationRequest';
+export * from './FhirDiagnosticReport.ts';
+export * from './FhirObservation.ts';
+export * from './FhirEncounter.ts';
+export * from './FhirImagingStudy.ts';
+export * from './FhirImmunization.ts';
+export * from './FhirOrganization.ts';
+export * from './FhirPatient.ts';
+export * from './FhirPractitioner.ts';
+export * from './FhirServiceRequest.ts';
+export * from './FhirSpecimen.ts';
+export * from './FhirMedicationRequest.ts';
 
-export * from './MediciReport';
+export * from './MediciReport.ts';
 
-export * from './Job';
-export * from './JobWorker';
+export * from './Job.ts';
+export * from './JobWorker.ts';
 
-export * from './WriteLog';
+export * from './WriteLog.ts';

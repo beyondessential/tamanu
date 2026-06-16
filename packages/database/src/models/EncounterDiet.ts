@@ -1,8 +1,8 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class EncounterDiet extends Model {
   declare id: string;

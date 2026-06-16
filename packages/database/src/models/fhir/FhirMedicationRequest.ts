@@ -1,14 +1,14 @@
 import { DataTypes, type InitOptions } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
-import type { Models } from '../../types/model';
-import { PharmacyOrderPrescription } from '../../models';
+import { FhirResource } from './Resource.ts';
+import type { Models } from '../../types/model.ts';
+import { PharmacyOrderPrescription } from '../../models/index.ts';
 import {
   getQueryToFindUpstreamIds,
   getValues,
   searchParameters,
-} from '../../utils/fhir/MedicationRequest';
+} from '../../utils/fhir/MedicationRequest/index.ts';
 
 export class FhirMedicationRequest extends FhirResource {
   declare identifier?: Record<string, any>;

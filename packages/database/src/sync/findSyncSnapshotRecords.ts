@@ -1,16 +1,16 @@
 import { camel } from 'case';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes, type Sequelize } from 'sequelize';
 
-import { getSnapshotTableName } from './manageSnapshotTable';
-import { getModelsForPull } from './getModelsForDirection';
-import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
+import { getSnapshotTableName } from './manageSnapshotTable.ts';
+import { getModelsForPull } from './getModelsForDirection.ts';
+import { sortInDependencyOrder } from '../utils/sortInDependencyOrder.ts';
 
 import type {
   RecordType,
   Store,
   SyncSessionDirectionValues,
   SyncSnapshotAttributes,
-} from '../types/sync';
+} from '../types/sync.ts';
 import type { Models } from 'types/model';
 
 export const findSyncSnapshotRecords = async (

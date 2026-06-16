@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { Model } from './Model';
-import { type InitOptions } from '../types/model';
+import { Model } from './Model.ts';
+import { type InitOptions } from '../types/model.ts';
 
 export class SyncSession extends Model {
   declare id: string;

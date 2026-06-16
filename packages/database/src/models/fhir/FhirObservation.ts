@@ -13,10 +13,10 @@ import {
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
-import { FhirResource } from './Resource';
-import type { InitOptions, Models } from '../../types/model';
-import type { LabRequest } from '../../models/LabRequest';
-import { FhirDiagnosticReport } from './FhirDiagnosticReport';
+import { FhirResource } from './Resource.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
+import type { LabRequest } from '../../models/LabRequest/index.ts';
+import { FhirDiagnosticReport } from './FhirDiagnosticReport.ts';
 
 export class FhirObservation extends FhirResource {
   declare basedOn: { type: string; reference: string }[];

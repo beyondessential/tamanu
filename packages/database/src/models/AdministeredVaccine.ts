@@ -1,12 +1,12 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, type InjectionSite } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import { Encounter } from './Encounter';
-import { ScheduledVaccine } from './ScheduledVaccine';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { User } from './User';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { Model } from './Model.ts';
+import { type Encounter } from './Encounter.ts';
+import { type ScheduledVaccine } from './ScheduledVaccine.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import type { User } from './User.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class AdministeredVaccine extends Model {
   declare id: string;

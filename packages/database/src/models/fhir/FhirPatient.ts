@@ -2,15 +2,15 @@ import { DataTypes, type InitOptions } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirReference } from '@tamanu/shared/services/fhirTypes';
-import { FhirResource } from './Resource';
-import type { Models } from '../../types/model';
+import { FhirResource } from './Resource.ts';
+import type { Models } from '../../types/model.ts';
 import {
   fromPatients,
   getQueryOptions,
   getValues,
   searchParameters,
-} from '../../utils/fhir/Patient';
-import { Patient } from '../Patient';
+} from '../../utils/fhir/Patient/index.ts';
+import { type Patient } from '../Patient.ts';
 
 export class FhirPatient extends FhirResource {
   declare extension?: Record<string, any>;

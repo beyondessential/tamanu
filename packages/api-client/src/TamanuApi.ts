@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { decodeJwt } from 'jose/jwt/decode';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DeviceScope } from '@tamanu/constants';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, type DeviceScope } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -11,8 +11,8 @@ import {
   RemoteIncompatibleError,
   RemoteCallError,
 } from '@tamanu/errors';
-import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
-import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
+import { type BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch.ts';
+import { fetchWithRetryBackoff, type RetryBackoffOptions } from './fetchWithRetryBackoff.ts';
 import {
   InterceptorManager,
   type Interceptor,
@@ -20,8 +20,8 @@ import {
   type RequestInterceptorRejected,
   type ResponseInterceptorFulfilled,
   type ResponseInterceptorRejected,
-} from './InterceptorManager';
-import { getVersionIncompatibleMessage } from './getVersionIncompatibleMessage';
+} from './InterceptorManager.ts';
+import { getVersionIncompatibleMessage } from './getVersionIncompatibleMessage.js';
 
 interface Logger {
   debug: (message: string, data?: any) => void;

@@ -5,8 +5,8 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class Survey extends Model {
   declare id: string;

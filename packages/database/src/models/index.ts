@@ -1,165 +1,165 @@
-export * from './User';
-export * from './UserRecentlyViewedPatient';
-export * from './UserPreference';
-export * from './UserLoginAttempt';
-export * from './LocalSystemFact';
-export * from './PortalUser';
-export * from './Device';
+export * from './User.ts';
+export * from './UserRecentlyViewedPatient.ts';
+export * from './UserPreference.ts';
+export * from './UserLoginAttempt.ts';
+export * from './LocalSystemFact.ts';
+export * from './PortalUser.ts';
+export * from './Device.ts';
 
-export * from './AiChatSession';
-export * from './FormBuilderChatJob';
+export * from './AiChatSession.ts';
+export * from './FormBuilderChatJob.ts';
 
-export * from './Patient';
-export * from './PatientFamilyHistory';
-export * from './PatientCondition';
-export * from './PatientAllergy';
-export * from './PatientIssue';
-export * from './PatientAdditionalData';
-export * from './PatientVRSData';
-export * from './PatientSecondaryId';
-export * from './PatientFacility';
-export * from './PatientContact';
+export * from './Patient.ts';
+export * from './PatientFamilyHistory.ts';
+export * from './PatientCondition.ts';
+export * from './PatientAllergy.ts';
+export * from './PatientIssue.ts';
+export * from './PatientAdditionalData.ts';
+export * from './PatientVRSData.ts';
+export * from './PatientSecondaryId.ts';
+export * from './PatientFacility.ts';
+export * from './PatientContact.ts';
 
-export * from './PatientFieldDefinitionCategory';
-export * from './PatientFieldDefinition';
-export * from './PatientFieldValue';
-export * from './PatientInvoiceInsurancePlan';
+export * from './PatientFieldDefinitionCategory.ts';
+export * from './PatientFieldDefinition.ts';
+export * from './PatientFieldValue.ts';
+export * from './PatientInvoiceInsurancePlan.ts';
 
-export * from './PatientDeathData';
-export * from './PatientBirthData';
-export * from './ContributingDeathCause';
-export * from './DeathRevertLog';
+export * from './PatientDeathData.ts';
+export * from './PatientBirthData.ts';
+export * from './ContributingDeathCause.ts';
+export * from './DeathRevertLog.ts';
 
-export * from './Encounter';
-export * from './EncounterHistory';
+export * from './Encounter.ts';
+export * from './EncounterHistory.ts';
 
-export * from './Discharge';
-export * from './Triage';
+export * from './Discharge.ts';
+export * from './Triage.ts';
 
-export * from './ReferenceData';
-export * from './ReferenceDataRelation';
+export * from './ReferenceData.ts';
+export * from './ReferenceDataRelation.ts';
 
-export * from './VitalLog';
-export * from './Vitals';
-export * from './Procedure';
-export * from './ProcedureAssistantClinician';
-export * from './ProcedureSurveyResponse';
+export * from './VitalLog.ts';
+export * from './Vitals.ts';
+export * from './Procedure/index.ts';
+export * from './ProcedureAssistantClinician.ts';
+export * from './ProcedureSurveyResponse.ts';
 
-export * from './EncounterDiagnosis';
-export * from './Prescription';
-export * from './PatientOngoingPrescription';
-export * from './EncounterPrescription';
-export * from './EncounterPausePrescription';
-export * from './EncounterPausePrescriptionHistory';
+export * from './EncounterDiagnosis.ts';
+export * from './Prescription.ts';
+export * from './PatientOngoingPrescription.ts';
+export * from './EncounterPrescription.ts';
+export * from './EncounterPausePrescription.ts';
+export * from './EncounterPausePrescriptionHistory.ts';
 
-export * from './EncounterDiet';
-export * from './LabRequest';
-export * from './LabRequestAttachment';
-export * from './LabTest';
-export * from './LabRequestLog';
-export * from './LabTestType';
-export * from './LabTestPanel';
-export * from './LabTestPanelRequest';
-export * from './LabTestPanelLabTestTypes';
-export * from './ImagingRequest';
-export * from './ImagingRequestArea';
-export * from './ImagingAreaExternalCode';
-export * from './ImagingTypeExternalCode';
-export * from './ImagingResult';
+export * from './EncounterDiet.ts';
+export * from './LabRequest/index.ts';
+export * from './LabRequestAttachment.ts';
+export * from './LabTest/index.ts';
+export * from './LabRequestLog.ts';
+export * from './LabTestType.ts';
+export * from './LabTestPanel.ts';
+export * from './LabTestPanelRequest.ts';
+export * from './LabTestPanelLabTestTypes.ts';
+export * from './ImagingRequest/index.ts';
+export * from './ImagingRequestArea/index.ts';
+export * from './ImagingAreaExternalCode.ts';
+export * from './ImagingTypeExternalCode.ts';
+export * from './ImagingResult.ts';
 
-export * from './Program';
-export * from './ProgramRegistry';
-export * from './ProgramRegistryClinicalStatus';
-export * from './ProgramRegistryCondition';
-export * from './ProgramRegistryConditionCategory';
-export * from './PatientProgramRegistration';
-export * from './PatientProgramRegistrationCondition';
-export * from './Survey';
-export * from './SurveyScreenComponent';
-export * from './ProgramDataElement';
-export * from './SurveyResponse';
-export * from './SurveyResponseAnswer';
-export * from './PortalSurveyAssignment';
+export * from './Program.ts';
+export * from './ProgramRegistry.ts';
+export * from './ProgramRegistryClinicalStatus.ts';
+export * from './ProgramRegistryCondition.ts';
+export * from './ProgramRegistryConditionCategory.ts';
+export * from './PatientProgramRegistration.ts';
+export * from './PatientProgramRegistrationCondition.ts';
+export * from './Survey.ts';
+export * from './SurveyScreenComponent.ts';
+export * from './ProgramDataElement.ts';
+export * from './SurveyResponse.ts';
+export * from './SurveyResponseAnswer.ts';
+export * from './PortalSurveyAssignment.ts';
 
-export * from './Referral';
-export * from './CertifiableVaccine';
-export * from './ScheduledVaccine';
-export * from './AdministeredVaccine';
+export * from './Referral.ts';
+export * from './CertifiableVaccine.ts';
+export * from './ScheduledVaccine.ts';
+export * from './AdministeredVaccine.ts';
 
-export * from './ReportRequest';
-export * from './ReportDefinition';
-export * from './ReportDefinitionVersion';
-export * from './PatientCarePlan';
+export * from './ReportRequest.ts';
+export * from './ReportDefinition.ts';
+export * from './ReportDefinitionVersion.ts';
+export * from './PatientCarePlan.ts';
 
-export * from './Setting';
-export * from './PatientCommunication';
+export * from './Setting.ts';
+export * from './PatientCommunication.ts';
 
-export * from './Facility';
-export * from './Department';
-export * from './Location';
-export * from './LocationGroup';
-export * from './UserFacility';
-export * from './ProcedureTypeSurvey';
-export * from './Attachment';
-export * from './UserLocalisationCache';
-export * from './Asset';
-export * from './Appointment';
-export * from './AppointmentSchedule';
-export * from './AppointmentProcedureType';
-export * from './DocumentMetadata';
-export * from './Template';
+export * from './Facility.ts';
+export * from './Department.ts';
+export * from './Location.ts';
+export * from './LocationGroup.ts';
+export * from './UserFacility.ts';
+export * from './ProcedureTypeSurvey.ts';
+export * from './Attachment.ts';
+export * from './UserLocalisationCache.ts';
+export * from './Asset.ts';
+export * from './Appointment.ts';
+export * from './AppointmentSchedule.ts';
+export * from './AppointmentProcedureType.ts';
+export * from './DocumentMetadata.ts';
+export * from './Template.ts';
 
-export * from './OneTimeLogin';
-export * from './PortalOneTimeToken';
-export * from './RefreshToken';
-export * from './Permission';
-export * from './Role';
+export * from './OneTimeLogin.ts';
+export * from './PortalOneTimeToken.ts';
+export * from './RefreshToken.ts';
+export * from './Permission.ts';
+export * from './Role.ts';
 
-export * from './Invoice';
+export * from './Invoice/index.ts';
 
-export * from './ReferenceDrug';
-export * from './ReferenceDrugFacility';
-export * from './MedicationAdministrationRecord';
-export * from './MedicationAdministrationRecordDose';
-export * from './ReferenceMedicationTemplate';
+export * from './ReferenceDrug.ts';
+export * from './ReferenceDrugFacility.ts';
+export * from './MedicationAdministrationRecord/index.ts';
+export * from './MedicationAdministrationRecordDose/index.ts';
+export * from './ReferenceMedicationTemplate.ts';
 
-export * from './PharmacyOrder';
-export * from './PharmacyOrderPrescription';
-export * from './MedicationDispense';
+export * from './PharmacyOrder.ts';
+export * from './PharmacyOrderPrescription/index.ts';
+export * from './MedicationDispense.ts';
 
-export * from './Notification';
+export * from './Notification.ts';
 
 
-export * from './CertificateNotification';
+export * from './CertificateNotification.ts';
 
-export * from './Note';
+export * from './Note.ts';
 
-export * from './SyncSession';
-export * from './SyncQueuedDevice';
+export * from './SyncSession.ts';
+export * from './SyncQueuedDevice.ts';
 
-export * from './fhir';
+export * from './fhir/index.ts';
 
-export * from './TranslatedString';
+export * from './TranslatedString.ts';
 
-export * from './IPSRequest';
+export * from './IPSRequest.ts';
 
-export * from './Task';
-export * from './TaskDesignation';
-export * from './TaskTemplate';
-export * from './TaskTemplateDesignation';
-export * from './UserDesignation';
-export * from './SyncLookup';
-export * from './DebugLog';
-export * from './SyncDeviceTick';
-export * from './SyncLookupTick';
+export * from './Task.ts';
+export * from './TaskDesignation.ts';
+export * from './TaskTemplate.ts';
+export * from './TaskTemplateDesignation.ts';
+export * from './UserDesignation.ts';
+export * from './SyncLookup.ts';
+export * from './DebugLog.ts';
+export * from './SyncDeviceTick.ts';
+export * from './SyncLookupTick.ts';
 
-export * from './AccessLog';
-export * from './ChangeLog';
-export * from './UserLeave';
+export * from './AccessLog.ts';
+export * from './ChangeLog.ts';
+export * from './UserLeave.ts';
 
-export * from './LocationAssignmentTemplate';
-export * from './LocationAssignment';
-export * from './DHIS2PushLog';
-export * from './MSupplyPushLog';
+export * from './LocationAssignmentTemplate.ts';
+export * from './LocationAssignment.ts';
+export * from './DHIS2PushLog.ts';
+export * from './MSupplyPushLog.ts';
 
-export * from './AiDocument';
+export * from './AiDocument.ts';

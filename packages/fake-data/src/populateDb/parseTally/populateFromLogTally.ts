@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
-import { times } from 'lodash';
-
-import { Models } from '@tamanu/database';
+import times from 'lodash/times.js';
+import { type Models } from '@tamanu/database';
 
 import {
   createAdministeredVaccine,
@@ -16,7 +15,7 @@ import {
   createSurveyResponse,
   createTask,
   generateImportData,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 
 // TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {

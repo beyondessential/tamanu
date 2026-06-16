@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // Rebuild sync_lookup for encounter_history after change_type column was changed

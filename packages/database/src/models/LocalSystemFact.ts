@@ -8,8 +8,8 @@ import {
   readKeyFile,
   getConfigKeyFilePath,
 } from '@tamanu/shared/utils/crypto';
-import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions } from '../types/model.ts';
 
 import type * as Facts from '@tamanu/constants/facts';
 export type FactName = (typeof Facts)[keyof typeof Facts];

@@ -1,4 +1,4 @@
-import { TamanuApi } from '@tamanu/api-client';
+import { type TamanuApi } from '@tamanu/api-client';
 
 const CACHEABLE_ENTITIES = new Set(['location', 'locationGroup', 'department', 'facility']);
 

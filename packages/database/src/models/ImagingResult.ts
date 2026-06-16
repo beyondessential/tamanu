@@ -4,13 +4,13 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class ImagingResult extends Model {
   declare id: string;

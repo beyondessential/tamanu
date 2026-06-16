@@ -1,6 +1,6 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateType, type InitOptions, type Models } from '../types/model.ts';
 
 export class UserLeave extends Model {
   declare id: string;
