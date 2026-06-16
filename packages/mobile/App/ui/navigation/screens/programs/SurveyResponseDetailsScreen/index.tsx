@@ -6,7 +6,7 @@ import { theme } from '../../../../styled/theme';
 
 import type { ISurveyScreenComponent } from '~/types';
 import { StackHeader } from '../../../../components/StackHeader';
-import { formatPlainTime, formatStringDate } from '../../../../helpers/date';
+import { formatPlainTime, formatStringDateForDisplay } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
@@ -16,6 +16,7 @@ import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
 
@@ -39,6 +40,7 @@ const SurveyLinkAnswer = ({ answer }): ReactElement => {
 
 const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { locale } = useDateFormatter();
   const parsedConfig = JSON.parse(config);
   const [record, error] = useBackendEffect(
     ({ models }) => models[parsedConfig.source].getRepository().findOne({ where: { id: answer } }),
@@ -56,6 +58,7 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
     record: record,
     getReferenceDataTranslation,
     getEnumTranslation,
+    locale,
   });
 
   return (
@@ -65,7 +68,7 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   );
 };
 
-function getAnswerText(type, answer): string | number {
+function getAnswerText(type, answer, locale?: string): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
   switch (type) {
@@ -86,9 +89,9 @@ function getAnswerText(type, answer): string | number {
       return answer.toLowerCase() === 'yes' ? 'Yes' : 'No';
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
-      return formatStringDate(answer, DateFormats.DDMMYY);
+      return formatStringDateForDisplay(answer, DateFormats.DDMMYY, locale);
     case FieldTypes.DATE_TIME:
-      return formatStringDate(answer, DateFormats.DDMMYY_HHMMSS);
+      return formatStringDateForDisplay(answer, DateFormats.DDMMYY_HHMMSS, locale);
     case FieldTypes.TIME:
       return formatPlainTime(answer);
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
@@ -102,6 +105,15 @@ function getAnswerText(type, answer): string | number {
       return `?? ${type}`;
   }
 }
+
+const TextAnswer = ({ type, answer }): ReactElement => {
+  const { locale } = useDateFormatter();
+  return (
+    <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
+      {getAnswerText(type, answer, locale)}
+    </StyledText>
+  );
+};
 
 export const renderAnswer = ({ type, config, answer }): ReactElement => {
   if (!answer) return answer;
@@ -120,11 +132,7 @@ export const renderAnswer = ({ type, config, answer }): ReactElement => {
     case FieldTypes.SURVEY_LINK:
       return <SurveyLinkAnswer answer={answer} />;
     default:
-      return (
-        <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-          {getAnswerText(type, answer)}
-        </StyledText>
-      );
+      return <TextAnswer type={type} answer={answer} />;
   }
 };
 

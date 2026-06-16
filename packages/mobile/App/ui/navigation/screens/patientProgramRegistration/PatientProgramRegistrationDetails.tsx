@@ -9,8 +9,8 @@ import {
 import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
-import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -144,6 +144,7 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
 };
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
+  const { formatStringDate } = useDateFormatter();
   const { patientProgramRegistration } = route.params;
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>

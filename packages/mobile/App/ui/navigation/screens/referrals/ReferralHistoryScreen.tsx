@@ -4,7 +4,6 @@ import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
 import { subject } from '@casl/ability';
 
-import { formatStringDate } from '../../../helpers/date';
 import { DateFormats } from '../../../helpers/constants';
 import { useBackendEffect } from '../../../hooks';
 import { ErrorScreen } from '../../../components/ErrorScreen';
@@ -12,6 +11,7 @@ import { StyledScrollView, StyledText } from '../../../styled/common';
 import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../../store/ducks/patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { renderAnswer } from '../programs/SurveyResponseDetailsScreen';
 
 export const ReferralHistoryScreen = (): ReactElement => {
@@ -20,6 +20,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
   );
   const isFocused = useIsFocused();
   const { ability } = useAuth();
+  const { formatStringDate } = useDateFormatter();
 
   const [referrals, error] = useBackendEffect(
     async ({ models }) => {

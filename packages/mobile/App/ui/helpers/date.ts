@@ -83,6 +83,69 @@ export function formatPlainTime<T extends `${number}:${number}:${number}`>(
   return time;
 }
 
+// Intl option bags corresponding to the DateFormats display constants
+// (ui/helpers/constants.ts), keyed by their date-fns format strings. Option
+// bags match @tamanu/utils/dateFormatters where the formats coincide.
+const INTL_OPTIONS_BY_FORMAT: Record<string, Intl.DateTimeFormatOptions> = {
+  // DateFormats.short
+  'EEE, dd MMM': { weekday: 'short', day: '2-digit', month: 'short' },
+  // DateFormats.DAY_MONTH_YEAR_SHORT
+  'dd MMM yyyy': { day: '2-digit', month: 'short', year: 'numeric' },
+  // DateFormats.DAY_MONTH
+  'dd MMM': { day: '2-digit', month: 'short' },
+  // DateFormats.DDMMYY
+  'dd/MM/yyyy': { day: '2-digit', month: '2-digit', year: 'numeric' },
+  // DateFormats.SHORT_MONTH
+  MMM: { month: 'short' },
+  // DateFormats.TIME_HHMMSS
+  pp: { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true },
+  // DateFormats.TIME
+  p: { hour: 'numeric', minute: '2-digit', hour12: true },
+};
+
+// Combined date+time formats render as `${date} ${time}` rather than a single
+// Intl format, which would insert a locale-specific separator (e.g. a comma)
+// — matching how @tamanu/utils' formatShortDateTime composes its parts.
+const COMBINED_FORMATS: Record<string, [string, string]> = {
+  // DateFormats.DDMMYY_HHMMSS
+  'dd/MM/yyyy pp': ['dd/MM/yyyy', 'pp'],
+  // DateFormats.DATE_AND_TIME_HHMMSS
+  'dd MMM yyyy pp': ['dd MMM yyyy', 'pp'],
+  // DateFormats.DATE_AND_TIME_HHMM
+  'dd MMM yyyy p': ['dd MMM yyyy', 'p'],
+};
+
+/**
+ * Locale-aware display formatting: DateFormats constants are rendered with
+ * Intl in the given locale (dateTimeLocale setting ?? device locale when
+ * undefined); any other format string falls back to plain date-fns, so
+ * storage formats (ISO 9075) can never become locale-dependent. Prefer
+ * useDateFormatter() in components, which binds the effective locale.
+ */
+export function formatDateForDisplay(date: Date, dateFormat: string, locale?: string): string {
+  const combined = COMBINED_FORMATS[dateFormat];
+  if (combined) {
+    const [datePart, timePart] = combined;
+    return `${formatDateForDisplay(date, datePart, locale)} ${formatDateForDisplay(date, timePart, locale)}`;
+  }
+  const intlOptions = INTL_OPTIONS_BY_FORMAT[dateFormat];
+  if (!intlOptions) {
+    return format(date, dateFormat);
+  }
+  return new Intl.DateTimeFormat(locale, intlOptions).format(date);
+}
+
+export function formatStringDateForDisplay(
+  date: string,
+  dateFormat: string,
+  locale?: string,
+): string {
+  if (!date) {
+    return '';
+  }
+  return formatDateForDisplay(parseISO(date), dateFormat, locale);
+}
+
 export function getAgeFromDate(date: string): number {
   return differenceInYears(new Date(), parseISO(date));
 }

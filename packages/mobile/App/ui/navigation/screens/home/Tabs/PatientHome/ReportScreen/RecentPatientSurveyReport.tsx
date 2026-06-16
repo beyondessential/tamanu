@@ -1,4 +1,4 @@
-import { differenceInYears, format, parseISO } from 'date-fns';
+import { differenceInYears, parseISO } from 'date-fns';
 import React, { FC } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
@@ -17,12 +17,14 @@ import {
 import { DateFormats } from '/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 interface IOwnProps {
   selectedSurveyId: string;
 }
 
 export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) => {
+  const { formatDate } = useDateFormatter();
   const { getSetting } = useSettings();
   const hideOtherSex = getSetting<boolean>('features.hideOtherSex') === true;
   const [recentVisitorsData] = useBackendEffect(
@@ -31,7 +33,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
   );
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
-  const todayFormatted = format(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
+  const todayFormatted = formatDate(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
 
   const [referralsData] = useBackendEffect(({ models }) => models.Patient.getReferralList(), []);
 
