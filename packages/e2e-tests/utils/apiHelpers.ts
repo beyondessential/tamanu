@@ -24,6 +24,47 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+// Stable reference-data id for the "Other" note type (seeded by migration on every server).
+const ENCOUNTER_NOTE_TYPE_ID = 'notetype-other';
+
+// Bulk-creates plain encounter notes via the API. Used to exercise the chunked PDF pipeline,
+// where the encounter record is rendered in slices once the note count grows large. Requests run
+// with bounded concurrency so seeding thousands of notes stays reasonably quick without
+// hammering the server.
+export const createEncounterNotes = async (
+  api: APIRequestContext,
+  encounterId: string,
+  authorId: string,
+  count: number,
+  concurrency = 20,
+): Promise<void> => {
+  const notesUrl = constructFacilityUrl('/api/notes');
+  const date = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+  let nextIndex = 0;
+  const createNotesFromQueue = async (): Promise<void> => {
+    for (let i = nextIndex++; i < count; i = nextIndex++) {
+      const response = await api.post(notesUrl, {
+        data: {
+          recordId: encounterId,
+          recordType: 'Encounter',
+          noteTypeId: ENCOUNTER_NOTE_TYPE_ID,
+          authorId,
+          date,
+          content: `Load-test note ${i + 1}`,
+        },
+      });
+      if (!response.ok()) {
+        throw new Error(
+          `Failed to create note ${i + 1}: ${response.status()} ${await response.text()}`,
+        );
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, count) }, createNotesFromQueue));
+};
+
 export const createPatient = async (
   api: APIRequestContext,
   page: Page,
