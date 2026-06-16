@@ -30,7 +30,13 @@ export const useTextStyles = styles => {
   return makeIntlStyleSheet(mergedStyle);
 };
 
-export const MultiPageHeader = ({ documentName, documentSubname, patientName, patientId }) => {
+export const MultiPageHeader = ({
+  documentName,
+  documentSubname,
+  patientName,
+  patientId,
+  alwaysShow = false,
+}) => {
   const { getTranslation } = useLanguageContext();
   const valueStyles = useTextStyles(styles.valueText);
   const labelStyles = useTextStyles(styles.labelText);
@@ -59,7 +65,10 @@ export const MultiPageHeader = ({ documentName, documentSubname, patientName, pa
   return (
     <View
       style={styles.header}
-      render={({ pageNumber }) => pageNumber > 1 && <HeaderContent />}
+      // The running header is normally suppressed on the first page (which carries the
+      // letterhead). Continuation documents that are merged in after the first chunk have no
+      // letterhead, so alwaysShow forces the header onto their first page too.
+      render={({ pageNumber }) => (alwaysShow || pageNumber > 1) && <HeaderContent />}
       fixed
     />
   );
