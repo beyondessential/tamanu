@@ -2,13 +2,13 @@ import { DataTypes, type CreateOptions } from 'sequelize';
 import { SYNC_DIRECTIONS, NOTIFICATION_TYPES, NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 import {
   buildPatientSyncFilterViaPatientId,
   buildSyncLookupSelect,
   ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
-} from '../sync';
+} from '../sync/index.ts';
 
 const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
 const NOTIFICATION_STATUS_VALUES = Object.values(NOTIFICATION_STATUSES);

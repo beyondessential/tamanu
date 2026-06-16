@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 import { CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {

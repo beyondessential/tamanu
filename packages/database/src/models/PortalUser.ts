@@ -1,8 +1,8 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
-import type { InitOptions, Models } from '../types/model';
-import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model.ts';
+import { Model } from './Model.ts';
 
 export class PortalUser extends Model {
   declare id: string;

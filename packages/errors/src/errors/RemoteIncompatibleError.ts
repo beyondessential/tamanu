@@ -1,5 +1,5 @@
-import { ERROR_TYPE } from '../constants';
-import { BaseRemoteError } from './RemoteError';
+import { ERROR_TYPE } from '../constants.ts';
+import { BaseRemoteError } from './RemoteError.ts';
 
 export class RemoteIncompatibleError extends BaseRemoteError {
   constructor(detail?: string) {

@@ -2,11 +2,11 @@ import { DataTypes } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { Encounter } from './Encounter';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import type { Encounter } from './Encounter.ts';
 
 export class EncounterHistory extends Model {
   declare id: string;

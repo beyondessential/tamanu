@@ -1,14 +1,14 @@
 import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
-import type { InitOptions, Models } from '../../types/model';
+import { FhirResource } from './Resource.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 import {
   fromFacilities,
   getQueryOptions,
   getValues,
   searchParameters,
-} from '../../utils/fhir/Organization';
+} from '../../utils/fhir/Organization/index.ts';
 
 export class FhirOrganization extends FhirResource {
   declare identifier?: Record<string, any>;

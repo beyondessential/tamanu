@@ -6,14 +6,14 @@ import {
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import {
   buildNoteLinkedJoins,
   buildNoteLinkedSyncFilter,
   getPatientIdColumnOfNotes,
-} from '../sync/buildNoteLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildNoteLinkedSyncFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class Note extends Model {
   declare id: string;

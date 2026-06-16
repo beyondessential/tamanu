@@ -5,8 +5,8 @@ import {
   PORTAL_ONE_TIME_TOKEN_TYPES,
   PORTAL_ONE_TIME_TOKEN_TYPE_VALUES,
 } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class PortalOneTimeToken extends Model {
   declare id: string;

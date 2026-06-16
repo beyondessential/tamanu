@@ -7,11 +7,11 @@ import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SYSTEM_USER_UUID } from '@tamanu/con
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
-import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
-import * as models from '../models';
-import { createDateTypes } from './createDateTypes';
-import { setupQuote } from '../utils/pgComposite';
-import { getAuditUserId } from '../utils';
+import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations/index.js';
+import * as models from '../models/index.ts';
+import { createDateTypes } from './createDateTypes.js';
+import { setupQuote } from '../utils/pgComposite/index.js';
+import { getAuditUserId } from '../utils/index.ts';
 
 createDateTypes();
 

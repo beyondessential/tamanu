@@ -1,8 +1,8 @@
 import { Op, DataTypes, Sequelize } from 'sequelize';
 import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class PatientProgramRegistration extends Model {
   declare id: string;

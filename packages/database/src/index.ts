@@ -1,9 +1,9 @@
-export * from './models';
-export * from './utils';
-export * from './sync';
+export * from './models/index.ts';
+export * from './utils/index.ts';
+export * from './sync/index.ts';
 
 export type Models = typeof import('./models');
-import * as sequelize from 'sequelize';
+import type * as sequelize from 'sequelize';
 export interface Sequelize extends sequelize.Sequelize {
   models: Models;
   isInsideTransaction(): boolean;

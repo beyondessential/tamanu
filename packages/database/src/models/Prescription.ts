@@ -7,10 +7,10 @@ import {
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { EncounterPrescription } from './EncounterPrescription';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { EncounterPrescription } from './EncounterPrescription.ts';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class Prescription extends Model {
   declare id: string;

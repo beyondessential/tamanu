@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 // Migration 1 of 3: Add columns only (DDL)
 // Data backfill is in a separate migration to avoid "pending trigger events" error

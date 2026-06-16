@@ -1,8 +1,8 @@
 import { DataTypes, Utils } from 'sequelize';
 
-export * from './pgType';
-export * from './sequelizeType';
-export * from './stringifier';
+export * from './pgType.js';
+export * from './sequelizeType.js';
+export * from './stringifier.js';
 
 /**
  * Register a new type with sequelize.

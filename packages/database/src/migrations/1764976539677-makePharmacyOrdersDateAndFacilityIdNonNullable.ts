@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 // Migration 3 of 3: Make columns non-nullable (DDL)
 // Separated from data backfill to avoid "pending trigger events" error

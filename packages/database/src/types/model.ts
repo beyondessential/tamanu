@@ -1,8 +1,8 @@
 import { DataTypes, type InitOptions as BaseInitOptions, type Model as BaseModel } from 'sequelize';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-import * as models from '../models';
-import type { Model } from '../models/Model';
-import type { SyncDirectionValues } from './sync';
+import type * as models from '../models/index.ts';
+import type { Model } from '../models/Model.ts';
+import type { SyncDirectionValues } from './sync.ts';
 
 type PrimaryKey = {
   type: typeof DataTypes.STRING;

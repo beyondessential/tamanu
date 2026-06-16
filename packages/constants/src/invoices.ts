@@ -1,6 +1,6 @@
-import { ENCOUNTER_TYPES, EncounterType } from './encounters';
-import { IMAGING_AREA_TYPES } from './imaging';
-import { REFERENCE_TYPES } from './importable';
+import { ENCOUNTER_TYPES, type EncounterType } from './encounters.ts';
+import { IMAGING_AREA_TYPES } from './imaging.ts';
+import { REFERENCE_TYPES } from './importable.ts';
 
 export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',

@@ -1,4 +1,4 @@
-import { type ErrorType, WELL_KNOWN_PROBLEM_KEYS } from './constants';
+import { type ErrorType, WELL_KNOWN_PROBLEM_KEYS } from './constants.ts';
 
 export class BaseError extends Error {
   readonly name: string;

@@ -4,7 +4,7 @@ import {
   DEFAULT_PATIENT_DISPLAY_ID_PATTERN,
 } from '@tamanu/constants';
 
-import { extractDefaults } from './utils';
+import { extractDefaults } from './utils.ts';
 import {
   emailSchema,
   letterheadProperties,
@@ -14,7 +14,7 @@ import {
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
-} from './definitions';
+} from './definitions/index.ts';
 
 export const facilitySettings = {
   name: 'Facility server settings',

@@ -1,10 +1,10 @@
 import { DataTypes } from 'sequelize';
 
 import { SYNC_DIRECTIONS, PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import { Model } from './Model.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter.ts';
 
 export class PortalSurveyAssignment extends Model {
   declare id: string;

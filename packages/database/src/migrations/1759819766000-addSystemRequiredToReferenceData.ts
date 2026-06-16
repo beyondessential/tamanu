@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface) {
   await query.addColumn('reference_data', 'system_required', {

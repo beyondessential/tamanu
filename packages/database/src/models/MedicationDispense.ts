@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   buildEncounterPatientIdSelect,
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from '../sync';
+} from '../sync/index.ts';
 
 export class MedicationDispense extends Model {
   declare id: string;

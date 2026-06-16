@@ -1,2 +1,2 @@
-export * from './utils';
-export * from './extensions';
+export * from './utils.ts';
+export * from './extensions.ts';

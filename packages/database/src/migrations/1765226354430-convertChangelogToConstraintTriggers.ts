@@ -1,4 +1,4 @@
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 
 /**
  * Retrieves all tables with changelog triggers that are not constraint triggers

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { snakeCase } from 'lodash';
+import snakeCase from 'lodash/snakeCase.js';
 import { DataTypes, Sequelize, Utils, type InitOptions, type ModelAttributes } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
@@ -11,8 +11,8 @@ import {
 } from '@tamanu/constants';
 import type { Ability } from '@casl/ability';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
-import { objectAsFhir } from '../../utils/fhir/utils';
-import { Model } from '../Model';
+import { objectAsFhir } from '../../utils/fhir/utils.ts';
+import { Model } from '../Model.ts';
 import type { FhirTransactionBundle } from '@tamanu/shared/services/fhirTypes/bundle';
 
 export class FhirResource extends Model {

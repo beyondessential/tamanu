@@ -2,7 +2,7 @@ import config from 'config';
 import semver from 'semver';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import type { Models } from '../types/model';
+import type { Models } from '../types/model.ts';
 
 export type SyncDatabaseServerVersionOptions = {
   models: Models;

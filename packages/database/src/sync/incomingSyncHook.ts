@@ -1,14 +1,14 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 
-import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
-import { SYNC_SESSION_DIRECTION } from './constants';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords.ts';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords.ts';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
 
-import type { Models } from '../types/model';
-import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable';
-import { readOnlyTransaction } from './transactions';
+import type { Models } from '../types/model.ts';
+import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable.ts';
+import { readOnlyTransaction } from './transactions.ts';
 import type { SyncHookSnapshotChanges } from 'types/sync';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;

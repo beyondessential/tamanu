@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 
 const TABLE = { tableName: 'medication_dispenses', schema: 'public' };
 const COLUMN = 'medication_preset_label_id';

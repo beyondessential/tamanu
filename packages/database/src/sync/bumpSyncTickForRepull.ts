@@ -1,10 +1,10 @@
-import { groupBy } from 'lodash';
-import { Sequelize } from 'sequelize';
+import groupBy from 'lodash/groupBy.js';
+import { type Sequelize } from 'sequelize';
 
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { findSyncSnapshotRecordsOrderByDependency } from './findSyncSnapshotRecords';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
+import { findSyncSnapshotRecordsOrderByDependency } from './findSyncSnapshotRecords.ts';
 
-import type { Models } from '../types/model';
+import type { Models } from '../types/model.ts';
 import type { SyncSnapshotAttributes } from 'types/sync';
 
 /**

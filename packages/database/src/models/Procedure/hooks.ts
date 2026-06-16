@@ -1,5 +1,5 @@
 import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
-import type { Procedure } from './Procedure';
+import type { Procedure } from './Procedure.ts';
 
 const addToInvoice = async (instance: Procedure) => {
   const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({

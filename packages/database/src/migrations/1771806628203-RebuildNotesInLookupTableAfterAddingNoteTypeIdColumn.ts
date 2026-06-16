@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // In a previous migration (1759894448776-migrateNoteTypesToReferenceData.ts) we added a note_type_id column to the notes table.

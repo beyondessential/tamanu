@@ -1,19 +1,19 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging/log';
 
-import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
-import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
-import type { Models } from '../types/model';
-import type { Model } from '../models/Model';
-import type { ModelSanitizeArgs, RecordType } from '../types/sync';
-import { extractChangelogFromSnapshotRecords } from '../utils/audit/extractChangelogFromSnapshotRecords';
-import { insertChangelogRecords } from '../utils/audit/insertChangelogRecords';
+import { sortInDependencyOrder } from '../utils/sortInDependencyOrder.ts';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords.ts';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords.ts';
+import { SYNC_SESSION_DIRECTION } from './constants.ts';
+import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges.ts';
+import type { Models } from '../types/model.ts';
+import type { Model } from '../models/Model.ts';
+import type { ModelSanitizeArgs, RecordType } from '../types/sync.ts';
+import { extractChangelogFromSnapshotRecords } from '../utils/audit/extractChangelogFromSnapshotRecords.ts';
+import { insertChangelogRecords } from '../utils/audit/insertChangelogRecords.ts';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 

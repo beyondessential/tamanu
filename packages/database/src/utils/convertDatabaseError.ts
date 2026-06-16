@@ -1,5 +1,5 @@
 import {
-  BaseError,
+  type BaseError,
   DatabaseConstraintError,
   DatabaseDuplicateError,
   DatabaseError,

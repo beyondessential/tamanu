@@ -1,6 +1,6 @@
 import type { Request } from 'express';
-import type { AccessLog, User } from '../models';
-import type { ModelProperties, Models } from './model';
+import type { AccessLog, User } from '../models/index.ts';
+import type { ModelProperties, Models } from './model.ts';
 import type { ReadSettings } from '@tamanu/settings';
 import type { CreateAccessLogParams } from 'utils/audit/initAuditActions';
 

@@ -1,4 +1,4 @@
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 
 // Migration 2 of 3: Backfill data (DML)
 // Separated from schema changes to avoid "pending trigger events" error

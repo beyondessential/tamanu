@@ -1,5 +1,5 @@
 import { type DestroyOptions, type UpdateOptions } from 'sequelize';
-import { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose';
+import { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose.ts';
 
 const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecordDose) => {
   const { models } = instance.sequelize;

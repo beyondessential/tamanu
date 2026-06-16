@@ -1,6 +1,6 @@
-import { Op, Sequelize, type DestroyOptions } from 'sequelize';
+import { Op, type Sequelize, type DestroyOptions } from 'sequelize';
 import { getDependentAssociations } from '@tamanu/shared/utils/getDependentAssociations';
-import type { Model } from '../models/Model';
+import type { Model } from '../models/Model.ts';
 
 async function getIds(options: DestroyOptions) {
   const ids = (options.where as Record<string, any>)?.id?.[Op.in];

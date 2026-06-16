@@ -1,4 +1,4 @@
-import type { Models } from '../../../types/model';
+import type { Models } from '../../../types/model.ts';
 
 export function fromAdministeredVaccines(models: Models, table: string, id: string) {
   const { AdministeredVaccine, Encounter, Patient, ReferenceData, ScheduledVaccine, User } = models;

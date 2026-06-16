@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { DRUG_STOCK_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
 
 export class ReferenceDrugFacility extends Model {
   declare id: string;

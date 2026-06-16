@@ -13,10 +13,10 @@ import {
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Deleted, Invalid } from '@tamanu/shared/utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { FhirResource } from './Resource';
-import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';
-import type { InitOptions, Models } from '../../types/model';
-import type { ImagingRequest } from '../../models/ImagingRequest';
+import { FhirResource } from './Resource.ts';
+import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
+import type { ImagingRequest } from '../../models/ImagingRequest/index.ts';
 
 export class FhirImagingStudy extends FhirResource {
   declare identifier?: { system: string; value: string }[];

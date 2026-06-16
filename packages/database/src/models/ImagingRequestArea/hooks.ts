@@ -1,7 +1,7 @@
 import { INVOICE_ITEMS_CATEGORIES, REFERENCE_TYPES } from '@tamanu/constants';
-import type { ImagingRequestArea } from './ImagingRequestArea';
+import type { ImagingRequestArea } from './ImagingRequestArea.ts';
 import type { ImagingRequest } from 'models/ImagingRequest';
-import { shouldAddImagingRequestToInvoice } from '../ImagingRequest/hooks';
+import { shouldAddImagingRequestToInvoice } from '../ImagingRequest/hooks.ts';
 
 const addItemAsAreaProduct = async (
   instance: ImagingRequestArea,

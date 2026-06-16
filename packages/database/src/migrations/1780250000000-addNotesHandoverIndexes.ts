@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 const HANDOVER_INDEX_NAME = 'idx_notes_handover';
 const REVISED_BY_INDEX_NAME = 'idx_notes_revised_by';

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 import { zocker } from 'zocker';
 import { faker } from '@faker-js/faker';
 

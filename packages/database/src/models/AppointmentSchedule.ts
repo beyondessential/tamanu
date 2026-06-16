@@ -1,4 +1,6 @@
-import { isMatch, isNumber, omit } from 'lodash';
+import isMatch from 'lodash/isMatch.js';
+import isNumber from 'lodash/isNumber.js';
+import omit from 'lodash/omit.js';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
 
@@ -15,13 +17,13 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import type { ReadSettings } from '@tamanu/settings/reader';
 
-import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { Appointment, AppointmentCreateData } from './Appointment';
-import { dateType } from './../types/model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
+import type { Appointment, AppointmentCreateData } from './Appointment.ts';
+import { dateType } from './../types/model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
-import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules';
+import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules.ts';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,

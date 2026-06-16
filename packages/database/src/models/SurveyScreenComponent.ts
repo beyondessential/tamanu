@@ -1,9 +1,9 @@
 import { Op, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { ProgramDataElement } from './ProgramDataElement';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { ProgramDataElement } from './ProgramDataElement.ts';
 
 export class SurveyScreenComponent extends Model {
   declare id: string;

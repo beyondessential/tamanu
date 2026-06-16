@@ -15,8 +15,8 @@ import {
   createMedication,
   createAccessLog,
   generateImportData,
-} from './helpers/index.js';
-import { resetRandomRecordCache } from './randomRecord.js';
+} from './helpers/index.ts';
+import { resetRandomRecordCache } from './randomRecord.ts';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   // Fresh id cache each round so random picks see rows added by earlier rounds.

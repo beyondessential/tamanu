@@ -1,15 +1,15 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
-import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
-import type { MedicationDispense } from '../MedicationDispense';
-import type { PharmacyOrder } from '../PharmacyOrder';
+import { Model } from '../Model.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
+import type { MedicationDispense } from '../MedicationDispense.ts';
+import type { PharmacyOrder } from '../PharmacyOrder.ts';
 import {
   buildEncounterPatientIdSelect,
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from '../../sync';
+} from '../../sync/index.ts';
 import {
   afterCreateHook,
   afterUpdateHook,
@@ -17,7 +17,7 @@ import {
   afterBulkCreateHook,
   afterBulkUpdateHook,
   afterBulkDestroyHook,
-} from './hooks';
+} from './hooks.ts';
 
 export class PharmacyOrderPrescription extends Model {
   declare id: string;

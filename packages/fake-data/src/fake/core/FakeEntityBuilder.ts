@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 
-import { createBaseZocker, SchemaGenerator } from './baseZocker.js';
-import { KeyList } from '../utils/types.js';
+import { createBaseZocker, type SchemaGenerator } from './baseZocker.ts';
+import { type KeyList } from '../utils/types.ts';
 
 export type BuildOptions<TSchema extends z.ZodType> = {
   overrides?: Partial<z.infer<TSchema>>;

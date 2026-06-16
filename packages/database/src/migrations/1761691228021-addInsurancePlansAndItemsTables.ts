@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 
 const INSURANCE_CONTRACTS = 'invoice_insurance_plans';
 const INSURANCE_CONTRACT_ITEMS = 'invoice_insurance_plan_items';

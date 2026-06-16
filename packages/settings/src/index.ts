@@ -1,4 +1,4 @@
-export { settingsCache } from './cache';
+export { settingsCache } from './cache/index.ts';
 export {
   centralSettings,
   globalSettings,
@@ -15,6 +15,6 @@ export {
   isSecretPath,
   getSettingAtPath,
   SECRET_PLACEHOLDER,
-} from './schema';
-export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
-export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';
+} from './schema/index.ts';
+export { ReadSettings, buildSettings, getKeysByFlag } from './reader/index.ts';
+export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test/index.ts';

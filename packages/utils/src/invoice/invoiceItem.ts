@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { getDiscountedPrice } from './discount';
-import type { InvoiceItem, InsurancePlanItem } from './types';
+import { getDiscountedPrice } from './discount.ts';
+import type { InvoiceItem, InsurancePlanItem } from './types.ts';
 
 /**
  * Get the unit price of an invoice item

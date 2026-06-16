@@ -20,9 +20,9 @@ import {
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
 import { Exception, formatFhirDate } from '@tamanu/shared/utils/fhir';
-import type { Models } from '../../../types/model';
-import type { Model } from '../../../models/Model';
-import type { ImagingRequest, LabRequest, Note } from '../../../models';
+import type { Models } from '../../../types/model.ts';
+import type { Model } from '../../../models/Model.ts';
+import type { ImagingRequest, LabRequest, Note } from '../../../models/index.ts';
 
 export async function getValues(upstream: Model, models: Models) {
   const { ImagingRequest, LabRequest } = models;

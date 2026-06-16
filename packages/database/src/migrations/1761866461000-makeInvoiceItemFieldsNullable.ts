@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, type Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface, _sequelize: typeof Sequelize) {
   await query.changeColumn('invoice_items', 'product_name', {

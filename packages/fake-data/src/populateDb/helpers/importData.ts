@@ -7,7 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { fake } from '../../fake/index.js';
+import { fake } from '../../fake/index.ts';
 
 import type {
   Department,

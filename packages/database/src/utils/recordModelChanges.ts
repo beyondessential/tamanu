@@ -1,4 +1,4 @@
-import { Model } from '../models/Model';
+import { type Model } from '../models/Model.ts';
 
 /**
  * Creates helper functions for recording model changes in update methods.

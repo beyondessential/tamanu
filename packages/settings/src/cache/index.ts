@@ -1,2 +1,2 @@
-export * from './settingsCache';
-export * from './dbNotifier';
+export * from './settingsCache.ts';
+export * from './dbNotifier.ts';

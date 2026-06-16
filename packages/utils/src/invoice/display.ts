@@ -1,13 +1,13 @@
 import { mapValues } from 'es-toolkit';
 import Decimal from 'decimal.js';
-import { getInvoiceSummary } from './invoice';
+import { getInvoiceSummary } from './invoice.ts';
 import {
   getItemTotalInsuranceCoverageAmount,
   getInvoiceItemTotalPrice,
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemNetCost,
-} from './invoiceItem';
-import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
+} from './invoiceItem.ts';
+import type { Invoice, InvoiceItem, InvoiceSummary } from './types.ts';
 
 export const round = (value: number | string | Decimal, decimals = 2): number => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();

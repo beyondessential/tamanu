@@ -11,17 +11,17 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
-import type { ImagingRequestArea } from '../ImagingRequestArea';
-import type { Encounter } from '../Encounter';
-import type { User } from '../User';
-import type { Note } from '../Note';
-import type { Location } from '../Location';
-import type { LocationGroup } from '../LocationGroup';
-import { afterCreateHook, afterUpdateHook } from './hooks';
+import { Model } from '../Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model.ts';
+import type { ImagingRequestArea } from '../ImagingRequestArea/index.ts';
+import type { Encounter } from '../Encounter.ts';
+import type { User } from '../User.ts';
+import type { Note } from '../Note.ts';
+import type { Location } from '../Location.ts';
+import type { LocationGroup } from '../LocationGroup.ts';
+import { afterCreateHook, afterUpdateHook } from './hooks.ts';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 

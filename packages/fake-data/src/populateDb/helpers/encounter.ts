@@ -1,10 +1,9 @@
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { Encounter } from '@tamanu/database';
-import { randomRecordId } from '../randomRecord.js';
-
-import { times } from 'lodash';
-import { fake, chance } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { randomRecordId } from '../randomRecord.ts';
+import times from 'lodash/times.js';
+import { fake, chance } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateEncounterParams extends CommonParams {
   patientId?: string;

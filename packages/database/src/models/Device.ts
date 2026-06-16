@@ -1,4 +1,4 @@
-import { difference } from 'lodash';
+import difference from 'lodash/difference.js';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
   DEVICE_SCOPES,
@@ -14,11 +14,11 @@ import {
   QuotaExceededError,
 } from '@tamanu/errors';
 import { stringToStableInteger } from '@tamanu/shared/utils';
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import type { ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';
-import type { User } from './User';
-import type { InitOptions, Models } from '../types/model';
+import type { User } from './User.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 const BASE_DEVICE_REGISTRATION_ADVISORY_KEY = 'deviceRegistrationAdvisoryLock';
 

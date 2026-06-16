@@ -1,4 +1,4 @@
-import { splitIds } from './utilities';
+import { splitIds } from './utilities.js';
 
 export const SPECIMEN_TYPES = splitIds(`
   Aspirate

@@ -1,11 +1,11 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
 import {
   buildEncounterLinkedLookupSelect,
   buildEncounterLinkedLookupJoins,
-} from '../sync/buildEncounterLinkedLookupFilter';
-import type { InitOptions, Models } from '../types/model';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class TaskDesignation extends Model {
   declare id: string;

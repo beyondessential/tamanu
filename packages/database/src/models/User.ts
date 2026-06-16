@@ -1,7 +1,7 @@
 import { createSecretKey, randomBytes } from 'node:crypto';
 import { compare, hash } from 'bcrypt';
 import * as jose from 'jose';
-import { unionBy } from 'lodash';
+import unionBy from 'lodash/unionBy.js';
 import { DataTypes, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import * as z from 'zod';
@@ -31,10 +31,10 @@ import type { ReadSettings } from '@tamanu/settings';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 
-import { Model } from './Model';
-import type { Facility } from './Facility';
-import type { Device } from './Device';
-import type { InitOptions, ModelProperties, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { Facility } from './Facility.ts';
+import type { Device } from './Device.ts';
+import type { InitOptions, ModelProperties, Models } from '../types/model.ts';
 import { isBcryptHash } from '@tamanu/utils/password';
 
 const DEFAULT_SALT_ROUNDS = 10;

@@ -1,10 +1,9 @@
-import { times } from 'lodash';
-
+import times from 'lodash/times.js';
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
-import { randomRecordId } from '../randomRecord.js';
+import { randomRecordId } from '../randomRecord.ts';
 
-import { fake, chance } from '../../fake/index.js';
-import type { CommonParams, ExtendedCommonParams } from './common.js';
+import { fake, chance } from '../../fake/index.ts';
+import type { CommonParams, ExtendedCommonParams } from './common.ts';
 
 interface CreateAppointmentParams extends CommonParams {
   locationGroupId?: string;

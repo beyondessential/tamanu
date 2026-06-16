@@ -1,5 +1,5 @@
-import { debounce } from 'lodash';
-import { settingsCache as defaultSettingsCache, SettingsCache } from './settingsCache';
+import debounce from 'lodash/debounce.js';
+import { settingsCache as defaultSettingsCache, type SettingsCache } from './settingsCache.ts';
 
 const SETTINGS_TABLE = 'settings';
 

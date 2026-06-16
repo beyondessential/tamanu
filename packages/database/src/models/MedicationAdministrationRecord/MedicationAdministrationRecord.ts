@@ -22,13 +22,13 @@ import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
 } from '@tamanu/shared/utils/medication';
-import { Model } from '../Model';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
-import type { Prescription } from '../Prescription';
+import { Model } from '../Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model.ts';
+import type { Prescription } from '../Prescription.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Task } from '../Task';
-import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
-import { afterCreateHook, afterUpdateHook } from './hooks';
+import { Task } from '../Task.ts';
+import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { afterCreateHook, afterUpdateHook } from './hooks.ts';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;

@@ -1,5 +1,5 @@
-import { BaseValidationError } from '../ValidationError';
-import { ERROR_TYPE } from '../../constants';
+import { BaseValidationError } from '../ValidationError.ts';
+import { ERROR_TYPE } from '../../constants.ts';
 
 export class InvalidOperationError extends BaseValidationError {
   constructor(detail?: string) {

@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { extractDefaults } from './utils';
+import { extractDefaults } from './utils.ts';
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
@@ -20,11 +20,11 @@ import {
   triageCategoriesSchema,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
-} from './definitions';
+} from './definitions/index.ts';
 import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
-} from './global-settings-properties/layouts';
+} from './global-settings-properties/layouts.ts';
 import {
   ADMINISTRATION_FREQUENCIES,
   BROWSER_SUPPORT_POLICIES,
@@ -35,9 +35,9 @@ import {
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
-} from './definitions/medicationFrequencySchema';
-import { patientSummaryProperties } from './definitions/patientSummary';
-import { encounterSummaryProperties } from './definitions/encounterSummary';
+} from './definitions/medicationFrequencySchema.ts';
+import { patientSummaryProperties } from './definitions/patientSummary.ts';
+import { encounterSummaryProperties } from './definitions/encounterSummary.ts';
 
 const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(

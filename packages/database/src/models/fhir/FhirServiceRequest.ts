@@ -6,8 +6,8 @@ import {
   SERVICE_REQUEST_CATEGORY_CODES,
   SERVICE_REQUEST_PERMISSION_NOUNS,
 } from '@tamanu/constants';
-import { FhirResource } from './Resource';
-import type { Models } from '../../types/model';
+import { FhirResource } from './Resource.ts';
+import type { Models } from '../../types/model.ts';
 import {
   fromImagingRequests,
   fromLabRequests,
@@ -16,7 +16,7 @@ import {
   getValues,
   searchParameters,
   shouldForceRematerialise,
-} from '../../utils/fhir/ServiceRequest';
+} from '../../utils/fhir/ServiceRequest/index.ts';
 
 function getAllowedCategories(ability: Ability): string[] {
   const categories: string[] = [];

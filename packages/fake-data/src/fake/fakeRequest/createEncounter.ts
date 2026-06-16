@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
-import { createFakeSchemaFactory } from '../utils/schemaFaker.js';
-import { keysFor } from '../utils/types.js';
+import { createFakeSchemaFactory } from '../utils/schemaFaker.ts';
+import { keysFor } from '../utils/types.ts';
 
 type Schema = z.infer<typeof createEncounterSchema>;
 

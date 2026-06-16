@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, type QueryInterface } from 'sequelize';
 import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {

@@ -1,1 +1,1 @@
-export * from './ImagingRequest';
+export * from './ImagingRequest.ts';

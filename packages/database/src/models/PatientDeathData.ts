@@ -1,10 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter.ts';
+import { dateType, type InitOptions, type Models } from '../types/model.ts';
 
 export class PatientDeathData extends Model {
   declare id: string;

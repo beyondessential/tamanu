@@ -1,9 +1,8 @@
 import { promises as fs } from 'fs';
-import { times } from 'lodash';
-
+import times from 'lodash/times.js';
 import { Models } from '@tamanu/database';
 
-import { resetRandomRecordCache } from '../randomRecord.js';
+import { resetRandomRecordCache } from '../randomRecord.ts';
 import {
   createAdministeredVaccine,
   createDbReport,
@@ -22,7 +21,7 @@ import {
   createTask,
   createTriage,
   generateImportData,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 const MODEL_TO_FUNCTION = {
   Appointment: { POST: createRepeatingAppointment },
   Encounter: { POST: createEncounter },

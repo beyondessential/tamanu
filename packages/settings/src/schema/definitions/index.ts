@@ -1,27 +1,27 @@
-export { datelessTimeStringSchema } from './bookingSlots';
-export { dhis2IdSchemeSchema } from './dhis2';
-export { vaccinationsSchema } from './vaccinations';
-export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat';
-export { durationStringSchema } from './durationStringSchema';
-export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields';
+export { datelessTimeStringSchema } from './bookingSlots.ts';
+export { dhis2IdSchemeSchema } from './dhis2.ts';
+export { vaccinationsSchema } from './vaccinations.ts';
+export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat.ts';
+export { durationStringSchema } from './durationStringSchema.ts';
+export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields.ts';
 export {
   imagingCancellationReasonsDefault,
   imagingCancellationReasonsSchema,
-} from './imagingCancellationReasons';
-export { imagingPrioritiesDefault, imagingPrioritiesSchema } from './imagingPriorities';
+} from './imagingCancellationReasons.ts';
+export { imagingPrioritiesDefault, imagingPrioritiesSchema } from './imagingPriorities.ts';
 export {
   labsCancellationReasonsSchema,
   labsCancellationReasonsDefault,
-} from './labsCancellationReasons';
-export { letterheadProperties } from './letterheadTemplate';
-export { formBuilderProperties } from './formBuilder';
+} from './labsCancellationReasons.ts';
+export { letterheadProperties } from './letterheadTemplate.ts';
+export { formBuilderProperties } from './formBuilder.ts';
 export {
   emailSchema,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
-} from './questionCodeIds';
-export { slidingFeeScaleDefault } from './slidingFeeScale';
-export { triageCategoriesDefault, triageCategoriesSchema } from './triageCategories';
-export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations';
-export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons';
+} from './questionCodeIds.ts';
+export { slidingFeeScaleDefault } from './slidingFeeScale.ts';
+export { triageCategoriesDefault, triageCategoriesSchema } from './triageCategories.ts';
+export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations.ts';
+export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons.ts';

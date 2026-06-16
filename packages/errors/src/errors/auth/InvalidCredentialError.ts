@@ -1,5 +1,5 @@
-import { BaseAuthenticationError } from '../AuthenticationError';
-import { ERROR_TYPE } from '../../constants';
+import { BaseAuthenticationError } from '../AuthenticationError.ts';
+import { ERROR_TYPE } from '../../constants.ts';
 
 export class InvalidCredentialError extends BaseAuthenticationError {
   constructor(detail?: string) {

@@ -1,13 +1,12 @@
 import { DataTypes, Op, type BelongsToGetAssociationMixin } from 'sequelize';
-import { omit } from 'lodash';
-
+import omit from 'lodash/omit.js';
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings';
 
-import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
+import { type AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 interface CreateWithScheduleParams {
   appointmentData: AppointmentCreateData;

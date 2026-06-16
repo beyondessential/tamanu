@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { type QueryInterface, DataTypes } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('appointment_procedure_types', {

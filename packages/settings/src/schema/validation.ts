@@ -1,11 +1,14 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { globalSettings } from './global';
-import { centralSettings } from './central';
-import { facilitySettings } from './facility';
+import { globalSettings } from './global.ts';
+import { centralSettings } from './central.ts';
+import { facilitySettings } from './facility.ts';
 import * as yup from 'yup';
-import _, { cloneDeep, isArray, mergeWith } from 'lodash';
-import { SettingsSchema } from '../types';
-import { extractDefaults, isSetting } from './utils';
+import cloneDeep from 'lodash/cloneDeep.js';
+import isArray from 'lodash/isArray.js';
+import mergeWith from 'lodash/mergeWith.js';
+import _ from 'lodash';
+import { type SettingsSchema } from '../types/index.ts';
+import { extractDefaults, isSetting } from './utils.ts';
 
 const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.GLOBAL]: globalSettings,

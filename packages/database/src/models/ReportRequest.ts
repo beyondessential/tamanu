@@ -6,8 +6,8 @@ import {
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 const REPORT_EXPORT_FORMAT_VALUES = Object.values(REPORT_EXPORT_FORMATS);
 

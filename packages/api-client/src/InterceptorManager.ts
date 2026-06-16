@@ -1,4 +1,4 @@
-import { forEach as _forEach } from 'lodash';
+import _forEach from 'lodash/forEach.js';
 
 export interface Interceptor<T, U> {
   fulfilled: (value: T) => T | Promise<T>;

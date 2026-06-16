@@ -1,10 +1,10 @@
 import { DataTypes, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
-import type { InitOptions, Models } from '../types/model';
-import type { Prescription } from './Prescription';
+import { Model } from './Model.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { Prescription } from './Prescription.ts';
 
 export class PatientOngoingPrescription extends Model {
   declare id: string;

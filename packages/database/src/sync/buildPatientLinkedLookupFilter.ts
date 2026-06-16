@@ -1,5 +1,5 @@
-import type { Model } from '../models/Model';
-import { buildSyncLookupSelect } from './buildSyncLookupSelect';
+import type { Model } from '../models/Model.ts';
+import { buildSyncLookupSelect } from './buildSyncLookupSelect.ts';
 
 export async function buildPatientLinkedLookupFilter(model: typeof Model) {
   return {

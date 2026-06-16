@@ -1,4 +1,4 @@
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes, type Sequelize } from 'sequelize';
 import config from 'config';
 import { NOTE_TYPES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';

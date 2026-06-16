@@ -1,10 +1,10 @@
 import { DataTypes, Op } from 'sequelize';
-import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
 import {
-  REPEAT_FREQUENCY,
+  type REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';

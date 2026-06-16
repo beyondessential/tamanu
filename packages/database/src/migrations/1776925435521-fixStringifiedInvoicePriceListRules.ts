@@ -1,4 +1,4 @@
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { type QueryInterface, QueryTypes } from 'sequelize';
 
 // Repairs rows where rules was JSON.stringify'd a second time by Sequelize's JSONB
 // serialiser (i.e. stored as a JSON string literal rather than a JSON object).

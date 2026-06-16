@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions } from '../types/model';
-import type { ModelSanitizeArgs } from '../types/sync';
+import { Model } from './Model.ts';
+import type { InitOptions } from '../types/model.ts';
+import type { ModelSanitizeArgs } from '../types/sync.ts';
 
 export class Attachment extends Model {
   declare id: string;

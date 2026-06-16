@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
-import type { InitOptions, ModelProperties, Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId.ts';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter.ts';
+import type { InitOptions, ModelProperties, Models } from '../types/model.ts';
 
 export class PatientAdditionalData extends Model {
   declare id: string;

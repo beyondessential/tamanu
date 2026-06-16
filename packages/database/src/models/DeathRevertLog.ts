@@ -3,8 +3,8 @@ import { DataTypes, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class DeathRevertLog extends Model {
   declare id: string;

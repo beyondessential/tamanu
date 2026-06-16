@@ -5,8 +5,8 @@ import {
   VISIBILITY_STATUS_VALUES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,

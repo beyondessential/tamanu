@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 
 const INVOICE_PRICE_LISTS = 'invoice_price_lists';
 const INVOICE_PRICE_LIST_ITEMS = 'invoice_price_list_items';

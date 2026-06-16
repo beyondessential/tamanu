@@ -1,6 +1,6 @@
 import { type Models } from '@tamanu/database';
 
-import { chance } from '../fake/index.js';
+import { chance } from '../fake/index.ts';
 
 // Per-round cache of record ids, keyed by model name.
 //

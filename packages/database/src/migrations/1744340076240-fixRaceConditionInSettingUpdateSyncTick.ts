@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 // copied from 1692710205000-allowDisablingSyncTrigger with the order of operations fixed to
 // first get the sync tick, then lock it, then use it

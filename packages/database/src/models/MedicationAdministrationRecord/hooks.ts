@@ -1,5 +1,5 @@
 import { ADMINISTRATION_FREQUENCIES, SYSTEM_USER_UUID } from '@tamanu/constants';
-import type { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
+import type { MedicationAdministrationRecord } from './MedicationAdministrationRecord.ts';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const createTaskAfterCreateHook = async (instance: MedicationAdministrationRecord) => {

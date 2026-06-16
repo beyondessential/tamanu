@@ -1,5 +1,6 @@
 import { randomInt } from 'crypto';
-import { isFunction, snakeCase } from 'lodash';
+import isFunction from 'lodash/isFunction.js';
+import snakeCase from 'lodash/snakeCase.js';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';

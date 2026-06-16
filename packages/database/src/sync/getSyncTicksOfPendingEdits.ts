@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 
 export const getSyncTicksOfPendingEdits = async (sequelize: Sequelize) => {
   // Get the keys (ie: syncTicks) of all the in-flight transaction locks of pending edits.

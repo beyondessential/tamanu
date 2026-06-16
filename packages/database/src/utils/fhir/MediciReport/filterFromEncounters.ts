@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import type { Models } from '../../../types/model';
+import type { Models } from '../../../types/model.ts';
 
 export function filterFromEncounters(models: Models, table: string) {
   const { Encounter } = models;

@@ -1,17 +1,18 @@
-import { escapeRegExp, kebabCase } from 'lodash';
+import escapeRegExp from 'lodash/escapeRegExp.js';
+import kebabCase from 'lodash/kebabCase.js';
 import { ValidationError as YupValidationError } from 'yup';
 import { $ZodError } from 'zod/v4/core';
 
-import { BaseError } from './BaseError';
-import { ValidationError } from './errors';
+import { BaseError } from './BaseError.ts';
+import { ValidationError } from './errors/index.ts';
 import {
   ERROR_TYPE,
-  ErrorType,
+  type ErrorType,
   IANA_TYPES,
   isKnownErrorType,
   WELL_KNOWN_PROBLEM_KEYS,
-} from './constants';
-import { splitUpStack } from './splitUpStack';
+} from './constants.ts';
+import { splitUpStack } from './splitUpStack.ts';
 
 const LINK = '/problems/';
 const IANA = 'https://iana.org/assignments/http-problem-types#';

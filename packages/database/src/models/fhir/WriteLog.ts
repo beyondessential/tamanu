@@ -1,9 +1,9 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import jp from 'jsonpath';
 import { HTTP_BODY_DATA_PATHS, SCRUBBED_DATA_MESSAGE, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
-import type { ExpressRequest } from '../../types/express';
+import { Model } from '../Model.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
+import type { ExpressRequest } from '../../types/express.ts';
 
 export class FhirWriteLog extends Model {
   declare id: string;

@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
+import { Model } from './Model.ts';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { dateType, type InitOptions, type Models } from '../types/model.ts';
 
 export class Template extends Model {
   declare id: string;

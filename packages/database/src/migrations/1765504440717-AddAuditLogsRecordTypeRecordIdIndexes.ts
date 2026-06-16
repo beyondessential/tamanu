@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 import config from 'config';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 

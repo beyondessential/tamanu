@@ -1,12 +1,12 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import type { InitOptions, Models } from '../../types/model';
+import { Model } from '../Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../../sync/buildEncounterLinkedLookupFilter';
-import { afterCreateHook, afterUpdateHook } from './hooks';
+} from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { afterCreateHook, afterUpdateHook } from './hooks.ts';
 import type { ReferenceData } from 'models/ReferenceData';
 
 export class ImagingRequestArea extends Model {

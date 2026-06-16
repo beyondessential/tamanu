@@ -1,5 +1,5 @@
 import { mixed, object } from 'yup';
-import { enumerate, parse } from './parse';
+import { enumerate, parse } from './parse.js';
 
 export class Composite {
   static SCHEMA() {

@@ -1,7 +1,7 @@
 import { VERSION_MINIMUM_PROBLEM_KEY, VERSION_MAXIMUM_PROBLEM_KEY } from '@tamanu/constants';
-import { BaseError } from './BaseError';
-import { ERROR_TYPE, type ErrorType } from './constants';
-import { Problem } from './Problem';
+import { BaseError } from './BaseError.ts';
+import { ERROR_TYPE, type ErrorType } from './constants.ts';
+import { Problem } from './Problem.ts';
 import {
   BadAuthenticationError,
   ClientIncompatibleError,
@@ -11,7 +11,7 @@ import {
   RemoteUnreachableError,
   UnknownError,
   ValidationError,
-} from './errors';
+} from './errors/index.ts';
 
 export function isRecoverable(error: Error) {
   if (!(error instanceof BaseError)) {

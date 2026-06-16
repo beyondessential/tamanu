@@ -1,6 +1,6 @@
 import { isRecoverable } from '@tamanu/errors';
-import { fetchOrThrowIfUnavailable } from './fetch';
-import { type LoggerType } from './TamanuApi';
+import { fetchOrThrowIfUnavailable } from './fetch.ts';
+import { type LoggerType } from './TamanuApi.ts';
 
 export interface RetryBackoffOptions {
   log?: LoggerType;

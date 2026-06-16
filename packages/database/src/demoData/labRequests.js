@@ -1,6 +1,6 @@
 import Chance from 'chance';
 
-import { randomReferenceId } from './patients';
+import { randomReferenceId } from './patients.js';
 
 const chance = new Chance();
 

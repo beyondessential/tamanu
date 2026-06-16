@@ -2,11 +2,11 @@ import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { syncDatabaseServerVersion, type Models, type Sequelize } from '@tamanu/database';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
-import { listSteps, MIGRATIONS_END } from './listSteps.js';
-import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
+import { listSteps, MIGRATIONS_END } from './listSteps.ts';
+import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.ts';
 import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
-export * from './step.js';
+export * from './step.ts';
 
 const EARLIEST_MIGRATION = '1739968205100-addLSFFunction';
 const BASELINE_MIGRATION = '000_baseline';

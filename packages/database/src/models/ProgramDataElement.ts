@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { type DataElementType, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class ProgramDataElement extends Model {
   declare id: string;

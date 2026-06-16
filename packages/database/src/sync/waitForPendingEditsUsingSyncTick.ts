@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { type Sequelize } from 'sequelize';
 
 // wait for any locks using the current sync clock tick as the id - these locks are also
 // taken during create/update triggers on synced tables, so this ensures that any pending

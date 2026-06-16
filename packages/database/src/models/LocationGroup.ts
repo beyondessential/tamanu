@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW, LOCATION_BOOKABLE_VIEW_VALUES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { Facility } from './Facility';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
+import type { Facility } from './Facility.ts';
 
 export class LocationGroup extends Model {
   declare id: string;

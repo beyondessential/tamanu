@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex('invoice_items', ['invoice_id', 'source_record_type', 'source_record_id'], {

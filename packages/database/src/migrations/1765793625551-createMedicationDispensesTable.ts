@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, type QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE_NAME = 'medication_dispenses';
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';

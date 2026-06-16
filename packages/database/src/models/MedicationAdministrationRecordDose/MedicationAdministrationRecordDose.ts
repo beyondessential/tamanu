@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
-import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
+import { Model } from '../Model.ts';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model.ts';
+import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter.ts';
 import {
   afterCreateHook,
   afterUpdateHook,
@@ -10,7 +10,7 @@ import {
   afterBulkDestroyHook,
   afterBulkCreateHook,
   afterBulkUpdateHook,
-} from './hooks';
+} from './hooks.ts';
 
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;

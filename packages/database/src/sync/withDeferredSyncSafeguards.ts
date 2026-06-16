@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
 
-import type { Sequelize } from '../index';
+import type { Sequelize } from '../index.ts';
 
 /**
  * Queries for deferrable FK constraint names in the public schema. We scope to FK

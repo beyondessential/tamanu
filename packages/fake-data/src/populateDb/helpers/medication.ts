@@ -1,6 +1,6 @@
-import { randomRecordId } from '../randomRecord.js';
-import { fake } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { randomRecordId } from '../randomRecord.ts';
+import { fake } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateMedicationParams extends CommonParams {
   encounterId?: string;

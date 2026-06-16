@@ -1,10 +1,10 @@
 import { DataTypes, Op } from 'sequelize';
 
-import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, type PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from './Model.ts';
+import type { InitOptions, Models } from '../types/model.ts';
 
 export class Permission extends Model {
   declare id: string;

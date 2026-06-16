@@ -1,7 +1,7 @@
-import { randomRecordId } from '../randomRecord.js';
+import { randomRecordId } from '../randomRecord.ts';
 
-import { fake, chance, fakeDate } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import { fake, chance, fakeDate } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateProcedureParams extends CommonParams {
   encounterId?: string;

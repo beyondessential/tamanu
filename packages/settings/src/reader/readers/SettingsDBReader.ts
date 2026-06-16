@@ -1,4 +1,4 @@
-import { Reader, ReaderSettingResult } from './Reader';
+import { Reader, type ReaderSettingResult } from './Reader.ts';
 
 /* eslint-disable no-unused-vars */
 interface SettingModel {

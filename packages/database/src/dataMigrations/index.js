@@ -1,7 +1,7 @@
 import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 
-export { DataMigration } from './DataMigration';
-export { CursorDataMigration } from './CursorDataMigration';
+export { DataMigration } from './DataMigration.js';
+export { CursorDataMigration } from './CursorDataMigration.js';
 
 /*
  * No query done in `callback` trigger the sync tick update.

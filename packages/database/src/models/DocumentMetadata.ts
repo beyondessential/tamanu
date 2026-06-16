@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { DOCUMENT_SOURCES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../sync/buildEncounterLinkedLookupFilter.ts';
 
 export class DocumentMetadata extends Model {
   declare id: string;

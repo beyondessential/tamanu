@@ -1,12 +1,12 @@
 import { DataTypes } from 'sequelize';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import { Model } from '../Model.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter.ts';
 
 const INVOICE_ITEMS_DISCOUNT_TYPE_VALUES = Object.values(INVOICE_ITEMS_DISCOUNT_TYPES);
 

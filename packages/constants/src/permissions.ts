@@ -1,5 +1,5 @@
-import { GENERAL_IMPORTABLE_DATA_TYPES } from './importable';
-import { FHIR_INTEGRATION_PERMISSIONS } from './fhir';
+import { GENERAL_IMPORTABLE_DATA_TYPES } from './importable.ts';
+import { FHIR_INTEGRATION_PERMISSIONS } from './fhir.ts';
 
 const REFERENCE_TYPES_NOUNS = GENERAL_IMPORTABLE_DATA_TYPES.map(
   noun => String(noun).charAt(0).toUpperCase() + String(noun).slice(1),

@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize, QueryInterface } from 'sequelize';
+import { DataTypes, Sequelize, type QueryInterface } from 'sequelize';
 
 const TABLE = { tableName: 'm_supply_pushes', schema: 'logs' };
 

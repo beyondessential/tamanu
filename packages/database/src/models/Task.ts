@@ -11,12 +11,12 @@ import config from 'config';
 import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { Encounter } from './Encounter';
-import type { TaskDesignation } from './TaskDesignation';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
+import type { Encounter } from './Encounter.ts';
+import type { TaskDesignation } from './TaskDesignation.ts';
 
 const TASK_STATUS_VALUES = Object.values(TASK_STATUSES);
 

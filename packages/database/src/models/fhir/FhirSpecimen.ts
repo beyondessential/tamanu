@@ -1,15 +1,15 @@
 import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirResource } from './Resource';
+import { FhirResource } from './Resource.ts';
 import {
   filterFromLabRequests,
   fromLabRequest,
   getQueryOptions,
   getValues,
   searchParameters,
-} from '../../utils/fhir/Specimen';
-import type { InitOptions, Models } from '../../types/model';
+} from '../../utils/fhir/Specimen/index.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 
 export class FhirSpecimen extends FhirResource {
   declare collection?: Record<string, any>;

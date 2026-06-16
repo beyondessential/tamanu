@@ -8,8 +8,8 @@ import {
   SEX_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
-} from './patientFields';
-import { PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
+} from './patientFields.ts';
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry.ts';
 
 export const PROGRAM_DATA_ELEMENT_TYPES = {
   TEXT: 'FreeText',

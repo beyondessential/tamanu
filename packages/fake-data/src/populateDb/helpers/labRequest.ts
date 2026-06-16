@@ -1,7 +1,7 @@
-import { times } from 'lodash';
-import { randomRecordId } from '../randomRecord.js';
-import { fake, chance } from '../../fake/index.js';
-import type { CommonParams } from './common.js';
+import times from 'lodash/times.js';
+import { randomRecordId } from '../randomRecord.ts';
+import { fake, chance } from '../../fake/index.ts';
+import type { CommonParams } from './common.ts';
 
 interface CreateLabRequestParams extends CommonParams {
   departmentId?: string;

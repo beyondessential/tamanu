@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { type z } from 'zod';
 
-import { FakeEntityBuilder } from '../core/FakeEntityBuilder.js';
-import { KeyList, WithRequired } from './types.js';
+import { FakeEntityBuilder } from '../core/FakeEntityBuilder.ts';
+import { type KeyList, type WithRequired } from './types.ts';
 
 /**
  * Factory that returns a typed faker function for a given schema.

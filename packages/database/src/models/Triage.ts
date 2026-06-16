@@ -4,12 +4,12 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { createChangeRecorders } from '../utils/recordModelChanges';
-import { getStoredNoteDateFormatters } from '../utils/storedNoteDateFormatters';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from './Model.ts';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter.ts';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter.ts';
+import { createChangeRecorders } from '../utils/recordModelChanges.ts';
+import { getStoredNoteDateFormatters } from '../utils/storedNoteDateFormatters.ts';
+import { dateTimeType, type InitOptions, type Models } from '../types/model.ts';
 
 export class Triage extends Model {
   declare id: string;

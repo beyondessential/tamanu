@@ -1,16 +1,16 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { Model } from '../../models/Model';
-import { dateTimeType, dateType, type InitOptions, type Models } from '../../types/model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter.ts';
+import { Model } from '../../models/Model.ts';
+import { dateTimeType, dateType, type InitOptions, type Models } from '../../types/model.ts';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import type { SessionConfig } from '../../types/sync';
-import type { LabTestType } from '../../models/LabTestType';
+import type { SessionConfig } from '../../types/sync.ts';
+import type { LabTestType } from '../../models/LabTestType.ts';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../../sync/buildEncounterLinkedLookupFilter';
-import { afterCreateHook } from './hooks';
+} from '../../sync/buildEncounterLinkedLookupFilter.ts';
+import { afterCreateHook } from './hooks.ts';
 
 export class LabTest extends Model {
   declare id: string;

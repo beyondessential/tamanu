@@ -1,4 +1,4 @@
-import type { Setting } from '../../types';
+import type { Setting } from '../../types/index.ts';
 import * as yup from 'yup';
 
 export const LOCALISED_FIELD_TYPES = {

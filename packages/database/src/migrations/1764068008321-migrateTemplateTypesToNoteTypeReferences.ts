@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 
 // Migration to update the templates.type column to reference note types in reference_data.
 export async function up(query: QueryInterface) {

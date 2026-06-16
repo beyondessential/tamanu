@@ -3,7 +3,7 @@ import config from 'config';
 import { formatShort, formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
-import type { Setting } from '../models/Setting';
+import type { Setting } from '../models/Setting.ts';
 
 /**
  * Date formatters bound for system-note text — the model-layer counterpart of

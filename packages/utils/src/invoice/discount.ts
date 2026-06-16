@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import type { InvoiceDiscount } from './types';
+import type { InvoiceDiscount } from './types.ts';
 
 /**
  * get a discounted price

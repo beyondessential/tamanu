@@ -4,7 +4,7 @@ import {
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
 import { isSameDay, add, parseISO, set, format } from 'date-fns';
-import { eachDayInMonth, toDateString } from './dateTime';
+import { eachDayInMonth, toDateString } from './dateTime.ts';
 
 export const eachWeekdayInMonth = (date: Date, weekday = date.getDay()) =>
   eachDayInMonth(date).filter(day => day.getDay() === weekday);

@@ -1,6 +1,6 @@
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from '@tamanu/shared/services/fhirTypes';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
-import type { Patient } from '../../models';
+import type { Patient } from '../../models/index.ts';
 
 function getEthnicity(ethnicityId?: string) {
   switch (ethnicityId) {

@@ -1,14 +1,14 @@
 import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { formatDisplayPrice } from './display';
+import { formatDisplayPrice } from './display.ts';
 import {
   getItemSingleInsuranceCoverageAmount,
   getInvoiceItemTotalDiscountedPrice,
   getItemAdjustmentAmount,
   getInvoiceItemTotalPrice,
-} from './invoiceItem';
-import { getInvoiceLevelDiscountAmount } from './discount';
-import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
+} from './invoiceItem.ts';
+import { getInvoiceLevelDiscountAmount } from './discount.ts';
+import type { Invoice, InvoiceItem, InvoiceSummary } from './types.ts';
 
 export const isInvoiceEditable = (invoice: Invoice): boolean =>
   invoice.status === INVOICE_STATUSES.IN_PROGRESS;

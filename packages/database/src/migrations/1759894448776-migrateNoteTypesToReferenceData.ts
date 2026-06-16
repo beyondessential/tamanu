@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { type QueryInterface } from 'sequelize';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 
 /**

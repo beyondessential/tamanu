@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
+import { Model } from '../Model.ts';
+import type { InitOptions, Models } from '../../types/model.ts';
 import {
   matchesAgeIfPresent,
   equalsIfPresent,
   matchesFacilityWithExclusionaryLogic,
-} from './invoicePriceListMatching';
+} from './invoicePriceListMatching.ts';
 
 export class InvoicePriceList extends Model {
   declare id: string;
