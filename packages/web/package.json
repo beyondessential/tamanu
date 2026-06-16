@@ -29,8 +29,8 @@
     "@testing-library/user-event": "^14.5.2",
     "jsdom": "^24.1.0",
     "rimraf": "^6.1.3",
-    "vite-plugin-svgr": "^4.3.0",
-    "vitest": "^2.1.8"
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@bugsnag/js": "^8.0.0",
@@ -55,7 +55,7 @@
     "@tamanu/utils": "*",
     "@tanstack/react-query": "^4.0.10",
     "@tanstack/react-query-devtools": "^4.0.10",
-    "@vitejs/plugin-react-swc": "^3.7.0",
+    "@vitejs/plugin-react-swc": "^4.3.1",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "ace-builds": "^1.44.0",
@@ -96,7 +96,7 @@
     "react-markdown": "^10.1.0",
     "react-redux": "8.0.2",
     "react-refresh": "^0.14.2",
-    "react-router": "^7.13.1",
+    "react-router": "^7.17.0",
     "react-select": "^4.2.1",
     "react-toastify": "8.2.0",
     "react-webcam": "^7.2.0",
@@ -110,8 +110,8 @@
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "validator": "^13.15.35",
-    "vite": "^6.4.2",
-    "vite-plugin-json5": "^1.1.0",
+    "vite": "^7.3.5",
+    "vite-plugin-json5": "^1.4.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9"
   }
