@@ -1,64 +1,50 @@
-# TEMPORARY: builds a seed image from this branch and creates a snapshot on push,
-# so a "Seed from closest snapshot" deploy picks up this branch's fake-data changes
-# instead of the stale release snapshot. Delete this file before merging.
-name: TEMP Test Seed Snapshot
+name: Test Seed Snapshot (temporary)
 
 on:
   push:
     branches:
       - ci/tan-2611-snapshot-creation
 
-permissions: {}
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build-seed-image:
+  build:
     runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      git_sha: ${{ steps.meta.outputs.sha }}
-      version: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ci/tan-2611-snapshot-creation
 
-      - name: Derive version and SHA
-        id: meta
-        run: |
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Get SHA
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Log in to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Build and push seed image
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.seed
           push: true
+          no-cache: true
           platforms: linux/arm64
-          # SHA tag is immutable: a unique image ref per push forces the seed Job
-          # to pull fresh code instead of reusing a node-cached :version image
-          # (k8s defaults imagePullPolicy to IfNotPresent for non-:latest tags).
-          tags: |
-            ghcr.io/beyondessential/tamanu-seed:${{ steps.meta.outputs.version }}
-            ghcr.io/beyondessential/tamanu-seed:${{ steps.meta.outputs.sha }}
-          build-args: GIT_SHA=${{ steps.meta.outputs.sha }}
+          tags: ghcr.io/beyondessential/tamanu-seed:2.54.0
+          build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
 
-  seed-snapshot:
-    needs: [build-seed-image]
-    continue-on-error: true
+  trigger:
+    needs: [build]
+    uses: ./.github/workflows/seed-snapshot.yml
+    secrets: inherit
     permissions:
       contents: read
       id-token: write
-    uses: ./.github/workflows/seed-snapshot.yml
-    secrets: inherit
     with:
-      branch: ${{ github.ref_name }}
-      version: ${{ needs.build-seed-image.outputs.version }}
-      # Pass the immutable SHA-tagged image so the seed Job always pulls fresh code.
-      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.build-seed-image.outputs.git_sha }}
-      git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
+      branch: main
+      version: '2.59.0'
+      image: ghcr.io/beyondessential/tamanu-seed:2.59.0
