@@ -1,4 +1,4 @@
-FROM node:20-slim AS build
+FROM node:24-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 make g++ git jq \
@@ -18,7 +18,7 @@ RUN npm ci
 RUN npm run build -- --filter=@tamanu/synthetic-tests^...
 RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
 
-FROM node:20-slim
+FROM node:24-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
   && rm -rf /var/lib/apt/lists/*
