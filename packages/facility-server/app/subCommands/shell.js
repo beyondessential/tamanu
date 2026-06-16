@@ -7,16 +7,20 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
+import { prepareDatabaseForStartup } from '../database';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export const shell = async ({ skipMigrationCheck }) => {
+export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
   const facilityIds = selectFacilityIds(config);
   log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
 
   const context = await new ApplicationContext().init();
 
-  await context.sequelize.assertUpToDate({ skipMigrationCheck });
+  await prepareDatabaseForStartup(context, {
+    skipMigrationCheck,
+    skipVersionCompatibilityCheck,
+  });
 
   const replServer = await new Promise((resolve, reject) => {
     repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {
@@ -35,4 +39,11 @@ export const shell = async ({ skipMigrationCheck }) => {
   });
 };
 
-export const shellCommand = new Command('shell').description('Start a Node.js shell').action(shell);
+export const shellCommand = new Command('shell')
+  .description('Start a Node.js shell')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
+  .action(shell);

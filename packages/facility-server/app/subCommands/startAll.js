@@ -9,7 +9,7 @@ import { DEVICE_TYPES } from '@tamanu/constants';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
-import { performDatabaseIntegrityChecks } from '../database';
+import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
@@ -19,7 +19,7 @@ import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
 import { SyncTask } from '../tasks/SyncTask';
 
-async function startAll({ skipMigrationCheck }) {
+async function startAll({ skipMigrationCheck, skipVersionCompatibilityCheck }) {
   log.info(`Starting facility server version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -30,11 +30,10 @@ async function startAll({ skipMigrationCheck }) {
 
   const context = await new ApplicationContext().init({ appType: 'api' });
 
-  if (config.db.migrateOnStartup) {
-    await context.sequelize.migrate('up');
-  } else {
-    await context.sequelize.assertUpToDate({ skipMigrationCheck });
-  }
+  await prepareDatabaseForStartup(context, {
+    skipMigrationCheck,
+    skipVersionCompatibilityCheck,
+  });
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
@@ -87,4 +86,8 @@ async function startAll({ skipMigrationCheck }) {
 export const startAllCommand = new Command('startAll')
   .description('Start both the Tamanu Facility API server, sync server, and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
   .action(startAll);

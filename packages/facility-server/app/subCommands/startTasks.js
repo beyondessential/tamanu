@@ -9,14 +9,19 @@ import { DEVICE_TYPES } from '@tamanu/constants';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
-import { performDatabaseIntegrityChecks } from '../database';
+import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
+export async function startTasks({
+  skipMigrationCheck,
+  skipVersionCompatibilityCheck,
+  taskClasses,
+  syncManager,
+}) {
   log.info(`Starting facility task runner version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -27,11 +32,10 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
 
   const context = await new ApplicationContext().init({ appType: 'tasks' });
 
-  if (config.db.migrateOnStartup) {
-    await context.sequelize.migrate('up');
-  } else {
-    await context.sequelize.assertUpToDate({ skipMigrationCheck });
-  }
+  await prepareDatabaseForStartup(context, {
+    skipMigrationCheck,
+    skipVersionCompatibilityCheck,
+  });
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
@@ -61,4 +65,8 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
 export const startTasksCommand = new Command('startTasks')
   .description('Start the Tamanu Facility tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
   .action(startTasks);
