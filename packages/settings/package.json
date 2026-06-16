@@ -3,49 +3,21 @@
   "version": "2.59.0",
   "private": true,
   "description": "BES - Settings",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./cache": {
-      "import": "./dist/mjs/cache/index.js",
-      "require": "./dist/cjs/cache/index.js"
-    },
-    "./schema": {
-      "import": "./dist/mjs/schema/index.js",
-      "require": "./dist/cjs/schema/index.js"
-    },
-    "./types": {
-      "import": "./dist/mjs/types/index.js",
-      "require": "./dist/cjs/types/index.js"
-    },
-    "./test": {
-      "import": "./dist/mjs/test/index.js",
-      "require": "./dist/cjs/test/index.js"
-    },
-    "./reader": {
-      "import": "./dist/mjs/reader/index.js",
-      "require": "./dist/cjs/reader/index.js"
-    },
-    "./middleware": {
-      "import": "./dist/mjs/middleware/index.js",
-      "require": "./dist/cjs/middleware/index.js"
-    }
+    ".": "./src/index.ts",
+    "./cache": "./src/cache/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./types": "./src/types/index.ts",
+    "./test": "./src/test/index.ts",
+    "./reader": "./src/reader/index.ts",
+    "./middleware": "./src/middleware/index.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
-    "clean-build": "npm run clean && npm run build",
-    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src  -- --delete-dir-on-start=false --watch\" \"npm run build:cjs -- --delete-dir-on-start=false --watch\"",
     "clean": "rimraf -- dist .tsbuild",
     "clean:deps": "rimraf -- node_modules",
     "test": "NODE_ENV=test jest --passWithNoTests",
@@ -73,5 +45,6 @@
     "@types/lodash": "^4.14.197",
     "lodash": "^4.17.21",
     "yup": "^1.4.0"
-  }
+  },
+  "type": "module"
 }

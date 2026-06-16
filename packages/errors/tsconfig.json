@@ -4,12 +4,14 @@
     "src/**/*.ts"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
     "declaration": true,
     "declarationMap": true,
     "incremental": true,
     "module": "ES2022",
     "moduleResolution": "bundler",
-    "noEmit": false,
+    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "./dist/esm",

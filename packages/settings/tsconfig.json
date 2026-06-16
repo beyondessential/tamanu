@@ -4,6 +4,8 @@
     "src/**/*.ts",
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
     "baseUrl": "./src",
     "strict": false,
     "esModuleInterop": true,

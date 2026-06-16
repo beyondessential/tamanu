@@ -103,6 +103,14 @@ export default [
 
       // for ts multiple dispatch
       'no-dupe-class-members': 'off',
+
+      // Mark type-only imports explicitly so native type stripping (and bundlers) can
+      // erase them. `--fix` rewrites e.g. `import { Foo }` -> `import { type Foo }`.
+      // Required once a package runs build-less (verbatimModuleSyntax).
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
+      ],
     },
   },
   {
