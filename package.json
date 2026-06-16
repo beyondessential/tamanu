@@ -50,7 +50,7 @@
     "synthetic-test:central": "turbo build --filter=@tamanu/synthetic-tests... && npm run --workspace @tamanu/synthetic-tests test:central"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=20.19.4"
   },
   "packageManager": "npm@10.8.0",
   "private": true,
