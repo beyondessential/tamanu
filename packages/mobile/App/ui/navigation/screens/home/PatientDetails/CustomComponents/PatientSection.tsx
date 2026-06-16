@@ -1,12 +1,13 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { RowView, StyledView } from '/styled/common';
+import React, { PropsWithChildren, ReactElement, ReactNode, useState } from 'react';
+import { View } from 'react-native';
+import { RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { theme } from '/styled/theme';
 import { ArrowButton } from './ArrowButton';
 
 interface PatientDetailSectionProps {
-  title: Element;
+  title: ReactNode;
   onEdit?: () => void;
   isClosable?: boolean;
 }
@@ -24,23 +25,13 @@ export const PatientSection = ({
     setIsOpen(prevValue => !prevValue);
   };
 
-  const overlappedButton = onEdit ? (
-    <StyledView zIndex={1} alignItems="flex-end">
-      <StyledView position="absolute" paddingTop={10} paddingRight={20}>
-        <EditButton sectionTitle={title} onPress={onEdit} />
-      </StyledView>
-    </StyledView>
-  ) : null;
-
-  const content = isOpen ? (
-    <>
-      {overlappedButton}
-      {children}
-    </>
-  ) : null;
+  const sectionLabel =
+    typeof title === 'string'
+      ? title
+      : ((title as ReactElement)?.props as { fallback?: string })?.fallback ?? '';
 
   return (
-    <StyledView>
+    <View>
       <RowView
         justifyContent="space-between"
         alignItems="center"
@@ -48,9 +39,14 @@ export const PatientSection = ({
         padding={20}
       >
         <SectionHeader h1>{title}</SectionHeader>
-        {isClosable && <ArrowButton isOpen={isOpen} sectionTitle={title} onPress={toggleSection} />}
+        <RowView alignItems="center">
+          {onEdit && isOpen && <EditButton sectionTitle={sectionLabel} onPress={onEdit} />}
+          {isClosable && (
+            <ArrowButton isOpen={isOpen} sectionTitle={sectionLabel} onPress={toggleSection} />
+          )}
+        </RowView>
       </RowView>
-      {content}
-    </StyledView>
+      {isOpen && children}
+    </View>
   );
 };
