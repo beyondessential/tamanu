@@ -615,6 +615,25 @@ export class PatientDetailsPage extends BasePatientPage {
     return modal;
   }
 
+  // Opens the "Encounter progress record" action (shown for an active encounter) from the
+  // encounter actions menu, which renders the encounter record PDF in a viewer modal.
+  async openEncounterProgressRecord(): Promise<void> {
+    await this.threeDotMenuButton.click();
+    const menuItem = this.page.getByRole('menuitem', { name: 'Encounter progress record' });
+    await menuItem.waitFor({ state: 'visible' });
+    await menuItem.click();
+  }
+
+  // The client-side rendered encounter record PDF, shown in an iframe with a blob: URL.
+  get encounterRecordPdfFrame(): Locator {
+    return this.page.getByTestId('fulliframe-rz3a');
+  }
+
+  // The determinate progress indicator shown while a large encounter record renders in chunks.
+  get encounterRecordPdfProgress(): Locator {
+    return this.page.getByTestId('pdfprogress-cont');
+  }
+
   get encounterHistoryPane(): EncounterHistoryPane {
     if (!this._encounterHistoryPane) {
       this._encounterHistoryPane = new EncounterHistoryPane(this.page);
