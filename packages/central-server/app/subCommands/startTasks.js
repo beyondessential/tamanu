@@ -4,17 +4,23 @@ import { log } from '@tamanu/shared/services/logging';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startScheduledTasks } from '../tasks';
 import { CentralSyncManager } from '../sync/CentralSyncManager';
 import pkg from '../../package.json';
 
-export const startTasks = async ({ skipMigrationCheck }) => {
+export const startTasks = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
   const context = await new ApplicationContext().init({ appType: CENTRAL_SERVER_APP_TYPES.TASKS });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await syncDatabaseServerVersion({
+    models: context.store.models,
+    serverVersion: pkg.version,
+    skipVersionCompatibilityCheck,
+  });
   context.centralSyncManager = new CentralSyncManager(context);
 
   // Keep the task runner's process-local settings cache in sync via NOTIFYs.
@@ -41,4 +47,8 @@ export const startTasksCommand = new Command('startTasks')
   .alias('tasks') // deprecated
   .description('Start the Tamanu Central tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
   .action(startTasks);

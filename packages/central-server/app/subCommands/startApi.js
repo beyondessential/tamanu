@@ -3,12 +3,13 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
-export const startApi = async ({ skipMigrationCheck }) => {
+export const startApi = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
   log.info(`Starting central server version ${version}`);
 
   log.info(`Process info`, {
@@ -19,6 +20,11 @@ export const startApi = async ({ skipMigrationCheck }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await syncDatabaseServerVersion({
+    models: store.models,
+    serverVersion: version,
+    skipVersionCompatibilityCheck,
+  });
 
   const { server } = await createApp(context);
 
@@ -65,4 +71,8 @@ export const startApiCommand = new Command('startApi')
   .alias('serve') // deprecated
   .description('Start the Tamanu Central API server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
   .action(startApi);

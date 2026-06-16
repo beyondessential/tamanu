@@ -4,18 +4,29 @@ import { log } from '@tamanu/shared/services/logging';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
-export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
+export const startFhirWorker = async ({
+  name,
+  skipMigrationCheck,
+  skipVersionCompatibilityCheck,
+  topics,
+}) => {
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
 
   const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;
   const dbKey = name ? `${appType}(${name})` : appType;
   const context = await new ApplicationContext().init({ appType, dbKey });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await syncDatabaseServerVersion({
+    models: context.store.models,
+    serverVersion: pkg.version,
+    skipVersionCompatibilityCheck,
+  });
 
   // Keep the worker's process-local settings cache in sync via NOTIFYs.
   const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
@@ -47,5 +58,9 @@ export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
 export const startFhirWorkerCommand = new Command('startFhirWorker')
   .description('Start the Tamanu Central FHIR worker')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--skipVersionCompatibilityCheck',
+    'skip the database version compatibility check on startup',
+  )
   .option('--topics <topics>', 'comma-separated topics to work on, defaults to all')
   .action(startFhirWorker);
