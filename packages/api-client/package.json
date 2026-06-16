@@ -3,31 +3,16 @@
   "version": "2.59.0",
   "private": true,
   "description": "API client for Tamanu Facility Server",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./*": {
-      "source": "./src/*.ts",
-      "import": "./dist/mjs/*.js",
-      "require": "./dist/cjs/*.js"
-    }
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
-    "clean-build": "npm run clean && npm run build",
-    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
     "clean": "rimraf -- dist .tsbuild",
     "clean:deps": "rimraf -- node_modules"
   },
@@ -43,5 +28,6 @@
     "jose": "^5.1.1",
     "lodash": "^4.17.21",
     "qs": "^6.10.2"
-  }
+  },
+  "type": "module"
 }

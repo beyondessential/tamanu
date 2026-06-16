@@ -13,6 +13,8 @@
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
+    "codemod:import-extensions": "node scripts/codemod-import-extensions.mjs",
+    "codemod:lodash-imports": "node scripts/codemod-lodash-named-imports.mjs",
     "build": "turbo build",
     "clean-build": "turbo run clean-build --force",
     "test": "npm run build && node scripts/test-all.mjs",

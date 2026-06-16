@@ -3,44 +3,20 @@
   "version": "2.59.0",
   "private": true,
   "description": "Common code across Tamanu packages",
-  "main": "dist/cjs/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
-    },
-    "./invoice": {
-      "source": "./src/invoice/index.ts",
-      "import": "./dist/esm/invoice/index.js",
-      "require": "./dist/cjs/invoice/index.js",
-      "types": "./dist/esm/invoice/index.d.ts"
-    },
-    "./*": {
-      "source": "./src/*.ts",
-      "import": "./dist/esm/*.js",
-      "require": "./dist/cjs/*.js",
-      "types": "./dist/esm/*.d.ts"
-    }
+    ".": "./src/index.ts",
+    "./invoice": "./src/invoice/index.ts",
+    "./*": "./src/*.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "concurrently -n esm,cjs,types -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" \"npm run build:types\"",
-    "clean-build": "npm run clean && npm run build",
-    "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
-    "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
-    "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "npm run build:types:esm && move-dts --copy dist/esm dist/cjs",
-    "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
-    "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
-    "build-watch": "npm run build:dev:watch",
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },
@@ -61,5 +37,6 @@
     "nanoid": "^3.3.8",
     "temporal-polyfill": "^0.3.0",
     "zod": "^4.0.17"
-  }
+  },
+  "type": "module"
 }

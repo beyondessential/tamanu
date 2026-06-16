@@ -3,53 +3,22 @@
   "version": "2.59.0",
   "private": true,
   "description": "TODO",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./populateDb": {
-      "import": "./dist/mjs/populateDb/index.js",
-      "require": "./dist/cjs/populateDb/index.js"
-    },
-    "./fake": {
-      "import": "./dist/mjs/fake/index.js",
-      "require": "./dist/cjs/fake/index.js"
-    },
-    "./fake/*": {
-      "import": "./dist/mjs/fake/*.js",
-      "require": "./dist/cjs/fake/*.js"
-    },
-    "./test-helpers": {
-      "import": "./dist/mjs/test-helpers/index.js",
-      "require": "./dist/cjs/test-helpers/index.js"
-    },
-    "./test-helpers/*": {
-      "import": "./dist/mjs/test-helpers/*.js",
-      "require": "./dist/cjs/test-helpers/*.js"
-    },
-    "./services/*": {
-      "import": "./dist/mjs/services/*.js",
-      "require": "./dist/cjs/services/*.js"
-    },
-    "./utils/*": {
-      "import": "./dist/mjs/utils/*.js",
-      "require": "./dist/cjs/utils/*.js"
-    }
+    ".": "./src/index.ts",
+    "./populateDb": "./src/populateDb/index.ts",
+    "./fake": "./src/fake/index.ts",
+    "./fake/*": "./src/fake/*.ts",
+    "./test-helpers": "./src/test-helpers/index.js",
+    "./test-helpers/*": "./src/test-helpers/*.ts",
+    "./services/*": "./src/services/*.ts",
+    "./utils/*": "./src/utils/*.ts"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
-    "clean-build": "npm run clean && npm run build",
-    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/mjs --rootDir src && move-dts --copy dist/mjs dist/cjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
     "clean": "rimraf -- dist .tsbuild",
     "clean:deps": "rimraf -- node_modules"
   },
@@ -76,5 +45,6 @@
     "sequelize": "^6.37.8",
     "zocker": "^2.2.2",
     "zod": "^4.0.17"
-  }
+  },
+  "type": "module"
 }
