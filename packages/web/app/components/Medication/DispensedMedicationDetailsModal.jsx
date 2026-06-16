@@ -10,6 +10,7 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
@@ -158,7 +159,9 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
           fallback="Qty dispensed"
         />
       ),
-      value: quantity ?? '-',
+      value: prescription?.dispensingUnit
+        ? `${quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, prescription.dispensingUnit)}`
+        : (quantity ?? '-'),
     },
     {
       label: (
