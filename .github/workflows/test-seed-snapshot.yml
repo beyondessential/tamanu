@@ -40,7 +40,12 @@ jobs:
           file: Dockerfile.seed
           push: true
           platforms: linux/arm64
-          tags: ghcr.io/beyondessential/tamanu-seed:${{ steps.meta.outputs.version }}
+          # SHA tag is immutable: a unique image ref per push forces the seed Job
+          # to pull fresh code instead of reusing a node-cached :version image
+          # (k8s defaults imagePullPolicy to IfNotPresent for non-:latest tags).
+          tags: |
+            ghcr.io/beyondessential/tamanu-seed:${{ steps.meta.outputs.version }}
+            ghcr.io/beyondessential/tamanu-seed:${{ steps.meta.outputs.sha }}
           build-args: GIT_SHA=${{ steps.meta.outputs.sha }}
 
   seed-snapshot:
@@ -54,5 +59,6 @@ jobs:
     with:
       branch: ${{ github.ref_name }}
       version: ${{ needs.build-seed-image.outputs.version }}
-      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.build-seed-image.outputs.version }}
+      # Pass the immutable SHA-tagged image so the seed Job always pulls fresh code.
+      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.build-seed-image.outputs.git_sha }}
       git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
