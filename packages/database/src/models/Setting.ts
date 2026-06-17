@@ -9,7 +9,7 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 import type { SettingPath } from '@tamanu/settings/types';
 
-const SETTINGS_SCOPES_VALUES = Object.values(SETTINGS_SCOPES);
+type SettingsScope = (typeof SETTINGS_SCOPES)[keyof typeof SETTINGS_SCOPES];
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -114,7 +114,7 @@ export class Setting extends Model {
   static async get(
     key: SettingPath | '' = '',
     facilityId: string | null = null,
-    scopeOverride: (typeof SETTINGS_SCOPES_VALUES)[number] | null = null,
+    scopeOverride: SettingsScope | null = null,
   ) {
     const determineScope = () => {
       if (scopeOverride) {
@@ -175,7 +175,7 @@ export class Setting extends Model {
   static async set(
     key: SettingPath | '' = '',
     value: unknown,
-    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    scope: SettingsScope = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
   ) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
@@ -260,7 +260,7 @@ export class Setting extends Model {
   static async setSecret(
     name: string,
     value: string,
-    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    scope: SettingsScope = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
   ): Promise<void> {
     const keyBuffer = await getSettingsPskKeyBuffer();
@@ -276,7 +276,7 @@ export class Setting extends Model {
    */
   static async unsetSecret(
     name: string,
-    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    scope: SettingsScope = SETTINGS_SCOPES.GLOBAL,
     facilityId: string | null = null,
   ): Promise<void> {
     await this.destroy({
@@ -293,7 +293,7 @@ function buildSettingsRecords(
   keyPrefix: string,
   value: unknown,
   facilityId: string | null,
-  scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+  scope: SettingsScope = SETTINGS_SCOPES.GLOBAL,
 ): { key: string; value: unknown; facilityId: string | null; scope: string }[] {
   if (isPlainObject(value)) {
     return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
