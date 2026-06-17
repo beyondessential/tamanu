@@ -9,6 +9,8 @@ import {
 vi.mock('@tamanu/shared/services/logging', () => ({
   log: {
     info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -26,6 +28,8 @@ describe('syncDatabaseServerVersion', () => {
     process.env.NODE_ENV = 'production';
     storedValue = null;
     vi.mocked(log.info).mockClear();
+    vi.mocked(log.warn).mockClear();
+    vi.mocked(log.error).mockClear();
     models = {
       LocalSystemFact: {
         get: vi.fn(async () => storedValue),
@@ -95,8 +99,8 @@ describe('syncDatabaseServerVersion', () => {
 
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
-    expect(log.info).toHaveBeenCalledWith('Skipping database version compatibility check', {
-      reason: 'NODE_ENV is "development" (not production)',
+    expect(log.warn).toHaveBeenCalledWith('Bypassing database version compatibility check', {
+      reason: 'NODE_ENV is "development" (not "production")',
     });
   });
 
@@ -111,7 +115,7 @@ describe('syncDatabaseServerVersion', () => {
 
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
-    expect(log.info).toHaveBeenCalledWith('Skipping database version compatibility check', {
+    expect(log.warn).toHaveBeenCalledWith('Bypassing database version compatibility check', {
       reason: '--skipVersionCompatibilityCheck was set',
     });
   });
