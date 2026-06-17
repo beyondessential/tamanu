@@ -117,6 +117,10 @@
     "@mui/system": "~6.1.1",
     "@mui/icons-material": "~6.1.1",
     "@mui/styled-engine": "~6.1.1",
-    "@mui/x-date-pickers": "~7.22.0"
+    "@mui/x-date-pickers": "~7.22.0",
+    "@types/react-native-svg-charts": {
+      "react-native": "0.85.3",
+      "react-native-svg": "15.15.5"
+    }
   }
 }
