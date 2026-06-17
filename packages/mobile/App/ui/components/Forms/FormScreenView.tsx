@@ -13,7 +13,7 @@ import {
   NativeSyntheticEvent,
   StyleSheet,
 } from 'react-native';
-import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
+import { FullView, StyledSafeAreaView } from '/styled/common';
 import Animated, {
   Easing,
   useAnimatedStyle,

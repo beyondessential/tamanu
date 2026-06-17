@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
 import { UserIcon } from '/components/Icons';
 import { StyledView } from '/styled/common';
-import Animated from 'react-native-reanimated';
-import { SharedValue } from 'react-native-reanimated';
+import Animated, { SharedValue } from 'react-native-reanimated';
 import { theme } from '/styled/theme';
 
 export const UserIconContainer = ({

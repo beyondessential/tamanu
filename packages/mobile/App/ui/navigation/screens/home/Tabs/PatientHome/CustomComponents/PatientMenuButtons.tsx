@@ -18,7 +18,7 @@ export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement
       data={list}
       keyExtractor={(item): string => item.key}
       renderItem={({ item }): ReactElement => {
-        const { key, ...props } = item;
+        const { key: _key, ...props } = item;
         return <MenuOptionButton {...props} />;
       }}
       ItemSeparatorComponent={Separator}

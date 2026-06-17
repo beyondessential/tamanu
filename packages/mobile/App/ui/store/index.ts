@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { combineReducers } from 'redux';
-import { compose, createStore } from 'redux';
+import { combineReducers, compose, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import Reactotron from '../reactotron';
 import { authReducer } from './ducks/auth';
