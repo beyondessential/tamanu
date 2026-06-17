@@ -259,6 +259,7 @@ export const PatientInfoPane = () => {
   const { ability } = useAuth();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
   const canRecordPatientDeath = ability?.can('create', 'PatientDeath');
+  const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
     () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
@@ -267,7 +268,11 @@ export const PatientInfoPane = () => {
 
   const readonly = !!patient.dateOfDeath;
   const showRecordDeathActions =
-    !isFetching && patientDeathsEnabled && !deathData?.isFinal && canRecordPatientDeath;
+    !isFetching &&
+    patientDeathsEnabled &&
+    !deathData?.isFinal &&
+    canRecordPatientDeath &&
+    canReadPatientDeath;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
