@@ -2,10 +2,7 @@ import { times } from 'lodash';
 import { randomRecordId } from '../randomRecord.js';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-} from '@tamanu/constants/programRegistry';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants/programRegistry';
 
 interface CreateProgramRegistryParams extends CommonParams {
   userId?: string;
@@ -45,14 +42,13 @@ export const createProgramRegistry = async ({
     }),
   );
 
-  const categoryCode = PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN;
-  const [conditionCategory] = await ProgramRegistryConditionCategory.findOrCreate({
-    where: { programRegistryId: resolvedRegistryId, code: categoryCode },
-    defaults: fake(ProgramRegistryConditionCategory, {
-      code: categoryCode,
-      name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[categoryCode],
+  // The 'unknown' category is created alongside each ProgramRegistry in
+  // generateImportData, so look it up rather than racing to findOrCreate it.
+  const conditionCategory = await ProgramRegistryConditionCategory.findOne({
+    where: {
       programRegistryId: resolvedRegistryId,
-    }),
+      code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+    },
   });
 
   for (const _ of times(conditionCount)) {

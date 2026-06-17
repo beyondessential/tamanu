@@ -3,6 +3,10 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '@tamanu/constants/programRegistry';
 import { fake } from '../../fake/index.js';
 
 import type {
@@ -34,6 +38,7 @@ export const generateImportData = async ({
   Program,
   ProgramRegistry,
   ProgramRegistryCondition,
+  ProgramRegistryConditionCategory,
   ProgramRegistryClinicalStatus,
   InvoiceProduct,
   LabTestType,
@@ -117,6 +122,15 @@ export const generateImportData = async ({
   );
   await ProgramRegistryClinicalStatus.create(
     fake(ProgramRegistryClinicalStatus, {
+      programRegistryId: programRegistry.id,
+    }),
+  );
+  // Create the 'unknown' condition category up front so createProgramRegistry can
+  // just look it up, instead of many concurrent calls racing to findOrCreate it.
+  await ProgramRegistryConditionCategory.create(
+    fake(ProgramRegistryConditionCategory, {
+      code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+      name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN],
       programRegistryId: programRegistry.id,
     }),
   );
