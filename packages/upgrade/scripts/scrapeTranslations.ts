@@ -3,19 +3,10 @@ import path from 'path';
 import { enumTranslations } from '@tamanu/constants/enumRegistry';
 import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 
-const getTamanuPackagesPath = () => {
-  const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
-  const tamanuPackagesPath = path.join(
-    updateDistCjsIndexJsPath,
-    '..', // cjs
-    '..', // dist
-    '..', // upgrade
-    '..', // packages
-  );
-  return tamanuPackagesPath;
-};
-
-const tamanuPackagesPath = getTamanuPackagesPath();
+// This script lives at packages/upgrade/scripts/; the workspace packages dir is two
+// levels up. Resolved from the script's own location so it works build-less (run from
+// source via tsx) rather than assuming a built dist layout.
+const tamanuPackagesPath = path.join(import.meta.dirname, '..', '..');
 
 const fileTypes = ['.ts', '.tsx', '.js', '.jsx'];
 

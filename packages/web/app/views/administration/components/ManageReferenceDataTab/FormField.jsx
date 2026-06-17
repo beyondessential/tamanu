@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 import { TextField } from '@tamanu/ui-components';
 import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
 import {

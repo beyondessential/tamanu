@@ -5,10 +5,10 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../dist/hl7fhir/utils';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';

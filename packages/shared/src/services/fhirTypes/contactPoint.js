@@ -1,4 +1,4 @@
-import { random, sample } from 'lodash';
+import { random, sample } from 'lodash-es';
 import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';

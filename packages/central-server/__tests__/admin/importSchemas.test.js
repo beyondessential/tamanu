@@ -1,4 +1,4 @@
-import { SSCPatientIssue } from '../../dist/admin/importSchemas';
+import { SSCPatientIssue } from '../../app/admin/importSchemas';
 
 describe('admin import schemas', () => {
   it('allows PatientIssue config required by survey submission', async () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 import { Divider, ButtonBase } from '@material-ui/core';
 import { TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';

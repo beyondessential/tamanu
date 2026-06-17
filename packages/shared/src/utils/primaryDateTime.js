@@ -1,8 +1,8 @@
 //! GlobalDateTime functions are server only
 //! Servers require a specific reference to timeZone since most of our servers are in UTC
-
 import { formatISO9075 } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { formatInTimeZone } = __cjs_date_fns_tz;
 import config from 'config';
 import {
   ISO9075_DATE_FORMAT,

@@ -3,7 +3,7 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 import asyncHandler from 'express-async-handler';
 import { REFERENCE_DATA_RELATION_TYPES, DEFAULT_HIERARCHY_TYPE, REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues } from 'lodash-es';
 
 export const referenceData = express.Router();
 

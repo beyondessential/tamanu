@@ -1,4 +1,4 @@
-import { exportProgram } from '../../../dist/admin/programExporter';
+import { exportProgram } from '../../../app/admin/programExporter';
 import { createTestContext } from '../../utilities';
 import { fake } from '@tamanu/fake-data/fake';
 import { Program, Survey, ProgramDataElement, SurveyScreenComponent } from '@tamanu/database';

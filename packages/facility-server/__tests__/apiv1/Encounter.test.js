@@ -18,7 +18,7 @@ import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTi
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-import { uploadAttachment } from '../../dist/utils/uploadAttachment';
+import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import { setupSurvey } from '../setupSurvey';
 

@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { times } from 'lodash-es';
 
 import { randomRecordId } from '../randomRecord.js';
 

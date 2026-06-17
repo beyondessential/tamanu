@@ -1,7 +1,6 @@
 import config from 'config';
 import { Op, QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';

@@ -1,5 +1,5 @@
 import config from 'config';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';

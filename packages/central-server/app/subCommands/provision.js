@@ -1,6 +1,6 @@
 import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'lodash';
+import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'lodash-es';
 import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 import fs from 'node:fs';
@@ -203,7 +203,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...rest
   } of referenceData ?? []) {
     if (isUsingDefaultSpreadsheet) {
-      const defaultProvisioningDataDirectory = resolve(__dirname, 'defaultProvisioningData');
+      const defaultProvisioningDataDirectory = resolve(import.meta.dirname, 'defaultProvisioningData');
       log.info('Using reference data json files from this branch', {
         directory: defaultProvisioningDataDirectory,
       });

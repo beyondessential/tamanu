@@ -9,7 +9,7 @@ import {
 } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../../utilities';
-import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
+import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 describe('CentralSyncManager', () => {

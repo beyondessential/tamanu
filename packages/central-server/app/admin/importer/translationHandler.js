@@ -1,4 +1,4 @@
-import { camelCase, isArray, isObject, isString } from 'lodash';
+import { camelCase, isArray, isObject, isString } from 'lodash-es';
 import { Op } from 'sequelize';
 import {
   TRANSLATABLE_REFERENCE_TYPES,

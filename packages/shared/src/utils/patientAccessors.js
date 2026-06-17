@@ -1,4 +1,4 @@
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import { ageInYears } from '@tamanu/utils/dateTime';
 import { getDisplayAge } from '@tamanu/utils/date';
 

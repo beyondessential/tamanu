@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
 
@@ -10,6 +11,12 @@ import type { Model } from '@tamanu/database/models/Model';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 import { runCommand, spawnCommand } from './runCommand';
+
+// The build-less @tamanu/* packages expose extensionless directory `source` exports
+// that resolve under ESM import() but not require() (tsx's CJS hook doesn't do
+// directory/index resolution for them), so they're loaded with dynamic import below.
+// JSON is unaffected, so the package version is read with a plain require.
+const { version } = createRequire(import.meta.url)('../package.json');
 
 function warn(message: string) {
   if (process.env.CI) {
@@ -127,8 +134,8 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
-  const { initDatabase } = require('@tamanu/database/services/database');
-  const { createMigrationInterface } = require('@tamanu/database/services/migrations');
+  const { initDatabase } = await import('@tamanu/database/services/database');
+  const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
@@ -143,12 +150,11 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 async function migrate(dbConfig: any): Promise<void> {
   const script = `
     (async () => {
-      const { version } = require('../package.json');
-      const { initDatabase } = require('@tamanu/database/services/database');
-      const { upgrade } = require('@tamanu/upgrade');
+      const { initDatabase } = await import('@tamanu/database/services/database');
+      const { upgrade } = await import('@tamanu/upgrade');
 
       const { models, sequelize } = await initDatabase(${JSON.stringify(dbConfig)});
-      await upgrade({ models, sequelize, serverType: 'facility', toVersion: version });
+      await upgrade({ models, sequelize, serverType: 'facility', toVersion: ${JSON.stringify(version)} });
       await sequelize.close();
     })().catch(err => {
       console.error(err);
@@ -161,7 +167,7 @@ async function migrate(dbConfig: any): Promise<void> {
 async function migrateAndHash(dbConfig: any): Promise<DbHashes> {
   await migrate(dbConfig);
 
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
@@ -333,7 +339,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   }
 
   const { default: config } = await import('config');
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
 
   const dbConfig = (name: string) => ({
     user: userInfo().username,

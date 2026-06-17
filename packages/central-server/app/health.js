@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { isObject } from 'lodash';
+import { isObject } from 'lodash-es';
 
 import { log } from '@tamanu/shared/services/logging';
 import { createMigrationInterface } from '@tamanu/database/services/migrations';

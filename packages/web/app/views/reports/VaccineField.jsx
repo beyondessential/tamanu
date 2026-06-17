@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'lodash-es';
 import {
   SelectField,
   TranslatedReferenceData,

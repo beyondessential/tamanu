@@ -9,7 +9,7 @@ import { TranslatedText } from '../../../components';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 const Wrapper = styled(Box)`

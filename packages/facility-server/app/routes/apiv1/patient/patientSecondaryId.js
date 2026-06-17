@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import { NotFoundError } from '@tamanu/errors';
 
 export const patientSecondaryIdRoutes = express.Router();

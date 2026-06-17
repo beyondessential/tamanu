@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
-import { mapValues } from 'lodash';
+import { mapValues } from 'lodash-es';
 
 import {
   locale as runtimeLocale,

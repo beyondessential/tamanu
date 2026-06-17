@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { keyBy, mapValues, uniq } from 'lodash';
+import { keyBy, mapValues, uniq } from 'lodash-es';
 
 import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';

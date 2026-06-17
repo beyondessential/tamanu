@@ -11,7 +11,7 @@ import React, {
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
-import { isEmpty, upperFirst } from 'lodash';
+import { isEmpty, upperFirst } from 'lodash-es';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 import { LanguageOption } from '~/models/TranslatedString';

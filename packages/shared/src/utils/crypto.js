@@ -1,5 +1,5 @@
 import config from 'config';
-import { get as lodashGet } from 'lodash';
+import { get as lodashGet } from 'lodash-es';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import readSync from 'read';

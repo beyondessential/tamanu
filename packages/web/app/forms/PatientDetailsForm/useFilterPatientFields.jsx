@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isBoolean } from 'lodash';
+import { isBoolean } from 'lodash-es';
 import { useSettings } from '../../contexts/Settings';
 
 export const useFilterPatientFields = ({ fields, filterByMandatory }) => {

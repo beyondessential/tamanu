@@ -1,6 +1,6 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
 import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { camelCase } from 'lodash';
+import { camelCase } from 'lodash-es';
 
 export const findAdministrationTimeSlotFromIdealTime = idealTime => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex(slot => {

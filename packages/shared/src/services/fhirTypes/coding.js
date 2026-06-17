@@ -1,4 +1,4 @@
-import { random, sample } from 'lodash';
+import { random, sample } from 'lodash-es';
 import crypto from 'crypto';
 import * as yup from 'yup';
 

@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { migrateImagingRequests } from '../../dist/subCommands';
+import { migrateImagingRequests } from '../../app/subCommands';
 
 async function prepopulate(models) {
   const { Facility, User, Location, LocationGroup, ImagingRequest } = models;

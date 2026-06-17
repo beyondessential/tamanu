@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import type { QueryInterface } from 'sequelize';
 
-const BASELINE_SQL_PATH = path.join(__dirname, '000_baseline.sql');
-const FROZEN_MIGRATIONS_PATH = path.join(__dirname, '000_baseline_frozen_migrations.json');
+const BASELINE_SQL_PATH = path.join(import.meta.dirname, '000_baseline.sql');
+const FROZEN_MIGRATIONS_PATH = path.join(import.meta.dirname, '000_baseline_frozen_migrations.json');
 
 export async function up(query: QueryInterface): Promise<void> {
   const [results] = await query.sequelize.query(`

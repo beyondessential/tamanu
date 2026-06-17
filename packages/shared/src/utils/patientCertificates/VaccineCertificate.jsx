@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 
 import {
   Box,

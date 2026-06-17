@@ -3,7 +3,7 @@ import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
-import { AutomaticLabTestResultPublisher } from '../../dist/tasks/AutomaticLabTestResultPublisher';
+import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
 
 const testConfig = {
   enabled: true,

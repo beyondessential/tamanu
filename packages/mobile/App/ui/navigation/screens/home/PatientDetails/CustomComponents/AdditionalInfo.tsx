@@ -8,7 +8,7 @@ import {
   CustomPatientFieldValues,
   usePatientAdditionalData,
 } from '~/ui/hooks/usePatientAdditionalData';
-import { mapValues } from 'lodash';
+import { mapValues } from 'lodash-es';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';

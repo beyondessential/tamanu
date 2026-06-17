@@ -7,16 +7,7 @@ import {
   TASK_STATUSES,
   TASK_TYPES,
 } from '@tamanu/constants';
-import {
-  addDays,
-  addHours,
-  addMonths,
-  endOfDay,
-  getDate,
-  isValid,
-  setDate,
-  startOfDay,
-} from 'date-fns';
+import { addDays, addHours, addMonths, endOfDay, getDate, isValid, setDate, startOfDay } from 'date-fns';
 import config from 'config';
 import {
   getFirstAdministrationDate,

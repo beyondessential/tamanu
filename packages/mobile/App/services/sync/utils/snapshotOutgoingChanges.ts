@@ -1,5 +1,5 @@
 import { MoreThan } from 'typeorm';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
 import { BaseModel } from '../../../models/BaseModel';
 import { SyncRecord, SyncRecordData } from '../types';

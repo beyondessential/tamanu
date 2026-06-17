@@ -1,5 +1,5 @@
 import { MANAGEABLE_REFERENCE_DATA_TYPES } from '@tamanu/constants';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 
 export const ENDPOINT = 'admin/referenceData/manage';
 export const COLUMNS_ENDPOINT = 'admin/referenceData/manage/columns';

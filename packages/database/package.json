@@ -3,84 +3,26 @@
   "version": "2.59.0",
   "private": true,
   "description": "BES - Database",
-  "main": "dist/cjs/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "./src/index",
   "exports": {
-    ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts"
-    },
-    "./*": {
-      "require": "./dist/cjs/*.js",
-      "import": "./dist/esm/*.js",
-      "types": "./dist/esm/*.d.ts"
-    },
-    "./demoData": {
-      "require": "./dist/cjs/demoData/index.js",
-      "import": "./dist/esm/demoData/index.js",
-      "types": "./dist/esm/demoData/index.d.ts"
-    },
-    "./demoData/*": {
-      "require": "./dist/cjs/demoData/*.js",
-      "import": "./dist/esm/demoData/*.js",
-      "types": "./dist/esm/demoData/*.d.ts"
-    },
-    "./dataMigrations": {
-      "require": "./dist/cjs/dataMigrations/index.js",
-      "import": "./dist/esm/dataMigrations/index.js",
-      "types": "./dist/esm/dataMigrations/index.d.ts"
-    },
-    "./dataMigrations/*": {
-      "require": "./dist/cjs/dataMigrations/*.js",
-      "import": "./dist/esm/dataMigrations/*.js",
-      "types": "./dist/esm/dataMigrations/*.d.ts"
-    },
-    "./services/migrations": {
-      "require": "./dist/cjs/services/migrations/index.js",
-      "import": "./dist/esm/services/migrations/index.js",
-      "types": "./dist/esm/services/migrations/index.d.ts"
-    },
-    "./services/migrations/*": {
-      "require": "./dist/cjs/services/migrations/*.js",
-      "import": "./dist/esm/services/migrations/*.js",
-      "types": "./dist/esm/services/migrations/*.d.ts"
-    },
-    "./services/database": {
-      "require": "./dist/cjs/services/database.js",
-      "import": "./dist/esm/services/database.js",
-      "types": "./dist/esm/services/database.d.ts"
-    },
-    "./sync": {
-      "require": "./dist/cjs/sync/index.js",
-      "import": "./dist/esm/sync/index.js",
-      "types": "./dist/esm/sync/index.d.ts"
-    },
-    "./utils/fhir": {
-      "require": "./dist/cjs/utils/fhir/index.js",
-      "import": "./dist/esm/utils/fhir/index.js",
-      "types": "./dist/esm/utils/fhir/index.d.ts"
-    },
-    "./utils/audit": {
-      "require": "./dist/cjs/utils/audit/index.js",
-      "import": "./dist/esm/utils/audit/index.js",
-      "types": "./dist/esm/utils/audit/index.d.ts"
-    }
+    ".": "./src",
+    "./*": "./src/*",
+    "./demoData": "./src/demoData",
+    "./demoData/*": "./src/demoData/*",
+    "./dataMigrations": "./src/dataMigrations",
+    "./dataMigrations/*": "./src/dataMigrations/*",
+    "./services/migrations": "./src/services/migrations",
+    "./services/migrations/*": "./src/services/migrations/*",
+    "./services/database": "./src/services/database",
+    "./sync": "./src/sync",
+    "./utils/fhir": "./src/utils/fhir",
+    "./utils/audit": "./src/utils/audit"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "concurrently -n esm,cjs,types -c auto --kill-others-on-fail \"npm run build:esm\" \"npm run build:cjs\" \"npm run build:types\"",
-    "clean-build": "npm run clean && npm run build",
-    "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
-    "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
-    "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
-    "build:types": "npm run build:types:esm && move-dts --copy dist/esm dist/cjs",
-    "build:types:esm": "tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm",
-    "build:types:cjs": "npm run build:types:esm -- --outDir dist/cjs",
-    "build-watch": "npm run build:dev:watch",
     "clean": "rimraf -- dist",
     "clean:deps": "rimraf -- node_modules",
     "test": "vitest run --no-file-parallelism",
@@ -126,5 +68,6 @@
     "umzug": "^2.3.0",
     "yup": "^0.32.11",
     "zod": "^4.4.3"
-  }
+  },
+  "type": "module"
 }

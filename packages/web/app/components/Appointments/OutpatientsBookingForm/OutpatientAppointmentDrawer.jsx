@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
-import { isNumber, omit, set } from 'lodash';
+import { isNumber, omit, set } from 'lodash-es';
 import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
 import styled from 'styled-components';
 import * as yup from 'yup';

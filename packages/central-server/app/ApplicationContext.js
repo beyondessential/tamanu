@@ -1,5 +1,5 @@
 import config from 'config';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';

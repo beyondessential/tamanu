@@ -10,7 +10,7 @@ import {
 } from '@tamanu/database/sync';
 
 import { createTestContext } from '../utilities';
-import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('sanitize binary data', () => {

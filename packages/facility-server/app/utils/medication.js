@@ -1,4 +1,4 @@
-import { keyBy } from 'lodash';
+import { keyBy } from 'lodash-es';
 
 /**
  * Returns when each ongoing prescription was last sent to pharmacy.

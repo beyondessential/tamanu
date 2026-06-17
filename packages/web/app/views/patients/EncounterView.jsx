@@ -34,7 +34,7 @@ import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { ChartDataProvider } from '../../contexts/ChartData';
 import { PlannedMoveActions } from './components/PlannedMoveActions';
 

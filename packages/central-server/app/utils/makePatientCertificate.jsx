@@ -1,7 +1,7 @@
 import React from 'react';
 import config from 'config';
 import path from 'path';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import ReactPDF from '@react-pdf/renderer';
 
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';

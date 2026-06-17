@@ -1,5 +1,5 @@
 import { Database } from '~/infra/db';
-import { chunk } from 'lodash';
+import { chunk } from 'lodash-es';
 import { SyncRecord } from '../types';
 
 export const insertSnapshotRecords = async (

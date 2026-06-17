@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import path from 'path';
 import ReactPDF from '@react-pdf/renderer';
 import config from 'config';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { Op } from 'sequelize';
 
 import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';

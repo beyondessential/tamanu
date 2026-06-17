@@ -1,5 +1,5 @@
 import config from 'config';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 

@@ -14,8 +14,9 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
-import { pluralize } from 'inflection';
-import { isEmpty, isNil } from 'lodash';
+import __cjs_inflection from 'inflection';
+const { pluralize } = __cjs_inflection;
+import { isEmpty, isNil } from 'lodash-es';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {

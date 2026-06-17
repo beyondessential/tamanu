@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { keyBy, round } from 'lodash';
+import { keyBy, round } from 'lodash-es';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import {
   INVOICE_ITEMS_DISCOUNT_TYPES,

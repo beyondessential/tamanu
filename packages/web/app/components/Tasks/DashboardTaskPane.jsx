@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Colors } from '../../constants';

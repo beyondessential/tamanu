@@ -1,4 +1,4 @@
-import { difference } from 'lodash';
+import { difference } from 'lodash-es';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
   DEVICE_SCOPES,

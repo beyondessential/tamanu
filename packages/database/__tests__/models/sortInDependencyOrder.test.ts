@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign,no-return-assign */
 
 import * as fc from 'fast-check';
-import { uniq } from 'lodash';
+import { uniq } from 'lodash-es';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 

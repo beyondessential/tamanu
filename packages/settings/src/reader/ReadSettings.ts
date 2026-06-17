@@ -1,4 +1,4 @@
-import { get as lodashGet, pick } from 'lodash';
+import { get as lodashGet, pick } from 'lodash-es';
 import { ExposedFlag, SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';

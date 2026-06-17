@@ -1,4 +1,5 @@
-import { snake } from 'case';
+import __cjs_case from 'case';
+const { snake } = __cjs_case;
 import { Sequelize } from 'sequelize';
 
 const SCHEMA = 'sync_snapshots';

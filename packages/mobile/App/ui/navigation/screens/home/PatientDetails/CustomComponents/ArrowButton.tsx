@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { StyledTouchableOpacity } from '/styled/common';
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ArrowDownIcon, ArrowUpIcon } from '/components/Icons';
 import { theme } from '/styled/theme';

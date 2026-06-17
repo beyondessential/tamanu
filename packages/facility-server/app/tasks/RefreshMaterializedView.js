@@ -1,5 +1,6 @@
 import config from 'config';
-import { pascal, snake } from 'case';
+import __cjs_case from 'case';
+const { pascal, snake } = __cjs_case;
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {

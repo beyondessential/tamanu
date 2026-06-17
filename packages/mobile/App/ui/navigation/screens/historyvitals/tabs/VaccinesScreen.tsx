@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
-import { groupBy } from 'lodash';
+import { groupBy } from 'lodash-es';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { PatientVaccineHistoryAccordion } from '~/ui/components/PatientVaccineHistoryAccordion';
 import { withPatient } from '~/ui/containers/Patient';

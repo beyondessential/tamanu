@@ -1,8 +1,8 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
-import { importerTransaction } from '../../../dist/admin/importer/importerEndpoint';
-import { referenceDataImporter } from '../../../dist/admin/referenceDataImporter';
+import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
+import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 
