@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { subject } from '@casl/ability';
 
 import { CenterView, FullView, RowView } from '~/ui/styled/common';
@@ -26,6 +26,7 @@ import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -109,40 +110,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       if (!response) return;
       if (isReferral) {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: Routes.HomeStack.ReferralStack.View,
-                state: {
-                  routes: [{ name: Routes.HomeStack.ReferralStack.ViewHistory.Index }],
-                  index: 0,
-                },
-              },
-            ],
-          }),
-        );
+        resetToReferralHistory(navigation);
       } else {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: Routes.HomeStack.ProgramStack.ProgramTabs.Index,
-                state: {
-                  routes: [
-                    {
-                      name: Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory,
-                      params: { latestResponseId: response.id },
-                    },
-                  ],
-                  index: 0,
-                },
-              },
-            ],
-          }),
-        );
+        resetToProgramSurveyHistory(navigation, response.id);
       }
     },
     [survey, components],
