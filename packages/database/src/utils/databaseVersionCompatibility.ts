@@ -32,7 +32,7 @@ function getShouldBypass(skipVersionCompatibilityCheck?: boolean): {
   return { shouldBypass: false, reason: null };
 }
 
-function normaliseStoredVersion(stored: string | null | undefined): string | null {
+function normalizeStoredVersion(stored: string | null | undefined): string | null {
   if (stored == null || UNINITIALISED_VALUES.has(stored)) {
     return null;
   }
@@ -96,7 +96,7 @@ export async function syncDatabaseServerVersion({
 
   const resolvedServerVersion = resolveServerVersion(serverVersion);
   const { LocalSystemFact } = models;
-  const stored = normaliseStoredVersion(await LocalSystemFact.get(FACT_CURRENT_VERSION));
+  const stored = normalizeStoredVersion(await LocalSystemFact.get(FACT_CURRENT_VERSION));
 
   if (!stored) {
     if (!checkOnly) {
