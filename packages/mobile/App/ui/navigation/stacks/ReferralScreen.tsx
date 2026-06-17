@@ -31,9 +31,6 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
       />
       <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
         <Tabs.Screen
-          initialParams={{
-            selectedPatient,
-          }}
           options={{
             tabBarLabel: () => (
               <TranslatedText

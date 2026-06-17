@@ -28,9 +28,6 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
       <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
       <Tabs.Navigator screenOptions={{ headerShown: false }}>
         <Tabs.Screen
-          initialParams={{
-            selectedPatient,
-          }}
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="program.action.viewHistory" fallback="View history" />
@@ -40,9 +37,6 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
           component={ProgramViewHistoryScreen}
         />
         <Tabs.Screen
-          initialParams={{
-            selectedPatient,
-          }}
           options={{
             tabBarLabel: () => <TranslatedText stringId="program.action.newForm" fallback="New form" />,
           }}
