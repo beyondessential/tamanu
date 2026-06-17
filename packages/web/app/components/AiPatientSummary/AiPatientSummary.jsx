@@ -74,11 +74,15 @@ export const AiPatientSummary = ({ patient }) => {
 
   const aiDocument = existingData?.aiDocument;
   const isDiscarded = aiDocument?.status === 'discarded';
-  const noExistingSummary = hasCheckedForExisting && !aiDocument;
-  const pendingGeneration = noExistingSummary && !error;
+  const requiresRegeneration = Boolean(existingData?.requiresRegeneration);
+  // A stale summary is treated as no summary: we hide it and wait for the regeneration
+  // triggered above to produce a fresh one (showing loading), or surface an error if it fails.
+  const hasDisplayableSummary = Boolean(aiDocument) && !isDiscarded && !requiresRegeneration;
+  const noDisplayableSummary = hasCheckedForExisting && !hasDisplayableSummary && !isDiscarded;
+  const pendingGeneration = noDisplayableSummary && !error;
   const isLoading = isLoadingExisting || isGenerating || pendingGeneration;
   const documentId = aiDocument?.id;
-  const summary = !isDiscarded ? aiDocument?.content : null;
+  const summary = hasDisplayableSummary ? aiDocument.content : null;
   const isHumanEdited = aiDocument?.source === 'human' && aiDocument?.status === 'edited';
 
   const handleEdit = () => {
