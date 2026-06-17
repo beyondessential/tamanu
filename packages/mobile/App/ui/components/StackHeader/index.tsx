@@ -1,10 +1,9 @@
 import React, { ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { theme } from '/styled/theme';
-import styled from 'styled-components/native';
 import {
   CenterView,
   RowView,
-  StyledView,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
@@ -79,44 +78,54 @@ interface IEmptyStackHeader {
   status?: React.ReactNode;
 }
 
-export const EmptyStackHeaderRow = styled.View`
-  max-width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: baseline;
-`;
+const HEADER_PADDING = 25;
+
+const emptyStackHeaderStyles = StyleSheet.create({
+  backButton: {
+    paddingTop: HEADER_PADDING,
+    paddingLeft: HEADER_PADDING,
+    paddingRight: HEADER_PADDING,
+    paddingBottom: HEADER_PADDING,
+  },
+  row: {
+    maxWidth: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  title: {
+    paddingLeft: HEADER_PADDING,
+    paddingRight: HEADER_PADDING,
+    paddingBottom: HEADER_PADDING,
+    fontSize: 24,
+    fontWeight: '500',
+    color: theme.colors.TEXT_DARK,
+    maxWidth: screenPercentageToDP(70, Orientation.Width),
+  },
+  statusContainer: {
+    paddingRight: HEADER_PADDING,
+    paddingBottom: HEADER_PADDING,
+  },
+});
 
 export const EmptyStackHeader = ({ title, onGoBack, status }: IEmptyStackHeader): ReactElement => (
   <StyledSafeAreaView background={theme.colors.WHITE} borderColor={theme.colors.LIGHT_GREY}>
-    <StyledTouchableOpacity
+    <TouchableOpacity
       accessibilityLabel="back"
-      paddingTop={'25'}
-      paddingLeft={'25'}
-      paddingRight={'25'}
-      paddingBottom={'25'}
+      style={emptyStackHeaderStyles.backButton}
       onPress={onGoBack}
     >
       <ArrowLeftIcon
         size={screenPercentageToDP(4.86, Orientation.Height)}
         fill={theme.colors.PRIMARY_MAIN}
       />
-    </StyledTouchableOpacity>
+    </TouchableOpacity>
 
-    <EmptyStackHeaderRow>
-      <StyledText
-        paddingLeft={'25'}
-        paddingRight={'25'}
-        paddingBottom={'25'}
-        color={theme.colors.TEXT_DARK}
-        fontSize={24}
-        fontWeight={500}
-        numberOfLines={2}
-        style={{ maxWidth: screenPercentageToDP(70, Orientation.Width) }}
-      >
+    <View style={emptyStackHeaderStyles.row}>
+      <StyledText numberOfLines={2} style={emptyStackHeaderStyles.title}>
         {title}
       </StyledText>
-      <StyledView paddingRight={'25'}>{status}</StyledView>
-    </EmptyStackHeaderRow>
+      {status ? <View style={emptyStackHeaderStyles.statusContainer}>{status}</View> : null}
+    </View>
   </StyledSafeAreaView>
 );

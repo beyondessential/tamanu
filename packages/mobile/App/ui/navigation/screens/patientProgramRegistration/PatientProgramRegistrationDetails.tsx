@@ -1,6 +1,6 @@
 import React from 'react';
 import { sortBy, groupBy } from 'lodash';
-import styled from 'styled-components';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import {
   TranslatedReferenceData,
@@ -11,40 +11,49 @@ import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translati
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks';
-import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-const Row = styled(StyledView)`
-  margin-left: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  flex-direction: row;
-  justify-content: flex-start;
-  border-bottom-width: 1px;
-  border-color: ${theme.colors.BOX_OUTLINE};
-`;
-
-const RowLabelContainer = styled(StyledView)`
-  width: 32%;
-`;
-
-const RowValueContainer = styled(StyledView)`
-  width: 68%;
-`;
-
-const RowLabel = styled(StyledText)`
-  font-size: 14px;
-  color: ${theme.colors.TEXT_MID};
-  font-weight: 400;
-`;
-
-const RowValue = styled(StyledText)`
-  margin-left: 10;
-  font-size: 14px;
-  color: ${theme.colors.TEXT_SUPER_DARK};
-  font-weight: 500;
-`;
+const styles = StyleSheet.create({
+  scroll: {
+    backgroundColor: theme.colors.WHITE,
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderColor: theme.colors.BOX_OUTLINE,
+  },
+  row: {
+    marginHorizontal: 20,
+    paddingVertical: 20,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: theme.colors.BOX_OUTLINE,
+  },
+  labelContainer: {
+    width: '40%',
+  },
+  valueContainer: {
+    width: '60%',
+  },
+  label: {
+    fontSize: 14,
+    color: theme.colors.TEXT_MID,
+    fontWeight: '400',
+  },
+  value: {
+    fontSize: 14,
+    color: theme.colors.TEXT_SUPER_DARK,
+    fontWeight: '500',
+  },
+  conditionValue: {
+    fontSize: 14,
+    color: theme.colors.TEXT_SUPER_DARK,
+    fontWeight: '500',
+    marginBottom: 10,
+  },
+});
 
 const DataRow = ({
   label,
@@ -52,30 +61,23 @@ const DataRow = ({
 }: {
   label: TranslatedTextElement;
   value: TranslatedTextElement;
-}) => {
-  return (
-    <Row>
-      <RowLabelContainer>
-        <RowLabel>{label}</RowLabel>
-      </RowLabelContainer>
-      <RowValueContainer>
-        <RowValue>{value}</RowValue>
-      </RowValueContainer>
-    </Row>
-  );
-};
+}) => (
+  <View style={styles.row}>
+    <View style={styles.labelContainer}>
+      <Text style={styles.label}>{label}</Text>
+    </View>
+    <View style={styles.valueContainer}>
+      <Text style={styles.value}>{value}</Text>
+    </View>
+  </View>
+);
 
 const HorizontalLine = ({ marginTop = 0, marginBottom = 0 }) => (
-  <StyledView
-    borderColor={theme.colors.BOX_OUTLINE}
-    borderBottomWidth={1}
-    marginTop={marginTop}
-    marginBottom={marginBottom}
-  />
+  <View style={[styles.divider, { marginTop, marginBottom }]} />
 );
 
 const TranslatedCondition = ({ condition }) => (
-  <RowValue marginBottom={10}>
+  <Text style={styles.conditionValue}>
     <TranslatedReferenceData
       fallback={condition.programRegistryCondition.name}
       value={condition.programRegistryCondition.id}
@@ -88,20 +90,18 @@ const TranslatedCondition = ({ condition }) => (
       category="programRegistryConditionCategory"
     />
     )
-  </RowValue>
+  </Text>
 );
 
 const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const { getTranslation } = useTranslation();
 
   const initConditions = Array.isArray(conditions) ? conditions : [];
-  // We hide recorded in error conditions
   const filteredConditions = initConditions.filter(
     ({ programRegistryConditionCategory }) =>
       programRegistryConditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 
-  // Sort alphabetically by condition name
   const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {
     const stringId = getReferenceDataStringId(
       programRegistryCondition.id,
@@ -121,14 +121,14 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const needsDivider = groupedConditions.closed && groupedConditions.open;
 
   return (
-    <Row>
-      <RowLabelContainer>
-        <RowLabel>
+    <View style={styles.row}>
+      <View style={styles.labelContainer}>
+        <Text style={styles.label}>
           <TranslatedText stringId="programRegistry.conditions.label" fallback="Conditions" />
-        </RowLabel>
-      </RowLabelContainer>
-      <RowValueContainer>
-        {initConditions.length === 0 && <RowValue>—</RowValue>}
+        </Text>
+      </View>
+      <View style={styles.valueContainer}>
+        {initConditions.length === 0 && <Text style={styles.value}>—</Text>}
         {groupedConditions.open &&
           groupedConditions.open.map((condition, i) => (
             <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
@@ -138,20 +138,33 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
           groupedConditions.closed.map((condition, i) => (
             <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
           ))}
-      </RowValueContainer>
-    </Row>
+      </View>
+    </View>
   );
 };
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
-  const { patientProgramRegistration } = route.params;
-  const [pprCondition] = useBackendEffect(
+  const patientProgramRegistrationId =
+    route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
+
+  const [patientProgramRegistration, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistration.id),
-    [patientProgramRegistration],
+      models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId),
+    [patientProgramRegistrationId],
   );
+
+  const [pprCondition, conditionsError, isConditionsLoading] = useBackendEffect(
+    async ({ models }) =>
+      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistrationId),
+    [patientProgramRegistrationId],
+  );
+
+  if (isRegistrationLoading || isConditionsLoading) return <LoadingScreen />;
+  if (registrationError) return <ErrorScreen error={registrationError} />;
+  if (conditionsError) return <ErrorScreen error={conditionsError} />;
+
   return (
-    <StyledScrollView background={theme.colors.WHITE}>
+    <ScrollView style={styles.scroll}>
       <HorizontalLine />
       <DataRow
         label={
@@ -195,6 +208,6 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         }
       />
       <PatientProgramRegistrationConditionsDetailsRow conditions={pprCondition} />
-    </StyledScrollView>
+    </ScrollView>
   );
 };

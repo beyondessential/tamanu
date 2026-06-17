@@ -103,7 +103,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
 
     navigation.dispatch(
       StackActions.replace(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
-        patientProgramRegistration: newPpr,
+        patientProgramRegistrationId: newPpr.id,
       }),
     );
   };

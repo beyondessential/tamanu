@@ -18,13 +18,14 @@ import { TranslatedReferenceData } from '~/ui/components/Translations/Translated
 
 const Stack = createStackNavigator();
 export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: BaseAppProps) => {
-  const { patientProgramRegistration } = route.params;
+  const patientProgramRegistrationId =
+    route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
   const { ability } = useAuth();
 
   const [registration, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistration.id),
-    [patientProgramRegistration.id],
+      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId),
+    [patientProgramRegistrationId],
   );
 
   if (isRegistrationLoading) return <LoadingScreen />;
@@ -62,7 +63,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
           <Stack.Screen
             name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
             component={PatientProgramRegistrationDetails}
-            initialParams={{ patientProgramRegistration: registration }}
+            initialParams={{ patientProgramRegistrationId: registration.id }}
           />
         </Stack.Navigator>
       </FullView>
