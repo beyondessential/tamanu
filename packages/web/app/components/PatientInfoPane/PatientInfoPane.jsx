@@ -267,12 +267,15 @@ export const PatientInfoPane = () => {
   );
 
   const readonly = !!patient.dateOfDeath;
+  const isPatientDeceased = readonly;
+  // Reverting a death record requires read as well as create: the revert link is only
+  // valid for a non-final record, and isFinal can only be determined with read access.
+  // Recording a new death only requires create.
+  const canActOnDeath = isPatientDeceased
+    ? canRecordPatientDeath && canReadPatientDeath
+    : canRecordPatientDeath;
   const showRecordDeathActions =
-    !isFetching &&
-    patientDeathsEnabled &&
-    !deathData?.isFinal &&
-    canRecordPatientDeath &&
-    canReadPatientDeath;
+    !isFetching && patientDeathsEnabled && !deathData?.isFinal && canActOnDeath;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
