@@ -1,4 +1,8 @@
 jest.mock('react-native/Libraries/Utilities/DevSettings', () => ({
-  addMenuItem: jest.fn(),
-  reload: jest.fn(),
+  __esModule: true,
+  default: {
+    addMenuItem: jest.fn(),
+    reload: jest.fn(),
+    onFastRefresh: jest.fn(),
+  },
 }));

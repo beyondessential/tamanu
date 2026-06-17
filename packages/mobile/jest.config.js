@@ -1,8 +1,8 @@
 module.exports = {
-  preset: '@testing-library/react-native',
+  preset: '@react-native/jest-preset',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community|-masked-view)?|@react-navigation|react-native-.*|typeorm)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community|-masked-view)?|@react-native-async-storage|@react-navigation|react-native-.*|typeorm)/)',
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',

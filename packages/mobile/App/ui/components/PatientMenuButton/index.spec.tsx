@@ -10,16 +10,16 @@ describe('<PatientMenuButton />', () => {
     Icon: DeceasedIcon,
   };
 
-  it('should render PatientMenuButton', () => {
-    const { getByText } = render(<PatientMenuButton {...props} />);
+  it('should render PatientMenuButton', async () => {
+    const { getByText } = await render(<PatientMenuButton {...props} />);
     const buttonTitle = getByText(props.title);
     expect(buttonTitle).not.toBeNull();
   });
 
-  it('should trigger onPress when pressed', () => {
-    const { getByText } = render(<PatientMenuButton {...props} />);
+  it('should trigger onPress when pressed', async () => {
+    const { getByText } = await render(<PatientMenuButton {...props} />);
     const buttonTitle = getByText(props.title);
-    fireEvent.press(buttonTitle);
+    await fireEvent.press(buttonTitle);
     expect(props.onPress).toHaveBeenCalled();
   });
 });

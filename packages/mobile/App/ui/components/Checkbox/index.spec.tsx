@@ -8,11 +8,11 @@ describe('<Checkbox />', () => {
     value: false,
     onChange: jest.fn(),
   };
-  const { getByText } = render(<Checkbox {...props} />);
 
-  it('should trigger onChange callback when pressed', () => {
+  it('should trigger onChange callback when pressed', async () => {
+    const { getByText } = await render(<Checkbox {...props} />);
     const text = getByText(props.text);
-    fireEvent.press(text);
+    await fireEvent.press(text);
     expect(props.onChange).toHaveBeenCalled();
   });
 });
