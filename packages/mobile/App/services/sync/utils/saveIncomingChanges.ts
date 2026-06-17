@@ -1,5 +1,5 @@
 import { In } from 'typeorm';
-import { chunk, groupBy, partition } from 'lodash';
+import { chunk, groupBy, partition } from 'lodash-es';
 
 import { SyncRecord } from '../types';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';

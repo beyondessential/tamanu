@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
-import { changePassword } from '../../dist/subCommands/user';
+import { changePassword } from '../../app/subCommands/user';
 
 // mock 'read' and provide implementation
 jest.mock('read');

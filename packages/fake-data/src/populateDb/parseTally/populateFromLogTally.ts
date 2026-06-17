@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { times } from 'lodash';
+import { times } from 'lodash-es';
 
 import { Models } from '@tamanu/database';
 

@@ -1,14 +1,4 @@
-import {
-  add,
-  differenceInDays,
-  differenceInMonths,
-  differenceInWeeks,
-  differenceInYears,
-  formatDuration,
-  intervalToDuration,
-  startOfDay,
-  type Duration,
-} from 'date-fns';
+import { add, differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, formatDuration, intervalToDuration, startOfDay } from 'date-fns';
 import { isISOString, parseDate } from './dateTime';
 
 export const getAgeDurationFromDate = (date: string | Date | null | undefined) => {

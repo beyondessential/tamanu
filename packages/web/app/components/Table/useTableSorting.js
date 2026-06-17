@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 import { useState } from 'react';
 
 export const useTableSorting = ({ initialSortKey, initialSortDirection }) => {

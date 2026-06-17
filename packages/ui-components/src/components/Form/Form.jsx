@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Formik, useFormikContext } from 'formik';
-import { isObject } from 'lodash';
+import { isObject } from 'lodash-es';
 import React, { isValidElement, useEffect } from 'react';
 import styled from 'styled-components';
 import { ValidationError } from 'yup';

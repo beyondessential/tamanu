@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
 import { DataToPersist, SyncRecord } from '../types';
 import { BaseModel } from '../../../models/BaseModel';

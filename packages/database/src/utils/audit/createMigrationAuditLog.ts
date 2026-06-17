@@ -1,5 +1,6 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
-import type { Migration } from 'umzug';
+import __cjs_umzug from 'umzug';
+const { Migration } = __cjs_umzug;
 import type { PreMigrationDbSnapshot } from './gatherPreMigrationDbSnapshot';
 
 export type MigrationLogStats = {

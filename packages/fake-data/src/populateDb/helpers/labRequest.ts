@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { times } from 'lodash-es';
 import { randomRecordId } from '../randomRecord.js';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';

@@ -1,7 +1,7 @@
 import { subject } from '@casl/ability';
 import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
-import { keyBy } from 'lodash';
+import { keyBy } from 'lodash-es';
 import { Plus } from 'lucide-react';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

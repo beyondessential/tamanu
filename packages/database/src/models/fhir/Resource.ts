@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 import { DataTypes, Sequelize, Utils, type InitOptions, type ModelAttributes } from 'sequelize';
 import { subMinutes } from 'date-fns';
-
 import {
   FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,

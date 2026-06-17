@@ -1,4 +1,4 @@
-import { camel } from 'case';
+import { camelCase as camel } from 'es-toolkit';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getSnapshotTableName } from './manageSnapshotTable';

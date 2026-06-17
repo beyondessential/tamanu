@@ -2,7 +2,7 @@ import { format, isSameDay } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { z } from 'zod';
 
 import {

@@ -1,4 +1,4 @@
-import { snake } from 'case';
+import { snakeCase as snake } from 'es-toolkit';
 import { Sequelize } from 'sequelize';
 
 const SCHEMA = 'sync_snapshots';

@@ -1,5 +1,5 @@
 import { QueryTypes } from 'sequelize';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues } from 'lodash-es';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 

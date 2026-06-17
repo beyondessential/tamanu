@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { escapeRegExp } from 'lodash';
+import { escapeRegExp } from 'lodash-es';
 import { Op } from 'sequelize';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';

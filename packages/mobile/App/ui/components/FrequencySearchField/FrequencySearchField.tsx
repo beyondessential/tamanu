@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
 import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '~/constants/medications';
-import { camelCase } from 'lodash';
+import { camelCase } from 'lodash-es';
 import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
 import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedText } from '../Translations/TranslatedText';

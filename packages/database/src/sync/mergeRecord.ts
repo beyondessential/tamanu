@@ -1,4 +1,4 @@
-import { snake } from 'case';
+import { snakeCase as snake } from 'es-toolkit';
 
 // utility that can pick the latest whole record, or single field, depending on what is passed in
 const pickLatest = (

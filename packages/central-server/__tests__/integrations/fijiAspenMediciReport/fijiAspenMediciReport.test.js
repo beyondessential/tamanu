@@ -1,5 +1,5 @@
 import config from 'config';
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
@@ -15,7 +15,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../../utilities';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
-import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+import { allFromUpstream } from '../../../app/tasks/fhir/refresh/allFromUpstream';
 
 jest.setTimeout(50000);
 

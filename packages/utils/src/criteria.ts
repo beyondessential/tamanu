@@ -1,4 +1,4 @@
-import { inRange } from 'lodash';
+import { inRange } from 'lodash-es';
 import { PROGRAM_DATA_ELEMENT_TYPES, type DataElementType } from '@tamanu/constants';
 
 const RESERVED_KEYS = ['_conjunction', 'hidden'];

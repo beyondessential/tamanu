@@ -1,5 +1,5 @@
-import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
-import { programImporter } from '../../dist/admin/programImporter';
+import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
+import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 

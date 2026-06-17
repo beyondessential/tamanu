@@ -10,7 +10,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { type PureAbility } from '@casl/ability';
-import { union } from 'lodash';
+import { union } from 'lodash-es';
 import { MODELS_MAP } from './modelsMap';
 @Entity('users')
 export class User extends BaseModel implements IUser {

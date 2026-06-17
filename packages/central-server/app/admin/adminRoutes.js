@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { unset, get as getAtPath, set as setAtPath } from 'lodash';
+import { unset, get as getAtPath, set as setAtPath } from 'lodash-es';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { InvalidParameterError, NotFoundError } from '@tamanu/errors';

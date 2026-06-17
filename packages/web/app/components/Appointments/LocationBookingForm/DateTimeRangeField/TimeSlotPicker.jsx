@@ -2,7 +2,7 @@ import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperT
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';

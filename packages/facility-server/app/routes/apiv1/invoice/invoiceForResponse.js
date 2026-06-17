@@ -1,4 +1,4 @@
-import { keyBy } from 'lodash';
+import { keyBy } from 'lodash-es';
 
 // Map invoice items with insurance plans and product codes & convert the Sequelize object to a plain object
 export const invoiceForResponse = invoiceRecord => {

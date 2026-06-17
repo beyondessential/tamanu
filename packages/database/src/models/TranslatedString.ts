@@ -5,7 +5,7 @@ import {
 } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues } from 'lodash-es';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';

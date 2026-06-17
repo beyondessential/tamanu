@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { pluralize } from 'inflection';

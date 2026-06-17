@@ -1,5 +1,5 @@
 import config from 'config';
-import { pascal, snake } from 'case';
+import { pascalCase as pascal, snakeCase as snake } from 'es-toolkit';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {

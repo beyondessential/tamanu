@@ -2,7 +2,7 @@ import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { Encounter } from '@tamanu/database';
 import { randomRecordId } from '../randomRecord.js';
 
-import { times } from 'lodash';
+import { times } from 'lodash-es';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 

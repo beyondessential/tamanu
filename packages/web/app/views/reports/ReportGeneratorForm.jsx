@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { keyBy, orderBy } from 'lodash';
+import { keyBy, orderBy } from 'lodash-es';
 import { format } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { get, merge } from 'lodash';
+import { get, merge } from 'lodash-es';
 
 const overrides = {}; // add keys to this object to help with development
 

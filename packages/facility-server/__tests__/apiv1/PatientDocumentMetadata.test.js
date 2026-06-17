@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { uploadAttachment } from '../../dist/utils/uploadAttachment';
+import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
 describe('PatientDocumentMetadata', () => {
   let baseApp;

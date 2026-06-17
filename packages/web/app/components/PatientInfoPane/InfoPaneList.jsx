@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Button, Collapse, Typography } from '@material-ui/core';
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';

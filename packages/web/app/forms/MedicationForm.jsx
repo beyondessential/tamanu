@@ -60,7 +60,7 @@ import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip } from '../components/Tooltip';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import {
   preventInvalidNumber,
   preventInvalidRepeatsInput,

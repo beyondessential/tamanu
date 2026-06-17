@@ -1,4 +1,4 @@
-import { snake } from 'case';
+import { snakeCase as snake } from 'es-toolkit';
 import { Utils } from 'sequelize';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { SessionConfig } from '../types/sync';

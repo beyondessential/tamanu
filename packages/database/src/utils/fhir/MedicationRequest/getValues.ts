@@ -1,5 +1,5 @@
 import config from 'config';
-import { isNaN } from 'lodash';
+import { isNaN } from 'lodash-es';
 
 import {
   FhirReference,

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash';
+import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash-es';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 

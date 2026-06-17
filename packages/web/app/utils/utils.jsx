@@ -1,7 +1,7 @@
 import React, { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { each, isArray, toString } from 'lodash';
+import { each, isArray, toString } from 'lodash-es';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';

@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { Chance } from 'chance';
-import { random } from 'lodash';
+import { random } from 'lodash-es';
 
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';

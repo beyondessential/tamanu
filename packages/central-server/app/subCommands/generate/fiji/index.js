@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { pick, uniq } from 'lodash';
+import { pick, uniq } from 'lodash-es';
 import { UniqueConstraintError } from 'sequelize';
 
 import { closeDatabase, initDatabase } from '../../../database';

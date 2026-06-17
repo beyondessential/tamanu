@@ -1,5 +1,5 @@
 import { DataTypes, Op, Sequelize } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash';
+import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } from 'lodash-es';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';

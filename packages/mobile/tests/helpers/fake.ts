@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { random, sample } from 'lodash';
+import { random, sample } from 'lodash-es';
 import { formatISO9075 } from 'date-fns';
 
 import {

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { useTranslation } from '../../contexts/Translation';
 import FormHelperText from '@mui/material/FormHelperText';
 import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';

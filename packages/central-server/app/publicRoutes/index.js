@@ -4,7 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues } from 'lodash-es';
 
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';

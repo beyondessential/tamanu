@@ -1,5 +1,5 @@
 import { format, formatISO9075 } from 'date-fns';
-import { camelCase } from 'lodash';
+import { camelCase } from 'lodash-es';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 import { checkJSONCriteria, parseSurveyTimeToHHmmss } from '@tamanu/utils';

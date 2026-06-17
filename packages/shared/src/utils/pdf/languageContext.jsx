@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
-import { cloneDeep, get } from 'lodash';
+import { cloneDeep, get } from 'lodash-es';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { registerFonts } from './registerFonts';

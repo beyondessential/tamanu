@@ -7,7 +7,7 @@ import {
   waitForSession,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 describe('CentralSyncManager.startSession', () => {
   let ctx;

@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { times } from 'lodash-es';
 
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import { randomRecordId } from '../randomRecord.js';

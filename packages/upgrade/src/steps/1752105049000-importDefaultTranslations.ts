@@ -1,5 +1,5 @@
 import { QueryTypes } from 'sequelize';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'lodash-es';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';

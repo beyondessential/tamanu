@@ -20,7 +20,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
 const preventInputCallback = e => {

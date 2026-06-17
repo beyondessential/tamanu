@@ -1,6 +1,6 @@
 import { REPORT_DB_CONNECTIONS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
-import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
+import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 import { User } from '@tamanu/database';
 import path from 'path';
 

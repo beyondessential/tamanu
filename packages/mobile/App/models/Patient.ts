@@ -1,7 +1,7 @@
 import { Column, Entity, Index, OneToMany, In } from 'typeorm';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
-import { groupBy } from 'lodash';
+import { groupBy } from 'lodash-es';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';

@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
 import { parseISO } from 'date-fns';
-import { omit, pick } from 'lodash';
+import { omit, pick } from 'lodash-es';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';

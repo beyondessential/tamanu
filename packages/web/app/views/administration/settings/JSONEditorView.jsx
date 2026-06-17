@@ -10,7 +10,7 @@ import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
-import { isNull } from 'lodash';
+import { isNull } from 'lodash-es';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};

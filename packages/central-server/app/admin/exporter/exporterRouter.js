@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { exporter } from './exporter';

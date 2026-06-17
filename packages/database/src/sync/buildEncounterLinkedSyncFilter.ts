@@ -1,5 +1,5 @@
 import { Utils } from 'sequelize';
-import { isObject, isString } from 'lodash';
+import { isObject, isString } from 'lodash-es';
 import { Model } from '../models/Model';
 
 export type JoinConfig =

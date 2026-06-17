@@ -20,7 +20,7 @@ describe('JWT Token Validation', () => {
 
   describe('JWT Token Structure', () => {
     it('Should create JWT tokens with correct payload structure', async () => {
-      const { buildToken } = require('../../dist/auth/utils');
+      const { buildToken } = require('../../app/auth/utils');
       const { User } = models;
 
       // Create a test user
@@ -58,7 +58,7 @@ describe('JWT Token Validation', () => {
     });
 
     it('Should create JWT tokens with optional deviceId and facilityId', async () => {
-      const { buildToken } = require('../../dist/auth/utils');
+      const { buildToken } = require('../../app/auth/utils');
       const { User, Device, Facility } = models;
 
       const user = await User.create({
@@ -107,7 +107,7 @@ describe('JWT Token Validation', () => {
 
   describe('JWT Token Verification', () => {
     it('Should correctly verify JWT tokens using User.loginFromToken', async () => {
-      const { buildToken } = require('../../dist/auth/utils');
+      const { buildToken } = require('../../app/auth/utils');
       const { User } = models;
 
       const user = await User.create({
@@ -143,7 +143,7 @@ describe('JWT Token Validation', () => {
     });
 
     it('Should handle JWT tokens with deviceId correctly', async () => {
-      const { buildToken } = require('../../dist/auth/utils');
+      const { buildToken } = require('../../app/auth/utils');
       const { User, Device } = models;
 
       const user = await User.create({
@@ -195,7 +195,7 @@ describe('JWT Token Validation', () => {
     });
 
     it('Should reject JWT tokens with non-existent userId', async () => {
-      const { buildToken } = require('../../dist/auth/utils');
+      const { buildToken } = require('../../app/auth/utils');
       const { User } = models;
 
       const fakeUserId = '99999999-9999-9999-9999-999999999999';

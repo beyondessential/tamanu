@@ -1,7 +1,7 @@
 import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { set } from 'lodash';
+import { set } from 'lodash-es';
 
 import { buildErrorHandler } from '../../middleware/errorHandler';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';

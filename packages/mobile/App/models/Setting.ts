@@ -1,5 +1,5 @@
 import { Brackets, Column, RelationId, Entity, ManyToOne } from 'typeorm';
-import { get as getAtPath, merge, set as setAtPath } from 'lodash';
+import { get as getAtPath, merge, set as setAtPath } from 'lodash-es';
 
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';

@@ -1,4 +1,4 @@
-import { snake } from 'case';
+import { snakeCase as snake } from 'es-toolkit';
 import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
 import type { Model } from '../models/Model';
 

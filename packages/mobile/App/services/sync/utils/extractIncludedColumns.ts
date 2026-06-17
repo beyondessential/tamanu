@@ -1,4 +1,4 @@
-import { without } from 'lodash';
+import { without } from 'lodash-es';
 
 import { BaseModel } from '../../../models/BaseModel';
 

@@ -2,7 +2,7 @@ import React, { Component, useId } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, groupBy, map } from 'lodash';
+import { debounce, groupBy, map } from 'lodash-es';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { StyledTextField } from './TextField';
 import { TAMANU_COLORS } from '../../constants';

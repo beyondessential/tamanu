@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { camelCase } from 'lodash';
+import { camelCase } from 'lodash-es';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 import { getPatientNameAsString } from '../components';
 import { useApi, useTranslation, useDateTime } from '../contexts';

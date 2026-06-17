@@ -1,4 +1,4 @@
-import { sample } from 'lodash';
+import { sample } from 'lodash-es';
 import * as yup from 'yup';
 
 import { FHIR_ENCOUNTER_LOCATION_STATUS } from '@tamanu/constants';

@@ -1,5 +1,5 @@
 import mitt from 'mitt';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 
 import { LocalDataService } from './localData';
 

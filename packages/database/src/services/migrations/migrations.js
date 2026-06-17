@@ -55,8 +55,8 @@ const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdate
 
 /** @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }} */
 export function createMigrationInterface(log, sequelize) {
-  // ie, database/dist/cjs/migrations
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+  // ie, database/src/migrations
+  const migrationsDir = path.join(import.meta.dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)

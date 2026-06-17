@@ -1,6 +1,6 @@
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { styled } from '@mui/material/styles';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useTranslation, TranslatedText } from '@tamanu/ui-components';

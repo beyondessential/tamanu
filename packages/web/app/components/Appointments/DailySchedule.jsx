@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { groupBy } from 'lodash';
+import { groupBy } from 'lodash-es';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';

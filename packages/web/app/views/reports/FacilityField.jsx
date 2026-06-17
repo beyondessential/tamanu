@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useSuggester } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 import { useFormikContext } from 'formik';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { FIELD_TYPES_SUPPORTING_FILTER_BY_SELECTED_FACILITY } from './ParameterField';
 
 export const FacilityField = ({

@@ -1,4 +1,4 @@
-import { groupBy as lodashGroupBy } from 'lodash';
+import { groupBy as lodashGroupBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';

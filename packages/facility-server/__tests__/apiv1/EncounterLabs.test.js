@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';

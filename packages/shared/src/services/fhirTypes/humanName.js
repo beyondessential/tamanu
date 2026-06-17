@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { sample } from 'lodash';
+import { sample } from 'lodash-es';
 import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';
