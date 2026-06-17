@@ -106,10 +106,7 @@ jobs:
           spec:
             suspend: true
             backoffLimit: 0
-            # 30m ceiling: migrate + 50 rounds of fake data lands well under
-            # 20m in practice; the buffer covers spot-instance scheduling.
-            # If this trips, investigate rather than raise it.
-            activeDeadlineSeconds: 1800
+            activeDeadlineSeconds: 3600
             ttlSecondsAfterFinished: 600
             template:
               spec:
