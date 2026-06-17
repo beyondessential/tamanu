@@ -1,11 +1,11 @@
 import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-conventions';
 import config from 'config';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import os from 'os';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 export const ENV = process.env.NODE_ENV ?? 'development';
-export const PROCESS_ID = shortid();
+export const PROCESS_ID = nanoid();
 export const HOSTNAME = os.hostname();
 
 const SemanticAttributes = {

@@ -1,5 +1,5 @@
 import config from 'config';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 
 /**
@@ -15,7 +15,7 @@ export async function initDeviceId({ context, deviceType }) {
   const { LocalSystemFact } = context.store?.models || context.models;
   let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
-    deviceId = config.deviceId ?? `${deviceType}-${shortid()}`;
+    deviceId = config.deviceId ?? `${deviceType}-${nanoid()}`;
     await LocalSystemFact.setIfAbsent(FACT_DEVICE_ID, deviceId);
   } else if (config.deviceId && deviceId !== config.deviceId) {
     throw new Error(

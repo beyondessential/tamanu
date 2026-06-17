@@ -1,5 +1,5 @@
 import { SpanStatusCode } from '@opentelemetry/api';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import { scheduleJob } from 'node-schedule';
 import ms from 'ms';
 
@@ -82,7 +82,7 @@ export class ScheduledTask {
     }
 
     span.addEvent('pre-start');
-    const runId = shortid();
+    const runId = nanoid();
     span.setAttribute('task.runId', runId);
 
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });

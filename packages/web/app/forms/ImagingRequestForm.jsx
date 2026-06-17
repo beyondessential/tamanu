@@ -2,7 +2,7 @@ import { camelCase } from 'lodash-es';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES, FORM_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
@@ -85,7 +85,7 @@ export const ImagingRequestForm = React.memo(
     encounter = {},
     onSubmit,
     editedObject,
-    generateId = shortid.generate,
+    generateId = nanoid,
     setOnSuccess,
   }) => {
     const { formatShort, getCurrentDateTime } = useDateTime();
