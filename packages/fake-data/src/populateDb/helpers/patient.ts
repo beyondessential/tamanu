@@ -22,8 +22,14 @@ export const createPatient = async ({
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
-  const { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData } =
-    models;
+  const {
+    Patient,
+    PatientBirthData,
+    PatientAllergy,
+    PatientAdditionalData,
+    PatientDeathData,
+    ReferenceData,
+  } = models;
 
   const patient = await Patient.create(fake(Patient));
   await PatientAdditionalData.create(
@@ -52,14 +58,15 @@ export const createPatient = async ({
   }
 
   for (const _ of times(allergyCount)) {
-    const allergy = await models.ReferenceData.findOne({
-      where: { type: REFERENCE_TYPES.ALLERGY },
-      order: models.ReferenceData.sequelize.random(),
-    });
+    // The seed doesn't import allergy reference data, so create the allergy this
+    // PatientAllergy refers to — otherwise allergyId would be left null.
+    const allergy = await ReferenceData.create(
+      fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY }),
+    );
     await PatientAllergy.create(
       fake(PatientAllergy, {
         patientId: patient.id,
-        allergyId: allergy?.id ?? null,
+        allergyId: allergy.id,
       }),
     );
   }
