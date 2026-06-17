@@ -1,15 +1,34 @@
-import React, { PropsWithChildren, ReactElement, ReactNode, useState } from 'react';
+import React, {
+  isValidElement,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+  useState,
+} from 'react';
 import { View } from 'react-native';
 import { RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { theme } from '/styled/theme';
 import { ArrowButton } from './ArrowButton';
+import { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
 
 interface PatientDetailSectionProps {
   title: ReactNode;
   onEdit?: () => void;
   isClosable?: boolean;
+}
+
+function getSectionLabel(title: ReactNode): string {
+  if (typeof title === 'string') {
+    return title;
+  }
+
+  if (isValidElement<TranslatedTextProps>(title)) {
+    return title.props.fallback;
+  }
+
+  return '';
 }
 
 export const PatientSection = ({
@@ -25,10 +44,7 @@ export const PatientSection = ({
     setIsOpen(prevValue => !prevValue);
   };
 
-  const sectionLabel =
-    typeof title === 'string'
-      ? title
-      : ((title as ReactElement)?.props as { fallback?: string })?.fallback ?? '';
+  const sectionLabel = getSectionLabel(title);
 
   return (
     <View>
