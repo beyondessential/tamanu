@@ -1,5 +1,5 @@
 import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from '@tamanu/constants';
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';

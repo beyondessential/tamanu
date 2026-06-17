@@ -106,7 +106,7 @@ jobs:
           spec:
             suspend: true
             backoffLimit: 0
-            activeDeadlineSeconds: 3600
+            activeDeadlineSeconds: 7200
             ttlSecondsAfterFinished: 600
             template:
               spec:

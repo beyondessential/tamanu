@@ -1,4 +1,4 @@
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';

@@ -3,6 +3,7 @@ import { times } from 'lodash';
 
 import { Models } from '@tamanu/database';
 
+import { resetRandomRecordCache } from '../randomRecord.js';
 import {
   createAdministeredVaccine,
   createDbReport,
@@ -55,6 +56,7 @@ export const readJSON = async (path: string): Promise<object> => {
 //  ...
 // }
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
+  resetRandomRecordCache();
   await generateImportData(models);
 
   const tallyJson = await readJSON(tallyFilePath);

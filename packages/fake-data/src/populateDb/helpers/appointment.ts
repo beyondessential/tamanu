@@ -1,7 +1,7 @@
 import { times } from 'lodash';
 
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams, ExtendedCommonParams } from './common.js';

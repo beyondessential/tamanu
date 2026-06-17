@@ -16,8 +16,11 @@ import {
   createAccessLog,
   generateImportData,
 } from './helpers/index.js';
+import { resetRandomRecordCache } from './randomRecord.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
+  // Fresh id cache each round so random picks see rows added by earlier rounds.
+  resetRandomRecordCache();
   // Create one of each basic deployment/reference data to reference for clinical data
   const {
     referenceData,
