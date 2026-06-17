@@ -20,6 +20,9 @@ const cssReset = {
   ':where(button, input, textarea, select)': {
     touchAction: 'manipulation',
   },
+  iframe: {
+    border: 0,
+  },
   /**
    * WebKit doesn’t apply implicit ‘list’ role from <ol>s and <ul>s when list-style-type is
    * ‘none’ unless nested in a <nav>. Intentional on WebKit’s part, but usually undesirable.
@@ -77,6 +80,7 @@ const themeConfig = {
     action: {
       hover: Colors.veryLightBlue,
     },
+    divider: Colors.outline,
     spacing: {
       unit: MUI_SPACING_UNIT,
     },
@@ -118,6 +122,11 @@ const themeConfig = {
         letterSpacing: '0.02em',
         paddingBlock: 4,
         paddingInline: 12,
+      },
+    },
+    MuiTableCell: {
+      root: {
+        borderBottom: `1px solid ${Colors.outline}`,
       },
     },
   },
@@ -165,6 +174,13 @@ const themeConfig = {
         root: {
           minHeight: '48px',
           textTransform: 'none',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: `1px solid ${Colors.outline}`,
         },
       },
     },

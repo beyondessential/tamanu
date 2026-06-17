@@ -198,7 +198,8 @@ export const format = (date: DateInput, formatStr: string) => {
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
 
-export const locale = globalThis.navigator?.language ?? 'default';
+/** The locale the runtime actually formats with when none is specified. */
+export const locale = Intl.DateTimeFormat().resolvedOptions().locale;
 
 export const isStartOfThisWeek = (date: Date | number) =>
   isSameDay(date, startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -230,17 +231,23 @@ export const eachDayInMonth = (date: Date) =>
   });
 
 const iso9075Validator = (regex: RegExp, message: string) =>
-  z.string().refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), { message });
+  z.string().refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), {
+    message,
+  });
 
 export const dateCustomValidation = iso9075Validator(
   /^\d{4}-\d{2}-\d{2}$/,
   'Invalid date format, expected YYYY-MM-DD',
 ).describe('__dateCustomValidation__');
 
-export const timeCustomValidation = z.string().refine(
-  (val: string) => /^\d{2}:\d{2}:\d{2}$/.test(val),
-  { message: 'Invalid time format, expected HH:MM:SS' },
-);
+/** Canonical 24-hour time stored in `survey_response_answers.body` for `Time` questions. */
+export const PLAIN_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
+export const timeCustomValidation = z
+  .string()
+  .refine((val: string) => PLAIN_TIME_PATTERN.test(val), {
+    message: 'Invalid time format, expected HH:MM:SS',
+  });
 
 export const datetimeCustomValidation = iso9075Validator(
   /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
@@ -463,3 +470,38 @@ export const getDayBoundaries = (
   if (!start || !end) return null;
   return { start, end };
 };
+
+// --- Survey `Time` program data element (wall clock, no timezone in string) ---
+
+export function isValidSurveyTimeBody(value: string | null | undefined): boolean {
+  if (value == null) return false;
+  const s = value.trim();
+  if (s === '') return false;
+  return PLAIN_TIME_PATTERN.test(s);
+}
+
+/**
+ * Normalize user/import strings to `HH:mm:ss`, or `null` if empty/invalid.
+ * Accepts `HH:mm:ss` (validated) or `HH:mm` (seconds padded to `:00`).
+ */
+export function parseSurveyTimeToHHmmss(input: string | null | undefined): string | null {
+  const trimmed = input?.trim();
+  if (!trimmed) return null;
+
+  if (PLAIN_TIME_PATTERN.test(trimmed)) return trimmed;
+
+  const hhmm = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  const match = trimmed.match(hhmm);
+  if (match) {
+    const [, hour, minute] = match;
+    return `${hour}:${minute}:00`;
+  }
+
+  return null;
+}
+
+/** Format a JS Date as survey Time body (time-of-day only, no timezone in string). */
+export function formatSurveyTimeFromDate(date: Date): string | null {
+  if (!isValid(date)) return null;
+  return dateFnsFormat(date, 'HH:mm:ss');
+}

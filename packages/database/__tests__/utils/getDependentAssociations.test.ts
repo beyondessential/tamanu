@@ -1,4 +1,4 @@
-import { getDependentAssociations } from '../../src/utils/getDependentAssociations';
+import { getDependentAssociations } from '@tamanu/shared/utils/getDependentAssociations';
 import { createTestDatabase, closeDatabase } from '../utilities';
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 

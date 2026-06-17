@@ -3,7 +3,6 @@ import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
 import { StyledText, StyledView } from '/styled/common';
-import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -12,6 +11,7 @@ import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -86,6 +86,7 @@ export const DateField = React.memo(
     labelColor = theme.colors.TEXT_SUPER_DARK,
     fieldFontSize = screenPercentageToDP(2.18, Orientation.Height),
   }: DateFieldProps) => {
+    const { formatDate } = useDateFormatter();
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [currentPickerMode, setCurrentPickerMode] = useState<'date' | 'time'>('date');
     const [tempDate, setTempDate] = useState<Date | null>(null);
@@ -141,7 +142,7 @@ export const DateField = React.memo(
           return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
       }
       return null;
-    }, [mode, value]);
+    }, [mode, value, dateValue, formatDate]);
 
     const IconComponent = mode === 'time' ? Icons.ClockIcon : Icons.CalendarIcon;
 

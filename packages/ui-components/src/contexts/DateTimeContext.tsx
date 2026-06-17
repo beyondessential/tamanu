@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { mapValues } from 'lodash';
 
 import {
+  locale as runtimeLocale,
   toFacilityDateTime,
   toStoredDateTime,
   getCurrentDateStringInTimezone,
@@ -25,6 +26,8 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   primaryTimeZone: string;
   facilityTimeZone?: string | null;
+  /** Effective date/time formatting locale (`dateTimeLocale` setting ?? runtime default) */
+  locale: string;
   /** Get current date string in facilityTimeZone */
   getCurrentDate: () => string;
   /** Get current datetime string in primaryTimeZone (ISO 9075) */
@@ -45,6 +48,7 @@ interface DateTimeProviderProps {
   children: React.ReactNode;
   primaryTimeZone?: string;
   facilityTimeZone?: string | null;
+  dateTimeLocale?: string | null;
 }
 
 /** Exported so consumers can inject a datetime value (e.g. when rendering in an isolated root for export). */
@@ -67,21 +71,24 @@ const DateTimeProviderInner = ({
   children,
   primaryTimeZone,
   facilityTimeZone,
+  locale,
 }: {
   children: React.ReactNode;
   primaryTimeZone: string;
   facilityTimeZone?: string | null;
+  locale?: string | null;
 }) => {
   const bindTimeZones = useCallback(
     (fn: (...args: any[]) => any) => (date?: DateInput) =>
-      fn(date, primaryTimeZone, facilityTimeZone),
-    [primaryTimeZone, facilityTimeZone],
+      fn(date, primaryTimeZone, facilityTimeZone, locale ?? undefined),
+    [primaryTimeZone, facilityTimeZone, locale],
   );
 
   const value = useMemo(
     (): DateTimeContextValue => ({
       primaryTimeZone,
       facilityTimeZone,
+      locale: locale ?? runtimeLocale,
       ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
@@ -92,7 +99,7 @@ const DateTimeProviderInner = ({
       storedDateTimeToEpochMilliseconds: storedValue =>
         storedDateTimeToEpochMilliseconds(storedValue, primaryTimeZone),
     }),
-    [primaryTimeZone, facilityTimeZone, bindTimeZones],
+    [primaryTimeZone, facilityTimeZone, locale, bindTimeZones],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);
@@ -102,6 +109,7 @@ export const DateTimeProvider = ({
   children,
   primaryTimeZone: primaryTimeZoneProp,
   facilityTimeZone: facilityTimeZoneProp,
+  dateTimeLocale: dateTimeLocaleProp,
 }: DateTimeProviderProps) => {
   const { primaryTimeZone: authPrimaryTimeZone } = useAuth();
   const { getSetting } = useSettings();
@@ -120,10 +128,15 @@ export const DateTimeProvider = ({
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
 
+  const locale = usePropsMode
+    ? dateTimeLocaleProp
+    : (getSetting('dateTimeLocale') as string | undefined);
+
   return (
     <DateTimeProviderInner
       primaryTimeZone={primaryTimeZone}
       facilityTimeZone={facilityTimeZone}
+      locale={locale}
     >
       {children}
     </DateTimeProviderInner>

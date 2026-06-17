@@ -1,5 +1,4 @@
 export * from './beforeDestroyHooks';
-export * from './getDependentAssociations';
 export * from './onCreateEncounterMarkPatientForSync';
 export * from './recordModelChanges';
 export * from './sortInDependencyOrder';

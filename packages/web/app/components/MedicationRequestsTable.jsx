@@ -1,6 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useSearchParams } from 'react-router';
 import { SearchTableWithPermissionCheck } from './Table';
+import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
@@ -130,12 +132,15 @@ const getDateSent = ({ pharmacyOrder }, formatTime) => {
   );
 };
 
+const DISPENSE_PATIENT_PARAM = 'dispense';
+
 export const MedicationRequestsTable = () => {
   const { formatTime } = useDateTime();
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
   const { getSetting } = useSettings();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -143,6 +148,17 @@ export const MedicationRequestsTable = () => {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
+
+  const dispensePatientIdFromUrl = searchParams.get(DISPENSE_PATIENT_PARAM);
+  const { data: restoredPatient } = usePatientDataQuery(dispensePatientIdFromUrl ?? undefined);
+  const hasRestoredFromUrl = useRef(false);
+
+  useEffect(() => {
+    if (hasRestoredFromUrl.current || !dispensePatientIdFromUrl || !restoredPatient) return;
+    hasRestoredFromUrl.current = true;
+    setSelectedPatient(restoredPatient);
+    setIsDispenseOpen(true);
+  }, [dispensePatientIdFromUrl, restoredPatient]);
 
   const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
@@ -332,16 +348,34 @@ export const MedicationRequestsTable = () => {
     if (!patient?.id) return;
     setSelectedPatient(patient);
     setIsDispenseOpen(true);
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.set(DISPENSE_PATIENT_PARAM, patient.id);
+        return next;
+      },
+      { replace: true },
+    );
   };
+
+  const handleDispenseClose = useCallback(() => {
+    setIsDispenseOpen(false);
+    setSelectedPatient(null);
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.delete(DISPENSE_PATIENT_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
 
   return (
     <>
       <DispenseMedicationWorkflowModal
         open={isDispenseOpen}
-        onClose={() => {
-          setIsDispenseOpen(false);
-          setSelectedPatient(null);
-        }}
+        onClose={handleDispenseClose}
         patient={selectedPatient}
         onDispenseSuccess={handleTableRefresh}
       />

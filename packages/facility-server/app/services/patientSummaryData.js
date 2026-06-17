@@ -1,5 +1,7 @@
+import { differenceInYears, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 import { VACCINE_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ageInYears } from '@tamanu/utils/dateTime';
 
 const PATIENT_SUMMARY_DATA_LIMIT = 20;
 
@@ -24,6 +26,7 @@ export async function fetchPatientSummaryData(patientId, models) {
     AdministeredVaccine,
     LabRequest,
     ImagingRequest,
+    PatientDeathData,
   } = models;
 
   // 1. Demographics
@@ -175,8 +178,25 @@ export async function fetchPatientSummaryData(patientId, models) {
     limit: PATIENT_SUMMARY_DATA_LIMIT,
   });
 
+  // 12. Death information (deceased patients only)
+  let deathData = null;
+  if (patient?.dateOfDeath) {
+    deathData = await PatientDeathData.findOne({
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { association: 'primaryCauseCondition' },
+        { association: 'antecedentCause1Condition' },
+        { association: 'antecedentCause2Condition' },
+        { association: 'antecedentCause3Condition' },
+        { association: 'contributingCauses', include: ['condition'] },
+      ],
+    });
+  }
+
   return {
     patient: formatPatient(patient),
+    death: formatDeath(deathData, patient?.dateOfDeath),
     allergies: allergies.map(formatAllergy),
     conditions: conditions.map(formatCondition),
     issues: issues.map(formatIssue),
@@ -192,12 +212,43 @@ export async function fetchPatientSummaryData(patientId, models) {
   };
 }
 
+function getPatientAge({ dateOfBirth, dateOfDeath }) {
+  if (!dateOfBirth) return undefined;
+  // For a deceased patient, report age at death rather than current age.
+  if (dateOfDeath) return differenceInYears(parseISO(dateOfDeath), parseISO(dateOfBirth));
+  return ageInYears(dateOfBirth);
+}
+
 function formatPatient(p) {
   if (!p) return null;
   return {
     firstName: p.firstName,
+    age: getPatientAge(p),
     dateOfDeath: p.dateOfDeath,
     sex: p.sex,
+  };
+}
+
+function formatDeath(deathData, dateOfDeath) {
+  if (!dateOfDeath) return null;
+
+  const formatCause = (condition, timeAfterOnset) =>
+    condition ? { condition: condition.name, timeAfterOnset } : null;
+
+  return {
+    dateOfDeath,
+    manner: deathData?.manner,
+    primaryCause: formatCause(
+      deathData?.primaryCauseCondition,
+      deathData?.primaryCauseTimeAfterOnset,
+    ),
+    antecedentCauses: [
+      formatCause(deathData?.antecedentCause1Condition, deathData?.antecedentCause1TimeAfterOnset),
+      formatCause(deathData?.antecedentCause2Condition, deathData?.antecedentCause2TimeAfterOnset),
+      formatCause(deathData?.antecedentCause3Condition, deathData?.antecedentCause3TimeAfterOnset),
+    ].filter(Boolean),
+    contributingCauses:
+      deathData?.contributingCauses?.map(c => c.condition?.name).filter(Boolean) ?? [],
   };
 }
 
@@ -215,7 +266,7 @@ function formatCondition(c) {
     condition: c.condition?.name,
     resolved: c.resolved,
     recordedDate: c.recordedDate,
-    resolutionDate: c.resolutionDate,
+    resolutionDate: c.resolved ? c.resolutionDate : undefined,
     note: c.note,
   };
 }

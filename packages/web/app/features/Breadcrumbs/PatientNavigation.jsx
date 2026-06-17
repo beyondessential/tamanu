@@ -1,11 +1,13 @@
 import React from 'react';
-import { matchPath, useLocation, useNavigate } from 'react-router';
+import { matchPath, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { Breadcrumbs } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { BackButton, NoteModalActionBlocker } from '../../components';
+import { useGoBack } from '../../hooks';
 import { PatientBreadcrumb, CategoryBreadcrumb } from './PatientBreadcrumbs';
 import { PATIENT_PATHS } from '../../constants/patientPaths';
+import { usePreviousLocation } from '../../utils/usePreviousLocation';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
@@ -59,15 +61,24 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
 };
 
 export const PatientNavigation = ({ patientRoutes }) => {
-  const navigate = useNavigate();
-  const navigateBack = () => navigate(-1);
+  const navigateBack = useGoBack();
   const routeBreadcrumbs = RouteBreadcrumbs({ patientRoutes });
+
+  const previousLocation = usePreviousLocation();
+  const backWouldStayInPatient = Boolean(
+    previousLocation &&
+      matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, previousLocation.pathname),
+  );
+
+  const backButton = <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />;
 
   return (
     <StickyContainer data-testid="stickycontainer-ju8w">
-      <NoteModalActionBlocker isNavigationBlock>
-        <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />
-      </NoteModalActionBlocker>
+      {backWouldStayInPatient ? (
+        backButton
+      ) : (
+        <NoteModalActionBlocker isNavigationBlock>{backButton}</NoteModalActionBlocker>
+      )}
       <VerticalDivider data-testid="verticaldivider-yzxo" />
       <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
         <NoteModalActionBlocker isNavigationBlock>

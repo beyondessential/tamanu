@@ -7,6 +7,7 @@ import {
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  COLORS,
 } from '@tamanu/constants';
 import { parseDate, trimToDate } from '@tamanu/utils/dateTime';
 
@@ -175,21 +176,25 @@ const NotesCell = ({ children, style = {} }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
-const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+const MultipageTableHeading = ({ title, style = textStyles.sectionTitle, continued = false }) => {
   const { getTranslation } = useLanguageContext();
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
+  const continuedTitle = `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
   return (
     <Text
       bold
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
+        // `continued` means this section already carries on from an earlier merged document, so
+        // every page (including the first) reads as a continuation.
+        if (continued) {
+          return continuedTitle;
+        }
         if (pageNumber < firstPageOccurrence && subPageNumber) {
           firstPageOccurrence = pageNumber;
         }
-        return pageNumber === firstPageOccurrence
-          ? title
-          : `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
+        return pageNumber === firstPageOccurrence ? title : continuedTitle;
       }}
     />
   );
@@ -268,8 +273,7 @@ const NoteFooter = ({ note }) => {
     !isTreatmentPlan && note.revisedBy?.author ? note.revisedBy.author : note.author;
   const originalOnBehalf =
     !isTreatmentPlan && note.revisedBy ? note.revisedBy.onBehalfOf : note.onBehalfOf;
-  const originalDate =
-    !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
+  const originalDate = !isTreatmentPlan && note.revisedBy?.date ? note.revisedBy.date : note.date;
 
   const baseLine = [
     isTreatmentPlan && `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
@@ -285,7 +289,7 @@ const NoteFooter = ({ note }) => {
     .filter(Boolean)
     .join(' ');
 
-  const editCount = !isTreatmentPlan ? note.editCount ?? 0 : 0;
+  const editCount = !isTreatmentPlan ? (note.editCount ?? 0) : 0;
   if (editCount <= 0) {
     return <Text style={textStyles.tableCellFooter}>{baseLine}</Text>;
   }
@@ -333,13 +337,18 @@ const NoteTypeHeading = ({ note }) => {
   );
 };
 
-const NotesSection = ({ notes }) => {
+const NotesSection = ({ notes, continued = false }) => {
   const { getTranslation } = useLanguageContext();
+  // Notes can be split across merged documents. Continuation documents render the heading as
+  // "Notes cont..." so it reads as a follow-on from the first chunk rather than a new section.
   return (
     <>
       <View minPresenceAhead={80} />
       <View>
-        <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
+        <MultipageTableHeading
+          title={getTranslation('general.notes.label', 'Notes')}
+          continued={continued}
+        />
         <Table>
           {notes.map(note => (
             <React.Fragment key={note.id}>
@@ -361,6 +370,32 @@ const NotesSection = ({ notes }) => {
   );
 };
 
+const EncounterSummarySection = ({ summary }) => {
+  const { getTranslation } = useLanguageContext();
+  const paragraphs = summary.split(/\n+/).filter(Boolean);
+  return (
+    <View wrap={false} minPresenceAhead={80} style={{ marginTop: 10 }}>
+      <MultipageTableHeading
+        title={getTranslation('pdf.encounterRecord.section.encounterSummary', 'Encounter summary')}
+      />
+      <View style={{ border: borderStyle, padding: 7 }}>
+        {paragraphs.map((paragraph, i) => (
+          <Text key={i} style={[textStyles.tableCellContent, i > 0 && { marginTop: 6 }]}>
+            {paragraph}
+          </Text>
+        ))}
+      </View>
+      <Text bold style={[textStyles.tableCellFooter, { color: COLORS.grey, marginTop: 4 }]}>
+        {getTranslation(
+          'ai.encounterSummary.disclaimer',
+          'This is AI generated and may contain inaccuracies. Please check carefully.',
+        )}
+      </Text>
+      <SectionSpacing />
+    </View>
+  );
+};
+
 const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
@@ -377,11 +412,27 @@ const EncounterRecordPrintoutComponent = ({
   vitalsData,
   recordedDates,
   settings,
+  encounterSummary,
+  // Which slice of the document to render. The default 'full' renders everything in one
+  // document (unchanged behaviour). To bound memory for encounters with very large note
+  // counts, the render is instead split into 'main' (every section + the first chunk of
+  // notes), one or more 'notes' continuation documents, and a trailing 'vitals' document,
+  // which are rendered separately and merged. See packages/web/app/utils/pdf.
+  section = 'full',
 }) => {
   const getSetting = key => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTime();
   const { watermark, logo } = certificateData;
+
+  const isChunked = section !== 'full';
+  const renderMainPage = section === 'full' || section === 'main';
+  const renderNotesContinuation = section === 'notes';
+  const renderVitals = section === 'full' || section === 'vitals';
+
+  const documentName = discharge
+    ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
+    : getTranslation('pdf.encounterProgressRecord.title', 'Patient encounter progress record');
 
   const COLUMNS = {
     encounterTypes: [
@@ -566,31 +617,18 @@ const EncounterRecordPrintoutComponent = ({
 
   return (
     <Document>
+      {renderMainPage && (
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={
-            discharge
-              ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
-              : getTranslation(
-                  'pdf.encounterProgressRecord.title',
-                  'Patient encounter progress record',
-                )
-          }
+          documentName={documentName}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle={
-              discharge
-                ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
-                : getTranslation(
-                    'pdf.encounterProgressRecord.title',
-                    'Patient encounter progress record',
-                  )
-            }
+            certificateTitle={documentName}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
@@ -652,24 +690,33 @@ const EncounterRecordPrintoutComponent = ({
           />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
-        <Footer />
+        {encounterSummary && <EncounterSummarySection summary={encounterSummary} />}
+        <Footer showPageNumber={!isChunked} />
       </Page>
-      {vitalsData.length > 0 && recordedDates.length > 0 ? (
-        <>
-          {[0, 12, 24, 36, 48].map(start => {
+      )}
+      {renderNotesContinuation && notes.length > 0 && (
+        <Page size="A4" style={pageStyles.body} wrap>
+          {watermark && <Watermark src={watermark} />}
+          <MultiPageHeader
+            documentName={documentName}
+            patientId={patientData.displayId}
+            patientName={getName(patientData)}
+            alwaysShow
+          />
+          <NotesSection notes={notes} continued />
+          {encounterSummary && <EncounterSummarySection summary={encounterSummary} />}
+          <Footer showPageNumber={false} />
+        </Page>
+      )}
+      {renderVitals && vitalsData.length > 0 && recordedDates.length > 0
+        ? [0, 12, 24, 36, 48].map(start => {
             return recordedDates.length > start ? (
-              <Page size="A4" orientation="landscape" style={pageStyles.body}>
+              <Page key={start} size="A4" orientation="landscape" style={pageStyles.body}>
                 <MultiPageHeader
-                  documentName={
-                    discharge
-                      ? getTranslation('pdf.encounterRecord.title', 'Patient encounter record')
-                      : getTranslation(
-                          'pdf.encounterProgressRecord.title',
-                          'Patient encounter progress record',
-                        )
-                  }
+                  documentName={documentName}
                   patientId={patientData.displayId}
                   patientName={getName(patientData)}
+                  alwaysShow={isChunked}
                 />
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
@@ -680,12 +727,11 @@ const EncounterRecordPrintoutComponent = ({
                   })}
                   type="vitals"
                 />
-                <Footer />
+                <Footer showPageNumber={!isChunked} />
               </Page>
             ) : null;
-          })}
-        </>
-      ) : null}
+          })
+        : null}
     </Document>
   );
 };

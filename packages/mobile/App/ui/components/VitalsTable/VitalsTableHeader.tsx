@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { parseISO } from 'date-fns';
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { TableHeader } from '../Table';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
-export const vitalsTableHeader: TableHeader = {
-  key: 'date',
-  accessor: date => (
+const VitalsHeaderCell = ({ date }: { date: string }): ReactElement => {
+  const { formatDate } = useDateFormatter();
+  return (
     <View style={styles.container}>
       <Text style={styles.dateText}>{formatDate(parseISO(date), DateFormats.DDMMYY)}</Text>
       <Text style={styles.timeText}>{formatDate(parseISO(date), DateFormats.TIME)}</Text>
     </View>
-  ),
+  );
+};
+
+export const vitalsTableHeader: TableHeader = {
+  key: 'date',
+  accessor: (date) => <VitalsHeaderCell date={date} />,
 };
 
 const styles = StyleSheet.create({

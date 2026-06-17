@@ -1,6 +1,4 @@
-import type { Model } from '../models/Model';
-
-export function getDependentAssociations(model: typeof Model) {
+export function getDependentAssociations(model) {
   return Object.values(model.associations).filter(({ associationType }) =>
     ['HasMany', 'HasOne'].includes(associationType),
   );

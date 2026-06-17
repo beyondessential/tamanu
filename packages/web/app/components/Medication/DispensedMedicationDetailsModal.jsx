@@ -13,7 +13,8 @@ import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
-import { buildInstructionText } from '../../utils/medications';
+import { useAuth } from '../../contexts/Auth';
+import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -56,6 +57,8 @@ const ActionRow = styled(Box)`
 export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   const { formatShortest } = useDateTime();
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { facilityId } = useAuth();
+  const { hasPresetLabels } = usePresetLabelsQuery({ enabled: open, facilityId });
   if (!item || !open) return null;
 
   const {
@@ -117,15 +120,19 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       ),
       value: derivedInstructions || '-',
     },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.presetLabels"
-          fallback="Preset labels"
-        />
-      ),
-      value: medicationPresetLabel?.code || '-',
-    },
+    ...(hasPresetLabels
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="medication.dispenseDetails.presetLabels"
+                fallback="Preset labels"
+              />
+            ),
+            value: medicationPresetLabel?.code || '-',
+          },
+        ]
+      : []),
   ];
 
   const rightDetails = [

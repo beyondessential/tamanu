@@ -11,7 +11,7 @@ import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
-  const { getLocalisation, models, language, settings } = req;
+  const { getLocalisation, models, language, dateTimeLocale, settings } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
   const settingsObj = await settings[facilityId].getAll();
@@ -41,6 +41,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
       language={language}
+      dateTimeLocale={dateTimeLocale}
       getSetting={getSettingData}
       primaryTimeZone={getPrimaryTimeZone(config)}
     />,

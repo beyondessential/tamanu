@@ -67,6 +67,29 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
+// One findAll per model; composite-key models (with custom loaders) fall back to per-row loadExisting.
+async function preloadExistingForChunk(models, chunkRows) {
+  const idsByModel = new Map();
+  for (const { model, values } of chunkRows) {
+    if (existingRecordLoaders[models[model].name]) continue;
+    if (!values.id) continue;
+    if (!idsByModel.has(model)) idsByModel.set(model, new Set());
+    idsByModel.get(model).add(values.id);
+  }
+
+  const existingByModelId = new Map();
+  for (const [model, ids] of idsByModel) {
+    const found = await models[model].findAll({ where: { id: [...ids] }, paranoid: false });
+    for (const record of found) {
+      existingByModelId.set(`${model}|${record.id}`, record);
+    }
+  }
+
+  return { existingByModelId, batchedModels: new Set(idsByModel.keys()) };
+}
+
+const FK_NOT_FOUND = Symbol('fk-not-found');
+
 // Configuration for fields to ignore when checking for changes per model
 const IGNORED_FIELDS_BY_MODEL = {
   SurveyScreenComponent: ['componentIndex'],
@@ -125,6 +148,8 @@ export async function importRows(
   }
 
   log.debug('Resolving foreign keys', { rows: rows.length });
+  // Resolve each distinct FK value once (e.g. the handful of roles shared across thousands of permission rows).
+  const fkResolutionCache = new Map();
   const resolvedRows = [];
   for (const { model, sheetRow, values } of rows) {
     try {
@@ -147,36 +172,43 @@ export async function importRows(
             delete values[fkFieldName];
             values[fkNameLowerId] = idByLocalName;
           } else {
-            const hasRemoteId =
-              (fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.count({
-                    where: { type: fkSchema.types, id: fkFieldValue },
-                  })
-                : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
+            const cacheKey = `${fkSchema.model}|${fkSchema.types ?? ''}|${fkFieldValue}`;
+            let resolvedId = fkResolutionCache.get(cacheKey);
+            if (resolvedId === undefined) {
+              const hasRemoteId =
+                (fkSchema.model === 'ReferenceData'
+                  ? await models.ReferenceData.count({
+                      where: { type: fkSchema.types, id: fkFieldValue },
+                    })
+                  : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (
-              fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.findOne({
-                    where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                  })
-                : await models[fkSchema.model].findOne({
-                    where: {
-                      name: { [Op.iLike]: fkFieldValue },
-                    },
-                  })
-            )?.id;
+              if (hasRemoteId) {
+                resolvedId = fkFieldValue;
+              } else {
+                // Fall back to the unindexed ILIKE name lookup only when needed.
+                const idByRemoteName = (
+                  fkSchema.model === 'ReferenceData'
+                    ? await models.ReferenceData.findOne({
+                        where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+                      })
+                    : await models[fkSchema.model].findOne({
+                        where: {
+                          name: { [Op.iLike]: fkFieldValue },
+                        },
+                      })
+                )?.id;
+                resolvedId = idByRemoteName ?? FK_NOT_FOUND;
+              }
+              fkResolutionCache.set(cacheKey, resolvedId);
+            }
 
-            if (hasRemoteId) {
-              delete values[fkFieldName];
-              values[fkNameLowerId] = fkFieldValue;
-            } else if (idByRemoteName) {
-              delete values[fkFieldName];
-              values[fkNameLowerId] = idByRemoteName;
-            } else {
+            if (resolvedId === FK_NOT_FOUND) {
               throw new Error(
                 `valid foreign key expected in column ${fkFieldName} (corresponding to ${fkNameLowerId}) but found: ${fkFieldValue}`,
               );
             }
+            delete values[fkFieldName];
+            values[fkNameLowerId] = resolvedId;
           }
         }
       }
@@ -253,10 +285,23 @@ export async function importRows(
   };
   await validateTableRows(models, validRows, pushErrorFn);
 
+  // Reassigning the chunk maps at each boundary keeps peak memory proportional to the chunk.
   log.debug('Upserting database rows', { rows: validRows.length });
-  for (const { model, sheetRow, values } of validRows) {
+  const UPSERT_CHUNK_SIZE = 1000;
+  let existingByModelId = new Map();
+  let batchedModels = new Set();
+  for (const [index, { model, sheetRow, values }] of validRows.entries()) {
+    if (index % UPSERT_CHUNK_SIZE === 0) {
+      ({ existingByModelId, batchedModels } = await preloadExistingForChunk(
+        models,
+        validRows.slice(index, index + UPSERT_CHUNK_SIZE),
+      ));
+    }
+
     const Model = models[model];
-    const existing = await loadExisting(Model, values);
+    const existing = batchedModels.has(model)
+      ? (values.id ? existingByModelId.get(`${model}|${values.id}`) ?? null : null)
+      : await loadExisting(Model, values);
 
     if (existing && skipExisting) {
       updateStat(stats, statkey(model, sheetName), 'skipped');
@@ -320,8 +365,11 @@ export async function importRows(
           await existing.save();
         }
       } else {
-        await Model.create(normalizedValues);
+        const created = await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
+        if (batchedModels.has(model) && created.id) {
+          existingByModelId.set(`${model}|${created.id}`, created);
+        }
       }
 
       const { createRecords, deleteClause } = generateTranslationsForData(

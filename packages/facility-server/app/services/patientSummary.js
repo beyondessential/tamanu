@@ -53,9 +53,13 @@ export async function regenerateAiPatientSummary({ patientId, models, db, device
   const editFeedback = await getPatientSummaryEditFeedback(patientId, models, db);
 
   const centralServer = new CentralServerConnection({ deviceId });
+  // Disable the sync connection's default retry/backoff so an offline central fails
+  // fast and surfaces an error in the UI, rather than retrying for ~90s while the
+  // user stares at a spinner.
   const aiResponse = await centralServer.fetch('ai/patient/summary', {
     method: 'POST',
     body: { patientData, editFeedback },
+    backoff: false,
   });
 
   // The composite primary key (type, record_type, record_id) makes this

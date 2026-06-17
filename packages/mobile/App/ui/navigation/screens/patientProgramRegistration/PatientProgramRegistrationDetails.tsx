@@ -9,10 +9,10 @@ import {
 import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
-import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
@@ -144,6 +144,7 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
 };
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
+  const { formatStringDate } = useDateFormatter();
   const patientProgramRegistrationId =
     route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
 

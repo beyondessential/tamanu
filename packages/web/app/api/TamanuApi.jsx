@@ -147,6 +147,9 @@ export class TamanuApi extends ApiClient {
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers.set('language', language);
+      // The locale the browser formats dates with, so server-rendered
+      // documents match what the user sees on screen.
+      config.headers.set('date-time-locale', Intl.DateTimeFormat().resolvedOptions().locale);
       return config;
     });
   }

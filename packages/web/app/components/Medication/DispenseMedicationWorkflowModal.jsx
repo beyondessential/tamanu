@@ -17,6 +17,7 @@ import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 import { notifyError, notifySuccess } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
@@ -29,6 +30,7 @@ import { BodyText } from '../Typography';
 import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   buildInstructionText,
+  buildLabelText,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -43,7 +45,6 @@ const MODAL_STEPS = {
   DISPENSE: 'dispense',
   REVIEW: 'review',
 };
-
 
 const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
 
@@ -177,14 +178,13 @@ const PatientSummaryViewPatientLink = styled.button`
   font-size: 13px;
   font-weight: 500;
   color: ${Colors.midText};
-  text-decoration: underline;
   text-align: left;
 
   &:hover {
-    opacity: 0.85;
+    color: ${Colors.primary};
+    text-decoration: underline;
   }
 `;
-
 
 export const DispenseMedicationWorkflowModal = memo(
   ({ open, onClose, patient, onDispenseSuccess }) => {
@@ -256,7 +256,7 @@ export const DispenseMedicationWorkflowModal = memo(
             selected: true,
             quantity: quantity ?? 1,
             instructions:
-              buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
+              buildLabelText(prescription, getTranslation, getEnumTranslation) ||
               instructions ||
               '',
             medicationPresetLabelId: null,
@@ -347,11 +347,7 @@ export const DispenseMedicationWorkflowModal = memo(
         const current = next[rowIndex];
         if (!current) return prev;
 
-        const fallback = buildInstructionText(
-          current.prescription,
-          getTranslation,
-          getEnumTranslation,
-        );
+        const fallback = buildLabelText(current.prescription, getTranslation, getEnumTranslation);
         const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, fallback);
 
         next[rowIndex] = {
@@ -441,14 +437,12 @@ export const DispenseMedicationWorkflowModal = memo(
         await api.post('medication/dispense', {
           dispensedByUserId,
           facilityId,
-          items: selectedItems.map(
-            ({ id, quantity, instructions, medicationPresetLabelId }) => ({
-              pharmacyOrderPrescriptionId: id,
-              quantity,
-              instructions,
-              medicationPresetLabelId: medicationPresetLabelId || null,
-            }),
-          ),
+          items: selectedItems.map(({ id, quantity, instructions, medicationPresetLabelId }) => ({
+            pharmacyOrderPrescriptionId: id,
+            quantity,
+            instructions,
+            medicationPresetLabelId: medicationPresetLabelId || null,
+          })),
         });
 
         await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
@@ -700,8 +694,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!name && !patientIdentifier) return null;
       const handleViewPatient = () => {
         if (!patient.id) return;
-        navigateToPatient(patient.id);
-        onClose();
+        navigateToPatient(patient.id, { tab: PATIENT_TABS.MEDICATION });
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
@@ -734,7 +727,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ) : null}
         </PatientSummaryPanel>
       );
-    }, [patient, navigateToPatient, onClose]);
+    }, [patient, navigateToPatient]);
 
     const dispenseWithoutLabelsButton = (
       <OutlinedButton

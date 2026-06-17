@@ -53,6 +53,10 @@ export default async () => {
     },
     plugins: [react(), json5Plugin(), svgr()],
     resolve: {
+      // Consume @tamanu/* workspace packages' TypeScript source directly (via their
+      // `source` export condition) so edits to shared packages hot-reload without a
+      // rebuild. Node/jest/swc don't honour this condition and keep using built dist.
+      conditions: ['source', 'module', 'browser', 'development|production'],
       dedupe: ['@mui/x-date-pickers'],
     },
 

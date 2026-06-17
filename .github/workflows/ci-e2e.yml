@@ -11,6 +11,7 @@ permissions:
   pull-requests: write
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
   NODE_MODULES_PATHS: |
@@ -19,8 +20,31 @@ env:
     !packages/mobile/node_modules
 
 jobs:
+  plan:
+    name: Plan E2E
+    runs-on: ubuntu-latest
+    outputs:
+      requested: ${{ steps.plan.outputs.requested }}
+    steps:
+      - uses: actions/github-script@v7
+        id: plan
+        with:
+          script: |
+            // Merge-queue runs always test. On PRs, test only when the #e2e
+            // checkbox is ticked. Parse the body line-by-line so the marker is
+            // load-bearing but the checkbox's label text is free to change.
+            if (context.eventName === 'merge_group') {
+              core.setOutput('requested', 'true');
+              return;
+            }
+            const body = context.payload.pull_request?.body ?? '';
+            const ticked = /^\s*-\s+\[x\]\s+.*<!--\s*#e2e\s*-->/im.test(body);
+            core.info(`E2E requested: ${ticked}`);
+            core.setOutput('requested', String(ticked));
+
   node_modules_cache:
-    if: "github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] **Run E2E tests** <!-- #e2e -->')"
+    needs: plan
+    if: needs.plan.outputs.requested == 'true'
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
@@ -36,8 +60,15 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: Clean-install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          npm ci \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server \
+            --workspace=@tamanu/web-frontend \
+            --workspace=@tamanu/e2e-tests
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
@@ -61,15 +92,20 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i
-      - run: npm run build-shared
-      - run: npm run --workspace @tamanu/central-server build
-      - run: npm run --workspace @tamanu/facility-server build
-      # Build the web frontend up-front so E2E shards can serve it via
-      # `vite preview` instead of starting the dev server on every shard. The
-      # dev-server's cold-start optimizeDeps crawl is the primary source of
-      # intermittent login-page timeouts on CI runners post Vite 6 upgrade.
-      - run: npm run --workspace @tamanu/web-frontend build
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/facility-server \
+            --workspace=@tamanu/web-frontend
+
+      - name: Build servers & web-frontend
+        run: |
+          npm run build -- \
+            --filter=@tamanu/central-server... \
+            --filter=@tamanu/facility-server... \
+            --filter=@tamanu/web-frontend...
 
       - name: Setup postgres dbs
         run: |
@@ -143,7 +179,14 @@ jobs:
           name: e2e-db-snapshot
           path: e2e-prepared-db
 
-      - run: npm i
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=@tamanu/e2e-tests \
+            --workspace=@tamanu/facility-server \
+            --workspace=@tamanu/web-frontend
 
       - name: Setup postgres dbs
         run: |
@@ -154,6 +197,7 @@ jobs:
           createdb -O tamanu facility
           pg_restore --clean --if-exists --no-owner --no-privileges -d central e2e-prepared-db/central.dump
           pg_restore --clean --if-exists --no-owner --no-privileges -d facility e2e-prepared-db/facility.dump
+
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers-no-sync
       - name: Restore Playwright browser cache
@@ -187,8 +231,8 @@ jobs:
 
   e2e_failure_report:
     name: E2E Failure Report
-    if: "always() && (github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] **Run E2E tests** <!-- #e2e -->')) && needs.e2e.result != 'success'"
-    needs: [e2e]
+    if: "always() && needs.plan.outputs.requested == 'true' && needs.e2e.result != 'success'"
+    needs: [plan, e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -202,7 +246,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm i
+      - run: npm install --include-workspace-root --workspace=@tamanu/e2e-tests
       - name: Download blob reports
         uses: actions/download-artifact@v8
         with:
@@ -282,10 +326,10 @@ jobs:
   e2e-required:
     name: E2E Required
     if: always()
-    needs: [e2e]
+    needs: [plan, e2e]
     runs-on: ubuntu-latest
     steps:
-      - if: "github.event_name == 'merge_group' || contains(github.event.pull_request.body, '[x] **Run E2E tests** <!-- #e2e -->')"
+      - if: needs.plan.outputs.requested == 'true'
         name: Enforce passing E2E workflow (in merge queue)
         run: |
           if [ "${{ needs.e2e.result }}" != "success" ]; then

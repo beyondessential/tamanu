@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 
-import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './CustomComponents/PatientSection';
@@ -14,6 +13,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -21,6 +21,7 @@ interface GeneralInfoProps {
 }
 
 export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+  const { formatStringDate } = useDateFormatter();
   const fields = [
     [PATIENT_DATA_FIELDS.FIRST_NAME, patient.firstName],
     [PATIENT_DATA_FIELDS.MIDDLE_NAME, patient.middleName || 'None'],
