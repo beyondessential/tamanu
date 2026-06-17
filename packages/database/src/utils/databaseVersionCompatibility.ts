@@ -1,5 +1,6 @@
 import semver from 'semver';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import type { Models } from '../types/model';
 
 const UNINITIALISED_VALUES = new Set(['', 'unknown']);
@@ -12,8 +13,23 @@ export type SyncDatabaseServerVersionOptions = {
   checkOnly?: boolean;
 };
 
-function shouldBypass(skipVersionCompatibilityCheck?: boolean): boolean {
-  return skipVersionCompatibilityCheck === true || process.env.NODE_ENV !== 'production';
+function getShouldBypass(skipVersionCompatibilityCheck?: boolean): {
+  shouldBypass: boolean;
+  reason: string | null;
+} {
+  if (skipVersionCompatibilityCheck === true) {
+    return {
+      shouldBypass: true,
+      reason: '--skipVersionCompatibilityCheck was set',
+    };
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    return {
+      shouldBypass: true,
+      reason: `NODE_ENV is "${process.env.NODE_ENV ?? '<unset>'}" (not "production")`,
+    };
+  }
+  return { shouldBypass: false, reason: null };
 }
 
 function normaliseStoredVersion(stored: string | null | undefined): string | null {
@@ -27,9 +43,11 @@ function normaliseStoredVersion(stored: string | null | undefined): string | nul
 }
 
 function resolveServerVersion(serverVersion?: string): string {
-  const globalServerInfo = (globalThis as typeof globalThis & {
-    serverInfo?: { version?: string };
-  }).serverInfo;
+  const globalServerInfo = (
+    globalThis as typeof globalThis & {
+      serverInfo?: { version?: string };
+    }
+  ).serverInfo;
   const version = serverVersion ?? globalServerInfo?.version;
   if (!version) {
     throw new Error(
@@ -42,13 +60,22 @@ function resolveServerVersion(serverVersion?: string): string {
   return version;
 }
 
-export function buildDatabaseVersionIncompatibleError(stored: string, serverVersion: string): Error {
-  return new Error(
-    `Database version compatibility check failed: this database was previously used with Tamanu ${stored}, but this server is ${serverVersion}. ` +
-      `This usually means a partial rollback after an aborted upgrade. Do not start this server version against this database. ` +
-      `Restore the matching server version, or if you are certain the database is compatible, delete or update the "currentVersion" row in the "local_system_facts" table ` +
-      `(or restart with --skipVersionCompatibilityCheck).`,
-  );
+export class DatabaseIncompatibleError extends Error {
+  readonly storedVersion: string;
+  readonly serverVersion: string;
+
+  constructor(storedVersion: string, serverVersion: string) {
+    super(
+      `Database version compatibility check failed. Database has been used with v${storedVersion}, but this server is v${serverVersion}.` +
+        '\n\nThis could mean there’s been a partial rollback after an aborted upgrade. Possible recovery steps:' +
+        '\n\t- down-migrate the database;' +
+        `\n\t- if you’re confident the database is compatible, manually update the "currentVersion" row in the "local_system_facts" table to ${serverVersion};` +
+        '\n\t- restart with --skipVersionCompatibilityCheck (not recommended).',
+    );
+    this.name = 'DatabaseIncompatibleError';
+    this.storedVersion = storedVersion;
+    this.serverVersion = serverVersion;
+  }
 }
 
 /**
@@ -61,7 +88,9 @@ export async function syncDatabaseServerVersion({
   skipVersionCompatibilityCheck,
   checkOnly = false,
 }: SyncDatabaseServerVersionOptions): Promise<void> {
-  if (shouldBypass(skipVersionCompatibilityCheck)) {
+  const { shouldBypass, reason } = getShouldBypass(skipVersionCompatibilityCheck);
+  if (shouldBypass) {
+    log.warn('Bypassing database version compatibility check', { reason });
     return;
   }
 
@@ -78,7 +107,8 @@ export async function syncDatabaseServerVersion({
 
   const comparison = semver.compare(stored, resolvedServerVersion);
   if (comparison > 0) {
-    throw buildDatabaseVersionIncompatibleError(stored, resolvedServerVersion);
+    log.error('Refusing startup; database migration state is ahead of what server expects.');
+    throw new DatabaseIncompatibleError(stored, resolvedServerVersion);
   }
 
   if (!checkOnly && comparison < 0) {

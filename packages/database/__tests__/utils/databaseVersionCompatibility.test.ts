@@ -1,9 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import {
-  buildDatabaseVersionIncompatibleError,
+  DatabaseIncompatibleError,
   syncDatabaseServerVersion,
 } from '../../src/utils/databaseVersionCompatibility';
+
+vi.mock('@tamanu/shared/services/logging', () => ({
+  log: {
+    info: vi.fn(),
+  },
+}));
 
 describe('syncDatabaseServerVersion', () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -18,6 +25,7 @@ describe('syncDatabaseServerVersion', () => {
   beforeEach(() => {
     process.env.NODE_ENV = 'production';
     storedValue = null;
+    vi.mocked(log.info).mockClear();
     models = {
       LocalSystemFact: {
         get: vi.fn(async () => storedValue),
@@ -59,7 +67,7 @@ describe('syncDatabaseServerVersion', () => {
 
     await expect(
       syncDatabaseServerVersion({ models, serverVersion: '2.44.0' }),
-    ).rejects.toThrow(/Database version compatibility check failed/);
+    ).rejects.toThrow(DatabaseIncompatibleError);
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
   });
 
@@ -87,6 +95,9 @@ describe('syncDatabaseServerVersion', () => {
 
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
+    expect(log.info).toHaveBeenCalledWith('Skipping database version compatibility check', {
+      reason: 'NODE_ENV is "development" (not production)',
+    });
   });
 
   it('skips the check and write when skipVersionCompatibilityCheck is true', async () => {
@@ -100,6 +111,9 @@ describe('syncDatabaseServerVersion', () => {
 
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
+    expect(log.info).toHaveBeenCalledWith('Skipping database version compatibility check', {
+      reason: '--skipVersionCompatibilityCheck was set',
+    });
   });
 
   it('does not write in checkOnly mode when the fact is missing', async () => {
@@ -121,7 +135,7 @@ describe('syncDatabaseServerVersion', () => {
 
     await expect(
       syncDatabaseServerVersion({ models, serverVersion: '2.44.0', checkOnly: true }),
-    ).rejects.toThrow(/Database version compatibility check failed/);
+    ).rejects.toThrow(DatabaseIncompatibleError);
   });
 
   it('uses global.serverInfo.version when serverVersion is omitted', async () => {
@@ -133,10 +147,13 @@ describe('syncDatabaseServerVersion', () => {
   });
 });
 
-describe('buildDatabaseVersionIncompatibleError', () => {
+describe('DatabaseIncompatibleError', () => {
   it('includes both versions and recovery guidance', () => {
-    const error = buildDatabaseVersionIncompatibleError('2.45.0', '2.44.0');
+    const error = new DatabaseIncompatibleError('2.45.0', '2.44.0');
 
+    expect(error).toBeInstanceOf(DatabaseIncompatibleError);
+    expect(error.storedVersion).toBe('2.45.0');
+    expect(error.serverVersion).toBe('2.44.0');
     expect(error.message).toContain('2.45.0');
     expect(error.message).toContain('2.44.0');
     expect(error.message).toContain('local_system_facts');
