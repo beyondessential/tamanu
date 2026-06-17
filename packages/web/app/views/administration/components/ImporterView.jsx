@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { startCase, sum } from 'lodash';
+import { startCase, sum } from 'lodash-es';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { useFormikContext } from 'formik';

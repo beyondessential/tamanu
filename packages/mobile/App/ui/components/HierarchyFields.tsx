@@ -1,7 +1,7 @@
 import React from 'react';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { useFormikContext } from 'formik';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import styled from 'styled-components';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 

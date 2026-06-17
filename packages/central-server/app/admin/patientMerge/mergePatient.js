@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import config from 'config';
-import { chunk, omit, omitBy } from 'lodash';
+import { chunk, omit, omitBy } from 'lodash-es';
 import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/errors';

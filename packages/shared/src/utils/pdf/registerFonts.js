@@ -1,8 +1,9 @@
 import path from 'path';
 import { Font } from '@react-pdf/renderer';
 
-const baseDir =
-  typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
+const baseDir = import.meta.dirname
+  ? path.join(import.meta.dirname, '../../assets/fonts')
+  : '/fonts';
 
 export const registerFonts = () => {
   if (Font.getRegisteredFonts()['GlobalPdfFont']) return;

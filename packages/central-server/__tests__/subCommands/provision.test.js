@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
-import { provision } from '../../dist/subCommands/provision';
+import { provision } from '../../app/subCommands/provision';
 
 const ADMIN_EMAIL = 'admin@tamanu.io';
 

@@ -1,6 +1,6 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
-import { toNumber } from 'lodash';
+import { toNumber } from 'lodash-es';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };

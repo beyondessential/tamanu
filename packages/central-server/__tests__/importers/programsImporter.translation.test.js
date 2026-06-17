@@ -2,8 +2,8 @@ import { Op } from 'sequelize';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 
-import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
-import { programImporter } from '../../dist/admin/programImporter';
+import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
+import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 import {

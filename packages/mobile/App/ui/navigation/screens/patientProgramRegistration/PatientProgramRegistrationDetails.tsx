@@ -1,5 +1,5 @@
 import React from 'react';
-import { sortBy, groupBy } from 'lodash';
+import { sortBy, groupBy } from 'lodash-es';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import {

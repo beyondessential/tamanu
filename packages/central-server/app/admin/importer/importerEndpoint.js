@@ -1,8 +1,9 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
-import { singularize } from 'inflection';
-import { camelCase, lowerCase } from 'lodash';
+import __cjs_inflection from 'inflection';
+const { singularize } = __cjs_inflection;
+import { camelCase, lowerCase } from 'lodash-es';
 import { Sequelize } from 'sequelize';
 
 import { OTHER_REFERENCE_TYPES, PROGRAM_REFERENCE_TYPES } from '@tamanu/constants';

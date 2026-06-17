@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { keyBy, mapValues, uniq } from 'lodash';
+import { keyBy, mapValues, uniq } from 'lodash-es';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 const applyDefaultsToTranslations = ({

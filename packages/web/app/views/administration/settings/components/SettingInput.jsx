@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { get, isEqual, isString, isUndefined, startCase } from 'lodash';
+import { get, isEqual, isString, isUndefined, startCase } from 'lodash-es';
 import styled from 'styled-components';
 import { Switch, IconButton, InputAdornment } from '@material-ui/core';
 import VisibilityIcon from '@mui/icons-material/Visibility';

@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import { isArray } from 'lodash-es';
 
 export function getHL7Link(baseUrl, params = {}) {
   const query = Object.entries(params)

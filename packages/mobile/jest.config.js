@@ -2,7 +2,10 @@ module.exports = {
   preset: '@react-native/jest-preset',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community|-masked-view)?|@react-native-async-storage|@react-navigation|react-native-.*|typeorm)/)',
+    // @tamanu workspace packages are TypeScript source, and lodash-es/es-toolkit ship
+    // only ESM, so jest must transform them rather than ignore them with the rest of
+    // node_modules.
+    'node_modules/(?!((jest-)?react-native|@react-native(-community|-masked-view)?|@react-native-async-storage|@react-navigation|react-native-.*|typeorm|@tamanu|lodash-es|es-toolkit)/)',
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
@@ -21,6 +24,10 @@ module.exports = {
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {
+    // @tamanu workspace source uses the `.js` import extension convention even for
+    // `.ts` files (e.g. `export * from './ai.js'`); strip it so jest resolves against
+    // moduleFileExtensions (which prefers `.ts`, falling back to real `.js`).
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^~(.*)$': '<rootDir>/App$1',
     '^/root(.*)$': '<rootDir>$1',
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',

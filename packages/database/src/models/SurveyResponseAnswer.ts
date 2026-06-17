@@ -1,4 +1,4 @@
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { DataTypes, Op } from 'sequelize';
 import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';

@@ -4,7 +4,7 @@ import toposort from 'toposort';
 import type { MigrationStr, Step, Steps, StepStr } from './step.ts';
 import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
 
-const STEPS_DIR = join(__dirname, 'steps');
+const STEPS_DIR = join(import.meta.dirname, 'steps');
 export const MIGRATIONS_START = MIGRATION_PREFIX + START;
 export const MIGRATIONS_END = MIGRATION_PREFIX + END;
 

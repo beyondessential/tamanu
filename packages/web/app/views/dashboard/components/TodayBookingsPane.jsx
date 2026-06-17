@@ -1,5 +1,5 @@
 import React from 'react';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import styled from 'styled-components';
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';

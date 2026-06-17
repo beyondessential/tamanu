@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { isArray } from 'lodash';
+import { isArray } from 'lodash-es';
 
 import { getSortParameterName, isValidIdentifier } from './utils';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';

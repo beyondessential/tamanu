@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';

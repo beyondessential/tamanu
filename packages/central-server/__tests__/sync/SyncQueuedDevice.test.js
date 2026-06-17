@@ -80,7 +80,7 @@ const MAX_CONCURRENT_SESSIONS = 1;
         ),
       );
 
-      const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
+      const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
       CentralSyncManager.overrideConfig({
         sync: {
           awaitPreparation: true,

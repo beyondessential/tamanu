@@ -7,8 +7,8 @@ import {
   globalSettings,
   facilitySettings,
   centralSettings,
-} from '../dist/mjs';
-import { extractDefaults } from '../dist/cjs/schema/utils';
+} from '../src';
+import { extractDefaults } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
 import { VACCINE_STATUS } from '@tamanu/constants';

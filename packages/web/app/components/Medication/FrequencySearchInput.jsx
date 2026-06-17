@@ -1,6 +1,6 @@
 import React from 'react';
 import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
-import { camelCase } from 'lodash';
+import { camelCase } from 'lodash-es';
 import { AutocompleteInput } from '../Field';
 import { FrequencySuggester } from './frequencySuggester';
 import { TranslatedText } from '../Translation/TranslatedText';

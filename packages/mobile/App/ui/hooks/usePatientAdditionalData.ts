@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { groupBy } from 'lodash';
+import { groupBy } from 'lodash-es';
 import { useBackend } from '.';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';

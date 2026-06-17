@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { useFormikContext } from 'formik';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 

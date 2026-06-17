@@ -1,7 +1,8 @@
 import { createSecretKey, randomBytes } from 'node:crypto';
-import { compare, hash } from 'bcrypt';
+import __cjs_bcrypt from 'bcrypt';
+const { compare, hash } = __cjs_bcrypt;
 import * as jose from 'jose';
-import { unionBy } from 'lodash';
+import { unionBy } from 'lodash-es';
 import { DataTypes, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import * as z from 'zod';

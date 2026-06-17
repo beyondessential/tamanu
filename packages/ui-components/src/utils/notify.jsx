@@ -1,5 +1,5 @@
 import React, { isValidElement } from 'react';
-import { isArray, toString } from 'lodash';
+import { isArray, toString } from 'lodash-es';
 import { toast } from 'react-toastify';
 
 export const prepareToastMessage = msg => {

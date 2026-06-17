@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { isObject } from 'lodash';
+import { isObject } from 'lodash-es';
 
 import { log } from '@tamanu/shared/services/logging';
 import { createMigrationInterface } from '@tamanu/database/services/migrations';
@@ -42,7 +42,7 @@ function sanitise(object) {
 
 async function getMigrations(sequelize) {
   try {
-    const { migrations: migrationManager } = createMigrationInterface(log, sequelize);
+    const { migrations: migrationManager } = await createMigrationInterface(log, sequelize);
     const migrations = (await migrationManager.executed()).map((x) => x.file);
     return {
       migrations,

@@ -14,7 +14,7 @@ import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { isObject } from 'lodash';
+import { isObject } from 'lodash-es';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [

@@ -1,5 +1,5 @@
 import React from 'react';
-import { isBoolean } from 'lodash';
+import { isBoolean } from 'lodash-es';
 import styled from 'styled-components';
 import { TableCellTag, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../constants';

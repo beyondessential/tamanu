@@ -3,7 +3,7 @@ import { sub } from 'date-fns';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createSnapshotTable, dropSnapshotTable } from '@tamanu/database/sync';
 
-import { SnapshotTableCleaner } from '../../dist/tasks/SnapshotTableCleaner';
+import { SnapshotTableCleaner } from '../../app/tasks/SnapshotTableCleaner';
 import { createTestContext } from '../utilities';
 
 describe('SnapshotTableCleaner', () => {

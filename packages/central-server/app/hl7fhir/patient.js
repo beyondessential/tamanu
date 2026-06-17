@@ -1,7 +1,7 @@
 import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
-import { groupBy, keyBy } from 'lodash';
+import { groupBy, keyBy } from 'lodash-es';
 import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import {

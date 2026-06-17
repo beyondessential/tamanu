@@ -1,5 +1,5 @@
 import { createTestContext } from '../utilities';
-import { FacilitySyncManager } from '../../dist/sync/FacilitySyncManager';
+import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL

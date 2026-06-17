@@ -1,5 +1,5 @@
 import { SEX_VALUES } from '@tamanu/constants';
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 
 // These types are structurally compatible with the Database models but defined here
 // to avoid circular dependencies between utils and database packages.

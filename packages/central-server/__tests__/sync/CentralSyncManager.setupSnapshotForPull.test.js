@@ -25,8 +25,8 @@ import {
   waitForPushCompleted,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
-import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
-import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
+import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { intersectionBy } from 'lodash';
+import { intersectionBy } from 'lodash-es';
 import {
   OuterLabelFieldWrapper,
   TextField,

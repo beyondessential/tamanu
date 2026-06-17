@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
+import { QueryTypes } from 'sequelize';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
 import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
@@ -53,10 +54,49 @@ function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
 // migration as the revert boundary instead.
 const LAST_REVERSIBLE_MIGRATION = '1744340076240-fixRaceConditionInSettingUpdateSyncTick.js';
 
-/** @returns {{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }} */
-export function createMigrationInterface(log, sequelize) {
-  // ie, database/dist/cjs/migrations
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+// Umzug names migrations by filename, so the target's extension must match the file on
+// disk. Resolve it by basename rather than hardcoding an extension.
+function resolveLastReversibleMigration() {
+  const migrationsDir = path.join(import.meta.dirname, '../..', 'migrations');
+  const base = LAST_REVERSIBLE_MIGRATION.replace(/\.(js|ts)$/, '');
+  const match = readdirSync(migrationsDir).find(file => file.replace(/\.(js|ts)$/, '') === base);
+  if (!match) {
+    throw new Error(`Could not resolve last reversible migration: ${base}`);
+  }
+  return match;
+}
+
+// Migrations load from TypeScript source, so umzug names them `.ts`. Some databases hold
+// `.js` records for the same migrations; rewrite those to `.ts` so already-applied
+// migrations are recognised and not re-run. Idempotent, and a no-op before the storage
+// table exists (fresh database).
+async function normalizeMigrationStorageExtensions(sequelize) {
+  const [table] = await sequelize.query(`SELECT to_regclass('public."SequelizeMeta"') AS name`, {
+    type: QueryTypes.SELECT,
+  });
+  if (!table?.name) return;
+  // Drop any `.js` record whose `.ts` equivalent already exists so the rename below cannot
+  // hit the name primary key.
+  await sequelize.query(
+    `DELETE FROM public."SequelizeMeta" m
+       WHERE name LIKE '%.js'
+         AND EXISTS (
+           SELECT 1 FROM public."SequelizeMeta" o
+            WHERE o.name = regexp_replace(m.name, '\\.js$', '.ts')
+         )`,
+  );
+  await sequelize.query(
+    `UPDATE public."SequelizeMeta" SET name = regexp_replace(name, '\\.js$', '.ts') WHERE name LIKE '%.js'`,
+  );
+}
+
+/** @returns {Promise<{ migrations: import('umzug'), getDurationStats: () => Record<string, number> }>} */
+export async function createMigrationInterface(log, sequelize) {
+  // Reconcile any `.js` storage records with the `.ts` source filenames before anything
+  // consults the umzug state, so already-applied migrations aren't re-run.
+  await normalizeMigrationStorageExtensions(sequelize);
+  // ie, database/src/migrations
+  const migrationsDir = path.join(import.meta.dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)
@@ -219,7 +259,7 @@ export async function migrateUpTo({
 }
 
 async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
+  const { migrations, getDurationStats } = await createMigrationInterface(log, sequelize);
 
   // Fail fast: refuse before applying migrations if the database is already ahead of this server.
   await syncDatabaseServerVersionForMigrateUp(sequelize, { ...options, checkOnly: true });
@@ -248,7 +288,7 @@ async function syncDatabaseServerVersionForMigrateUp(sequelize, options) {
 }
 
 async function migrateDown(log, sequelize, options) {
-  const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
+  const { migrations, getDurationStats } = await createMigrationInterface(log, sequelize);
 
   const batchStart = Date.now();
 
@@ -295,7 +335,7 @@ async function migrateDown(log, sequelize, options) {
 export async function assertUpToDate(log, sequelize, options) {
   if (options.skipMigrationCheck) return;
 
-  const { migrations } = createMigrationInterface(log, sequelize);
+  const { migrations } = await createMigrationInterface(log, sequelize);
   const pending = await migrations.pending();
   if (pending.length > 0) {
     throw new Error(
@@ -312,7 +352,7 @@ export async function migrate(log, sequelize, direction, options = {}) {
     return migrateDown(log, sequelize);
   }
   if (direction === 'downToLastReversibleMigration') {
-    return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
+    return migrateDown(log, sequelize, { to: resolveLastReversibleMigration() });
   }
   if (direction === 'redoLatest') {
     await migrateDown(log, sequelize);

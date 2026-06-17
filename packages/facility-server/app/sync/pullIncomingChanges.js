@@ -1,5 +1,5 @@
 import config from 'config';
-import { chunk } from 'lodash';
+import { chunk } from 'lodash-es';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {

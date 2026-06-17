@@ -18,7 +18,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback, forwardRef } 
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';

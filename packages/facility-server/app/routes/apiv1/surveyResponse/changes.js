@@ -19,7 +19,7 @@
  * @typedef {Revision[]} RevisionHistory
  */
 import asyncHandler from 'express-async-handler';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { QueryTypes } from 'sequelize';
 
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';

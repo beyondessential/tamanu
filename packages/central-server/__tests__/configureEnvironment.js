@@ -13,8 +13,23 @@ const { TextDecoder } = require('util');
 
 global.TextDecoder = TextDecoder;
 
-jest.setTimeout(45 * 1000); // more generous than the default 5s but not crazy
-jest.mock('../dist/utils/getFreeDiskSpace');
+// 100s to match the other server packages: compiling @tamanu workspace TypeScript source
+// through swc per file makes heavy suites' createTestContext hooks slow enough under
+// parallel cold-start to need the headroom.
+jest.setTimeout(100 * 1000);
+jest.mock('../app/utils/getFreeDiskSpace');
+
+// Close any database connections opened during the file. Runs in-sandbox (so
+// module resolution goes through jest, not the bare CJS loader) rather than as
+// a global teardown; jest gives each test file its own module registry, so this
+// is correctly scoped per file.
+afterAll(async () => {
+  // Optional-call: some suites jest.mock('../app/database') with only the exports they
+  // use (e.g. initDatabase), so closeDatabase may be absent — those suites hold no real
+  // connection to close anyway.
+  const { closeDatabase } = require('../app/database');
+  await closeDatabase?.();
+});
 
 const formatError = response => {
   if (!response.body) {

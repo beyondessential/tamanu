@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 
 import {
   BIRTH_DELIVERY_TYPES,

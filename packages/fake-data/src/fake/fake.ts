@@ -1,10 +1,9 @@
 import { randomInt } from 'crypto';
-import { isFunction, snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'lodash-es';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
-
 import {
   ADMINISTRATION_FREQUENCIES,
   BLOOD_TYPES,

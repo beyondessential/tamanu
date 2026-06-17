@@ -1,4 +1,4 @@
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from './utilities';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { styled } from '@mui/material';
 import { Alert } from '@material-ui/lab';
 import { useQuery } from '@tanstack/react-query';

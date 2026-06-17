@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { WS_EVENTS } from '@tamanu/constants';
 
 import { useSocket } from '../utils/useSocket';

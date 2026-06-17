@@ -54,8 +54,10 @@ build_server() {
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  # build the world
-  npm run build
+  # Servers run from TypeScript source via the tsx loader; the one artefact the runtime
+  # needs is the bundled default translations the upgrade step reads. Generate it while
+  # every package is present (it scans the whole workspace for translatable strings).
+  npm run package-default-translations --workspace @tamanu/upgrade
 
   remove_irrelevant_packages "$package"
 

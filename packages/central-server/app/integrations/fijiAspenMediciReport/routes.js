@@ -2,10 +2,10 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { mapKeys, camelCase, upperFirst } from 'lodash';
+import { mapKeys, camelCase, upperFirst } from 'lodash-es';
 import { parseISO } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
-
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { formatInTimeZone } = __cjs_date_fns_tz;
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 

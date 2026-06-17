@@ -1,5 +1,5 @@
 import { sub } from 'date-fns';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 import { toDateString } from '@tamanu/utils/dateTime';
 import {
   ENCOUNTER_TYPES,

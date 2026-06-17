@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';

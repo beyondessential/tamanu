@@ -1,5 +1,5 @@
 import { QueryTypes } from 'sequelize';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'lodash-es';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
@@ -12,7 +12,10 @@ import {
   ENGLISH_COUNTRY_CODE,
   ENGLISH_LANGUAGE_NAME,
 } from '@tamanu/constants';
-import { getMetaServerHosts } from '@tamanu/shared/utils';
+// Import the specific submodule rather than the @tamanu/shared/utils barrel: the
+// barrel re-exports patientCertificates (@react-pdf), whose Yoga init throws at
+// module-eval time under native ESM (tsx). Narrowing keeps PDF out of this path.
+import { getMetaServerHosts } from '@tamanu/shared/utils/getMetaServerHosts';
 
 interface Artifact {
   artifact_type: string;
@@ -134,12 +137,12 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
-
+        // This step lives at packages/upgrade/src/steps/; the generated translations
+        // file sits at the package root. Resolve it from this file's location.
         const defaultTranslationsPath = path.join(
-          updateDistCjsIndexJsPath,
-          '..', // cjs
-          '..', // dist
+          import.meta.dirname,
+          '..', // steps
+          '..', // src
           'default-translations.json',
         );
 

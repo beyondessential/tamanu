@@ -1,5 +1,5 @@
 import React from 'react';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 
 import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';

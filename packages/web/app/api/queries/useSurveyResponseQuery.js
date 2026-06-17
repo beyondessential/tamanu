@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { usePatientDataDisplayValue } from '@tamanu/ui-components';

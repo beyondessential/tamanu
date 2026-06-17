@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { last } from 'lodash-es';
 import crypto from 'crypto';
 
 import { FHIR_ISSUE_SEVERITY } from '@tamanu/constants';

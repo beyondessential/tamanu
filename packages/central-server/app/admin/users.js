@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTime';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import * as yup from 'yup';
 import {
   REFERENCE_TYPES,

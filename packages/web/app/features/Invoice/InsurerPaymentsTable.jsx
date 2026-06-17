@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/utils/invoice';

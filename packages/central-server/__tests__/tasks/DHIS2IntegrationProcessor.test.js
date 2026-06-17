@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
 import { createTestContext } from '../utilities';
 import {
@@ -8,9 +8,9 @@ import {
   ERROR_LOGS,
   LOG_FIELDS,
   AUDIT_STATUSES,
-} from '../../dist/tasks/DHIS2IntegrationProcessor';
+} from '../../app/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_CONNECTIONS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
-import { fake } from '../../../fake-data/dist/mjs/fake/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
 const mockSuccessResponse = {

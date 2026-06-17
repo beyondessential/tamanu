@@ -1,4 +1,4 @@
-import { chunk } from 'lodash';
+import { chunk } from 'lodash-es';
 
 // Notes are rendered in slices of this size. Each slice becomes its own bounded render so the
 // per-render react-pdf layout tree never grows large enough to exhaust worker memory. Kept well

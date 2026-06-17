@@ -2,7 +2,7 @@ import { Button, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { Box } from '@material-ui/core';
 import { TASK_STATUSES } from '@tamanu/constants';
 

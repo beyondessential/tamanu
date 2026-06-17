@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {

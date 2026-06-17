@@ -1,6 +1,6 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep } from 'lodash';
+import { defaultsDeep } from 'lodash-es';
 import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 

@@ -363,7 +363,7 @@ Disabling the scheduled task is the most straightforward way.
 
 ```bash
 cd \tamanu\release-v2.x.y\packages\central-server
-npx node dist shell
+node --import tsx app shell
 ```
 
 1. Get report from ID:

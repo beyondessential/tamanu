@@ -3,7 +3,7 @@ import { globalSettings } from './global';
 import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
-import _, { cloneDeep, isArray, mergeWith } from 'lodash';
+import _, { cloneDeep, isArray, mergeWith } from 'lodash-es';
 import { SettingsSchema } from '../types';
 import { extractDefaults, isSetting } from './utils';
 

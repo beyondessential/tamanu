@@ -1,18 +1,7 @@
-import {
-  format,
-  formatISO9075,
-  formatRFC3339,
-  getDate,
-  getHours,
-  getMinutes,
-  getMonth,
-  getSeconds,
-  getYear,
-  isValid,
-  parse,
-} from 'date-fns';
-import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
-import { pick } from 'lodash';
+import { format, formatISO9075, formatRFC3339, getDate, getHours, getMinutes, getMonth, getSeconds, getYear, isValid, parse } from 'date-fns';
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { getTimezoneOffset, zonedTimeToUtc } = __cjs_date_fns_tz;
+import { pick } from 'lodash-es';
 import { number, object, string, date as yupDate } from 'yup';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';

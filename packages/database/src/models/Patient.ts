@@ -1,9 +1,10 @@
 import { Op, DataTypes, type FindOptions, Sequelize } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
-import {
-  getCovidClearanceCertificateFilter,
-  getLabTestsFromLabRequests,
-} from '@tamanu/shared/utils';
+// Import specific submodules rather than the @tamanu/shared/utils barrel: the barrel
+// re-exports patientCertificates (@react-pdf), whose Yoga init throws at module-eval time
+// under native ESM (e.g. when models load under tsx in migration/determinism paths).
+import { getCovidClearanceCertificateFilter } from '@tamanu/shared/utils/getCovidClearanceCertificateFilter';
+import { getLabTestsFromLabRequests } from '@tamanu/shared/utils/getLabTestsFromLabRequests';
 import { Model } from './Model';
 import type { PatientAdditionalData } from './PatientAdditionalData';
 import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds';

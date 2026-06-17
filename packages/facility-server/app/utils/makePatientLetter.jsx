@@ -3,14 +3,23 @@ import crypto from 'crypto';
 import path from 'path';
 import ReactPDF from '@react-pdf/renderer';
 import config from 'config';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { Op } from 'sequelize';
 
 import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
-import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
+import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
+import { tmpdir } from '@tamanu/shared/utils/tmpdir';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
-export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
+// `render` is injectable so tests can capture the rendered element without mocking the
+// `@react-pdf/renderer` module: the module-scoped `ReactPDF` import binds before a test's
+// `jest.mock` can intercept it, so a module mock does not reliably reach this call site;
+// injection sidesteps that.
+export const makePatientLetter = async (
+  req,
+  { id, facilityId, ...data },
+  { render = ReactPDF.render } = {},
+) => {
   const { getLocalisation, models, language, dateTimeLocale, settings } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -34,7 +43,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const fileName = `patient-letter-${id}-${crypto.randomUUID()}.pdf`;
   const filePath = path.join(folder, fileName);
 
-  await ReactPDF.render(
+  await render(
     <PatientLetter
       getLocalisation={getLocalisationData}
       data={data}

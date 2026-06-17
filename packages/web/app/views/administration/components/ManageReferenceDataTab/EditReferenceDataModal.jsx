@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 import { FormModal } from '../../../../components/FormModal';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReferenceDataForm } from './ReferenceDataForm';

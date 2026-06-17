@@ -2,7 +2,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { VERSION_CONTROLLED_CLIENTS } from '../../dist/middleware/versionCompatibility';
+import { VERSION_CONTROLLED_CLIENTS } from '../../app/middleware/versionCompatibility';
 
 const MIN_MOBILE_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.MOBILE].min;
 const MIN_FACILITY_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.FACILITY].min;

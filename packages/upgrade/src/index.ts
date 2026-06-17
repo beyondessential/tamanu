@@ -38,7 +38,10 @@ export async function upgrade({
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  const { migrations: migrationsUmzug, getDurationStats } = createMigrationInterface(log, sequelize);
+  const { migrations: migrationsUmzug, getDurationStats } = await createMigrationInterface(
+    log,
+    sequelize,
+  );
   const migrations = migrationsUmzug as any;
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();

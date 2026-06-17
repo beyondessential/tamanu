@@ -1,4 +1,4 @@
-import { difference } from 'lodash';
+import { difference } from 'lodash-es';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
   DEVICE_SCOPES,
@@ -13,7 +13,9 @@ import {
   MissingCredentialError,
   QuotaExceededError,
 } from '@tamanu/errors';
-import { stringToStableInteger } from '@tamanu/shared/utils';
+// Narrow import (not the @tamanu/shared/utils barrel) to keep patientCertificates
+// (@react-pdf) out of the model load path; see Patient.ts.
+import { stringToStableInteger } from '@tamanu/shared/utils/stringToStableInteger';
 import { Model } from './Model';
 import type { ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';

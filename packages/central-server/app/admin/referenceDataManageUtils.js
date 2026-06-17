@@ -1,4 +1,4 @@
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import {
   REFERENCE_TYPE_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,

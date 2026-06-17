@@ -26,6 +26,6 @@ elif which "$1" >/dev/null; then
   # that provides a convenient way to run arbitrary commands in the container
   exec $*
 else
-  # otherwise, run the app
-  exec node dist $*
+  # otherwise, run the app from source via the tsx loader
+  exec node --import tsx app $*
 fi

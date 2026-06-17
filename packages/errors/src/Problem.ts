@@ -1,4 +1,4 @@
-import { escapeRegExp, kebabCase } from 'lodash';
+import { escapeRegExp, kebabCase } from 'lodash-es';
 import { ValidationError as YupValidationError } from 'yup';
 import { $ZodError } from 'zod/v4/core';
 

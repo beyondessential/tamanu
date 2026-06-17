@@ -11,7 +11,7 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
-import { startCase } from 'lodash';
+import { startCase } from 'lodash-es';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
 import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';

@@ -10,7 +10,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { add, parseISO } from 'date-fns';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { useDateTime } from '@tamanu/ui-components';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 
 import {
   REPEAT_FREQUENCY,

@@ -1,4 +1,4 @@
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';

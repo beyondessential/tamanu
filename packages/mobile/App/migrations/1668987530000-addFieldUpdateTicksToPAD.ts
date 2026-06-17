@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 import { getTable } from './utils/queryRunner';
 
 const METADATA_FIELDS = [

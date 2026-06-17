@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
-import { keyBy, pick } from 'lodash';
+import { keyBy, pick } from 'lodash-es';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';

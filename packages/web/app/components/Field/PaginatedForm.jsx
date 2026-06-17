@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import { Box, Typography } from '@material-ui/core';
 import {
   Form,

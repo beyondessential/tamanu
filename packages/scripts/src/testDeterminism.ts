@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
 
@@ -10,6 +11,12 @@ import type { Model } from '@tamanu/database/models/Model';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 import { runCommand, spawnCommand } from './runCommand';
+
+// The @tamanu/* packages expose extensionless directory `source` exports that resolve
+// under ESM import() but not require() (tsx's CJS hook doesn't do directory/index
+// resolution for them), so they're loaded with dynamic import below. JSON is unaffected,
+// so the package version is read with a plain require.
+const { version } = createRequire(import.meta.url)('../package.json');
 
 function warn(message: string) {
   if (process.env.CI) {
@@ -127,13 +134,13 @@ function summarise(hashes: TableHashes): string {
 }
 
 async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
-  const { initDatabase } = require('@tamanu/database/services/database');
-  const { createMigrationInterface } = require('@tamanu/database/services/migrations');
+  const { initDatabase } = await import('@tamanu/database/services/database');
+  const { createMigrationInterface } = await import('@tamanu/database/services/migrations');
 
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
-  const { migrations: umzug } = createMigrationInterface(console, sequelize);
+  const { migrations: umzug } = await createMigrationInterface(console, sequelize);
   const pending = await umzug.pending();
   await sequelize.close();
 
@@ -141,27 +148,33 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 }
 
 async function migrate(dbConfig: any): Promise<void> {
+  // This script runs against two commits whose modules differ: one exposes real ESM named
+  // exports, the other a CommonJS module whose exports a dynamic import() surfaces under
+  // .default. Fall back to .default so it works in both.
   const script = `
     (async () => {
-      const { version } = require('../package.json');
-      const { initDatabase } = require('@tamanu/database/services/database');
-      const { upgrade } = require('@tamanu/upgrade');
+      const databaseModule = await import('@tamanu/database/services/database');
+      const initDatabase = databaseModule.initDatabase ?? databaseModule.default?.initDatabase;
+      const upgradeModule = await import('@tamanu/upgrade');
+      const upgrade = upgradeModule.upgrade ?? upgradeModule.default?.upgrade;
 
       const { models, sequelize } = await initDatabase(${JSON.stringify(dbConfig)});
-      await upgrade({ models, sequelize, serverType: 'facility', toVersion: version });
+      await upgrade({ models, sequelize, serverType: 'facility', toVersion: ${JSON.stringify(version)} });
       await sequelize.close();
     })().catch(err => {
       console.error(err);
       process.exit(1);
     });
   `;
-  await spawnCommand('node', ['-e', script]);
+  // Run with the tsx loader so the child process can import @tamanu workspace TypeScript
+  // source.
+  await spawnCommand('node', ['--import', 'tsx', '-e', script]);
 }
 
 async function migrateAndHash(dbConfig: any): Promise<DbHashes> {
   await migrate(dbConfig);
 
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
   const db = await initDatabase(dbConfig);
   const sequelize = db.sequelize as Sequelize;
 
@@ -232,8 +245,16 @@ async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {
-  const script = join(__dirname, 'fake.js');
-  return spawnCommand('node', [script, '--database', database, '--rounds', rounds.toString()]);
+  const script = join(import.meta.dirname, 'fake.ts');
+  return spawnCommand('node', [
+    '--import',
+    'tsx',
+    script,
+    '--database',
+    database,
+    '--rounds',
+    rounds.toString(),
+  ]);
 }
 
 (async () => {
@@ -333,7 +354,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
   }
 
   const { default: config } = await import('config');
-  const { initDatabase } = require('@tamanu/database/services/database');
+  const { initDatabase } = await import('@tamanu/database/services/database');
 
   const dbConfig = (name: string) => ({
     user: userInfo().username,

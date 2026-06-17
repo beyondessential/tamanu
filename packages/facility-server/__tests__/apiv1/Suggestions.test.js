@@ -21,7 +21,7 @@ import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 
 describe('Suggestions', () => {
   let userApp = null;

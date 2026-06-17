@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { get, mapValues } from 'lodash';
+import { get, mapValues } from 'lodash-es';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 import {
   getCurrentDateStringInTimezone,

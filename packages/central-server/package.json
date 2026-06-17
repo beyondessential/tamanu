@@ -7,7 +7,7 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
-  "main": "dist/index.js",
+  "main": "./app/index.js",
   "bin": "dist/index.js",
   "pkg": {
     "assets": [
@@ -16,19 +16,15 @@
     ]
   },
   "scripts": {
-    "build": "swc --out-dir dist --copy-files --source-maps true app",
-    "clean-build": "npm run clean && npm run build",
-    "build-watch": "npm run build -- --watch",
     "clean": "rimraf -- dist __disttests__",
     "clean:deps": "rimraf -- node_modules",
-    "setup-dev": "node dist setup",
-    "shell": "npm run build && node dist shell",
-    "start-dev": "concurrently npm:build-watch npm:start-watch",
-    "start-dev:test": "NODE_ENV=test concurrently npm:build-watch npm:start-watch",
-    "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
-    "start": "node dist",
-    "test": "npm run test-build && NODE_ENV=test jest",
-    "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
+    "setup-dev": "node --import tsx app setup",
+    "shell": "node --import tsx app shell",
+    "start-dev": "npm run start-watch",
+    "start-dev:test": "NODE_ENV=test npm run start-watch",
+    "start-watch": "node --import tsx --watch app",
+    "start": "node --import tsx app",
+    "test": "NODE_ENV=test jest",
     "test-watch": "npm run test -- --watch"
   },
   "devDependencies": {
@@ -110,9 +106,11 @@
     "socket.io": "^4.8.3",
     "timesimp": "^1.0.2",
     "tiny-async-pool": "^1.2.0",
+    "tsx": "^4.20.6",
     "undici": "^7.5.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9",
     "zod": "^4.0.17"
-  }
+  },
+  "type": "module"
 }

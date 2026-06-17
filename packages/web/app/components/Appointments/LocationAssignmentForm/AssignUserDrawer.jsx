@@ -47,7 +47,7 @@ import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
 } from '@tamanu/constants';
-import { isNumber } from 'lodash';
+import { isNumber } from 'lodash-es';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
