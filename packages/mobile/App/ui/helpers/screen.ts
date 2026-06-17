@@ -4,8 +4,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
 // Inline replacements for react-native-responsive-screen (uses removed Dimensions.removeEventListener API)
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
+
+Dimensions.addEventListener('change', ({ window }) => {
+  screenWidth = window.width;
+  screenHeight = window.height;
+});
 
 const widthPercentageToDP = (widthPercent: string | number): number => {
   const elemWidth = typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
