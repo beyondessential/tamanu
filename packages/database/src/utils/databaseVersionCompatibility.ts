@@ -68,9 +68,9 @@ export class DatabaseIncompatibleError extends Error {
     super(
       `Database version compatibility check failed. Database has been used with v${storedVersion}, but this server is v${serverVersion}.` +
         '\n\nThis could mean there’s been a partial rollback after an aborted upgrade. Possible recovery steps:' +
-        '\n\t- down-migrate the database;' +
-        `\n\t- if you’re confident the database is compatible, manually update the "currentVersion" row in the "local_system_facts" table to ${serverVersion};` +
-        '\n\t- restart with --skipVersionCompatibilityCheck (not recommended).',
+        '\n\n- down-migrate the database;' +
+        `\n- if you’re confident the database is compatible, manually update the "currentVersion" row in the "local_system_facts" table to ${serverVersion};` +
+        '\n- restart with --skipVersionCompatibilityCheck (not recommended).\n',
     );
     this.name = 'DatabaseIncompatibleError';
     this.storedVersion = storedVersion;
