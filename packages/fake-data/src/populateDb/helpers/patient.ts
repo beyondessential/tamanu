@@ -57,18 +57,23 @@ export const createPatient = async ({
     );
   }
 
-  for (const _ of times(allergyCount)) {
-    // The seed doesn't import allergy reference data, so create the allergy this
-    // PatientAllergy refers to — otherwise allergyId would be left null.
-    const allergy = await ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY }),
-    );
-    await PatientAllergy.create(
-      fake(PatientAllergy, {
-        patientId: patient.id,
-        allergyId: allergy.id,
-      }),
-    );
+  if (allergyCount > 0) {
+    // Pick from the shared allergy pool (seeded in generateImportData) rather
+    // than minting a ReferenceData per allergy. Fetched once per patient.
+    const allergyRows = await ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.ALLERGY },
+      attributes: ['id'],
+      raw: true,
+    });
+    const allergyIds = allergyRows.map((row: { id: string }) => row.id);
+    for (const _ of times(allergyCount)) {
+      await PatientAllergy.create(
+        fake(PatientAllergy, {
+          patientId: patient.id,
+          allergyId: allergyIds.length ? chance.pickone(allergyIds) : null,
+        }),
+      );
+    }
   }
 
   return { patient };
