@@ -107,10 +107,10 @@ jobs:
           path: ${{ runner.temp }}/android-js-bundle
 
       - name: Restore JS bundle outputs
-        working-directory: packages/mobile/android/app/build/generated
         run: |
-          mkdir -p assets/react res/react
-          tar -xzf "${{ runner.temp }}/android-js-bundle/android-js-bundle.tgz" -C .
+          GENERATED=packages/mobile/android/app/build/generated
+          mkdir -p "${GENERATED}"
+          tar -xzf "${{ runner.temp }}/android-js-bundle/android-js-bundle.tgz" -C "${GENERATED}"
 
       - uses: ./.github/actions/setup-android-ccache
 
