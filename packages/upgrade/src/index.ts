@@ -152,8 +152,7 @@ export async function upgrade({
   }
 
   log.info('Tamanu has been upgraded', { toVersion });
-  await syncDatabaseServerVersion({
-    models,
-    serverVersion: toVersion,
-  });
+  // Record the version reached. This is bookkeeping, not a compatibility check, so it must
+  // always run (unlike syncDatabaseServerVersion, which is bypassed outside production).
+  await models.LocalSystemFact.set(FACT_CURRENT_VERSION, toVersion);
 }
