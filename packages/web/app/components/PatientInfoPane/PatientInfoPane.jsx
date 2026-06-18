@@ -256,7 +256,10 @@ export const PatientInfoPane = () => {
   const { getSetting } = useSettings();
   const patient = useSelector(state => state.patient);
   const api = useApi();
+  const { ability } = useAuth();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
+  const canRecordPatientDeath = ability?.can('create', 'PatientDeath');
+  const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient.id],
     () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
@@ -264,14 +267,21 @@ export const PatientInfoPane = () => {
   );
 
   const readonly = !!patient.dateOfDeath;
-  const showRecordDeathActions = !isFetching && patientDeathsEnabled && !deathData?.isFinal;
+  const isPatientDeceased = readonly;
+  // Reverting a death record requires read as well as create: the revert link is only
+  // valid for a non-final record, and isFinal can only be determined with read access.
+  // Recording a new death only requires create.
+  const canActOnDeath = isPatientDeceased
+    ? canRecordPatientDeath && canReadPatientDeath
+    : canRecordPatientDeath;
+  const showRecordDeathActions =
+    !isFetching && patientDeathsEnabled && !deathData?.isFinal && canActOnDeath;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
   // generates from a complete record rather than a partially-pulled one.
   const isPatientSyncing = useSyncState().isPatientSyncing(patient.id);
   const patientSummaryEnabled = getSetting('patientSummary.enabled');
-  const { ability } = useAuth();
   const canReadPatientSummary = ability?.can('read', 'PatientSummary');
   const canWritePatientSummary = ability?.can('write', 'PatientSummary');
   const showAiPatientSummary =
