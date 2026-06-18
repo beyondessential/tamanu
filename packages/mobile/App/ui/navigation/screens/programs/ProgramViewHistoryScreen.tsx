@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
 import { subject } from '@casl/ability';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
 import { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
@@ -18,9 +18,11 @@ import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 
 export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { latestResponseId } = route.params ?? {};
+  const navigation = useNavigation();
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
@@ -31,15 +33,8 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
   // use latestResponseId to ensure that we refresh when
   // a new survey is submitted (as this tab can be mounted while
   // it isn't active)
-  const [responses, error] = useBackendEffect(
+  const [responses, error, isLoading] = useBackendEffect(
     async ({ models }) => {
-      if (!isFocused) {
-        // Always show the loading screen when in background (ie, it will be what's
-        // shown when the user navigates to this tab). We don't want to load & render
-        // all the responses as it causes performance issues.
-        return null;
-      }
-
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       const surveys = await models.Survey.find({
         where: {
@@ -58,11 +53,21 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
     [isFocused, latestResponseId, selectedPatient.id],
   );
 
+  useEffect(() => {
+    if (!isFocused || isLoading || !responses) return;
+    if (responses.length === 0) {
+      navigateAfterTimeout(
+        navigation,
+        Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails,
+      );
+    }
+  }, [isFocused, responses, isLoading, navigation]);
+
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if (!responses) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
