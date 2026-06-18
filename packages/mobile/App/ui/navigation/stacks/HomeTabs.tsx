@@ -1,4 +1,6 @@
 import React, { FC, ReactElement } from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { compose } from 'redux';
 import {
   BottomTabBarProps,
@@ -8,7 +10,6 @@ import {
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
 import {
   RowView,
-  StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
   StyledView,
@@ -57,6 +58,12 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
+const tabBarStyles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+});
+
 function getActiveRouteName(navigationState) {
   if (!navigationState) {
     return null;
@@ -76,7 +83,7 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
   if (shouldHideTabBar) return null;
 
   return (
-    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
+    <SafeAreaView style={tabBarStyles.safeArea} edges={['bottom']}>
       <RowView
         height={screenPercentageToDP(8, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
@@ -141,7 +148,7 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
           );
         })}
       </RowView>
-    </StyledSafeAreaView>
+    </SafeAreaView>
   );
 }
 

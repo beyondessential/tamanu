@@ -73,7 +73,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
   }
 
   return (
-    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
+    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} edges={['top']}>
       <FullView>
         <StatusBar barStyle="light-content" />
         <StyledView
