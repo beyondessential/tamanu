@@ -3,6 +3,7 @@ import { NavigationProp, RouteProp } from '@react-navigation/native';
 
 import { IPatient } from '~/types';
 import { FullView } from '/styled/common';
+import { returnToVaccineTableWithRefresh } from '~/ui/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
 import { theme } from '/styled/theme';
@@ -28,8 +29,8 @@ export const VaccineModalScreen = ({
   const { vaccine, patient } = route.params;
 
   const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
+    returnToVaccineTableWithRefresh(navigation, vaccine.administeredVaccine?.id);
+  }, [navigation, vaccine.administeredVaccine?.id]);
 
   const onNavigateToEditDetails = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {

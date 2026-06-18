@@ -10,7 +10,6 @@ import { NewVaccineTab } from '../screens/vaccine/newVaccineTabs/NewVaccineTab';
 import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
 import { FullView, RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
-import { Routes } from '/helpers/routes';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
@@ -30,8 +29,8 @@ const Header = ({
   patient,
 }: NewVaccineHeaderProps): ReactElement => {
   const onPress = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Index);
-  }, []);
+    navigation.goBack();
+  }, [navigation]);
   return (
     <SafeAreaView
       style={{

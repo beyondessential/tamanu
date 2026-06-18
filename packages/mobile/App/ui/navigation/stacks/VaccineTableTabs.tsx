@@ -4,10 +4,20 @@ import { Routes } from '/helpers/routes';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { VaccineTableRefreshContext } from '~/ui/components/VaccinesTable';
 
 const Tabs = createTopTabNavigator();
 
-export const VaccineTableTabs = (): ReactElement => {
+type VaccineTableTabsProps = {
+  route: {
+    params?: {
+      latestAdministeredVaccineId?: string;
+    };
+  };
+};
+
+export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement => {
+  const { latestAdministeredVaccineId } = route.params ?? {};
   useEffect(() => {
     Orientation.unlockAllOrientations();
 
@@ -17,6 +27,7 @@ export const VaccineTableTabs = (): ReactElement => {
   }, []);
 
   return (
+    <VaccineTableRefreshContext.Provider value={latestAdministeredVaccineId}>
     <Tabs.Navigator
       screenOptions={{
         headerShown: false,
@@ -52,5 +63,6 @@ export const VaccineTableTabs = (): ReactElement => {
         component={VaccineHistoryTab}
       />
     </Tabs.Navigator>
+    </VaccineTableRefreshContext.Provider>
   );
 };

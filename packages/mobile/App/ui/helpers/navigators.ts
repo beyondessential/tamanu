@@ -42,6 +42,49 @@ export const resetToProgramSurveyHistory = (
   );
 };
 
+const getVaccineStackNavigation = (
+  navigation: NavigationProp<any>,
+): NavigationProp<any> | undefined => {
+  let current: NavigationProp<any> | undefined = navigation;
+  while (current) {
+    if (
+      current
+        .getState()
+        .routes?.some(route => route.name === Routes.HomeStack.VaccineStack.VaccineTabs.Index)
+    ) {
+      return current;
+    }
+    current = current.getParent();
+  }
+  return undefined;
+};
+
+/** Pop back to the vaccine table and refresh it without resetting the active category tab. */
+export const returnToVaccineTableWithRefresh = (
+  navigation: NavigationProp<any>,
+  latestAdministeredVaccineId?: string,
+): void => {
+  const stackNavigation = getVaccineStackNavigation(navigation);
+
+  if (!stackNavigation) {
+    navigation.goBack();
+    return;
+  }
+
+  const tableRoute = stackNavigation
+    .getState()
+    .routes.find(route => route.name === Routes.HomeStack.VaccineStack.VaccineTabs.Index);
+
+  if (tableRoute?.key && latestAdministeredVaccineId) {
+    stackNavigation.dispatch({
+      ...CommonActions.setParams({ latestAdministeredVaccineId }),
+      source: tableRoute.key,
+    });
+  }
+
+  stackNavigation.goBack();
+};
+
 /** Reset ReferralStack to the View referrals tab after submitting a referral form. */
 export const resetToReferralHistory = (navigation: NavigationProp<any>): void => {
   navigation.dispatch(
