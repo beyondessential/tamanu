@@ -32,7 +32,7 @@ function getShouldBypass(): {
 
 // Returns the stored version, or null if it's missing or not valid semver (e.g. the legacy 'unknown').
 function normalizeStoredVersion(stored: string | null | undefined): string | null {
-  return semver.valid(stored) ? stored : null;
+  return semver.valid(stored);
 }
 
 function resolveServerVersion(serverVersion?: string): string {
