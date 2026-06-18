@@ -4,8 +4,6 @@ import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import type { Models } from '../types/model';
 
-const UNINITIALISED_VALUES = new Set(['', 'unknown']);
-
 export type SyncDatabaseServerVersionOptions = {
   models: Models;
   serverVersion?: string;
@@ -32,14 +30,9 @@ function getShouldBypass(): {
   return { shouldBypass: false, reason: null };
 }
 
+// Missing, empty, the legacy 'unknown' sentinel, or any non-semver value all count as uninitialised.
 function normalizeStoredVersion(stored: string | null | undefined): string | null {
-  if (stored == null || UNINITIALISED_VALUES.has(stored)) {
-    return null;
-  }
-  if (semver.valid(stored) === null) {
-    return null;
-  }
-  return stored;
+  return semver.valid(stored) ? stored : null;
 }
 
 function resolveServerVersion(serverVersion?: string): string {
