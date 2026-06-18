@@ -25,6 +25,7 @@ const patientSummaryBodySchema = z
         vaccinations: z.array(z.unknown()).optional(),
         labRequests: z.array(z.unknown()).optional(),
         imagingRequests: z.array(z.unknown()).optional(),
+        medications: z.array(z.unknown()).optional(),
       })
       .strict(),
     editFeedback: z
