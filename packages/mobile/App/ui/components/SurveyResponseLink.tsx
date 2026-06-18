@@ -18,23 +18,25 @@ export const SurveyResponseLink = ({
   surveyResponse,
   detailsRouteName,
   backgroundColor = theme.colors.WHITE,
-}): ReactElement => {
+}): ReactElement | null => {
   const navigation = useNavigation();
   const { formatStringDate } = useDateFormatter();
+
+  const showResponseDetails = useCallback((): void => {
+    if (!surveyResponse || surveyResponse.survey?.isSensitive) {
+      return;
+    }
+    navigation.navigate(detailsRouteName, {
+      surveyResponseId: surveyResponse.id,
+    });
+  }, [detailsRouteName, navigation, surveyResponse]);
 
   if (!surveyResponse) {
     return null;
   }
+
   const { survey, endTime = '', resultText } = surveyResponse;
   const { isSensitive } = survey;
-
-  const showResponseDetails = useCallback((): void => {
-    if (!isSensitive) {
-      navigation.navigate(detailsRouteName, {
-        surveyResponseId: surveyResponse.id,
-      });
-    }
-  }, [isSensitive, navigation, surveyResponse]);
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>

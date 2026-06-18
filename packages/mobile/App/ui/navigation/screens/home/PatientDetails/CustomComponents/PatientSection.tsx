@@ -1,14 +1,46 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { RowView, StyledView } from '/styled/common';
+import React, {
+  isValidElement,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+  useState,
+} from 'react';
+import { StyleSheet, View } from 'react-native';
+import { RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
 import { theme } from '/styled/theme';
 import { ArrowButton } from './ArrowButton';
+import { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
 
 interface PatientDetailSectionProps {
-  title: Element;
+  title: ReactNode;
   onEdit?: () => void;
   isClosable?: boolean;
+}
+
+const styles = StyleSheet.create({
+  content: {
+    position: 'relative',
+  },
+  editButton: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    zIndex: 1,
+  },
+});
+
+function getSectionLabel(title: ReactNode): string {
+  if (typeof title === 'string') {
+    return title;
+  }
+
+  if (isValidElement<TranslatedTextProps>(title)) {
+    return title.props.fallback;
+  }
+
+  return '';
 }
 
 export const PatientSection = ({
@@ -24,23 +56,10 @@ export const PatientSection = ({
     setIsOpen(prevValue => !prevValue);
   };
 
-  const overlappedButton = onEdit ? (
-    <StyledView zIndex={1} alignItems="flex-end">
-      <StyledView position="absolute" paddingTop={10} paddingRight={20}>
-        <EditButton sectionTitle={title} onPress={onEdit} />
-      </StyledView>
-    </StyledView>
-  ) : null;
-
-  const content = isOpen ? (
-    <>
-      {overlappedButton}
-      {children}
-    </>
-  ) : null;
+  const sectionLabel = getSectionLabel(title);
 
   return (
-    <StyledView>
+    <View>
       <RowView
         justifyContent="space-between"
         alignItems="center"
@@ -48,9 +67,20 @@ export const PatientSection = ({
         padding={20}
       >
         <SectionHeader h1>{title}</SectionHeader>
-        {isClosable && <ArrowButton isOpen={isOpen} sectionTitle={title} onPress={toggleSection} />}
+        {isClosable && (
+          <ArrowButton isOpen={isOpen} sectionTitle={sectionLabel} onPress={toggleSection} />
+        )}
       </RowView>
-      {content}
-    </StyledView>
+      {isOpen && (
+        <View style={styles.content}>
+          {onEdit && (
+            <View style={styles.editButton}>
+              <EditButton sectionTitle={sectionLabel} onPress={onEdit} />
+            </View>
+          )}
+          {children}
+        </View>
+      )}
+    </View>
   );
 };

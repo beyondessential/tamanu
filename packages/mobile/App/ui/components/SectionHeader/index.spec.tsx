@@ -4,8 +4,9 @@ import { SectionHeader } from './index';
 
 describe('<SectionHeader />', () => {
   const h1Text = 'General Information';
-  const { getByText } = render(<SectionHeader h1>{h1Text}</SectionHeader>);
-  it('should render correctly', () => {
+
+  it('should render correctly', async () => {
+    const { getByText } = await render(<SectionHeader h1>{h1Text}</SectionHeader>);
     expect(getByText(h1Text)).not.toBeNull();
   });
 });

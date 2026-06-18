@@ -41,7 +41,7 @@ export const Cell = styled.View`
 `;
 
 export const DataText = styled(StyledText)<{type?: 'strong' | 'regular'}>`
-  font-size: ${(p): number => screenPercentageToDP((p.type === 'strong' ? 1.8 : 1.7), Orientation.Height)};
+  font-size: ${(p): string => `${screenPercentageToDP((p.type === 'strong' ? 1.8 : 1.7), Orientation.Height)}px`};
   font-weight: ${(p): number => (p.type === 'strong' ? 700 : 500)};
   color: ${(p): string => (p.type === 'strong' ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_DARK)};
 `;

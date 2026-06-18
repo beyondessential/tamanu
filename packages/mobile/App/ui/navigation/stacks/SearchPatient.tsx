@@ -37,7 +37,7 @@ export const SearchPatientStack = ({ navigation, route }): ReactElement => {
     <ErrorBoundary>
       <Formik initialValues={filters} onSubmit={submitPatientFilters}>
         {({ handleSubmit }): ReactElement => (
-          <Stack.Navigator headerMode="none" screenOptions={noSwipeGestureOnNavigator}>
+          <Stack.Navigator screenOptions={{ ...noSwipeGestureOnNavigator, headerShown: false }}>
             <Stack.Screen
               name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
               initialParams={filters}

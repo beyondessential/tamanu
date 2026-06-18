@@ -26,9 +26,9 @@ import {
   width,
   zIndex,
 } from 'styled-system';
-import SafeAreaView from 'react-native-safe-area-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Value } from 'react-native-reanimated';
+import { SharedValue } from 'react-native-reanimated';
 import { GestureResponderEvent } from 'react-native';
 
 const sizes = [];
@@ -52,18 +52,18 @@ export const themeSystem = {
 interface TextProps {
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   lineHeight?: number | string;
-  fontSize?: number | string | Value<number>;
+  fontSize?: number | string | SharedValue<number>;
   fontWeight?: number | string;
   textDecorationLine?: 'none' | 'underline' | 'line-through' | 'underline line-through';
   color?: string;
 }
 export interface SpacingProps {
-  minHeight?: string | number | Value<number>;
-  minWidth?: string | number | Value<number>;
-  maxHeight?: string | number | Value<number>;
-  maxWidth?: string | number | Value<number>;
-  height?: string | number | Value<number>;
-  width?: string | number | Value<number>;
+  minHeight?: string | number | SharedValue<number>;
+  minWidth?: string | number | SharedValue<number>;
+  maxHeight?: string | number | SharedValue<number>;
+  maxWidth?: string | number | SharedValue<number>;
+  height?: string | number | SharedValue<number>;
+  width?: string | number | SharedValue<number>;
   padding?: string | number | number[];
   paddingTop?: number | string;
   paddingBottom?: number | string;
@@ -78,10 +78,10 @@ export interface SpacingProps {
 
 interface PositionProps {
   position?: 'absolute' | 'relative';
-  top?: string | number | Value<number>;
-  left?: string | number | Value<number>;
-  right?: string | number | Value<number>;
-  bottom?: string | number | Value<number>;
+  top?: string | number | SharedValue<number>;
+  left?: string | number | SharedValue<number>;
+  right?: string | number | SharedValue<number>;
+  bottom?: string | number | SharedValue<number>;
   zIndex?: number;
 }
 
@@ -106,7 +106,7 @@ interface BorderProps {
 }
 
 interface VisibilityProps {
-  opacity?: string | number | Value<number>;
+  opacity?: string | number | SharedValue<number>;
 }
 
 export interface StyledTextProps extends SpacingProps, FlexProps, BorderProps, TextProps {}
@@ -122,6 +122,9 @@ export interface StyledViewProps
   pose?: string;
 }
 
+const toPx = (v: string | number | undefined): string | undefined =>
+  v !== undefined ? (typeof v === 'number' ? `${v}px` : v) : undefined;
+
 export const StyledView = styled.View<StyledViewProps>`
   ${size}
   ${position}
@@ -135,6 +138,16 @@ export const StyledView = styled.View<StyledViewProps>`
     borderLeftWidth ? `border-left-width: ${borderLeftWidth}` : 0};
   ${({ borderBottomWidth }): string | number =>
     borderBottomWidth ? `border-bottom-width: ${borderBottomWidth}` : 0};
+  ${({ borderRadius }): string =>
+    borderRadius !== undefined ? `border-radius: ${toPx(borderRadius)}` : ''};
+  ${({ borderWidth }): string =>
+    borderWidth !== undefined ? `border-width: ${toPx(borderWidth)}` : ''};
+  ${({ borderColor }): string => (borderColor ? `border-color: ${borderColor}` : '')};
+  ${({ borderStyle }): string => (borderStyle ? `border-style: ${borderStyle}` : '')};
+  ${({ borderTopWidth }): string =>
+    borderTopWidth !== undefined ? `border-top-width: ${toPx(borderTopWidth)}` : ''};
+  ${({ borderRightWidth }): string =>
+    borderRightWidth !== undefined ? `border-right-width: ${toPx(borderRightWidth)}` : ''};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
@@ -216,6 +229,11 @@ export const StyledTouchableOpacity = styled.TouchableOpacity<StyledTouchableOpa
   ${padding}
   ${flexbox}
   ${background}
+  ${({ borderRadius }): string =>
+    borderRadius !== undefined ? `border-radius: ${toPx(borderRadius)}` : ''};
+  ${({ borderWidth }): string =>
+    borderWidth !== undefined ? `border-width: ${toPx(borderWidth)}` : ''};
+  ${({ borderColor }): string => (borderColor ? `border-color: ${borderColor}` : '')};
 `;
 
 export const FullView = styled(StyledView)`
@@ -237,13 +255,13 @@ export const HalfSizeView = styled(StyledView)`
   width: 50%;
 `;
 
-export const RowView = styled(StyledView)`
-  flex-direction: row;
-`;
+export const RowView = styled(StyledView).attrs<{ flexDirection?: string }>(props => ({
+  flexDirection: props.flexDirection ?? 'row',
+}))``;
 
-export const ColumnView = styled(StyledView)`
-  flex-direction: column;
-`;
+export const ColumnView = styled(StyledView).attrs<{ flexDirection?: string }>(props => ({
+  flexDirection: props.flexDirection ?? 'column',
+}))``;
 
 export const StyledScrollView = styled(ScrollView)<StyledViewProps>`
   ${size}

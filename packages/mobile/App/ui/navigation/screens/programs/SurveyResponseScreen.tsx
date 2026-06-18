@@ -16,6 +16,8 @@ import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { GenericFormValues, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
+import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import { PatientStateProps } from '~/ui/store/ducks/patient';
 import { joinNames } from '~/ui/helpers/user';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -24,6 +26,7 @@ import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -33,7 +36,10 @@ const buttonSharedStyles = {
 };
 
 export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
-  const { surveyId, selectedPatient, surveyType } = route.params;
+  const { surveyId, surveyType } = route.params;
+  const { selectedPatient } = useSelector(
+    (state: ReduxStoreProps): PatientStateProps => state.patient,
+  );
   const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
@@ -104,17 +110,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       if (!response) return;
       if (isReferral) {
-        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
-          surveyId: surveyId,
-          latestResponseId: response.id,
-        });
-        return;
+        resetToReferralHistory(navigation);
       } else {
-        navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory, {
-          selectedPatient,
-          latestResponseId: response.id,
-        });
-        return;
+        resetToProgramSurveyHistory(navigation, response.id);
       }
     },
     [survey, components],
@@ -128,11 +126,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   }, []);
   const onExit = () => {
     closeModalCallback();
-    if (isReferral) {
-      navigation.navigate(Routes.HomeStack.ReferralStack.Index);
-      return;
-    }
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index);
+    navigation.goBack();
   };
   const onGoBack = () => {
     if (currentScreenIndex > 0) {

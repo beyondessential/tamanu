@@ -1,6 +1,6 @@
 import React from 'react';
 import { isNumber } from 'lodash';
-import { StyledText, StyledView } from '/styled/common';
+import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
@@ -27,23 +27,30 @@ export const VitalsTableCell = ({
     }
   }
   return (
-    <StyledView
-      height={screenPercentageToDP(6.46, Orientation.Height)}
-      justifyContent="center"
-      alignItems="center"
-      flexDirection="row"
-      background={isOdd ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isOdd ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE },
+      ]}
     >
-      <StyledText
-        fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-        fontWeight={500}
-        color={theme.colors.TEXT_SUPER_DARK}
-      >
-        {cellValue}
-      </StyledText>
+      <Text style={styles.text}>{cellValue}</Text>
       {needsAttention && (
         <RequiredIndicator marginLeft={screenPercentageToDP(0.4, Orientation.Width)} />
       )}
-    </StyledView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    height: screenPercentageToDP(6.46, Orientation.Height),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  text: {
+    fontSize: screenPercentageToDP(1.57, Orientation.Height),
+    fontWeight: '500',
+    color: theme.colors.TEXT_SUPER_DARK,
+  },
+});
