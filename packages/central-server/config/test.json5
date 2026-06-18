@@ -5,21 +5,6 @@
     "pool": {
       "acquire": 5000,
     },
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "reporting": {
-          "pool": {
-            "max": 5
-          }
-        },
-        "raw": {
-          "pool": {
-            "max": 5
-          }
-        }
-      }
-    }
   },
   "mailgun": {
     "from": "Tamanu test"

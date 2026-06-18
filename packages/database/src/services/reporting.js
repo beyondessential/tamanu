@@ -54,23 +54,18 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
   );
 };
 
-const initReportStore = async (existingStore, connectionName, { pool } = {}) => {
+const initReportStore = async (existingStore, connectionName) => {
   const testMode = process.env.NODE_ENV === 'test';
-  if (!REPORT_DB_CONNECTION_VALUES.includes(connectionName)) {
-    log.warn(`Unknown reporting connection ${connectionName}, skipping...`);
-    return null;
-  }
-
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
   const password = reportingRolePassword(role);
   await ensureReportingRole(existingStore, connectionName, password);
 
   const overrides = {
+    // Inherits the main connection's config, including its pool sizing.
     ...config.db,
     alwaysCreateConnection: false,
     migrateOnStartup: false,
     disableChangesAudit: true,
-    ...(pool ? { pool } : {}), // avoid clobbering config.db.pool with undefined
     username: role,
     password,
     testMode,
@@ -89,12 +84,10 @@ export const initReporting = async existingStore => {
         'not unique to this instance and are inferable from source. Set db.password unless using trust auth.',
     );
   }
-  const { connections } = config.db.reportSchemas;
   // Sequential: concurrent role/schema DDL on the same db can deadlock.
   const stores = {};
-  for (const [connectionName, { pool } = {}] of Object.entries(connections)) {
-    const instance = await initReportStore(existingStore, connectionName, { pool });
-    if (instance) stores[connectionName] = instance;
+  for (const connectionName of REPORT_DB_CONNECTION_VALUES) {
+    stores[connectionName] = await initReportStore(existingStore, connectionName);
   }
   return stores;
 };

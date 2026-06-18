@@ -57,19 +57,8 @@
     "reportSchemas": {
       // Tamanu provisions and connects as the read-only "tamanu_reporting"/"tamanu_raw"
       // roles itself (no separate credentials); the core db user needs CREATEROLE.
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
-          }
-        },
-        "reporting": {
-          "pool": {
-            "max": 5
-          }
-        }
-      }
+      // The reporting connections inherit the main db pool config above.
+      "enabled": false
     }
   },
   "metaServer": {
