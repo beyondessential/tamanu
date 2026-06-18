@@ -32,6 +32,20 @@ type Props = DefaultNavigatorOptions<any, any, TabNavigationOptions, any, any> &
   TabRouterOptions &
   TabNavigationConfig;
 
+const defaultScreenOptions: TabNavigationOptions = {
+  tabBarStyle: { height: 50 },
+  tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
+  tabBarInactiveTintColor: theme.colors.TEXT_MID,
+  tabBarIndicatorStyle: {
+    height: 4,
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  tabBarLabelStyle: {
+    fontWeight: '500',
+    textTransform: 'none',
+  },
+};
+
 function TabNavigator({
   initialRouteName,
   children,
@@ -46,20 +60,16 @@ function TabNavigator({
     TabNavigationEventMap
   >(TabRouter, {
     children,
-    screenOptions: {
-      tabBarStyle: { height: 50 },
-      tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
-      tabBarInactiveTintColor: theme.colors.TEXT_MID,
-      tabBarIndicatorStyle: {
-        height: 4,
-        backgroundColor: theme.colors.PRIMARY_MAIN,
-      },
-      tabBarLabelStyle: {
-        fontWeight: '500',
-        textTransform: 'none',
-      },
-      ...(typeof screenOptions === 'object' ? screenOptions : {}),
-    },
+    screenOptions:
+      typeof screenOptions === 'function'
+        ? props => ({
+            ...defaultScreenOptions,
+            ...screenOptions(props),
+          })
+        : {
+            ...defaultScreenOptions,
+            ...screenOptions,
+          },
     initialRouteName,
   });
 

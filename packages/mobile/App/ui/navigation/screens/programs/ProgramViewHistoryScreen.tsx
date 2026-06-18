@@ -33,6 +33,13 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
   // it isn't active)
   const [responses, error] = useBackendEffect(
     async ({ models }) => {
+      if (!isFocused) {
+        // Always show the loading screen when in background (ie, it will be what's
+        // shown when the user navigates to this tab). We don't want to load & render
+        // all the responses as it causes performance issues.
+        return null;
+      }
+
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       const surveys = await models.Survey.find({
         where: {

@@ -63,7 +63,10 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
           <Stack.Screen
             name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
             component={PatientProgramRegistrationDetails}
-            initialParams={{ patientProgramRegistrationId: registration.id }}
+            initialParams={{
+              patientProgramRegistrationId: registration.id,
+              patientProgramRegistration: registration,
+            }}
           />
         </Stack.Navigator>
       </FullView>

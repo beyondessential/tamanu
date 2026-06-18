@@ -145,14 +145,20 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
   const { formatStringDate } = useDateFormatter();
+  const preloadedRegistration = route.params.patientProgramRegistration;
   const patientProgramRegistrationId =
-    route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
+    route.params.patientProgramRegistrationId ?? preloadedRegistration?.id;
 
-  const [patientProgramRegistration, registrationError, isRegistrationLoading] = useBackendEffect(
-    async ({ models }) =>
-      models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId),
-    [patientProgramRegistrationId],
+  const [fetchedRegistration, registrationError, isRegistrationLoading] = useBackendEffect(
+    async ({ models }) => {
+      if (preloadedRegistration) {
+        return preloadedRegistration;
+      }
+      return models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId);
+    },
+    [patientProgramRegistrationId, preloadedRegistration],
   );
+  const patientProgramRegistration = preloadedRegistration ?? fetchedRegistration;
 
   const [pprCondition, conditionsError, isConditionsLoading] = useBackendEffect(
     async ({ models }) =>
@@ -160,7 +166,9 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
     [patientProgramRegistrationId],
   );
 
-  if (isRegistrationLoading || isConditionsLoading) return <LoadingScreen />;
+  if ((!preloadedRegistration && isRegistrationLoading) || isConditionsLoading) {
+    return <LoadingScreen />;
+  }
   if (registrationError) return <ErrorScreen error={registrationError} />;
   if (conditionsError) return <ErrorScreen error={conditionsError} />;
 
