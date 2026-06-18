@@ -161,7 +161,7 @@ describe('DatabaseIncompatibleError', () => {
     expect(error.serverVersion).toBe('2.44.0');
     expect(error.message).toContain('2.45.0');
     expect(error.message).toContain('2.44.0');
-    expect(error.message).toContain('local_system_fact');
+    expect(error.message).toContain('local_system_facts');
     expect(error.message).toContain('db.skipVersionCompatibilityCheck');
   });
 });
