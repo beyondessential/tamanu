@@ -177,6 +177,12 @@ jobs:
           export NODE_ENV=production
           npm install --userconfig .npmrc.timeout --package-lock
 
+      # Embed the official Windows Node runtime (pm2's interpreter); .node-version
+      # is read from the checked-out repo, the release bundle is the destination.
+      - name: Embed Node runtime (windows)
+        shell: bash
+        run: scripts/embed-node-runtime.sh win-x64 'release-v${{ needs.linux.outputs.version }}'
+
       - name: Prepare final output
         shell: bash
         run: |
