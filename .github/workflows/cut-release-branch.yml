@@ -12,12 +12,17 @@ on:
           - major
         default: minor
 
+permissions: {}
+
 jobs:
   run:
     name: Cut Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      branch: ${{ steps.release.outputs.branch }}
+      version: ${{ steps.release.outputs.version }}
     steps:
     - uses: actions/checkout@v6
       with:
@@ -33,21 +38,22 @@ jobs:
       with:
         node-version-file: '.node-version'
 
-    - name: Compute new release branch name
+    - name: Compute new release branch and version
       uses: actions/github-script@v7
-      id: branchname
+      id: release
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
-        result-encoding: string
         script: |
           const cwd = '${{ github.workspace }}';
           const { currentVersion } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          return currentVersion(await import('fs'), cwd).branch;
+          const { branch, version } = currentVersion(await import('fs'), cwd);
+          core.setOutput('branch', branch);
+          core.setOutput('version', version);
 
     - name: Check new release branch doesn't already exist
       uses: actions/github-script@v7
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
@@ -57,7 +63,7 @@ jobs:
 
     - name: Create new release branch
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       run: |
         set -ex
         git switch --create "$NEW_BRANCH_NAME"
@@ -79,7 +85,7 @@ jobs:
 
     - name: Trigger tamanu-source-dbt upgrade workflow
       env:
-        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+        NEW_BRANCH_NAME: ${{ steps.release.outputs.branch }}
       run: |
         curl -fsSL -X POST \
           -H "Accept: application/vnd.github+json" \
@@ -89,3 +95,52 @@ jobs:
           -d "{\"event_type\":\"tamanu-release-created\",\"client_payload\":{\"branch\":\"$NEW_BRANCH_NAME\"}}"
 
         echo "✅ Triggered tamanu-source-dbt upgrade workflow for $NEW_BRANCH_NAME"
+
+  build-seed-image:
+    needs: [run]
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      git_sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.run.outputs.branch }}
+
+      - name: Get branch HEAD SHA
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push seed image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.seed
+          push: true
+          platforms: linux/arm64
+          tags: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
+          build-args: GIT_SHA=${{ steps.sha.outputs.sha }}
+
+  # Snapshot creation is best-effort: a release cut shouldn't be blocked
+  # if pgsnap or the EBS snapshotter is degraded. Re-run via
+  # workflow_dispatch on seed-snapshot.yml to retry.
+  seed-snapshot:
+    needs: [run, build-seed-image]
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/seed-snapshot.yml
+    secrets: inherit
+    with:
+      branch: ${{ needs.run.outputs.branch }}
+      version: ${{ needs.run.outputs.version }}
+      image: ghcr.io/beyondessential/tamanu-seed:${{ needs.run.outputs.version }}
+      git_sha: ${{ needs.build-seed-image.outputs.git_sha }}

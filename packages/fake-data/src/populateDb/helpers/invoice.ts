@@ -1,20 +1,19 @@
 import { times } from 'lodash';
 
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateInvoiceParams extends CommonParams {
-  encounterId: string;
-  userId: string;
-  referenceDataId: string;
-  productId: string;
+  encounterId?: string;
+  userId?: string;
+  referenceDataId?: string;
+  productId?: string;
   itemCount?: number;
 }
 export const createInvoice = async ({
   models,
-  limit,
   encounterId,
   userId,
   referenceDataId,
@@ -44,25 +43,21 @@ export const createInvoice = async ({
     }),
   );
 
-  await Promise.all(
-    times(itemCount, () =>
-      limit(async () => {
-        const invoiceItem = await InvoiceItem.create(
-          fake(InvoiceItem, {
-            invoiceId: invoice.id,
-            productId: productId || (await randomRecordId(models, 'InvoiceProduct')),
-            orderedByUserId: userId || (await randomRecordId(models, 'User')),
-          }),
-        );
-
-        await InvoiceItemDiscount.create(
-          fake(InvoiceItemDiscount, {
-            invoiceItemId: invoiceItem.id,
-          }),
-        );
+  for (const _ of times(itemCount)) {
+    const invoiceItem = await InvoiceItem.create(
+      fake(InvoiceItem, {
+        invoiceId: invoice.id,
+        productId: productId || (await randomRecordId(models, 'InvoiceProduct')),
+        orderedByUserId: userId || (await randomRecordId(models, 'User')),
       }),
-    ),
-  );
+    );
+
+    await InvoiceItemDiscount.create(
+      fake(InvoiceItemDiscount, {
+        invoiceItemId: invoiceItem.id,
+      }),
+    );
+  }
 
   const invoicePayment = await InvoicePayment.create(
     fake(InvoicePayment, {

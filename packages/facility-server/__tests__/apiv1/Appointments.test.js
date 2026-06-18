@@ -80,6 +80,8 @@ describe('Appointments', () => {
     appointment = await models.Appointment.create({
       ...fake(models.Appointment),
       patientId: patient.id,
+      startTime: add(new Date(), { days: 1 }),
+      endTime: add(new Date(), { days: 2 }),
     });
 
     const searchPatientNameOrId = query =>

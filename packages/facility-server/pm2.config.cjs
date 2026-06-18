@@ -1,4 +1,6 @@
 const os = require('node:os');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
@@ -11,13 +13,22 @@ const defaultApiScale = Math.min(maximumApiScale, Math.max(minimumApiScale, Math
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 
+// Use the Node runtime bundled in runtime/ next to this config if present,
+// otherwise the node running this process.
+const embeddedNode = path.join(
+  __dirname,
+  'runtime',
+  process.platform === 'win32' ? 'node.exe' : path.join('bin', 'node'),
+);
+const interpreter = fs.existsSync(embeddedNode) ? embeddedNode : process.execPath;
+
 function task(name, args, instances = 1, env = {}) {
   const base = {
     name,
     cwd,
     script: './dist/index.js',
     args,
-    interpreter: require.resolve('node/bin/node'),
+    interpreter,
     interpreter_args: `--max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
