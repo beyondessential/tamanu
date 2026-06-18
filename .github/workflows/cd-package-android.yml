@@ -2,8 +2,6 @@ name: CD Package Android
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
-  # Branch-scoped: hits on repeat pushes to the same branch with unchanged deps/android config.
-  ANDROID_CCACHE_KEY: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
 permissions:
   contents: write # to update the release notes
@@ -120,8 +118,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.ccache
-          key: ${{ env.ANDROID_CCACHE_KEY }}
-          restore-keys: []
+          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Build release APK (${{ matrix.arch }})
         working-directory: packages/mobile/android
@@ -152,6 +149,10 @@ jobs:
     if: ${{ !inputs.architectures }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
       - name: Download ccache partitions
         uses: actions/download-artifact@v4
         with:
@@ -173,7 +174,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.ccache
-          key: ${{ env.ANDROID_CCACHE_KEY }}
+          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
   merge-and-release:
     needs: build-abi
@@ -360,8 +361,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.ccache
-          key: ${{ env.ANDROID_CCACHE_KEY }}
-          restore-keys: []
+          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Build release
         working-directory: packages/mobile/android
@@ -380,7 +380,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.ccache
-          key: ${{ env.ANDROID_CCACHE_KEY }}
+          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Prepare signed APK artifact
         working-directory: packages/mobile/android/app/build/outputs/apk/release
