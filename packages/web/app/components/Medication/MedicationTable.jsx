@@ -237,7 +237,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              <DateDisplay date={trimToDate(date)} format="shortest" />
+              <DateDisplay date={trimToDate(date)} format="shortest" noTooltip />
             </ConditionalTooltip>
           </NoWrapCell>
         );
