@@ -4,6 +4,7 @@ import React, {
   Ref,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -48,14 +49,21 @@ type FormScreenViewProps = {
 
 const beginningEndOfScreenThreshold = 50;
 
+const hasMoreContentBelow = (
+  contentHeight: number,
+  layoutHeight: number,
+  scrollOffset: number,
+): boolean =>
+  contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
+
 export const FormScreenView = ({
   children,
   scrollViewRef,
 }: PropsWithChildren<FormScreenViewProps>): ReactElement => {
   const [animated, setAnimated] = useState(false);
-  const [contentHeight, setContentHeight] = useState(0);
-  const [layoutHeight, setLayoutHeight] = useState(0);
-  const [scrollOffset, setscrollOffset] = useState(0);
+  const contentHeightRef = useRef(0);
+  const layoutHeightRef = useRef(0);
+  const scrollOffsetRef = useRef(0);
 
   const opacity = useSharedValue(0);
 
@@ -65,34 +73,47 @@ export const FormScreenView = ({
       -1,
       true,
     );
+  }, [opacity]);
+
+  const updateArrowFromRefs = useCallback(() => {
+    if (contentHeightRef.current > 0 && layoutHeightRef.current > 0) {
+      setAnimated(
+        hasMoreContentBelow(
+          contentHeightRef.current,
+          layoutHeightRef.current,
+          scrollOffsetRef.current,
+        ),
+      );
+    }
+  }, []);
+
+  const onContentSizeChange = useCallback(
+    (_w: number, h: number) => {
+      contentHeightRef.current = h;
+      updateArrowFromRefs();
+    },
+    [updateArrowFromRefs],
+  );
+
+  const onLayout = useCallback(
+    ({ nativeEvent }: LayoutChangeEvent) => {
+      layoutHeightRef.current = nativeEvent.layout.height;
+      updateArrowFromRefs();
+    },
+    [updateArrowFromRefs],
+  );
+
+  const onScroll = useCallback(({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
+    scrollOffsetRef.current = contentOffset.y;
+    setAnimated(
+      hasMoreContentBelow(contentSize.height, layoutMeasurement.height, contentOffset.y),
+    );
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
   }));
-
-  const onContentSizeChange = useCallback((_w: number, h: number) => {
-    setContentHeight(h);
-  }, []);
-
-  const onLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
-    setLayoutHeight(nativeEvent.layout.height);
-  }, []);
-
-  useEffect(() => {
-    if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen =
-        contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
-      setAnimated(contentBiggerThanScreen);
-    }
-  }, [contentHeight, layoutHeight, scrollOffset]);
-
-  const onScroll = useCallback(
-    ({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) => {
-      setscrollOffset(contentOffset.y);
-    },
-    [],
-  );
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.BACKGROUND_GREY}>
@@ -105,7 +126,9 @@ export const FormScreenView = ({
           onContentSizeChange={onContentSizeChange}
           onLayout={onLayout}
           onScroll={onScroll}
-          scrollEventThrottle={1000}
+          onMomentumScrollEnd={onScroll}
+          onScrollEndDrag={onScroll}
+          scrollEventThrottle={16}
           style={styles.ScrollView}
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
