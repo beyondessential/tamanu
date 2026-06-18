@@ -112,7 +112,9 @@ function HeadingRow(props) {
   );
 }
 
-function isCurrentTimeSlot({ startTime, endTime, selectedDate, facilityNow }) {
+function useIsCurrentTimeSlot({ startTime, endTime, selectedDate }) {
+  const { getFacilityNowDate } = useDateTime();
+  const facilityNow = getFacilityNowDate();
   const now = facilityNow.getTime();
   const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
   const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
@@ -120,9 +122,7 @@ function isCurrentTimeSlot({ startTime, endTime, selectedDate, facilityNow }) {
 }
 
 function Col({ startTime, endTime, selectedDate }) {
-  const { getFacilityNowDate } = useDateTime();
-  const facilityNow = getFacilityNowDate();
-  const current = isCurrentTimeSlot({ startTime, endTime, selectedDate, facilityNow });
+  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
   return <col aria-current={current ? 'time' : undefined} />;
 }
 
@@ -133,10 +133,7 @@ const formatSlotTime = (timeStr, locale) =>
   );
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
-  const { getFacilityNowDate } = useDateTime();
-  const facilityNow = getFacilityNowDate();
-  const current = isCurrentTimeSlot({ startTime, endTime, selectedDate, facilityNow });
-
+  const current = useIsCurrentTimeSlot({ startTime, endTime, selectedDate });
   return (
     <TimeSlotHeaderContainer aria-current={current ? 'time' : undefined}>
       <TimeSlotText>
