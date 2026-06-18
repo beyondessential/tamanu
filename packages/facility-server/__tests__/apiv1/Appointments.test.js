@@ -81,6 +81,10 @@ describe('Appointments', () => {
       ...fake(models.Appointment),
       patientId: patient.id,
       startTime: add(new Date(), { days: 1 }),
+      // fake() gives endTime a random past date, which the appointments search
+      // treats as "already ended" and filters out. Null = open/upcoming, so it's
+      // returned by the default (current-and-future) search.
+      endTime: null,
     });
 
     const searchPatientNameOrId = query =>
