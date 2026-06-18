@@ -78,6 +78,13 @@ const initReportStore = async (existingStore, connectionName, { pool } = {}) => 
 };
 
 export const initReporting = async existingStore => {
+  if (!config.db.password) {
+    // Expected under trust auth; in a password-authenticated deployment it means the
+    // derived reporting passwords aren't tied to this instance (likely misconfig).
+    log.warn(
+      'db.password is empty: reporting role passwords are derived from an empty key and are not unique to this instance.',
+    );
+  }
   const { connections } = config.db.reportSchemas;
   // Sequential: concurrent role/schema DDL on the same db can deadlock.
   const stores = {};
