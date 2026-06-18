@@ -255,13 +255,13 @@ export const HalfSizeView = styled(StyledView)`
   width: 50%;
 `;
 
-export const RowView = styled(StyledView)`
-  flex-direction: row;
-`;
+export const RowView = styled(StyledView).attrs<{ flexDirection?: string }>(props => ({
+  flexDirection: props.flexDirection ?? 'row',
+}))``;
 
-export const ColumnView = styled(StyledView)`
-  flex-direction: column;
-`;
+export const ColumnView = styled(StyledView).attrs<{ flexDirection?: string }>(props => ({
+  flexDirection: props.flexDirection ?? 'column',
+}))``;
 
 export const StyledScrollView = styled(ScrollView)<StyledViewProps>`
   ${size}
