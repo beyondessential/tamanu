@@ -327,24 +327,24 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
   migrateCommand
     .command('up', { isDefault: true })
     .description('Run all unrun migrations until up to date')
-    .action(() => migrateCallback('up', migrateCommand.opts()));
+    .action(() => migrateCallback('up'));
 
   migrateCommand
     .command('down')
     .description('Reverse the most recent migration')
-    .action(() => migrateCallback('down', migrateCommand.opts()));
+    .action(() => migrateCallback('down'));
 
   migrateCommand
     .command('downToLastReversibleMigration')
     .description(
       'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
     )
-    .action(() => migrateCallback('downToLastReversibleMigration', migrateCommand.opts()));
+    .action(() => migrateCallback('downToLastReversibleMigration'));
 
   migrateCommand
     .command('redoLatest')
     .description('Run database migrations down 1 and then up 1')
-    .action(() => migrateCallback('redoLatest', migrateCommand.opts()));
+    .action(() => migrateCallback('redoLatest'));
 
   return migrateCommand;
 }

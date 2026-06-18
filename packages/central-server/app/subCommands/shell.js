@@ -40,7 +40,4 @@ export const shell = async ({ skipMigrationCheck }) => {
   });
 };
 
-export const shellCommand = new Command('shell')
-  .description('Start a Node.js shell')
-  .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .action(shell);
+export const shellCommand = new Command('shell').description('Start a Node.js shell').action(shell);
