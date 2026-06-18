@@ -20,6 +20,7 @@ import {
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useSingleTab } from './utils/singleTab';
+import { MIN_CHROME_VERSION } from './utils/env';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 const AppContainer = styled.div`
@@ -44,11 +45,13 @@ export function App({ sidebar, children }) {
     localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
   const browser = Bowser.getParser(window.navigator.userAgent);
-  // Early 2022 releases. Arbitrarily chosen as recentish.
+  // MIN_CHROME_VERSION is resolved at build time to the oldest of the most recent
+  // few Chrome majors as of when this bundle was built (see vite.config.js), so
+  // the gate rolls forward automatically with each release branch.
   const isChromish = browser.satisfies({
-    chrome: '>=100',
-    chromium: '>=100',
-    edge: '>=100',
+    chrome: `>=${MIN_CHROME_VERSION}`,
+    chromium: `>=${MIN_CHROME_VERSION}`,
+    edge: `>=${MIN_CHROME_VERSION}`,
   });
   const platformType = browser.getPlatformType();
   const isMobile = platformType === 'mobile';
