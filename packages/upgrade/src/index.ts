@@ -1,7 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
+import { syncDatabaseServerVersion, type Models, type Sequelize } from '@tamanu/database';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
-import type { Models, Sequelize } from '@tamanu/database';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
 import type { MigrationStr, StepArgs } from './step.ts';
@@ -22,6 +22,12 @@ export async function upgrade({
   toVersion: string;
   serverType: 'central' | 'facility';
 }) {
+  await syncDatabaseServerVersion({
+    models,
+    serverVersion: toVersion,
+    checkOnly: true,
+  });
+
   const fromVersion =
     (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch((err) => {
       log.error('Failed to get current version, likely because there is not one recorded yet', err);
@@ -146,5 +152,7 @@ export async function upgrade({
   }
 
   log.info('Tamanu has been upgraded', { toVersion });
+  // Record the version reached. This is bookkeeping, not a compatibility check, so it must
+  // always run (unlike syncDatabaseServerVersion, which is bypassed outside production).
   await models.LocalSystemFact.set(FACT_CURRENT_VERSION, toVersion);
 }
