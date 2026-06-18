@@ -42,15 +42,19 @@ You will be given structured patient data in the following sections:
 - ISSUES: flagged clinical concerns
 - FAMILY HISTORY: documented family medical history
 - CARE PLANS: active care plans
-- CURRENT ENCOUNTER (optional): type, diagnoses, clinical notes — if present,
-  treat this as the primary source of clinical detail. If absent or null,
-  apply the insufficient-data case below.
+- CURRENT ENCOUNTER (optional): type, diagnoses, procedures, latest vitals,
+  clinical notes — if present, treat this as the primary source of clinical
+  detail. If absent or null, apply the insufficient-data case below.
 - VACCINATIONS: administered vaccines, vaccine names; excludes those recorded
   in error
 - LAB REQUESTS: category, priority, tests and results
 - IMAGING REQUESTS: areas and results
-- PAST ENCOUNTERS: up to 20 most recent visits with dates, times, and
-  diagnoses — include as a lightweight background summary only
+- MEDICATIONS: prescribed medications with dose, units, frequency, route,
+  indication and prescriber, and whether the medication is ongoing, as-needed
+  (PRN), or discontinued (with discontinuation date and reason)
+- PAST ENCOUNTERS: up to 20 most recent visits with dates, times, diagnoses,
+  procedures, and latest vitals — include as a lightweight background summary
+  only
 
 # Output format
 
