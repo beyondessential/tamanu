@@ -24,7 +24,7 @@ on:
       architectures:
         type: string
         required: false
-        description: Comma-separated Gradle reactNativeArchitectures override (e.g. arm64-v8a)
+        description: Comma-separated Gradle reactNativeArchitectures override (e.g. arm64-v8a). When set, skips parallel ABI builds.
     secrets:
       ANDROID_SIGNING_KEY_PASSWORD:
         required: true
@@ -51,90 +51,146 @@ on:
         required: false
 
 jobs:
-  build:
+  prepare:
+    if: ${{ !inputs.architectures }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - name: Install Java
-        uses: actions/setup-java@v4
+      - uses: ./.github/actions/mobile-android-build-setup
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          branding: ${{ inputs.branding }}
+          server: ${{ inputs.server }}
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          build-root-directory: packages/mobile/android
+      - name: Bundle JavaScript (once)
+        working-directory: packages/mobile/android
+        run: ./gradlew app:createBundleReleaseJsAndAssets
 
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
-
-      - name: Update branding app title
-        if: ${{ inputs.branding != 'tamanu' }}
-        env:
-          appnames: '{}'
-        working-directory: packages/mobile/android/app/src/main/res/values
-        run: sed -i "s/Tamanu Mobile/${{fromjson(env.appnames)[inputs.branding]}}/g" strings.xml
-
-      - name: Set branding mipmap app icons
-        if: ${{ inputs.branding != 'tamanu' }}
-        working-directory: packages/mobile/android/app/src/main/res
+      - name: Archive JS bundle outputs
+        working-directory: packages/mobile/android/app/build/generated
         run: |
-          if [ -d ${{inputs.branding}} ]; then
-            rm -rf mipmap-*
-            mv ${{inputs.branding}}/* .
-          else
-            echo "Warning: No folder called '${{inputs.branding}}' found."
+          tar -czf "${{ runner.temp }}/android-js-bundle.tgz" \
+            assets/react/release \
+            res/react/release
+
+      - name: Upload JS bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-js-bundle
+          path: ${{ runner.temp }}/android-js-bundle.tgz
+          retention-days: 1
+
+  build-abi:
+    needs: prepare
+    if: ${{ !inputs.architectures }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [armeabi-v7a, arm64-v8a, x86, x86_64]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: ./.github/actions/mobile-android-build-setup
+        with:
+          branding: ${{ inputs.branding }}
+          server: ${{ inputs.server }}
+
+      - name: Download JS bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: android-js-bundle
+          path: ${{ runner.temp }}/android-js-bundle
+
+      - name: Restore JS bundle outputs
+        working-directory: packages/mobile/android/app/build/generated
+        run: |
+          mkdir -p assets/react res/react
+          tar -xzf "${{ runner.temp }}/android-js-bundle/android-js-bundle.tgz" -C .
+
+      - name: Build release APK (${{ matrix.arch }})
+        working-directory: packages/mobile/android
+        run: ./gradlew app:assembleRelease -PreactNativeArchitectures=${{ matrix.arch }}
+
+      - name: Upload ABI APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ matrix.arch }}
+          path: packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 1
+
+  merge-and-release:
+    needs: build-abi
+    if: ${{ !inputs.architectures }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android build-tools
+        run: sdkmanager "build-tools;36.0.0"
+
+      - name: Download ABI APKs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: android-apk-*
+          path: ${{ runner.temp }}/abi-apks
+          merge-multiple: true
+
+      - name: Merge universal APK
+        shell: bash
+        run: |
+          APK_DIR="${{ runner.temp }}/abi-apks"
+          mapfile -t ALL_APKS < <(find "${APK_DIR}" -name 'app-release-unsigned.apk' | sort)
+          if [[ ${#ALL_APKS[@]} -ne 4 ]]; then
+            echo "Expected 4 ABI APKs, found ${#ALL_APKS[@]}:" "${ALL_APKS[@]}"
+            exit 1
           fi
+          BASE_ARM64=""
+          for apk in "${ALL_APKS[@]}"; do
+            if unzip -l "${apk}" | grep -q 'lib/arm64-v8a/'; then
+              BASE_ARM64="${apk}"
+              break
+            fi
+          done
+          if [[ -z "${BASE_ARM64}" ]]; then
+            echo "Could not find arm64-v8a base APK"
+            exit 1
+          fi
+          OTHER=()
+          for apk in "${ALL_APKS[@]}"; do
+            if [[ "${apk}" != "${BASE_ARM64}" ]]; then
+              OTHER+=("${apk}")
+            fi
+          done
+          mkdir -p packages/mobile/android/app/build/outputs/apk/release
+          bash .github/scripts/merge-android-release-apks.sh \
+            packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            "${BASE_ARM64}" \
+            "${OTHER[@]}"
 
-      - name: Set server overrides
-        if: ${{ inputs.server }}
-        working-directory: packages/mobile
-        run: |
-          cat <<EOF > serverOverrides.json
-          {
-            "centralServers": [{"label": "Central Server", "value": "https://${{inputs.server}}" }]
-          }
-          EOF
-
-      - name: Make branding available to app
-        working-directory: packages/mobile/android
-        run: |
-          echo "BRANDING=${{ inputs.branding }}" > .env
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm install --include-workspace-root --workspace=@tamanu/mobile
-
-      - name: Build mobile dependencies
-        run: npm run build -- --filter=@tamanu/mobile^...
-
-      - name: Build release
-        working-directory: packages/mobile/android
+      - name: Sign universal APK
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run: |
-          ARCH_ARGS=""
-          if [ -n "${{ inputs.architectures }}" ]; then
-            ARCH_ARGS="-PreactNativeArchitectures=${{ inputs.architectures }}"
-          fi
-          ./gradlew app:assembleRelease $ARCH_ARGS
+          bash .github/scripts/sign-android-release-apk.sh \
+            packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            packages/mobile/android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload final build
         id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
-          name: android-release-${{github.run_number}}
+          name: android-release-${{ github.run_number }}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
 
@@ -211,7 +267,7 @@ jobs:
         run: |
           aws s3 cp --no-progress \
             packages/mobile/android/app/build/outputs/apk/release/app-release.apk \
-            s3://bes-tamanu-release-clients/$target/android/${{inputs.branding}}/app-release.apk
+            s3://bes-tamanu-release-clients/$target/android/${{ inputs.branding }}/app-release.apk
 
       - if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         continue-on-error: true
@@ -220,7 +276,7 @@ jobs:
           append_body: true
           body: |
             ## Mobile app 📱
-            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk)
+            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{ inputs.branding }}/app-release.apk)
 
       - name: Post to meta
         if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -231,4 +287,140 @@ jobs:
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
           api: /artifacts/${{ steps.destination.outputs.result }}/mobile/android
-          arg: --data-binary 'https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk'
+          arg: --data-binary 'https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{ inputs.branding }}/app-release.apk'
+
+  build-single:
+    if: ${{ inputs.architectures }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: ./.github/actions/mobile-android-build-setup
+        with:
+          branding: ${{ inputs.branding }}
+          server: ${{ inputs.server }}
+
+      - name: Build release
+        working-directory: packages/mobile/android
+        env:
+          ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+        run: ./gradlew app:assembleRelease -PreactNativeArchitectures=${{ inputs.architectures }}
+
+      - name: Prepare signed APK artifact
+        working-directory: packages/mobile/android/app/build/outputs/apk/release
+        run: |
+          if [[ -f app-release.apk ]]; then
+            echo "Using Gradle-signed app-release.apk"
+          elif [[ -f app-release-unsigned.apk ]]; then
+            cp app-release-unsigned.apk app-release.apk
+          else
+            echo "No release APK found"
+            exit 1
+          fi
+
+      - name: Upload final build
+        id: artifact-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-${{ github.run_number }}
+          path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
+
+      - name: Post comment with release link
+        continue-on-error: true
+        if: github.event_name == 'pull_request' || github.event_name == 'issues'
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_URL: ${{ steps.artifact-upload.outputs.artifact-url }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        with:
+          script: |
+            const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
+            const { repo, owner } = context.repo;
+            const { number: issue_number } = context.issue;
+            if (!issue_number) return;
+            const params = {
+              issue_number,
+              owner,
+              repo,
+            };
+            const headerContent = "**Android builds 📱**";
+            const latestText = " **Latest**";
+            const comments = await github.rest.issues.listComments(params);
+            const existingComment = comments.data.find((comment) =>
+              comment.body.includes(headerContent)
+            );
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                ...params,
+                comment_id: existingComment.id,
+                body: existingComment.body
+                  .replace(latestText, "")
+                  .replace(
+                    headerContent,
+                    `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`
+                  ),
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...params,
+                body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`,
+              });
+            }
+
+      - name: Set S3 destination
+        id: destination
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            if (context.ref == 'refs/heads/main') {
+              return `main/${(new Date).toISOString().replaceAll(':','-').split('.')[0]}.${context.sha.slice(0, 10)}`;
+            } else if (context.ref.startsWith('refs/tags/v')) {
+              return context.ref.replace('refs/tags/v', '');
+            } else if (context.ref.startsWith('refs/heads/release/')) {
+              return `${context.ref.replace('refs/tags/', '')}-rc`;
+            } else {
+              return 'nowhere';
+            }
+
+      - name: Configure AWS Credentials (upload)
+        if: steps.destination.outputs.result != 'nowhere'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
+          role-session-name: GHA@Tamanu=AndroidPackage
+
+      - name: Push to S3
+        if: steps.destination.outputs.result != 'nowhere'
+        env:
+          target: ${{ steps.destination.outputs.result }}
+        run: |
+          aws s3 cp --no-progress \
+            packages/mobile/android/app/build/outputs/apk/release/app-release.apk \
+            s3://bes-tamanu-release-clients/$target/android/${{ inputs.branding }}/app-release.apk
+
+      - if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          body: |
+            ## Mobile app 📱
+            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{ inputs.branding }}/app-release.apk)
+
+      - name: Post to meta
+        if: steps.destination.outputs.result != 'nowhere' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        continue-on-error: true
+        uses: ./.github/actions/meta-api
+        with:
+          url: ${{ vars.META_URL }}
+          crt: ${{ secrets.META_CERT }}
+          key: ${{ secrets.META_KEY }}
+          api: /artifacts/${{ steps.destination.outputs.result }}/mobile/android
+          arg: --data-binary 'https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{ inputs.branding }}/app-release.apk'

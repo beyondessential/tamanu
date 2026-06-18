@@ -1,0 +1,79 @@
+name: Mobile Android build setup
+description: Install dependencies and apply mobile Android branding for CI builds
+
+inputs:
+  branding:
+    description: App branding id
+    required: false
+    default: tamanu
+  server:
+    description: Central server override hostname
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Install Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        build-root-directory: packages/mobile/android
+
+    - name: Validate Gradle wrapper
+      uses: gradle/actions/wrapper-validation@v3
+
+    - name: Update branding app title
+      if: inputs.branding != 'tamanu'
+      env:
+        appnames: '{}'
+      shell: bash
+      working-directory: packages/mobile/android/app/src/main/res/values
+      run: sed -i "s/Tamanu Mobile/${{fromjson(env.appnames)[inputs.branding]}}/g" strings.xml
+
+    - name: Set branding mipmap app icons
+      if: inputs.branding != 'tamanu'
+      shell: bash
+      working-directory: packages/mobile/android/app/src/main/res
+      run: |
+        if [ -d ${{ inputs.branding }} ]; then
+          rm -rf mipmap-*
+          mv ${{ inputs.branding }}/* .
+        else
+          echo "Warning: No folder called '${{ inputs.branding }}' found."
+        fi
+
+    - name: Set server overrides
+      if: inputs.server != ''
+      shell: bash
+      working-directory: packages/mobile
+      run: |
+        cat <<EOF > serverOverrides.json
+        {
+          "centralServers": [{"label": "Central Server", "value": "https://${{ inputs.server }}" }]
+        }
+        EOF
+
+    - name: Make branding available to app
+      shell: bash
+      working-directory: packages/mobile/android
+      run: echo "BRANDING=${{ inputs.branding }}" > .env
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: '.node-version'
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm install --include-workspace-root --workspace=@tamanu/mobile
+
+    - name: Build mobile dependencies
+      shell: bash
+      run: npm run build -- --filter=@tamanu/mobile^...
