@@ -1,13 +1,13 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { UserAvatar, UserAvatarProps } from './index';
-import { getUserInitials } from '/helpers/user';
+import { getUserInitials, Genders } from '/helpers/user';
 
 describe('<UserAvatar/>', () => {
   const makeUserAvatar = (image?: string): UserAvatarProps => ({
     size: 25,
     displayName: 'Name LastName',
-    gender: 'male',
+    sex: Genders.MALE,
     image,
   });
 

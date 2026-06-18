@@ -5,6 +5,7 @@ import { MoreMenuOptions } from './fixture';
 
 describe('<MenuOptionButton />', () => {
   const optionProps = {
+    key: 'settings',
     ...MoreMenuOptions[0],
     onPress: jest.fn(),
   };

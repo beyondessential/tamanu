@@ -5,6 +5,7 @@ import { DeceasedIcon } from '../Icons';
 
 describe('<PatientMenuButton />', () => {
   const props = {
+    key: 'test',
     title: 'test',
     onPress: jest.fn(),
     Icon: DeceasedIcon,

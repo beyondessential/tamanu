@@ -5,7 +5,7 @@ import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
 import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedTextElement } from '/components/Translations/TranslatedText';
+import { TranslatedTextElement, getTranslatedTextFallback, getTranslatedTextStringId } from '/components/Translations/TranslatedText';
 
 type StrNumType = number | string;
 
@@ -36,12 +36,16 @@ export interface StyledButtonProps extends ButtonContainerProps {
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
   height: ${(props): string => {
-    const v = props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height);
-    return typeof v === 'number' ? `${v}px` : v;
+    const v = props.height ?? screenPercentageToDP(6.07, Orientation.Height);
+    if (typeof v === 'number') return `${v}px`;
+    if (typeof v === 'string') return v;
+    return `${screenPercentageToDP(6.07, Orientation.Height)}px`;
   }};
   width: ${(props): string => {
-    const v = props.width ? props.width : '100%';
-    return typeof v === 'number' ? `${v}px` : v;
+    const v = props.width ?? '100%';
+    if (typeof v === 'number') return `${v}px`;
+    if (typeof v === 'string') return v;
+    return '100%';
   }};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
@@ -107,8 +111,8 @@ export const Button = ({
   ...rest
 }: StyledButtonProps): FunctionComponentElement<{}> => (
   <StyledTouchableOpacity
-    testID={id || buttonText?.props?.stringId || (typeof buttonText === 'string' ? buttonText : undefined)}
-    accessibilityLabel={buttonText?.props?.stringId || (typeof buttonText === 'string' ? buttonText : undefined)}
+    testID={id || getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
+    accessibilityLabel={getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
     flex={flex}
     onPress={onPress}
     {...rest}

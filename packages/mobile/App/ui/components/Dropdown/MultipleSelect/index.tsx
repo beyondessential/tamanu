@@ -29,7 +29,13 @@ const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);
 
 const defaultSearchIcon = () => null;
-export class MultiSelect extends Component {
+
+type MultiSelectState = {
+  selector: boolean;
+  searchTerm: string;
+};
+
+export class MultiSelect extends Component<any, MultiSelectState> {
   static propTypes = {
     single: PropTypes.bool,
     selectedItems: PropTypes.array,
@@ -128,7 +134,7 @@ export class MultiSelect extends Component {
     clearable: true,
   };
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       selector: false,
@@ -178,7 +184,7 @@ export class MultiSelect extends Component {
     return find(items, singleItem => singleItem[uniqueKey] === itemKey) || {};
   };
 
-  _displaySelectedItems = optionalSelectedItems => {
+  _displaySelectedItems = (optionalSelectedItems?: string[]) => {
     const {
       fontFamily,
       tagContainerStyle,
@@ -297,7 +303,7 @@ export class MultiSelect extends Component {
     return selectedItems.indexOf(item[uniqueKey]) !== -1;
   };
 
-  _addItem = () => {
+  _addItem = (_item?: unknown) => {
     const { uniqueKey, items, selectedItems, onSelectedItemsChange, onAddItem } = this.props;
     let newItems = [];
     let newSelectedItems = [];
@@ -342,7 +348,7 @@ export class MultiSelect extends Component {
       itemFontSize,
     } = this.props;
     const isSelected = this._itemSelected(item);
-    const fontFamily = {};
+    const fontFamily: { fontFamily?: string } = {};
     if (isSelected && selectedItemFontFamily) {
       fontFamily.fontFamily = selectedItemFontFamily;
     } else if (!isSelected && itemFontFamily) {
@@ -490,7 +496,7 @@ export class MultiSelect extends Component {
         <FlatList
           data={renderItems}
           extraData={selectedItems}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(_item, index) => index.toString()}
           listKey={item => item[uniqueKey]}
           renderItem={rowData => this._getRow(rowData.item)}
           {...flatListProps}

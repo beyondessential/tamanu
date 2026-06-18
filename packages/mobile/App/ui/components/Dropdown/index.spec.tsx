@@ -17,7 +17,7 @@ describe.skip('<Dropdown />', () => {
   it('should select an item', async () => {
     const { getByText, getByTestId } = await render(<BaseStory />);
     const Picker = getByTestId('ios-picker');
-    await fireEvent.valueChange(Picker, dropdownItems[0].value);
+    await fireEvent(Picker, 'onValueChange', dropdownItems[0].value);
     expect(getByText(dropdownItems[0].label)).not.toBeNull();
   });
 });

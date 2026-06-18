@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { StyledText } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-const StyledLabel = styled(StyledText)`
+const StyledLabel = styled(StyledText)<{ $fontSize?: string | number }>`
   font-size: ${(props): string => {
     const v = props.$fontSize || screenPercentageToDP(2.1, Orientation.Height);
     return typeof v === 'number' ? `${v}px` : v;
@@ -14,9 +14,9 @@ const StyledLabel = styled(StyledText)`
 `;
 
 interface LabelProps {
-  children: string;
+  children: React.ReactNode;
   labelColor?: string;
-  labelFontSize?: string;
+  labelFontSize?: string | number;
 }
 
 export const TextFieldLabel = ({

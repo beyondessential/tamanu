@@ -4,6 +4,7 @@ import { Checkbox } from './index';
 
 describe('<Checkbox />', () => {
   const props = {
+    id: 'test-checkbox',
     text: 'Send Reminders for Vaccines',
     value: false,
     onChange: jest.fn(),
