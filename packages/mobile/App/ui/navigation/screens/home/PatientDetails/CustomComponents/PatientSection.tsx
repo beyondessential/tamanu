@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useState,
 } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
@@ -18,6 +18,18 @@ interface PatientDetailSectionProps {
   onEdit?: () => void;
   isClosable?: boolean;
 }
+
+const styles = StyleSheet.create({
+  content: {
+    position: 'relative',
+  },
+  editButton: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    zIndex: 1,
+  },
+});
 
 function getSectionLabel(title: ReactNode): string {
   if (typeof title === 'string') {
@@ -55,14 +67,20 @@ export const PatientSection = ({
         padding={20}
       >
         <SectionHeader h1>{title}</SectionHeader>
-        <RowView alignItems="center">
-          {onEdit && isOpen && <EditButton sectionTitle={sectionLabel} onPress={onEdit} />}
-          {isClosable && (
-            <ArrowButton isOpen={isOpen} sectionTitle={sectionLabel} onPress={toggleSection} />
-          )}
-        </RowView>
+        {isClosable && (
+          <ArrowButton isOpen={isOpen} sectionTitle={sectionLabel} onPress={toggleSection} />
+        )}
       </RowView>
-      {isOpen && children}
+      {isOpen && (
+        <View style={styles.content}>
+          {onEdit && (
+            <View style={styles.editButton}>
+              <EditButton sectionTitle={sectionLabel} onPress={onEdit} />
+            </View>
+          )}
+          {children}
+        </View>
+      )}
     </View>
   );
 };
