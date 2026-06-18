@@ -32,7 +32,7 @@ export class ApplicationContext {
 
   closeHooks = [];
 
-  async init({ appType, databaseOverrides } = {}) {
+  async init({ appType, databaseOverrides, provisionReporting = true } = {}) {
     if (config.errors?.enabled) {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
@@ -53,7 +53,9 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
-    if (config.db.reportSchemas?.enabled) {
+    // Reporting is always provisioned in normal startup; tests opt out (and opt
+    // back in per-case) since provisioning needs cluster-global roles + CREATEROLE.
+    if (provisionReporting) {
       this.reportSchemaStores = await initReporting(this.store);
     }
     return this;

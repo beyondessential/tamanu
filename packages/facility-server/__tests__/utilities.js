@@ -16,7 +16,6 @@ import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
-import { initReporting } from '@tamanu/database/services/reporting';
 
 import { createApiApp } from '../dist/createApiApp';
 import { buildToken } from '../dist/middleware/auth';
@@ -128,10 +127,10 @@ export function extendExpect(expect) {
 }
 
 export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
-  const context = await new ApplicationContext().init({ databaseOverrides });
-  if (enableReportInstances) {
-    context.reportSchemaStores = await initReporting(context.store);
-  }
+  const context = await new ApplicationContext().init({
+    databaseOverrides,
+    provisionReporting: Boolean(enableReportInstances),
+  });
 
   const { models, sequelize } = context;
 

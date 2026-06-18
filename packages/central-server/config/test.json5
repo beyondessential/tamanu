@@ -5,11 +5,6 @@
     "pool": {
       "acquire": 5000,
     },
-    // Reporting is on by default; keep it off in tests so contexts don't all
-    // provision the cluster-global reporting roles. Tests that need it opt in.
-    "reportSchemas": {
-      "enabled": false,
-    },
   },
   "mailgun": {
     "from": "Tamanu test"

@@ -7,7 +7,6 @@ import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { initReporting } from '@tamanu/database/services/reporting';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -22,9 +21,6 @@ class MockApplicationContext {
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(this.store);
-    }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
