@@ -9,7 +9,8 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 <details>
 <summary>Options</summary>
 
-- [ ] Synthetic test <!-- #deployopt %synthetic -->
+- [ ] Artillery load test <!-- #deployopt %synthetic -->
+- [ ] Seed from closest snapshot <!-- #deployopt %seed-snapshot -->
 - [ ] Generate fake data <!-- #deployopt %fakedata=1 -->
 - [ ] More data (20Gi) <!-- #deployopt %dbstorage=20 -->
 - [ ] No facility servers (central-only) <!-- #deployopt %facilities=0 -->

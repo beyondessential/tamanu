@@ -1,7 +1,8 @@
 import { times } from 'lodash';
 
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import type { Patient } from '@tamanu/database';
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
@@ -15,20 +16,26 @@ interface CreatePatientParams extends CommonParams {
 }
 export const createPatient = async ({
   models,
-  limit,
   facilityId,
   userId,
   isBirth = chance.bool(),
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
-  const { Patient, PatientBirthData, PatientAllergy, PatientAdditionalData, PatientDeathData } =
-    models;
+  const {
+    Patient,
+    PatientBirthData,
+    PatientAllergy,
+    PatientAdditionalData,
+    PatientDeathData,
+    ReferenceData,
+  } = models;
 
   const patient = await Patient.create(fake(Patient));
   await PatientAdditionalData.create(
     fake(PatientAdditionalData, {
       patientId: patient.id,
+      registeredById: userId || (await randomRecordId(models, 'User')),
     }),
   );
 
@@ -50,17 +57,24 @@ export const createPatient = async ({
     );
   }
 
-  await Promise.all(
-    times(allergyCount, () =>
-      limit(async () => {
-        await PatientAllergy.create(
-          fake(PatientAllergy, {
-            patientId: patient.id,
-          }),
-        );
-      }),
-    ),
-  );
+  if (allergyCount > 0) {
+    // Pick from the shared allergy pool (seeded in generateImportData) rather
+    // than minting a ReferenceData per allergy. Fetched once per patient.
+    const allergyRows = await ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.ALLERGY },
+      attributes: ['id'],
+      raw: true,
+    });
+    const allergyIds = allergyRows.map((row: { id: string }) => row.id);
+    for (const _ of times(allergyCount)) {
+      await PatientAllergy.create(
+        fake(PatientAllergy, {
+          patientId: patient.id,
+          allergyId: allergyIds.length ? chance.pickone(allergyIds) : null,
+        }),
+      );
+    }
+  }
 
   return { patient };
 };

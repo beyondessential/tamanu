@@ -7,18 +7,26 @@ import { formatISO9075 } from 'date-fns';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  BLOOD_TYPES,
   CURRENTLY_AT_TYPES,
   DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
+  DRUG_ROUTE_VALUES,
+  EDUCATIONAL_ATTAINMENT_TYPES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
+  MARITAL_STATUS_VALUES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   REGISTRATION_STATUSES,
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
+  SEX_VALUES,
+  TITLES,
+  VACCINE_CATEGORIES_VALUES,
+  VACCINE_RECORDING_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -37,151 +45,459 @@ import {
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
 import { Model } from '@tamanu/database/models/Model';
+import { DRUGS } from '@tamanu/database/demoData/drugs';
+import { ALLERGIES } from '@tamanu/database/demoData/allergies';
+import { DIAGNOSES } from '@tamanu/database/demoData/diagnoses';
+import { TRIAGE_DIAGNOSES } from '@tamanu/database/demoData/triageDiagnoses';
+import { VILLAGES } from '@tamanu/database/demoData/villages';
+import { PROCEDURE_TYPES } from '@tamanu/database/demoData/procedureTypes';
+import {
+  X_RAY_IMAGING_AREAS,
+  CT_SCAN_IMAGING_AREAS,
+  ULTRASOUND_IMAGING_AREAS,
+} from '@tamanu/database/demoData/imagingAreas';
+
+const DRUG_NAMES = DRUGS.map(d => d.name);
+const ALLERGY_NAMES = ALLERGIES.map(a => a.name);
+const DIAGNOSIS_NAMES = DIAGNOSES.map(d => d.name.split('\t')[0]);
+const TRIAGE_REASON_NAMES = TRIAGE_DIAGNOSES.map(t => t.name);
+const VILLAGE_NAMES = VILLAGES.map(v => v.name);
+const PROCEDURE_TYPE_NAMES = PROCEDURE_TYPES.map(p => p.name.split('\t')[1] || p.name);
+const X_RAY_AREA_NAMES = X_RAY_IMAGING_AREAS.map(a => a.name);
+const CT_SCAN_AREA_NAMES = CT_SCAN_IMAGING_AREAS.map(a => a.name);
+const ULTRASOUND_AREA_NAMES = ULTRASOUND_IMAGING_AREAS.map(a => a.name);
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
-export function fakeStringFields(prefix: string, fields: string[]) {
-  return fields.reduce(
-    (obj: Record<string, string>, field: string) => ({
-      ...obj,
-      [field]: prefix + field,
-    }),
-    {},
-  );
-}
-
 export function fakeScheduledVaccine(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
-    weeksFromBirthDue: chance.integer({ min: 0, max: 1000 }),
+    id: `${prefix}scheduledVaccine_${id}`,
+    weeksFromBirthDue: chance.pickone([0, 6, 10, 14, 24, 36, 52, 78, 104, 260]),
     weeksFromLastVaccinationDue: null,
     index: chance.integer({ min: 0, max: 50 }),
     vaccineId: null,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     sortIndex: 0,
-    ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
-      'id',
-      'category',
-      'label',
-      'doseLabel',
+    category: chance.pickone(VACCINE_CATEGORIES_VALUES),
+    label: chance.pickone([
+      'BCG',
+      'Hepatitis B',
+      'OPV',
+      'IPV',
+      'DTP',
+      'Measles',
+      'Rubella',
+      'MMR',
+      'Tetanus',
+      'Pneumococcal',
+      'Rotavirus',
+      'HPV',
+      'Yellow Fever',
+      'Typhoid',
+      'Influenza',
+      'Varicella',
+      'Hepatitis A',
+      'Meningococcal',
+      'Japanese Encephalitis',
+    ]),
+    doseLabel: chance.pickone([
+      'Dose 1',
+      'Dose 2',
+      'Dose 3',
+      'Dose 4',
+      'Booster',
+      'Birth dose',
+      'Annual',
     ]),
   };
 }
 
 export function fakeSurvey(prefix: string = 'test-') {
   const id = fakeUUID();
+  const surveyName = chance.pickone([
+    'Maternal Health Assessment',
+    'Nutrition Screening',
+    'Mental Health Questionnaire',
+    'Chronic Disease Follow-up',
+    'Community Health Survey',
+    'Immunisation Checklist',
+    'Antenatal Care Visit',
+    'Postnatal Care Assessment',
+    'TB Screening Form',
+    'Malaria Case Investigation',
+    'NCD Risk Assessment',
+    'Child Growth Monitoring',
+    'Family Planning Counselling',
+    'HIV Testing & Counselling',
+    'Outbreak Investigation Form',
+    'Patient Discharge Summary',
+  ]);
   return {
+    id: `${prefix}survey_${id}`,
     programId: null,
     surveyType: 'programs',
     isSensitive: false,
-    ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
+    code: `SRV-${chance.hash({ length: 6 }).toUpperCase()}`,
+    name: surveyName,
   };
 }
 
 export function fakeSurveyScreenComponent(prefix: string = 'test-') {
   const id = fakeUUID();
+  const { text, detail } = chance.pickone([
+    { text: 'Systolic blood pressure (mmHg)', detail: 'Measure after 5 min rest, use left arm' },
+    { text: 'Diastolic blood pressure (mmHg)', detail: 'Record seated reading' },
+    { text: 'Temperature (°C)', detail: 'Use tympanic or oral thermometer' },
+    { text: 'Weight (kg)', detail: 'Remove shoes and heavy clothing' },
+    { text: 'Height (cm)', detail: 'Patient should be standing straight' },
+    { text: 'Heart rate (bpm)', detail: 'Count for 60 seconds at radial pulse' },
+    { text: 'Respiratory rate', detail: 'Count breaths per minute at rest' },
+    { text: 'Oxygen saturation (%)', detail: 'Use pulse oximeter on index finger' },
+    { text: 'Blood glucose (mmol/L)', detail: 'Record fasting or random, note which' },
+    { text: 'MUAC (cm)', detail: 'Mid-upper arm circumference, left arm' },
+    { text: 'Pain score (0-10)', detail: '0 = no pain, 10 = worst imaginable' },
+    { text: 'Urine dipstick result', detail: 'Record protein, glucose, blood, leukocytes' },
+    { text: 'Fundal height (cm)', detail: 'Measure from pubic symphysis' },
+    { text: 'Oedema', detail: 'Check ankles, shins, and sacral area' },
+    { text: 'Clinical notes', detail: 'Free text observations' },
+    { text: 'Presenting complaint', detail: "Chief complaint in patient's own words" },
+  ]);
   return {
+    id: `${prefix}surveyScreenComponent_${id}`,
     surveyId: null,
     dataElementId: null,
-    screenIndex: chance.integer({ min: 0, max: 100 }),
-    componentIndex: chance.integer({ min: 0, max: 100 }),
+    screenIndex: chance.integer({ min: 0, max: 5 }),
+    componentIndex: chance.integer({ min: 0, max: 10 }),
     options: '{"foo":"bar"}',
     calculation: '',
-    ...fakeStringFields(`${prefix}surveyScreenComponent_${id}_`, [
-      'id',
-      'text',
-      'visibilityCriteria',
-      'validationCriteria',
-      'detail',
-      'config',
-    ]),
+    text,
+    visibilityCriteria: '',
+    validationCriteria: '',
+    detail,
+    config: '{}',
   };
 }
 
 export function fakeProgramDataElement(prefix: string = 'test-') {
   const id = fakeUUID();
+  const { name: elementName, indicator } = chance.pickone([
+    { name: 'Systolic Blood Pressure', indicator: 'Vital Signs' },
+    { name: 'Diastolic Blood Pressure', indicator: 'Vital Signs' },
+    { name: 'Body Temperature', indicator: 'Vital Signs' },
+    { name: 'Respiratory Rate', indicator: 'Vital Signs' },
+    { name: 'Oxygen Saturation', indicator: 'Vital Signs' },
+    { name: 'Pulse Rate', indicator: 'Vital Signs' },
+    { name: 'Body Weight', indicator: 'Anthropometry' },
+    { name: 'Body Height', indicator: 'Anthropometry' },
+    { name: 'BMI', indicator: 'Anthropometry' },
+    { name: 'MUAC', indicator: 'Anthropometry' },
+    { name: 'Head Circumference', indicator: 'Anthropometry' },
+    { name: 'Haemoglobin Level', indicator: 'Lab Results' },
+    { name: 'Blood Glucose', indicator: 'Lab Results' },
+    { name: 'Malaria RDT Result', indicator: 'Lab Results' },
+    { name: 'HIV Test Result', indicator: 'Lab Results' },
+    { name: 'Urine Protein', indicator: 'Lab Results' },
+    { name: 'Cough Duration', indicator: 'Symptoms' },
+    { name: 'Fever Duration', indicator: 'Symptoms' },
+    { name: 'Pain Score', indicator: 'Symptoms' },
+    { name: 'Nausea Severity', indicator: 'Symptoms' },
+    { name: 'Pregnancy Status', indicator: 'Reproductive Health' },
+    { name: 'Gestational Age', indicator: 'Reproductive Health' },
+    { name: 'Fundal Height', indicator: 'Reproductive Health' },
+    { name: 'Gravidity', indicator: 'Reproductive Health' },
+  ]);
   return {
+    id: `${prefix}programDataElement_${id}`,
     type: chance.pickone(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
-    ...fakeStringFields(`${prefix}programDataElement_${id}_`, [
-      'id',
-      'code',
-      'name',
-      'indicator',
-      'defaultText',
-      'defaultOptions',
+    code: `PDE-${chance.hash({ length: 6 }).toUpperCase()}`,
+    name: elementName,
+    indicator,
+    defaultText: chance.pickone([
+      'Enter measured value',
+      'Select from options below',
+      'Record observation here',
+      'Measured at time of visit',
+      'Ask patient directly',
+      'Refer to lab slip',
+      'Use standard equipment',
     ]),
+    defaultOptions: '',
   };
 }
 
 export function fakeReferenceData(prefix: string = 'test-') {
   const id = fakeUUID();
+  const REFERENCE_DATA_OPTIONS: Array<{ type: string; names: string[] }> = [
+    { type: 'drug', names: DRUG_NAMES },
+    { type: 'allergy', names: ALLERGY_NAMES },
+    { type: 'diagnosis', names: DIAGNOSIS_NAMES },
+    { type: 'triageReason', names: TRIAGE_REASON_NAMES },
+    { type: 'village', names: VILLAGE_NAMES },
+    { type: 'xRayImagingArea', names: X_RAY_AREA_NAMES },
+    { type: 'ctScanImagingArea', names: CT_SCAN_AREA_NAMES },
+    { type: 'ultrasoundImagingArea', names: ULTRASOUND_AREA_NAMES },
+    { type: 'procedureType', names: PROCEDURE_TYPE_NAMES },
+    {
+      type: 'division',
+      names: [
+        'Northern Division',
+        'Southern Division',
+        'Eastern Division',
+        'Western Division',
+        'Central Division',
+        'Highlands Division',
+        'Islands Division',
+        'Coastal Division',
+      ],
+    },
+    {
+      type: 'subdivision',
+      names: [
+        'Kairuku District',
+        'Rigo District',
+        'Abau District',
+        'Goilala District',
+        'North Coast',
+        'South Coast',
+        'Upper Valley',
+        'Lower Valley',
+      ],
+    },
+    {
+      type: 'ethnicity',
+      names: [
+        'Melanesian',
+        'Polynesian',
+        'Micronesian',
+        'Papuan',
+        'Chinese',
+        'European',
+        'Mixed Heritage',
+        'Indian',
+        'Filipino',
+      ],
+    },
+    {
+      type: 'nationality',
+      names: chance.n(() => chance.country({ full: true }), 20),
+    },
+    {
+      type: 'occupation',
+      names: chance.n(() => chance.profession(), 20),
+    },
+    {
+      type: 'religion',
+      names: [
+        'Catholic',
+        'Lutheran',
+        'United Church',
+        'Seventh Day Adventist',
+        'Anglican',
+        'Pentecostal',
+        'Baptist',
+        'Evangelical',
+      ],
+    },
+    {
+      type: 'labTestCategory',
+      names: [
+        'Haematology',
+        'Biochemistry',
+        'Microbiology',
+        'Serology',
+        'Urinalysis',
+        'Parasitology',
+        'Immunology',
+        'Cytology',
+      ],
+    },
+  ];
+  const { type, names } = chance.pickone(REFERENCE_DATA_OPTIONS);
+  const name = chance.pickone(names);
   return {
-    type: chance.pickone(REFERENCE_TYPE_VALUES),
+    id: `${prefix}referenceData_${id}`,
+    type,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    ...fakeStringFields(`${prefix}referenceData_${id}_`, ['id', 'name', 'code']),
+    name,
+    code: `REF-${chance.hash({ length: 6 }).toUpperCase()}`,
   };
 }
 
 export function fakeUser(prefix: string = 'test-') {
   const id = fakeUUID();
-  return fakeStringFields(`${prefix}user_${id}_`, [
-    'id',
-    'displayId',
-    'email',
-    'displayName',
-    'role',
-  ]);
+  const firstName = chance.first();
+  const lastName = chance.last();
+  return {
+    id: `${prefix}user_${id}`,
+    displayId: chance.hash({ length: 5 }).toUpperCase(),
+    email: chance.email(),
+    displayName: `${firstName} ${lastName}`,
+    role: 'practitioner',
+  };
 }
 
 export function fakeProgram(prefix: string = 'test-') {
   const id = fakeUUID();
-  return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
+  const programName = chance.pickone([
+    'Malaria Control Program',
+    'Maternal Health Program',
+    'Tuberculosis Program',
+    'HIV/AIDS Program',
+    'Child Health Program',
+    'Nutrition Program',
+    'Non-Communicable Disease Program',
+    'Expanded Programme on Immunization',
+    'Reproductive Health Program',
+    'Mental Health Program',
+    'Neglected Tropical Diseases Program',
+    'Water & Sanitation Program',
+    'Community Health Worker Program',
+    'Outbreak Surveillance Program',
+  ]);
+  return {
+    id: `${prefix}program_${id}`,
+    name: programName,
+    code: `PRG-${chance.hash({ length: 6 }).toUpperCase()}`,
+  };
 }
 
 export function fakeAdministeredVaccine(prefix: string = 'test-', scheduledVaccineId) {
   const id = fakeUUID();
   return {
+    id: `${prefix}administeredVaccine_${id}`,
     encounterId: null,
     scheduledVaccineId,
-    date: formatISO9075(chance.date()),
-    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, ['id', 'batch', 'status', 'reason']),
+    date: formatISO9075(fakeDate()),
+    batch: `${chance.character({ alpha: true }).toUpperCase()}${chance.natural({ min: 1000, max: 9999 })}`,
+    status: chance.pickone(Object.values(VACCINE_RECORDING_TYPES)),
+    reason: chance.pickone([
+      'Routine schedule',
+      'Catch-up',
+      'Post-exposure',
+      'Travel requirement',
+      'Outbreak response',
+      'School entry requirement',
+      'Occupational health',
+      'Maternal immunisation',
+      'Campaign',
+      '',
+    ]),
   };
 }
 
 export function fakeEncounter(prefix: string = 'test-') {
   const id = fakeUUID();
+  const startDate = fakeDate();
+  const endDate = new Date(startDate.getTime() + chance.integer({ min: 1, max: 14 }) * 86400000);
   return {
     deviceId: null,
     surveyResponses: [],
     administeredVaccines: [],
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
-    startDate: formatISO9075(chance.date()),
-    endDate: formatISO9075(chance.date()),
-    ...fakeStringFields(`${prefix}encounter_${id}_`, ['id', 'reasonForEncounter']),
+    startDate: formatISO9075(startDate),
+    endDate: formatISO9075(endDate),
+    id: `${prefix}encounter_${id}`,
+    reasonForEncounter: chance.pickone([
+      'Routine check-up',
+      'Fever and headache',
+      'Follow-up visit',
+      'Injury assessment',
+      'Prenatal care',
+      'Chest pain',
+      'Abdominal pain',
+      'Vaccination',
+      'Persistent cough',
+      'Skin rash',
+      'Diarrhoea and vomiting',
+      'Wound dressing',
+      'Medication review',
+      'Shortness of breath',
+      'Joint pain',
+      'Eye infection',
+      'Ear pain',
+      'Dental referral',
+      'Post-surgical review',
+      'Counselling session',
+      'Growth monitoring',
+      'Lab result follow-up',
+    ]),
   };
 }
 
 export function fakeSurveyResponse(prefix: string = 'test-') {
   const id = fakeUUID();
+  const startTime = fakeDate();
+  const endTime = new Date(startTime.getTime() + chance.integer({ min: 1, max: 60 }) * 60000);
   return {
     answers: [],
     encounterId: null,
     surveyId: null,
-    startTime: fakeDateTimeString(),
-    endTime: fakeDateTimeString(),
-    result: chance.floating({ min: 0, max: 100 }),
-    ...fakeStringFields(`${prefix}surveyResponse_${id}_`, ['id']),
+    startTime: toDateTimeString(startTime),
+    endTime: toDateTimeString(endTime),
+    result: Math.round(chance.floating({ min: 0, max: 100 }) * 10) / 10,
+    id: `${prefix}surveyResponse_${id}`,
   };
 }
 
 export function fakeSurveyResponseAnswer(prefix: string = 'test-') {
   const id = fakeUUID();
+  const clampedNormal = (mean: number, dev: number, min: number, max: number, decimals = 0) => {
+    const val = Math.max(min, Math.min(max, chance.normal({ mean, dev })));
+    return decimals > 0 ? val.toFixed(decimals) : Math.round(val).toString();
+  };
+  const SURVEY_ANSWER_OPTIONS: Array<{ name: string; body: () => string }> = [
+    {
+      name: 'Blood pressure',
+      body: () => `${clampedNormal(120, 15, 80, 180)}/${clampedNormal(80, 10, 40, 110)}`,
+    },
+    { name: 'Temperature', body: () => clampedNormal(37.0, 0.5, 35.5, 41.0, 1) },
+    { name: 'Weight', body: () => clampedNormal(70, 15, 30, 150, 1) },
+    { name: 'Height', body: () => clampedNormal(165, 10, 140, 200) },
+    { name: 'Heart rate', body: () => clampedNormal(75, 12, 40, 150) },
+    { name: 'SpO2', body: () => `${clampedNormal(97, 2, 85, 100)}%` },
+    { name: 'Respiratory rate', body: () => clampedNormal(16, 3, 10, 35) },
+    { name: 'Blood glucose', body: () => clampedNormal(5.5, 2.0, 2.0, 20.0, 1) },
+    { name: 'MUAC', body: () => clampedNormal(25, 4, 10, 35, 1) },
+    { name: 'Pain score', body: () => clampedNormal(3, 2.5, 0, 10) },
+    { name: 'Haemoglobin', body: () => clampedNormal(13.0, 2.0, 5.0, 19.0, 1) },
+    { name: 'Gestational age (weeks)', body: () => clampedNormal(28, 8, 4, 42) },
+    { name: 'Fundal height', body: () => clampedNormal(28, 7, 12, 42) },
+    { name: 'Malaria RDT', body: () => chance.pickone(['Positive', 'Negative']) },
+    {
+      name: 'HIV test result',
+      body: () => chance.pickone(['Reactive', 'Non-reactive', 'Indeterminate']),
+    },
+    {
+      name: 'Oedema',
+      body: () => chance.pickone(['None', 'Mild (+)', 'Moderate (++)', 'Severe (+++)']),
+    },
+    {
+      name: 'Notes',
+      body: () =>
+        chance.pickone([
+          'Patient reports feeling better',
+          'No complaints today',
+          'Mild discomfort noted',
+          'Awaiting lab results',
+          'Referred for further investigation',
+          'Condition stable, continue treatment',
+          'Patient counselled on medication adherence',
+          'Wound healing well',
+        ]),
+    },
+  ];
+  const answer = chance.pickone(SURVEY_ANSWER_OPTIONS);
+  const { name } = answer;
+  const body = answer.body();
   return {
+    id: `${prefix}surveyResponseAnswer_${id}`,
     dataElementId: null,
     responseId: null,
-    ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['id', 'name', 'body']),
+    name,
+    body,
   };
 }
 
@@ -189,30 +505,69 @@ export function fakeEncounterDiagnosis(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     certainty: chance.pickone(DIAGNOSIS_CERTAINTY_VALUES),
-    date: formatISO9075(chance.date()),
+    date: formatISO9075(fakeDate()),
     isPrimary: chance.bool(),
     encounterId: null,
     diagnosisId: null,
-    ...fakeStringFields(`${prefix}encounterDiagnosis_${id}_`, ['id']),
+    id: `${prefix}encounterDiagnosis_${id}`,
   };
 }
 
 export function fakePrescription(prefix: string = 'test-') {
   const id = fakeUUID();
+  const date = fakeDate();
+  const endDate = new Date(date.getTime() + chance.integer({ min: 1, max: 30 }) * 86400000);
   return {
-    date: formatISO9075(chance.date()),
-    endDate: formatISO9075(chance.date()),
-    ...fakeStringFields(`${prefix}prescription${id}_`, ['id', 'note', 'indication', 'route']),
+    date: formatISO9075(date),
+    endDate: formatISO9075(endDate),
+    id: `${prefix}prescription_${id}`,
+    note: chance.pickone([
+      'Take with food',
+      'Avoid alcohol during course',
+      'Review in 2 weeks',
+      'Monitor for side effects',
+      'Reduce dose if drowsy',
+      'Continue until course complete',
+      'Take on an empty stomach',
+      'Do not crush or chew',
+      'Store in refrigerator',
+      'Apply to affected area only',
+      'Shake well before use',
+      'Complete full course even if symptoms improve',
+      'Take at bedtime',
+      'Avoid direct sunlight while using',
+    ]),
+    indication: chance.pickone([
+      'Bacterial infection',
+      'Pain management',
+      'Hypertension',
+      'Type 2 diabetes',
+      'Inflammation',
+      'Acid reflux',
+      'Malaria treatment',
+      'Asthma',
+      'Anxiety',
+      'Anaemia',
+      'Fungal infection',
+      'Fever',
+      'Allergic reaction',
+      'Wound prophylaxis',
+      'Tuberculosis',
+      'HIV antiretroviral therapy',
+    ]),
+    route: chance.pickone(DRUG_ROUTE_VALUES),
   };
 }
 
-export const fakeDate = () => chance.date();
+const CURRENT_YEAR = new Date().getFullYear();
+export const fakeDate = () =>
+  chance.date({ year: chance.integer({ min: CURRENT_YEAR - 5, max: CURRENT_YEAR }) }) as Date;
 export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
   `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
 export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
-export const fakeFloat = () => chance.floating({ min: 0, max: 1000 });
+export const fakeFloat = () => chance.floating({ min: 0, max: 1000, fixed: 2 });
 export const fakeBool = () => chance.bool();
 
 const FIELD_HANDLERS = {
@@ -248,14 +603,48 @@ const FIELD_HANDLERS = {
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 
 const MODEL_SPECIFIC_OVERRIDES = {
-  Facility: () => ({
-    email: chance.email(),
-    contactNumber: chance.phone(),
-    streetAddress: `${chance.natural({ max: 999 })} ${chance.street()}`,
-    cityTown: chance.city(),
-    division: chance.province({ full: true }),
-    type: chance.pickone(['hospital', 'clinic']),
-  }),
+  Facility: () => {
+    const facilityType = chance.pickone([
+      'hospital',
+      'clinic',
+      'health_centre',
+      'aid_post',
+      'dispensary',
+      'district_hospital',
+      'provincial_hospital',
+      'urban_clinic',
+    ]);
+    const namePrefixGenerators = [
+      () => chance.city(),
+      () => `${chance.last()} Memorial`,
+      () => `St. ${chance.first()}`,
+      () => `${chance.city()} District`,
+      () => 'Central',
+      () => 'National',
+      () => `Port ${chance.last()}`,
+      () => chance.company(),
+    ];
+    const namePrefix = chance.pickone(namePrefixGenerators)();
+    const nameSuffix = {
+      hospital: 'Hospital',
+      clinic: 'Clinic',
+      health_centre: 'Health Centre',
+      aid_post: 'Aid Post',
+      dispensary: 'Dispensary',
+      district_hospital: 'District Hospital',
+      provincial_hospital: 'Provincial Hospital',
+      urban_clinic: 'Urban Clinic',
+    }[facilityType];
+    return {
+      name: `${namePrefix} ${nameSuffix}`,
+      email: chance.email(),
+      contactNumber: chance.phone(),
+      streetAddress: chance.address(),
+      cityTown: chance.city(),
+      division: chance.province({ full: true }),
+      type: facilityType,
+    };
+  },
   ImagingRequest: () => {
     const status = chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES));
     const isCancelled = status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
@@ -265,12 +654,49 @@ const MODEL_SPECIFIC_OVERRIDES = {
     };
   },
   LabTestType: () => {
+    const suffix = chance.hash({ length: 4 });
+    const {
+      code: baseCode,
+      name: baseName,
+      unit,
+    } = chance.pickone([
+      { code: 'WBC', name: 'White Blood Cell Count', unit: 'x10^9/L' },
+      { code: 'RBC', name: 'Red Blood Cell Count', unit: 'x10^12/L' },
+      { code: 'HGB', name: 'Haemoglobin', unit: 'g/dL' },
+      { code: 'HCT', name: 'Haematocrit', unit: '%' },
+      { code: 'PLT', name: 'Platelet Count', unit: 'x10^9/L' },
+      { code: 'MCV', name: 'Mean Corpuscular Volume', unit: 'fL' },
+      { code: 'GLU', name: 'Blood Glucose', unit: 'mmol/L' },
+      { code: 'HbA1c', name: 'Glycated Haemoglobin', unit: '%' },
+      { code: 'CREAT', name: 'Creatinine', unit: 'umol/L' },
+      { code: 'BUN', name: 'Blood Urea Nitrogen', unit: 'mmol/L' },
+      { code: 'ALT', name: 'Alanine Aminotransferase', unit: 'IU/L' },
+      { code: 'AST', name: 'Aspartate Aminotransferase', unit: 'IU/L' },
+      { code: 'ALP', name: 'Alkaline Phosphatase', unit: 'IU/L' },
+      { code: 'TBIL', name: 'Total Bilirubin', unit: 'umol/L' },
+      { code: 'TSH', name: 'Thyroid Stimulating Hormone', unit: 'mIU/L' },
+      { code: 'CRP', name: 'C-Reactive Protein', unit: 'mg/L' },
+      { code: 'ESR', name: 'Erythrocyte Sedimentation Rate', unit: 'mm/hr' },
+      { code: 'Na', name: 'Sodium', unit: 'mmol/L' },
+      { code: 'K', name: 'Potassium', unit: 'mmol/L' },
+      { code: 'Cl', name: 'Chloride', unit: 'mmol/L' },
+      { code: 'Ca', name: 'Calcium', unit: 'mmol/L' },
+      { code: 'CHOL', name: 'Total Cholesterol', unit: 'mmol/L' },
+      { code: 'TRIG', name: 'Triglycerides', unit: 'mmol/L' },
+      { code: 'UA', name: 'Uric Acid', unit: 'umol/L' },
+      { code: 'mRDT', name: 'Malaria Rapid Diagnostic Test', unit: '' },
+      { code: 'HIV-Ab', name: 'HIV Antibody Screen', unit: '' },
+      { code: 'HBsAg', name: 'Hepatitis B Surface Antigen', unit: '' },
+      { code: 'URINE-MC', name: 'Urine Microscopy & Culture', unit: '' },
+    ]);
+    const code = `${baseCode}-${suffix}`;
+    const name = `${baseName} (${suffix})`;
     return {
-      code: chance.word(),
-      name: chance.word(),
-      unit: chance.pickone(['mmol/L', 'umol/L', 'IU']),
+      code,
+      name,
+      unit,
       isSensitive: false,
-      externalCode: chance.pickone([chance.word(), null]), // sometimes external code not mapped
+      externalCode: chance.pickone([code, null]),
       availableFacilities: null,
     };
   },
@@ -290,7 +716,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     referenceRangeMax: null,
   }),
   Patient: () => {
-    const sex = chance.pickone(['male', 'female', 'other']);
+    const sex = chance.pickone(Object.values(SEX_VALUES));
     const nameGender: 'male' | 'female' =
       sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
@@ -303,6 +729,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
+      dateOfBirth: toDateString(chance.birthday({ type: 'adult' }) as Date),
       dateOfDeath: null,
       email: chance.email(),
     };
@@ -313,32 +740,20 @@ const MODEL_SPECIFIC_OVERRIDES = {
       id: commonId,
       patientId: commonId,
       placeOfBirth: chance.city(),
-      bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
+      bloodType: chance.pickone(Object.values(BLOOD_TYPES)),
       primaryContactNumber: chance.phone(),
       secondaryContactNumber: chance.phone(),
-      maritalStatus: chance.pickone([
-        'Single',
-        'Married',
-        'Widowed',
-        'Divorced',
-        'Separated',
-        'De Facto',
-      ]),
+      maritalStatus: chance.pickone(Object.values(MARITAL_STATUS_VALUES)),
       cityTown: chance.city(),
       streetVillage: chance.street(),
-      educationalLevel: chance.pickone([
-        'None',
-        'Primary',
-        'High School',
-        'Bachelors',
-        'Masters',
-        'PhD.',
-      ]),
-      socialMedia: `@${chance.word()}`,
-      title: chance.prefix(),
+      educationalLevel: chance.pickone(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)),
+      socialMedia: `@${chance.first().toLowerCase()}${chance.last().toLowerCase()}${chance.integer({ min: 1, max: 99 })}`,
+      title: chance.pickone(Object.values(TITLES)),
       birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
       drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
-      passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
+      passport:
+        chance.character({ alpha: true }).toUpperCase() +
+        chance.natural({ min: 10000000, max: 99999999 }).toString(),
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
       secondaryVillageId: null,
@@ -411,7 +826,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     revisedById: undefined,
   }),
   Location: () => ({
-    maxOccupancy: 1,
+    maxOccupancy: chance.pickone([1, null]),
   }),
   ProgramRegistry: () => ({
     currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
@@ -434,7 +849,24 @@ const MODEL_SPECIFIC_OVERRIDES = {
     id: fakeUUID(),
     tableOid: chance.integer({ min: 10000, max: 99999 }),
     tableSchema: chance.pickone(['public', 'fhir', 'logs']),
-    tableName: chance.pickone(['patients', 'encounters', 'lab_requests']),
+    tableName: chance.pickone([
+      'patients',
+      'encounters',
+      'lab_requests',
+      'lab_tests',
+      'imaging_requests',
+      'survey_responses',
+      'survey_response_answers',
+      'administered_vaccines',
+      'encounter_diagnoses',
+      'prescriptions',
+      'reference_data',
+      'users',
+      'patient_additional_data',
+      'notes',
+      'appointments',
+      'locations',
+    ]),
     loggedAt: fakeDateTimeString(),
     recordCreatedAt: fakeDateTimeString(),
     recordUpdatedAt: fakeDateTimeString(),
@@ -451,104 +883,49 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
 };
 
+const fhirArray =
+  (fakeFn: (...args: any[]) => any) =>
+  (...args: any[]) =>
+    chance.n(() => fakeFn(...args), chance.integer({ min: 0, max: 3 }));
+
 const FHIR_MODELS_HANDLERS = {
   FhirPatient: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    name: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirHumanName.fake(...args)),
-    telecom: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirContactPoint.fake(...args)),
-    address: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirAddress.fake(...args)),
-    link: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirPatientLink.fake(...args)),
-    extension: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirExtension.fake(...args)),
+    identifier: fhirArray((...args: any[]) => FhirIdentifier.fake(...args)),
+    name: fhirArray((...args: any[]) => FhirHumanName.fake(...args)),
+    telecom: fhirArray((...args: any[]) => FhirContactPoint.fake(...args)),
+    address: fhirArray((...args: any[]) => FhirAddress.fake(...args)),
+    link: fhirArray((...args: any[]) => FhirPatientLink.fake(...args)),
+    extension: fhirArray((...args: any[]) => FhirExtension.fake(...args)),
   },
   FhirServiceRequest: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    category: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    order_detail: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    location_code: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
+    identifier: fhirArray((...args: any[]) => FhirIdentifier.fake(...args)),
+    category: fhirArray((...args: any[]) => FhirCodeableConcept.fake(...args)),
+    order_detail: fhirArray((...args: any[]) => FhirCodeableConcept.fake(...args)),
+    location_code: fhirArray((...args: any[]) => FhirCodeableConcept.fake(...args)),
     code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     subject: (...args: any[]) => FhirReference.fake(...args),
     requester: (...args: any[]) => FhirReference.fake(...args),
   },
   FhirDiagnosticReport: {
-    extension: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirExtension.fake(...args)),
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
+    extension: fhirArray((...args: any[]) => FhirExtension.fake(...args)),
+    identifier: fhirArray((...args: any[]) => FhirIdentifier.fake(...args)),
     code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     subject: (...args: any[]) => FhirReference.fake(...args),
-    performer: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
-    result: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
+    performer: fhirArray((...args: any[]) => FhirReference.fake(...args)),
+    result: fhirArray((...args: any[]) => FhirReference.fake(...args)),
   },
   FhirImmunization: {
     vaccine_code: (...args: any[]) => FhirCodeableConcept.fake(...args),
     patient: (...args: any[]) => FhirReference.fake(...args),
     encounter: (...args: any[]) => FhirReference.fake(...args),
-    site: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirCodeableConcept.fake(...args)),
-    performer: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirImmunizationPerformer.fake(...args)),
-    protocol_applied: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirImmunizationProtocolApplied.fake(...args)),
+    site: fhirArray((...args: any[]) => FhirCodeableConcept.fake(...args)),
+    performer: fhirArray((...args: any[]) => FhirImmunizationPerformer.fake(...args)),
+    protocol_applied: fhirArray((...args: any[]) => FhirImmunizationProtocolApplied.fake(...args)),
   },
   FhirImagingStudy: {
-    identifier: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirIdentifier.fake(...args)),
-    basedOn: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirReference.fake(...args)),
-    note: (...args: any[]) =>
-      Array(chance.integer({ min: 0, max: 3 }))
-        .fill(0)
-        .map(() => FhirAnnotation.fake(...args)),
+    identifier: fhirArray((...args: any[]) => FhirIdentifier.fake(...args)),
+    basedOn: fhirArray((...args: any[]) => FhirReference.fake(...args)),
+    note: fhirArray((...args: any[]) => FhirAnnotation.fake(...args)),
   },
 };
 

@@ -3,6 +3,10 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '@tamanu/constants/programRegistry';
 import { fake } from '../../fake/index.js';
 
 import type {
@@ -34,6 +38,7 @@ export const generateImportData = async ({
   Program,
   ProgramRegistry,
   ProgramRegistryCondition,
+  ProgramRegistryConditionCategory,
   ProgramRegistryClinicalStatus,
   InvoiceProduct,
   LabTestType,
@@ -57,6 +62,18 @@ export const generateImportData = async ({
     }),
   );
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+
+  // Seed a small, stable pool of allergy reference data that patient allergies
+  // can point at, rather than each patient allergy minting its own ReferenceData
+  // (which bloated the table and slowed every random reference-data lookup).
+  // findOrCreate by code keeps it to ALLERGY_POOL_SIZE rows across the whole run.
+  const ALLERGY_POOL_SIZE = 15;
+  for (let i = 0; i < ALLERGY_POOL_SIZE; i++) {
+    await ReferenceData.findOrCreate({
+      where: { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` },
+      defaults: fake(ReferenceData, { type: REFERENCE_TYPES.ALLERGY, code: `allergy-${i}` }),
+    });
+  }
 
   const facility = await Facility.create(fake(Facility));
   const locationGroup = await LocationGroup.create(
@@ -105,6 +122,15 @@ export const generateImportData = async ({
   );
   await ProgramRegistryClinicalStatus.create(
     fake(ProgramRegistryClinicalStatus, {
+      programRegistryId: programRegistry.id,
+    }),
+  );
+  // Create the 'unknown' condition category up front so createProgramRegistry can
+  // just look it up, instead of many concurrent calls racing to findOrCreate it.
+  await ProgramRegistryConditionCategory.create(
+    fake(ProgramRegistryConditionCategory, {
+      code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+      name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN],
       programRegistryId: programRegistry.id,
     }),
   );

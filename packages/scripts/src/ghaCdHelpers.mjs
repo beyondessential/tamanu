@@ -101,6 +101,7 @@ const OPTIONS = [
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },
+  { key: 'seed-snapshot', defaultValue: false, presence: true },
 
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
@@ -272,7 +273,7 @@ function parseOptions(str, context) {
   return options;
 }
 
-export function configMap(deployName, imageTag, options) {
+export function configMap(deployName, imageTag, options, { appVersion } = {}) {
   const k8sCore = process.env.K8S_CORE || 'tamanu-internal-main';
   return Object.fromEntries(
     Object.entries({
@@ -280,6 +281,7 @@ export function configMap(deployName, imageTag, options) {
       namespace: `tamanu-${deployName}`,
       externalNamespace: true,
       imageTag,
+      appVersion: appVersion || null,
 
       architecture: options.arch,
       configTemplate: options.config,
@@ -310,6 +312,7 @@ export function configMap(deployName, imageTag, options) {
       patientPortalReplicas: options.patientportals,
 
       syntheticTests: options.synthetic,
+      seedSnapshot: options['seed-snapshot'],
 
       backupsEnabled: options.backup,
       backupRetentionDays: options.backup ? options.backupretention : null,
