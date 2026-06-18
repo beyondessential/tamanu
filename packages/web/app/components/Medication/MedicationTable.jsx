@@ -216,7 +216,7 @@ const getMedicationColumns = (
         if (endDate) {
           tooltipTitle = (
             <>
-              <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
+              <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />{' '}
               <DateDisplay date={endDate} format="shortest" timeFormat="default" noTooltip />
             </>
           );
@@ -237,7 +237,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              <DateDisplay date={trimToDate(date)} format="shortest" />
+              <DateDisplay date={trimToDate(date)} format="shortest" noTooltip />
             </ConditionalTooltip>
           </NoWrapCell>
         );
