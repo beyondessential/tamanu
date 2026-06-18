@@ -35,6 +35,7 @@ async function startAll({ skipMigrationCheck }) {
   } else {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
+  await context.initReportingStores();
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);

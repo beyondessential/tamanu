@@ -130,16 +130,17 @@ export function extendExpect(expect) {
 
 export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
   const context = await new ApplicationContext().init({ databaseOverrides });
-  // create mock reporting schema + roles if test requires it
-  // init reporting instances for these roles
-  if (enableReportInstances) {
-    await createMockReportingSchemaAndRoles(context);
-    context.reportSchemaStores = await initReporting(context.store);
-  }
 
   const { models, sequelize } = context;
 
   await sequelize.migrate('up');
+
+  // create mock reporting schema + roles if test requires it, then init reporting
+  // instances for these roles (after migrate, matching the server startup order)
+  if (enableReportInstances) {
+    await createMockReportingSchemaAndRoles(context);
+    context.reportSchemaStores = await initReporting(context.store);
+  }
 
   await showError(deleteAllTestIds(context));
 

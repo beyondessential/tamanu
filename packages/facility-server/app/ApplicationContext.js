@@ -53,10 +53,14 @@ export class ApplicationContext {
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+    return this;
+  }
+
+  // Opens the reporting connections. Call after migrations so reporting can rely on migrated state.
+  async initReportingStores() {
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting(this.store);
     }
-    return this;
   }
 
   onClose(hook) {
