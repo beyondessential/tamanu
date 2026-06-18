@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,7 +23,7 @@ import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useTranslation } from '../../../contexts/Translation';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { isWithinTimeSlot } from '../../../utils/medications';
+import { getDrugUnitLabel, isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
@@ -303,7 +303,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     label={
                       <TranslatedText stringId="mar.details.doseGiven.label" fallback="Dose given" />
                     }
-                    unit={medication?.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, medication.dosingUnit) : undefined}
+                    unit={medication?.dosingUnit ? getDrugUnitLabel(medication.dosingUnit, values.doseAmount, getEnumTranslation) : undefined}
                   />
                   <div>
                     <TimeGivenTitle>

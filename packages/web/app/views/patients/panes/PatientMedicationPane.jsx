@@ -20,7 +20,7 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES, DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
@@ -31,7 +31,7 @@ import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/m
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
+import { getDrugUnitLabel, getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { useSettings } from '../../../contexts/Settings';
@@ -344,7 +344,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
     accessor: data => {
       const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
       if (!dispensingUnit) return data?.quantity;
-      return `${data?.quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`;
+      return `${data?.quantity} ${getDrugUnitLabel(dispensingUnit, data?.quantity, getEnumTranslation)}`;
     },
   },
   {

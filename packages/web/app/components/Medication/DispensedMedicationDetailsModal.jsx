@@ -10,12 +10,11 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
-import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
+import { buildInstructionText, getDrugUnitLabel, usePresetLabelsQuery } from '../../utils/medications';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -160,7 +159,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
         />
       ),
       value: prescription?.dispensingUnit
-        ? `${quantity} ${getEnumTranslation(DRUG_UNIT_LABELS, prescription.dispensingUnit)}`
+        ? `${quantity} ${getDrugUnitLabel(prescription.dispensingUnit, quantity, getEnumTranslation)}`
         : (quantity ?? '-'),
     },
     {

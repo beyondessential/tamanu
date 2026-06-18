@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { DRUG_UNIT_LABELS } from '@tamanu/constants';
+
 
 import {
   BaseModal,
@@ -33,6 +33,7 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import {
   buildInstructionText,
   buildLabelText,
+  getDrugUnitLabel,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -554,7 +555,7 @@ export const DispenseMedicationWorkflowModal = memo(
                 disabled={!selected}
                 min={1}
                 unit={
-                  dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined
+                  dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined
                 }
                 style={{ minWidth: '140px', paddingRight: '10px' }}
                 data-testid="dispense-quantity"

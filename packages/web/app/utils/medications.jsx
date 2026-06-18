@@ -212,6 +212,15 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   );
 };
 
+// Returns the singular or plural drug unit label for a given quantity.
+// Uses the curated DRUG_UNIT_PLURAL_LABELS (not a generic inflection library) so
+// irregular plurals (e.g. Suppository → Suppositories) are handled correctly.
+// quantity <= 1 or non-numeric → singular.
+export const getDrugUnitLabel = (unitKey, quantity, getEnumTranslation) => {
+  const isPlural = Number.isFinite(Number(quantity)) && Number(quantity) > 1;
+  return getEnumTranslation(isPlural ? DRUG_UNIT_PLURAL_LABELS : DRUG_UNIT_LABELS, unitKey);
+};
+
 // Builds the default dispensed-medication "Label text". Same sentence structure as
 // buildInstructionText, but with the patient-facing formatting from TAM-6813:
 //  - units use the long form ('tablet', not 'tab'), pluralised when dose > 1
