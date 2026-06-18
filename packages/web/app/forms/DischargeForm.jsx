@@ -6,7 +6,6 @@ import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-  DRUG_UNIT_LABELS,
   NOTE_TYPES,
   MAX_REPEATS,
 } from '@tamanu/constants';
@@ -54,7 +53,7 @@ import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash } from '../utils/medications';
+import { createPrescriptionHash, getDrugUnitLabel } from '../utils/medications';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
@@ -251,15 +250,20 @@ const ProcedureList = React.memo(({ procedures }) => (
   </StyledUnorderedList>
 ));
 
-const NumberFieldWithoutLabel = ({ field, ...props }) => (
-  <NumberInput
-    name={field.name}
-    value={field.value || 0}
-    onChange={field.onChange}
-    {...props}
-    data-testid="styledtextfield-4ea9"
-  />
-);
+const NumberFieldWithoutLabel = ({ field, unitKey, ...props }) => {
+  const { getEnumTranslation } = useTranslation();
+  const unit = unitKey ? getDrugUnitLabel(unitKey, field.value, getEnumTranslation) : undefined;
+  return (
+    <NumberInput
+      name={field.name}
+      value={field.value || 0}
+      onChange={field.onChange}
+      unit={unit}
+      {...props}
+      data-testid="styledtextfield-4ea9"
+    />
+  );
+};
 
 const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
   const { medication: medicationReferenceData } = medication;
@@ -351,7 +355,7 @@ const MEDICATION_COLUMNS = (
       <Field
         name={`medications.${id}.quantity`}
         component={NumberFieldWithoutLabel}
-        unit={dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined}
+        unitKey={dispensingUnit ?? undefined}
         data-testid="field-ksmf"
         disabled={
           !canUpdateMedication ||

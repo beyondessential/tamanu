@@ -11,7 +11,7 @@ import {
   ConditionalTooltip,
   RequiredOrnament,
 } from '@tamanu/ui-components';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper, CheckInput } from '../Field';
@@ -19,6 +19,7 @@ import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { singularize } from '../../utils';
+import { getDrugUnitLabel } from '../../utils/medications';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledTable = styled(Table)`
@@ -329,7 +330,7 @@ const getColumns = (
       accessor: ({ quantity, onChange, hasError, dispensingUnit }) => (
         <NumberInput
           min={1}
-          unit={dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit) : undefined}
+          unit={dispensingUnit ? getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation) : undefined}
           value={quantity}
           onChange={onChange}
           required

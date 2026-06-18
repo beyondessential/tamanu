@@ -24,7 +24,6 @@ import { useTranslation } from '../../contexts/Translation';
 import {
   DRUG_ROUTE_LABELS,
   DRUG_STOCK_STATUSES,
-  DRUG_UNIT_LABELS,
   MAX_REPEATS,
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
@@ -32,7 +31,7 @@ import {
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
-import { createPrescriptionHash } from '../../utils/medications';
+import { createPrescriptionHash, getDrugUnitLabel } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
 import { preventInvalidRepeatsInput } from '../../utils';
 
@@ -252,7 +251,7 @@ const getColumns = (
       return (
         <NumberInput
           min={0}
-          unit={data.dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, data.dispensingUnit) : undefined}
+          unit={data.dispensingUnit ? getDrugUnitLabel(data.dispensingUnit, value, getEnumTranslation) : undefined}
           value={value}
           onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}

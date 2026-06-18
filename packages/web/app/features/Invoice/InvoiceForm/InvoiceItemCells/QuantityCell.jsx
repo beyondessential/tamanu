@@ -1,10 +1,10 @@
 import React from 'react';
-import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { Field, NumberField, NoteModalActionBlocker } from '../../../../components';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
 import { useTranslation } from '../../../../contexts/Translation';
+import { getDrugUnitLabel } from '../../../../utils/medications';
 
 export const QuantityCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) => {
   const { getEnumTranslation } = useTranslation();
@@ -30,7 +30,7 @@ export const QuantityCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS 
       ) : (
         <ViewOnlyCell>
           {item?.quantity}
-          {dispensingUnit && ` ${getEnumTranslation(DRUG_UNIT_LABELS, dispensingUnit)}`}
+          {dispensingUnit && ` ${getDrugUnitLabel(dispensingUnit, item?.quantity, getEnumTranslation)}`}
         </ViewOnlyCell>
       )}
     </ItemCell>

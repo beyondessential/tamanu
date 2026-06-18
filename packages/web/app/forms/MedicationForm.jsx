@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import PrintIcon from '@mui/icons-material/Print';
 import {
-  DRUG_UNIT_LABELS,
   DRUG_ROUTE_LABELS,
   DRUG_ROUTE_VALUES,
   MEDICATION_DURATION_UNITS_LABELS,
@@ -65,6 +64,7 @@ import {
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
+import { getDrugUnitLabel } from '../utils/medications';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
@@ -985,7 +985,7 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
-              unit={values.dosingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dosingUnit) : undefined}
+              unit={values.dosingUnit ? getDrugUnitLabel(values.dosingUnit, values.doseAmount, getEnumTranslation) : undefined}
               data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
@@ -1146,7 +1146,7 @@ export const MedicationForm = ({
               min={0}
               component={NumberField}
               onInput={preventInvalidNumber}
-              unit={values.dispensingUnit ? getEnumTranslation(DRUG_UNIT_LABELS, values.dispensingUnit) : undefined}
+              unit={values.dispensingUnit ? getDrugUnitLabel(values.dispensingUnit, values.quantity, getEnumTranslation) : undefined}
               data-testid="medication-field-quantity-6j9m"
             />
             <Field
