@@ -15,38 +15,25 @@ export async function generateFake(
 
   let done = 0;
   let errs = 0;
-  let round = 0;
-  console.time('total generation');
-  try {
-    while (done < rounds && errs < Math.max(10, rounds / 10)) {
-      round += 1;
-      // Per-round timing: if these grow each round, the cost scales with table
-      // size (a growing-table scan); if they stay flat, it's per-insert throughput.
-      const roundLabel = `round ${round}`;
-      console.time(roundLabel);
-      try {
-        if (tallyFilePath) {
-          done += 1; // with tally, we don't want to retry errors
-          await populateDbFromTallyFile(models, tallyFilePath);
-        } else {
-          await generateEachDataType(models);
-          done += 1;
-        }
-        process.stdout.write('.');
-      } catch (err) {
-        console.error(err);
-        process.stdout.write('!');
-        errs += 1;
-      } finally {
-        console.timeEnd(roundLabel);
+  while (done < rounds && errs < Math.max(10, rounds / 10)) {
+    try {
+      if (tallyFilePath) {
+        done += 1; // with tally, we don't want to retry errors
+        await populateDbFromTallyFile(models, tallyFilePath);
+      } else {
+        await generateEachDataType(models);
+        done += 1;
       }
+      process.stdout.write('.');
+    } catch (err) {
+      console.error(err);
+      process.stdout.write('!');
+      errs += 1;
     }
+  }
 
-    if (done < rounds && errs > 0) {
-      throw new Error('encountered too many errors');
-    }
-  } finally {
-    console.timeEnd('total generation');
+  if (done < rounds && errs > 0) {
+    throw new Error('encountered too many errors');
   }
 
   console.log();

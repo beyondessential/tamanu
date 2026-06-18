@@ -15,9 +15,9 @@ export const randomDate = (minDaysAgo = 1, maxDaysAgo = 365) => {
 };
 
 export const randomRecord = (models, modelName) =>
-  // DIAGNOSTIC: ORDER BY RANDOM() removed to test whether the full-table scan is
-  // what makes the seed slow. Returns an arbitrary row (no variety). Revert this.
-  models[modelName].findOne();
+  models[modelName].findOne({
+    order: models.ReferenceData.sequelize.random(),
+  });
 
 export const randomRecords = (models, modelName, count) =>
   models[modelName].findAll({
