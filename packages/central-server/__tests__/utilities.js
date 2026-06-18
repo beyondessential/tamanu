@@ -23,7 +23,6 @@ class MockApplicationContext {
     await seedSettings(this.store.models);
 
     if (config.db.reportSchemas?.enabled) {
-      // initReporting provisions the reporting/raw roles, schema and grants itself.
       this.reportSchemaStores = await initReporting(this.store);
     }
     this.emailService = {

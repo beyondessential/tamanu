@@ -37,8 +37,10 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
     $$;
   `);
 
-  // Postgres DDL can't bind the password, so escape it as a literal.
-  await sequelize.query(`ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`);
+  // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
+  await sequelize.query(`ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`, {
+    logging: false,
+  });
 
   if (schema !== 'public') {
     await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
@@ -61,7 +63,6 @@ const initReportStore = async (existingStore, connectionName) => {
   await ensureReportingRole(existingStore, connectionName, password);
 
   const overrides = {
-    // Inherits the main connection's config, including its pool sizing.
     ...config.db,
     alwaysCreateConnection: false,
     migrateOnStartup: false,

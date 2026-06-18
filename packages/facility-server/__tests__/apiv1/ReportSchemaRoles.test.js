@@ -203,4 +203,21 @@ describe('ReportSchemaRoles', () => {
     );
     expect(count).toBe(0);
   });
+
+  it('cannot escape the sandbox via the raw connection (public schema) either', async () => {
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: rawDefinition.id,
+      query: `COMMIT; RESET ROLE; INSERT INTO raw_test_table ("id", "name") VALUES (99, 'escaped');`,
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveRequestError();
+    const [{ count }] = await ctx.sequelize.query(
+      `SELECT count(*)::int AS count FROM raw_test_table WHERE id = 99`,
+      { type: QueryTypes.SELECT },
+    );
+    expect(count).toBe(0);
+  });
 });

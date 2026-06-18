@@ -129,7 +129,6 @@ export function extendExpect(expect) {
 
 export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
   const context = await new ApplicationContext().init({ databaseOverrides });
-  // initReporting provisions the reporting/raw roles + grants and opens their connections.
   if (enableReportInstances) {
     context.reportSchemaStores = await initReporting(context.store);
   }
