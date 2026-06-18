@@ -2,6 +2,8 @@ name: CD Package Android
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
+  # Branch-scoped: hits on repeat pushes to the same branch with unchanged deps/android config.
+  ANDROID_CCACHE_KEY: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
 permissions:
   contents: write # to update the release notes
@@ -112,9 +114,31 @@ jobs:
           mkdir -p assets/react res/react
           tar -xzf "${{ runner.temp }}/android-js-bundle/android-js-bundle.tgz" -C .
 
+      - uses: ./.github/actions/setup-android-ccache
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ${{ env.ANDROID_CCACHE_KEY }}
+          restore-keys: []
+
       - name: Build release APK (${{ matrix.arch }})
         working-directory: packages/mobile/android
         run: ./gradlew app:assembleRelease -PreactNativeArchitectures=${{ matrix.arch }}
+
+      - name: Print ccache stats (after build)
+        if: always()
+        run: ccache -s || true
+
+      - name: Upload ccache partition
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccache-${{ matrix.arch }}
+          path: ~/.ccache
+          retention-days: 1
+          include-hidden-files: true
 
       - name: Upload ABI APK
         uses: actions/upload-artifact@v4
@@ -122,6 +146,34 @@ jobs:
           name: android-apk-${{ matrix.arch }}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 1
+
+  consolidate-ccache:
+    needs: build-abi
+    if: ${{ !inputs.architectures }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ccache partitions
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ccache-*
+          path: ${{ runner.temp }}/ccache-parts
+          merge-multiple: true
+
+      - name: Merge ccache partitions
+        shell: bash
+        run: |
+          mkdir -p ~/.ccache
+          shopt -s nullglob
+          for part in "${{ runner.temp }}/ccache-parts"/ccache-*/; do
+            cp -an "${part}." ~/.ccache/
+          done
+          ccache -s || true
+
+      - name: Save ccache
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.ccache
+          key: ${{ env.ANDROID_CCACHE_KEY }}
 
   merge-and-release:
     needs: build-abi
@@ -302,6 +354,15 @@ jobs:
           branding: ${{ inputs.branding }}
           server: ${{ inputs.server }}
 
+      - uses: ./.github/actions/setup-android-ccache
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ${{ env.ANDROID_CCACHE_KEY }}
+          restore-keys: []
+
       - name: Build release
         working-directory: packages/mobile/android
         env:
@@ -309,6 +370,17 @@ jobs:
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run: ./gradlew app:assembleRelease -PreactNativeArchitectures=${{ inputs.architectures }}
+
+      - name: Print ccache stats (after build)
+        if: always()
+        run: ccache -s || true
+
+      - name: Save ccache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.ccache
+          key: ${{ env.ANDROID_CCACHE_KEY }}
 
       - name: Prepare signed APK artifact
         working-directory: packages/mobile/android/app/build/outputs/apk/release
