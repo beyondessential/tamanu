@@ -1,4 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const fs = require('fs');
 const path = require('path');
 
 const { FileStore } = require('metro-cache');
@@ -9,18 +10,38 @@ const getWorkspaces = require('get-yarn-workspaces');
 const workspaces = getWorkspaces(__dirname);
 
 const mobileNodeModules = path.resolve(__dirname, 'node_modules');
+const rootNodeModules = path.resolve(__dirname, '../../node_modules');
+
+function resolveNodeModule(name) {
+  for (const nodeModulesDir of [mobileNodeModules, rootNodeModules]) {
+    const modulePath = path.join(nodeModulesDir, name);
+    const pkgJsonPath = path.join(modulePath, 'package.json');
+    if (!fs.existsSync(pkgJsonPath)) {
+      continue;
+    }
+
+    const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    const mainEntry = path.join(modulePath, pkg.main || 'index.js');
+    if (fs.existsSync(mainEntry)) {
+      return modulePath;
+    }
+  }
+
+  return path.join(mobileNodeModules, name);
+}
 
 const config = {
   projectRoot: path.resolve(__dirname, '.'),
 
-  watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
+  watchFolders: [rootNodeModules, ...workspaces],
 
   resolver: {
-    // Always resolve from packages/mobile/node_modules, not process.cwd() or root.
+    // Prefer packages/mobile/node_modules, but fall back to the workspace root
+    // when a hoisted package copy is incomplete (e.g. source-map).
     extraNodeModules: new Proxy(
       {},
       {
-        get: (target, name) => path.join(mobileNodeModules, String(name)),
+        get: (target, name) => resolveNodeModule(String(name)),
       },
     ),
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
