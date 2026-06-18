@@ -29,6 +29,10 @@ react {
     // Required in monorepo setups: adds autolinked library projects as implementation dependencies
     autolinkLibrariesWithApp()
 
+    // Monorepo: hermes-compiler is hoisted to the workspace root (RN 0.85+)
+    // Use projectDir, not rootDir — in Gradle subprojects rootDir is the android/ folder.
+    hermesCommand = "$projectDir/../../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc"
+
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
     //   skip the bundling of the JS bundle and the assets. By default is just 'debug'.
