@@ -45,12 +45,14 @@ function BottomTabNavigator({
   backBehavior,
   children,
   setSelectedPatient,
+  swipeEnabled = false,
   ...rest
 }: Props): React.ReactElement {
   const { state, descriptors, navigation } = useNavigationBuilder(TabRouter, {
     initialRouteName,
     backBehavior,
     children,
+    screenOptions: { swipeEnabled },
   });
 
   const onNavigateToHome = useCallback(() => {

@@ -12,10 +12,10 @@ import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { theme } from '/styled/theme';
 
 type TabNavigationConfig = {
-  tabBarStyle: StyleProp<ViewStyle>;
-  contentStyle: StyleProp<ViewStyle>;
-  swipeEnabled: boolean;
-  lazy: boolean;
+  tabBarStyle?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+  swipeEnabled?: boolean;
+  lazy?: boolean;
 };
 
 type TabNavigationOptions = {
@@ -50,8 +50,12 @@ function TabNavigator({
   initialRouteName,
   children,
   screenOptions,
+  swipeEnabled = false,
+  lazy,
   ...rest
 }: Props): React.ReactElement {
+  const lazyScreenOptions = lazy === undefined ? {} : { lazy };
+
   const { state, navigation, descriptors } = useNavigationBuilder<
     TabNavigationState<any>,
     TabRouterOptions,
@@ -64,10 +68,14 @@ function TabNavigator({
       typeof screenOptions === 'function'
         ? props => ({
             ...defaultScreenOptions,
+            swipeEnabled,
+            ...lazyScreenOptions,
             ...screenOptions(props),
           })
         : {
             ...defaultScreenOptions,
+            swipeEnabled,
+            ...lazyScreenOptions,
             ...screenOptions,
           },
     initialRouteName,
