@@ -2,7 +2,7 @@ import config from 'config';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
+import { seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
@@ -23,7 +23,7 @@ class MockApplicationContext {
     await seedSettings(this.store.models);
 
     if (config.db.reportSchemas?.enabled) {
-      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+      // initReporting provisions the reporting/raw roles, schema and grants itself.
       this.reportSchemaStores = await initReporting(this.store);
     }
     this.emailService = {

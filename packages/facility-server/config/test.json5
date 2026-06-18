@@ -10,14 +10,8 @@
     "reportSchemas": {
       "enabled": false,
       "connections": {
-        "reporting": {
-          "username": "tamanu_reporting",
-          "password": "test"
-        },
-        "raw": {
-          "username": "tamanu_raw",
-          "password": "test"
-        }
+        "reporting": {},
+        "raw": {}
       }
     }
   },

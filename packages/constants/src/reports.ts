@@ -90,3 +90,9 @@ export const REPORT_DB_CONNECTION_SCHEMAS = {
   [REPORT_DB_CONNECTIONS.REPORTING]: 'reporting',
   [REPORT_DB_CONNECTIONS.RAW]: 'public',
 };
+
+// Unprivileged read-only Postgres roles the reporting connections log in as.
+export const REPORT_DB_CONNECTION_ROLES = {
+  [REPORT_DB_CONNECTIONS.REPORTING]: 'tamanu_reporting',
+  [REPORT_DB_CONNECTIONS.RAW]: 'tamanu_raw',
+};

@@ -2,7 +2,6 @@ export * from './aefiSurvey';
 export * from './allergies';
 export * from './appointmentTypes';
 export * from './carePlan';
-export * from './createMockReportingSchemaAndRoles';
 export * from './departments';
 export * from './diagnoses';
 export * from './dispositions';

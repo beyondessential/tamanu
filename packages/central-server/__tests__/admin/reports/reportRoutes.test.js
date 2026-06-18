@@ -1,4 +1,5 @@
 import { REPORT_DB_CONNECTIONS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { initReporting } from '@tamanu/database/services/reporting';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/database';
@@ -423,6 +424,37 @@ describe('reportRoutes', () => {
       it('should return false if query is invalid', async () => {
         const query = 'some random non sql query';
         await expect(verifyQuery(query, [], ctx.store)).rejects.toThrow();
+      });
+
+      describe('on a reporting connection', () => {
+        let reportSchemaStores;
+        beforeAll(async () => {
+          reportSchemaStores = await initReporting(ctx.store);
+        });
+
+        it('verifies a valid read query', async () => {
+          await expect(
+            verifyQuery(
+              'select * from patients limit 1',
+              { parameters: [] },
+              { store: ctx.store, reportSchemaStores },
+              REPORT_DB_CONNECTIONS.RAW,
+            ),
+          ).resolves.not.toThrow();
+        });
+
+        it('rejects a write even via a trailing statement (unprivileged role)', async () => {
+          // EXPLAIN plans only the first statement; the trailing write runs as the
+          // unprivileged raw role and is rejected.
+          await expect(
+            verifyQuery(
+              'select 1; delete from patients',
+              { parameters: [] },
+              { store: ctx.store, reportSchemaStores },
+              REPORT_DB_CONNECTIONS.RAW,
+            ),
+          ).rejects.toThrow(/permission denied/);
+        });
       });
     });
   });

@@ -1,70 +1,89 @@
+import crypto from 'crypto';
 import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
-import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_SCHEMAS } from '@tamanu/constants';
+import {
+  REPORT_DB_CONNECTION_ROLES,
+  REPORT_DB_CONNECTION_SCHEMAS,
+  REPORT_DB_CONNECTION_VALUES,
+} from '@tamanu/constants';
 import { openDatabase } from './database';
 
-const validateUser = async (existingStore, username) => {
-  const [result] = await existingStore.sequelize.query(
-    `
-      SELECT 1 FROM pg_roles WHERE rolname = :username
-    `,
-    {
-      replacements: { username },
-    },
-  );
+// Tamanu owns the reporting/raw roles: unprivileged read-only LOGIN roles it
+// provisions and connects AS. We log in as the role rather than SET ROLE from the
+// core user, which report SQL could reverse (RESET ROLE / COMMIT) to write as core.
+// The password is derived from the core db password so there's no separate secret
+// to manage and every replica derives the same value.
+const reportingRolePassword = role =>
+  crypto
+    .createHmac('sha256', config.db.password ?? '')
+    .update(`tamanu-report-role:${role}`)
+    .digest('hex');
 
-  if (result.length === 0) {
-    throw new Error(
-      `Reporting role "${username}" does not exist, please create the role in the database first`,
-    );
+const ensureReportingRole = async (existingStore, connectionName, password) => {
+  const role = REPORT_DB_CONNECTION_ROLES[connectionName];
+  const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
+  const { sequelize } = existingStore;
+
+  await sequelize.query(`
+    DO $$
+    BEGIN
+      CREATE ROLE "${role}" LOGIN;
+    EXCEPTION WHEN duplicate_object THEN
+      RAISE NOTICE 'Reporting role "${role}" already exists, skipping creation';
+    END
+    $$;
+  `);
+
+  // Postgres DDL can't bind the password, so escape it as a literal.
+  await sequelize.query(`ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`);
+
+  if (schema !== 'public') {
+    await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
+    // Lets reporting reports reference tables without the schema prefix.
+    await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
   }
+
+  await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
+  await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
+  // Covers tables created later (e.g. materialised reporting tables).
+  await sequelize.query(
+    `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
+  );
 };
 
-const grantPrivileges = async (existingStore, schemaName, username) => {
-  await existingStore.sequelize.query(`
-      GRANT SELECT ON ALL TABLES IN SCHEMA ${schemaName} TO ${username};
-    `);
-};
-
-const initReportStore = async (existingStore, connectionName, credentials) => {
+const initReportStore = async (existingStore, connectionName, { pool } = {}) => {
   const testMode = process.env.NODE_ENV === 'test';
-  const { username, password, pool } = credentials;
+  if (!REPORT_DB_CONNECTION_VALUES.includes(connectionName)) {
+    log.warn(`Unknown reporting connection ${connectionName}, skipping...`);
+    return null;
+  }
+
+  const role = REPORT_DB_CONNECTION_ROLES[connectionName];
+  const password = reportingRolePassword(role);
+  await ensureReportingRole(existingStore, connectionName, password);
+
   const overrides = {
     ...config.db,
     alwaysCreateConnection: false,
     migrateOnStartup: false,
-    pool,
-    username,
+    disableChangesAudit: true,
+    ...(pool ? { pool } : {}), // avoid clobbering config.db.pool with undefined
+    username: role,
     password,
     testMode,
   };
-  if (!Object.values(REPORT_DB_CONNECTIONS).includes(connectionName)) {
-    log.warn(`Unknown reporting connection ${connectionName}, skipping...`);
-    return null;
-  }
-  if (!username || !password) {
-    log.warn(`No credentials provided for ${connectionName} reporting schema, skipping...`);
-    return null;
-  }
-
-  await validateUser(existingStore, username);
-  await grantPrivileges(existingStore, REPORT_DB_CONNECTION_SCHEMAS[connectionName], username);
 
   return openDatabase(`reporting-${connectionName}`, overrides);
 };
 
 export const initReporting = async existingStore => {
   const { connections } = config.db.reportSchemas;
-  return Object.entries(connections).reduce(
-    async (accPromise, [schemaName, { username, password }]) => {
-      const instance = await initReportStore(existingStore, schemaName, {
-        username,
-        password,
-      });
-      if (!instance) return accPromise;
-      return { ...(await accPromise), [schemaName]: instance };
-    },
-    Promise.resolve({}),
-  );
+  // Sequential: concurrent role/schema DDL on the same db can deadlock.
+  const stores = {};
+  for (const [connectionName, { pool } = {}] of Object.entries(connections)) {
+    const instance = await initReportStore(existingStore, connectionName, { pool });
+    if (instance) stores[connectionName] = instance;
+  }
+  return stores;
 };

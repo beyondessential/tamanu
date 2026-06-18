@@ -1,12 +1,10 @@
 import { QueryTypes } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
-import config from 'config';
-import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_ROLES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
-// Tests are against mocked reporting schema and roles defined in
-// packages/shared/src/demoData/createMockReportingSchemaAndRoles.js
-// and role config defined in db.reports.credentials config/test.json
+// Each reporting connection logs in as its own unprivileged, read-only role,
+// provisioned by initReporting().
 describe('ReportSchemaRoles', () => {
   let ctx;
   let adminApp;
@@ -18,7 +16,6 @@ describe('ReportSchemaRoles', () => {
   let reportingDefinition;
 
   beforeAll(async () => {
-    const { connections } = config.db.reportSchemas;
     ctx = await createTestContext({ enableReportInstances: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
@@ -35,8 +32,8 @@ describe('ReportSchemaRoles', () => {
         "name" varchar(255) NOT NULL,
         PRIMARY KEY ("id")
       );
-      GRANT SELECT ON reporting.reporting_test_table TO ${connections.reporting.username};
-      GRANT SELECT ON raw_test_table TO ${connections.raw.username};
+      GRANT SELECT ON reporting.reporting_test_table TO ${REPORT_DB_CONNECTION_ROLES.reporting};
+      GRANT SELECT ON raw_test_table TO ${REPORT_DB_CONNECTION_ROLES.raw};
       INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
       INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
     `);
@@ -187,5 +184,23 @@ describe('ReportSchemaRoles', () => {
     const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
     expect(response).toHaveRequestError();
     expect(response.body.error.message).toEqual('permission denied for table reporting_test_table');
+  });
+
+  it('cannot escape the sandbox by ending the transaction and switching roles', async () => {
+    // COMMIT + RESET ROLE can't escalate: the session is the unprivileged role itself.
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: reportingDefinition.id,
+      query: `COMMIT; RESET ROLE; INSERT INTO reporting.reporting_test_table ("id", "name") VALUES (99, 'escaped');`,
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/api/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveRequestError();
+    const [{ count }] = await ctx.sequelize.query(
+      `SELECT count(*)::int AS count FROM reporting.reporting_test_table WHERE id = '99'`,
+      { type: QueryTypes.SELECT },
+    );
+    expect(count).toBe(0);
   });
 });

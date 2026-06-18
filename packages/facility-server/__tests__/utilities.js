@@ -4,7 +4,6 @@ import config from 'config';
 
 import { FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import {
-  createMockReportingSchemaAndRoles,
   seedDepartments,
   seedFacilities,
   seedLabTests,
@@ -133,7 +132,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   // create mock reporting schema + roles if test requires it
   // init reporting instances for these roles
   if (enableReportInstances) {
-    await createMockReportingSchemaAndRoles(context);
+    // initReporting provisions the reporting/raw roles, schema and grants itself.
     context.reportSchemaStores = await initReporting(context.store);
   }
 
