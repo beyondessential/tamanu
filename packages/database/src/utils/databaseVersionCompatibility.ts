@@ -9,7 +9,7 @@ export type SyncDatabaseServerVersionOptions = {
   models: Models;
   serverVersion?: string;
   skipVersionCompatibilityCheck?: boolean;
-  /** When true, refuse startup if the stored version is newer than the server but do not write the fact. */
+  /** Validate only — never write the fact (e.g. upgrade pre-check). */
   checkOnly?: boolean;
 };
 
@@ -79,8 +79,8 @@ export class DatabaseIncompatibleError extends Error {
 }
 
 /**
- * Ensures local_system_facts.currentVersion reflects the highest Tamanu version this database
- * has been used with. Refuses to proceed when the stored version is newer than the server.
+ * Reconciles local_system_facts.currentVersion with the server version, refusing when the
+ * database has been used with a newer version.
  */
 export async function syncDatabaseServerVersion({
   models,

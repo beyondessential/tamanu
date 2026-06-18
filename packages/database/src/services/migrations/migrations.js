@@ -221,8 +221,7 @@ export async function migrateUpTo({
 async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
   const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
 
-  // Fail fast before applying any migrations: if the database is already ahead of this
-  // server (e.g. a partial rollback), refuse now rather than mutating it first.
+  // Fail fast: refuse before applying migrations if the database is already ahead of this server.
   await syncDatabaseServerVersionForMigrateUp(sequelize, { ...options, checkOnly: true });
 
   const pending = await migrations.pending();
