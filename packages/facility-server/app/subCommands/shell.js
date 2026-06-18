@@ -11,16 +11,13 @@ import { prepareDatabaseForStartup } from '../database';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
+export const shell = async ({ skipMigrationCheck }) => {
   const facilityIds = selectFacilityIds(config);
   log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
 
   const context = await new ApplicationContext().init();
 
-  await prepareDatabaseForStartup(context, {
-    skipMigrationCheck,
-    skipVersionCompatibilityCheck,
-  });
+  await prepareDatabaseForStartup(context, { skipMigrationCheck });
 
   const replServer = await new Promise((resolve, reject) => {
     repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {
@@ -42,8 +39,4 @@ export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck 
 export const shellCommand = new Command('shell')
   .description('Start a Node.js shell')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(shell);

@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import config from 'config';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   DatabaseIncompatibleError,
   syncDatabaseServerVersion,
 } from '../../src/utils/databaseVersionCompatibility';
+
+vi.mock('config', () => ({ default: { db: {} } }));
 
 vi.mock('@tamanu/shared/services/logging', () => ({
   log: {
@@ -26,6 +29,7 @@ describe('syncDatabaseServerVersion', () => {
 
   beforeEach(() => {
     process.env.NODE_ENV = 'production';
+    (config as any).db = {};
     storedValue = null;
     vi.mocked(log.info).mockClear();
     vi.mocked(log.warn).mockClear();
@@ -104,19 +108,16 @@ describe('syncDatabaseServerVersion', () => {
     });
   });
 
-  it('skips the check and write when skipVersionCompatibilityCheck is true', async () => {
+  it('skips the check and write when db.skipVersionCompatibilityCheck is enabled', async () => {
+    (config as any).db.skipVersionCompatibilityCheck = true;
     storedValue = '9.9.9';
 
-    await syncDatabaseServerVersion({
-      models,
-      serverVersion: '2.44.0',
-      skipVersionCompatibilityCheck: true,
-    });
+    await syncDatabaseServerVersion({ models, serverVersion: '2.44.0' });
 
     expect(models.LocalSystemFact.get).not.toHaveBeenCalled();
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
     expect(log.warn).toHaveBeenCalledWith('Bypassing database version compatibility check', {
-      reason: '--skipVersionCompatibilityCheck was set',
+      reason: 'db.skipVersionCompatibilityCheck is enabled',
     });
   });
 
@@ -161,6 +162,6 @@ describe('DatabaseIncompatibleError', () => {
     expect(error.message).toContain('2.45.0');
     expect(error.message).toContain('2.44.0');
     expect(error.message).toContain('local_system_fact');
-    expect(error.message).toContain('--skipVersionCompatibilityCheck');
+    expect(error.message).toContain('db.skipVersionCompatibilityCheck');
   });
 });

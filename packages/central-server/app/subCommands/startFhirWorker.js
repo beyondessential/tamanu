@@ -10,12 +10,7 @@ import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationCont
 import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
-export const startFhirWorker = async ({
-  name,
-  skipMigrationCheck,
-  skipVersionCompatibilityCheck,
-  topics,
-}) => {
+export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
 
   const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;
@@ -25,7 +20,6 @@ export const startFhirWorker = async ({
   await syncDatabaseServerVersion({
     models: context.store.models,
     serverVersion: pkg.version,
-    skipVersionCompatibilityCheck,
   });
 
   // Keep the worker's process-local settings cache in sync via NOTIFYs.
@@ -58,9 +52,5 @@ export const startFhirWorker = async ({
 export const startFhirWorkerCommand = new Command('startFhirWorker')
   .description('Start the Tamanu Central FHIR worker')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .option('--topics <topics>', 'comma-separated topics to work on, defaults to all')
   .action(startFhirWorker);

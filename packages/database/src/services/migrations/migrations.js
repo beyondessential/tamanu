@@ -243,7 +243,6 @@ async function syncDatabaseServerVersionForMigrateUp(sequelize, options) {
   await syncDatabaseServerVersion({
     models,
     serverVersion: options.serverVersion,
-    skipVersionCompatibilityCheck: options.skipVersionCompatibilityCheck,
     checkOnly: options.checkOnly,
   });
 }
@@ -324,10 +323,6 @@ export async function migrate(log, sequelize, direction, options = {}) {
 
 export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
   const migrateCommand = new Command(name).description('Apply or roll back database migrations');
-  migrateCommand.option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check',
-  );
 
   migrateCommand
     .command('up', { isDefault: true })

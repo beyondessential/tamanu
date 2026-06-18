@@ -9,7 +9,7 @@ import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
-export const startApi = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
+export const startApi = async ({ skipMigrationCheck }) => {
   log.info(`Starting central server version ${version}`);
 
   log.info(`Process info`, {
@@ -23,7 +23,6 @@ export const startApi = async ({ skipMigrationCheck, skipVersionCompatibilityChe
   await syncDatabaseServerVersion({
     models: store.models,
     serverVersion: version,
-    skipVersionCompatibilityCheck,
   });
 
   const { server } = await createApp(context);
@@ -71,8 +70,4 @@ export const startApiCommand = new Command('startApi')
   .alias('serve') // deprecated
   .description('Start the Tamanu Central API server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(startApi);

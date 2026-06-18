@@ -10,25 +10,21 @@ import { startApi } from './startApi';
 import { startFhirWorker } from './startFhirWorker';
 import { startTasks } from './startTasks';
 
-export const serveAll = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
+export const serveAll = async ({ skipMigrationCheck }) => {
   log.info(`Starting Tamanu Central version ${pkg.version}`);
 
   if (config.db.migrateOnStartup) {
     const { store } = await new ApplicationContext().init({
       appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,
     });
-    await store.sequelize.migrate('up', {
-      serverVersion: pkg.version,
-      skipVersionCompatibilityCheck,
-    });
+    await store.sequelize.migrate('up', { serverVersion: pkg.version });
   }
 
   return Promise.race([
-    startApi({ skipMigrationCheck, skipVersionCompatibilityCheck }),
+    startApi({ skipMigrationCheck }),
     startFhirWorker({
       name: 'refresh',
       skipMigrationCheck,
-      skipVersionCompatibilityCheck,
       topics: [
         JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM,
         JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE,
@@ -39,10 +35,9 @@ export const serveAll = async ({ skipMigrationCheck, skipVersionCompatibilityChe
     startFhirWorker({
       name: 'resolver',
       skipMigrationCheck,
-      skipVersionCompatibilityCheck,
       topics: JOB_TOPICS.FHIR.RESOLVER,
     }),
-    startTasks({ skipMigrationCheck, skipVersionCompatibilityCheck }),
+    startTasks({ skipMigrationCheck }),
   ]);
 };
 
@@ -50,8 +45,4 @@ export const startAllCommand = new Command('startAll')
   .alias('serveAll') // deprecated
   .description('Start the Tamanu Central servers and tasks runners')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(serveAll);

@@ -1,3 +1,4 @@
+import config from 'config';
 import semver from 'semver';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -8,19 +9,18 @@ const UNINITIALISED_VALUES = new Set(['', 'unknown']);
 export type SyncDatabaseServerVersionOptions = {
   models: Models;
   serverVersion?: string;
-  skipVersionCompatibilityCheck?: boolean;
   /** Validate only — never write the fact (e.g. upgrade pre-check). */
   checkOnly?: boolean;
 };
 
-function getShouldBypass(skipVersionCompatibilityCheck?: boolean): {
+function getShouldBypass(): {
   shouldBypass: boolean;
   reason: string | null;
 } {
-  if (skipVersionCompatibilityCheck === true) {
+  if (config.db?.skipVersionCompatibilityCheck === true) {
     return {
       shouldBypass: true,
-      reason: '--skipVersionCompatibilityCheck was set',
+      reason: 'db.skipVersionCompatibilityCheck is enabled',
     };
   }
   if (process.env.NODE_ENV !== 'production') {
@@ -70,7 +70,7 @@ export class DatabaseIncompatibleError extends Error {
         '\n\nThis could mean there’s been a partial rollback after an aborted upgrade. Possible recovery steps:' +
         `\n\n- down-migrate the database, then manually update the currentVersion local_system_fact to ${serverVersion};` +
         `\n- if you’re confident the database is compatible, then manually update the currentVersion local_system_fact to ${serverVersion};` +
-        '\n- restart with --skipVersionCompatibilityCheck (not recommended).\n',
+        '\n- set db.skipVersionCompatibilityCheck to true in config (not recommended).\n',
     );
     this.name = 'DatabaseIncompatibleError';
     this.storedVersion = storedVersion;
@@ -85,10 +85,9 @@ export class DatabaseIncompatibleError extends Error {
 export async function syncDatabaseServerVersion({
   models,
   serverVersion,
-  skipVersionCompatibilityCheck,
   checkOnly = false,
 }: SyncDatabaseServerVersionOptions): Promise<void> {
-  const { shouldBypass, reason } = getShouldBypass(skipVersionCompatibilityCheck);
+  const { shouldBypass, reason } = getShouldBypass();
   if (shouldBypass) {
     log.warn('Bypassing database version compatibility check', { reason });
     return;

@@ -19,7 +19,7 @@ import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
 import { SyncTask } from '../tasks/SyncTask';
 
-async function startAll({ skipMigrationCheck, skipVersionCompatibilityCheck }) {
+async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -30,10 +30,7 @@ async function startAll({ skipMigrationCheck, skipVersionCompatibilityCheck }) {
 
   const context = await new ApplicationContext().init({ appType: 'api' });
 
-  await prepareDatabaseForStartup(context, {
-    skipMigrationCheck,
-    skipVersionCompatibilityCheck,
-  });
+  await prepareDatabaseForStartup(context, { skipMigrationCheck });
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
@@ -86,8 +83,4 @@ async function startAll({ skipMigrationCheck, skipVersionCompatibilityCheck }) {
 export const startAllCommand = new Command('startAll')
   .description('Start both the Tamanu Facility API server, sync server, and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(startAll);

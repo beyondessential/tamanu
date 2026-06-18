@@ -10,7 +10,7 @@ import { syncDatabaseServerVersion } from '@tamanu/database';
 import { ApplicationContext } from '../ApplicationContext';
 import pkg from '../../package.json';
 
-export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
+export const shell = async ({ skipMigrationCheck }) => {
   log.info(`Starting shell in Central Server ${pkg.version}!`);
 
   const context = await new ApplicationContext().init();
@@ -20,7 +20,6 @@ export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck 
   await syncDatabaseServerVersion({
     models: store.models,
     serverVersion: pkg.version,
-    skipVersionCompatibilityCheck,
   });
 
   const replServer = await new Promise((resolve, reject) => {
@@ -44,8 +43,4 @@ export const shell = async ({ skipMigrationCheck, skipVersionCompatibilityCheck 
 export const shellCommand = new Command('shell')
   .description('Start a Node.js shell')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(shell);

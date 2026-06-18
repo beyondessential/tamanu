@@ -16,12 +16,7 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export async function startTasks({
-  skipMigrationCheck,
-  skipVersionCompatibilityCheck,
-  taskClasses,
-  syncManager,
-}) {
+export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
   log.info(`Starting facility task runner version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -32,10 +27,7 @@ export async function startTasks({
 
   const context = await new ApplicationContext().init({ appType: 'tasks' });
 
-  await prepareDatabaseForStartup(context, {
-    skipMigrationCheck,
-    skipVersionCompatibilityCheck,
-  });
+  await prepareDatabaseForStartup(context, { skipMigrationCheck });
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
@@ -65,8 +57,4 @@ export async function startTasks({
 export const startTasksCommand = new Command('startTasks')
   .description('Start the Tamanu Facility tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(startTasks);

@@ -11,7 +11,7 @@ import { startScheduledTasks } from '../tasks';
 import { CentralSyncManager } from '../sync/CentralSyncManager';
 import pkg from '../../package.json';
 
-export const startTasks = async ({ skipMigrationCheck, skipVersionCompatibilityCheck }) => {
+export const startTasks = async ({ skipMigrationCheck }) => {
   log.info(`Starting Central tasks runner version ${pkg.version}`);
 
   const context = await new ApplicationContext().init({ appType: CENTRAL_SERVER_APP_TYPES.TASKS });
@@ -19,7 +19,6 @@ export const startTasks = async ({ skipMigrationCheck, skipVersionCompatibilityC
   await syncDatabaseServerVersion({
     models: context.store.models,
     serverVersion: pkg.version,
-    skipVersionCompatibilityCheck,
   });
   context.centralSyncManager = new CentralSyncManager(context);
 
@@ -47,8 +46,4 @@ export const startTasksCommand = new Command('startTasks')
   .alias('tasks') // deprecated
   .description('Start the Tamanu Central tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .option(
-    '--skipVersionCompatibilityCheck',
-    'skip the database version compatibility check on startup',
-  )
   .action(startTasks);
