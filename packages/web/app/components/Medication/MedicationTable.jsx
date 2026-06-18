@@ -216,7 +216,7 @@ const getMedicationColumns = (
         if (endDate) {
           tooltipTitle = (
             <>
-              <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
+              <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />{' '}
               <DateDisplay date={endDate} format="shortest" timeFormat="default" noTooltip />
             </>
           );
