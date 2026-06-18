@@ -21,7 +21,8 @@
       // Tamanu provisions and connects as the read-only "tamanu_reporting"/"tamanu_raw"
       // roles itself (no separate credentials); the core db user needs CREATEROLE.
       // The reporting connections inherit the main db pool config above.
-      "enabled": false
+      // On by default; tests pin it false and opt in per-case (see test.json5).
+      "enabled": true
     }
   },
   debugging: {
