@@ -221,6 +221,10 @@ export async function migrateUpTo({
 async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
   const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
 
+  // Fail fast before applying any migrations: if the database is already ahead of this
+  // server (e.g. a partial rollback), refuse now rather than mutating it first.
+  await syncDatabaseServerVersionForMigrateUp(sequelize, { ...options, checkOnly: true });
+
   const pending = await migrations.pending();
   if (pending.length > 0) {
     await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts });
@@ -228,10 +232,10 @@ async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
     log.info('Migrations already up-to-date.');
   }
 
-  await syncDatabaseServerVersionAfterMigrateUp(sequelize, options);
+  await syncDatabaseServerVersionForMigrateUp(sequelize, options);
 }
 
-async function syncDatabaseServerVersionAfterMigrateUp(sequelize, options) {
+async function syncDatabaseServerVersionForMigrateUp(sequelize, options) {
   const models = sequelize.models;
   if (!models?.LocalSystemFact) {
     return;
@@ -241,6 +245,7 @@ async function syncDatabaseServerVersionAfterMigrateUp(sequelize, options) {
     models,
     serverVersion: options.serverVersion,
     skipVersionCompatibilityCheck: options.skipVersionCompatibilityCheck,
+    checkOnly: options.checkOnly,
   });
 }
 
