@@ -13,7 +13,9 @@ import { openDatabase } from './database';
 // provisions and connects AS. We log in as the role rather than SET ROLE from the
 // core user, which report SQL could reverse (RESET ROLE / COMMIT) to write as core.
 // The password is derived from the core db password so there's no separate secret
-// to manage and every replica derives the same value.
+// to manage and every replica derives the same value. Rotating db.password changes
+// the derived password (re-applied on the next startup), so a rotation needs a
+// coordinated restart of all servers or their live reporting connections will fail.
 const reportingRolePassword = role =>
   crypto
     .createHmac('sha256', config.db.password ?? '')
@@ -79,10 +81,12 @@ const initReportStore = async (existingStore, connectionName, { pool } = {}) => 
 
 export const initReporting = async existingStore => {
   if (!config.db.password) {
-    // Expected under trust auth; in a password-authenticated deployment it means the
-    // derived reporting passwords aren't tied to this instance (likely misconfig).
+    // Fine under trust auth (the password isn't checked). Under password auth it means
+    // the reporting role's password derives from an empty key — inferable from source
+    // and identical across installs — so it must be set.
     log.warn(
-      'db.password is empty: reporting role passwords are derived from an empty key and are not unique to this instance.',
+      'db.password is empty: reporting role passwords derive from an empty key, so they are ' +
+        'not unique to this instance and are inferable from source. Set db.password unless using trust auth.',
     );
   }
   const { connections } = config.db.reportSchemas;
