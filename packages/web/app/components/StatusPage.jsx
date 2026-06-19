@@ -182,8 +182,8 @@ export const UnsupportedBrowserStatusPage = () => {
       }
       description={
         <TranslatedText
-          stringId="splash.browser.description"
-          fallback="Please contact your system administrator for further information on how to access :brandName using a Chrome or Edge browser."
+          stringId="splash.browser.supportedBrowserDescription"
+          fallback="Please contact your system administrator for further information on how to access :brandName using a supported, up-to-date browser."
           replacements={{ brandName }}
           data-testid="translatedtext-v9m5"
         />
@@ -214,12 +214,23 @@ export const MobileStatusPage = ({ platformType }) => {
     <MobileContainer $platformType={platformType} data-testid="mobilecontainer-qsvl">
       <Logo onClick={handleRefreshPage} size="140px" data-testid="logo-7r7o" />
       <ErrorDescription color="textTertiary" data-testid="errordescription-asrb">
-        <TranslatedText
-          stringId="splash.mobile.description"
-          fallback=":brandName is not currently supported on mobile devices. Please access via a desktop computer, laptop, or tablet."
-          replacements={{ brandName }}
-          data-testid="translatedtext-9p7e"
-        />
+        {platformType === 'mobile' ? (
+          <TranslatedText
+            stringId="splash.mobile.description"
+            fallback=":brandName is not currently supported on mobile devices. Please access via a desktop computer, laptop, or tablet."
+            replacements={{ brandName }}
+            data-testid="translatedtext-9p7e"
+          />
+        ) : (
+          // Other device types (e.g. tablets blocked by a stricter device policy)
+          // mustn't see mobile-specific copy that suggests using a tablet.
+          <TranslatedText
+            stringId="splash.device.unsupportedDescription"
+            fallback=":brandName is not supported on this device. Please access via a supported device or contact your system administrator for further information."
+            replacements={{ brandName }}
+            data-testid="translatedtext-device-unsupported"
+          />
+        )}
       </ErrorDescription>
     </MobileContainer>
   );
