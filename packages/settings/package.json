@@ -60,16 +60,12 @@
     "lint:types": "tsc"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@jest/globals": "^29.7.0",
     "@swc/jest": "^0.2.24",
     "@tamanu/build-tooling": "*",
     "@types/config": "^3.3.0",
     "@types/node": "^18.14.6",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
     "concurrently": "^9.2.1",
-    "eslint": "^8.35.0",
     "jest": "^29.4.3",
     "rimraf": "^6.1.3"
   },

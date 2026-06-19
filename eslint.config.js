@@ -10,6 +10,7 @@ const JS_EXTS = '{js,jsx,mjs,cjs,ts,tsx}';
 const TS_EXTS = '{ts,tsx}';
 const EXTS = `{${JS_EXTS},${TS_EXTS}}`;
 const BROWSER_PACKAGES = '{web,ui-components,patient-portal}';
+const REACT_PACKAGES = '{web,ui-components,patient-portal,mobile}';
 
 export default [
   {
@@ -32,9 +33,11 @@ export default [
     },
   },
   {
+    // The react plugin stays repo-wide: its rules only act on JSX, which appears
+    // outside the app packages too (e.g. react-pdf certificates in shared), and
+    // jsx-uses-react/jsx-uses-vars are needed there so `import React` isn't flagged.
     plugins: {
       react,
-      'react-hooks': reactHooks,
     },
     settings: {
       react: {
@@ -44,7 +47,6 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
 
       // import rules
       'no-useless-rename': 'error',
@@ -60,8 +62,9 @@ export default [
       'no-unmodified-loop-condition': 'error',
       'no-unreachable-loop': 'error',
       'no-unused-private-class-members': 'error',
-      'no-unused-vars': 'error',
-      'react-hooks/rules-of-hooks': 'error',
+      // eslint 9 defaults caughtErrors to 'all'; keep the pre-9 behaviour of not
+      // flagging unused catch bindings (the TS config opts in via its own pattern).
+      'no-unused-vars': ['error', { caughtErrors: 'none' }],
       'react/jsx-key': 'error',
       'require-atomic-updates': 'error',
 
@@ -71,6 +74,19 @@ export default [
       // overrides for react
       'react/prop-types': 'off',
       'react/display-name': 'off',
+    },
+  },
+  {
+    // react-hooks only applies to packages that actually use React. react-hooks v5's
+    // rules-of-hooks otherwise false-positives on any `use()` call — e.g. Playwright's
+    // `use` fixtures in e2e-tests, or non-React `use*` helpers in server/shared code.
+    files: [`packages/${REACT_PACKAGES}/**/*.${EXTS}`],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-hooks/rules-of-hooks': 'error',
     },
   },
   {
@@ -97,7 +113,7 @@ export default [
         {
           "argsIgnorePattern": "^_",
           "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
+          "caughtErrors": "none",
         },
       ],
 

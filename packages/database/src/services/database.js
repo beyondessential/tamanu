@@ -20,7 +20,6 @@ createDateTypes();
 // done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
 // NOTE: Do not use this storage for anything, sequelize manages it and may clear it unexpectedly
 const sequelizeTransactionAsyncLocalStorage = new AsyncLocalStorage();
-// eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS({
   bind: () => {}, // compatibility with cls-hooked, not used by sequelize
   get: id => sequelizeTransactionAsyncLocalStorage.getStore()?.get(id),
