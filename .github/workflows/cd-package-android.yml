@@ -53,6 +53,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CCACHE_DIR: /home/runner/.ccache
     steps:
       - uses: actions/checkout@v6
         with:
@@ -65,11 +67,16 @@ jobs:
 
       - uses: ./.github/actions/setup-android-ccache
 
+      - name: Init ccache directory
+        run: |
+          mkdir -p "$CCACHE_DIR"
+          ccache --set-config cache_dir="$CCACHE_DIR"
+
       - name: Restore ccache
         id: ccache-restore
         uses: actions/cache/restore@v4
         with:
-          path: /home/runner/.ccache
+          path: ${{ env.CCACHE_DIR }}
           # Exact key is unique per run; restore-keys reuses the latest cache for this branch + deps hash.
           key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}-${{ github.run_id }}
           restore-keys: |
@@ -101,13 +108,33 @@ jobs:
 
       - name: Print ccache stats (after build)
         if: always()
-        run: ccache -s || true
+        run: |
+          echo "ccache cache_dir: $(ccache --get-config cache_dir)"
+          du -sh "$CCACHE_DIR" || true
+          ccache -s || true
+
+      - name: Verify ccache directory before save
+        if: always()
+        id: ccache-verify
+        run: |
+          ACTUAL="$(ccache --get-config cache_dir)"
+          if [ "$ACTUAL" != "$CCACHE_DIR" ]; then
+            echo "::error::ccache cache_dir is $ACTUAL but CCACHE_DIR is $CCACHE_DIR"
+            exit 1
+          fi
+          if [ ! -d "$CCACHE_DIR" ] || [ -z "$(ls -A "$CCACHE_DIR" 2>/dev/null)" ]; then
+            echo "::warning::No ccache data to save (build may have failed before native compile)"
+            echo "save=false" >> "$GITHUB_OUTPUT"
+          else
+            du -sh "$CCACHE_DIR"
+            echo "save=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Save ccache
-        if: always()
+        if: always() && steps.ccache-verify.outputs.save == 'true'
         uses: actions/cache/save@v4
         with:
-          path: /home/runner/.ccache
+          path: ${{ env.CCACHE_DIR }}
           # Unique per workflow run + deploy target so parallel CD matrix jobs do not race on save.
           key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.server || inputs.branding || 'default' }}
 
