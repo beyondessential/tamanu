@@ -366,6 +366,10 @@ jobs:
       server: central.${{ matrix.name }}.cd.tamanu.app
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
+      # Test builds are for QA on physical (arm64) devices, so only compile that
+      # ABI. Avoids the New Architecture C++/CMake compile running once per ABI;
+      # release builds (below) still produce all ABIs.
+      architectures: arm64-v8a
     secrets:
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
