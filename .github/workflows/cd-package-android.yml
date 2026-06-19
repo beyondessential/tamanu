@@ -75,12 +75,11 @@ jobs:
             assets/react/release \
             res/react/release
 
-      - name: Upload JS bundle
-        uses: actions/upload-artifact@v4
+      - name: Save JS bundle
+        uses: actions/cache/save@v4
         with:
-          name: android-js-bundle
           path: ${{ runner.temp }}/android-js-bundle.tgz
-          retention-days: 1
+          key: android-workflow-${{ github.run_id }}-js-bundle
 
   build-abi:
     needs: prepare
@@ -100,17 +99,17 @@ jobs:
           branding: ${{ inputs.branding }}
           server: ${{ inputs.server }}
 
-      - name: Download JS bundle
-        uses: actions/download-artifact@v4
+      - name: Restore JS bundle
+        uses: actions/cache/restore@v4
         with:
-          name: android-js-bundle
-          path: ${{ runner.temp }}/android-js-bundle
+          path: ${{ runner.temp }}/android-js-bundle.tgz
+          key: android-workflow-${{ github.run_id }}-js-bundle
 
       - name: Restore JS bundle outputs
         run: |
           GENERATED=packages/mobile/android/app/build/generated
           mkdir -p "${GENERATED}"
-          tar -xzf "${{ runner.temp }}/android-js-bundle/android-js-bundle.tgz" -C "${GENERATED}"
+          tar -xzf "${{ runner.temp }}/android-js-bundle.tgz" -C "${GENERATED}"
 
       - uses: ./.github/actions/setup-android-ccache
 
@@ -128,21 +127,24 @@ jobs:
         if: always()
         run: ccache -s || true
 
-      - name: Upload ccache partition
+      - name: Save ccache partition
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/cache/save@v4
         with:
-          name: ccache-${{ matrix.arch }}
           path: ~/.ccache
-          retention-days: 1
-          include-hidden-files: true
+          key: android-workflow-${{ github.run_id }}-ccache-${{ matrix.arch }}
 
-      - name: Upload ABI APK
-        uses: actions/upload-artifact@v4
+      - name: Save ABI APK
+        run: |
+          mkdir -p "${{ runner.temp }}/abi-apk"
+          cp packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            "${{ runner.temp }}/abi-apk/app-release-unsigned.apk"
+
+      - name: Cache ABI APK
+        uses: actions/cache/save@v4
         with:
-          name: android-apk-${{ matrix.arch }}
-          path: packages/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
-          retention-days: 1
+          path: ${{ runner.temp }}/abi-apk
+          key: android-workflow-${{ github.run_id }}-apk-${{ matrix.arch }}
 
   consolidate-ccache:
     needs: build-abi
@@ -153,18 +155,36 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - name: Download ccache partitions
-        uses: actions/download-artifact@v4
+      - name: Restore ccache partition (armeabi-v7a)
+        uses: actions/cache/restore@v4
         with:
-          pattern: ccache-*
-          path: ${{ runner.temp }}/ccache-parts
+          path: ${{ runner.temp }}/ccache-parts/armeabi-v7a
+          key: android-workflow-${{ github.run_id }}-ccache-armeabi-v7a
+
+      - name: Restore ccache partition (arm64-v8a)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/ccache-parts/arm64-v8a
+          key: android-workflow-${{ github.run_id }}-ccache-arm64-v8a
+
+      - name: Restore ccache partition (x86)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/ccache-parts/x86
+          key: android-workflow-${{ github.run_id }}-ccache-x86
+
+      - name: Restore ccache partition (x86_64)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/ccache-parts/x86_64
+          key: android-workflow-${{ github.run_id }}-ccache-x86_64
 
       - name: Merge ccache partitions
         shell: bash
         run: |
           mkdir -p ~/.ccache
           shopt -s nullglob
-          for part in "${{ runner.temp }}/ccache-parts"/ccache-*/; do
+          for part in "${{ runner.temp }}/ccache-parts"/*/; do
             cp -an "${part}." ~/.ccache/
           done
           ccache -s || true
@@ -189,11 +209,29 @@ jobs:
       - name: Install Android build-tools
         run: sdkmanager "build-tools;36.0.0"
 
-      - name: Download ABI APKs
-        uses: actions/download-artifact@v4
+      - name: Restore ABI APK (armeabi-v7a)
+        uses: actions/cache/restore@v4
         with:
-          pattern: android-apk-*
-          path: ${{ runner.temp }}/abi-apks
+          path: ${{ runner.temp }}/abi-apks/armeabi-v7a
+          key: android-workflow-${{ github.run_id }}-apk-armeabi-v7a
+
+      - name: Restore ABI APK (arm64-v8a)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/abi-apks/arm64-v8a
+          key: android-workflow-${{ github.run_id }}-apk-arm64-v8a
+
+      - name: Restore ABI APK (x86)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/abi-apks/x86
+          key: android-workflow-${{ github.run_id }}-apk-x86
+
+      - name: Restore ABI APK (x86_64)
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/abi-apks/x86_64
+          key: android-workflow-${{ github.run_id }}-apk-x86_64
 
       - name: Merge universal APK
         shell: bash
