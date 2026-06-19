@@ -158,7 +158,6 @@ jobs:
         with:
           pattern: ccache-*
           path: ${{ runner.temp }}/ccache-parts
-          merge-multiple: true
 
       - name: Merge ccache partitions
         shell: bash
@@ -195,7 +194,6 @@ jobs:
         with:
           pattern: android-apk-*
           path: ${{ runner.temp }}/abi-apks
-          merge-multiple: true
 
       - name: Merge universal APK
         shell: bash
