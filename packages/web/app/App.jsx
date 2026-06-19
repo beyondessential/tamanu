@@ -45,14 +45,23 @@ export function App({ sidebar, children }) {
     localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
   const browser = Bowser.getParser(window.navigator.userAgent);
-  // MIN_CHROME_VERSION is resolved at build time to the oldest of the most recent
-  // few Chrome majors as of when this bundle was built (see vite.config.js), so
-  // the gate rolls forward automatically with each release branch.
-  const isChromish = browser.satisfies({
-    chrome: `>=${MIN_CHROME_VERSION}`,
-    chromium: `>=${MIN_CHROME_VERSION}`,
-    edge: `>=${MIN_CHROME_VERSION}`,
-  });
+  // Accept any sufficiently recent Chromium-based browser (Chrome, Edge, Brave,
+  // Opera, Vivaldi, Yandex, ...) by checking the real Blink engine version. We
+  // can't use bowser's per-browser version: branded Chromium browsers report
+  // their own product version (e.g. "Opera 120"), not the Chromium major — but
+  // they all carry the true Chromium major in a Chrome/Chromium/HeadlessChrome UA
+  // token (some Linux and headless builds expose Chromium/ or HeadlessChrome/
+  // rather than Chrome/). MIN_CHROME_VERSION is resolved at build time (see
+  // vite.config.js) so the gate rolls forward with each release branch.
+  // Safari/Firefox aren't Blink and lack the token, so they remain unsupported.
+  const chromiumVersionMatch = /(?:HeadlessChrome|Chromium|Chrome)\/(\d+)/.exec(
+    window.navigator.userAgent,
+  );
+  const chromiumMajor = chromiumVersionMatch ? Number(chromiumVersionMatch[1]) : null;
+  const isChromish =
+    browser.getEngineName() === 'Blink' &&
+    chromiumMajor !== null &&
+    chromiumMajor >= MIN_CHROME_VERSION;
   const platformType = browser.getPlatformType();
   const isMobile = platformType === 'mobile';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
