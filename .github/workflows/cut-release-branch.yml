@@ -67,7 +67,11 @@ jobs:
       run: |
         set -ex
         git switch --create "$NEW_BRANCH_NAME"
-        git commit --allow-empty -m "release: Cut-off for $NEW_BRANCH_NAME"
+        # Refresh caniuse-lite so the web bundle's runtime browser gate (see
+        # packages/web/vite.config.js) reflects Chrome as of this cut. Carried by
+        # the cut-off commit; --allow-empty covers the case where it's unchanged.
+        npx --yes update-browserslist-db@latest
+        git commit -am "release: Cut-off for $NEW_BRANCH_NAME" --allow-empty
         git push origin "$NEW_BRANCH_NAME"
         git switch main
 
@@ -75,6 +79,10 @@ jobs:
       run: |
         node scripts/version.mjs '${{ inputs.version }}'
         npm install
+        # Also refresh caniuse-lite on main (not just the release branch above),
+        # otherwise main's browser gate data drifts permanently out of date.
+        # Committed alongside the version bump by the next step.
+        npx --yes update-browserslist-db@latest
 
     - name: Commit and push
       run: |

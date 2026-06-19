@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import browserslist from 'browserslist';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import svgr from 'vite-plugin-svgr';
@@ -40,6 +41,19 @@ export default async () => {
     },
   };
 
+  // Minimum Chrome/Chromium/Edge major version accepted by the runtime browser
+  // gate (see app/App.jsx). Resolved at build time as the lowest of the three
+  // most recent Chrome majors in browserslist's bundled caniuse-lite data — i.e.
+  // current Chrome at the time this bundle was built (when the release branch was
+  // cut). Baked into the bundle so each release branch keeps its own threshold.
+  // To move it forward, refresh caniuse-lite (cut-release-branch.yml runs
+  // `update-browserslist-db`). Stale data only ever lowers the floor, never
+  // wrongly blocks a current browser.
+  const recentChromeMajors = browserslist('last 3 chrome versions')
+    .map((entry) => Number(entry.split(' ')[1]))
+    .filter(Number.isFinite);
+  const minChromeVersion = recentChromeMajors.length ? Math.min(...recentChromeMajors) : 100;
+
   // Preview defaults to HTTPS (so local previews mimic production). E2E needs
   // plain HTTP on localhost — opt out via env var rather than flipping the
   // default and changing local-dev behaviour for everyone else.
@@ -66,6 +80,7 @@ export default async () => {
           .then(JSON.parse)
           .then(({ version }) => version),
       ),
+      __MIN_CHROME_VERSION__: JSON.stringify(minChromeVersion),
       process: JSON.stringify({
         env: {
           NODE_ENV: process.env.NODE_ENV,
