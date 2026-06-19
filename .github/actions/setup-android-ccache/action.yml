@@ -1,5 +1,5 @@
 name: Setup Android ccache
-description: Install and configure ccache for React Native Android native builds
+description: Install ccache for React Native Android native builds
 
 runs:
   using: composite
@@ -7,14 +7,3 @@ runs:
     - name: Install ccache
       shell: bash
       run: sudo apt-get update && sudo apt-get install -y ccache
-
-    - name: Configure ccache
-      shell: bash
-      run: |
-        ccache --set-config compiler_check=content
-        ccache --set-config max_size=5G
-        ccache --zero-stats
-
-    - name: Print ccache stats (before build)
-      shell: bash
-      run: ccache -s || true
