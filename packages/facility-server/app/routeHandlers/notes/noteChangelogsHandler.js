@@ -28,7 +28,14 @@ export const noteChangelogsHandler = recordType =>
         [Op.or]: [{ revisedById: rootNoteId }, { id: rootNoteId }],
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
-      order: [['date', 'DESC']],
+      // `date` is a second-precision datetime string, so a note created and then
+      // edited within the same second ties. Break the tie by `createdAt` (the revised
+      // row is inserted at edit time, so it has the later value) to keep the newest
+      // version first deterministically — otherwise the change log order flaps.
+      order: [
+        ['date', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
     });
 
     res.send({ data: notes, count: notes.length });
