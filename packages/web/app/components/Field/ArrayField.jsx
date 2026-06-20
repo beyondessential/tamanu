@@ -4,7 +4,7 @@ import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
 import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
-import { generate } from 'shortid';
+import { nanoid } from 'nanoid';
 import { Button } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation/TranslatedText';
 
@@ -47,7 +47,7 @@ export const ArrayField = ({
   // If there are initial values, generate the same number of fields in the ui,
   // otherwise just display one field
   const initialState =
-    data?.length > 0 ? data.map(() => ({ id: generate() })) : [{ id: generate() }];
+    data?.length > 0 ? data.map(() => ({ id: nanoid() })) : [{ id: nanoid() }];
 
   const [fields, setFields] = useState(initialState);
 
@@ -81,7 +81,7 @@ export const ArrayField = ({
               type="button"
               variant="text"
               onClick={() => {
-                setFields((currentFields) => [...currentFields, { id: generate() }]);
+                setFields((currentFields) => [...currentFields, { id: nanoid() }]);
               }}
               data-testid="addbutton-4ojv"
             >

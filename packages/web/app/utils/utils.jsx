@@ -4,7 +4,7 @@ import { flushSync } from 'react-dom';
 import { each, isArray, toString } from 'lodash-es';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import { singularize as singularizeFn } from 'inflection';
 import { MAX_REPEATS } from '@tamanu/constants';
 
@@ -22,7 +22,7 @@ export const prepareToastMessage = msg => {
 export const getDeviceId = () => {
   let deviceId = window?.localStorage?.getItem('deviceId');
   if (!deviceId) {
-    deviceId = `web-${shortid.generate()}`;
+    deviceId = `web-${nanoid()}`;
     window?.localStorage?.setItem('deviceId', deviceId);
   }
   return deviceId;

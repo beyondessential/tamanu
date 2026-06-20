@@ -1,6 +1,6 @@
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import React from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
