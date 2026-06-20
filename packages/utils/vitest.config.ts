@@ -11,7 +11,6 @@ export default defineConfig({
     conditions: ['source', 'module', 'development|production'],
   },
   test: {
-    hookTimeout: 30_000,
     server: { deps: { inline: [/@tamanu\//] } },
   },
 });
