@@ -42,8 +42,7 @@
     "@tamanu/constants": "*",
     "config": "^3.3.9",
     "date-fns": "^2.25.0",
-    "@types/lodash": "^4.14.197",
-    "lodash": "^4.17.21",
+    "es-toolkit": "^1.48.1",
     "yup": "^1.4.0"
   },
   "type": "module"

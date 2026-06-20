@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { glob } from 'glob';
-import _ from 'es-toolkit/compat';
+import { escapeRegExp } from 'es-toolkit/compat';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { parseArgs, styleText } from 'node:util';
@@ -54,7 +54,7 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const srcPattern = new RegExp(`^${_.escapeRegExp(src)}/`);
+const srcPattern = new RegExp(`^${escapeRegExp(src)}/`);
 for (const file of files) {
   for (const [i, d] of dst) {
     const dest = file.replace(srcPattern, escapeReplacement(d));

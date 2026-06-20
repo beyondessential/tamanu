@@ -40,7 +40,7 @@
     "@tamanu/utils": "*",
     "chance": "^1.1.8",
     "date-fns": "^2.25.0",
-    "lodash": "^4.17.21",
+    "es-toolkit": "^1.48.1",
     "p-limit": "^6.2.0",
     "sequelize": "^6.37.8",
     "zocker": "^2.2.2",
