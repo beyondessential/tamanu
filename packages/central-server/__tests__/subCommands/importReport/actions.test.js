@@ -13,7 +13,7 @@ import {
   OVERWRITING_TEXT,
 } from '../../../app/subCommands/importReport/actions';
 
-spyOnModule(jest, '../../../dist/subCommands/importReport/actions');
+spyOnModule(jest, '../../../app/subCommands/importReport/actions');
 
 const baseVersionData = {
   query: 'test-query',

@@ -4,7 +4,6 @@ import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
-
 import {
   ADMINISTRATION_FREQUENCIES,
   BLOOD_TYPES,
