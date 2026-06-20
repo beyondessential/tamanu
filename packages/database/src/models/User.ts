@@ -1,5 +1,6 @@
 import { createSecretKey, randomBytes } from 'node:crypto';
-import { compare, hash } from 'bcrypt';
+import __cjs_bcrypt from 'bcrypt';
+const { compare, hash } = __cjs_bcrypt;
 import * as jose from 'jose';
 import { unionBy } from 'es-toolkit/compat';
 import { DataTypes, Sequelize } from 'sequelize';

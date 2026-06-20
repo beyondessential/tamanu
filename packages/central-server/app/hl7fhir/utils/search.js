@@ -13,7 +13,8 @@ import {
   startOfYear,
   isMatch,
 } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { zonedTimeToUtc } = __cjs_date_fns_tz;
 
 export function toSearchId({ after, ...params }) {
   const result = { ...params };

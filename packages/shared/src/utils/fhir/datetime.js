@@ -11,7 +11,8 @@ import {
   isValid,
   parse,
 } from 'date-fns';
-import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
+import __cjs_date_fns_tz from 'date-fns-tz';
+const { getTimezoneOffset, zonedTimeToUtc } = __cjs_date_fns_tz;
 import { pick } from 'es-toolkit/compat';
 import { number, object, string, date as yupDate } from 'yup';
 

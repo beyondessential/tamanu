@@ -1,7 +1,8 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
-import { singularize } from 'inflection';
+import __cjs_inflection from 'inflection';
+const { singularize } = __cjs_inflection;
 import { camelCase, lowerCase } from 'es-toolkit/compat';
 import { Sequelize } from 'sequelize';
 

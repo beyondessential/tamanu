@@ -1,4 +1,5 @@
-import { pascal } from 'case';
+import __cjs_case from 'case';
+const { pascal } = __cjs_case;
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
