@@ -1,5 +1,6 @@
 import * as xlsx from 'xlsx';
-import { chain } from 'es-toolkit/compat';
+// es-toolkit drops the `_.chain()` API by design, so this one site stays on lodash-es.
+import { chain } from 'lodash-es';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import {
