@@ -221,6 +221,11 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }}
         working-directory: packages/e2e-tests
+        env:
+          # Load the tsx loader so the specs can import @tamanu workspace TypeScript
+          # source (which uses extensionless directory exports Node's ESM resolver alone
+          # cannot complete). Keeps the heap size from the workflow-level NODE_OPTIONS.
+          NODE_OPTIONS: --import tsx --max-old-space-size=6144
       - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v7
