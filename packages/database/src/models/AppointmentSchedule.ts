@@ -1,7 +1,6 @@
 import { isMatch, isNumber, omit } from 'es-toolkit/compat';
 import { DataTypes, Op, type HasManyGetAssociationsMixin } from 'sequelize';
 import { parseISO, add, set, isAfter, endOfDay } from 'date-fns';
-
 import {
   APPOINTMENT_STATUSES,
   DAYS_OF_WEEK,
