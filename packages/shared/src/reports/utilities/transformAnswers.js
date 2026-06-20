@@ -2,7 +2,8 @@ import { keyBy } from 'es-toolkit/compat';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { convertBinaryToYesNo } from '@tamanu/utils/criteria';
-import { format, formatShort, isISOString, parseDate } from '@tamanu/utils/dateTime';
+import { format, isISOString, parseDate } from '@tamanu/utils/dateTime';
+import { formatShort } from '@tamanu/utils/dateFormatters';
 import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
