@@ -7,15 +7,11 @@
   "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
   "license": "GPL-3.0-or-later",
   "type": "module",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "main": "./src/index",
   "exports": {
     ".": "./src/index.js"
   },
-  "scripts": {
-    "build": "echo 'builds with client frontend'",
-    "clean-build": "echo 'builds with client frontend'"
-  },
+  "scripts": {},
   "dependencies": {
     "@tamanu/shared": "*",
     "@tamanu/utils": "*"

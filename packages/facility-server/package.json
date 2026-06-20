@@ -7,7 +7,7 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
-  "main": "dist/index.js",
+  "main": "./src/index",
   "bin": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -15,9 +15,6 @@
     "./schemas/encounter.schema": "./dist/routes/apiv1/encounter.schema.js"
   },
   "scripts": {
-    "build": "swc --out-dir dist --copy-files --source-maps true app",
-    "clean-build": "npm run clean && npm run build",
-    "build-watch": "npm run build -- --watch",
     "clean": "rimraf -- dist __disttests__",
     "clean:deps": "rimraf -- node_modules",
     "setup-dev": "node dist setup",
@@ -86,5 +83,6 @@
     "undici": "^7.5.0",
     "yup": "^0.32.9",
     "zod": "^4.0.17"
-  }
+  },
+  "type": "module"
 }
