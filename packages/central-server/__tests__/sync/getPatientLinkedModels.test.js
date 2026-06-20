@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import { createTestContext } from '../utilities';
-import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
+import { getPatientLinkedModels } from '../../app/sync/getPatientLinkedModels';
 
 describe('getPatientLinkedModels', () => {
   let ctx;

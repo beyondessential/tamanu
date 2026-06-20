@@ -5,7 +5,7 @@ import { createTestContext } from '../../utilities';
 import { ALL_FHIR_PERMISSIONS, fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
 import { sleepAsync } from '../../../../utils/dist/cjs/sleepAsync';
 
-import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 

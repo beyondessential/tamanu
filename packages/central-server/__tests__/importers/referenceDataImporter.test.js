@@ -12,11 +12,11 @@ import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
-import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
+import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
-import { exporter } from '../../dist/admin/exporter/exporter';
+import { exporter } from '../../app/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
 import { camelCase } from 'es-toolkit/compat';
 import { makeRoleWithPermissions } from '../permissions';

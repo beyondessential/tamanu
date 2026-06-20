@@ -1,6 +1,6 @@
 import config from 'config';
 import { createTestContext } from '../utilities';
-import { MSupplyStockOnHandProcessor } from '../../dist/tasks/MSupplyStockOnHandProcessor';
+import { MSupplyStockOnHandProcessor } from '../../app/tasks/MSupplyStockOnHandProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';

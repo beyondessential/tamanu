@@ -1,4 +1,4 @@
-import { closeDatabase } from '../dist/database';
+import { closeDatabase } from '../app/database';
 
 export default async function() {
   await closeDatabase();

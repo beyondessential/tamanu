@@ -30,13 +30,13 @@ import {
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { exporter } from '../../dist/admin/exporter';
+import { exporter } from '../../app/admin/exporter';
 import { parseDate } from '@tamanu/utils/dateTime';
-import { writeExcelFile } from '../../dist/utils/excelUtils';
+import { writeExcelFile } from '../../app/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
-jest.mock('../../dist/utils/excelUtils', () => {
-  const originalModule = jest.requireActual('../../dist/utils/excelUtils');
+jest.mock('../../app/utils/excelUtils', () => {
+  const originalModule = jest.requireActual('../../app/utils/excelUtils');
 
   return {
     __esModule: true,
