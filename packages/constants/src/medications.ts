@@ -1,4 +1,4 @@
-import { Duration } from 'date-fns';
+import type { Duration } from 'date-fns';
 import { ENCOUNTER_TYPES } from './encounters';
 
 export const DRUG_ROUTES = {
