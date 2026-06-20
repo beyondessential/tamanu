@@ -1,5 +1,5 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { keyBy } from 'lodash';
+import { keyBy } from 'es-toolkit/compat';
 
 import {
   NON_ANSWERABLE_DATA_ELEMENT_TYPES,

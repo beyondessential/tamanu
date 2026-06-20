@@ -18,7 +18,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 import { makeRoleWithPermissions } from '../permissions';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 

@@ -1,5 +1,5 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { chunk, keyBy } from 'lodash';
+import { chunk, keyBy } from 'es-toolkit/compat';
 import { isTablet } from 'react-native-device-info';
 
 import { RowView, StyledView } from '../styled/common';

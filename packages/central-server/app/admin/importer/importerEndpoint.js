@@ -2,7 +2,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { singularize } from 'inflection';
-import { camelCase, lowerCase } from 'lodash';
+import { camelCase, lowerCase } from 'es-toolkit/compat';
 import { Sequelize } from 'sequelize';
 
 import { OTHER_REFERENCE_TYPES, PROGRAM_REFERENCE_TYPES } from '@tamanu/constants';

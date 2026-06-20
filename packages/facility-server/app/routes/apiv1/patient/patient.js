@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'es-toolkit/compat';
 import { isBefore } from 'date-fns';
 
 import {

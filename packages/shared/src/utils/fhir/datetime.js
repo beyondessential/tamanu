@@ -12,7 +12,7 @@ import {
   parse,
 } from 'date-fns';
 import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 import { number, object, string, date as yupDate } from 'yup';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';

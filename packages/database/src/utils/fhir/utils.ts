@@ -1,4 +1,4 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject } from 'es-toolkit/compat';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 

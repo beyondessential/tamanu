@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { pick } from 'es-toolkit/compat';
 
 import { createTestContext } from '../utilities';
 import {

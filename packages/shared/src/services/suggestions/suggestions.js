@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/errors';
-import { camelCase } from 'lodash';
+import { camelCase } from 'es-toolkit/compat';
 import {
   DEFAULT_HIERARCHY_TYPE,
   REFERENCE_DATA_TRANSLATION_PREFIX,

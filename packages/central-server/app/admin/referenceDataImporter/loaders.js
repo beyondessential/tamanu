@@ -15,7 +15,7 @@ import {
   GENERIC_SURVEY_EXPORT_REPORT_ID,
 } from '@tamanu/constants';
 import { pluralize } from 'inflection';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty, isNil } from 'es-toolkit/compat';
 import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {

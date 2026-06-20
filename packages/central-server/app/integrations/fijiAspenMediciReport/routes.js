@@ -2,7 +2,7 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { mapKeys, camelCase, upperFirst } from 'lodash';
+import { mapKeys, camelCase, upperFirst } from 'es-toolkit/compat';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 

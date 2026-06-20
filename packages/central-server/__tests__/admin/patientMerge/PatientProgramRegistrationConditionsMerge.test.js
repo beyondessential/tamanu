@@ -1,4 +1,4 @@
-import { capitalize } from 'lodash';
+import { capitalize } from 'es-toolkit/compat';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
