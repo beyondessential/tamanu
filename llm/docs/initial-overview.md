@@ -103,7 +103,7 @@ tamanu/
 
 ## Development Environment
 
-- **Node.js** required, verison must match `.node-version`
+- **Node.js** required, version must match `.node-version`
 - **PostgreSQL** for databases
 - **npm workspaces** for package management
 - **Local configuration** via `config/local.json5` files (to override config/default.json5 defaults)
