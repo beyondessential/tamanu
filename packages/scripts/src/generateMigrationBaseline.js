@@ -45,7 +45,8 @@ async function run() {
   const serverConfig = config.util.loadFileConfigs(
     path.join('packages', 'central-server', 'config'),
   );
-  const dbConfig = config.util.extendDeep(serverConfig.db, config.db);
+  const { resolveDbConfig } = require('@tamanu/database/services/connectionConfig');
+  const dbConfig = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db));
 
   const { initDatabase } = require('@tamanu/database/services/database');
 
