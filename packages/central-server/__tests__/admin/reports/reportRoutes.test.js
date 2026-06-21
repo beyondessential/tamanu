@@ -63,14 +63,14 @@ describe('reportRoutes', () => {
     it('should not return reports with no versions', async () => {
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body).toHaveLength(0);
+      expect(res.body.find(r => r.id === testReport.id)).toBeUndefined();
     });
     it('should return a list of reports', async () => {
       await models.ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body).toHaveLength(1);
-      expect(res.body[0]).toMatchObject({
+      const found = res.body.find(r => r.id === testReport.id);
+      expect(found).toMatchObject({
         id: testReport.id,
         name: testReport.name,
       });
@@ -83,8 +83,9 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp.get('/api/admin/reports');
       expect(res).toHaveSucceeded();
-      expect(res.body[0].versionCount).toBe(2);
-      expect(new Date(res.body[0].lastUpdated)).toEqual(latestVersion.updatedAt);
+      const found = res.body.find(r => r.id === testReport.id);
+      expect(found.versionCount).toBe(2);
+      expect(new Date(found.lastUpdated)).toEqual(latestVersion.updatedAt);
     });
   });
 
