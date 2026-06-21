@@ -96,21 +96,8 @@ export const initReporting = async existingStore => {
   }
   // Sequential: concurrent role/schema DDL on the same db can deadlock.
   const stores = {};
-  try {
-    for (const connectionName of REPORT_DB_CONNECTION_VALUES) {
-      stores[connectionName] = await initReportStore(existingStore, connectionName);
-    }
-  } catch (error) {
-    // The reporting roles log in as themselves, which can't work under peer/ident
-    // auth (no matching OS user), and provisioning needs CREATEROLE. Rather than
-    // take the whole server down, run without reporting — report routes fall back
-    // to the raw/public schema when the stores are absent.
-    log.warn(
-      `Reporting connections unavailable; running without them. The reporting roles must be able ` +
-        `to authenticate (password auth, or a pg_ident map under peer/ident auth) and the core db ` +
-        `user needs CREATEROLE. ${error.message}`,
-    );
-    return null;
+  for (const connectionName of REPORT_DB_CONNECTION_VALUES) {
+    stores[connectionName] = await initReportStore(existingStore, connectionName);
   }
   return stores;
 };
