@@ -31,6 +31,7 @@ async function startAll({ skipMigrationCheck }) {
   const context = await new ApplicationContext().init({ appType: 'api' });
 
   await prepareDatabaseForStartup(context, { skipMigrationCheck });
+  await context.initReportingStores();
 
   await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);

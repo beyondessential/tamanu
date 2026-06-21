@@ -16,6 +16,7 @@ import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
 import { asNewRole } from '@tamanu/fake-data/test-helpers';
+import { initReporting } from '@tamanu/database/services/reporting';
 
 import { createApiApp } from '../dist/createApiApp';
 import { buildToken } from '../dist/middleware/auth';
@@ -127,14 +128,17 @@ export function extendExpect(expect) {
 }
 
 export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
-  const context = await new ApplicationContext().init({
-    databaseOverrides,
-    provisionReporting: Boolean(enableReportInstances),
-  });
+  const context = await new ApplicationContext().init({ databaseOverrides });
 
   const { models, sequelize } = context;
 
   await sequelize.migrate('up');
+
+  // After migrate, matching server startup order: the reporting connections read
+  // the per-server secret from local_system_facts, which must exist by now.
+  if (enableReportInstances) {
+    context.reportSchemaStores = await initReporting(context.store);
+  }
 
   await showError(deleteAllTestIds(context));
 

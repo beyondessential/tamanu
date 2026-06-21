@@ -1,26 +1,39 @@
 import crypto from 'crypto';
 import config from 'config';
 
-import { log } from '@tamanu/shared/services/logging';
 import {
   REPORT_DB_CONNECTION_ROLES,
   REPORT_DB_CONNECTION_SCHEMAS,
   REPORT_DB_CONNECTION_VALUES,
+  FACT_REPORTING_ROLE_SECRET,
 } from '@tamanu/constants';
 import { openDatabase } from './database';
 
 // Tamanu owns the reporting/raw roles: unprivileged read-only LOGIN roles it
 // provisions and connects AS. We log in as the role rather than SET ROLE from the
 // core user, which report SQL could reverse (RESET ROLE / COMMIT) to write as core.
-// The password is derived from the core db password so there's no separate secret
-// to manage and every replica derives the same value. Rotating db.password changes
-// the derived password (re-applied on the next startup), so a rotation needs a
-// coordinated restart of all servers or their live reporting connections will fail.
-const reportingRolePassword = role =>
+// Their passwords derive from a random per-server secret (below) so they're real
+// secrets regardless of the core db auth method (trust, peer or password).
+const reportingRolePassword = (secret, role) =>
   crypto
-    .createHmac('sha256', config.db.password ?? '')
+    .createHmac('sha256', secret)
     .update(`tamanu-report-role:${role}`)
     .digest('hex');
+
+// Random per-server secret, generated once and stored in local_system_facts
+// (not synced — like the device key). setIfAbsent is INSERT ... ON CONFLICT DO
+// NOTHING, so the concurrent startup contexts don't clobber each other.
+const getReportingSecret = async ({ models }) => {
+  let secret = await models.LocalSystemFact.get(FACT_REPORTING_ROLE_SECRET);
+  if (!secret) {
+    await models.LocalSystemFact.setIfAbsent(
+      FACT_REPORTING_ROLE_SECRET,
+      crypto.randomBytes(32).toString('hex'),
+    );
+    secret = await models.LocalSystemFact.get(FACT_REPORTING_ROLE_SECRET);
+  }
+  return secret;
+};
 
 const ensureReportingRole = async (existingStore, connectionName, password) => {
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
@@ -65,10 +78,10 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
   });
 };
 
-const initReportStore = async (existingStore, connectionName) => {
+const initReportStore = async (existingStore, connectionName, secret) => {
   const testMode = process.env.NODE_ENV === 'test';
   const role = REPORT_DB_CONNECTION_ROLES[connectionName];
-  const password = reportingRolePassword(role);
+  const password = reportingRolePassword(secret, role);
   await ensureReportingRole(existingStore, connectionName, password);
 
   const overrides = {
@@ -85,19 +98,11 @@ const initReportStore = async (existingStore, connectionName) => {
 };
 
 export const initReporting = async existingStore => {
-  if (!config.db.password) {
-    // Fine under trust auth (the password isn't checked). Under password auth it means
-    // the reporting role's password derives from an empty key — inferable from source
-    // and identical across installs — so it must be set.
-    log.warn(
-      'db.password is empty: reporting role passwords derive from an empty key, so they are ' +
-        'not unique to this instance and are inferable from source. Set db.password unless using trust auth.',
-    );
-  }
+  const secret = await getReportingSecret(existingStore);
   // Sequential: concurrent role/schema DDL on the same db can deadlock.
   const stores = {};
   for (const connectionName of REPORT_DB_CONNECTION_VALUES) {
-    stores[connectionName] = await initReportStore(existingStore, connectionName);
+    stores[connectionName] = await initReportStore(existingStore, connectionName, secret);
   }
   return stores;
 };

@@ -39,6 +39,7 @@ const startApp =
     const context = await new ApplicationContext().init({ appType });
 
     await prepareDatabaseForStartup(context, { skipMigrationCheck });
+    await context.initReportingStores();
 
     await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
     await checkConfig(context);
