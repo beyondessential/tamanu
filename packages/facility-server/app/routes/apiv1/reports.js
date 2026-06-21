@@ -47,7 +47,7 @@ reports.post(
     if (!reportModule) {
       throw new NotFoundError('Report module not found');
     }
-    await checkReportModulePermissions(req, reportModule, reportId, parameters);
+    await checkReportModulePermissions(req, reportModule, parameters);
 
     try {
       facilityReportLog.info('Running report', { parameters });

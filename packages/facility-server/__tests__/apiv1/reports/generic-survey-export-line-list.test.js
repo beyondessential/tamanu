@@ -18,6 +18,7 @@ describe('Generic survey export line list report', () => {
   let models;
   let ctx;
   let survey;
+  let reportVersionId;
 
   const setupSurvey = async answerBody => {
     const {
@@ -165,6 +166,11 @@ describe('Generic survey export line list report', () => {
 
     const surveyDetails = await setupSurvey();
     survey = surveyDetails.survey;
+
+    const version = await models.ReportDefinitionVersion.findOne({
+      where: { reportDefinitionId: GENERIC_SURVEY_EXPORT_REPORT_ID },
+    });
+    reportVersionId = version.id;
   });
   afterAll(() => ctx.close());
   disableHardcodedPermissionsForSuite();
@@ -172,22 +178,32 @@ describe('Generic survey export line list report', () => {
   describe('Permissions', () => {
     it('does not throw forbidden error when there is sufficient permissions', async () => {
       const permissions = [
-        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', survey.id],
       ];
 
       app = await baseApp.asNewRole(permissions);
-      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
         parameters: { surveyId: survey.id },
       });
       expect(result).toHaveSucceeded();
     });
 
-    it('throws forbidden error when there is insufficient permissions', async () => {
-      const permissions = [['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID]];
+    it('throws forbidden error when ReportDefinition:run permission is missing', async () => {
+      const permissions = [['read', 'Survey', survey.id]];
 
       app = await baseApp.asNewRole(permissions);
-      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
+        parameters: { surveyId: survey.id },
+      });
+      expect(result).toBeForbidden();
+    });
+
+    it('throws forbidden error when Survey:read permission is missing', async () => {
+      const permissions = [['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID]];
+
+      app = await baseApp.asNewRole(permissions);
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
         parameters: { surveyId: survey.id },
       });
       expect(result).toHaveStatus(403);
@@ -204,12 +220,12 @@ describe('Generic survey export line list report', () => {
 
     it('exports Signature answers as “Signed” or “Unsigned”, not JSON data', async () => {
       const permissions = [
-        ['run', 'StaticReport', GENERIC_SURVEY_EXPORT_REPORT_ID],
+        ['run', 'ReportDefinition', GENERIC_SURVEY_EXPORT_REPORT_ID],
         ['read', 'Survey', signatureSurvey.id],
       ];
 
       app = await baseApp.asNewRole(permissions);
-      const result = await app.post(`/api/reports/${GENERIC_SURVEY_EXPORT_REPORT_ID}`).send({
+      const result = await app.post(`/api/reports/${reportVersionId}`).send({
         parameters: { surveyId: signatureSurvey.id },
       });
 

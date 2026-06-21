@@ -1,16 +1,4 @@
 import { REPORT_DATE_RANGE_LABELS, REPORT_STATUSES } from '@tamanu/constants';
-import { REPORT_DEFINITIONS } from '../reportDefinitions';
-import { canRunStaticReport } from './canRunStaticReport';
-
-const getStaticReports = ability => {
-  const permittedReports = [];
-  for (const reportDef of REPORT_DEFINITIONS) {
-    if (canRunStaticReport(ability, reportDef.id)) {
-      permittedReports.push(reportDef);
-    }
-  }
-  return permittedReports.map(r => ({ ...r, legacyReport: true }));
-};
 
 const getDbReports = async (ability, models) => {
   const { ReportDefinition, ReportDefinitionVersion } = models;
@@ -54,10 +42,7 @@ const getDisabledReportIds = async (models, userId) => {
 };
 
 export const getAvailableReports = async (ability, models, userId) => {
-  const permittedReports = [
-    ...getStaticReports(ability, models),
-    ...(await getDbReports(ability, models)),
-  ];
+  const permittedReports = await getDbReports(ability, models);
   const disabledReportIds = await getDisabledReportIds(models, userId);
   const enabledReports = permittedReports.filter(({ id }) => !disabledReportIds.includes(id));
   return enabledReports;
