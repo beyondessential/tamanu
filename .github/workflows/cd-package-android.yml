@@ -21,6 +21,10 @@ on:
       server:
         type: string
         required: false
+      architectures:
+        type: string
+        required: false
+        description: Comma-separated Gradle reactNativeArchitectures override (e.g. arm64-v8a)
     secrets:
       ANDROID_SIGNING_KEY_PASSWORD:
         required: true
@@ -57,9 +61,13 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: packages/mobile/android
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
@@ -109,13 +117,30 @@ jobs:
       - name: Build mobile dependencies
         run: npm run build -- --filter=@tamanu/mobile^...
 
+      # The New Architecture compiles each native module's C++ via CMake, which
+      # dominates build time. ccache persists the compiled objects across runs so
+      # only changed sources recompile. CMake reads the *_COMPILER_LAUNCHER vars
+      # from the environment at configure time.
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          key: android-${{ inputs.branding }}
+          max-size: 2G
+
       - name: Build release
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
-        run:  ./gradlew app:assembleRelease
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+        run: |
+          ARCH_ARGS=""
+          if [ -n "${{ inputs.architectures }}" ]; then
+            ARCH_ARGS="-PreactNativeArchitectures=${{ inputs.architectures }}"
+          fi
+          ./gradlew app:assembleRelease $ARCH_ARGS
 
       - name: Upload final build
         id: artifact-upload

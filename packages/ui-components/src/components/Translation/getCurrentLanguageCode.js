@@ -6,4 +6,4 @@ const LOCAL_STORAGE_KEYS = {
 };
 
 export const getCurrentLanguageCode = () =>
-  localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || ENGLISH_LANGUAGE_CODE;
+  window?.localStorage?.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || ENGLISH_LANGUAGE_CODE;

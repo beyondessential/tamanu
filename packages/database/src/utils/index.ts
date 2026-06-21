@@ -5,4 +5,5 @@ export * from './sortInDependencyOrder';
 export * from './fhir';
 export * from './audit';
 export * from './convertDatabaseError';
+export * from './databaseVersionCompatibility';
 export * from './tablesWithTrigger';

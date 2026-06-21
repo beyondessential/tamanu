@@ -3,6 +3,7 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+import { StackActions } from '@react-navigation/native';
 
 import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
@@ -15,7 +16,6 @@ import * as Yup from 'yup';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { Certainty, CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
@@ -26,6 +26,7 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Button } from '~/ui/components/Button';
+import { Routes } from '~/ui/helpers/routes';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -40,8 +41,10 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   const { models } = useBackend();
 
   const navigateToHistory = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
-  }, []);
+    // Same screen as patient home "View history" (encounters/visits).
+    // Replace D&T in HomeStack so back returns to patient home, not this form.
+    navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
+  }, [navigation]);
 
   const user = useSelector(authUserSelector);
 

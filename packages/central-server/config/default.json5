@@ -10,6 +10,7 @@
     "username": "",
     "password": "",
     "migrateOnStartup": false,
+    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,

@@ -4,10 +4,20 @@ import { Routes } from '/helpers/routes';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { VaccineTableRefreshContext } from '~/ui/components/VaccinesTable';
 
 const Tabs = createTopTabNavigator();
 
-export const VaccineTableTabs = (): ReactElement => {
+type VaccineTableTabsProps = {
+  route: {
+    params?: {
+      latestAdministeredVaccineId?: string;
+    };
+  };
+};
+
+export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement => {
+  const { latestAdministeredVaccineId } = route.params ?? {};
   useEffect(() => {
     Orientation.unlockAllOrientations();
 
@@ -17,15 +27,17 @@ export const VaccineTableTabs = (): ReactElement => {
   }, []);
 
   return (
+    <VaccineTableRefreshContext.Provider value={latestAdministeredVaccineId}>
     <Tabs.Navigator
-      tabBarOptions={{
-        labelStyle: { textTransform: 'none' },
+      screenOptions={{
+        headerShown: false,
+        tabBarLabelStyle: { textTransform: 'none' },
       }}
       swipeEnabled={false}
     >
       <Tabs.Screen
         options={{
-          title: () => (
+          tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.routine" fallback="Routine" />
           ),
         }}
@@ -34,7 +46,7 @@ export const VaccineTableTabs = (): ReactElement => {
       />
       <Tabs.Screen
         options={{
-          title: () => (
+          tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.catchUp" fallback="Catchup" />
           ),
         }}
@@ -43,7 +55,7 @@ export const VaccineTableTabs = (): ReactElement => {
       />
       <Tabs.Screen
         options={{
-          title: () => (
+          tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.campaign" fallback="Campaign" />
           ),
         }}
@@ -51,5 +63,6 @@ export const VaccineTableTabs = (): ReactElement => {
         component={VaccineHistoryTab}
       />
     </Tabs.Navigator>
+    </VaccineTableRefreshContext.Provider>
   );
 };

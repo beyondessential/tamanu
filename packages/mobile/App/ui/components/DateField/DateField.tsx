@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
 import { StyledText, StyledView } from '/styled/common';
@@ -12,6 +12,10 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+
+// Spinner mode ignores colorAccent from styles.xml — set button colours explicitly.
+// See https://github.com/react-native-datetimepicker/datetimepicker/issues/543
+const ANDROID_PICKER_BUTTON_COLOR = '#009688';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -53,6 +57,10 @@ const DatePicker = ({
       style={styles.androidPickerStyles}
       maximumDate={max}
       minimumDate={min}
+      {...(Platform.OS === 'android' && {
+        positiveButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
+        negativeButton: { textColor: ANDROID_PICKER_BUTTON_COLOR },
+      })}
     />
   );
 };

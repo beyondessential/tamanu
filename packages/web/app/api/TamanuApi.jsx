@@ -36,18 +36,18 @@ function getImpersonateRoleIdFromToken(token) {
 
 function safeGetStoredJSON(key) {
   try {
-    return JSON.parse(localStorage.getItem(key));
+    return JSON.parse(window?.localStorage?.getItem(key));
   } catch (e) {
     return {};
   }
 }
 
 function restoreNonTokenFieldsFromLocalStorage() {
-  const facilityId = localStorage.getItem(FACILITY_ID);
+  const facilityId = window?.localStorage?.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
-  const primaryTimeZone = localStorage.getItem(PRIMARY_TIME_ZONE);
+  const primaryTimeZone = window?.localStorage?.getItem(PRIMARY_TIME_ZONE);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -75,41 +75,41 @@ function saveToLocalStorage({
   settings,
 }) {
   if (facilityId) {
-    localStorage.setItem(FACILITY_ID, facilityId);
+    window?.localStorage?.setItem(FACILITY_ID, facilityId);
   }
   if (server) {
-    localStorage.setItem(SERVER, JSON.stringify(server));
+    window?.localStorage?.setItem(SERVER, JSON.stringify(server));
   }
   if (localisation) {
-    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+    window?.localStorage?.setItem(LOCALISATION, JSON.stringify(localisation));
   }
   if (permissions) {
-    localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
+    window?.localStorage?.setItem(PERMISSIONS, JSON.stringify(permissions));
   }
   if (availableFacilities) {
-    localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
+    window?.localStorage?.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   }
   if (primaryTimeZone) {
-    localStorage.setItem(PRIMARY_TIME_ZONE, primaryTimeZone);
+    window?.localStorage?.setItem(PRIMARY_TIME_ZONE, primaryTimeZone);
   }
   if (role) {
-    localStorage.setItem(ROLE, JSON.stringify(role));
+    window?.localStorage?.setItem(ROLE, JSON.stringify(role));
   }
   if (settings) {
-    localStorage.setItem(SETTINGS, JSON.stringify(settings));
+    window?.localStorage?.setItem(SETTINGS, JSON.stringify(settings));
   }
 }
 
 function clearLocalStorage() {
-  localStorage.removeItem(TOKEN);
-  localStorage.removeItem(LOCALISATION);
-  localStorage.removeItem(SERVER);
-  localStorage.removeItem(AVAILABLE_FACILITIES);
-  localStorage.removeItem(FACILITY_ID);
-  localStorage.removeItem(PRIMARY_TIME_ZONE);
-  localStorage.removeItem(PERMISSIONS);
-  localStorage.removeItem(ROLE);
-  localStorage.removeItem(SETTINGS);
+  window?.localStorage?.removeItem(TOKEN);
+  window?.localStorage?.removeItem(LOCALISATION);
+  window?.localStorage?.removeItem(SERVER);
+  window?.localStorage?.removeItem(AVAILABLE_FACILITIES);
+  window?.localStorage?.removeItem(FACILITY_ID);
+  window?.localStorage?.removeItem(PRIMARY_TIME_ZONE);
+  window?.localStorage?.removeItem(PERMISSIONS);
+  window?.localStorage?.removeItem(ROLE);
+  window?.localStorage?.removeItem(SETTINGS);
 }
 
 export function isErrorUnknownDefault(error) {
@@ -145,7 +145,7 @@ export class TamanuApi extends ApiClient {
     });
 
     this.interceptors.request.use(config => {
-      const language = localStorage.getItem(LANGUAGE);
+      const language = window?.localStorage?.getItem(LANGUAGE);
       config.headers.set('language', language);
       // The locale the browser formats dates with, so server-rendered
       // documents match what the user sees on screen.
@@ -307,7 +307,7 @@ export class TamanuApi extends ApiClient {
       if (err.type.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        const language = localStorage.getItem(LANGUAGE);
+        const language = window?.localStorage?.getItem(LANGUAGE);
         notifyError([
           <b key="general.api.notification.requestFailed">
             <TranslatedText

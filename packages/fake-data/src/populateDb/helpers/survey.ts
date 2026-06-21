@@ -1,11 +1,11 @@
-import { randomRecordId } from '@tamanu/database/demoData/utilities';
+import { randomRecordId } from '../randomRecord.js';
 
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateSurveyResponseParams extends CommonParams {
-  encounterId: string;
-  surveyId: string;
+  encounterId?: string;
+  surveyId?: string;
 }
 export const createSurveyResponse = async ({
   models,

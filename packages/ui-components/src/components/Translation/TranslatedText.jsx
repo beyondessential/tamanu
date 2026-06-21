@@ -7,7 +7,7 @@ import { DebugTooltip } from './DebugTooltip';
 const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
 const safeGetIsDebugMode = () => {
   try {
-    return JSON.parse(localStorage.getItem(DEBUG_TRANSLATION_KEY));
+    return JSON.parse(window?.localStorage?.getItem(DEBUG_TRANSLATION_KEY));
   } catch (e) {
     return false;
   }

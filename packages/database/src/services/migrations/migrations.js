@@ -3,6 +3,7 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
+import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
@@ -217,8 +218,11 @@ export async function migrateUpTo({
   });
 }
 
-async function migrateUp(log, sequelize, upOpts = undefined) {
+async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
   const { migrations, getDurationStats } = createMigrationInterface(log, sequelize);
+
+  // Fail fast: refuse before applying migrations if the database is already ahead of this server.
+  await syncDatabaseServerVersionForMigrateUp(sequelize, { ...options, checkOnly: true });
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
@@ -226,6 +230,21 @@ async function migrateUp(log, sequelize, upOpts = undefined) {
   } else {
     log.info('Migrations already up-to-date.');
   }
+
+  await syncDatabaseServerVersionForMigrateUp(sequelize, options);
+}
+
+async function syncDatabaseServerVersionForMigrateUp(sequelize, options) {
+  const models = sequelize.models;
+  if (!models?.LocalSystemFact) {
+    return;
+  }
+
+  await syncDatabaseServerVersion({
+    models,
+    serverVersion: options.serverVersion,
+    checkOnly: options.checkOnly,
+  });
 }
 
 async function migrateDown(log, sequelize, options) {
@@ -285,9 +304,9 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, direction) {
+export async function migrate(log, sequelize, direction, options = {}) {
   if (direction === 'up') {
-    return migrateUp(log, sequelize);
+    return migrateUp(log, sequelize, undefined, options);
   }
   if (direction === 'down') {
     return migrateDown(log, sequelize);
@@ -297,7 +316,7 @@ export async function migrate(log, sequelize, direction) {
   }
   if (direction === 'redoLatest') {
     await migrateDown(log, sequelize);
-    return migrateUp(log, sequelize);
+    return migrateUp(log, sequelize, undefined, options);
   }
   throw new Error(`Unrecognised migrate direction: ${direction}`);
 }

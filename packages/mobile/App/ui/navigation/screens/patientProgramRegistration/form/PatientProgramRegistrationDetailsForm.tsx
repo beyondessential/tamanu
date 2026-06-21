@@ -1,5 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import * as yup from 'yup';
+import { StackActions } from '@react-navigation/native';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
@@ -100,9 +101,11 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       }
     }
 
-    navigation.navigate(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
-      patientProgramRegistration: newPpr,
-    });
+    navigation.dispatch(
+      StackActions.replace(Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index, {
+        patientProgramRegistrationId: newPpr.id,
+      }),
+    );
   };
   const { user } = useAuth();
 

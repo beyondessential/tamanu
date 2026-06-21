@@ -54,6 +54,7 @@
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
+    "skipVersionCompatibilityCheck": false,
   },
   "metaServer": {
     "hosts": [

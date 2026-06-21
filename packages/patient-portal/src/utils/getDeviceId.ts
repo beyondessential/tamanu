@@ -1,8 +1,8 @@
 export const getDeviceId = () => {
-  const deviceId = localStorage.getItem('deviceId');
+  const deviceId = window?.localStorage?.getItem('deviceId');
   if (!deviceId) {
     const newDeviceId = `patient-portal-${crypto.randomUUID()}`;
-    localStorage.setItem('deviceId', newDeviceId);
+    window?.localStorage?.setItem('deviceId', newDeviceId);
     return newDeviceId;
   }
   return deviceId;

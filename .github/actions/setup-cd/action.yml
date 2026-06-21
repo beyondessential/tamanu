@@ -72,3 +72,13 @@ runs:
     - name: Test kubernetes cluster for readiness
       shell: bash
       run: kubectl get namespace/tamanu-system
+
+    # Log the identity the API server actually sees, plus the perms that matter
+    # for seed-snapshot deploys. Cheap insurance: a future 403 on this runner
+    # can be diagnosed in one click without grepping the tailscale operator logs.
+    - name: Log k8s identity
+      shell: bash
+      run: |
+        kubectl auth whoami -o yaml || true
+        kubectl auth can-i list volumesnapshots -n tamanu-seed || true
+        kubectl auth can-i create volumesnapshots -n '*' || true
