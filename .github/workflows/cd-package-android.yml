@@ -53,8 +53,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CCACHE_DIR: /home/runner/.ccache
     steps:
       - uses: actions/checkout@v6
         with:
@@ -64,33 +62,6 @@ jobs:
         with:
           branding: ${{ inputs.branding }}
           server: ${{ inputs.server }}
-
-      - uses: ./.github/actions/setup-android-ccache
-
-      - name: Init ccache directory
-        run: |
-          mkdir -p "$CCACHE_DIR"
-          ccache --set-config cache_dir="$CCACHE_DIR"
-
-      - name: Restore ccache
-        id: ccache-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          # One cache entry per branch (+ native deps hash); save overwrites this key each run.
-          key: android-ccache-${{ github.head_ref || github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
-
-      - name: Configure ccache
-        run: |
-          ccache --set-config compiler_check=content
-          ccache --set-config max_size=5G
-          ccache --set-config hash_dir=false
-          ccache --set-config sloppiness=locale,time_macros,include_file_mtime,include_file_ctime,pch_defines
-          ccache --zero-stats
-          echo "GHA cache primary hit: ${{ steps.ccache-restore.outputs.cache-hit }}"
-          echo "GHA cache matched key: ${{ steps.ccache-restore.outputs.cache-matched-key }}"
-          echo "Workflow event: ${{ github.event_name }}"
-          ccache -s || true
 
       # The New Architecture compiles each native module's C++ via CMake, which
       # dominates build time. ccache persists the compiled objects across runs so
@@ -116,38 +87,6 @@ jobs:
             ARCH_ARGS="-PreactNativeArchitectures=${{ inputs.architectures }}"
           fi
           ./gradlew app:assembleRelease $ARCH_ARGS
-
-      - name: Print ccache stats (after build)
-        if: always()
-        run: |
-          echo "ccache cache_dir: $(ccache --get-config cache_dir)"
-          du -sh "$CCACHE_DIR" || true
-          ccache -s || true
-
-      - name: Verify ccache directory before save
-        if: always()
-        id: ccache-verify
-        run: |
-          ACTUAL="$(ccache --get-config cache_dir)"
-          if [ "$ACTUAL" != "$CCACHE_DIR" ]; then
-            echo "::error::ccache cache_dir is $ACTUAL but CCACHE_DIR is $CCACHE_DIR"
-            exit 1
-          fi
-          if [ ! -d "$CCACHE_DIR" ] || [ -z "$(ls -A "$CCACHE_DIR" 2>/dev/null)" ]; then
-            echo "::warning::No ccache data to save (build may have failed before native compile)"
-            echo "save=false" >> "$GITHUB_OUTPUT"
-          else
-            du -sh "$CCACHE_DIR"
-            echo "save=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Save ccache
-        if: always() && steps.ccache-verify.outputs.save == 'true'
-        continue-on-error: true # parallel CD matrix jobs may race on the same branch key
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: android-ccache-${{ github.head_ref || github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Prepare signed APK artifact
         working-directory: packages/mobile/android/app/build/outputs/apk/release
