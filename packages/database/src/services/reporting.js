@@ -27,33 +27,42 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
   const schema = REPORT_DB_CONNECTION_SCHEMAS[connectionName];
   const { sequelize } = existingStore;
 
-  await sequelize.query(`
-    DO $$
-    BEGIN
-      CREATE ROLE "${role}" LOGIN;
-    EXCEPTION WHEN duplicate_object THEN
-      RAISE NOTICE 'Reporting role "${role}" already exists, skipping creation';
-    END
-    $$;
-  `);
+  // The central app types (api, fhir workers, tasks) all init concurrently and
+  // would race on these cluster-global role objects ("tuple concurrently
+  // updated"). Serialise with a transaction-scoped advisory lock; the DDL is
+  // idempotent so re-applying it once per startup is harmless.
+  await sequelize.transaction(async () => {
+    await sequelize.query(`SELECT pg_advisory_xact_lock(hashtext('tamanu:reporting-roles'));`);
 
-  // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
-  await sequelize.query(`ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`, {
-    logging: false,
+    await sequelize.query(`
+      DO $$
+      BEGIN
+        CREATE ROLE "${role}" LOGIN;
+      EXCEPTION WHEN duplicate_object THEN
+        RAISE NOTICE 'Reporting role "${role}" already exists, skipping creation';
+      END
+      $$;
+    `);
+
+    // Escape as a literal (DDL can't bind it) and don't log it — it's a credential.
+    await sequelize.query(
+      `ALTER ROLE "${role}" WITH LOGIN PASSWORD ${sequelize.escape(password)};`,
+      { logging: false },
+    );
+
+    if (schema !== 'public') {
+      await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
+      // Lets reporting reports reference tables without the schema prefix.
+      await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
+    }
+
+    await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
+    await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
+    // Covers tables created later (e.g. materialised reporting tables).
+    await sequelize.query(
+      `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
+    );
   });
-
-  if (schema !== 'public') {
-    await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
-    // Lets reporting reports reference tables without the schema prefix.
-    await sequelize.query(`ALTER ROLE "${role}" SET search_path TO "${schema}";`);
-  }
-
-  await sequelize.query(`GRANT USAGE ON SCHEMA "${schema}" TO "${role}";`);
-  await sequelize.query(`GRANT SELECT ON ALL TABLES IN SCHEMA "${schema}" TO "${role}";`);
-  // Covers tables created later (e.g. materialised reporting tables).
-  await sequelize.query(
-    `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
-  );
 };
 
 const initReportStore = async (existingStore, connectionName) => {

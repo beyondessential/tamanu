@@ -279,23 +279,25 @@ export const databaseCollection = new Map();
  * @param {unknown} dbOptions
  * @returns {Promise<{ sequelize: Sequelize; models?: typeof models;}>}
  */
-export async function openDatabase(key, dbOptions) {
-  if (databaseCollection.has(key)) {
-    return databaseCollection.get(key);
+export function openDatabase(key, dbOptions) {
+  // Cache the in-flight promise, not just the resolved store, so concurrent
+  // callers for the same key share one connection (e.g. the api, fhir workers
+  // and tasks runner all open the reporting stores at once) instead of racing.
+  // Don't cache failures, so a failed connect can be retried.
+  if (!databaseCollection.has(key)) {
+    const storePromise = initDatabase(dbOptions).catch(error => {
+      databaseCollection.delete(key);
+      throw error;
+    });
+    databaseCollection.set(key, storePromise);
   }
-
-  const store = await initDatabase(dbOptions);
-  if (databaseCollection.has(key)) {
-    throw new Error(`race condition! openDatabase() called for the same key=${key} in parallel`);
-  }
-
-  databaseCollection.set(key, store);
-  return store;
+  return databaseCollection.get(key);
 }
 
 export async function closeAllDatabases() {
   for (const [key, connection] of databaseCollection.entries()) {
     databaseCollection.delete(key);
-    await connection.sequelize.close();
+    const { sequelize } = await connection;
+    await sequelize.close();
   }
 }
