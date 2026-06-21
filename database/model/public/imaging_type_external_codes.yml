@@ -10,7 +10,6 @@ sources:
           tags: []
           meta:
             triggers:
-              - fhir_refresh
               - notify_imaging_type_external_codes_changed
               - record_imaging_type_external_codes_changelog
               - set_imaging_type_external_codes_updated_at
