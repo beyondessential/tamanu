@@ -541,8 +541,15 @@ export const PatientMedicationPane = ({ patient }) => {
 
   const handleDispensedMedicationClick = useCallback(
     (_, dispenseData) => {
-      const { id, pharmacyOrderPrescription, quantity, instructions, dispensedAt, dispensedBy } =
-        dispenseData;
+      const {
+        id,
+        pharmacyOrderPrescription,
+        quantity,
+        instructions,
+        dispensedAt,
+        dispensedBy,
+        medicationPresetLabel,
+      } = dispenseData;
       const mappedItem = {
         id,
         displayId: pharmacyOrderPrescription?.displayId,
@@ -551,10 +558,10 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
-        prescription: {
-          date: pharmacyOrderPrescription?.prescription?.date,
-          medication: pharmacyOrderPrescription?.prescription?.medication,
-        },
+        // Pass the whole prescription so derived instructions can be built; the
+        // detail modal reads date/medication off it too.
+        prescription: pharmacyOrderPrescription?.prescription,
+        medicationPresetLabel,
         patient,
       };
       setSelectedDetailItem(mappedItem);
