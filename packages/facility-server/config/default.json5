@@ -49,6 +49,12 @@
   "port": 4000,
   "deviceId": null,
   "db": {
+    // Single connection string for the core (tamanu) user. Also settable via the
+    // DATABASE_URL env var, which takes precedence. When set it supplies
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below (backwards compatible).
+    // "url": "postgresql://user:password@localhost:5432/tamanu-facility?max=10",
     "name": "tamanu-facility",
     "username": "",
     "password": "",

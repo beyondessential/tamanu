@@ -4,6 +4,12 @@
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
+    // Single connection string for the core (tamanu) user. Also settable via the
+    // DATABASE_URL env var, which takes precedence. When set it supplies
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below (backwards compatible).
+    // "url": "postgresql://user:password@localhost:5432/tamanu-central?max=10",
     "name": "tamanu-central",
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
     "verbose": false,

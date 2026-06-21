@@ -2,11 +2,12 @@ import config from 'config';
 
 import { addHooks } from './hooks';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
+import { resolveDbConfig } from '@tamanu/database/services/connectionConfig';
 import { setFhirRefreshTriggers } from './setFhirRefreshTriggers';
 
 const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'main') => {
   const store = await openDatabase(key, {
-    ...config.db,
+    ...resolveDbConfig(config.db),
     ...configOverrides,
     testMode,
   });

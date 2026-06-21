@@ -3,6 +3,7 @@ import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_SCHEMAS } from '@tamanu/constants';
 import { openDatabase } from './database';
+import { resolveDbConfig } from './connectionConfig';
 
 const validateUser = async (existingStore, username) => {
   const [result] = await existingStore.sequelize.query(
@@ -31,7 +32,7 @@ const initReportStore = async (existingStore, connectionName, credentials) => {
   const testMode = process.env.NODE_ENV === 'test';
   const { username, password, pool } = credentials;
   const overrides = {
-    ...config.db,
+    ...resolveDbConfig(config.db),
     alwaysCreateConnection: false,
     migrateOnStartup: false,
     pool,
