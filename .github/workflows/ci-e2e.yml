@@ -11,7 +11,6 @@ permissions:
   pull-requests: write
 
 env:
-  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: e2e
   NODE_MODULES_PATHS: |
@@ -100,12 +99,11 @@ jobs:
             --workspace=@tamanu/facility-server \
             --workspace=@tamanu/web-frontend
 
-      - name: Build servers & web-frontend
-        run: |
-          npm run build -- \
-            --filter=@tamanu/central-server... \
-            --filter=@tamanu/facility-server... \
-            --filter=@tamanu/web-frontend...
+      - name: Build web-frontend
+        run: npm run build --workspace=@tamanu/web-frontend
+      - name: Bundle default translations
+        # The migrate's upgrade step reads this; generate it from source before the servers migrate.
+        run: npm run package-default-translations --workspace @tamanu/upgrade
 
       - name: Setup postgres dbs
         run: |
