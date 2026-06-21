@@ -77,10 +77,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          # Exact key is unique per run; restore-keys reuses the latest cache for this branch + deps hash.
-          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}-${{ github.run_id }}
-          restore-keys: |
-            android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
+          # One cache entry per branch (+ native deps hash); save overwrites this key each run.
+          key: android-ccache-${{ github.head_ref || github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Configure ccache
         run: |
@@ -91,6 +89,7 @@ jobs:
           ccache --zero-stats
           echo "GHA cache primary hit: ${{ steps.ccache-restore.outputs.cache-hit }}"
           echo "GHA cache matched key: ${{ steps.ccache-restore.outputs.cache-matched-key }}"
+          echo "Workflow event: ${{ github.event_name }}"
           ccache -s || true
 
       - name: Build release
@@ -132,11 +131,11 @@ jobs:
 
       - name: Save ccache
         if: always() && steps.ccache-verify.outputs.save == 'true'
+        continue-on-error: true # parallel CD matrix jobs may race on the same branch key
         uses: actions/cache/save@v4
         with:
           path: ${{ env.CCACHE_DIR }}
-          # Unique per workflow run + deploy target so parallel CD matrix jobs do not race on save.
-          key: android-ccache-${{ github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.server || inputs.branding || 'default' }}
+          key: android-ccache-${{ github.head_ref || github.ref_name }}-${{ hashFiles('package-lock.json', 'packages/mobile/android/gradle.properties', 'packages/mobile/android/build.gradle', 'packages/mobile/android/app/build.gradle') }}
 
       - name: Prepare signed APK artifact
         working-directory: packages/mobile/android/app/build/outputs/apk/release
