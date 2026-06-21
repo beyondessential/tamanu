@@ -214,8 +214,7 @@ export const EditMedicationDispenseModal = memo(
         quantity: item.quantity,
         units: item.pharmacyOrderPrescription.prescription?.units,
         remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
-        prescriberName:
-          item.pharmacyOrderPrescription.pharmacyOrder?.orderingClinician?.displayName,
+        prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
       };
       const reviewLabels = getMedicationLabelData({
