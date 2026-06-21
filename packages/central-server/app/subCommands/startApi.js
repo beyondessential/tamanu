@@ -3,6 +3,7 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 
 import { createApp } from '../createApp';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
@@ -19,6 +20,10 @@ export const startApi = async ({ skipMigrationCheck }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await syncDatabaseServerVersion({
+    models: store.models,
+    serverVersion: version,
+  });
 
   const { server } = await createApp(context);
 

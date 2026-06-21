@@ -27,7 +27,9 @@ import {
 } from './global-settings-properties/layouts';
 import {
   ADMINISTRATION_FREQUENCIES,
+  BROWSER_SUPPORT_POLICIES,
   isValidAdditionalSearchField,
+  PLATFORM_SUPPORT_POLICIES,
   SETTING_EDITORS,
 } from '@tamanu/constants';
 import {
@@ -92,6 +94,42 @@ export const globalSettings = {
       exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
+    },
+    browserSupport: {
+      name: 'Browser support',
+      description: 'Controls which browsers and devices may load the web application',
+      properties: {
+        policy: {
+          name: 'Browser policy',
+          description:
+            'Which browser families may load the app: Chrome/Chromium/Edge only, any Chromium-based browser, or any browser (experimental)',
+          type: yup.string().oneOf(Object.values(BROWSER_SUPPORT_POLICIES)),
+          defaultValue: BROWSER_SUPPORT_POLICIES.BLINK,
+          options: [
+            { value: BROWSER_SUPPORT_POLICIES.CHROMIUM, label: 'Chrome, Chromium and Edge only' },
+            { value: BROWSER_SUPPORT_POLICIES.BLINK, label: 'Any Chromium-based browser' },
+            { value: BROWSER_SUPPORT_POLICIES.ALL, label: 'Any browser (experimental)' },
+          ],
+        },
+        versionsBack: {
+          name: 'Versions back',
+          description:
+            'How many major browser versions behind the current release are allowed (0 = current only)',
+          type: yup.number().integer().min(0),
+          defaultValue: 2,
+        },
+        platform: {
+          name: 'Device policy',
+          description: 'Which device types may load the app',
+          type: yup.string().oneOf(Object.values(PLATFORM_SUPPORT_POLICIES)),
+          defaultValue: PLATFORM_SUPPORT_POLICIES.TABLET,
+          options: [
+            { value: PLATFORM_SUPPORT_POLICIES.DESKTOP, label: 'Desktops and laptops only' },
+            { value: PLATFORM_SUPPORT_POLICIES.TABLET, label: 'Allow tablets' },
+            { value: PLATFORM_SUPPORT_POLICIES.ALL, label: 'Allow all devices (incl. mobile)' },
+          ],
+        },
+      },
     },
     dateTimeLocale: {
       description:

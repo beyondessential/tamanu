@@ -29,7 +29,7 @@ export const LoginView = () => {
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
 
-  const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
+  const rememberEmail = window?.localStorage?.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
   const submitLogin = async data => {
@@ -46,11 +46,11 @@ export const LoginView = () => {
       // Only remember the email on a successful login, otherwise the
       // LoginForm header would flip to "Welcome back" before the auth
       // result is known.
-      if (success) localStorage.setItem(REMEMBER_EMAIL, email);
+      if (success) window?.localStorage?.setItem(REMEMBER_EMAIL, email);
     } else {
       // Honour the unchecked preference even on failure: forgetting a
       // saved email doesn't require a successful auth.
-      localStorage.removeItem(REMEMBER_EMAIL);
+      window?.localStorage?.removeItem(REMEMBER_EMAIL);
     }
     dispatch(restartPasswordResetFlow());
   };

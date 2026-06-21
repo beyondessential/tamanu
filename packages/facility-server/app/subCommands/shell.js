@@ -7,6 +7,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
+import { prepareDatabaseForStartup } from '../database';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
@@ -16,7 +17,7 @@ export const shell = async ({ skipMigrationCheck }) => {
 
   const context = await new ApplicationContext().init();
 
-  await context.sequelize.assertUpToDate({ skipMigrationCheck });
+  await prepareDatabaseForStartup(context, { skipMigrationCheck });
 
   const replServer = await new Promise((resolve, reject) => {
     repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {

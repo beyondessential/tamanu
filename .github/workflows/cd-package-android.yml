@@ -92,12 +92,24 @@ jobs:
           echo "Workflow event: ${{ github.event_name }}"
           ccache -s || true
 
+      # The New Architecture compiles each native module's C++ via CMake, which
+      # dominates build time. ccache persists the compiled objects across runs so
+      # only changed sources recompile. CMake reads the *_COMPILER_LAUNCHER vars
+      # from the environment at configure time.
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          key: android-${{ inputs.branding }}
+          max-size: 2G
+
       - name: Build release
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CMAKE_C_COMPILER_LAUNCHER: ccache
         run: |
           ARCH_ARGS=""
           if [ -n "${{ inputs.architectures }}" ]; then
