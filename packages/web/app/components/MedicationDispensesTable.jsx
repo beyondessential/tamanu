@@ -108,7 +108,7 @@ export const MedicationDispensesTable = () => {
         quantity,
         units: prescription?.units,
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
-        prescriberName: pharmacyOrderPrescription?.pharmacyOrder?.orderingClinician?.displayName,
+        prescriberName: prescription?.prescriber?.displayName,
         requestNumber: pharmacyOrderPrescription?.displayId,
         dispensedAt,
       },
