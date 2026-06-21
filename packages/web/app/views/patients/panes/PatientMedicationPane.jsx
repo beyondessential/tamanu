@@ -558,8 +558,6 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
-        // Pass the whole prescription so derived instructions can be built; the
-        // detail modal reads date/medication off it too.
         prescription: pharmacyOrderPrescription?.prescription,
         medicationPresetLabel,
         patient,
