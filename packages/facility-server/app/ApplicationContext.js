@@ -56,8 +56,7 @@ export class ApplicationContext {
     return this;
   }
 
-  // Opens the reporting connections. Call after migrations so it can read the
-  // per-server reporting secret (local_system_facts) and the migrated schema.
+  // Call after migrations: reporting reads its per-server secret from local_system_facts.
   async initReportingStores() {
     this.reportSchemaStores = await initReporting(this.store);
   }

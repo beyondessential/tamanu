@@ -134,8 +134,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   await sequelize.migrate('up');
 
-  // After migrate, matching server startup order: the reporting connections read
-  // the per-server secret from local_system_facts, which must exist by now.
+  // Reporting reads its per-server secret from local_system_facts, so init it after migrate.
   if (enableReportInstances) {
     context.reportSchemaStores = await initReporting(context.store);
   }
