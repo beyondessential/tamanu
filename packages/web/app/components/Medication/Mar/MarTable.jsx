@@ -20,8 +20,7 @@ const Table = styled.table.attrs({ role: 'table' })`
   position: relative;
 
   & col[aria-current='time'] {
-    background-color: #ebf0f5;
-    border: 1.5px solid ${p => p.theme.palette.primary.main};
+    border: 1px solid ${p => p.theme.palette.primary.main};
     color: ${p => p.theme.palette.primary.main};
   }
 
@@ -96,7 +95,7 @@ function EmptyStateRow(props) {
   );
 }
 
-const HeadingTableCell = styled(FullSpanTableCell).attrs({ as: 'th', scope: 'rowgroup' })`
+const HeadingTableCell = styled.th.attrs({ scope: 'rowgroup' })`
   color: ${Colors.midText};
   font-size: 14px;
   font-weight: 500;
@@ -107,7 +106,11 @@ const HeadingTableCell = styled(FullSpanTableCell).attrs({ as: 'th', scope: 'row
 function HeadingRow(props) {
   return (
     <tr>
+      {/* Not using colspan attribute so col[aria-current='time'] style is uninterrupted */}
       <HeadingTableCell {...props} />
+      {MEDICATION_ADMINISTRATION_TIME_SLOTS.map(({ startTime }) => (
+        <th aria-hidden key={startTime} style={{ borderInline: 'none' }} />
+      ))}
     </tr>
   );
 }
