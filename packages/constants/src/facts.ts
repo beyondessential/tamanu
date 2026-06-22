@@ -17,6 +17,8 @@ export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
+export const FACT_SYNC_EMAIL = 'syncEmail';
+export const FACT_SYNC_PASSWORD = 'syncPassword';
 export const FACT_CURRENT_VERSION = 'currentVersion';
 export const FACT_DEVICE_ID = 'deviceId';
 export const FACT_DEVICE_KEY = 'deviceKey';
