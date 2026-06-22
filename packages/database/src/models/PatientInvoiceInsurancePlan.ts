@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
@@ -9,11 +9,12 @@ export class PatientInvoiceInsurancePlan extends Model {
   declare id: string;
   declare patientId: string;
   declare invoiceInsurancePlanId: string;
+  declare visibilityStatus: string;
 
   // The composite primary key gives each (patient, plan) pair exactly one row for its whole
-  // lifecycle: removing a plan soft-deletes the row and re-adding it restores the same row,
-  // so restores pushed from facility servers must be applied on central
-  static acceptsFacilityRestores = true;
+  // lifecycle. Removing a plan sets visibilityStatus to historical and re-adding it sets it
+  // back to current, so the single row is updated in place rather than soft-deleted and
+  // restored — which is why this model has no need for facility-originated restores.
 
   static initModel(options: InitOptions) {
     super.init(
@@ -40,6 +41,11 @@ export class PatientInvoiceInsurancePlan extends Model {
             model: 'invoice_insurance_plans',
             key: 'id',
           },
+        },
+        visibilityStatus: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       {
