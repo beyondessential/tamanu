@@ -36,7 +36,7 @@ const ErrorMessage = styled(Typography).attrs({
 const ErrorDescription = styled(LargeBodyText)`
   margin-top: 20px;
   max-width: 450px;
-  text-align: ${(props) => (props.$heroImage ? 'left' : 'center')};
+  text-align: ${props => (props.$heroImage ? 'left' : 'center')};
 `;
 
 const Logo = styled(LogoDark)`
@@ -70,7 +70,6 @@ export const UnavailableStatusPage = () => {
           stringId="splash.unavailable.message"
           fallback=":brandName is currently unavailable"
           replacements={{ brandName }}
-          data-testid="translatedtext-v4w9"
         />
       }
       description={
@@ -78,7 +77,6 @@ export const UnavailableStatusPage = () => {
           stringId="splash.unavailable.description"
           fallback=":brandName is currently unavailable. Please try again later or contact your system administrator for further information."
           replacements={{ brandName }}
-          data-testid="translatedtext-hapm"
         />
       }
       data-testid="statuspage-dmk1"
@@ -117,7 +115,6 @@ export const LoadingStatusPage = () => {
             stringId="splash.loading.message"
             fallback=":brandName is loading"
             replacements={{ brandName }}
-            data-testid="translatedtext-e9xh"
           />
         </AnimateEllipsis>
       }
@@ -126,7 +123,6 @@ export const LoadingStatusPage = () => {
           stringId="splash.loading.description"
           fallback=":brandName is currently loading. Please do not navigate away from this page."
           replacements={{ brandName }}
-          data-testid="translatedtext-80y2"
         />
       }
       data-testid="statuspage-d6p8"
@@ -177,7 +173,6 @@ export const UnsupportedBrowserStatusPage = () => {
           stringId="splash.browser.message"
           fallback=":brandName is not available on your browser"
           replacements={{ brandName }}
-          data-testid="translatedtext-rlzy"
         />
       }
       description={
@@ -185,7 +180,6 @@ export const UnsupportedBrowserStatusPage = () => {
           stringId="splash.browser.supportedBrowserDescription"
           fallback="Please contact your system administrator for further information on how to access :brandName using a supported, up-to-date browser."
           replacements={{ brandName }}
-          data-testid="translatedtext-v9m5"
         />
       }
       data-testid="statuspagewithheroimage-k5dz"
@@ -201,10 +195,10 @@ const MobileContainer = styled(Container)`
   img {
     display: block;
     margin: 0 auto;
-    width: ${(props) => (props.$platformType === 'tablet' ? '371px' : '194px')}};
+    width: ${props => (props.$platformType === 'tablet' ? '371px' : '194px')}};
   }
   div {
-    font-size: ${(props) => (props.$platformType === 'tablet' ? '18px' : '14px')}};
+    font-size: ${props => (props.$platformType === 'tablet' ? '18px' : '14px')}};
   }
 `;
 
@@ -219,7 +213,6 @@ export const MobileStatusPage = ({ platformType }) => {
             stringId="splash.mobile.description"
             fallback=":brandName is not currently supported on mobile devices. Please access via a desktop computer, laptop, or tablet."
             replacements={{ brandName }}
-            data-testid="translatedtext-9p7e"
           />
         ) : (
           // Other device types (e.g. tablets blocked by a stricter device policy)
@@ -228,7 +221,6 @@ export const MobileStatusPage = ({ platformType }) => {
             stringId="splash.device.unsupportedDescription"
             fallback=":brandName is not supported on this device. Please access via a supported device or contact your system administrator for further information."
             replacements={{ brandName }}
-            data-testid="translatedtext-device-unsupported"
           />
         )}
       </ErrorDescription>
@@ -248,21 +240,18 @@ export const SingleTabStatusPage = () => {
         <SingleTabErrorMessage data-testid="singletaberrormessage-g5ke">
           <TranslatedText
             stringId="splash.singleTab.message"
-            fallback=":brandName can not be opened across multiple tabs."
+            fallback=":brandName cannot be opened across multiple tabs"
             replacements={{ brandName }}
-            data-testid="translatedtext-mala"
           />
         </SingleTabErrorMessage>
       }
       description={
         <TranslatedText
           stringId="splash.singleTab.description"
-          fallback="Please continue working in the existing tab."
+          fallback="Please continue working in the existing tab"
           replacements={{ brandName }}
-          data-testid="translatedtext-rxi9"
         />
       }
-      data-testid="statuspage-xadr"
     />
   );
 };
