@@ -128,21 +128,31 @@ Get-Content -Path "C:\caddy\logs\server-2024-07-16T15-22-25.879.log" | ForEach-O
 
 These queries were used plenty when we were debugging sync stuff.
 
-> Note: the facility/device id and sync parameters live in the `parameters` column
-> (`parameters->>'deviceId'`, `parameters->'facilityIds'`, `parameters->>'useSyncLookup'`).
-> `debug_info` only holds counts (`userId`, `totalToPull`, `totalPushed`). Older queries
-> that filtered on `parameters->>'deviceId'` return null on current versions.
+### Sync tick sentinel values
+
+Negative `updated_at_sync_tick` values (on records, and the same column in `sync_lookup`) are
+sentinels, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/sync/constants.ts`:
+
+| Value | Name | Meaning |
+|-------|------|---------|
+| `-999` | `LAST_UPDATED_ELSEWHERE` | Last written on another server (arrived via sync); this server won't push it back. Facility rows default to this. |
+| `-1` | `INCOMING_FROM_CENTRAL_SERVER` | Row being applied from an in-progress central pull. |
+| `-2` | `LOOKUP_PENDING_UPDATE` | `sync_lookup` row awaiting (re)materialisation. |
+| `0` | `OVERWRITE_WITH_CURRENT_TICK` | Re-stamp with the current tick on next write/sync (re-queues the record). Central rows default to this. |
+
+Any positive value is a real sync tick (a monotonic cursor). So a row at `-999` on a facility is
+normal (received from central); a row stuck at `0`/`-2` may indicate it never finished materialising.
 
 ### Sessions
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->>'deviceId' as facility_id FROM sync_sessions ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last 10 errors
 
 ```sql
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, parameters->>'deviceId' as facility_id, errors FROM sync_sessions WHERE errors IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, parameters->'facilityIds' as facility_ids, errors FROM sync_sessions WHERE errors IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last error expanded view
@@ -180,13 +190,13 @@ WITH sync_status_aux as (SELECT completed_at - created_at as "duration", errors 
 ### Recent sessions for a facility (replace xxx with facility id)
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->>'deviceId' as facility_id FROM sync_sessions WHERE parameters->>'deviceId' = 'xxx' ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions WHERE parameters->'facilityIds' ? 'xxx' ORDER BY updated_at DESC LIMIT 10;
 ```
 
 ### Last successful session for a facility (replace xxx with facility id)
 
 ```
-SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->>'deviceId' as facility_id FROM sync_sessions WHERE parameters->>'deviceId' = 'xxx' AND errors IS NULL AND completed_at IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
+SELECT start_time, snapshot_completed_at - start_time as snapshot_duration, completed_at - start_time as full_duration, errors IS NOT NULL as is_error, parameters->'facilityIds' as facility_ids FROM sync_sessions WHERE parameters->'facilityIds' ? 'xxx' AND errors IS NULL AND completed_at IS NOT NULL ORDER BY updated_at DESC LIMIT 10;
 ```
 
 
@@ -202,10 +212,10 @@ WITH sync_with_status AS (
       WHEN snapshot_started_at IS NOT NULL AND errors IS NOT NULL THEN 'Successful push, unsuccessful pull'
       ELSE 'Unsuccessful'
     END AS sync_status,
-    parameters->>'deviceId' as facility_id,
+    parameters->'facilityIds' as facility_ids,
     ROW_NUMBER() OVER (ORDER BY start_time) as row_num
   FROM sync_sessions
-  WHERE parameters->>'deviceId' = 'xxx'
+  WHERE parameters->'facilityIds' ? 'xxx'
   AND completed_at IS NOT NULL
   ORDER BY completed_at
 ),
@@ -213,7 +223,7 @@ status_change AS (
   SELECT 
     s2.sync_status as status_changed_to,
     s2.completed_at as status_changed_at,
-    s2.facility_id
+    s2.facility_ids
   FROM sync_with_status s1
   JOIN sync_with_status s2 ON s1.row_num + 1 = s2.row_num
   WHERE s1.sync_status != s2.sync_status
@@ -221,7 +231,7 @@ status_change AS (
 SELECT 
   status_changed_to,
   status_changed_at,
-  facility_id
+  facility_ids
 FROM status_change
 WHERE status_changed_at >= 'yyyy-mm-dd'
 ORDER BY status_changed_at DESC;
