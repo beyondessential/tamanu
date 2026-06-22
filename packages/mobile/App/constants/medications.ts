@@ -33,14 +33,19 @@ export const DRUG_UNITS = {
   u: 'U',
   vial: 'Vial',
   wafer: 'Wafer',
-};
+} as const;
 
-export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS);
+export type DrugUnit = (typeof DRUG_UNITS)[keyof typeof DRUG_UNITS];
 
-export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce((prev, curr) => {
-  prev[curr] = curr;
-  return prev;
-}, {} as any);
+export const DRUG_UNIT_VALUES = Object.values(DRUG_UNITS) as DrugUnit[];
+
+export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce(
+  (prev, curr) => {
+    prev[curr] = curr;
+    return prev;
+  },
+  {} as Record<DrugUnit, DrugUnit>,
+);
 
 export const DRUG_ROUTES = {
   dermal: 'dermal',
@@ -56,7 +61,7 @@ export const DRUG_ROUTES = {
   sublingual: 'sublingual',
   topical: 'topical',
   vaginal: 'vaginal',
-};
+} as const;
 export const DRUG_ROUTE_VALUES = Object.values(DRUG_ROUTES);
 
 export const DRUG_ROUTE_LABELS = {
@@ -73,14 +78,14 @@ export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.sublingual]: 'Sublingual',
   [DRUG_ROUTES.topical]: 'Topical',
   [DRUG_ROUTES.vaginal]: 'Vaginal',
-};
+} as const;
 
 export const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',
   MONTHS: 'months',
-};
+} as const;
 
 export const ADMINISTRATION_FREQUENCIES = {
   DAILY_IN_THE_MORNING: 'Daily in the morning',
@@ -99,14 +104,14 @@ export const ADMINISTRATION_FREQUENCIES = {
   IMMEDIATELY: 'Immediately',
   AS_DIRECTED: 'As directed',
   TWICE_DAILY_AM_AND_MIDDAY: 'Twice daily - AM and midday',
-};
+} as const;
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
   [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
   [MEDICATION_DURATION_UNITS.WEEKS!]: 'week (s)',
   [MEDICATION_DURATION_UNITS.MONTHS!]: 'month (s)',
-};
+} as const;
 
 export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
   [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: ['mane', 'Morning'],
@@ -150,7 +155,7 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
     'AM and lunch',
     'BD - AM and lunch',
   ],
-};
+} as const;
 
 export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '00:00', endTime: '02:00' },
@@ -165,4 +170,4 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
-];
+] as const;
