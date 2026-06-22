@@ -27,18 +27,16 @@ Key sync concepts:
 
 #### Sync tick flags
 
-Negative `updated_at_sync_tick` values (on records, and the same column in `sync_lookup`) are
-flags, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/sync/constants.ts`:
+Some `updated_at_sync_tick` values are flags, not real ticks — from `SYNC_TICK_FLAGS` in
+`packages/database/src/sync/constants.ts`:
 
 | Value | Name | Meaning |
 |-------|------|---------|
 | `-999` | `LAST_UPDATED_ELSEWHERE` | Last written on another server (arrived via sync); this server won't push it back. Facility rows default to this. |
-| `-1` | `INCOMING_FROM_CENTRAL_SERVER` | Row being applied from an in-progress central pull. |
-| `-2` | `LOOKUP_PENDING_UPDATE` | `sync_lookup` row awaiting its next refresh. |
+| `-1` | `INCOMING_FROM_CENTRAL_SERVER` | Marks a row being applied from a central pull; the trigger below stores it as `-999`. |
 | `0` | `OVERWRITE_WITH_CURRENT_TICK` | Re-stamp with the current tick on next write/sync (re-queues the record). Central rows default to this. |
 
-Any positive value is a real sync tick (a monotonic cursor); a row stuck at `0`/`-2` may mean its
-`sync_lookup` refresh never completed.
+Any positive value is a real sync tick (a monotonic cursor).
 
 The `set_updated_at_sync_tick` trigger enforces these on every insert/update (unless
 `local_system_facts.syncTrigger = 'disabled'`): it rewrites `-1` → `-999` and **any other value →
