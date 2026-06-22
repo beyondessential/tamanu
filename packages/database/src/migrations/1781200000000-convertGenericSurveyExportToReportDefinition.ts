@@ -67,9 +67,10 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   );
 
-  // For each StaticReport:run:generic-survey-export-line-list permission, create a
-  // new ReportDefinition:run:generic-survey-export-line-list permission on the same role,
-  // then soft-delete the old StaticReport one.
+  // For each StaticReport:run:generic-survey-export-line-list or general StaticReport:run
+  // permission (no objectId), create a new ReportDefinition:run:generic-survey-export-line-list
+  // permission on the same role. Roles with the general permission had access to all static
+  // reports, so they should retain access to the only one being migrated.
   await query.sequelize.query(
     `
       INSERT INTO permissions (id, verb, noun, object_id, role_id, created_at, updated_at, updated_at_sync_tick)
@@ -85,7 +86,7 @@ export async function up(query: QueryInterface): Promise<void> {
       FROM permissions
       WHERE noun = 'StaticReport'
         AND verb = 'run'
-        AND object_id = :id
+        AND (object_id = :id OR object_id IS NULL)
         AND deleted_at IS NULL
       ON CONFLICT (id) DO NOTHING
     `,
