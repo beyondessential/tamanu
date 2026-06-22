@@ -40,14 +40,10 @@ flags, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/s
 Any positive value is a real sync tick (a monotonic cursor). A row at `-999` on a facility is
 normal (received from central); a row stuck at `0`/`-2` may indicate its `sync_lookup` refresh never completed.
 
-These values are enforced by the `set_updated_at_sync_tick` trigger, which fires on every
-insert/update (unless `local_system_facts.syncTrigger = 'disabled'`). It rewrites `-1` to `-999`,
-and **any other value to the current sync tick** (read from `local_system_facts.currentSyncTick`).
-So you can't set an arbitrary tick by hand — writing e.g. `1` or `0` just makes the trigger stamp
-the row with the latest tick, which is exactly how a record gets re-queued for sync. The `0`
-(`OVERWRITE_WITH_CURRENT_TICK`) constant is the app's convention for "give me the current tick",
-but the overwrite applies to any non-`-1` value. This is why `updated_at_sync_tick` must never be
-set manually expecting the value to stick.
+The `set_updated_at_sync_tick` trigger enforces this on every insert/update (unless
+`local_system_facts.syncTrigger = 'disabled'`): it rewrites `-1` → `-999` and **any other value →
+the current sync tick**. So you can't set a tick by hand — writing `0`/`1` just gets it stamped
+with the latest tick, which is how a record is re-queued for sync.
 
 ### FHIR Materialisation
 
