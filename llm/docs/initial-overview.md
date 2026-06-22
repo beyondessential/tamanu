@@ -25,6 +25,21 @@ Key sync concepts:
 - Sync ticks for cursors, ordering, and conflict resolution
 - Atomic sync sessions with snapshot isolation and strongly enforced concurrency control
 
+#### Sync tick flags
+
+Negative `updated_at_sync_tick` values (on records, and the same column in `sync_lookup`) are
+flags, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/sync/constants.ts`:
+
+| Value | Name | Meaning |
+|-------|------|---------|
+| `-999` | `LAST_UPDATED_ELSEWHERE` | Last written on another server (arrived via sync); this server won't push it back. Facility rows default to this. |
+| `-1` | `INCOMING_FROM_CENTRAL_SERVER` | Row being applied from an in-progress central pull. |
+| `-2` | `LOOKUP_PENDING_UPDATE` | `sync_lookup` row awaiting its next refresh. |
+| `0` | `OVERWRITE_WITH_CURRENT_TICK` | Re-stamp with the current tick on next write/sync (re-queues the record). Central rows default to this. |
+
+Any positive value is a real sync tick (a monotonic cursor). A row at `-999` on a facility is
+normal (received from central); a row stuck at `0`/`-2` may indicate its `sync_lookup` refresh never completed.
+
 ### FHIR Materialisation
 
 Tamanu implements FHIR (Fast Healthcare Interoperability Resources) through a materialisation system:
