@@ -42,7 +42,7 @@ normal (received from central); a row stuck at `0`/`-2` may indicate its `sync_l
 
 The `set_updated_at_sync_tick` trigger enforces this on every insert/update (unless
 `local_system_facts.syncTrigger = 'disabled'`): it rewrites `-1` → `-999` and **any other value →
-the current sync tick**. So you can't set a tick by hand — writing `0`/`1` just gets it stamped
+the current sync tick**. So you can't set a tick by hand — writing `1` just gets it stamped
 with the latest tick, which is how a record is re-queued for sync.
 
 ### FHIR Materialisation
