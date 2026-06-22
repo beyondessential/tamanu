@@ -128,10 +128,10 @@ Get-Content -Path "C:\caddy\logs\server-2024-07-16T15-22-25.879.log" | ForEach-O
 
 These queries were used plenty when we were debugging sync stuff.
 
-### Sync tick sentinel values
+### Sync tick flags
 
 Negative `updated_at_sync_tick` values (on records, and the same column in `sync_lookup`) are
-sentinels, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/sync/constants.ts`:
+flags, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/sync/constants.ts`:
 
 | Value | Name | Meaning |
 |-------|------|---------|
