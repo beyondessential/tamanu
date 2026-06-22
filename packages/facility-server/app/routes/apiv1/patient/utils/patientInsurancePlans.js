@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/errors';
 
 export const parseInvoiceInsurancePlanIds = (rawInsurancePlanIds) => {
@@ -20,44 +21,52 @@ export const savePatientInsurancePlans = async (PatientInvoiceInsurancePlanModel
     return;
   }
 
+  // Each (patient, plan) pair has exactly one row for its whole lifecycle, so removing a plan
+  // marks the row historical and re-adding it marks it current, rather than soft-deleting and
+  // restoring.
   const existingPlans = await PatientInvoiceInsurancePlanModel.findAll({
     where: { patientId },
-    paranoid: false,
   });
-
+  const existingByPlanId = new Map(
+    existingPlans.map(plan => [plan.invoiceInsurancePlanId, plan]),
+  );
   const desiredPlanIds = new Set(invoiceInsurancePlanIds);
-  const activePlanIds = new Set();
-  const deletedPlanIds = new Set();
 
-  for (const plan of existingPlans) {
-    if (plan.deletedAt) {
-      deletedPlanIds.add(plan.invoiceInsurancePlanId);
-    } else {
-      activePlanIds.add(plan.invoiceInsurancePlanId);
-    }
-  }
-
-  const toCreate = invoiceInsurancePlanIds.filter(id => !activePlanIds.has(id) && !deletedPlanIds.has(id));
-  const toRestore = invoiceInsurancePlanIds.filter(id => deletedPlanIds.has(id));
-  const toDelete = [...activePlanIds].filter(id => !desiredPlanIds.has(id));
+  const idsToCreate = invoiceInsurancePlanIds.filter(id => !existingByPlanId.has(id));
+  const idsToMakeCurrent = existingPlans
+    .filter(
+      plan =>
+        desiredPlanIds.has(plan.invoiceInsurancePlanId) &&
+        plan.visibilityStatus !== VISIBILITY_STATUSES.CURRENT,
+    )
+    .map(plan => plan.invoiceInsurancePlanId);
+  const idsToMakeHistorical = existingPlans
+    .filter(
+      plan =>
+        !desiredPlanIds.has(plan.invoiceInsurancePlanId) &&
+        plan.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL,
+    )
+    .map(plan => plan.invoiceInsurancePlanId);
 
   const promises = [];
-  if (toCreate.length > 0) {
+  if (idsToCreate.length > 0) {
     promises.push(PatientInvoiceInsurancePlanModel.bulkCreate(
-      toCreate.map(id => ({ patientId, invoiceInsurancePlanId: id }))
+      idsToCreate.map(id => ({ patientId, invoiceInsurancePlanId: id }))
     ));
   }
 
-  if (toDelete.length > 0) {
-    promises.push(PatientInvoiceInsurancePlanModel.destroy({
-      where: { patientId, invoiceInsurancePlanId: { [Op.in]: toDelete } },
-    }));
+  if (idsToMakeCurrent.length > 0) {
+    promises.push(PatientInvoiceInsurancePlanModel.update(
+      { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      { where: { patientId, invoiceInsurancePlanId: { [Op.in]: idsToMakeCurrent } } },
+    ));
   }
 
-  if (toRestore.length > 0) {
-    promises.push(PatientInvoiceInsurancePlanModel.restore({
-      where: { patientId, invoiceInsurancePlanId: { [Op.in]: toRestore } },
-    }));
+  if (idsToMakeHistorical.length > 0) {
+    promises.push(PatientInvoiceInsurancePlanModel.update(
+      { visibilityStatus: VISIBILITY_STATUSES.HISTORICAL },
+      { where: { patientId, invoiceInsurancePlanId: { [Op.in]: idsToMakeHistorical } } },
+    ));
   }
 
   await Promise.all(promises);
