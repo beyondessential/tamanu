@@ -37,10 +37,10 @@ flags, not real ticks — defined in `SYNC_TICK_FLAGS`, `packages/database/src/s
 | `-2` | `LOOKUP_PENDING_UPDATE` | `sync_lookup` row awaiting its next refresh. |
 | `0` | `OVERWRITE_WITH_CURRENT_TICK` | Re-stamp with the current tick on next write/sync (re-queues the record). Central rows default to this. |
 
-Any positive value is a real sync tick (a monotonic cursor). A row at `-999` on a facility is
-normal (received from central); a row stuck at `0`/`-2` may indicate its `sync_lookup` refresh never completed.
+Any positive value is a real sync tick (a monotonic cursor); a row stuck at `0`/`-2` may mean its
+`sync_lookup` refresh never completed.
 
-The `set_updated_at_sync_tick` trigger enforces this on every insert/update (unless
+The `set_updated_at_sync_tick` trigger enforces these on every insert/update (unless
 `local_system_facts.syncTrigger = 'disabled'`): it rewrites `-1` → `-999` and **any other value →
 the current sync tick**. So you can't set a tick by hand — writing `1` just gets it stamped
 with the latest tick, which is how a record is re-queued for sync.
