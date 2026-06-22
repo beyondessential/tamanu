@@ -36,7 +36,7 @@ const ErrorMessage = styled(Typography).attrs({
 const ErrorDescription = styled(LargeBodyText)`
   margin-top: 20px;
   max-width: 450px;
-  text-align: ${props => (props.$heroImage ? 'left' : 'center')};
+  text-align: ${props => (props.$heroImage ? 'start' : 'center')};
 `;
 
 const Logo = styled(LogoDark)`
