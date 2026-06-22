@@ -27,13 +27,14 @@ reportRequest.post(
     }
 
     const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportId);
 
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
       throw new NotFoundError('Report module not found');
     }
+
+    assertReportEnabled(localisation, reportModule.reportDefinitionId);
     await checkReportModulePermissions(req, reportModule, body.parameters);
 
     const newReportRequest = {

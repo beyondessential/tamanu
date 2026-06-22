@@ -20,6 +20,7 @@ const getDbReports = async (ability, models) => {
 
     return {
       id: version.id,
+      definitionId: r.id,
       name: r.name,
       dataSourceOptions: version.queryOptions.dataSources,
       dateRangeLabel:
@@ -44,6 +45,8 @@ const getDisabledReportIds = async (models, userId) => {
 export const getAvailableReports = async (ability, models, userId) => {
   const permittedReports = await getDbReports(ability, models);
   const disabledReportIds = await getDisabledReportIds(models, userId);
-  const enabledReports = permittedReports.filter(({ id }) => !disabledReportIds.includes(id));
+  const enabledReports = permittedReports.filter(
+    ({ id, definitionId }) => !disabledReportIds.includes(id) && !disabledReportIds.includes(definitionId),
+  );
   return enabledReports;
 };
