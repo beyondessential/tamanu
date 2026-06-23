@@ -91,11 +91,11 @@ export class LocalSystemSecret extends Model {
     return newDeviceKey;
   }
 
-  // Encrypted-at-rest accessors for secrets that aren't safe as plaintext even
-  // behind the table grant — i.e. external credentials we hold, like a sync_host
-  // password. Encryption uses the server key file (config `crypto.keyFile`), so
-  // only callers that store such a secret pull in that dependency; the
-  // self-generated device key / reporting secret stay on the plain get/set path.
+  // Encrypted-at-rest accessors, for secrets that shouldn't be plaintext even
+  // behind the table grant. Encryption uses the server key file
+  // (config `crypto.keyFile`), so only callers that store such a secret pull in
+  // that dependency; the self-generated device key / reporting secret stay on
+  // the plain get/set path.
   static async getSecret(key: SecretName): Promise<string | null> {
     const encryptedValue = await this.get(key);
     if (!encryptedValue) {
