@@ -106,6 +106,17 @@ const useColumns = () => {
       },
     },
     {
+      key: 'clinician',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician-column"
+        />
+      ),
+      CellComponent: props => <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-clinician" />,
+    },
+    {
       key: 'locationGroupName',
       title: (
         <TranslatedText
@@ -126,17 +137,6 @@ const useColumns = () => {
         />
       ),
       accessor: LocationCell,
-    },
-    {
-      key: 'clinician',
-      title: (
-        <TranslatedText
-          stringId="general.localisedField.clinician.label.short"
-          fallback="Clinician"
-          data-testid="translatedtext-clinician-column"
-        />
-      ),
-      CellComponent: props => <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-clinician" />,
     },
   ];
 };
