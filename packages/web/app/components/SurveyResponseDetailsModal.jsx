@@ -2,7 +2,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { getDisplayTextAnswer } from '@tamanu/shared/utils/patientCertificates';
 import {
   Button,
@@ -95,7 +95,9 @@ export const SurveyResponseDetailsModal = ({
   const isPending = isLoading || !surveyDetails || error;
 
   const { data: changes } = useSurveyResponseChangesQuery(surveyResponseId, {
-    enabled: Boolean(surveyResponseId && surveyDetails && !error),
+    enabled: Boolean(
+      surveyResponseId && surveyDetails && !error && surveyDetails.surveyType === SURVEY_TYPES.PROGRAMS,
+    ),
   });
   const editedAnswerIds = useMemo(() => new Set(changes?.map(c => c.recordId)), [changes]);
   const hasChanges = Boolean(editedAnswerIds.size);

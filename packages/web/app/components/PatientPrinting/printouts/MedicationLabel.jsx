@@ -106,9 +106,8 @@ const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.4mm;
-  flex-shrink: 0;
-  text-align: right;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 `;
 
 const LabelDetailRow = styled.div`
@@ -122,7 +121,7 @@ const LabelDetailRow = styled.div`
 
 const LabelFooter = styled.div`
   border-top: 0.177mm solid ${Colors.black};
-  padding: 0.4mm 0;
+  padding: 0.4mm 0 0.2mm;
   margin-top: 0.354mm;
   display: flex;
   justify-content: center;
@@ -246,16 +245,6 @@ export const MedicationLabel = React.memo(({ data }) => {
         </LabelPatientDateRow>
         <LabelBottomSection>
           <LabelLeftColumn>
-            <LabelDetailRow $fontSize={detailFontSize}>
-              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres" />:{' '}
-              {prescriberName}
-            </LabelDetailRow>
-            <LabelDetailRow $fontSize={detailFontSize}>
-              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
-              {requestNumber}
-            </LabelDetailRow>
-          </LabelLeftColumn>
-          <LabelRightColumn>
             <LabelDetailRow $fontSize={detailFontSize}>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelDetailRow>
             <LabelDetailRow $fontSize={detailFontSize}>
               <TranslatedText
@@ -263,6 +252,16 @@ export const MedicationLabel = React.memo(({ data }) => {
                 fallback="Repeats"
               />
               : {remainingRepeats}
+            </LabelDetailRow>
+          </LabelLeftColumn>
+          <LabelRightColumn>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />:{' '}
+              {prescriberName}
+            </LabelDetailRow>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
+              {requestNumber}
             </LabelDetailRow>
           </LabelRightColumn>
         </LabelBottomSection>

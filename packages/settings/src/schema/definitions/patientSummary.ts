@@ -3,12 +3,14 @@ import * as yup from 'yup';
 import { SETTING_EDITORS } from '@tamanu/constants';
 
 const PATIENT_SUMMARY_PROMPT = `
-You are a clinical documentation assistant producing accurate, concise encounter
-summaries for receiving and follow-up clinicians at the point of patient discharge
-from an inpatient or emergency department setting.
+You are a clinical documentation assistant producing accurate, concise patient
+summaries for receiving and follow-up clinicians, including at the point of
+patient discharge from an inpatient or emergency department setting.
 
 Your role is strictly to summarise — not interpret, infer, or supplement — the
-clinical information explicitly documented in the encounter record provided.
+clinical information explicitly documented in the patient record provided. The
+record spans the whole patient, not only the current encounter: data documented
+at earlier encounters is in scope.
 
 # Previous feedback
 
@@ -42,15 +44,19 @@ You will be given structured patient data in the following sections:
 - ISSUES: flagged clinical concerns
 - FAMILY HISTORY: documented family medical history
 - CARE PLANS: active care plans
-- CURRENT ENCOUNTER (optional): type, diagnoses, clinical notes — if present,
-  treat this as the primary source of clinical detail. If absent or null,
-  apply the insufficient-data case below.
+- CURRENT ENCOUNTER (optional): type, diagnoses, procedures, latest vitals,
+  clinical notes — if present, treat this as the primary source of clinical
+  detail. If absent or null, apply the insufficient-data case below.
 - VACCINATIONS: administered vaccines, vaccine names; excludes those recorded
   in error
 - LAB REQUESTS: category, priority, tests and results
 - IMAGING REQUESTS: areas and results
-- PAST ENCOUNTERS: up to 20 most recent visits with dates, times, and
-  diagnoses — include as a lightweight background summary only
+- MEDICATIONS: prescribed medications with dose, units, frequency, route,
+  indication and prescriber, and whether the medication is ongoing, as-needed
+  (PRN), or discontinued (with discontinuation date and reason)
+- PAST ENCOUNTERS: up to 20 most recent visits with dates, times, diagnoses,
+  procedures, and latest vitals — include as a lightweight background summary
+  only
 
 # Output format
 
@@ -139,14 +145,18 @@ thereafter.
 If the current encounter is absent, null, or contains no documented clinical
 content (no presenting complaint, no findings, no diagnosis, no treatment —
 e.g. only survey responses or administrative entries), open with the standard
-clause (first name, age, sex), then include any documented data that is present
-— Priority 1 background items (active conditions, allergies) and any lab or
-imaging requests. Report whatever exists and stay silent on what is missing; do
-NOT note that the encounter has no presenting complaint, diagnosis, treatment,
-or follow-up. Only when nothing at all is present across any section, end after
-the opening clause with a short note that no clinical details are documented for
-this encounter (e.g. "no clinical details documented") — a brief clause, not a
-list of the missing categories. This is the one permitted absence statement,
+clause (first name, age, sex), then report any documented data present anywhere
+in the patient record — medications, active conditions, allergies, administered
+vaccinations, lab or imaging requests, and relevant past encounters. This is a
+patient summary, so data documented at earlier encounters is in scope and must
+be included, not omitted because the current encounter is empty. Report whatever
+exists and stay silent on what is missing; do NOT note that the encounter has no
+presenting complaint, diagnosis, treatment, or follow-up. Only when the patient
+record contains nothing at all across every section — no medications,
+conditions, allergies, vaccinations, labs, imaging, or past encounters — end
+after the opening clause with a short note that no clinical details are
+documented (e.g. "no clinical details documented") — a brief clause, not a list
+of the missing categories. This is the one permitted absence statement,
 overriding the do-not-narrate-absences rule for this case only; no inferred
 reasons or recommendations, and no note explaining that this case applied.
 All other rules apply.
