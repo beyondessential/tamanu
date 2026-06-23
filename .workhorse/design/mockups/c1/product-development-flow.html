@@ -1,0 +1,383 @@
+<!-- spec: workhorse/product-development-flow.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Workhorse product development flow</title>
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --ink: #1c1917;
+    --ink-2: #57534e;
+    --ink-3: #a8a29e;
+    --line: #e7e5e0;
+    --accent: #c2410c;
+    --accent-soft: #fef3ec;
+    --shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 1px 3px rgba(28, 25, 23, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 32px 64px;
+  }
+
+  header {
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--ink-2);
+    max-width: 640px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+
+  .swatch.phase { background: var(--surface); }
+  .swatch.action { background: var(--accent-soft); border-color: #f5d8c4; }
+  .swatch.gate { background: var(--ink); border-color: var(--ink); }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .phase {
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .phase .num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .phase .body h2 {
+    margin: 0 0 2px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .phase .body p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  .phase .actor {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  .phase .actor.ai {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: #f5d8c4;
+  }
+
+  .phase .actor.both {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+
+  .arrow {
+    width: 2px;
+    height: 24px;
+    background: var(--line);
+    position: relative;
+  }
+
+  .arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--line);
+  }
+
+  .gate {
+    width: 100%;
+    max-width: 720px;
+    background: var(--ink);
+    color: var(--surface);
+    border-radius: 12px;
+    padding: 14px 24px;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+  }
+
+  .gate .gate-label {
+    color: var(--ink-3);
+    font-size: 11px;
+    margin-right: 8px;
+  }
+
+  .loop {
+    width: 100%;
+    max-width: 720px;
+    border: 1px dashed var(--ink-3);
+    border-radius: 12px;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 12px;
+    text-align: center;
+    font-style: italic;
+  }
+
+  .branch {
+    width: 100%;
+    max-width: 720px;
+    margin-top: 32px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+
+  .branch h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+
+  .branch ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .branch li {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  .branch li strong {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Workhorse product development flow</h1>
+      <p>The canonical happy path from a freshly created card to shipped, verified work. Each step is one phase; the agent and the user collaborate throughout, and changes auto-commit on every turn.</p>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch phase"></span> Phase</div>
+        <div class="legend-item"><span class="swatch action"></span> Agent-led</div>
+        <div class="legend-item"><span class="swatch gate"></span> State transition</div>
+      </div>
+    </header>
+
+    <div class="flow">
+
+      <div class="phase">
+        <div class="num">1</div>
+        <div class="body">
+          <h2>Capture</h2>
+          <p>A card is created on the project board with a title, description, and any starting metadata or comments.</p>
+        </div>
+        <div class="actor">User</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">2</div>
+        <div class="body">
+          <h2>Explore</h2>
+          <p>Conversation opens — the agent interviews, probes for edge cases, and surfaces interactions with neighbouring behaviour.</p>
+        </div>
+        <div class="actor both">Both</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">3</div>
+        <div class="body">
+          <h2>Visualise</h2>
+          <p>Mockups are generated when the work has a visual surface, grounded in the shipped UI and the design library.</p>
+        </div>
+        <div class="actor ai">Agent</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">4</div>
+        <div class="body">
+          <h2>Specify</h2>
+          <p>Acceptance criteria are drafted into existing specs where possible, or as new specs when the topic doesn't fold in.</p>
+        </div>
+        <div class="actor ai">Agent</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">5</div>
+        <div class="body">
+          <h2>Refine</h2>
+          <p>The user edits the spec directly in the right panel while the conversation continues alongside.</p>
+        </div>
+        <div class="actor">User</div>
+      </div>
+
+      <div class="loop">↻ Steps 2–5 repeat until the spec feels complete</div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">6</div>
+        <div class="body">
+          <h2>Review</h2>
+          <p>A fresh-eyes review pass checks the spec for gaps, contradictions, and unanswered questions without conversation context.</p>
+        </div>
+        <div class="actor ai">Agent</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="gate"><span class="gate-label">Gate</span>Spec marked ready → Implementing</div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">7</div>
+        <div class="body">
+          <h2>Plan</h2>
+          <p>A short technical plan is drafted — sequencing notes, tradeoffs, and a checklist of build steps to work through.</p>
+        </div>
+        <div class="actor ai">Agent</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">8</div>
+        <div class="body">
+          <h2>Build</h2>
+          <p>The agent implements against the spec, ticking plan items as it goes and citing spec ids inline in the code.</p>
+        </div>
+        <div class="actor ai">Agent</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="phase">
+        <div class="num">9</div>
+        <div class="body">
+          <h2>Verify</h2>
+          <p>Test cases are drafted and ticked off — manual checks for verification and a brief for automated tests where they apply.</p>
+        </div>
+        <div class="actor both">Both</div>
+      </div>
+
+      <div class="arrow"></div>
+
+      <div class="gate"><span class="gate-label">Gate</span>Card marked done → Shipped</div>
+
+    </div>
+
+    <div class="branch">
+      <h3>Cross-cutting</h3>
+      <ul>
+        <li><strong>Auto-commit</strong>Every agent turn and user edit commits to the card's branch — no manual saves.</li>
+        <li><strong>Skills</strong>Named prompts (interview, mock this up, draft spec, review, implement) shape the agent's behaviour for a turn.</li>
+        <li><strong>Handoff</strong>When the agent hits a capability limit, it offers a handoff prompt for an external tool rather than looping.</li>
+        <li><strong>Spec explorer</strong>Merged specs from the main branch form a navigable hierarchy that informs every future card.</li>
+      </ul>
+    </div>
+
+  </div>
+</body>
+</html>
