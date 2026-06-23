@@ -75,6 +75,34 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
     await sequelize.query(
       `ALTER DEFAULT PRIVILEGES IN SCHEMA "${schema}" GRANT SELECT ON TABLES TO "${role}";`,
     );
+
+    // The raw role reads all of `public` for reporting, but report SQL has no
+    // business reading credential/token tables: local_system_facts holds the
+    // device private key and the reporting secret in cleartext, and the rest
+    // hold auth tokens or certificate signing keys. Revoke SELECT on them.
+    // to_regclass skips any not present on this server (e.g. central-only ones).
+    if (schema === 'public') {
+      await sequelize.query(`
+        DO $$
+        DECLARE
+          sensitive_table text;
+        BEGIN
+          FOREACH sensitive_table IN ARRAY ARRAY[
+            'local_system_facts',
+            'one_time_logins',
+            'portal_one_time_tokens',
+            'refresh_tokens',
+            'signers',
+            'signers_historical'
+          ] LOOP
+            IF to_regclass('public.' || sensitive_table) IS NOT NULL THEN
+              EXECUTE format('REVOKE SELECT ON public.%I FROM %I', sensitive_table, '${role}');
+            END IF;
+          END LOOP;
+        END
+        $$;
+      `);
+    }
   });
 };
 
