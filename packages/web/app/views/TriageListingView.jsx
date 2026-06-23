@@ -6,7 +6,6 @@ import { TriageDashboard } from '../components/TriageDashboard';
 import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { PatientSearchKeys, usePatientSearch } from '../contexts/PatientSearch';
-import { useAuth } from '../contexts/Auth';
 
 const Section = styled.div`
   background: white;
@@ -17,7 +16,6 @@ export const TriageListingView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.TriageListingView,
   );
-  const { facilityId } = useAuth();
 
   return (
     <PageContainer data-testid="pagecontainer-mjc9">
@@ -49,10 +47,7 @@ export const TriageListingView = () => {
           searchParameters={searchParameters}
           data-testid="triagesearchbar"
         />
-        <TriageTable
-          searchParameters={{ facilityId, ...searchParameters }}
-          data-testid="triagetable-xgik"
-        />
+        <TriageTable searchParameters={searchParameters} data-testid="triagetable-xgik" />
       </ContentPane>
     </PageContainer>
   );
