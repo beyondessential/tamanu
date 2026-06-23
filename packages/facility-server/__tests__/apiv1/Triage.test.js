@@ -408,6 +408,18 @@ describe('Triage', () => {
       expect(results.data[4]).toHaveProperty('arrivalTime', '2022-01-03 10:15:00');
     });
 
+    it('should get a list of triages ordered by clinician display name', async () => {
+      await createTestTriage({ practitionerId: clinicianB.id });
+      await createTestTriage({ practitionerId: clinicianA.id });
+
+      const response = await getTriageList({ orderBy: 'clinician', order: 'asc' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(2);
+      expect(response.body.data[0].clinician).toEqual('Triage Filter Clinician A');
+      expect(response.body.data[1].clinician).toEqual('Triage Filter Clinician B');
+    });
+
     it('should include short stay patients in the triage list', async () => {
       const triageConfigs = [
         {
