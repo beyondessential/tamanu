@@ -25,9 +25,10 @@ export const resetSyncConfig = async () => {
   const context = await new ApplicationContext().init();
   const { LocalSystemFact } = context.models;
 
-  for (const key of SYNC_CONFIG_FACTS) {
-    await LocalSystemFact.delete(key);
-  }
+  // Hard delete: local_system_facts is paranoid, and a soft-deleted row still
+  // occupies the unique `key` constraint, so a later set() of the same key would
+  // collide. force: true removes the row outright.
+  await LocalSystemFact.destroy({ where: { key: SYNC_CONFIG_FACTS }, force: true });
 
   log.info('Sync configuration cleared; server is now unconfigured. Restart to re-run setup.');
   await context.close();

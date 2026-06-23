@@ -2,7 +2,7 @@ import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { CentralServerConnection } from '../sync';
-import { getDeclaredFacilityIds } from '../serverConfig';
+import { getDeclaredFacilityIds, getDeclaredHost } from '../serverConfig';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
@@ -21,12 +21,15 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
-  const centralServer = new CentralServerConnection(context);
-  const configuredHost = centralServer.host;
+  // Compare the externally declared host (env/config), not the fact. A
+  // wizard-configured server has no external declaration — the recorded fact is
+  // the source of truth — so there's nothing to drift-check.
+  const configuredHost = getDeclaredHost();
+  if (!configuredHost) return;
   const lastHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
 
   if (!lastHost) {
-    await LocalSystemFact.set(FACT_CENTRAL_HOST, centralServer.host);
+    await LocalSystemFact.set(FACT_CENTRAL_HOST, configuredHost);
     return;
   }
 

@@ -8,6 +8,7 @@ import {
 } from '@tamanu/constants';
 import { parseSyncUrl } from '@tamanu/database/services/syncConnectionConfig';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { log } from '@tamanu/shared/services/logging';
 
 // Resolved once at boot by initServerConfig and read synchronously across the
 // runtime — the same role config used to play, so consumers don't each re-read
@@ -30,15 +31,12 @@ let resolved = null;
 export async function initServerConfig({ context }) {
   const { LocalSystemFact } = context.store?.models ?? context.models;
   const env = parseEnv();
+  const facts = await readFacts(LocalSystemFact);
 
-  const host = env.host ?? (await LocalSystemFact.get(FACT_CENTRAL_HOST)) ?? configHost();
-  const email = env.email ?? (await LocalSystemFact.get(FACT_SYNC_EMAIL)) ?? configValue('email');
-  const password =
-    env.password ?? (await LocalSystemFact.get(FACT_SYNC_PASSWORD)) ?? configValue('password');
-
-  const factFacilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);
-  const facilityIds =
-    env.facilityIds ?? (factFacilityIds ? JSON.parse(factFacilityIds) : null) ?? configFacilityIds();
+  const host = env.host ?? facts.host ?? configHost();
+  const email = env.email ?? facts.email ?? configValue('email');
+  const password = env.password ?? facts.password ?? configValue('password');
+  const facilityIds = env.facilityIds ?? facts.facilityIds ?? configFacilityIds();
 
   resolved = { sync: { host, email, password }, facilityIds };
 
@@ -47,6 +45,24 @@ export async function initServerConfig({ context }) {
   context.serverConfig = resolved;
 
   return context;
+}
+
+// Read the sync facts, tolerating the table not existing yet: ApplicationContext
+// init runs before migrations, so on a brand-new database local_system_facts is
+// absent — a fresh (unconfigured) server, which falls back to env/config.
+async function readFacts(LocalSystemFact) {
+  try {
+    const facilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);
+    return {
+      host: await LocalSystemFact.get(FACT_CENTRAL_HOST),
+      email: await LocalSystemFact.get(FACT_SYNC_EMAIL),
+      password: await LocalSystemFact.get(FACT_SYNC_PASSWORD),
+      facilityIds: facilityIds ? JSON.parse(facilityIds) : null,
+    };
+  } catch (error) {
+    log.warn(`initServerConfig: could not read local system facts (${error.message}); using env/config`);
+    return { host: null, email: null, password: null, facilityIds: null };
+  }
 }
 
 // The sync connection: { host, email, password }.
@@ -75,6 +91,15 @@ export function isServerConfigured() {
  */
 export function getDeclaredFacilityIds() {
   return parseEnv().facilityIds ?? configFacilityIds();
+}
+
+/**
+ * The sync host this server is externally *declared* to use (env or config,
+ * never the fact), for the host-match integrity check. Null for a
+ * wizard-configured server, so that check is skipped.
+ */
+export function getDeclaredHost() {
+  return parseEnv().host ?? configHost();
 }
 
 // Resolved holder if boot has run, else an env+config view (e.g. tests, or an
