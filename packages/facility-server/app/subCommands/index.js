@@ -6,5 +6,6 @@ export { startAllCommand } from './startAll';
 export { startApiCommand, startSyncCommand } from './startApp';
 export { startTasksCommand } from './startTasks';
 export { shellCommand } from './shell';
+export { resetSyncConfigCommand } from './resetSyncConfig';
 export { upgradeCommand } from './upgrade';
 export * from './migrateAppointmentsToLocationGroups';

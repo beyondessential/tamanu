@@ -16,6 +16,7 @@ import {
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
+  resetSyncConfigCommand,
   shellCommand,
   startAllCommand,
   startApiCommand,
@@ -37,6 +38,7 @@ async function run() {
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
   program.addCommand(shellCommand);
+  program.addCommand(resetSyncConfigCommand);
   program.addCommand(upgradeCommand);
   program.addCommand(configSecretCommand);
 
