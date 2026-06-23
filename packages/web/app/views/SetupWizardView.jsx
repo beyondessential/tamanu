@@ -245,7 +245,7 @@ export const SetupWizardView = () => {
                   },
                   {
                     value: SUPPORTED_MODES.MULTIPLE,
-                    label: getTranslation('setup.mode.multiple', 'Multiple facilities (omniserver)'),
+                    label: getTranslation('setup.mode.multiple', 'Multiple facilities'),
                   },
                 ]}
                 onChange={event => {
