@@ -31,9 +31,9 @@ A medication on a price list can be charged as a flat fee per prescription line,
 
 Price lists are imported from a spreadsheet tab with one row per invoice product and one column per price list code. Each cell carries the price (or a marker) for that product in that price list.
 
-- [ ] A price list column header can carry a marker indicating that every plain numeric cell in that column is a fixed fee
-- [ ] A column with no fixed-price marker treats plain numeric cells as per-unit prices
-- [ ] An individual cell can override the column default by prefixing its number with a fixed-price marker; the cell is then treated as a fixed fee regardless of the column default
-- [ ] The fixed-price cell marker is case-insensitive and tolerates surrounding whitespace around the value
+- [ ] A price list column header prefixed with the token `fixed` (case-insensitive, separated from the code by whitespace) marks the column as fixed-by-default: every plain numeric cell in that column is treated as a fixed fee
+- [ ] A column with no `fixed` header token treats plain numeric cells as per-unit prices
+- [ ] An individual cell can override the column default by prefixing its number with `f` (case-insensitive), for example `f2.00`; the cell is then treated as a fixed fee regardless of the column default
+- [ ] Cell parsing tolerates surrounding whitespace and is case-insensitive for the `f` prefix
 - [ ] A cell containing the hidden marker carries no price and is hidden; the hidden and fixed-price markers cannot be combined on a single cell
-- [ ] The column-header marker for fixed-by-default is stripped from the header before the price list code is matched, so it does not interfere with finding the price list
+- [ ] The `fixed` header token is stripped from the header before the price list code is matched, so it does not interfere with finding the price list
