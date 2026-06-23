@@ -6,6 +6,7 @@ export interface Product {
   insurable?: boolean;
   invoicePriceListItem?: {
     price?: number;
+    isFixedPrice?: boolean;
   };
 }
 
@@ -35,6 +36,7 @@ export interface FinalisedInsurance {
 export interface InvoiceItem {
   id?: string;
   priceFinal?: number;
+  isFixedPriceFinal?: boolean;
   manualEntryPrice?: number;
   quantity?: number;
   product?: Product;

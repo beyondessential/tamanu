@@ -44,7 +44,7 @@ invoiceRoute.get(
         invoiceProductId: productId,
         isHidden: false,
       },
-      attributes: ['price'],
+      attributes: ['price', 'isFixedPrice'],
     });
 
     res.json(item);
@@ -417,6 +417,9 @@ invoiceRoute.put(
           item.productCodeFinal = item.product.getProductCode();
 
           item.priceFinal = getInvoiceItemPrice(item);
+          item.isFixedPriceFinal = Boolean(
+            item.product.invoicePriceListItem?.isFixedPrice,
+          );
 
           // Save insurance plan coverage values
           if (item.product.invoiceInsurancePlanItems?.length > 0) {

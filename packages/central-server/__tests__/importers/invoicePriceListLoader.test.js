@@ -148,6 +148,108 @@ describe('Invoice price list item import', () => {
     expect(visibleItem.price).toBeNull();
   });
 
+  it('should treat plain numeric cells as fixed-price when the column header has the fixed token', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_FIXED' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_UNIT' });
+
+    const headers = ['invoiceProductId', 'fixed PL_FIXED', 'PL_UNIT'];
+    const rows = [{ invoiceProductId: 'prod-1', 'fixed PL_FIXED': 5, PL_UNIT: 10 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    const items = await InvoicePriceListItem.findAll({ where: { invoiceProductId: 'prod-1' } });
+    expect(items).toHaveLength(2);
+
+    const fixedItem = items.find(i => Number(i.price) === 5);
+    expect(fixedItem.isFixedPrice).toBe(true);
+    expect(fixedItem.isHidden).toBe(false);
+
+    const unitItem = items.find(i => Number(i.price) === 10);
+    expect(unitItem.isFixedPrice).toBe(false);
+    expect(unitItem.isHidden).toBe(false);
+  });
+
+  it('should treat the fixed header token case-insensitively', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'FIXED PL_A'];
+    const rows = [{ invoiceProductId: 'prod-1', 'FIXED PL_A': 7 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    const item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+    expect(item.isFixedPrice).toBe(true);
+    expect(Number(item.price)).toBe(7);
+  });
+
+  it('should treat an `f`-prefixed cell as a fixed-price override regardless of column default', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const rows = [
+      { invoiceProductId: 'prod-1', PL_A: 'f2.50' },
+      { invoiceProductId: 'prod-2', PL_A: 'F3' },
+    ];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    const item1 = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+    expect(item1.isFixedPrice).toBe(true);
+    expect(Number(item1.price)).toBe(2.5);
+
+    const item2 = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-2' } });
+    expect(item2.isFixedPrice).toBe(true);
+    expect(Number(item2.price)).toBe(3);
+  });
+
+  it('should tolerate surrounding whitespace in `f`-prefixed cells', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const rows = [{ invoiceProductId: 'prod-1', PL_A: '  f 4.25  ' }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    const item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
+    expect(item.isFixedPrice).toBe(true);
+    expect(Number(item.price)).toBe(4.25);
+  });
+
+  it('should reject cells where the fixed prefix is not followed by a valid number', async () => {
+    const { InvoiceProduct, InvoicePriceList } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const rows = [{ invoiceProductId: 'prod-1', PL_A: 'fabc' }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { didntSendReason } = await doImport(ctx, { buffer });
+    expect(didntSendReason).toEqual('validationFailed');
+  });
+
   it('should validate non-numeric price values', async () => {
     const { InvoiceProduct, InvoicePriceList } = models;
 

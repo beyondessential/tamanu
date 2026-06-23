@@ -17,3 +17,7 @@ The price amount for this product in the context of this price list. Stored as a
 {% docs invoice_price_list_items__is_hidden %}
 Determines whether the related invoice product should be hidden from searches on the frontend and also whether it should be automatically added to the invoice.
 {% enddocs %}
+
+{% docs invoice_price_list_items__is_fixed_price %}
+When true, the configured price is charged as a flat fee per invoice line regardless of dispensed quantity. Defaults to false (per-unit pricing). Mutually exclusive with is_hidden.
+{% enddocs %}

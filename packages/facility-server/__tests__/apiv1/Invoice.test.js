@@ -165,6 +165,65 @@ describe('Invoice API', () => {
       expect(finalisedItem.priceFinal).toBe('150.5');
     });
 
+    it('should snapshot isFixedPriceFinal from the price list item when finalising', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Fixed Medication',
+        code: 'FIXED-001',
+      });
+      const invoiceProduct = await createInvoiceProduct(procedureType, {
+        name: 'Fixed Medication Product',
+      });
+
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: invoiceProduct.id,
+        price: 2,
+        isFixedPrice: true,
+      });
+
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-FIXED-001' });
+      const procedure = await createProcedure(encounter.id, procedureType.id);
+      const invoiceItem = await createInvoiceItem(invoice.id, invoiceProduct.id, procedure.id, {
+        quantity: 5,
+      });
+
+      const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
+
+      expect(result).toHaveSucceeded();
+
+      const finalisedItem = await models.InvoiceItem.findByPk(invoiceItem.id);
+      expect(finalisedItem.priceFinal).toBe('2');
+      expect(finalisedItem.isFixedPriceFinal).toBe(true);
+    });
+
+    it('should snapshot isFixedPriceFinal as false for per-unit price list items', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Per-unit Medication',
+        code: 'PERUNIT-001',
+      });
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: invoiceProduct.id,
+        price: 10,
+        isFixedPrice: false,
+      });
+
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-PERUNIT-001' });
+      const procedure = await createProcedure(encounter.id, procedureType.id);
+      const invoiceItem = await createInvoiceItem(invoice.id, invoiceProduct.id, procedure.id);
+
+      const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
+
+      expect(result).toHaveSucceeded();
+
+      const finalisedItem = await models.InvoiceItem.findByPk(invoiceItem.id);
+      expect(finalisedItem.isFixedPriceFinal).toBe(false);
+    });
+
     it('should use manual entry price when price list item is not available', async () => {
       const encounter = await createEncounter();
       const procedureType = await createProcedureType({
@@ -270,6 +329,60 @@ describe('Invoice API', () => {
 
       expect(result).toHaveRequestError();
       expect(result.body.error.message).toContain('Only in progress invoices can be finalised');
+    });
+  });
+
+  describe('GET /price-list-item', () => {
+    it('should return price and isFixedPrice for a per-unit price list item', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Per-unit Lookup',
+        code: 'LOOKUP-PU',
+      });
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: invoiceProduct.id,
+        price: 25,
+        isFixedPrice: false,
+      });
+
+      const result = await app.get(
+        `/api/invoices/price-list-item?encounterId=${encounter.id}&productId=${invoiceProduct.id}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        price: '25',
+        isFixedPrice: false,
+      });
+    });
+
+    it('should return isFixedPrice true for fixed-price price list items', async () => {
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Fixed Lookup',
+        code: 'LOOKUP-FIX',
+      });
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+
+      await models.InvoicePriceListItem.create({
+        invoicePriceListId: priceList.id,
+        invoiceProductId: invoiceProduct.id,
+        price: 2,
+        isFixedPrice: true,
+      });
+
+      const result = await app.get(
+        `/api/invoices/price-list-item?encounterId=${encounter.id}&productId=${invoiceProduct.id}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        price: '2',
+        isFixedPrice: true,
+      });
     });
   });
 });

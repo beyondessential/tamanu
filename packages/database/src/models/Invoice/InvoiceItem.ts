@@ -20,6 +20,7 @@ export class InvoiceItem extends Model {
   declare productNameFinal?: string;
   declare manualEntryPrice?: number;
   declare priceFinal?: number;
+  declare isFixedPriceFinal?: boolean;
   declare productCodeFinal?: string;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
@@ -61,6 +62,10 @@ export class InvoiceItem extends Model {
         },
         priceFinal: {
           type: DataTypes.DECIMAL,
+          allowNull: true,
+        },
+        isFixedPriceFinal: {
+          type: DataTypes.BOOLEAN,
           allowNull: true,
         },
         productCodeFinal: {
@@ -183,7 +188,7 @@ export class InvoiceItem extends Model {
         model: models.InvoicePriceListItem,
         where: { invoicePriceListId },
         as: 'invoicePriceListItem',
-        attributes: ['price', 'invoicePriceListId'],
+        attributes: ['price', 'invoicePriceListId', 'isFixedPrice'],
         required: false,
       });
     }

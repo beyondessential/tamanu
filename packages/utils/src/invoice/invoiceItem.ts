@@ -16,10 +16,24 @@ export const getInvoiceItemPrice = (invoiceItem: InvoiceItem): number => {
 };
 
 /**
- * Get the price of an invoice item row
+ * Whether an invoice item is priced as a flat fee per line rather than per unit.
+ * Finalised items carry their own snapshot of this flag.
+ */
+export const isInvoiceItemFixedPrice = (invoiceItem: InvoiceItem): boolean => {
+  return Boolean(
+    invoiceItem.isFixedPriceFinal ?? invoiceItem.product?.invoicePriceListItem?.isFixedPrice,
+  );
+};
+
+/**
+ * Get the price of an invoice item row.
+ * For fixed-price lines the row is charged the unit price once, regardless of quantity.
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
+  if (isInvoiceItemFixedPrice(invoiceItem)) {
+    return new Decimal(price).toNumber();
+  }
   const quantity = invoiceItem.quantity || 0;
   return new Decimal(price).times(quantity).toNumber();
 };

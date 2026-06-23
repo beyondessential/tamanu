@@ -7,6 +7,7 @@ import {
   getInvoiceItemCoveragePercentage,
   getInsuranceCoverageTotalAmount,
   getInvoiceSummary,
+  isInvoiceItemFixedPrice,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -82,6 +83,56 @@ describe('Invoice Utils', () => {
         quantity: 0,
       };
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
+    });
+
+    it('should ignore quantity for fixed-price items from the price list', () => {
+      const invoiceItem = {
+        quantity: 5,
+        product: {
+          invoicePriceListItem: {
+            price: 2,
+            isFixedPrice: true,
+          },
+        },
+      };
+      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(2);
+    });
+
+    it('should ignore quantity for finalised fixed-price items', () => {
+      const invoiceItem = {
+        quantity: 10,
+        priceFinal: 3.5,
+        isFixedPriceFinal: true,
+      };
+      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(3.5);
+    });
+  });
+
+  describe('isInvoiceItemFixedPrice', () => {
+    it('should return false for an in-progress per-unit item', () => {
+      const invoiceItem = {
+        product: { invoicePriceListItem: { price: 10, isFixedPrice: false } },
+      };
+      expect(isInvoiceItemFixedPrice(invoiceItem)).toBe(false);
+    });
+
+    it('should return true for an in-progress fixed-price item', () => {
+      const invoiceItem = {
+        product: { invoicePriceListItem: { price: 10, isFixedPrice: true } },
+      };
+      expect(isInvoiceItemFixedPrice(invoiceItem)).toBe(true);
+    });
+
+    it('should prefer the finalised snapshot over the price list item', () => {
+      const invoiceItem = {
+        isFixedPriceFinal: false,
+        product: { invoicePriceListItem: { price: 10, isFixedPrice: true } },
+      };
+      expect(isInvoiceItemFixedPrice(invoiceItem)).toBe(false);
+    });
+
+    it('should return false when no price list item or snapshot is present', () => {
+      expect(isInvoiceItemFixedPrice({})).toBe(false);
     });
   });
 
@@ -163,6 +214,20 @@ describe('Invoice Utils', () => {
         },
       };
       expect(getInvoiceItemTotalDiscountedPrice(invoiceItem)).toEqual(0);
+    });
+
+    it('should apply percentage discount to a fixed-price line based on the flat fee', () => {
+      const invoiceItem = {
+        quantity: 8,
+        product: {
+          invoicePriceListItem: { price: 2, isFixedPrice: true },
+        },
+        discount: {
+          type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
+          amount: 0.25,
+        },
+      };
+      expect(getInvoiceItemTotalDiscountedPrice(invoiceItem)).toEqual(1.5);
     });
   });
 
@@ -305,6 +370,21 @@ describe('Invoice Utils', () => {
       ];
       // Item 1: 50, Item 2: 60, Total: 110
       expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(110);
+    });
+
+    it('should apply insurance coverage proportionally to a fixed-price line', () => {
+      const invoiceItems = [
+        {
+          quantity: 5,
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 80 }],
+          product: {
+            insurable: true,
+            invoicePriceListItem: { price: 2, isFixedPrice: true },
+          },
+        },
+      ];
+      // 80% of $2 flat fee = $1.60
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(1.6);
     });
 
     it('should use coverageValueFinal from finalisedInsurances when available', () => {
@@ -479,6 +559,26 @@ describe('Invoice Utils', () => {
       expect(summary.patientPaymentsTotal).toEqual(0);
       expect(summary.insurerPaymentsTotal).toEqual(0);
       expect(summary.paymentsTotal).toEqual(50);
+    });
+
+    it('should treat fixed-price items as a flat fee regardless of quantity', () => {
+      const invoice = {
+        items: [
+          {
+            quantity: 30,
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 80 }],
+            product: {
+              insurable: true,
+              invoicePriceListItem: { price: 2, isFixedPrice: true },
+            },
+          },
+        ],
+        payments: [],
+      };
+      const summary = getInvoiceSummary(invoice);
+      expect(summary.invoiceItemsTotal).toEqual(2);
+      expect(summary.insuranceCoverageTotal).toEqual(1.6);
+      expect(summary.patientTotal).toEqual(0.4);
     });
 
     it('should calculate remaining balances correctly', () => {

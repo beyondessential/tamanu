@@ -1,7 +1,36 @@
 import { INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES } from '@tamanu/constants';
 import { productMatrixByCodeLoaderFactory } from './ProductMatrixByCodeLoaderFactory';
 
-const { HIDDEN } = INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES;
+const { HIDDEN, FIXED_HEADER_TOKEN, FIXED_CELL_PREFIX } = INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES;
+
+const FIXED_HEADER_PATTERN = new RegExp(`^${FIXED_HEADER_TOKEN}\\s+`, 'i');
+const FIXED_CELL_PATTERN = new RegExp(`^${FIXED_CELL_PREFIX}`, 'i');
+
+function parsePriceListHeader(rawHeader) {
+  const trimmed = String(rawHeader).trim();
+  const isFixedDefault = FIXED_HEADER_PATTERN.test(trimmed);
+  const code = isFixedDefault ? trimmed.replace(FIXED_HEADER_PATTERN, '').trim() : trimmed;
+  return { code, isFixedDefault };
+}
+
+function extractPriceListCellValue(value, { isEmpty, headerMeta }) {
+  if (isEmpty) {
+    return { parsedValue: null, isValidValue: true, isHidden: false, isFixedPrice: false };
+  }
+
+  const trimmed = String(value).trim();
+  if (trimmed.toLowerCase() === HIDDEN) {
+    return { parsedValue: null, isValidValue: true, isHidden: true, isFixedPrice: false };
+  }
+
+  const hasCellPrefix = FIXED_CELL_PATTERN.test(trimmed);
+  const numericPart = hasCellPrefix ? trimmed.slice(FIXED_CELL_PREFIX.length).trim() : trimmed;
+  const parsedValue = Number(numericPart);
+  const isValidValue = numericPart !== '' && !Number.isNaN(parsedValue);
+  const isFixedPrice = isValidValue && (hasCellPrefix || Boolean(headerMeta?.isFixedDefault));
+
+  return { parsedValue, isValidValue, isHidden: false, isFixedPrice };
+}
 
 export function invoicePriceListItemLoaderFactory() {
   return productMatrixByCodeLoaderFactory({
@@ -9,13 +38,8 @@ export function invoicePriceListItemLoaderFactory() {
     itemModel: 'InvoicePriceListItem',
     parentIdField: 'invoicePriceListId',
     valueField: 'price',
-    valueExtractor: (value, isEmpty) => {
-      const isSpecialValue = isEmpty || value === HIDDEN;
-      const parsedValue = isSpecialValue ? null : Number(value);
-      const isValidValue = isSpecialValue ? true : !Number.isNaN(parsedValue);
-      const isHidden = value === HIDDEN;
-      return { parsedValue, isValidValue, isHidden };
-    },
+    headerParser: parsePriceListHeader,
+    valueExtractor: extractPriceListCellValue,
     allowEmptyValues: true,
     messages: {
       duplicateCode: code => `duplicate price list code: ${code}`,

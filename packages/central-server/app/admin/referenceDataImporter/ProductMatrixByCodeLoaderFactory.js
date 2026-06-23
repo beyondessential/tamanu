@@ -6,6 +6,10 @@ function defaultValueExtractor(value) {
   return { parsedValue, isValidValue };
 }
 
+function defaultHeaderParser(header) {
+  return { code: header };
+}
+
 /**
  * Generic, stateful loader factory for product-by-code matrix imports.
  *
@@ -21,6 +25,7 @@ export function productMatrixByCodeLoaderFactory(config) {
     parentIdField,
     valueField,
     valueExtractor = defaultValueExtractor,
+    headerParser = defaultHeaderParser,
     allowEmptyValues = false,
     messages,
   } = config;
@@ -28,8 +33,9 @@ export function productMatrixByCodeLoaderFactory(config) {
   const state = {
     initialized: false,
     invoiceProductKey: null,
-    codes: [],
+    headers: [],
     parentIdCache: new Map(),
+    headerMetaByHeader: new Map(),
   };
 
   return async (rawItem, { pushError, models, header: sheetHeader }) => {
@@ -50,9 +56,17 @@ export function productMatrixByCodeLoaderFactory(config) {
         return [];
       }
 
-      const codes = headers.filter(h => h !== invoiceProductKey);
+      const nonInvoiceProductHeaders = headers.filter(h => h !== invoiceProductKey);
       state.invoiceProductKey = invoiceProductKey;
-      state.codes = codes;
+      state.headers = nonInvoiceProductHeaders;
+
+      // Parse each header into code + optional metadata
+      const codes = [];
+      for (const header of nonInvoiceProductHeaders) {
+        const parsed = headerParser(header);
+        state.headerMetaByHeader.set(header, parsed);
+        codes.push(parsed.code);
+      }
 
       // Validate all parents exist and cache their IDs
       const existingParents = await models[parentModel].findAll({
@@ -60,7 +74,9 @@ export function productMatrixByCodeLoaderFactory(config) {
       });
 
       const seen = new Set();
-      for (const code of codes) {
+      for (let i = 0; i < nonInvoiceProductHeaders.length; i++) {
+        const header = nonInvoiceProductHeaders[i];
+        const code = codes[i];
         if (seen.has(code)) {
           pushError(messages.duplicateCode(code), itemModel);
           continue;
@@ -72,7 +88,7 @@ export function productMatrixByCodeLoaderFactory(config) {
           pushError(messages.missingParentByCode(code), itemModel);
           continue;
         }
-        state.parentIdCache.set(code, parent.id);
+        state.parentIdCache.set(header, parent.id);
       }
 
       // eslint-disable-next-line require-atomic-updates
@@ -96,19 +112,24 @@ export function productMatrixByCodeLoaderFactory(config) {
     );
 
     const rows = [];
-    for (const code of state.codes) {
-      const rawValue = item[code];
+    for (const header of state.headers) {
+      const rawValue = item[header];
+      const headerMeta = state.headerMetaByHeader.get(header) ?? { code: header };
+      const code = headerMeta.code;
 
       const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
       if (!allowEmptyValues && isEmpty) continue;
 
-      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(rawValue, isEmpty);
+      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(rawValue, {
+        isEmpty,
+        headerMeta,
+      });
       if (!isValidValue) {
         pushError(messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
         return [];
       }
 
-      const parentId = state.parentIdCache.get(code);
+      const parentId = state.parentIdCache.get(header);
       if (!parentId) {
         pushError(messages.couldNotFindParentId(code), itemModel);
         return [];
