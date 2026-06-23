@@ -47,11 +47,16 @@ const RemoveButton = styled(TextButton)`
 const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
 
 const validationSchema = yup.object().shape({
-  syncUrl: yup
+  host: yup
     .string()
     .trim()
     .url()
     .required(),
+  email: yup
+    .string()
+    .trim()
+    .required(),
+  password: yup.string().required(),
   facilityIds: yup
     .array()
     .of(yup.string())
@@ -72,7 +77,12 @@ export const SetupWizardView = () => {
     try {
       await api.post(
         'public/setup/sync',
-        { syncUrl: values.syncUrl.trim(), facilityIds: cleanFacilityIds(values.facilityIds) },
+        {
+          host: values.host.trim(),
+          email: values.email.trim(),
+          password: values.password,
+          facilityIds: cleanFacilityIds(values.facilityIds),
+        },
         { useAuthToken: false, waitForAuth: false, showUnknownErrorToast: false },
       );
       // Re-query setup status and drop into the normal login flow.
@@ -93,7 +103,13 @@ export const SetupWizardView = () => {
       <Form
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
-        initialValues={{ syncUrl: '', mode: SUPPORTED_MODES.SINGLE, facilityIds: [''] }}
+        initialValues={{
+          host: '',
+          email: '',
+          password: '',
+          mode: SUPPORTED_MODES.SINGLE,
+          facilityIds: [''],
+        }}
         render={({ values, setFieldValue }) => {
           const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
           return (
@@ -105,31 +121,48 @@ export const SetupWizardView = () => {
                 <Subtext>
                   <TranslatedText
                     stringId="setup.subtitle"
-                    fallback="Connect this facility server to its central sync server to get started."
+                    fallback="Connect this facility server to its central sync server. You'll need central server administrator credentials."
                   />
                 </Subtext>
                 {Boolean(errorMessage) && <SetupAlert>{errorMessage}</SetupAlert>}
               </div>
 
               <Field
-                name="syncUrl"
+                name="host"
                 component={TextField}
                 required
                 label={
-                  <TranslatedText stringId="setup.syncUrl.label" fallback="Sync server URL" />
+                  <TranslatedText stringId="setup.host.label" fallback="Sync server URL" />
                 }
                 placeholder={getTranslation(
-                  'setup.syncUrl.placeholder',
-                  'https://email:password@central.example.com',
+                  'setup.host.placeholder',
+                  'https://central.example.com',
                 )}
-                helperText={
-                  <TranslatedText
-                    stringId="setup.syncUrl.helper"
-                    fallback="Include the sync user's email and password in the URL."
-                  />
-                }
                 autoComplete="off"
                 enablePasting
+              />
+
+              <Field
+                name="email"
+                component={TextField}
+                required
+                label={
+                  <TranslatedText stringId="setup.email.label" fallback="Sync username" />
+                }
+                placeholder={getTranslation('setup.email.placeholder', 'Enter the sync username')}
+                autoComplete="off"
+                enablePasting
+              />
+
+              <Field
+                name="password"
+                component={TextField}
+                type="password"
+                required
+                label={
+                  <TranslatedText stringId="setup.password.label" fallback="Sync password" />
+                }
+                autoComplete="off"
               />
 
               <Field

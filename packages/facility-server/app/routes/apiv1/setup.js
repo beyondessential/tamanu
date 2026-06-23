@@ -4,13 +4,11 @@ import * as z from 'zod';
 import { TamanuApi } from '@tamanu/api-client';
 import {
   SERVER_TYPES,
-  DEVICE_SCOPES,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
   FACT_FACILITY_IDS,
 } from '@tamanu/constants';
-import { parseSyncUrl } from '@tamanu/database/services/syncConnectionConfig';
 import { log } from '@tamanu/shared/services/logging';
 
 import { isServerConfigured, initServerConfig } from '../../serverConfig';
@@ -29,8 +27,7 @@ export const setupStatusHandler = asyncHandler(async (req, res) => {
 const isProduction = process.env.NODE_ENV === 'production';
 
 const setupSyncSchema = z.object({
-  // Single connection string carrying host + sync user credentials, à la DATABASE_URL.
-  syncUrl: z
+  host: z
     .string()
     .url()
     .refine(value => {
@@ -41,7 +38,9 @@ const setupSyncSchema = z.object({
       } catch {
         return false;
       }
-    }, 'syncUrl must be an https URL'),
+    }, 'host must be an https URL'),
+  email: z.string().trim().min(1),
+  password: z.string().min(1),
   facilityIds: z.array(z.string().trim().min(1)).min(1),
 });
 
@@ -55,33 +54,27 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     return res.status(409).send({ error: { message: 'Server is already configured' } });
   }
 
-  const { syncUrl, facilityIds } = setupSyncSchema.parse(req.body);
-  const uniqueFacilityIds = [...new Set(facilityIds)];
-
-  const { host, email, password } = parseSyncUrl(syncUrl);
-  if (!email || !password) {
-    return res
-      .status(400)
-      .send({ error: { message: 'syncUrl must include the sync user credentials' } });
-  }
+  const { host, email, password, facilityIds } = setupSyncSchema.parse(req.body);
+  const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
+  const normalisedHost = new URL(host).origin;
 
   // The deliberate part: prove the host is reachable and the credentials
-  // authenticate before saving anything.
+  // authenticate, before saving anything. Also the authorisation gate — this
+  // endpoint is unauthenticated (a fresh server has no users), so we require the
+  // supplied credentials to be a central superuser. (Next pass: central
+  // provisions a dedicated sync user once the admin has authenticated here.)
+  let loginResult;
   try {
     const probe = new TamanuApi({
-      endpoint: `${host}/api`,
+      endpoint: `${normalisedHost}/api`,
       agentName: SERVER_TYPES.FACILITY,
       agentVersion: version,
       deviceId: req.deviceId,
       logger: log,
     });
-    await probe.login(email, password, {
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-      body: { facilityIds: uniqueFacilityIds },
-      backoff: { maxAttempts: 1 },
-    });
+    loginResult = await probe.login(email, password, { scopes: [], backoff: { maxAttempts: 1 } });
   } catch (error) {
-    // Generic message + no syncUrl/password in logs — don't turn this into an
+    // Generic message + no host/password in logs — don't turn this into an
     // oracle for which internal hosts respond.
     log.warn(`Sync setup validation failed: ${error.type ?? error.name}`);
     return res
@@ -89,8 +82,14 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       .send({ error: { message: 'Could not connect to the sync server with those details' } });
   }
 
+  if (!loginResult.ability?.can('manage', 'all')) {
+    return res.status(403).send({
+      error: { message: 'You must be an administrator on the central server to set up this server' },
+    });
+  }
+
   const { LocalSystemFact } = req.models;
-  await LocalSystemFact.set(FACT_CENTRAL_HOST, host);
+  await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
   await LocalSystemFact.set(FACT_SYNC_EMAIL, email);
   await LocalSystemFact.set(FACT_SYNC_PASSWORD, password);
   await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
@@ -100,7 +99,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   await initServerConfig({ context: { models: req.models } });
 
   log.info('Facility server configured via setup wizard', {
-    host,
+    host: normalisedHost,
     facilityIds: uniqueFacilityIds,
   });
 
