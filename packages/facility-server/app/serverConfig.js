@@ -29,9 +29,9 @@ let resolved = null;
  * (and on `context.serverConfig`) rather than having the runtime touch config.
  */
 export async function initServerConfig({ context }) {
-  const { LocalSystemFact } = context.store?.models ?? context.models;
+  const models = context.store?.models ?? context.models;
   const env = parseEnv();
-  const facts = await readFacts(LocalSystemFact);
+  const facts = await readFacts(models);
 
   const host = env.host ?? facts.host ?? configHost();
   const email = env.email ?? facts.email ?? configValue('email');
@@ -47,22 +47,32 @@ export async function initServerConfig({ context }) {
   return context;
 }
 
-// Read the sync facts, tolerating the table not existing yet: ApplicationContext
-// init runs before migrations, so on a brand-new database local_system_facts is
-// absent — a fresh (unconfigured) server, which falls back to env/config.
-async function readFacts(LocalSystemFact) {
+// Read the sync facts, tolerating the tables not existing yet: ApplicationContext
+// init runs before migrations, so on a brand-new database the fact/secret tables
+// are absent — a fresh (unconfigured) server, which falls back to env/config.
+// The password lives in local_system_secrets (encrypted); read it separately so
+// an unconfigured key file doesn't blank out the non-secret facts.
+async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
+  let host = null;
+  let email = null;
+  let facilityIds = null;
   try {
-    const facilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);
-    return {
-      host: await LocalSystemFact.get(FACT_CENTRAL_HOST),
-      email: await LocalSystemFact.get(FACT_SYNC_EMAIL),
-      password: await LocalSystemFact.get(FACT_SYNC_PASSWORD),
-      facilityIds: facilityIds ? JSON.parse(facilityIds) : null,
-    };
+    const facilityIdsValue = await LocalSystemFact.get(FACT_FACILITY_IDS);
+    host = await LocalSystemFact.get(FACT_CENTRAL_HOST);
+    email = await LocalSystemFact.get(FACT_SYNC_EMAIL);
+    facilityIds = facilityIdsValue ? JSON.parse(facilityIdsValue) : null;
   } catch (error) {
     log.warn(`initServerConfig: could not read local system facts (${error.message}); using env/config`);
-    return { host: null, email: null, password: null, facilityIds: null };
   }
+
+  let password = null;
+  try {
+    password = await LocalSystemSecret.getSecret(FACT_SYNC_PASSWORD);
+  } catch (error) {
+    log.warn(`initServerConfig: could not read sync password secret (${error.message})`);
+  }
+
+  return { host, email, password, facilityIds };
 }
 
 // The sync connection: { host, email, password }.

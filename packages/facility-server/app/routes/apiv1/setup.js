@@ -103,14 +103,13 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       .send({ error: { message: 'Could not provision sync credentials on the central server' } });
   }
 
-  const { LocalSystemFact } = req.models;
+  const { LocalSystemFact, LocalSystemSecret } = req.models;
   await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
   await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
-  // ponytail: sync password stored plaintext in local_system_facts for now — move
-  // to the encrypted local_system_secrets table (in progress on another branch)
-  // once it lands.
-  await LocalSystemFact.set(FACT_SYNC_PASSWORD, syncCredentials.password);
   await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
+  // The password is an external credential we hold — store it encrypted at rest
+  // in local_system_secrets, out of local_system_facts and the raw reporting role.
+  await LocalSystemSecret.setSecret(FACT_SYNC_PASSWORD, syncCredentials.password);
 
   // Refresh the in-memory holder so this process reports configured immediately;
   // the sync process picks up the new connection on its next (re)start.
