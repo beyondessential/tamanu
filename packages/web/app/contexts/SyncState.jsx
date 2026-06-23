@@ -23,6 +23,7 @@ export const SyncStateProvider = ({ children }) => {
   // it could be a few
   const addSyncingPatient = useCallback(
     (patientId, tick) => {
+      pollFailureCountRef.current = 0;
       setCurrentSyncingPatients([...currentSyncingPatients, { patientId, tick }]);
     },
     [currentSyncingPatients],
@@ -70,7 +71,6 @@ export const SyncStateProvider = ({ children }) => {
       pollFailureCountRef.current += 1;
       if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
         setCurrentSyncingPatients([]);
-        pollFailureCountRef.current = 0;
       }
     }
   }, [api, clearSyncingPatients]);

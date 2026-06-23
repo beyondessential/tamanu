@@ -1,29 +1,15 @@
-import React, { isValidElement } from 'react';
+import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { each, isArray, toString } from 'lodash';
+import { each, isArray } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';
 import { MAX_REPEATS } from '@tamanu/constants';
+import { prepareToastMessage } from '@tamanu/ui-components';
 
-export const prepareToastMessage = msg => {
-  const messages = isArray(msg) ? msg : [msg];
-  return (
-    <>
-      {messages.map((text, index) => (
-        <div
-          key={
-            isValidElement(text) && text.key != null ? text.key : `err-msg-${index}`
-          }
-        >
-          {isValidElement(text) ? text : toString(text)}
-        </div>
-      ))}
-    </>
-  );
-};
+export { prepareToastMessage };
 
 export const getDeviceId = () => {
   let deviceId = window?.localStorage?.getItem('deviceId');
