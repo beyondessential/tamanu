@@ -7,14 +7,21 @@
 <style>
   :root {
     --page: #f8f7f4;
+    --page-2: #f1efea;
     --surface: #ffffff;
     --ink: #1c1917;
     --ink-2: #57534e;
     --ink-3: #a8a29e;
     --line: #e7e5e0;
+    --line-2: #d6d3cd;
     --accent: #c2410c;
+    --accent-strong: #9a3412;
+    --accent-bright: #ea580c;
     --accent-soft: #fef3ec;
-    --shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 1px 3px rgba(28, 25, 23, 0.05);
+    --accent-tint: #fed7aa;
+    --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.05);
+    --shadow-md: 0 1px 3px rgba(28, 25, 23, 0.06), 0 4px 12px rgba(28, 25, 23, 0.04);
+    --shadow-accent: 0 2px 8px rgba(194, 65, 12, 0.18);
   }
 
   * { box-sizing: border-box; }
@@ -33,29 +40,43 @@
   .page {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 48px 32px 64px;
+    padding: 56px 32px 72px;
   }
 
   header {
-    margin-bottom: 40px;
+    margin-bottom: 44px;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-bottom: 12px;
   }
 
   header h1 {
-    margin: 0 0 8px;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   header p {
     margin: 0;
     color: var(--ink-2);
-    max-width: 640px;
+    max-width: 660px;
+    font-size: 15px;
   }
 
   .legend {
     display: flex;
-    gap: 24px;
+    gap: 20px;
     margin-top: 24px;
     flex-wrap: wrap;
   }
@@ -65,19 +86,21 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-2);
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  .swatch {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    border: 1px solid var(--line);
+  .actor-chip {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-weight: 600;
   }
 
-  .swatch.phase { background: var(--surface); }
-  .swatch.action { background: var(--accent-soft); border-color: #f5d8c4; }
-  .swatch.gate { background: var(--ink); border-color: var(--ink); }
+  .actor-chip.user { background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); }
+  .actor-chip.ai { background: var(--accent); color: #fff; }
+  .actor-chip.both { background: var(--ink); color: #fff; }
 
   .flow {
     display: flex;
@@ -88,70 +111,84 @@
 
   .phase {
     width: 100%;
-    max-width: 720px;
+    max-width: 760px;
     background: var(--surface);
     border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
     border-radius: 12px;
     padding: 20px 24px;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-md);
     display: grid;
-    grid-template-columns: 36px 1fr auto;
-    gap: 16px;
-    align-items: center;
+    grid-template-columns: 44px 1fr auto;
+    gap: 18px;
+    align-items: start;
+    position: relative;
   }
 
   .phase .num {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: var(--shadow-accent);
   }
 
   .phase .body h2 {
-    margin: 0 0 2px;
-    font-size: 15px;
-    font-weight: 600;
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   .phase .body p {
-    margin: 0;
+    margin: 0 0 12px;
     color: var(--ink-2);
-    font-size: 13px;
+    font-size: 13.5px;
   }
 
-  .phase .actor {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 4px 10px;
-    white-space: nowrap;
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
   }
 
-  .phase .actor.ai {
+  .skill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
     background: var(--accent-soft);
-    color: var(--accent);
-    border-color: #f5d8c4;
+    color: var(--accent-strong);
+    border: 1px solid var(--accent-tint);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-weight: 500;
   }
 
-  .phase .actor.both {
-    background: var(--ink);
-    color: var(--surface);
-    border-color: var(--ink);
+  .skill::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .phase .actor-chip {
+    align-self: start;
+    margin-top: 4px;
   }
 
   .arrow {
     width: 2px;
-    height: 24px;
-    background: var(--line);
+    height: 28px;
+    background: linear-gradient(to bottom, var(--line-2), var(--accent-tint));
     position: relative;
   }
 
@@ -163,60 +200,74 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 6px solid var(--line);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 7px solid var(--accent-bright);
   }
 
   .gate {
     width: 100%;
-    max-width: 720px;
-    background: var(--ink);
-    color: var(--surface);
+    max-width: 760px;
+    background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+    color: #fff;
     border-radius: 12px;
-    padding: 14px 24px;
+    padding: 16px 24px;
     text-align: center;
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    font-weight: 500;
-    box-shadow: var(--shadow);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+    box-shadow: var(--shadow-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
   }
 
   .gate .gate-label {
-    color: var(--ink-3);
-    font-size: 11px;
-    margin-right: 8px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-weight: 600;
+  }
+
+  .gate .arrow-inline {
+    font-size: 16px;
+    opacity: 0.8;
   }
 
   .loop {
     width: 100%;
-    max-width: 720px;
-    border: 1px dashed var(--ink-3);
-    border-radius: 12px;
-    padding: 8px 16px;
-    background: transparent;
-    color: var(--ink-2);
-    font-size: 12px;
+    max-width: 760px;
+    border: 1.5px dashed var(--accent);
+    border-radius: 999px;
+    padding: 8px 18px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-size: 12.5px;
     text-align: center;
-    font-style: italic;
+    font-weight: 500;
+    margin: 4px 0 0;
   }
 
   .branch {
     width: 100%;
-    max-width: 720px;
-    margin-top: 32px;
+    max-width: 760px;
+    margin: 40px auto 0;
+    padding-top: 32px;
     border-top: 1px solid var(--line);
-    padding-top: 24px;
   }
 
   .branch h3 {
-    margin: 0 0 12px;
-    font-size: 13px;
+    margin: 0 0 14px;
+    font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     color: var(--ink-2);
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .branch ul {
@@ -231,29 +282,43 @@
   .branch li {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 12px 16px;
+    border-radius: 10px;
+    padding: 14px 16px;
     font-size: 13px;
     color: var(--ink-2);
+    box-shadow: var(--shadow-sm);
   }
 
   .branch li strong {
     color: var(--ink);
     display: block;
-    margin-bottom: 2px;
-    font-weight: 600;
+    margin-bottom: 4px;
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+
+  .branch li .skill {
+    margin-top: 8px;
+    margin-right: 4px;
+  }
+
+  /* Subtle visual variations for the two gates */
+  .gate.secondary {
+    background: linear-gradient(135deg, var(--ink), #292524);
+    box-shadow: 0 2px 8px rgba(28, 25, 23, 0.2);
   }
 </style>
 </head>
 <body>
   <div class="page">
     <header>
+      <span class="eyebrow">Canonical flow</span>
       <h1>Workhorse product development flow</h1>
-      <p>The canonical happy path from a freshly created card to shipped, verified work. Each step is one phase; the agent and the user collaborate throughout, and changes auto-commit on every turn.</p>
+      <p>The happy path from a freshly created card to shipped, verified work. Each phase pairs a collaboration mode with the skills that drive it, and changes auto-commit on every turn.</p>
       <div class="legend">
-        <div class="legend-item"><span class="swatch phase"></span> Phase</div>
-        <div class="legend-item"><span class="swatch action"></span> Agent-led</div>
-        <div class="legend-item"><span class="swatch gate"></span> State transition</div>
+        <div class="legend-item"><span class="actor-chip user">User</span> User-led</div>
+        <div class="legend-item"><span class="actor-chip ai">Agent</span> Agent-led</div>
+        <div class="legend-item"><span class="actor-chip both">Both</span> Collaborative</div>
       </div>
     </header>
 
@@ -265,7 +330,7 @@
           <h2>Capture</h2>
           <p>A card is created on the project board with a title, description, and any starting metadata or comments.</p>
         </div>
-        <div class="actor">User</div>
+        <span class="actor-chip user">User</span>
       </div>
 
       <div class="arrow"></div>
@@ -274,9 +339,13 @@
         <div class="num">2</div>
         <div class="body">
           <h2>Explore</h2>
-          <p>Conversation opens — the agent interviews, probes for edge cases, and surfaces interactions with neighbouring behaviour.</p>
+          <p>Conversation opens — the agent probes for edge cases, surfaces interactions with neighbouring behaviour, and aligns on intent.</p>
+          <div class="skills">
+            <span class="skill">Interview me</span>
+            <span class="skill">Workshop this</span>
+          </div>
         </div>
-        <div class="actor both">Both</div>
+        <span class="actor-chip both">Both</span>
       </div>
 
       <div class="arrow"></div>
@@ -285,9 +354,13 @@
         <div class="num">3</div>
         <div class="body">
           <h2>Visualise</h2>
-          <p>Mockups are generated when the work has a visual surface, grounded in the shipped UI and the design library.</p>
+          <p>Mockups are produced when the work has a visual surface, grounded in the shipped UI and the design library.</p>
+          <div class="skills">
+            <span class="skill">Mock this up</span>
+            <span class="skill">ASCII design chat</span>
+          </div>
         </div>
-        <div class="actor ai">Agent</div>
+        <span class="actor-chip ai">Agent</span>
       </div>
 
       <div class="arrow"></div>
@@ -297,8 +370,11 @@
         <div class="body">
           <h2>Specify</h2>
           <p>Acceptance criteria are drafted into existing specs where possible, or as new specs when the topic doesn't fold in.</p>
+          <div class="skills">
+            <span class="skill">Draft spec changes</span>
+          </div>
         </div>
-        <div class="actor ai">Agent</div>
+        <span class="actor-chip ai">Agent</span>
       </div>
 
       <div class="arrow"></div>
@@ -309,7 +385,7 @@
           <h2>Refine</h2>
           <p>The user edits the spec directly in the right panel while the conversation continues alongside.</p>
         </div>
-        <div class="actor">User</div>
+        <span class="actor-chip user">User</span>
       </div>
 
       <div class="loop">↻ Steps 2–5 repeat until the spec feels complete</div>
@@ -320,14 +396,25 @@
         <div class="num">6</div>
         <div class="body">
           <h2>Review</h2>
-          <p>A fresh-eyes review pass checks the spec for gaps, contradictions, and unanswered questions without conversation context.</p>
+          <p>A fresh-eyes pass checks the spec for gaps, contradictions, and unanswered questions without conversation context.</p>
+          <div class="skills">
+            <span class="skill">Review spec</span>
+            <span class="skill">Acceptance audit</span>
+            <span class="skill">Design audit</span>
+            <span class="skill">Security audit</span>
+          </div>
         </div>
-        <div class="actor ai">Agent</div>
+        <span class="actor-chip ai">Agent</span>
       </div>
 
       <div class="arrow"></div>
 
-      <div class="gate"><span class="gate-label">Gate</span>Spec marked ready → Implementing</div>
+      <div class="gate">
+        <span class="gate-label">Gate</span>
+        <span>Specifying</span>
+        <span class="arrow-inline">→</span>
+        <span>Implementing</span>
+      </div>
 
       <div class="arrow"></div>
 
@@ -336,8 +423,12 @@
         <div class="body">
           <h2>Plan</h2>
           <p>A short technical plan is drafted — sequencing notes, tradeoffs, and a checklist of build steps to work through.</p>
+          <div class="skills">
+            <span class="skill">Tech design</span>
+            <span class="skill">Plan implementation</span>
+          </div>
         </div>
-        <div class="actor ai">Agent</div>
+        <span class="actor-chip ai">Agent</span>
       </div>
 
       <div class="arrow"></div>
@@ -347,8 +438,12 @@
         <div class="body">
           <h2>Build</h2>
           <p>The agent implements against the spec, ticking plan items as it goes and citing spec ids inline in the code.</p>
+          <div class="skills">
+            <span class="skill">Implement this</span>
+            <span class="skill">Investigate and fix</span>
+          </div>
         </div>
-        <div class="actor ai">Agent</div>
+        <span class="actor-chip ai">Agent</span>
       </div>
 
       <div class="arrow"></div>
@@ -358,23 +453,47 @@
         <div class="body">
           <h2>Verify</h2>
           <p>Test cases are drafted and ticked off — manual checks for verification and a brief for automated tests where they apply.</p>
+          <div class="skills">
+            <span class="skill">Draft test cases</span>
+            <span class="skill">Automate test cases</span>
+            <span class="skill">Bug review</span>
+          </div>
         </div>
-        <div class="actor both">Both</div>
+        <span class="actor-chip both">Both</span>
       </div>
 
       <div class="arrow"></div>
 
-      <div class="gate"><span class="gate-label">Gate</span>Card marked done → Shipped</div>
+      <div class="gate secondary">
+        <span class="gate-label">Gate</span>
+        <span>Implementing</span>
+        <span class="arrow-inline">→</span>
+        <span>Shipped</span>
+      </div>
 
     </div>
 
     <div class="branch">
       <h3>Cross-cutting</h3>
       <ul>
-        <li><strong>Auto-commit</strong>Every agent turn and user edit commits to the card's branch — no manual saves.</li>
-        <li><strong>Skills</strong>Named prompts (interview, mock this up, draft spec, review, implement) shape the agent's behaviour for a turn.</li>
-        <li><strong>Handoff</strong>When the agent hits a capability limit, it offers a handoff prompt for an external tool rather than looping.</li>
-        <li><strong>Spec explorer</strong>Merged specs from the main branch form a navigable hierarchy that informs every future card.</li>
+        <li>
+          <strong>Auto-commit</strong>
+          Every agent turn and user edit commits to the card's branch — no manual saves.
+        </li>
+        <li>
+          <strong>Capability handoff</strong>
+          When the agent hits a tool limit, it offers a handoff prompt rather than looping.
+          <div class="skills"><span class="skill">Handoff</span></div>
+        </li>
+        <li>
+          <strong>Portfolio planning</strong>
+          Cards across the project can be batched, sequenced, and reshuffled.
+          <div class="skills"><span class="skill">Plan cards</span></div>
+        </li>
+        <li>
+          <strong>Spec explorer</strong>
+          Merged specs from the main branch form a navigable hierarchy that informs every future card.
+        </li>
       </ul>
     </div>
 
