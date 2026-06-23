@@ -1,5 +1,7 @@
-import React, { createContext, useCallback, useState, useEffect, useContext } from 'react';
+import React, { createContext, useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { useApi } from '../api';
+
+const MAX_SYNC_STATUS_POLL_FAILURES = 5;
 
 export const SyncStateContext = createContext({
   addSyncingPatient: () => null,
@@ -13,6 +15,7 @@ export const useSyncState = () => useContext(SyncStateContext);
 export const SyncStateProvider = ({ children }) => {
   const [currentSyncingPatients, setCurrentSyncingPatients] = useState([]);
   const [syncStatus, setSyncStatus] = useState({});
+  const pollFailureCountRef = useRef(0);
   const api = useApi();
 
   // functions to manage the list of currently-syncing patients
@@ -53,15 +56,28 @@ export const SyncStateProvider = ({ children }) => {
 
   // query the facility server for sync status
   const querySync = useCallback(async () => {
-    const status = await api.get('/sync/status');
-    setSyncStatus(status);
-    clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
+    if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
+      return;
+    }
+
+    try {
+      const status = await api.get('sync/status');
+      setSyncStatus(status);
+      clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
+    } catch {
+      pollFailureCountRef.current += 1;
+      if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
+        setCurrentSyncingPatients([]);
+      }
+    }
   }, [api, clearSyncingPatients]);
 
   // effect to poll sync status while there are pending patient syncs
   useEffect(() => {
     // don't poll if there are no syncing patients
     if (currentSyncingPatients.length === 0) return () => {};
+
+    pollFailureCountRef.current = 0;
 
     // poll every 2 seconds
     const pollInterval = setInterval(() => {
