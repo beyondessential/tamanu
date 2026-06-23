@@ -63,15 +63,16 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   // endpoint is unauthenticated (a fresh server has no users), so we require the
   // supplied credentials to be a central superuser. (Next pass: central
   // provisions a dedicated sync user once the admin has authenticated here.)
+  const probe = new TamanuApi({
+    endpoint: `${normalisedHost}/api`,
+    agentName: SERVER_TYPES.FACILITY,
+    agentVersion: version,
+    deviceId: req.deviceId,
+    logger: log,
+  });
+
   let loginResult;
   try {
-    const probe = new TamanuApi({
-      endpoint: `${normalisedHost}/api`,
-      agentName: SERVER_TYPES.FACILITY,
-      agentVersion: version,
-      deviceId: req.deviceId,
-      logger: log,
-    });
     loginResult = await probe.login(email, password, { scopes: [], backoff: { maxAttempts: 1 } });
   } catch (error) {
     // Generic message + no host/password in logs — don't turn this into an
@@ -88,13 +89,27 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     });
   }
 
+  // Have central provision a dedicated sync user (rather than storing the admin's
+  // own credentials). The probe is authenticated as the admin from the login above.
+  let syncCredentials;
+  try {
+    syncCredentials = await probe.post('admin/syncCredentials', {
+      facilityIds: uniqueFacilityIds,
+    });
+  } catch (error) {
+    log.warn(`Sync credential provisioning failed: ${error.type ?? error.name}`);
+    return res
+      .status(502)
+      .send({ error: { message: 'Could not provision sync credentials on the central server' } });
+  }
+
   const { LocalSystemFact } = req.models;
   await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
-  await LocalSystemFact.set(FACT_SYNC_EMAIL, email);
+  await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
   // ponytail: sync password stored plaintext in local_system_facts for now — move
   // to the encrypted local_system_secrets table (in progress on another branch)
-  // once it lands. Also superseded once central provisions the sync user itself.
-  await LocalSystemFact.set(FACT_SYNC_PASSWORD, password);
+  // once it lands.
+  await LocalSystemFact.set(FACT_SYNC_PASSWORD, syncCredentials.password);
   await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
 
   // Refresh the in-memory holder so this process reports configured immediately;
