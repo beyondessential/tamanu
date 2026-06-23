@@ -91,6 +91,9 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const { LocalSystemFact } = req.models;
   await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
   await LocalSystemFact.set(FACT_SYNC_EMAIL, email);
+  // ponytail: sync password stored plaintext in local_system_facts for now — move
+  // to the encrypted local_system_secrets table (in progress on another branch)
+  // once it lands. Also superseded once central provisions the sync user itself.
   await LocalSystemFact.set(FACT_SYNC_PASSWORD, password);
   await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
 

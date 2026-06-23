@@ -4,6 +4,8 @@ import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { Typography } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
+import IconButton from '@mui/material/IconButton';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 import { Form, FormGrid, TextField, FormSubmitButton, TextButton } from '@tamanu/ui-components';
 
@@ -17,13 +19,14 @@ import { useApi } from '../api';
 const Heading = styled(Typography)`
   color: ${Colors.darkestText};
   font-weight: 500;
-  font-size: 32px;
-  line-height: 36px;
+  font-size: 24px;
+  line-height: 28px;
 `;
 
 const Subtext = styled(BodyText)`
   color: ${Colors.midText};
-  padding-top: 10px;
+  padding-top: 8px;
+  font-size: 14px;
 `;
 
 const SetupAlert = styled(Alert).attrs({ severity: 'error', icon: false })`
@@ -34,14 +37,15 @@ const SetupAlert = styled(Alert).attrs({ severity: 'error', icon: false })`
 
 const FacilityRow = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 `;
 
-const RemoveButton = styled(TextButton)`
-  text-transform: none;
-  white-space: nowrap;
-  margin-top: 28px;
+// Fixed-width slot so every facility-id input stays the same width whether or
+// not its row has a remove button.
+const RemoveSlot = styled.div`
+  width: 36px;
+  flex-shrink: 0;
 `;
 
 const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
@@ -147,9 +151,15 @@ export const SetupWizardView = () => {
                 component={TextField}
                 required
                 label={
-                  <TranslatedText stringId="setup.email.label" fallback="Sync username" />
+                  <TranslatedText
+                    stringId="setup.email.label"
+                    fallback="Administrator username"
+                  />
                 }
-                placeholder={getTranslation('setup.email.placeholder', 'Enter the sync username')}
+                placeholder={getTranslation(
+                  'setup.email.placeholder',
+                  'Enter the central administrator username',
+                )}
                 autoComplete="off"
                 enablePasting
               />
@@ -160,7 +170,10 @@ export const SetupWizardView = () => {
                 type="password"
                 required
                 label={
-                  <TranslatedText stringId="setup.password.label" fallback="Sync password" />
+                  <TranslatedText
+                    stringId="setup.password.label"
+                    fallback="Administrator password"
+                  />
                 }
                 autoComplete="off"
               />
@@ -168,6 +181,7 @@ export const SetupWizardView = () => {
               <Field
                 name="mode"
                 component={RadioField}
+                fullWidth
                 label={<TranslatedText stringId="setup.mode.label" fallback="Facilities" />}
                 options={[
                   {
@@ -213,10 +227,18 @@ export const SetupWizardView = () => {
                           enablePasting
                           style={{ flex: 1 }}
                         />
-                        {isMultiple && index > 0 && (
-                          <RemoveButton onClick={() => remove(index)}>
-                            <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                          </RemoveButton>
+                        {isMultiple && (
+                          <RemoveSlot>
+                            {index > 0 && (
+                              <IconButton
+                                size="small"
+                                onClick={() => remove(index)}
+                                aria-label={getTranslation('general.action.remove', 'Remove')}
+                              >
+                                <RemoveCircleOutlineIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </RemoveSlot>
                         )}
                       </FacilityRow>
                     ))}
