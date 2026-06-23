@@ -48,6 +48,16 @@ const RemoveSlot = styled.div`
   flex-shrink: 0;
 `;
 
+// AuthFlowView vertically centres its content; this form can be taller than the
+// viewport (omniserver, many facilities), so bound it and scroll internally
+// rather than letting the top/bottom clip off screen.
+const ScrollArea = styled.div`
+  width: 100%;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  padding: 4px;
+`;
+
 const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
 
 const validationSchema = yup.object().shape({
@@ -117,6 +127,7 @@ export const SetupWizardView = () => {
         render={({ values, setFieldValue }) => {
           const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
           return (
+            <ScrollArea>
             <FormGrid columns={1}>
               <div>
                 <Heading>
@@ -261,6 +272,7 @@ export const SetupWizardView = () => {
                 text={<TranslatedText stringId="setup.submit" fallback="Connect and continue" />}
               />
             </FormGrid>
+            </ScrollArea>
           );
         }}
       />
