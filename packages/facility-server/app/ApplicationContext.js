@@ -4,9 +4,9 @@ import { omit } from 'lodash';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { closeDatabase, initDatabase } from './database';
+import { getServerFacilityIds, initServerConfig } from './serverConfig';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
@@ -43,10 +43,13 @@ export class ApplicationContext {
       }
     }
 
-    const facilityIds = selectFacilityIds(config);
     this.store = await initDatabase(databaseOverrides);
     this.sequelize = this.store.sequelize;
     this.models = this.store.models;
+
+    // Resolve the sync target/facilities from local system facts now the DB is up.
+    await initServerConfig({ context: this });
+    const facilityIds = getServerFacilityIds() ?? [];
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);

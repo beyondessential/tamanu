@@ -1,9 +1,8 @@
-import config from 'config';
 import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { CentralServerConnection } from '../sync';
+import { getDeclaredFacilityIds } from '../serverConfig';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
@@ -43,7 +42,10 @@ async function ensureHostMatches(context) {
  */
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
-  const configuredFacilities = selectFacilityIds(config);
+  const configuredFacilities = getDeclaredFacilityIds();
+  // A wizard-configured server has no external (env/config) declaration to
+  // drift-check against — the recorded fact is the source of truth.
+  if (!configuredFacilities?.length) return;
   const lastFacilities = await LocalSystemFact.get(FACT_FACILITY_IDS);
 
   if (lastFacilities) {

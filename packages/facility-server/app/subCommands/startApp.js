@@ -3,7 +3,6 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -11,6 +10,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
+import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
 
 import { createApiApp } from '../createApiApp';
 
@@ -29,7 +29,7 @@ const startApp =
   appType =>
   async ({ skipMigrationCheck }) => {
     log.info(`Starting facility ${appType} server version ${version}`, {
-      serverFacilityIds: selectFacilityIds(config),
+      serverFacilityIds: getServerFacilityIds(),
     });
 
     log.info(`Process info`, {
@@ -45,23 +45,36 @@ const startApp =
     await checkConfig(context);
     await performDatabaseIntegrityChecks(context);
 
-    context.timesync = await initTimesync({
-      models: context.models,
-      url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-    });
+    const isConfigured = isServerConfigured();
+    const { host: syncHost } = getSyncConfig();
+    if (!isConfigured) {
+      log.warn(
+        'Facility server has no sync host/facilities configured; sync is disabled until ' +
+          'setup is completed (SYNC_URL / SYNC_FACILITY_IDS env or the setup wizard).',
+      );
+    }
+
+    if (isConfigured) {
+      context.timesync = await initTimesync({
+        models: context.models,
+        url: `${syncHost.replace(/\/*$/, '')}/api/timesync`,
+      });
+    }
 
     if (appType === APP_TYPES.API) {
       context.syncConnection = new FacilitySyncConnection();
-    } else {
+    } else if (isConfigured) {
       context.centralServer = new CentralServerConnection(context);
       context.syncManager = new FacilitySyncManager(context);
     }
 
-    await performTimeZoneChecks({
-      remote: context.centralServer,
-      sequelize: context.sequelize,
-      config,
-    });
+    if (isConfigured) {
+      await performTimeZoneChecks({
+        remote: context.centralServer,
+        sequelize: context.sequelize,
+        config,
+      });
+    }
 
     let server, port;
     switch (appType) {

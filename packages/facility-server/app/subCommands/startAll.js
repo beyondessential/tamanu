@@ -3,7 +3,6 @@ import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
@@ -11,6 +10,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
+import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 
@@ -21,7 +21,7 @@ import { SyncTask } from '../tasks/SyncTask';
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
-    serverFacilityIds: selectFacilityIds(config),
+    serverFacilityIds: getServerFacilityIds(),
   });
 
   log.info(`Process info`, {
@@ -37,19 +37,27 @@ async function startAll({ skipMigrationCheck }) {
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
-  context.centralServer = new CentralServerConnection(context);
-  context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();
-  context.timesync = await initTimesync({
-    models: context.models,
-    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-  });
+  const isConfigured = isServerConfigured();
+  if (isConfigured) {
+    context.centralServer = new CentralServerConnection(context);
+    context.syncManager = new FacilitySyncManager(context);
+    context.timesync = await initTimesync({
+      models: context.models,
+      url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
+    });
 
-  await performTimeZoneChecks({
-    remote: context.centralServer,
-    sequelize: context.sequelize,
-    config,
-  });
+    await performTimeZoneChecks({
+      remote: context.centralServer,
+      sequelize: context.sequelize,
+      config,
+    });
+  } else {
+    log.warn(
+      'Facility server has no sync host/facilities configured; sync is disabled until setup ' +
+        'is completed (SYNC_URL / SYNC_FACILITY_IDS env or the setup wizard).',
+    );
+  }
 
   const { server } = await createApiApp(context);
 
@@ -68,9 +76,9 @@ async function startAll({ skipMigrationCheck }) {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
-  const syncTaskClass = [SyncTask];
   const cancelTasks = startScheduledTasks(context);
-  const cancelSyncTask = startScheduledTasks(context, syncTaskClass);
+  // SyncTask needs a sync manager, which only exists when the server is configured.
+  const cancelSyncTask = isConfigured ? startScheduledTasks(context, [SyncTask]) : () => {};
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
