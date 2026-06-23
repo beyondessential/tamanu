@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
-import { EndpointKey } from 'mushi';
 
-import { SYNC_DIRECTIONS, FACT_DEVICE_KEY, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
 import {
   encryptSecret,
   decryptSecret,
@@ -107,16 +106,6 @@ export class LocalSystemFact extends Model {
 
   static async delete(key: FactName): Promise<void> {
     await this.destroy({ where: { key } });
-  }
-
-  static async getDeviceKey(): Promise<EndpointKey> {
-    const deviceKey = await this.get(FACT_DEVICE_KEY);
-    if (deviceKey) {
-      return new EndpointKey(deviceKey);
-    }
-    const newDeviceKey = EndpointKey.generateFor('ecdsa256');
-    await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
-    return newDeviceKey;
   }
 
   static async getLookupModelsToRebuild(): Promise<string[]> {

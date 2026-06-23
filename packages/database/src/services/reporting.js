@@ -20,17 +20,17 @@ const reportingRolePassword = (secret, role) =>
     .update(`tamanu-report-role:${role}`)
     .digest('hex');
 
-// Random per-server secret, generated once and stored in local_system_facts
+// Random per-server secret, generated once and stored in local_system_secrets
 // (not synced — like the device key). setIfAbsent is INSERT ... ON CONFLICT DO
 // NOTHING, so the concurrent startup contexts don't clobber each other.
 const getReportingSecret = async ({ models }) => {
-  let secret = await models.LocalSystemFact.get(FACT_REPORTING_ROLE_SECRET);
+  let secret = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
   if (!secret) {
-    await models.LocalSystemFact.setIfAbsent(
+    await models.LocalSystemSecret.setIfAbsent(
       FACT_REPORTING_ROLE_SECRET,
       crypto.randomBytes(32).toString('hex'),
     );
-    secret = await models.LocalSystemFact.get(FACT_REPORTING_ROLE_SECRET);
+    secret = await models.LocalSystemSecret.get(FACT_REPORTING_ROLE_SECRET);
   }
   return secret;
 };
@@ -77,7 +77,7 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
     );
 
     // The raw role reads all of `public` for reporting, but report SQL has no
-    // business reading credential/token tables: local_system_facts holds the
+    // business reading credential/token tables: local_system_secrets holds the
     // device private key and the reporting secret in cleartext, and the rest
     // hold auth tokens or certificate signing keys. Revoke SELECT on them.
     // to_regclass skips any not present on this server (e.g. central-only ones).
@@ -88,7 +88,7 @@ const ensureReportingRole = async (existingStore, connectionName, password) => {
           sensitive_table text;
         BEGIN
           FOREACH sensitive_table IN ARRAY ARRAY[
-            'local_system_facts',
+            'local_system_secrets',
             'one_time_logins',
             'portal_one_time_tokens',
             'refresh_tokens',
