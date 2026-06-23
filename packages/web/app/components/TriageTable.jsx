@@ -63,8 +63,8 @@ const useColumns = () => {
       key: 'displayId',
       title: (
         <TranslatedText
-          stringId="general.localisedField.displayId.label.short"
-          fallback="NHN"
+          stringId="patientList.triage.search.patientId.label"
+          fallback="Patient ID"
           data-testid="translatedtext-1wg9"
         />
       ),
@@ -73,8 +73,8 @@ const useColumns = () => {
       key: 'patientName',
       title: (
         <TranslatedText
-          stringId="general.patient.label"
-          fallback="Patient"
+          stringId="general.patientName.label"
+          fallback="Patient name"
           data-testid="translatedtext-h868"
         />
       ),
