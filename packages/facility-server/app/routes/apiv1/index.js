@@ -53,6 +53,7 @@ import { referral } from './referral';
 import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
+import { setupStatusHandler, setupSyncHandler } from './setup';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -101,6 +102,11 @@ export function createApiv1({ authLimiter } = {}) {
       return res.send({ ok: 'ok' });
     }),
   );
+
+  // First-run setup: status gates the web setup wizard; sync records the host +
+  // credentials + facilities (rate-limited — it does an outbound login probe).
+  apiv1.get('/public/setup/status', setupStatusHandler);
+  apiv1.post('/public/setup/sync', limiter, setupSyncHandler);
   
   apiv1.get(
     '/public/translation/languageOptions',
