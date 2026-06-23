@@ -9,7 +9,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 import { Form, FormGrid, TextField, FormSubmitButton, TextButton } from '@tamanu/ui-components';
 
-import { Field, RadioField, BodyText, LogoDark } from '../components';
+import { Field, BodyText, LogoDark } from '../components';
 import { Colors } from '../constants';
 import { splashImages } from '../constants/images';
 import { getBrandId } from '../utils';
@@ -96,8 +96,6 @@ const RemoveSlot = styled.div`
   flex-shrink: 0;
 `;
 
-const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
-
 const validationSchema = yup.object().shape({
   host: yup
     .string()
@@ -166,11 +164,9 @@ export const SetupWizardView = () => {
               host: '',
               email: '',
               password: '',
-              mode: SUPPORTED_MODES.SINGLE,
               facilityIds: [''],
             }}
-            render={({ values, setFieldValue }) => {
-              const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
+            render={({ values }) => {
               return (
                 <FormGrid columns={1}>
               <div>
@@ -233,29 +229,6 @@ export const SetupWizardView = () => {
                 autoComplete="off"
               />
 
-              <Field
-                name="mode"
-                component={RadioField}
-                fullWidth
-                label={<TranslatedText stringId="setup.mode.label" fallback="Facilities" />}
-                options={[
-                  {
-                    value: SUPPORTED_MODES.SINGLE,
-                    label: getTranslation('setup.mode.single', 'Single facility'),
-                  },
-                  {
-                    value: SUPPORTED_MODES.MULTIPLE,
-                    label: getTranslation('setup.mode.multiple', 'Multiple facilities'),
-                  },
-                ]}
-                onChange={event => {
-                  // Single mode collapses to exactly one id; keep the first entry.
-                  if (event.target.value === SUPPORTED_MODES.SINGLE) {
-                    setFieldValue('facilityIds', [values.facilityIds[0] ?? '']);
-                  }
-                }}
-              />
-
               <FieldArray
                 name="facilityIds"
                 render={({ push, remove }) => (
@@ -282,32 +255,29 @@ export const SetupWizardView = () => {
                           enablePasting
                           style={{ flex: 1 }}
                         />
-                        {isMultiple && (
-                          <RemoveSlot>
-                            {index > 0 && (
-                              <IconButton
-                                size="small"
-                                onClick={() => remove(index)}
-                                aria-label={getTranslation('general.action.remove', 'Remove')}
-                              >
-                                <RemoveCircleOutlineIcon fontSize="small" />
-                              </IconButton>
-                            )}
-                          </RemoveSlot>
-                        )}
+                        {/* The first facility can't be removed — a server always serves at least one. */}
+                        <RemoveSlot>
+                          {index > 0 && (
+                            <IconButton
+                              size="small"
+                              onClick={() => remove(index)}
+                              aria-label={getTranslation('general.action.remove', 'Remove')}
+                            >
+                              <RemoveCircleOutlineIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                        </RemoveSlot>
                       </FacilityRow>
                     ))}
-                    {isMultiple && (
-                      <TextButton
-                        onClick={() => push('')}
-                        style={{ textTransform: 'none', alignSelf: 'flex-start' }}
-                      >
-                        <TranslatedText
-                          stringId="setup.facilityId.add"
-                          fallback="+ Add another facility"
-                        />
-                      </TextButton>
-                    )}
+                    <TextButton
+                      onClick={() => push('')}
+                      style={{ textTransform: 'none', alignSelf: 'flex-start' }}
+                    >
+                      <TranslatedText
+                        stringId="setup.facilityId.add"
+                        fallback="+ Add another facility"
+                      />
+                    </TextButton>
                   </FormGrid>
                 )}
               />
