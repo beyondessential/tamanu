@@ -64,10 +64,13 @@ export const SyncStateProvider = ({ children }) => {
       const status = await api.get('sync/status');
       setSyncStatus(status);
       clearSyncingPatients(status.lastCompletedPull, status.lastCompletedPush);
+      // eslint-disable-next-line require-atomic-updates -- ref tracks consecutive poll failures across async polls
+      pollFailureCountRef.current = 0;
     } catch {
       pollFailureCountRef.current += 1;
       if (pollFailureCountRef.current >= MAX_SYNC_STATUS_POLL_FAILURES) {
         setCurrentSyncingPatients([]);
+        pollFailureCountRef.current = 0;
       }
     }
   }, [api, clearSyncingPatients]);
@@ -76,8 +79,6 @@ export const SyncStateProvider = ({ children }) => {
   useEffect(() => {
     // don't poll if there are no syncing patients
     if (currentSyncingPatients.length === 0) return () => {};
-
-    pollFailureCountRef.current = 0;
 
     // poll every 2 seconds
     const pollInterval = setInterval(() => {
