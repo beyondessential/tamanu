@@ -282,27 +282,74 @@ describe('Triage', () => {
   describe('Listing & filtering', () => {
     let createTestTriage;
     let bulkCreateTestTriage;
+    let locationGroupA;
+    let locationGroupB;
+    let locationA;
+    let locationB;
+    let departmentId;
+    let clinicianA;
+    let clinicianB;
+
+    const getTriageList = (query = {}) => {
+      const params = new URLSearchParams({ facilityId: facility.id, ...query });
+      return app.get(`/api/triage?${params.toString()}`);
+    };
 
     beforeAll(async () => {
-      const { id: locationId } = await models.Location.create({
+      locationGroupA = await models.LocationGroup.create({
+        ...fake(models.LocationGroup),
+        id: 'triage-filter-area-a',
+        name: 'Triage Filter Area A',
+        facilityId: facility.id,
+      });
+      locationGroupB = await models.LocationGroup.create({
+        ...fake(models.LocationGroup),
+        id: 'triage-filter-area-b',
+        name: 'Triage Filter Area B',
+        facilityId: facility.id,
+      });
+      locationA = await models.Location.create({
         ...fake(models.Location),
+        id: 'triage-filter-location-a',
+        name: 'Triage Filter Location A',
+        locationGroupId: locationGroupA.id,
+        facilityId: facility.id,
+      });
+      locationB = await models.Location.create({
+        ...fake(models.Location),
+        id: 'triage-filter-location-b',
+        name: 'Triage Filter Location B',
+        locationGroupId: locationGroupB.id,
         facilityId: facility.id,
       });
 
-      const { id: departmentId } = await models.Department.create({
+      ({ id: departmentId } = await models.Department.create({
         ...fake(models.Department),
         facilityId: facility.id,
+      }));
+
+      clinicianA = await models.User.create({
+        ...fake(models.User),
+        id: 'triage-filter-clinician-a',
+        displayName: 'Triage Filter Clinician A',
+      });
+      clinicianB = await models.User.create({
+        ...fake(models.User),
+        id: 'triage-filter-clinician-b',
+        displayName: 'Triage Filter Clinician B',
       });
 
-      createTestTriage = async (overrides) => {
-        const { Patient, Triage } = models;
-        const encounterPatient = await Patient.create(await createDummyPatient(models));
-        return Triage.create(
+      createTestTriage = async (overrides = {}) => {
+        const { patient: patientOverrides = {}, ...triageOverrides } = overrides;
+        const encounterPatient = await models.Patient.create(
+          await createDummyPatient(models, patientOverrides),
+        );
+        return models.Triage.create(
           await createDummyTriage(models, {
             patientId: encounterPatient.id,
-            locationId,
+            locationId: locationA.id,
             departmentId,
-            ...overrides,
+            ...triageOverrides,
           }),
         );
       };
@@ -385,9 +432,81 @@ describe('Triage', () => {
       expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
-    test.todo('should get a list of all triages with relevant attached data');
-    test.todo('should filter triages by location');
-    test.todo('should filter triages by age range');
-    test.todo('should filter triages by chief complaint');
+    it('should filter triages by patient display ID', async () => {
+      await createTestTriage({ patient: { displayId: 'TRIAGE-FILTER-001' } });
+      await createTestTriage({ patient: { displayId: 'TRIAGE-FILTER-002' } });
+
+      const response = await getTriageList({ displayId: 'FILTER-001' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].displayId).toEqual('TRIAGE-FILTER-001');
+    });
+
+    it('should filter triages by first name', async () => {
+      await createTestTriage({ patient: { firstName: 'TriageFilterFirstA' } });
+      await createTestTriage({ patient: { firstName: 'TriageFilterFirstB' } });
+
+      const response = await getTriageList({ firstName: 'FilterFirstA' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].firstName).toEqual('TriageFilterFirstA');
+    });
+
+    it('should filter triages by last name', async () => {
+      await createTestTriage({ patient: { lastName: 'TriageFilterLastA' } });
+      await createTestTriage({ patient: { lastName: 'TriageFilterLastB' } });
+
+      const response = await getTriageList({ lastName: 'FilterLastA' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].lastName).toEqual('TriageFilterLastA');
+    });
+
+    it('should filter triages by clinician', async () => {
+      await createTestTriage({ practitionerId: clinicianA.id });
+      await createTestTriage({ practitionerId: clinicianB.id });
+
+      const response = await getTriageList({ clinicianId: clinicianA.id });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].clinician).toEqual('Triage Filter Clinician A');
+    });
+
+    it('should filter triages by triage category', async () => {
+      await createTestTriage({ score: 2 });
+      await createTestTriage({ score: 4 });
+
+      const response = await getTriageList({ score: '2' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].score).toEqual('2');
+    });
+
+    it('should filter triages by area', async () => {
+      await createTestTriage({ locationId: locationA.id });
+      await createTestTriage({ locationId: locationB.id });
+
+      const response = await getTriageList({ locationGroupId: locationGroupA.id });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].locationId).toEqual(locationA.id);
+    });
+
+    it('should filter triages by location', async () => {
+      await createTestTriage({ locationId: locationA.id });
+      await createTestTriage({ locationId: locationB.id });
+
+      const response = await getTriageList({ locationId: locationB.id });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].locationId).toEqual(locationB.id);
+    });
   });
 });
