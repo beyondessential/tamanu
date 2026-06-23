@@ -2,6 +2,12 @@ import { DataTypes } from 'sequelize';
 import { EndpointKey } from 'mushi';
 
 import { SYNC_DIRECTIONS, FACT_DEVICE_KEY } from '@tamanu/constants';
+import {
+  encryptSecret,
+  decryptSecret,
+  readKeyFile,
+  getConfigKeyFilePath,
+} from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
@@ -83,5 +89,28 @@ export class LocalSystemSecret extends Model {
     const newDeviceKey = EndpointKey.generateFor('ecdsa256');
     await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
     return newDeviceKey;
+  }
+
+  // Encrypted-at-rest accessors for secrets that aren't safe as plaintext even
+  // behind the table grant — i.e. external credentials we hold, like a sync_host
+  // password. Encryption uses the server key file (config `crypto.keyFile`), so
+  // only callers that store such a secret pull in that dependency; the
+  // self-generated device key / reporting secret stay on the plain get/set path.
+  static async getSecret(key: SecretName): Promise<string | null> {
+    const encryptedValue = await this.get(key);
+    if (!encryptedValue) {
+      return null;
+    }
+
+    const keyFilePath = getConfigKeyFilePath();
+    const keyBuffer = await readKeyFile(keyFilePath);
+    return decryptSecret(keyBuffer, encryptedValue);
+  }
+
+  static async setSecret(key: SecretName, value: string): Promise<void> {
+    const keyFilePath = getConfigKeyFilePath();
+    const keyBuffer = await readKeyFile(keyFilePath);
+    const encryptedValue = await encryptSecret(keyBuffer, value);
+    await this.set(key, encryptedValue);
   }
 }
