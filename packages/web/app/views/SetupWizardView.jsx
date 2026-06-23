@@ -1,0 +1,214 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+import { FieldArray } from 'formik';
+import { Typography } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+
+import { Form, FormGrid, TextField, FormSubmitButton, TextButton } from '@tamanu/ui-components';
+
+import { Field, RadioField, BodyText } from '../components';
+import { Colors } from '../constants';
+import { AuthFlowView } from './AuthFlowView';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
+import { useApi } from '../api';
+
+const Heading = styled(Typography)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 36px;
+`;
+
+const Subtext = styled(BodyText)`
+  color: ${Colors.midText};
+  padding-top: 10px;
+`;
+
+const SetupAlert = styled(Alert).attrs({ severity: 'error', icon: false })`
+  border-radius: 0.5em;
+  margin-top: 1em;
+  white-space: pre-line;
+`;
+
+const FacilityRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+`;
+
+const RemoveButton = styled(TextButton)`
+  text-transform: none;
+  white-space: nowrap;
+  margin-top: 28px;
+`;
+
+const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
+
+const validationSchema = yup.object().shape({
+  syncUrl: yup
+    .string()
+    .trim()
+    .url()
+    .required(),
+  facilityIds: yup
+    .array()
+    .of(yup.string())
+    .test('has-one', '', value => Boolean(value?.some(id => id?.trim()))),
+});
+
+const cleanFacilityIds = facilityIds => [
+  ...new Set(facilityIds.map(id => id.trim()).filter(Boolean)),
+];
+
+export const SetupWizardView = () => {
+  const api = useApi();
+  const { getTranslation } = useTranslation();
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const handleSubmit = async values => {
+    setErrorMessage(null);
+    try {
+      await api.post(
+        'public/setup/sync',
+        { syncUrl: values.syncUrl.trim(), facilityIds: cleanFacilityIds(values.facilityIds) },
+        { useAuthToken: false, waitForAuth: false, showUnknownErrorToast: false },
+      );
+      // Re-query setup status and drop into the normal login flow.
+      window.location.reload();
+    } catch (error) {
+      setErrorMessage(
+        error?.message ??
+          getTranslation(
+            'setup.error.generic',
+            'Could not complete setup. Check the details and try again.',
+          ),
+      );
+    }
+  };
+
+  return (
+    <AuthFlowView>
+      <Form
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        initialValues={{ syncUrl: '', mode: SUPPORTED_MODES.SINGLE, facilityIds: [''] }}
+        render={({ values, setFieldValue }) => {
+          const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
+          return (
+            <FormGrid columns={1}>
+              <div>
+                <Heading>
+                  <TranslatedText stringId="setup.heading" fallback="Set up this server" />
+                </Heading>
+                <Subtext>
+                  <TranslatedText
+                    stringId="setup.subtitle"
+                    fallback="Connect this facility server to its central sync server to get started."
+                  />
+                </Subtext>
+                {Boolean(errorMessage) && <SetupAlert>{errorMessage}</SetupAlert>}
+              </div>
+
+              <Field
+                name="syncUrl"
+                component={TextField}
+                required
+                label={
+                  <TranslatedText stringId="setup.syncUrl.label" fallback="Sync server URL" />
+                }
+                placeholder={getTranslation(
+                  'setup.syncUrl.placeholder',
+                  'https://email:password@central.example.com',
+                )}
+                helperText={
+                  <TranslatedText
+                    stringId="setup.syncUrl.helper"
+                    fallback="Include the sync user's email and password in the URL."
+                  />
+                }
+                autoComplete="off"
+                enablePasting
+              />
+
+              <Field
+                name="mode"
+                component={RadioField}
+                label={<TranslatedText stringId="setup.mode.label" fallback="Facilities" />}
+                options={[
+                  {
+                    value: SUPPORTED_MODES.SINGLE,
+                    label: getTranslation('setup.mode.single', 'Single facility'),
+                  },
+                  {
+                    value: SUPPORTED_MODES.MULTIPLE,
+                    label: getTranslation('setup.mode.multiple', 'Multiple facilities (omniserver)'),
+                  },
+                ]}
+                onChange={event => {
+                  // Single mode collapses to exactly one id; keep the first entry.
+                  if (event.target.value === SUPPORTED_MODES.SINGLE) {
+                    setFieldValue('facilityIds', [values.facilityIds[0] ?? '']);
+                  }
+                }}
+              />
+
+              <FieldArray
+                name="facilityIds"
+                render={({ push, remove }) => (
+                  <FormGrid columns={1}>
+                    {values.facilityIds.map((_, index) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <FacilityRow key={index}>
+                        <Field
+                          name={`facilityIds.${index}`}
+                          component={TextField}
+                          label={
+                            index === 0 ? (
+                              <TranslatedText
+                                stringId="setup.facilityId.label"
+                                fallback="Facility ID"
+                              />
+                            ) : null
+                          }
+                          placeholder={getTranslation(
+                            'setup.facilityId.placeholder',
+                            'e.g. facility-a',
+                          )}
+                          autoComplete="off"
+                          enablePasting
+                          style={{ flex: 1 }}
+                        />
+                        {isMultiple && index > 0 && (
+                          <RemoveButton onClick={() => remove(index)}>
+                            <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                          </RemoveButton>
+                        )}
+                      </FacilityRow>
+                    ))}
+                    {isMultiple && (
+                      <TextButton
+                        onClick={() => push('')}
+                        style={{ textTransform: 'none', alignSelf: 'flex-start' }}
+                      >
+                        <TranslatedText
+                          stringId="setup.facilityId.add"
+                          fallback="+ Add another facility"
+                        />
+                      </TextButton>
+                    )}
+                  </FormGrid>
+                )}
+              />
+
+              <FormSubmitButton
+                text={<TranslatedText stringId="setup.submit" fallback="Connect and continue" />}
+              />
+            </FormGrid>
+          );
+        }}
+      />
+    </AuthFlowView>
+  );
+};
