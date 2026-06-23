@@ -50,12 +50,14 @@ const RemoveSlot = styled.div`
 
 // AuthFlowView vertically centres its content; this form can be taller than the
 // viewport (omniserver, many facilities), so bound it and scroll internally
-// rather than letting the top/bottom clip off screen.
+// rather than letting the top/bottom clip off screen. The top padding keeps the
+// heading clear of the fixed Tamanu logo (top-left) when the form fills the
+// height — login doesn't hit this because its short form centres lower down.
 const ScrollArea = styled.div`
   width: 100%;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
-  padding: 4px;
+  padding: 120px 8px 24px;
 `;
 
 const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
