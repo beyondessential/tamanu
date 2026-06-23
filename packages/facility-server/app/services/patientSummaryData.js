@@ -26,6 +26,9 @@ export async function fetchPatientSummaryData(patientId, models) {
     AdministeredVaccine,
     LabRequest,
     ImagingRequest,
+    Prescription,
+    Procedure,
+    Vitals,
     PatientDeathData,
   } = models;
 
@@ -82,6 +85,8 @@ export async function fetchPatientSummaryData(patientId, models) {
 
   let activeEncounterDiagnoses = [];
   let activeEncounterNotes = [];
+  let activeEncounterProcedures = [];
+  let activeEncounterVitals = null;
 
   if (activeEncounter) {
     activeEncounterDiagnoses = await EncounterDiagnosis.findAll({
@@ -101,6 +106,21 @@ export async function fetchPatientSummaryData(patientId, models) {
       order: [['date', 'DESC']],
       limit: PATIENT_SUMMARY_DATA_LIMIT,
     });
+
+    activeEncounterProcedures = await Procedure.findAll({
+      where: { encounterId: activeEncounter.id },
+      include: ['procedureType'],
+      order: [['date', 'DESC']],
+      limit: PATIENT_SUMMARY_DATA_LIMIT,
+    });
+
+    // Only the most recent vitals set is clinically useful for a summary.
+    const [latestVitals] = await Vitals.findAll({
+      where: { encounterId: activeEncounter.id },
+      order: [['dateRecorded', 'DESC']],
+      limit: 1,
+    });
+    activeEncounterVitals = latestVitals ?? null;
   }
 
   // 8. Past encounters (lightweight: dates, type, diagnoses)
@@ -117,6 +137,22 @@ export async function fetchPatientSummaryData(patientId, models) {
       {
         association: 'diagnoses',
         include: EncounterDiagnosis.getListReferenceAssociations(),
+      },
+      // `separate` runs these as their own queries so multiple hasMany joins
+      // don't multiply rows, and lets us limit vitals to the latest set per
+      // encounter.
+      {
+        association: 'procedures',
+        separate: true,
+        include: ['procedureType'],
+        order: [['date', 'DESC']],
+        limit: PATIENT_SUMMARY_DATA_LIMIT,
+      },
+      {
+        association: 'vitals',
+        separate: true,
+        order: [['dateRecorded', 'DESC']],
+        limit: 1,
       },
     ],
     order: [['startDate', 'DESC']],
@@ -178,7 +214,52 @@ export async function fetchPatientSummaryData(patientId, models) {
     limit: PATIENT_SUMMARY_DATA_LIMIT,
   });
 
-  // 12. Death information (deceased patients only)
+  // 12. Medications — a prescription is reachable either through one of the
+  // patient's encounters or as a patient-level ongoing (regular) prescription,
+  // so gather both paths and merge.
+  const medicationInclude = [{ association: 'medication' }, { association: 'prescriber' }];
+
+  const encounterMedications = await Prescription.findAll({
+    include: [
+      {
+        association: 'encounters',
+        attributes: ['id'],
+        through: { attributes: [] },
+        where: { patientId },
+        required: true,
+      },
+      ...medicationInclude,
+    ],
+    order: [['date', 'DESC']],
+    limit: PATIENT_SUMMARY_DATA_LIMIT,
+  });
+
+  const ongoingMedications = await Prescription.findAll({
+    include: [
+      {
+        association: 'patients',
+        attributes: ['id'],
+        through: { attributes: [] },
+        where: { id: patientId },
+        required: true,
+      },
+      ...medicationInclude,
+    ],
+    order: [['date', 'DESC']],
+    limit: PATIENT_SUMMARY_DATA_LIMIT,
+  });
+
+  // A prescription can be both encounter-linked and flagged ongoing, so dedupe
+  // by id, keep most recent first, and cap at the shared limit.
+  const medicationsById = new Map();
+  for (const prescription of [...encounterMedications, ...ongoingMedications]) {
+    medicationsById.set(prescription.id, prescription);
+  }
+  const medications = [...medicationsById.values()]
+    .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+    .slice(0, PATIENT_SUMMARY_DATA_LIMIT);
+
+  // 13. Death information (deceased patients only)
   let deathData = null;
   if (patient?.dateOfDeath) {
     deathData = await PatientDeathData.findOne({
@@ -203,12 +284,19 @@ export async function fetchPatientSummaryData(patientId, models) {
     familyHistory: familyHistory.map(formatFamilyHistory),
     carePlans: carePlans.map(formatCarePlan),
     activeEncounter: activeEncounter
-      ? formatActiveEncounter(activeEncounter, activeEncounterDiagnoses, activeEncounterNotes)
+      ? formatActiveEncounter(
+          activeEncounter,
+          activeEncounterDiagnoses,
+          activeEncounterNotes,
+          activeEncounterProcedures,
+          activeEncounterVitals,
+        )
       : null,
     pastEncounters: pastEncounters.map(formatPastEncounter),
     vaccinations: vaccinations.map(formatVaccination),
     labRequests: labRequests.map(formatLabRequest),
     imagingRequests: imagingRequests.map(formatImagingRequest),
+    medications: medications.map(formatMedication),
   };
 }
 
@@ -295,7 +383,7 @@ function formatCarePlan(cp) {
   };
 }
 
-function formatActiveEncounter(encounter, diagnoses, notes) {
+function formatActiveEncounter(encounter, diagnoses, notes, procedures, vitals) {
   return {
     encounterType: encounter.encounterType,
     startDate: encounter.startDate,
@@ -308,6 +396,8 @@ function formatActiveEncounter(encounter, diagnoses, notes) {
       certainty: d.certainty,
       isPrimary: d.isPrimary,
     })),
+    procedures: procedures.map(formatProcedure),
+    vitals: vitals ? formatVitals(vitals) : null,
     notes: notes.map(n => ({
       content: n.content,
       date: n.date,
@@ -327,6 +417,31 @@ function formatPastEncounter(encounter) {
       certainty: d.certainty,
       isPrimary: d.isPrimary,
     })),
+    procedures: encounter.procedures?.map(formatProcedure),
+    vitals: encounter.vitals?.[0] ? formatVitals(encounter.vitals[0]) : null,
+  };
+}
+
+function formatProcedure(p) {
+  return {
+    procedure: p.procedureType?.name,
+    date: p.date,
+    note: p.note,
+    completedNote: p.completedNote,
+  };
+}
+
+function formatVitals(v) {
+  return {
+    dateRecorded: v.dateRecorded,
+    height: v.height,
+    weight: v.weight,
+    heartRate: v.heartRate,
+    respiratoryRate: v.respiratoryRate,
+    sbp: v.sbp,
+    dbp: v.dbp,
+    temperature: v.temperature,
+    spo2: v.spo2,
   };
 }
 
@@ -356,6 +471,27 @@ function formatLabRequest(lr) {
       result: t.result,
       completedDate: t.completedDate,
     })),
+  };
+}
+
+function formatMedication(m) {
+  return {
+    medication: m.medication?.name,
+    doseAmount: m.doseAmount,
+    units: m.units,
+    frequency: m.frequency,
+    route: m.route,
+    date: m.date,
+    startDate: m.startDate,
+    endDate: m.endDate,
+    isOngoing: m.isOngoing,
+    isPrn: m.isPrn,
+    indication: m.indication,
+    prescriber: m.prescriber?.displayName,
+    discontinued: m.discontinued,
+    discontinuedDate: m.discontinued ? m.discontinuedDate : undefined,
+    discontinuingReason: m.discontinued ? m.discontinuingReason : undefined,
+    notes: m.notes,
   };
 }
 

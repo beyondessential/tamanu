@@ -192,6 +192,7 @@ const StyledTimePicker = styled(Field)`
 const FormContainer = styled.div`
   padding: 11px 14px;
   width: ${p => p.$width}px;
+  min-width: 150px;
 `;
 
 const ErrorMessage = styled.div`
