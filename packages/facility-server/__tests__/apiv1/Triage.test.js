@@ -420,6 +420,22 @@ describe('Triage', () => {
       expect(response.body.data[1].clinician).toEqual('Triage Filter Clinician B');
     });
 
+    it('should paginate triage list results', async () => {
+      await bulkCreateTestTriage(Array.from({ length: 11 }, () => ({ score: 3 })));
+
+      const firstPage = await getTriageList({ rowsPerPage: 10, page: 0 });
+
+      expect(firstPage).toHaveSucceeded();
+      expect(firstPage.body.count).toEqual(11);
+      expect(firstPage.body.data).toHaveLength(10);
+
+      const secondPage = await getTriageList({ rowsPerPage: 10, page: 1 });
+
+      expect(secondPage).toHaveSucceeded();
+      expect(secondPage.body.count).toEqual(11);
+      expect(secondPage.body.data).toHaveLength(1);
+    });
+
     it('should include short stay patients in the triage list', async () => {
       const triageConfigs = [
         {
