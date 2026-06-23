@@ -96,12 +96,22 @@ const RemoveSlot = styled.div`
   flex-shrink: 0;
 `;
 
+const isValidUrl = value => {
+  try {
+    return Boolean(new URL(value));
+  } catch {
+    return false;
+  }
+};
+
 const validationSchema = yup.object().shape({
+  // Validate with the URL parser rather than yup's .url() (which rejects hosts
+  // without a TLD, e.g. localhost) to match the server's check.
   host: yup
     .string()
     .trim()
-    .url()
-    .required(),
+    .required()
+    .test('valid-url', 'Sync server URL must be a valid URL', isValidUrl),
   email: yup
     .string()
     .trim()
