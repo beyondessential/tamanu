@@ -9,12 +9,60 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 import { Form, FormGrid, TextField, FormSubmitButton, TextButton } from '@tamanu/ui-components';
 
-import { Field, RadioField, BodyText } from '../components';
+import { Field, RadioField, BodyText, LogoDark } from '../components';
 import { Colors } from '../constants';
-import { AuthFlowView } from './AuthFlowView';
+import { splashImages } from '../constants/images';
+import { getBrandId } from '../utils';
+import { FULL_VERSION } from '../utils/env';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
+
+// Dedicated layout rather than AuthFlowView: the wizard is a tall, scrolling form,
+// which AuthFlowView's vertically-centred body and fixed top-left logo don't suit
+// (content scrolls behind the fixed logo). Here the logo sits in normal flow at
+// the top of a scrollable column, so the whole form scrolls cleanly beneath it.
+const Page = styled.div`
+  display: flex;
+  height: 100vh;
+  background: ${Colors.white};
+`;
+
+const FormColumn = styled.div`
+  width: 50vw;
+  min-width: 500px;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 0 48px;
+`;
+
+const ColumnInner = styled.div`
+  width: 100%;
+  max-width: 480px;
+  padding: 0 16px;
+`;
+
+const FormWrapper = styled(ColumnInner)`
+  margin-top: 48px;
+`;
+
+const SplashImage = styled.div`
+  flex: 1;
+  background-image: url(${props => splashImages[props.brandId]});
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center right;
+`;
+
+const VersionText = styled(Typography)`
+  align-self: flex-end;
+  margin: 24px 24px 0 0;
+  font-size: 9px;
+  color: ${Colors.midText};
+`;
 
 const Heading = styled(Typography)`
   color: ${Colors.darkestText};
@@ -46,19 +94,6 @@ const FacilityRow = styled.div`
 const RemoveSlot = styled.div`
   width: 36px;
   flex-shrink: 0;
-`;
-
-// AuthFlowView vertically centres its content and pins the Tamanu logo top-left.
-// This form can be taller than the viewport (omniserver, many facilities), so it
-// scrolls internally. The margin-top pushes the scroll *frame* below the fixed
-// logo so content never scrolls up behind it (padding wouldn't — it scrolls with
-// the content). Login doesn't hit this: its short form centres well below the logo.
-const ScrollArea = styled.div`
-  width: 100%;
-  margin-top: 130px;
-  max-height: calc(100vh - 170px);
-  overflow-y: auto;
-  padding: 0 8px 24px;
 `;
 
 const SUPPORTED_MODES = { SINGLE: 'single', MULTIPLE: 'multiple' };
@@ -115,23 +150,29 @@ export const SetupWizardView = () => {
     }
   };
 
+  const brandId = getBrandId();
+
   return (
-    <AuthFlowView>
-      <Form
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-        initialValues={{
-          host: '',
-          email: '',
-          password: '',
-          mode: SUPPORTED_MODES.SINGLE,
-          facilityIds: [''],
-        }}
-        render={({ values, setFieldValue }) => {
-          const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
-          return (
-            <ScrollArea>
-            <FormGrid columns={1}>
+    <Page>
+      <FormColumn>
+        <ColumnInner>
+          <LogoDark size="140px" />
+        </ColumnInner>
+        <FormWrapper>
+          <Form
+            onSubmit={handleSubmit}
+            validationSchema={validationSchema}
+            initialValues={{
+              host: '',
+              email: '',
+              password: '',
+              mode: SUPPORTED_MODES.SINGLE,
+              facilityIds: [''],
+            }}
+            render={({ values, setFieldValue }) => {
+              const isMultiple = values.mode === SUPPORTED_MODES.MULTIPLE;
+              return (
+                <FormGrid columns={1}>
               <div>
                 <Heading>
                   <TranslatedText stringId="setup.heading" fallback="Set up this server" />
@@ -274,11 +315,14 @@ export const SetupWizardView = () => {
               <FormSubmitButton
                 text={<TranslatedText stringId="setup.submit" fallback="Connect and continue" />}
               />
-            </FormGrid>
-            </ScrollArea>
-          );
-        }}
-      />
-    </AuthFlowView>
+                </FormGrid>
+              );
+            }}
+          />
+        </FormWrapper>
+        <VersionText title={FULL_VERSION}>{FULL_VERSION}</VersionText>
+      </FormColumn>
+      <SplashImage brandId={brandId} />
+    </Page>
   );
 };
