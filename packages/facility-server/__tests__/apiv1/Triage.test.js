@@ -432,6 +432,22 @@ describe('Triage', () => {
       expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
+    it('should include active ED care patients in the triage list', async () => {
+      const createdTriage = await createTestTriage();
+      const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+      await createdEncounter.update({
+        reasonForEncounter: 'Test include active ED care',
+        encounterType: ENCOUNTER_TYPES.OBSERVATION,
+      });
+      const response = await app.get(`/api/triage?facilityId=${facility.id}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.some((b) => b.encounterId === createdEncounter.id)).toEqual(true);
+      expect(
+        response.body.data.find((b) => b.encounterId === createdEncounter.id).encounterType,
+      ).toEqual(ENCOUNTER_TYPES.OBSERVATION);
+    });
+
     it('should filter triages by patient display ID', async () => {
       await createTestTriage({ patient: { displayId: 'TRIAGE-FILTER-001' } });
       await createTestTriage({ patient: { displayId: 'TRIAGE-FILTER-002' } });
