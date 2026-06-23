@@ -7,11 +7,12 @@ import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { reloadPatient } from '../store';
-import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
+import { LimitedLinesCell } from './FormattedTableCell';
 
-const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
+const ADMITTED_PRIORITY_COLOR = '#888888';
 
 const useColumns = () => {
   const { getSetting } = useSettings();
@@ -99,7 +100,10 @@ const useColumns = () => {
           data-testid="translatedtext-qa0c"
         />
       ),
-      accessor: row => <TranslatedSex sex={row.sex} data-testid="translatedsex-wqbc" />,
+      accessor: ({ sex }) => {
+        if (!sex) return null;
+        return sex.charAt(0).toUpperCase();
+      },
     },
     {
       key: 'locationGroupName',
@@ -123,10 +127,21 @@ const useColumns = () => {
       ),
       accessor: LocationCell,
     },
+    {
+      key: 'clinician',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician-column"
+        />
+      ),
+      CellComponent: props => <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-clinician" />,
+    },
   ];
 };
 
-export const TriageTable = React.memo(() => {
+export const TriageTable = React.memo(({ searchParameters = {} }) => {
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { category } = useParams();
@@ -145,7 +160,7 @@ export const TriageTable = React.memo(() => {
       verb="list"
       noun="Triage"
       endpoint="triage"
-      fetchOptions={{ facilityId }}
+      fetchOptions={{ facilityId, ...searchParameters }}
       columns={columns}
       noDataMessage={
         <TranslatedText

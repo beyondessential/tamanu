@@ -9,6 +9,9 @@ import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 
+import { createTriageFilters } from '../../utils/triageFilters';
+import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
+
 export const triage = express.Router();
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
@@ -131,6 +134,7 @@ const sortKeys = {
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
   locationGroupName: 'location_group_name',
+  clinician: 'UPPER(clinician.display_name)',
 };
 
 triage.get(
@@ -149,6 +153,14 @@ triage.get(
     }
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const filters = createTriageFilters(query);
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      query,
+    );
+
+    const additionalWhere = whereClauses ? `AND ${whereClauses}` : '';
 
     const result = await db.query(
       `
@@ -170,12 +182,15 @@ triage.get(
           planned_location_group.name AS planned_location_group_name,
           planned_location.name AS planned_location_name,
           planned_location.id AS planned_location_id,
-          planned_location_group.id AS planned_location_group_id
+          planned_location_group.id AS planned_location_group_id,
+          clinician.display_name as clinician
         FROM triages
           LEFT JOIN encounters
            ON (encounters.id = triages.encounter_id)
           LEFT JOIN patients
            ON (encounters.patient_id = patients.id)
+          LEFT JOIN users AS clinician
+           ON (clinician.id = encounters.examiner_id)
           LEFT JOIN locations AS location
            ON (encounters.location_id = location.id)
           LEFT JOIN location_groups AS location_group
@@ -191,6 +206,7 @@ triage.get(
           AND location.facility_id = :facilityId
           AND encounters.encounter_type IN (:triageEncounterTypes)
           AND encounters.deleted_at is null
+          ${additionalWhere}
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
       `,
       {
@@ -198,6 +214,7 @@ triage.get(
         type: QueryTypes.SELECT,
         mapToModel: true,
         replacements: {
+          ...filterReplacements,
           facilityId,
           triageEncounterTypes: [
             ENCOUNTER_TYPES.TRIAGE,

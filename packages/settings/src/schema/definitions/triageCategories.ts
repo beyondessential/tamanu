@@ -25,16 +25,16 @@ export const triageCategoriesDefault = [
   {
     level: 3,
     label: 'Urgent',
-    color: '#FFCC24',
+    color: '#DCAE09',
   },
   {
     level: 4,
     label: 'Non-urgent',
-    color: '#47CA80',
+    color: '#19934E',
   },
   {
     level: 5,
     label: 'Deceased',
-    color: '#67A6E3',
+    color: '#1172D1',
   },
 ];

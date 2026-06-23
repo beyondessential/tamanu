@@ -90,12 +90,29 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
           <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-fk2v">
-            <TranslatedText
-              stringId="patientList.triage.table.waitTime.cell.closedTime"
-              fallback="Seen at :triageDate"
-              replacements={{ triageDate: formatTime(closedTime) }}
-              data-testid="translatedtext-hfkc"
-            />
+            <div>
+              <TranslatedText
+                stringId="patientList.triage.table.waitTime.cell.closedTime"
+                fallback="Seen at :triageDate"
+                replacements={{ triageDate: formatTime(closedTime) }}
+                data-testid="translatedtext-hfkc"
+              />
+            </div>
+            <div>
+              {encounterType === ENCOUNTER_TYPES.EMERGENCY ? (
+                <TranslatedText
+                  stringId="patientList.triage.table.waitTime.cell.emergencyShortStay"
+                  fallback="Emerg. short stay"
+                  data-testid="translatedtext-emergency-short-stay"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patientList.triage.table.waitTime.cell.activeEDCare"
+                  fallback="Active ED care"
+                  data-testid="translatedtext-active-ed-care"
+                />
+              )}
+            </div>
           </TriageCell>
         );
       default:
