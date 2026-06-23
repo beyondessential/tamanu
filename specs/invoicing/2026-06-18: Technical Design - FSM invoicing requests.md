@@ -28,18 +28,15 @@ Product decisions and technical design for the FSM Encounver Fee Invoicing.
 - **One fee line per encounter** — anchored to the encounter, so re-runs/re-syncs update the same line, never duplicate. Adding at start (not discharge) survives the end-of-day clinic auto-discharge. Changes should be handled through an Encounter model level change hook - this should only add if there isn't already a line for the same product code. Initial encounter fee is set when the invoice is created.
 - Update the invoice-item "source" types with 2 new types: Encounter Fee and Bed Fee.
 
-### Walk-in pharmacy vs regular clinic — flag approach
+### Walk-in pharmacy vs regular clinic — discriminator flag + charge toggle
 
-Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit. Yap prices the two **differently**, so a single per-facility clinic fee can't express both — they need **separate fee products**, which means the fee logic must tell the two apart. (Today the only signal is the hardcoded free-text `reasonForEncounter: 'Medication dispensing'` — too fragile to bill off.)
+Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a regular clinic visit. Resolved with Les: where pharmacy is charged (Yap) it's the **same fee** as a regular clinic visit; where it isn't (Pohnpei) the fee is **skipped** entirely. No facility prices the two differently. So this is **charge-or-skip, not a pricing difference** — no separate pharmacy fee products (which would mean a parallel, mostly-$0 product set). But the fee logic still has to tell pharmacy walk-ins apart from regular clinic encounters; today's only signal is the hardcoded free-text `reasonForEncounter: 'Medication dispensing'`, too fragile to bill off.
 
-**Approach: an additive flag on the encounter**, e.g. `isPharmacyEncounter` (boolean, default `false`), set `true` at creation by the walk-in pharmacy route and immutable thereafter.
+**Approach: an additive discriminator flag on the encounter**, e.g. `isPharmacyEncounter` (boolean, default `false`), set `true` at creation by the walk-in pharmacy route and immutable thereafter; plus a **facility setting** toggling whether pharmacy walk-ins are charged.
 
-- **Fee selection:** the encounter-fee helper picks the **pharmacy walk-in fee product** when the flag is set, otherwise the standard clinic product. Each is priced per facility via the price list (Yap charges; Pohnpei $0).
-- **No double-add:** the model-level hook (which catches all `clinic` encounters, incl. mobile/sync) must **skip the standard clinic fee when the flag is set** — the flag is what lets it do that cleanly.
+- **Fee selection:** for a `clinic` encounter, if `isPharmacyEncounter` is set and the facility's charge-pharmacy setting is off, the helper **skips the fee**; otherwise the pharmacy walk-in gets the **normal clinic fee** — same products, same time-of-day bucket as a regular visit.
 - **Why a flag, not a new encounter type:** additive and low-blast-radius (one column + migration), vs a new encounter type which threads through ~61 files (UI, permissions, FHIR, reports, mobile, sync, dbt, auto-discharger, invoiceable-type sets) and changes existing clinic behaviour. A new `pharmacy` encounter type is the cleaner long-term model *if* the org wants pharmacy dispensing to be a first-class encounter concept — that's a separate product decision, out of scope here.
 - **Migrations:** the column is on `encounters`, which syncs — so add the **mobile (TypeORM) migration alongside the server (Sequelize) one**, even though walk-in pharmacy is a facility-server flow today.
-
-**Open:** confirm Yap genuinely prices regular clinic ≠ pharmacy walk-in (Les), and finalise the flag/field name.
 
 ## Decisions
 
@@ -49,7 +46,7 @@ Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a reg
 - Public holidays not automated — cashier adjusts.
 - Includes **A single ED fee** covering Triage, Active ED and Emergency short stay
 - **No imaging encounters** in FSM — outpatient fee applies to clinic (incl. walk-in pharmacy) only.
-- **Walk-in pharmacy** (clinic) encounters attract the fee, configured **per facility** (charged in Yap, not Pohnpei). Non-charging facilities price it **$0** — fine to show as a $0 line item.
+- **Walk-in pharmacy** (clinic) encounters: charged the **normal clinic fee** where the facility charges pharmacy (Yap), **no fee** where it doesn't (Pohnpei) — controlled by a per-facility toggle + the `isPharmacyEncounter` discriminator, not separate products.
 
 ---
 
@@ -113,11 +110,11 @@ Handles the edge case where a patient occupies two billable locations in one day
 
 - Can I confirm that a patient admitted to hospital from ED is charged both the Emergency encounter fee and the bed fee's first night, plus pre-admission items at full price all on one invoice? - Yes
 
-- Does the Outpatient Fee apply to Imaging encounters & walk-in pharmacy encounters as well as Clinic encounters? - We don't have Imaging encounters, but for Pharmacy encounters an encounter fee is applicable in Yap but not in Pohnpei (not sure how it will be configured but we can set to $0 for facilities that do not charge this fee - fine that it appears as a $0 line item on invoice if that easier)
+- Does the Outpatient Fee apply to Imaging encounters & walk-in pharmacy encounters as well as Clinic encounters? - We don't have Imaging encounters. Pharmacy walk-ins: **resolved** — charged the normal clinic fee where the facility charges pharmacy (Yap), skipped where it doesn't (Pohnpei), via a per-facility toggle + `isPharmacyEncounter` discriminator. No separate/$0 products (see Walk-in pharmacy section).
 
 - Can I confirm that STAT medications for outpatients are out of scope for now? - Yes
 
 - Will Location Group be sufficient for pricing? No it won't so we will have to go back to using locations.
-- **[New — needs Les]** Does Pohnpei charge the outpatient encounter fee for *regular clinic visits*? Walk-in pharmacy is also a `clinic` encounter, so if Pohnpei charges regular clinic visits but wants pharmacy walk-ins free, a **separate pharmacy/walk-in fee product** is needed to price it independently. If Pohnpei charges no outpatient fee at all, just price the clinic fee $0.
+- **[Resolved]** Does Pohnpei charge the outpatient fee for *regular clinic visits*? **Yes** — Pohnpei charges regular clinic but **skips** the fee for pharmacy walk-ins; Yap charges both the same; no state prices pharmacy differently. Handled by a per-facility charge-pharmacy toggle + the `isPharmacyEncounter` discriminator — no separate pharmacy products.
 
   
