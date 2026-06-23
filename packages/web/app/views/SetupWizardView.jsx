@@ -207,10 +207,6 @@ export const SetupWizardView = () => {
                     fallback="Administrator username"
                   />
                 }
-                placeholder={getTranslation(
-                  'setup.email.placeholder',
-                  'Enter the central administrator username',
-                )}
                 autoComplete="off"
                 enablePasting
               />
