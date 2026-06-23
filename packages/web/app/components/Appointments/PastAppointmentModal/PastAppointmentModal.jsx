@@ -201,7 +201,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
       all: true,
       patientId: patient?.id,
       before: getCurrentDateTime(),
-      after: '-infinity',
+      after: '0000-01-01 00:00:00',
       orderBy,
       order,
     },
