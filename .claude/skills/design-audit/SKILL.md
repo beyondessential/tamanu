@@ -9,7 +9,7 @@ Audit the feature's design work against the design system (`packages/web/app/con
 
 ### What to audit
 
-- **Mockups** — the HTML mockups under `docs/specs/<area>/mockups/`, or
+- **Mockups** — the HTML mockups under `specs/<area>/mockups/`, or
 - **Implementation** — the UI code changes on the branch, or
 - **Both** — and flag where the implementation drifted from what the mockups showed.
 

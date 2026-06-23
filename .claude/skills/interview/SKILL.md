@@ -14,7 +14,7 @@ Methodology:
 3. **Surface decisions** — identify ambiguity and ask the user to resolve it.
 4. **Track open questions** — maintain a running list of unresolved questions.
 5. **Extract acceptance criteria** — as the conversation progresses, extract concrete criteria.
-6. **Flow into writing the spec** — as soon as enough detail exists in any area, start drafting or editing the relevant spec doc under `docs/specs/<area>/`. Don't wait for a "ready" signal; keep interviewing the thin areas while writing up the solid ones.
+6. **Flow into writing the spec** — as soon as enough detail exists in any area, start drafting or editing the relevant spec doc under `specs/<area>/`. Don't wait for a "ready" signal; keep interviewing the thin areas while writing up the solid ones.
 
 Ask focused questions — one or two at a time, not long lists. **Number your questions** so the user can reply by number.
 

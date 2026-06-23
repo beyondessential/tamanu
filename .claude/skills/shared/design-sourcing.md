@@ -22,4 +22,4 @@ A UI change usually touches only part of an existing screen; the rest carries th
 
 - A standalone HTML file with inline CSS, rendered inline (not as an image).
 - An HTML comment header linking the spec it illustrates, e.g. `<!-- spec: invoicing/encounter-fees.md -->`.
-- Store at `docs/specs/<area>/mockups/<slug>.html`.
+- Store at `specs/<area>/mockups/<slug>.html`.

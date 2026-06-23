@@ -6,17 +6,17 @@ The "card" these skills refer to is the feature/ticket you're working on (typica
 
 ## Where things live
 
-- **Specs** (durable acceptance criteria / behaviour): `docs/specs/<area>/<slug>.md`, organised into directories by product area.
-- **Plans** (tech-design notes + build checklist for a feature): a working doc alongside the spec, e.g. `docs/specs/<area>/<feature>-plan.md`, or the ticket itself.
-- **Test cases** (verifiable scenarios): `docs/specs/<area>/<feature>-test-cases.md`.
-- **Mockups**: standalone HTML at `docs/specs/<area>/mockups/<slug>.html`.
+- **Specs** (durable acceptance criteria / behaviour): `specs/<area>/<slug>.md`, organised into directories by product area.
+- **Plans** (tech-design notes + build checklist for a feature): a working doc alongside the spec, e.g. `specs/<area>/<feature>-plan.md`, or the ticket itself.
+- **Test cases** (verifiable scenarios): `specs/<area>/<feature>-test-cases.md`.
+- **Mockups**: standalone HTML at `specs/<area>/mockups/<slug>.html`.
 
 ## Information hierarchy
 
-The directory structure under `docs/specs/` is the hierarchy: **Area > Subarea > ... > Spec**, with arbitrary nesting depth.
+The directory structure under `specs/` is the hierarchy: **Area > Subarea > ... > Spec**, with arbitrary nesting depth.
 
 ```
-docs/specs/
+specs/
 ├── patient/
 │   ├── registration.md
 │   ├── allergies.md

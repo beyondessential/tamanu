@@ -4,7 +4,7 @@ A test-cases document captures the concrete scenarios that verify a feature is d
 
 ## Location
 
-`docs/specs/<area>/<feature>-test-cases.md`.
+`specs/<area>/<feature>-test-cases.md`.
 
 ## Format
 

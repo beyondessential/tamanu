@@ -5,7 +5,7 @@ description: Review a feature's specs with fresh eyes for gaps, contradictions, 
 
 ## Review spec with fresh eyes
 
-Read the spec files in `docs/specs/<area>/` that relate to this feature and review them as if seeing them for the first time. Set aside earlier conversation context — check the specs stand on their own.
+Read the spec files in `specs/<area>/` that relate to this feature and review them as if seeing them for the first time. Set aside earlier conversation context — check the specs stand on their own.
 
 Look for:
 

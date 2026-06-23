@@ -4,7 +4,7 @@ A plan is a per-feature **working document**: the technical approach plus a chec
 
 ## Location
 
-`docs/specs/<area>/<feature>-plan.md` (alongside the feature's spec), or on the working ticket — wherever the team keeps it.
+`specs/<area>/<feature>-plan.md` (alongside the feature's spec), or on the working ticket — wherever the team keeps it.
 
 ## Format
 

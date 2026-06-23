@@ -5,7 +5,7 @@ description: Workshop how to break a large feature or ticket into smaller ticket
 
 ## Plan cards
 
-Workshop how to slice a large feature/ticket into smaller tickets and capture the breakdown (e.g. in `docs/specs/<area>/<feature>-card-plan.md`, or directly as tickets once agreed).
+Workshop how to slice a large feature/ticket into smaller tickets and capture the breakdown (e.g. in `specs/<area>/<feature>-card-plan.md`, or directly as tickets once agreed).
 
 1. Read the feature's specs, the ticket description, and any existing breakdown.
 2. Skim the repo where it helps you reason about boundaries between the pieces.

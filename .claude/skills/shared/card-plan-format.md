@@ -4,7 +4,7 @@ A card plan slices a large ticket into smaller tickets — the parent stays as t
 
 ## Location
 
-`docs/specs/<area>/<feature>-card-plan.md` while workshopping it, or proposed directly for creation as Linear tickets once the breakdown is agreed.
+`specs/<area>/<feature>-card-plan.md` while workshopping it, or proposed directly for creation as Linear tickets once the breakdown is agreed.
 
 ## Shape
 

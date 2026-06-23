@@ -9,8 +9,8 @@ Implement the work described by the ticket. The starting point varies — work o
 
 ### What you're implementing
 
-1. **Pending spec change on this branch?** Diff your branch against its base (usually `main`), scoped to `docs/specs/`. If there are spec changes, that diff is the source of truth — the new/changed criteria describe the work.
-2. **Otherwise, lead with the ticket description.** Read it carefully, and read the relevant existing specs in `docs/specs/<area>/` for context. Where the description and the specs disagree, the description wins — implement to it, update the affected specs to match, and say which you changed and why.
+1. **Pending spec change on this branch?** Diff your branch against its base (usually `main`), scoped to `specs/`. If there are spec changes, that diff is the source of truth — the new/changed criteria describe the work.
+2. **Otherwise, lead with the ticket description.** Read it carefully, and read the relevant existing specs in `specs/<area>/` for context. Where the description and the specs disagree, the description wins — implement to it, update the affected specs to match, and say which you changed and why.
 3. **No spec at all?** Fall back to the ticket + conversation context; treat concrete decisions as the de-facto spec. If the behaviour is substantive and worth keeping, write it up as a spec change (see `.claude/skills/shared/spec-format.md`).
 
 ### The plan
