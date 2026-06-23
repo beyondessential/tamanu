@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { reloadPatient } from '../store';
-import { TranslatedReferenceData, TranslatedText } from './Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
 import { LimitedLinesCell } from './FormattedTableCell';
@@ -102,7 +102,7 @@ const useColumns = () => {
       ),
       accessor: ({ sex }) => {
         if (!sex) return null;
-        return sex.charAt(0).toUpperCase();
+        return <TranslatedSex sex={sex} short data-testid="translatedsex-triage" />;
       },
     },
     {
