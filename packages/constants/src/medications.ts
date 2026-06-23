@@ -207,7 +207,10 @@ export const ADMINISTRATION_FREQUENCIES = {
   IMMEDIATELY: 'Immediately',
   AS_DIRECTED: 'As directed',
   TWICE_DAILY_AM_AND_MIDDAY: 'Twice daily - AM and midday',
-};
+} as const;
+
+export type AdministrationFrequency =
+  (typeof ADMINISTRATION_FREQUENCIES)[keyof typeof ADMINISTRATION_FREQUENCIES];
 
 export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
   [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: ['mane', 'Morning'],
@@ -251,7 +254,7 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
     'AM and lunch',
     'BD - AM and lunch',
   ],
-};
+} as const;
 
 export const ADMINISTRATION_FREQUENCY_DETAILS = {
   [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
@@ -318,7 +321,7 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     startTimes: ['06:00', '12:00'],
     dosesPerDay: 2,
   },
-};
+} as const;
 
 export const MEDICATION_DURATION_UNITS = {
   HOURS: 'hours',
@@ -332,29 +335,29 @@ export const MEDICATION_DURATION_DISPLAY_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
   [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
   [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
-};
+} as const;
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
   [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
   [MEDICATION_DURATION_UNITS.WEEKS]: 'week (s)',
   [MEDICATION_DURATION_UNITS.MONTHS]: 'month (s)',
-};
+} as const;
 
 export const MEDICATION_PAUSE_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
   [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
-};
+} as const;
 
 export const ADMINISTRATION_STATUS = {
   GIVEN: 'given',
   NOT_GIVEN: 'not-given',
-};
+} as const;
 
 export const ADMINISTRATION_STATUS_LABELS = {
   [ADMINISTRATION_STATUS.GIVEN]: 'Given',
   [ADMINISTRATION_STATUS.NOT_GIVEN]: 'Not given',
-};
+} as const;
 
 export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '00:00', endTime: '02:00' },
@@ -374,35 +377,35 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
 export const PHARMACY_PRESCRIPTION_TYPES = {
   DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
   INPATIENT: 'INPATIENT',
-};
+} as const;
 
 export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
   [PHARMACY_PRESCRIPTION_TYPES.INPATIENT]: 'Inpatient',
   [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
-};
+} as const;
 
 export const PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES = {
   ENCOUNTER_TYPE: 'encounterType',
   OUTPATIENT_OR_DISCHARGE: 'outpatientOrDischarge',
   INPATIENT: 'inpatient',
-};
+} as const;
 
 export const DRUG_STOCK_STATUSES = {
   IN_STOCK: 'in_stock',
   OUT_OF_STOCK: 'out_of_stock',
   UNAVAILABLE: 'unavailable',
   UNKNOWN: 'unknown',
-};
+} as const;
 
 export const DRUG_STOCK_STATUS_LABELS = {
   [DRUG_STOCK_STATUSES.IN_STOCK]: 'Yes',
   [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: 'No',
   [DRUG_STOCK_STATUSES.UNKNOWN]: 'Unknown',
-};
+} as const;
 
 export const INVOICEABLE_MEDICATION_ENCOUNTER_TYPES = [
   ENCOUNTER_TYPES.ADMISSION,
   ENCOUNTER_TYPES.TRIAGE,
   ENCOUNTER_TYPES.OBSERVATION,
   ENCOUNTER_TYPES.EMERGENCY,
-];
+] as const;

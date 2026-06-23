@@ -1,5 +1,13 @@
 import * as yup from 'yup';
-import { extractDefaults } from './utils';
+
+import {
+  ADMINISTRATION_FREQUENCIES,
+  type AdministrationFrequency,
+  BROWSER_SUPPORT_POLICIES,
+  isValidAdditionalSearchField,
+  PLATFORM_SUPPORT_POLICIES,
+  SETTING_EDITORS,
+} from '@tamanu/constants';
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
@@ -21,23 +29,17 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
-import {
-  layoutModuleProperties,
-  unhideableLayoutModuleProperties,
-} from './global-settings-properties/layouts';
-import {
-  ADMINISTRATION_FREQUENCIES,
-  BROWSER_SUPPORT_POLICIES,
-  isValidAdditionalSearchField,
-  PLATFORM_SUPPORT_POLICIES,
-  SETTING_EDITORS,
-} from '@tamanu/constants';
+import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
 import { patientSummaryProperties } from './definitions/patientSummary';
-import { encounterSummaryProperties } from './definitions/encounterSummary';
+import {
+  layoutModuleProperties,
+  unhideableLayoutModuleProperties,
+} from './global-settings-properties/layouts';
+import { extractDefaults } from './utils';
 
 const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
@@ -1844,10 +1846,12 @@ export const globalSettings = {
           properties: generateFrequencyProperties(
             Object.values(ADMINISTRATION_FREQUENCIES).filter(
               frequency =>
-                ![
-                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
-                ].includes(frequency),
+                !(
+                  [
+                    ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                    ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                  ] as AdministrationFrequency[]
+                ).includes(frequency),
             ),
           ),
         },
