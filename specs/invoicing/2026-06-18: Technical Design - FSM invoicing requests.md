@@ -18,7 +18,7 @@ Product decisions and technical design for the FSM Encounver Fee Invoicing.
 
 
 
-# Outpatient & ED Encounter Fees
+# Outpatient & ED Encounter Fees (TAM-6898)
 
 ## Tech design
 
@@ -52,7 +52,7 @@ Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a reg
 
 
 
-# Inpatient Encounter Fees
+# Inpatient Encounter Fees (TAM-6900)
 
 ## Tech design
 
@@ -70,10 +70,11 @@ Walk-in pharmacy dispensing creates a `clinic` encounter, the same type as a reg
 - **"Open ward" placeholder** locations are never charged.
 - Invoice **batches by Location** (e.g. ICU ×2, Ward 1 Bed 1 ×3), not one row per night.
 - Overnight check time configurable per facility (default 02:00), in facility-local time.
+- A patient **admitted from ED** keeps the ED encounter fee and is also charged the bed fee's first night, with pre-admission items at full price — all on the one encounter invoice.
 
 
 
-# FSM Price Ward Scenario
+# FSM Price Ward Scenario (TAM-6913)
 
 Handles the edge case where a patient occupies two billable locations in one day — placed in a general ward while waiting for a private room, then moved once one frees up — and is billed a night for each (a distinct billable location occupied that day = one night).
 
@@ -81,7 +82,7 @@ Handles the edge case where a patient occupies two billable locations in one day
 
 
 
-# Inpatient fee inclusions / exclusions
+# Inpatient fee inclusions / exclusions (TAM-6901)
 
 ## Tech design
 
@@ -106,15 +107,5 @@ Handles the edge case where a patient occupies two billable locations in one day
 | Medications | no | yes | no | yes |
 | Procedures | no | no | no | no |
 
-## Open questions
-
-- Can I confirm that a patient admitted to hospital from ED is charged both the Emergency encounter fee and the bed fee's first night, plus pre-admission items at full price all on one invoice? - Yes
-
-- Does the Outpatient Fee apply to Imaging encounters & walk-in pharmacy encounters as well as Clinic encounters? - We don't have Imaging encounters. Pharmacy walk-ins: **resolved** — charged the normal clinic fee where the facility charges pharmacy (Yap), skipped where it doesn't (Pohnpei), via a per-facility toggle + `isPharmacyEncounter` discriminator. No separate/$0 products (see Walk-in pharmacy section).
-
-- Can I confirm that STAT medications for outpatients are out of scope for now? - Yes
-
-- Will Location Group be sufficient for pricing? No it won't so we will have to go back to using locations.
-- **[Resolved]** Does Pohnpei charge the outpatient fee for *regular clinic visits*? **Yes** — Pohnpei charges regular clinic but **skips** the fee for pharmacy walk-ins; Yap charges both the same; no state prices pharmacy differently. Handled by a per-facility charge-pharmacy toggle + the `isPharmacyEncounter` discriminator — no separate pharmacy products.
 
   
