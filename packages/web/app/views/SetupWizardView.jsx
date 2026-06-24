@@ -18,10 +18,8 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useApi } from '../api';
 
-// Dedicated layout rather than AuthFlowView: the wizard is a tall, scrolling form,
-// which AuthFlowView's vertically-centred body and fixed top-left logo don't suit
-// (content scrolls behind the fixed logo). Here the logo sits in normal flow at
-// the top of a scrollable column, so the whole form scrolls cleanly beneath it.
+// Dedicated layout rather than AuthFlowView, whose centred body + fixed logo
+// don't suit a tall scrolling form: logo in normal flow atop a scrollable column.
 const Page = styled.div`
   display: flex;
   height: 100vh;

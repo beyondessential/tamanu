@@ -15,19 +15,14 @@ import { log } from '@tamanu/shared/services/logging';
 import { isServerConfigured, initServerConfig } from '../../serverConfig';
 import { version } from '../../serverInfo';
 
-// POST /public/setup/sync records where this facility server syncs to and which
-// facilities it serves. Unauthenticated by necessity (a fresh server has no
-// users) — so it's authorised three ways: central super-admin credentials must
-// validate, the server must still be UNCONFIGURED, and the request must come
-// from a trusted network. (Setup status is folded into the public ping/alive
-// response rather than a dedicated endpoint.)
+// POST /public/setup/sync is unauthenticated (a fresh server has no users), so
+// it's gated three ways: central super-admin credentials must validate, the
+// server must still be UNCONFIGURED, and the request must come from a trusted
+// network. (Setup status is folded into the public ping response.)
 
-// Networks the setup request may originate from. We can't restrict the target
-// host (a central server may legitimately be on a private/Tailscale network), so
-// instead require the *request* to come from a trusted network — stopping a
-// public attacker from driving the outbound probe (SSRF) or claiming a fresh
-// server. Loopback, RFC1918, link-local, and Tailscale (CGNAT 100.64/10 + its
-// ULA range), for both IPv4 and IPv6.
+// We can't restrict the target host (central may be on a private/Tailscale
+// network), so we restrict the request source instead — stopping a public
+// attacker from driving the outbound probe (SSRF) or claiming a fresh server.
 const TRUSTED_SOURCE_RANGES = {
   ipv4: [
     '127.0.0.0/8',
@@ -80,17 +75,13 @@ const setupSyncSchema = z.object({
 export const setupSyncHandler = asyncHandler(async (req, res) => {
   req.flagPermissionChecked();
 
-  // Trusted-network gate: only accept setup from the local/private/Tailscale
-  // network, never the public internet.
   if (!isTrustedSetupSource(req.ip)) {
     return res
       .status(403)
       .send({ error: { message: 'Setup is only available from the local network' } });
   }
 
-  // Only permitted while unconfigured. Once configured, reconfiguration goes
-  // through env / direct DB — never this endpoint — so a live, populated server's
-  // sync target can't be repointed.
+  // Reconfiguring a live server goes through env / direct DB, not this endpoint.
   if (isServerConfigured()) {
     return res.status(409).send({ error: { message: 'Server is already configured' } });
   }
@@ -99,11 +90,8 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
   const normalisedHost = new URL(host).origin;
 
-  // The deliberate part: prove the host is reachable and the credentials
-  // authenticate, before saving anything. Also the authorisation gate — this
-  // endpoint is unauthenticated (a fresh server has no users), so we require the
-  // supplied credentials to be a central superuser. (Next pass: central
-  // provisions a dedicated sync user once the admin has authenticated here.)
+  // Validate the host + credentials against central, and use them as the authz
+  // gate (must be a central super-admin) before saving anything.
   const probe = new TamanuApi({
     endpoint: `${normalisedHost}/api`,
     agentName: SERVER_TYPES.FACILITY,
@@ -116,8 +104,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   try {
     loginResult = await probe.login(email, password, { scopes: [], backoff: { maxAttempts: 1 } });
   } catch (error) {
-    // Generic message + no host/password in logs — don't turn this into an
-    // oracle for which internal hosts respond.
+    // Generic message, no host/password logged — don't leak which hosts respond.
     log.warn(`Sync setup validation failed: ${error.type ?? error.name}`);
     return res
       .status(422)
@@ -130,8 +117,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     });
   }
 
-  // Have central provision a dedicated sync user (rather than storing the admin's
-  // own credentials). The probe is authenticated as the admin from the login above.
+  // Have central provision a dedicated sync user rather than storing the admin's.
   let syncCredentials;
   try {
     syncCredentials = await probe.post('admin/syncCredentials', {
@@ -145,19 +131,17 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   }
 
   const { LocalSystemFact, LocalSystemSecret } = req.models;
-  // Atomic so a mid-write failure can't leave the server half-configured (stale
-  // facts without a password, etc.).
+  // Atomic so a mid-write failure can't leave the server half-configured.
   await req.db.transaction(async () => {
     await LocalSystemFact.set(FACT_CENTRAL_HOST, normalisedHost);
     await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
-    // The password is an external credential we hold — store it encrypted at rest
-    // in local_system_secrets, out of local_system_facts and the raw reporting role.
+    // Password encrypted at rest, out of local_system_facts and the raw reporting role.
     await LocalSystemSecret.setSecret(FACT_SYNC_PASSWORD, syncCredentials.password);
   });
 
-  // Refresh the in-memory holder so this process reports configured immediately;
-  // the sync process picks up the new connection on its next (re)start.
+  // Refresh the holder so this process reports configured immediately; the sync
+  // process picks it up on its next (re)start.
   await initServerConfig({ context: { models: req.models } });
 
   log.info('Facility server configured via setup wizard', {

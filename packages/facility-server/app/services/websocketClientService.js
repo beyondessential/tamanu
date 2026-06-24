@@ -14,8 +14,7 @@ const NOOP_CLIENT_SERVICE = {
  * @param {{websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
-  // Connect to the resolved sync host, not config — and when the server isn't
-  // configured yet (no host) there's nothing to connect to, so expose a no-op.
+  // No host until the server is configured — nothing to connect to, so no-op.
   const { host } = getSyncConfig();
   if (!host) {
     return NOOP_CLIENT_SERVICE;

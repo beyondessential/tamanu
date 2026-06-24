@@ -12,17 +12,14 @@ import { ApplicationContext } from '../ApplicationContext';
 
 const SYNC_CONFIG_FACTS = [FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_FACILITY_IDS];
 
-// Clears the sync host/credentials/facilities so the server returns to the
-// unconfigured state and can be set up again (via the wizard, SYNC_URL env, or
-// a re-run). Host-level access only — reconfiguring a live server isn't exposed
-// over the network. Restart the server afterwards for it to take effect.
+// Clears the sync facts so the server is unconfigured and can be set up again.
+// Host-level access only; restart the server afterwards to take effect.
 export const resetSyncConfig = async () => {
   const context = await new ApplicationContext().init();
   const { LocalSystemFact, LocalSystemSecret } = context.models;
 
-  // Hard delete: these tables are paranoid, and a soft-deleted row still occupies
-  // the unique `key` constraint, so a later set() of the same key would collide.
-  // force: true removes the rows outright.
+  // Hard delete: a soft-deleted row still occupies the unique `key` constraint,
+  // so a later set() of the same key would collide.
   await LocalSystemFact.destroy({ where: { key: SYNC_CONFIG_FACTS }, force: true });
   await LocalSystemSecret.destroy({ where: { key: FACT_SYNC_PASSWORD }, force: true });
 

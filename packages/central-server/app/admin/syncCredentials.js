@@ -9,9 +9,8 @@ const bodySchema = z.object({
     .max(100),
 });
 
-// Deterministic, fixed-length local part derived from the facility ids, so
-// re-running setup rotates the same account and ids like ['a','b'] don't collide
-// with ['a-b']. Hashing also bounds the email length regardless of id count.
+// Hash the ids so the email is deterministic (re-running rotates the same
+// account), fixed-length, and collision-free (['a','b'] vs ['a-b']).
 const syncUserEmail = facilityIds =>
   `sync.${crypto
     .createHash('sha256')
@@ -19,12 +18,9 @@ const syncUserEmail = facilityIds =>
     .digest('hex')
     .slice(0, 32)}@sync.tamanu`;
 
-// Provision (or rotate) a dedicated sync user for a facility server and return
-// its credentials. Called by a facility server's setup wizard once an admin has
-// authenticated. Mirrors the sync users created by the `provision` subcommand:
-// a "System: <facilities> sync" user with a generated password.
-//
-// Gated on manage:all — only a central super-admin may mint sync credentials.
+// Provision (or rotate) a dedicated sync user and return its credentials, for a
+// facility's setup wizard. Mirrors the sync users the `provision` subcommand
+// makes. Gated on manage:all — only a central super-admin may mint these.
 export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   req.checkPermission('manage', 'all');
 
@@ -40,8 +36,7 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const existing = await User.findOne({ where: { email } });
   if (existing) {
     existing.set({ displayName, role: 'admin' });
-    // setPassword is async (it hashes); must await before save or the unhashed
-    // password (a pending Promise) gets persisted.
+    // setPassword is async (it hashes) — must await before save.
     await existing.setPassword(password);
     await existing.save();
   } else {

@@ -10,23 +10,14 @@ import { parseSyncUrl } from '@tamanu/database/services/syncConnectionConfig';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
-// Resolved once at boot by initServerConfig and read synchronously across the
-// runtime — the same role config used to play, so consumers don't each re-read
-// facts. Holds two distinct concerns:
-//   - sync: where/how this server syncs (host + credentials)
-//   - facilityIds: which facilities this server represents (its identity)
+// { sync: { host, email, password }, facilityIds }, resolved once at boot.
 let resolved = null;
 
 /**
- * Resolve this server's sync connection and facility identity.
- *
- * Each value resolves in priority order: env var > local system fact > legacy
- * config. This is a pure read-resolver — it writes nothing. Facts are written
- * out of band by the first-run setup wizard (and FACT_FACILITY_IDS by the
- * existing facility-match integrity check); config is the deprecated fallback.
- *
- * Mirrors initDeviceId: resolve once at boot, then expose via the getters below
- * (and on `context.serverConfig`) rather than having the runtime touch config.
+ * Resolve this server's sync connection and facility identity once at boot, each
+ * value in priority order: env var > local system fact > legacy config. Pure
+ * read — facts are written elsewhere (the setup wizard, and FACT_FACILITY_IDS by
+ * the facility-match integrity check).
  */
 export async function initServerConfig({ context }) {
   const models = context.store?.models ?? context.models;
@@ -40,18 +31,15 @@ export async function initServerConfig({ context }) {
 
   resolved = { sync: { host, email, password }, facilityIds };
 
-  // The awaits above are settled, so the atomic-updates warning is a false positive.
-  /* eslint-disable-next-line require-atomic-updates */
+  /* eslint-disable-next-line require-atomic-updates -- awaits above are settled */
   context.serverConfig = resolved;
 
   return context;
 }
 
-// Read the sync facts, tolerating the tables not existing yet: ApplicationContext
-// init runs before migrations, so on a brand-new database the fact/secret tables
-// are absent — a fresh (unconfigured) server, which falls back to env/config.
-// The password lives in local_system_secrets (encrypted); read it separately so
-// an unconfigured key file doesn't blank out the non-secret facts.
+// Tolerant of the tables not existing yet (init runs before migrations on a fresh
+// DB) and of a missing key file — the password is read separately so a key-file
+// failure doesn't blank out the non-secret facts.
 async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
   let host = null;
   let email = null;
@@ -75,46 +63,33 @@ async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
   return { host, email, password, facilityIds };
 }
 
-// The sync connection: { host, email, password }.
 export function getSyncConfig() {
   return current().sync;
 }
 
-// The facilities this server represents — identity used across settings, auth,
-// sync and tasks, not just sync.
 export function getServerFacilityIds() {
   return current().facilityIds;
 }
 
-// Whether the server is fully set up to sync: a sync connection plus at least
-// one facility.
 export function isServerConfigured() {
   const { sync, facilityIds } = current();
   return Boolean(sync.host && sync.email && sync.password && facilityIds?.length);
 }
 
-/**
- * The facility ids this server is externally *declared* to serve (env or config,
- * never the fact). The facility-match integrity check drift-checks this against
- * the recorded FACT_FACILITY_IDS; a wizard-configured server has no external
- * declaration, so it returns null and the check is skipped.
- */
+// The host/facility ids this server is externally *declared* to use (env or
+// config, never the fact) — the integrity checks drift-check these against the
+// recorded facts, and skip when null (a wizard-configured server has no
+// declaration).
 export function getDeclaredFacilityIds() {
   return parseEnv().facilityIds ?? configFacilityIds();
 }
 
-/**
- * The sync host this server is externally *declared* to use (env or config,
- * never the fact), for the host-match integrity check. Null for a
- * wizard-configured server, so that check is skipped.
- */
 export function getDeclaredHost() {
   return parseEnv().host ?? configHost();
 }
 
-// Resolved holder if boot has run, else an env+config view (e.g. tests, or an
-// entry point that didn't build a full context) so behaviour is never worse
-// than the pre-facts config-only path.
+// Resolved holder once boot has run, else an env+config view (tests, or an entry
+// point without a full context).
 function current() {
   if (resolved) return resolved;
   const env = parseEnv();

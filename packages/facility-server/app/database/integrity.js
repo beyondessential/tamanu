@@ -21,9 +21,8 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
-  // Compare the externally declared host (env/config), not the fact. A
-  // wizard-configured server has no external declaration — the recorded fact is
-  // the source of truth — so there's nothing to drift-check.
+  // Drift-check the declared host (env/config) against the fact; a
+  // wizard-configured server has no declaration, so there's nothing to check.
   const configuredHost = getDeclaredHost();
   if (!configuredHost) return;
   const lastHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
@@ -45,9 +44,8 @@ async function ensureHostMatches(context) {
  */
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
+  // Drift-check declared facilities (env/config) against the fact; skip when none.
   const configuredFacilities = getDeclaredFacilityIds();
-  // A wizard-configured server has no external (env/config) declaration to
-  // drift-check against — the recorded fact is the source of truth.
   if (!configuredFacilities?.length) return;
   const lastFacilities = await LocalSystemFact.get(FACT_FACILITY_IDS);
 
@@ -63,11 +61,9 @@ async function ensureFacilityMatches(context) {
       );
     }
   } else {
-    // First registration verifies central is reachable before recording the ids.
-    // That needs a sync host — if the server isn't fully configured yet (e.g. only
-    // SYNC_FACILITY_IDS is set, or it's awaiting the wizard), skip; the ids get
-    // recorded once setup completes. Avoids constructing CentralServerConnection
-    // (which throws) with no host.
+    // First registration verifies central is reachable before recording — needs a
+    // host, so skip until the server is configured (CentralServerConnection throws
+    // with no host).
     if (!isServerConfigured()) return;
     const centralServer = new CentralServerConnection(context);
     log.info(`Verifying central server connection to ${centralServer.host}...`);

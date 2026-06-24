@@ -1,10 +1,7 @@
 import { createTestContext } from '../utilities';
 
-// Covers the deterministic, security-relevant contract of the first-run setup
-// endpoints. The happy path (POST /public/setup/sync writing facts) drives an
-// outbound central login probe + credential provisioning and writes an encrypted
-// secret (needs crypto.keyFile), so it's exercised end-to-end manually rather
-// than stubbed here; this suite covers the status flag and input rejection.
+// Covers the status flag and input rejection. The happy path needs an outbound
+// central probe + crypto.keyFile, so it's verified manually rather than here.
 describe('Setup endpoints', () => {
   let ctx;
   let baseApp;
