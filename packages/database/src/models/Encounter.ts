@@ -56,6 +56,7 @@ export class Encounter extends Model {
   declare departmentId?: string;
   declare patientBillingTypeId?: string;
   declare referralSourceId?: string;
+  declare isPharmacyEncounter: boolean;
 
   declare location?: Location;
   declare patient?: Patient;
@@ -111,6 +112,11 @@ export class Encounter extends Model {
         dischargeDraft: {
           type: DataTypes.JSONB,
           allowNull: true,
+        },
+        isPharmacyEncounter: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {

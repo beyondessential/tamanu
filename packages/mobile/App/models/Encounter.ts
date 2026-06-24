@@ -54,6 +54,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ default: '', nullable: true })
   reasonForEncounter?: string;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  isPharmacyEncounter: boolean;
+
   @Index()
   @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;

@@ -23,7 +23,7 @@ Auto-add a per-facility encounter fee at encounter start: outpatient (`clinic`) 
 - [x] Add the facility-settings block + standard-hours window schema (`settings/src/schema/facility.ts`)
 - [x] Build the fee-selection helper: `(family + facility-local time-of-day) → fee code` (`utils/src/invoice/encounterFee.ts`, unit-tested)
 - [x] Build the add-encounter-fee helper: skip if a line (incl. soft-deleted) already exists; resolve product by code with weekend→after-hours fallback (`Invoice.addEncounterFee`)
-- [~] Call the helper at each invoice auto-create site — **encounter route done** (`encounter.js`); pharmacy route (`medication.js`) deferred with the pharmacy flag
+- [x] Call the helper at each invoice auto-create site (`encounter.js`, `medication.js`)
 
 ### 6898-specific
 
@@ -31,13 +31,13 @@ Auto-add a per-facility encounter fee at encounter start: outpatient (`clinic`) 
 - [x] ED fee: emergency family selects the ED product at creation
 - [ ] Confirm directly-admitted-from-ED keeps the ED fee (design holds — anchored at triage creation; needs an integration test)
 
-### Pharmacy walk-in — DEFERRED (charge-or-skip, no separate products)
+### Pharmacy walk-in — DONE (charge-or-skip, no separate products)
 
-Resolved design (Pohnpei skips pharmacy, Yap charges the same, no state prices differently). The facility toggle is in place; the discriminator flag + its migrations are the remaining work.
+Resolved design (Pohnpei skips pharmacy, Yap charges the same, no state prices differently).
 
 - [x] Add the facility setting `invoicing.encounterFee.chargePharmacyEncounterFee` (boolean, default `true`)
-- [ ] Add `isPharmacyEncounter` boolean to `encounters` (Sequelize **and** mobile TypeORM migration — `encounters` syncs); set `true` in the walk-in-pharmacy route (`medication.js` create ~520), immutable thereafter
-- [ ] Pass `isPharmacyEncounter` + `chargePharmacyEncounterFee` into `selectEncounterFeeCode` in `Invoice.addEncounterFee` (the selector already supports both), and wire `addEncounterFee` into the pharmacy route after invoice auto-create
+- [x] Add `isPharmacyEncounter` boolean to `encounters` (Sequelize **and** mobile TypeORM migration); set `true` in the walk-in-pharmacy route (`medication.js`), default `false`
+- [x] Pass `isPharmacyEncounter` + `chargePharmacyEncounterFee` into `selectEncounterFeeCode`, and wire `addEncounterFee` into the pharmacy route after invoice auto-create
 
 ### Tests
 
@@ -58,8 +58,11 @@ Branch `feature/tam-6898-featinvoicing-outpatient-encounter-fees` (off `epic-fsm
 
 **Not yet runtime/DB-verified** — no integration test was run against a live DB. Add an endpoint test: create encounter → assert one fee line at the configured price; re-run → still one; remove → not re-added; `$0` product → `$0` line.
 
+**Pharmacy walk-in — now done:** `isPharmacyEncounter` column added (server Sequelize migration `1782100000000-addIsPharmacyEncounterToEncounters` + mobile TypeORM migration `1782292366000-…`), set in the pharmacy route, and consumed by the selector; `addEncounterFee` wired into `medication.js`.
+
 **Deferred (clean follow-ups):**
-- **Pharmacy walk-in:** add the `isPharmacyEncounter` column (server Sequelize + mobile TypeORM migration), set it in the pharmacy route, pass it + the existing toggle into the selector, and wire `addEncounterFee` into `medication.js`. The selector and the facility toggle already support this — only the column + wiring remain. (Until then, a pharmacy walk-in at a charging facility behaves like a normal clinic visit; at a non-charging facility the skip isn't applied yet.)
+- **dbt source models:** the new `encounters.is_pharmacy_encounter` column needs the dbt model regenerated (`npm run dbt-generate-model` + fill TODOs) per `packages/database/CLAUDE.md` — not run here (needs the dbt/DB setup).
+- **Integration tests:** endpoint test for the add path (create encounter → one line; re-run → still one; remove → not re-added; `$0` line; pharmacy charge vs skip).
 - **Config-guide:** data admins must create `encounterFee` reference data with codes `encounterFeeStandard` / `encounterFeeAfterHours` / `encounterFeeWeekend` / `encounterFeeEmergency` and price them per facility via price lists.
 
 ## Risks / open

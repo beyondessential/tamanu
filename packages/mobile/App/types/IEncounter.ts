@@ -28,6 +28,8 @@ export interface IEncounter {
 
   reasonForEncounter?: string;
 
+  isPharmacyEncounter?: boolean;
+
   location?: ILocation;
   department?: IDepartment;
   locationId?: string;
