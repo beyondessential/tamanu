@@ -21,6 +21,7 @@ import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import type { Prescription } from 'models/Prescription';
+import type { Encounter } from '../Encounter';
 
 type InvoiceItemSourceRecord =
   | Procedure
@@ -28,7 +29,8 @@ type InvoiceItemSourceRecord =
   | LabTest
   | ImagingRequestArea
   | ImagingRequest
-  | Prescription;
+  | Prescription
+  | Encounter;
 
 export class Invoice extends Model {
   declare id: string;
