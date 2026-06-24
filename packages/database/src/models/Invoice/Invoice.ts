@@ -1,8 +1,11 @@
 import { DataTypes, Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_ITEMS_CATEGORIES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
+  ENCOUNTER_FEE_CODES,
+  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
@@ -20,6 +23,7 @@ import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import { selectEncounterFeeCode } from '@tamanu/utils/invoice';
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 
@@ -283,5 +287,86 @@ export class Invoice extends Model {
       },
       options,
     );
+  }
+
+  /**
+   * Add the encounter fee to an encounter's in-progress invoice, if one applies.
+   *
+   * The fee is anchored on the Encounter so it is added at most once. A cashier-removed fee
+   * is never re-added: we skip when a line already exists for this encounter, including a
+   * soft-deleted one (unlike addItemToInvoice, which restores soft-deleted items on re-add).
+   */
+  static async addEncounterFee(
+    encounter: Encounter,
+    settings: ReadSettings,
+    primaryTimeZone: string,
+  ) {
+    const invoice = await this.getInProgressInvoiceForEncounter(encounter.id);
+    if (!invoice) {
+      return;
+    }
+
+    const feeCode = selectEncounterFeeCode({
+      encounterType: encounter.encounterType as EncounterType,
+      startDateTime: encounter.startDate,
+      primaryTimeZone,
+      facilityTimeZone: await settings?.get('facilityTimeZone'),
+      standardHoursStart: await settings?.get('invoicing.encounterFee.standardHoursStart'),
+      standardHoursEnd: await settings?.get('invoicing.encounterFee.standardHoursEnd'),
+    });
+    if (!feeCode) {
+      return;
+    }
+
+    const { InvoiceItem } = this.sequelize.models;
+    const existingItem = await InvoiceItem.findOne({
+      where: {
+        invoiceId: invoice.id,
+        sourceRecordType: encounter.getModelName(),
+        sourceRecordId: encounter.id,
+      },
+      paranoid: false,
+    });
+    if (existingItem) {
+      return;
+    }
+
+    const product = await this.resolveEncounterFeeProduct(feeCode);
+    if (!product) {
+      return;
+    }
+
+    await InvoiceItem.create({
+      invoiceId: invoice.id,
+      sourceRecordType: encounter.getModelName(),
+      sourceRecordId: encounter.id,
+      productId: product.id,
+      orderedByUserId: SYSTEM_USER_UUID,
+      orderDate: new Date(),
+      quantity: 1,
+    });
+  }
+
+  private static async resolveEncounterFeeProduct(feeCode: string) {
+    const { InvoiceProduct, ReferenceData } = this.sequelize.models;
+    const findProductByCode = (code: string) =>
+      InvoiceProduct.findOne({
+        where: { category: INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE },
+        include: [
+          {
+            model: ReferenceData,
+            as: 'sourceRefDataRecord',
+            required: true,
+            where: { type: REFERENCE_TYPES.ENCOUNTER_FEE, code },
+          },
+        ],
+      });
+
+    const product = await findProductByCode(feeCode);
+    if (product || feeCode !== ENCOUNTER_FEE_CODES.WEEKEND) {
+      return product;
+    }
+    // No distinct weekend product configured → fall back to the after-hours product.
+    return findProductByCode(ENCOUNTER_FEE_CODES.AFTER_HOURS);
   }
 }

@@ -82,12 +82,19 @@ encounter.post(
 
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    await models.Invoice.automaticallyCreateForEncounter(
+    const invoice = await models.Invoice.automaticallyCreateForEncounter(
       encounterObject.id,
       encounterObject.encounterType,
       encounterObject.startDate,
       req.settings[facilityId],
     );
+    if (invoice) {
+      await models.Invoice.addEncounterFee(
+        encounterObject,
+        req.settings[facilityId],
+        getPrimaryTimeZone(config),
+      );
+    }
 
     if (data.dietIds) {
       const dietIds = JSON.parse(data.dietIds);
