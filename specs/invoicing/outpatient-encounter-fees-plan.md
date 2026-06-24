@@ -17,34 +17,50 @@ Auto-add a per-facility encounter fee at encounter start: outpatient (`clinic`) 
 
 ### Foundation (shared — detail in build-order doc)
 
-- [ ] Add `ENCOUNTER_FEE` category + maps (`constants/src/invoices.ts:24`)
-- [ ] Add `Encounter` to the `InvoiceItemSourceRecord` union; confirm `getModelName()`/`id()` (`Invoice.ts:25`, `Encounter.ts`)
-- [ ] Add the `encounterFee` reference-data type; map `ENCOUNTER_FEE → ReferenceData` in product resolution (`InvoiceProduct.ts:98`, constants)
-- [ ] Add the facility-settings block + normal-hours window schema (`settings/src/schema/facility.ts`)
-- [ ] Build the fee-selection helper: `(family + facility-local time-of-day) → fee code`, reading the per-facility hours window
-- [ ] Build the add-encounter-fee helper: look up the `InvoiceProduct` by code, call `addItemToInvoice(encounter, …)`; **skip if a line (incl. soft-deleted) already exists for this encounter**
-- [ ] Call the helper at each invoice auto-create site (`encounter.js:85`, `medication.js:536`) — or fold it into `automaticallyCreateForEncounter`
+- [x] Add `ENCOUNTER_FEE` category + maps (`constants/src/invoices.ts`)
+- [x] Add `Encounter` to the `InvoiceItemSourceRecord` union (`Invoice.ts`)
+- [x] Add the `encounterFee` reference-data type; map `ENCOUNTER_FEE → ReferenceData` (`importable.ts`, `invoices.ts`, `InvoiceProduct.ts`)
+- [x] Add the facility-settings block + standard-hours window schema (`settings/src/schema/facility.ts`)
+- [x] Build the fee-selection helper: `(family + facility-local time-of-day) → fee code` (`utils/src/invoice/encounterFee.ts`, unit-tested)
+- [x] Build the add-encounter-fee helper: skip if a line (incl. soft-deleted) already exists; resolve product by code with weekend→after-hours fallback (`Invoice.addEncounterFee`)
+- [~] Call the helper at each invoice auto-create site — **encounter route done** (`encounter.js`); pharmacy route (`medication.js`) deferred with the pharmacy flag
 
 ### 6898-specific
 
-- [ ] Standard / after-hours / weekend bucketing computed in facility-local time, weekend window configurable
-- [ ] ED fee: emergency family selects the ED product at creation
-- [ ] Confirm directly-admitted-from-ED keeps the ED fee (anchored at triage creation; a later type change doesn't remove it)
+- [x] Standard / after-hours / weekend bucketing computed in facility-local time (unit-tested incl. near-midnight TZ edge)
+- [x] ED fee: emergency family selects the ED product at creation
+- [ ] Confirm directly-admitted-from-ED keeps the ED fee (design holds — anchored at triage creation; needs an integration test)
 
-### Pharmacy walk-in — RESOLVED (charge-or-skip, no separate products)
+### Pharmacy walk-in — DEFERRED (charge-or-skip, no separate products)
 
-Pohnpei charges regular clinic but **skips** the fee for pharmacy walk-ins; Yap charges both the same; no other state differs. So the distinction is binary — charge the normal clinic fee or skip it — **not** a different price. We need to tell pharmacy walk-ins apart from regular clinic encounters, but **not** a parallel (mostly $0) set of pharmacy products.
+Resolved design (Pohnpei skips pharmacy, Yap charges the same, no state prices differently). The facility toggle is in place; the discriminator flag + its migrations are the remaining work.
 
-- [ ] Add `isPharmacyEncounter` boolean to `encounters` (Sequelize **and** mobile TypeORM migration — `encounters` syncs); set `true` in the walk-in-pharmacy route (`medication.js` create call ~520), immutable thereafter
-- [ ] Add the facility setting, e.g. `invoicing.chargePharmacyEncounterFee` (boolean, default `true`) — Yap `true`, Pohnpei `false`
-- [ ] Fee helper: for a `clinic` encounter, if `isPharmacyEncounter` and the facility setting is off → **skip the fee**; otherwise apply the normal clinic fee bucket (same products as a regular clinic visit)
+- [x] Add the facility setting `invoicing.encounterFee.chargePharmacyEncounterFee` (boolean, default `true`)
+- [ ] Add `isPharmacyEncounter` boolean to `encounters` (Sequelize **and** mobile TypeORM migration — `encounters` syncs); set `true` in the walk-in-pharmacy route (`medication.js` create ~520), immutable thereafter
+- [ ] Pass `isPharmacyEncounter` + `chargePharmacyEncounterFee` into `selectEncounterFeeCode` in `Invoice.addEncounterFee` (the selector already supports both), and wire `addEncounterFee` into the pharmacy route after invoice auto-create
 
 ### Tests
 
-- [ ] Bucketing incl. near-midnight facility-local TZ edge
-- [ ] One-line-per-encounter idempotency across re-run / re-sync
-- [ ] A cashier-removed fee is not re-added
-- [ ] A `$0` product renders as a `$0` line item
+- [x] Bucketing incl. near-midnight facility-local TZ edge (unit test)
+- [ ] One-line-per-encounter idempotency across re-run / re-sync (integration)
+- [ ] A cashier-removed fee is not re-added (integration)
+- [ ] A `$0` product renders as a `$0` line item (integration)
+
+## Implementation status — 2026-06-24
+
+Branch `feature/tam-6898-featinvoicing-outpatient-encounter-fees` (off `epic-fsm-invoicing`), three commits.
+
+**Done & verified** — unit tests green (8/8), `@tamanu/database` build passes, lint clean:
+- Constants + stable fee codes; facility `invoicing.encounterFee` settings.
+- Pure `selectEncounterFeeCode` selector + unit tests (bucketing, inclusive boundaries, weekend window, facility-local TZ, pharmacy-skip, non-fee types).
+- `encounterFee` reference type + product source resolution + `Encounter` as an invoice-item source.
+- `Invoice.addEncounterFee` / `resolveEncounterFeeProduct`, wired into the encounter creation route.
+
+**Not yet runtime/DB-verified** — no integration test was run against a live DB. Add an endpoint test: create encounter → assert one fee line at the configured price; re-run → still one; remove → not re-added; `$0` product → `$0` line.
+
+**Deferred (clean follow-ups):**
+- **Pharmacy walk-in:** add the `isPharmacyEncounter` column (server Sequelize + mobile TypeORM migration), set it in the pharmacy route, pass it + the existing toggle into the selector, and wire `addEncounterFee` into `medication.js`. The selector and the facility toggle already support this — only the column + wiring remain. (Until then, a pharmacy walk-in at a charging facility behaves like a normal clinic visit; at a non-charging facility the skip isn't applied yet.)
+- **Config-guide:** data admins must create `encounterFee` reference data with codes `encounterFeeStandard` / `encounterFeeAfterHours` / `encounterFeeWeekend` / `encounterFeeEmergency` and price them per facility via price lists.
 
 ## Risks / open
 
