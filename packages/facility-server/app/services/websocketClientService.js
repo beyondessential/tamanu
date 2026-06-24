@@ -1,12 +1,27 @@
 import { io } from 'socket.io-client';
 import { WS_EVENTS, WS_PATH } from '@tamanu/constants';
 
+import { getSyncConfig } from '../serverConfig';
+
+const NOOP_CLIENT_SERVICE = {
+  getClient: () => null,
+  emit: () => {},
+  listenOnce: () => {},
+};
+
 /**
  *
- * @param {{config: { sync: { host: string}, language: string}, websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
+ * @param {{websocketService: ReturnType<import('./websocketService').defineWebsocketService>, models: import('@tamanu/database/models')}} injector
  */
 export const defineWebsocketClientService = injector => {
-  const url = new URL(injector.config.sync.host);
+  // Connect to the resolved sync host, not config — and when the server isn't
+  // configured yet (no host) there's nothing to connect to, so expose a no-op.
+  const { host } = getSyncConfig();
+  if (!host) {
+    return NOOP_CLIENT_SERVICE;
+  }
+
+  const url = new URL(host);
   const client = io(url.toString(), { path: WS_PATH, transports: ['websocket', 'webtransport'] });
   const getClient = () => client;
 
