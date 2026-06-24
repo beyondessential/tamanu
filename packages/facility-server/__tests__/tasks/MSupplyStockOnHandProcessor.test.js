@@ -2,13 +2,14 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { MSupplyStockOnHandProcessor } from '../../dist/tasks/MSupplyStockOnHandProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../../dist/serverConfig';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 
-jest.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: jest.fn(() => ['balwyn']),
+jest.mock('../../dist/serverConfig', () => ({
+  ...jest.requireActual('../../dist/serverConfig'),
+  getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 
 jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
@@ -81,7 +82,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
-    selectFacilityIds.mockReturnValue([FACILITY_ID]);
+    getServerFacilityIds.mockReturnValue([FACILITY_ID]);
 
     await models.Setting.set(
       'integrations.mSupplyMed',
@@ -96,7 +97,7 @@ describe('MSupplyStockOnHandProcessor', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    selectFacilityIds.mockReturnValue([FACILITY_ID]);
+    getServerFacilityIds.mockReturnValue([FACILITY_ID]);
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyStockOnHandProcessor = SCHEDULE_CONFIG;
 
@@ -120,7 +121,7 @@ describe('MSupplyStockOnHandProcessor', () => {
     });
 
     it('skips on omni server', async () => {
-      selectFacilityIds.mockReturnValue(['facility-a', 'facility-b']);
+      getServerFacilityIds.mockReturnValue(['facility-a', 'facility-b']);
 
       const task = new MSupplyStockOnHandProcessor(context);
       await task.run();

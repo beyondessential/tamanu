@@ -2,7 +2,7 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { mSupplyMedIntegrationProcessor } from '../../dist/tasks/mSupplyMedIntegrationProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getServerFacilityIds } from '../../dist/serverConfig';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createDummyPatient, createDummyEncounter, createDummyPrescription } from '@tamanu/database/demoData/patients';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -11,8 +11,9 @@ import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-jest.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: jest.fn(() => ['balwyn']),
+jest.mock('../../dist/serverConfig', () => ({
+  ...jest.requireActual('../../dist/serverConfig'),
+  getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 
 jest.mock('@tamanu/api-client/fetchWithRetryBackoff');
@@ -114,7 +115,7 @@ describe('mSupplyMedIntegrationProcessor', () => {
 
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
-    selectFacilityIds.mockReturnValue([facilityId]);
+    getServerFacilityIds.mockReturnValue([facilityId]);
 
     await models.Setting.set(
       'integrations.mSupplyMed',
@@ -163,18 +164,18 @@ describe('mSupplyMedIntegrationProcessor', () => {
   // Reset mocks and config before each test
   beforeEach(() => {
     jest.clearAllMocks();
-    selectFacilityIds.mockReturnValue([facilityId]);
+    getServerFacilityIds.mockReturnValue([facilityId]);
     config.integrations.mSupplyMed = INTEGRATION_CONFIG;
     config.schedules.mSupplyMedIntegrationProcessor = SCHEDULE_CONFIG;
   });
 
   describe('when server is an omni server', () => {
     afterAll(() => {
-      selectFacilityIds.mockReturnValue([facilityId]);
+      getServerFacilityIds.mockReturnValue([facilityId]);
     });
 
     it('skips run when server has multiple facility ids', async () => {
-      selectFacilityIds.mockReturnValue(['balwyn', 'kerang']);
+      getServerFacilityIds.mockReturnValue(['balwyn', 'kerang']);
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
 
