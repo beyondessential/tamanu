@@ -53,7 +53,8 @@ import { referral } from './referral';
 import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
-import { setupStatusHandler, setupSyncHandler } from './setup';
+import { setupSyncHandler } from './setup';
+import { isServerConfigured } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -99,13 +100,14 @@ export function createApiv1({ authLimiter } = {}) {
     '/public/ping',
     asyncHandler((req, res) => {
       req.flagPermissionChecked();
-      return res.send({ ok: 'ok' });
+      // setupRequired drives the first-run setup wizard, folded into the alive
+      // check the web app already makes rather than a separate endpoint/request.
+      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
     }),
   );
 
-  // First-run setup: status gates the web setup wizard; sync records the host +
-  // credentials + facilities (rate-limited — it does an outbound login probe).
-  apiv1.get('/public/setup/status', setupStatusHandler);
+  // First-run setup: records the host + credentials + facilities. Rate-limited
+  // (it does an outbound login probe) and trusted-network gated in the handler.
   apiv1.post('/public/setup/sync', limiter, setupSyncHandler);
   
   apiv1.get(

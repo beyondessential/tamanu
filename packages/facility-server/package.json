@@ -72,6 +72,7 @@
     "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
     "helmet": "^8.1.0",
+    "ipaddr.js": "^2.4.0",
     "jose": "^5.9.6",
     "lodash": "^4.17.21",
     "ms": "^2.1.3",

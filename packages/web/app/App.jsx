@@ -18,7 +18,6 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
-import { useSetupStatusQuery } from './api/queries/useSetupStatusQuery';
 import { useBrowserSupport } from './api/queries/useBrowserSupport';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -35,8 +34,8 @@ const AppContentsContainer = styled.div`
 `;
 
 export function App({ sidebar, children }) {
-  const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
-  const { data: setupStatus, isLoading: isSetupStatusLoading } = useSetupStatusQuery();
+  const { data: serverStatus, isLoading } = useCheckServerAliveQuery();
+  const isServerAlive = Boolean(serverStatus);
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
   const location = useLocation();
@@ -67,9 +66,9 @@ export function App({ sidebar, children }) {
     }
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
-  if (isLoading || isSetupStatusLoading) return <LoadingStatusPage />;
+  if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
-  if (setupStatus && !setupStatus.configured) return <SetupWizardView />;
+  if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 

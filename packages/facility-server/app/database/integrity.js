@@ -2,7 +2,7 @@ import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { CentralServerConnection } from '../sync';
-import { getDeclaredFacilityIds, getDeclaredHost } from '../serverConfig';
+import { getDeclaredFacilityIds, getDeclaredHost, isServerConfigured } from '../serverConfig';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
@@ -63,6 +63,12 @@ async function ensureFacilityMatches(context) {
       );
     }
   } else {
+    // First registration verifies central is reachable before recording the ids.
+    // That needs a sync host — if the server isn't fully configured yet (e.g. only
+    // SYNC_FACILITY_IDS is set, or it's awaiting the wizard), skip; the ids get
+    // recorded once setup completes. Avoids constructing CentralServerConnection
+    // (which throws) with no host.
+    if (!isServerConfigured()) return;
     const centralServer = new CentralServerConnection(context);
     log.info(`Verifying central server connection to ${centralServer.host}...`);
     await centralServer.connect();

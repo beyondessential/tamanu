@@ -145,11 +145,18 @@ function parseEnv() {
 }
 
 function configHost() {
-  return config.sync?.host ? new URL(config.sync.host.trim()).origin : null;
+  if (!config.sync?.host) return null;
+  try {
+    return new URL(config.sync.host.trim()).origin;
+  } catch {
+    // A malformed legacy sync.host shouldn't crash startup; treat as unset.
+    log.warn(`Ignoring invalid sync.host config value: ${config.sync.host}`);
+    return null;
+  }
 }
 
 function configValue(key) {
-  return config.sync?.[key] || null;
+  return config.sync?.[key] ?? null;
 }
 
 function configFacilityIds() {
