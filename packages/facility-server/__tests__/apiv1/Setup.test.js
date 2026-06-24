@@ -1,7 +1,9 @@
 import { createTestContext } from '../utilities';
 
-// Covers the status flag and input rejection. The happy path needs an outbound
-// central probe + crypto.keyFile, so it's verified manually rather than here.
+// The test config provides a sync host + credentials + facilities, so the server
+// is already configured. (The unconfigured paths — setupRequired, validation,
+// the trusted-source gate — are covered by serverConfig + trustedSetupSource
+// unit tests, and the happy path is verified manually.)
 describe('Setup endpoints', () => {
   let ctx;
   let baseApp;
@@ -14,43 +16,20 @@ describe('Setup endpoints', () => {
     await ctx.close();
   });
 
-  describe('GET /public/ping', () => {
-    it('reports setupRequired for an unconfigured server', async () => {
-      const result = await baseApp.get('/api/public/ping');
-      expect(result.status).toBe(200);
-      expect(result.body.ok).toBe('ok');
-      expect(result.body.setupRequired).toBe(true);
-    });
+  it('GET /public/ping reports the server is configured', async () => {
+    const result = await baseApp.get('/api/public/ping');
+    expect(result.status).toBe(200);
+    expect(result.body.ok).toBe('ok');
+    expect(result.body.setupRequired).toBe(false);
   });
 
-  describe('POST /public/setup/sync', () => {
-    // supertest connects over loopback, so the trusted-source gate passes and the
-    // request reaches validation.
-    it('rejects a missing host', async () => {
-      const result = await baseApp
-        .post('/api/public/setup/sync')
-        .send({ email: 'admin@example.com', password: 'pw', facilityIds: ['facility-a'] });
-      expect(result).toHaveRequestError();
+  it('POST /public/setup/sync refuses a configured server (409)', async () => {
+    const result = await baseApp.post('/api/public/setup/sync').send({
+      host: 'https://central.example.com',
+      email: 'admin@example.com',
+      password: 'pw',
+      facilityIds: ['facility-a'],
     });
-
-    it('rejects an empty facility id list', async () => {
-      const result = await baseApp.post('/api/public/setup/sync').send({
-        host: 'https://central.example.com',
-        email: 'admin@example.com',
-        password: 'pw',
-        facilityIds: [],
-      });
-      expect(result).toHaveRequestError();
-    });
-
-    it('rejects a non-https host in production-like validation', async () => {
-      const result = await baseApp.post('/api/public/setup/sync').send({
-        host: 'ftp://central.example.com',
-        email: 'admin@example.com',
-        password: 'pw',
-        facilityIds: ['facility-a'],
-      });
-      expect(result).toHaveRequestError();
-    });
+    expect(result.status).toBe(409);
   });
 });

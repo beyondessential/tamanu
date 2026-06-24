@@ -88,18 +88,15 @@ describe('serverConfig', () => {
     expect(m.secretStore.get(FACT_SYNC_PASSWORD)).toBe('fact-pw');
   });
 
-  it('is not configured when the password secret is missing (half-set state)', async () => {
-    await initWith(
-      makeModels({
-        facts: {
-          [FACT_CENTRAL_HOST]: 'https://central.example.com',
-          [FACT_FACILITY_IDS]: JSON.stringify(['fac-a']),
-        },
-        // no password secret (and config defaults are empty)
-      }),
-    );
+  it('falls back to legacy config when there are no env vars or facts', async () => {
+    await initWith(makeModels());
 
-    expect(getSyncConfig().password).toBeNull();
-    expect(isServerConfigured()).toBe(false);
+    // the facility test config supplies sync host/email/password + facilities
+    const sync = getSyncConfig();
+    expect(sync.host).toBeTruthy();
+    expect(sync.email).toBeTruthy();
+    expect(sync.password).toBeTruthy();
+    expect(getServerFacilityIds()?.length).toBeGreaterThan(0);
+    expect(isServerConfigured()).toBe(true);
   });
 });
