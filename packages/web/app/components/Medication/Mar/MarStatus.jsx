@@ -417,7 +417,7 @@ export const MarStatus = ({
     if (isEnd) {
       return (
         <Box maxWidth={105}>
-          <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
+          <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />{' '}
           <DateDisplay date={endDate} timeFormat="default" noTooltip />
         </Box>
       );

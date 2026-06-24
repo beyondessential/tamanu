@@ -408,7 +408,7 @@ export const DispenseMedicationWorkflowModal = memo(
           quantity: item.quantity,
           units: item.prescription?.units,
           remainingRepeats: item.remainingRepeats,
-          prescriberName: item.pharmacyOrder?.orderingClinician?.displayName,
+          prescriberName: item.prescription?.prescriber?.displayName,
           requestNumber: item.displayId,
         };
       });
