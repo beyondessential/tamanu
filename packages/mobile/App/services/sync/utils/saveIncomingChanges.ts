@@ -8,6 +8,7 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { type TransactingModel } from './getModelsForDirection';
 import { executePreparedInsert, executePreparedUpdate } from './executePreparedQuery';
+import { SyncDebugLog } from '../SyncDebugLog';
 
 const forceGC = () => {
   if (typeof gc === 'function') {
@@ -43,6 +44,12 @@ export const saveChangesForModel = async (
     buildFromSyncRecord(model, allChanges),
     c => idsForUpdate.has(c.id),
   );
+
+  SyncDebugLog.log(`Saving changes for ${model.getTableName()}`, {
+    tableName: model.getTableName(),
+    inserts: recordsForCreate.length,
+    updates: recordsForUpdate.length,
+  });
 
   await executePreparedInsert(
     repository,
@@ -91,6 +98,13 @@ export const saveChangesFromMemory = async (
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
   const modelChanges = prepareChangesForModels(records, sortedModels);
+  SyncDebugLog.log('Saving pulled batch from memory', {
+    recordCount: records.length,
+    models: modelChanges.map(({ model, records: modelRecords }) => ({
+      tableName: model.getTableName(),
+      recordCount: modelRecords.length,
+    })),
+  });
   for (const { model, records } of modelChanges) {
     if (model.name === 'User') {
       await saveChangesForModel(model, records, syncSettings, progressCallback);

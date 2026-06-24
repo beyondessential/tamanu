@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { chunk } from 'lodash';
 import { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
+import { SyncDebugLog } from '../SyncDebugLog';
 
 const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>
   Array.from(
@@ -42,12 +43,27 @@ export const executePreparedInsert = async (
     try {
       await repository.query(query, parameters);
     } catch (e: any) {
+      SyncDebugLog.log(`Bulk insert failed for ${tableName}, falling back to row-by-row`, {
+        tableName,
+        error: e.message,
+        batchSize: chunkRows.length,
+        columns,
+      });
       await Promise.all(
         chunkRows.map(async row => {
           try {
             await repository.insert(row);
           } catch (error: any) {
-            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+            SyncDebugLog.log(`Insert failed for ${tableName}`, {
+              tableName,
+              recordId: row.id,
+              columns: Object.keys(row),
+              data: row,
+              error: error.message,
+            });
+            throw new Error(
+              `Insert failed with '${error.message}', recordId: ${row.id}, table: ${tableName}`,
+            );
           }
         }),
       );
