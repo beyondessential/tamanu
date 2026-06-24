@@ -94,6 +94,12 @@ encounter.post(
         req.settings[facilityId],
         getPrimaryTimeZone(config),
       );
+      // Charge the admission night immediately; the nightly BedFeeCharger accrues later nights.
+      await models.Invoice.recalculateBedFee(
+        encounterObject,
+        req.settings[facilityId],
+        getPrimaryTimeZone(config),
+      );
     }
 
     if (data.dietIds) {
