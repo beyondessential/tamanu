@@ -4,16 +4,29 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
   REFERENCE_TYPES,
+  INPATIENT_BUNDLED_CATEGORIES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
 import type { InvoiceProduct } from 'models/Invoice';
+import { isInpatientFeeBundled } from '../../utils/isInpatientFeeBundled';
 
 export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRequest) => {
   const encounter = await imagingRequest.sequelize.models.Encounter.findByPk(
     imagingRequest.encounterId,
   );
   if (!encounter) {
+    return false;
+  }
+
+  // Skip auto-adding imaging items for admission encounters where the facility bundles imaging into the admission fee.
+  if (
+    await isInpatientFeeBundled(
+      imagingRequest.sequelize.models,
+      encounter.id,
+      INPATIENT_BUNDLED_CATEGORIES.IMAGING,
+    )
+  ) {
     return false;
   }
 

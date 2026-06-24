@@ -48,6 +48,15 @@ export const ENCOUNTER_FEE_CODES = {
 // pharmacy simply leaves this product unpriced (no price-list item → no fee line).
 export const PHARMACY_ENCOUNTER_FEE_CODE = 'encounterFeePharmacy';
 
+// Clinical-item categories that a facility can bundle into the inpatient admission fee
+// (so they don't auto-add for admission encounters). Procedures are never bundled.
+export const INPATIENT_BUNDLED_CATEGORIES = {
+  IMAGING: 'imaging',
+  LAB: 'lab',
+  MEDICATION: 'medication',
+};
+export const INPATIENT_BUNDLED_CATEGORY_VALUES = Object.values(INPATIENT_BUNDLED_CATEGORIES);
+
 export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
   [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
   [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
