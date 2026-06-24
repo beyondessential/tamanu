@@ -28,6 +28,18 @@ export const INVOICE_ITEMS_CATEGORIES = {
   DRUG: 'Drug',
   LAB_TEST_TYPE: 'LabTestType',
   LAB_TEST_PANEL: 'LabTestPanel',
+  ENCOUNTER_FEE: 'EncounterFee',
+};
+
+// Stable reference-data codes for the encounter-fee products. A data admin imports
+// `encounterFee` reference data with these codes and prices them per facility via price lists.
+// The fee selector resolves an encounter to one of these buckets; the weekend product is
+// optional and falls back to the after-hours product where a state doesn't distinguish them.
+export const ENCOUNTER_FEE_CODES = {
+  STANDARD: 'encounterFeeStandard',
+  AFTER_HOURS: 'encounterFeeAfterHours',
+  WEEKEND: 'encounterFeeWeekend',
+  EMERGENCY: 'encounterFeeEmergency',
 };
 
 export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
@@ -49,6 +61,7 @@ export const INVOICE_ITEMS_CATEGORIES_MODELS = {
   [INVOICE_ITEMS_CATEGORIES.DRUG]: 'ReferenceData',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'LabTestType',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'LabTestPanel',
+  [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'ReferenceData',
 };
 
 export const INVOICE_ITEMS_CATEGORY_LABELS = {
@@ -58,6 +71,7 @@ export const INVOICE_ITEMS_CATEGORY_LABELS = {
   [INVOICE_ITEMS_CATEGORIES.DRUG]: 'Drug',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'Lab test type',
   [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'Lab test panel',
+  [INVOICE_ITEMS_CATEGORIES.ENCOUNTER_FEE]: 'Encounter fee',
 };
 
 export const INVOICE_ITEMS_DISCOUNT_TYPES = {
