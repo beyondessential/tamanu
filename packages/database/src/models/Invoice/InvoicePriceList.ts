@@ -89,6 +89,7 @@ export class InvoicePriceList extends Model {
       encounter?.patient?.additionalData?.[0]?.patientBillingTypeId;
     const patientDOB = encounter?.patient?.dateOfBirth;
     const facilityId = encounter?.location?.facilityId;
+    const departmentId = encounter?.departmentId;
 
     const priceLists = await this.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
@@ -114,6 +115,7 @@ export class InvoicePriceList extends Model {
       const match =
         matchesFacilityWithExclusionaryLogic(rules.facilityId, facilityId, allRules) &&
         equalsIfPresent(rules.patientType, patientType) &&
+        equalsIfPresent(rules.departmentId, departmentId) &&
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
       if (match) {

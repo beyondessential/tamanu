@@ -315,10 +315,6 @@ export class Invoice extends Model {
         'invoicing.encounterFee.standardHoursStart',
       )) as string,
       standardHoursEnd: (await settings.get('invoicing.encounterFee.standardHoursEnd')) as string,
-      isPharmacyEncounter: encounter.isPharmacyEncounter,
-      chargePharmacyEncounterFee: Boolean(
-        await settings.get('invoicing.encounterFee.chargePharmacyEncounterFee'),
-      ),
     });
     if (!feeCode) {
       return;
@@ -340,6 +336,19 @@ export class Invoice extends Model {
     const product = await this.resolveEncounterFeeProduct(feeCode);
     if (!product) {
       return;
+    }
+
+    // Honour the encounter's price list — a department whose price list hides the fee product
+    // (e.g. walk-in pharmacy at a facility that doesn't charge it) gets no fee line.
+    const { InvoicePriceList, InvoicePriceListItem } = this.sequelize.models;
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounter.id);
+    if (invoicePriceListId) {
+      const hiddenItem = await InvoicePriceListItem.findOne({
+        where: { invoicePriceListId, invoiceProductId: product.id, isHidden: true },
+      });
+      if (hiddenItem) {
+        return;
+      }
     }
 
     await InvoiceItem.create({

@@ -117,27 +117,6 @@ describe('selectEncounterFeeCode', () => {
     ).toBe(ENCOUNTER_FEE_CODES.STANDARD);
   });
 
-  it('skips the fee for pharmacy walk-ins where the facility does not charge them', () => {
-    expect(
-      selectEncounterFeeCode({
-        ...base,
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDateTime: '2024-06-18 10:00:00',
-        isPharmacyEncounter: true,
-        chargePharmacyEncounterFee: false,
-      }),
-    ).toBeNull();
-    expect(
-      selectEncounterFeeCode({
-        ...base,
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDateTime: '2024-06-18 10:00:00',
-        isPharmacyEncounter: true,
-        chargePharmacyEncounterFee: true,
-      }),
-    ).toBe(ENCOUNTER_FEE_CODES.STANDARD);
-  });
-
   it('returns null for encounter types that do not attract an encounter fee', () => {
     for (const encounterType of [
       ENCOUNTER_TYPES.ADMISSION,

@@ -16,8 +16,6 @@ export interface EncounterFeeSelectionInput {
   /** Weekday standard-hours window, 'HH:mm'. */
   standardHoursStart: string;
   standardHoursEnd: string;
-  isPharmacyEncounter?: boolean;
-  chargePharmacyEncounterFee?: boolean;
 }
 
 const minutesIntoDay = (time: string): number => {
@@ -42,8 +40,6 @@ export const selectEncounterFeeCode = ({
   facilityTimeZone,
   standardHoursStart,
   standardHoursEnd,
-  isPharmacyEncounter = false,
-  chargePharmacyEncounterFee = true,
 }: EncounterFeeSelectionInput): string | null => {
   // Emergency family: a single ED fee, with no time-of-day component.
   if (EMERGENCY_ENCOUNTER_TYPES.includes(encounterType)) {
@@ -52,11 +48,6 @@ export const selectEncounterFeeCode = ({
 
   // Only clinic (outpatient) encounters attract a time-bucketed fee.
   if (encounterType !== ENCOUNTER_TYPES.CLINIC) {
-    return null;
-  }
-
-  // Pharmacy walk-ins are skipped where the facility doesn't charge them.
-  if (isPharmacyEncounter && !chargePharmacyEncounterFee) {
     return null;
   }
 

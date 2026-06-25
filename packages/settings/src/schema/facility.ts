@@ -268,13 +268,6 @@ export const facilitySettings = {
               type: datelessTimeStringSchema,
               defaultValue: '17:00',
             },
-            chargePharmacyEncounterFee: {
-              name: 'Charge pharmacy encounter fee',
-              description:
-                'Whether walk-in pharmacy encounters are charged the encounter fee. Turn off for facilities that dispense without charging an encounter fee.',
-              type: yup.boolean(),
-              defaultValue: true,
-            },
           },
         },
       },

@@ -5,12 +5,12 @@ Auto-add a per-facility encounter fee at encounter start: outpatient (`clinic`) 
 ## Technical approach
 
 - Fee products are reference-data-backed `InvoiceProduct`s (category `ENCOUNTER_FEE`), one per bucket, identified by stable codes; the per-facility amount comes from the price list.
-- A selector maps `(encounter family, start time in facility-local TZ, [pharmacy flag])` → fee code:
+- A selector maps `(encounter family, start time in facility-local TZ)` → fee code:
   - `clinic`, weekday 08:00–17:00 → **standard** (Fee A)
   - `clinic`, weekday outside that → **after-hours** (Fee B)
   - `clinic`, weekend window (Fri 17:01 → Mon 07:59) → **weekend** (Fee C); B and C can point at the same product where a state doesn't distinguish them
   - `triage` / `emergency` / `observation` → **ED fee** (Fee Y)
-  - `clinic` with `isPharmacyEncounter` at a facility that doesn't charge pharmacy → **no fee** (skip); otherwise a pharmacy walk-in gets the normal clinic bucket (no separate product)
+- **Applicability and amount come from the price list, which now matches on `departmentId` too.** A department whose price list hides the chosen fee product gets **no fee** — that's how walk-in pharmacy is skipped at facilities that don't charge it (its dedicated department is the discriminator; no encounter flag).
 - The fee is added **once, at encounter start**, at the invoice auto-create chokepoint. Adding at start (not discharge) survives the end-of-day clinic auto-discharge, which only sets `endDate` (`shared/src/utils/dischargeOutpatientEncounters.js`). Anchored on the Encounter → idempotent; never recomputed.
 
 ## Build steps
@@ -31,18 +31,14 @@ Auto-add a per-facility encounter fee at encounter start: outpatient (`clinic`) 
 - [x] ED fee: emergency family selects the ED product at creation
 - [ ] Confirm directly-admitted-from-ED keeps the ED fee (design holds — anchored at triage creation; needs an integration test)
 
-### Pharmacy walk-in — RE-SPECCED to department-based (rework pending)
+### Pharmacy walk-in — DONE (department-based)
 
-**Design changed** (see Tech Design "Walk-in pharmacy vs regular clinic — fee varies by Department"): the encounter fee now varies by **Department** via the price-list engine, not an `isPharmacyEncounter` flag. The walk-in pharmacy encounter's dedicated department (`medications.medicationDispensing.automaticEncounterDepartmentId`) is the discriminator.
+The encounter fee varies by **Department** via the price-list engine, not an `isPharmacyEncounter` flag. The walk-in pharmacy encounter's dedicated department (`medications.medicationDispensing.automaticEncounterDepartmentId`) is the discriminator.
 
-Build steps (department model):
-- [ ] Add `departmentId` as a price-list rule dimension — match it in `InvoicePriceList.getIdForPatientEncounter` (`equalsIfPresent(rules.departmentId, …)`, loading the encounter's department) and expose it in the price-list importer/config
-- [ ] Make `Invoice.addEncounterFee` honour the matching price list — skip when the encounter-fee product is hidden/absent for that price list (the check `addItemToInvoice` already makes), so a department can skip the fee
-- [ ] Config: a facility that doesn't charge pharmacy scopes a price list to the pharmacy department with the encounter-fee product hidden
-
-Rework — back out the flag-based first cut:
-- [ ] Drop `isPharmacyEncounter` (model field + Sequelize migration `1782100000000` + mobile TypeORM migration `1782292366000`) and the `medication.js` set
-- [ ] Drop `invoicing.encounterFee.chargePharmacyEncounterFee` and the pharmacy params on `selectEncounterFeeCode`
+- [x] `departmentId` as a price-list rule dimension — matched in `InvoicePriceList.getIdForPatientEncounter` (`equalsIfPresent(rules.departmentId, encounter.departmentId)`). Rules are free-form JSON, so no schema/importer change was needed
+- [x] `Invoice.addEncounterFee` honours the matching price list — skips when the encounter-fee product is hidden for that price list, so a department can skip the fee
+- [x] Backed out the flag-based first cut: dropped `isPharmacyEncounter` (model field + server migration + mobile migration + entity/type + the `medication.js` set), the `chargePharmacyEncounterFee` setting, and the selector's pharmacy params
+- [ ] Config (data admin): a facility that doesn't charge pharmacy scopes a price list to the pharmacy department with the encounter-fee product hidden
 
 ### Tests
 
@@ -63,14 +59,13 @@ Branch `feature/tam-6898-featinvoicing-outpatient-encounter-fees` (off `epic-fsm
 
 **Not yet runtime/DB-verified** — no integration test was run against a live DB. Add an endpoint test: create encounter → assert one fee line at the configured price; re-run → still one; remove → not re-added; `$0` product → `$0` line.
 
-**Pharmacy walk-in — design superseded (rework pending):** the first cut shipped the `isPharmacyEncounter` flag (server migration `1782100000000` + mobile migration `1782292366000`, the pharmacy-route set, the selector params, and the `chargePharmacyEncounterFee` setting). Per the updated Tech Design this is replaced by the **department-based** model (see the Pharmacy walk-in build steps above) — the flag-based code needs backing out.
+**Pharmacy walk-in — department-based (done):** the fee varies by Department via the price list (`departmentId` added to price-list rule matching; `addEncounterFee` skips a hidden fee product). The flag-based first cut (`isPharmacyEncounter` + its server/mobile migrations + the `chargePharmacyEncounterFee` setting) has been fully backed out. Verified: builds + lint + facility integration suites (EncounterInvoice / Medication / Encounter) pass. No DB column added, so no dbt change.
 
 **Deferred (clean follow-ups):**
-- **dbt source models:** the new `encounters.is_pharmacy_encounter` column needs the dbt model regenerated (`npm run dbt-generate-model` + fill TODOs) per `packages/database/CLAUDE.md` — not run here (needs the dbt/DB setup).
-- **Integration tests:** endpoint test for the add path (create encounter → one line; re-run → still one; remove → not re-added; `$0` line; pharmacy charge vs skip).
+- **Integration tests:** endpoint test for the add path (create encounter → one line; re-run → still one; remove → not re-added; `$0` line; department-hidden → no line).
 - **Config-guide:** data admins must create `encounterFee` reference data with codes `encounterFeeStandard` / `encounterFeeAfterHours` / `encounterFeeWeekend` / `encounterFeeEmergency` and price them per facility via price lists.
 
 ## Risks / open
 
-- Pharmacy walk-in is now spec'd as **department-based** (fee varies by Department via the price list); the flag-based first cut is pending rework. See the Pharmacy walk-in section.
+- Pharmacy walk-in is **department-based** (fee varies by Department via the price list) and implemented; the flag has been backed out.
 - "Removed fee not re-added" hinges on the soft-delete-aware guard; get it right at the foundation level.

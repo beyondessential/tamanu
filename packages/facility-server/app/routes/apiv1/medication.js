@@ -524,7 +524,6 @@ medication.post(
           startDate: currentDateTime,
           endDate: currentDateTime,
           reasonForEncounter: 'Medication dispensing',
-          isPharmacyEncounter: true,
           examinerId: orderingClinicianId,
           dischargerId: orderingClinicianId,
           locationId: automaticEncounterLocationId,
