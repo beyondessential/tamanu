@@ -49,6 +49,10 @@
   "port": 4000,
   "deviceId": null,
   "db": {
+    // Set the DATABASE_URL env var to a connection string to supply
+    // name/username/password/host/port and any Sequelize pool params in its query
+    // string (e.g. ?max=10&min=2&idle=10000). Leave unset to use the structured
+    // fields below.
     "name": "tamanu-facility",
     "username": "",
     "password": "",

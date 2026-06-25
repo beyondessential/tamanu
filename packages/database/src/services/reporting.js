@@ -8,6 +8,7 @@ import {
   FACT_REPORTING_ROLE_SECRET,
 } from '@tamanu/constants';
 import { openDatabase } from './database';
+import { resolveDbConfig } from './connectionConfig';
 
 // Tamanu owns the reporting/raw roles: unprivileged read-only LOGIN roles it
 // provisions and connects AS. We log in as the role rather than SET ROLE from the
@@ -113,7 +114,7 @@ const initReportStore = async (existingStore, connectionName, secret) => {
   await ensureReportingRole(existingStore, connectionName, password);
 
   const overrides = {
-    ...config.db,
+    ...resolveDbConfig(config.db),
     alwaysCreateConnection: false,
     migrateOnStartup: false,
     disableChangesAudit: true,

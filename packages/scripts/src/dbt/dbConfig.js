@@ -4,10 +4,11 @@ process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
 const config = require('config');
 const path = require('node:path');
 const pg = require('pg');
+const { resolveDbConfig } = require('@tamanu/database/services/connectionConfig');
 
 async function dbConfig(packageName) {
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
+  const db = resolveDbConfig(config.util.extendDeep(serverConfig.db, config.db)); // merge with NODE_CONFIG
 
   const client = new pg.Client({
     host: db.host,
