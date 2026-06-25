@@ -18,13 +18,14 @@ import { TranslatedReferenceData } from '~/ui/components/Translations/Translated
 
 const Stack = createStackNavigator();
 export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: BaseAppProps) => {
-  const { patientProgramRegistration } = route.params;
+  const patientProgramRegistrationId =
+    route.params.patientProgramRegistrationId ?? route.params.patientProgramRegistration?.id;
   const { ability } = useAuth();
 
   const [registration, registrationError, isRegistrationLoading] = useBackendEffect(
     async ({ models }) =>
-      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistration.id),
-    [patientProgramRegistration.id],
+      await models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId),
+    [patientProgramRegistrationId],
   );
 
   if (isRegistrationLoading) return <LoadingScreen />;
@@ -48,18 +49,24 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
               category="programRegistry"
             />
           }
-          onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
+          onGoBack={() => navigation.goBack()}
           status={
             <PatientProgramRegistryRegistrationStatus
               registrationStatus={registration.registrationStatus}
             />
           }
         />
-        <Stack.Navigator headerMode="none" initialRouteName="PatientProgramRegistrationDetails">
+        <Stack.Navigator
+          screenOptions={{ headerShown: false }}
+          initialRouteName={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
+        >
           <Stack.Screen
-            name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.Index}
+            name={Routes.HomeStack.PatientProgramRegistrationDetailsStack.View}
             component={PatientProgramRegistrationDetails}
-            initialParams={{ patientProgramRegistration: registration }}
+            initialParams={{
+              patientProgramRegistrationId: registration.id,
+              patientProgramRegistration: registration,
+            }}
           />
         </Stack.Navigator>
       </FullView>

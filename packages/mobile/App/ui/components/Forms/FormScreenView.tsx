@@ -4,7 +4,7 @@ import React, {
   Ref,
   useCallback,
   useEffect,
-  useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -14,12 +14,17 @@ import {
   NativeSyntheticEvent,
   StyleSheet,
 } from 'react-native';
-import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
-import Animated, { Clock, interpolateNode } from 'react-native-reanimated';
+import { FullView, StyledSafeAreaView } from '/styled/common';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { runTiming } from '/helpers/animation';
 import { ArrowDownIcon } from '../Icons';
 
 const styles = StyleSheet.create({
@@ -28,6 +33,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   ScrollView: { flex: 1 },
+  arrowContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    zIndex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 type FormScreenViewProps = {
@@ -35,49 +48,72 @@ type FormScreenViewProps = {
 };
 
 const beginningEndOfScreenThreshold = 50;
+
+const hasMoreContentBelow = (
+  contentHeight: number,
+  layoutHeight: number,
+  scrollOffset: number,
+): boolean =>
+  contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
+
 export const FormScreenView = ({
   children,
   scrollViewRef,
 }: PropsWithChildren<FormScreenViewProps>): ReactElement => {
   const [animated, setAnimated] = useState(false);
-  const [contentHeight, setContentHeight] = useState(0);
-  const [layoutHeight, setLayoutHeight] = useState(0);
-  const [scrollOffset, setscrollOffset] = useState(0);
+  const contentHeightRef = useRef(0);
+  const layoutHeightRef = useRef(0);
+  const scrollOffsetRef = useRef(0);
+
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+  }, [opacity]);
+
+  const updateArrowFromRefs = useCallback(() => {
+    if (contentHeightRef.current > 0 && layoutHeightRef.current > 0) {
+      setAnimated(
+        hasMoreContentBelow(
+          contentHeightRef.current,
+          layoutHeightRef.current,
+          scrollOffsetRef.current,
+        ),
+      );
+    }
+  }, []);
 
   const onContentSizeChange = useCallback(
     (_w: number, h: number) => {
-      setContentHeight(h);
+      contentHeightRef.current = h;
+      updateArrowFromRefs();
     },
-    [],
+    [updateArrowFromRefs],
   );
 
-  const onLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
-    setLayoutHeight(nativeEvent.layout.height);
-  }, []);
-
-  useEffect(() => {
-    if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen =
-        contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
-      setAnimated(contentBiggerThanScreen);
-    }
-  }, [contentHeight, layoutHeight, scrollOffset]);
-
-  const onScroll = useCallback(
-    ({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) => {
-      setscrollOffset(contentOffset.y);
+  const onLayout = useCallback(
+    ({ nativeEvent }: LayoutChangeEvent) => {
+      layoutHeightRef.current = nativeEvent.layout.height;
+      updateArrowFromRefs();
     },
-    [],
+    [updateArrowFromRefs],
   );
 
-  const animatedOpacity = useMemo(() => {
-    const clock = new Clock();
-    const base = runTiming(clock, -1, 1);
-    return interpolateNode(base, {
-      inputRange: [-1, 1],
-      outputRange: [0, 1],
-    });
+  const onScroll = useCallback(({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
+    scrollOffsetRef.current = contentOffset.y;
+    setAnimated(
+      hasMoreContentBelow(contentSize.height, layoutMeasurement.height, contentOffset.y),
+    );
   }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.BACKGROUND_GREY}>
@@ -90,7 +126,9 @@ export const FormScreenView = ({
           onContentSizeChange={onContentSizeChange}
           onLayout={onLayout}
           onScroll={onScroll}
-          scrollEventThrottle={1000}
+          onMomentumScrollEnd={onScroll}
+          onScrollEndDrag={onScroll}
+          scrollEventThrottle={16}
           style={styles.ScrollView}
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
@@ -100,19 +138,12 @@ export const FormScreenView = ({
           <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>{children}</FullView>
         </ScrollView>
         {animated && (
-          <CenterView
-            as={Animated.View}
-            position="absolute"
-            opacity={animatedOpacity}
-            zIndex={1}
-            bottom={0}
-            width="100%"
-          >
+          <Animated.View style={[styles.arrowContainer, animatedStyle]}>
             <ArrowDownIcon
               size={screenPercentageToDP(4.86, Orientation.Height)}
               fill={theme.colors.PRIMARY_MAIN}
             />
-          </CenterView>
+          </Animated.View>
         )}
       </KeyboardAvoidingView>
     </StyledSafeAreaView>

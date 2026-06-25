@@ -7,10 +7,9 @@ import {
   INVOICE_STATUSES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice } from '@tamanu/utils/invoice';
+import { getInvoiceItemPrice, getInvoiceSummary, getInvoicePatientPaymentStatus } from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
@@ -133,7 +132,7 @@ const createInvoiceSchema = z
   .strip()
   .transform(data => ({
     ...data,
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
@@ -172,7 +171,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z.string().uuid().default(crypto.randomUUID),
         percentage: z.coerce
           .number()
           .min(0)
@@ -185,7 +184,7 @@ const updateInvoiceSchema = z
       .nullish(),
     items: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z.string().uuid().default(crypto.randomUUID),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -198,7 +197,7 @@ const updateInvoiceSchema = z
         sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
-            id: z.string().uuid().default(uuidv4),
+            id: z.string().uuid().default(crypto.randomUUID),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().nullish(),
@@ -311,6 +310,24 @@ invoiceRoute.put(
       throw error;
     }
 
+    // Recalculate patientPaymentStatus now that items/discount may have changed.
+    // Payments can be recorded on in-progress invoices, so the status may be stale
+    // if a fee scale discount is applied after a partial payment.
+    const invoicePriceListId = await req.models.InvoicePriceList.getIdForPatientEncounter(
+      foundInvoice.encounterId,
+    );
+    const invoiceWithDetails = await req.models.Invoice.findOne({
+      where: { encounterId: foundInvoice.encounterId },
+      include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
+    });
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
+    // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
+    const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
+    await req.models.Invoice.update(
+      { patientPaymentStatus: getInvoicePatientPaymentStatus(effectivePaidAmount, patientTotal) },
+      { where: { id: invoiceId } },
+    );
+
     const invoice = await req.models.Invoice.findByPk(invoiceId);
     res.json(invoice.dataValues);
   }),
@@ -406,7 +423,7 @@ invoiceRoute.put(
             for (const insurancePlanItem of item.product.invoiceInsurancePlanItems) {
               await InvoiceItemFinalisedInsurance.create(
                 {
-                  id: uuidv4(),
+                  id: crypto.randomUUID(),
                   invoiceItemId: item.id,
                   coverageValueFinal: insurancePlanItem.coverageValue,
                   invoiceInsurancePlanId: insurancePlanItem.invoiceInsurancePlanId,

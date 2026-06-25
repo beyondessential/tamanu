@@ -122,6 +122,11 @@ export class FacilitySyncManager {
       );
     }
 
+    const { email, password } = this.constructor.config.sync;
+    if (!email || !password) {
+      throw new Error('Sync credentials are not configured');
+    }
+
     const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 

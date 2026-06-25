@@ -77,7 +77,9 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
                 referenceDataId={labTestTypeId}
                 referenceDataCategory="labTestType"
               />
-            ) : result;
+            ) : (
+              result
+            );
 
           return (
             <ResultCell>
@@ -119,8 +121,13 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'reference',
-        accessor: ({ labTestType }) =>
-          getReferenceRange({ labTestType, sex: patient.sex, getTranslation }),
+        accessor: row =>
+          getReferenceRange({
+            labTestType: row.labTestType,
+            labTest: row,
+            sex: patient.sex,
+            getTranslation,
+          }),
         sortable: false,
       },
       {
@@ -132,7 +139,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'labTestMethod',
-        accessor: row => row.labTestMethod ? getMethod(row) : '–',
+        accessor: row => (row.labTestMethod ? getMethod(row) : '–'),
         sortable: false,
       },
       {
@@ -168,7 +175,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'completedDate',
-        accessor: row => row.completedDate ? getCompletedDate(row) : '–',
+        accessor: row => (row.completedDate ? getCompletedDate(row) : '–'),
         sortable: false,
       },
     ],

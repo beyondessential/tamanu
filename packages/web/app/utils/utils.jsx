@@ -1,44 +1,28 @@
-import React, { isValidElement } from 'react';
+import { isValidElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { each, isArray, toString } from 'lodash';
-import { toast } from 'react-toastify';
+import { each, isArray } from 'lodash';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';
 import { MAX_REPEATS } from '@tamanu/constants';
 
-export const prepareToastMessage = msg => {
-  const messages = isArray(msg) ? msg : [msg];
-  return (
-    <>
-      {messages.map(text => (
-        <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
-      ))}
-    </>
-  );
-};
+export {
+  notify,
+  notifyInfo,
+  notifySuccess,
+  notifyError,
+  prepareToastMessage,
+} from '@tamanu/ui-components';
 
 export const getDeviceId = () => {
-  let deviceId = localStorage.getItem('deviceId');
+  let deviceId = window?.localStorage?.getItem('deviceId');
   if (!deviceId) {
     deviceId = `web-${shortid.generate()}`;
-    localStorage.setItem('deviceId', deviceId);
+    window?.localStorage?.setItem('deviceId', deviceId);
   }
   return deviceId;
 };
-
-export const notify = (message, props) => {
-  if (message !== false) {
-    toast(prepareToastMessage(message), props);
-  } else {
-    toast.dismiss();
-  }
-};
-
-export const notifyInfo = (msg, props) => notify(msg, { ...props, type: 'info' });
-export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
-export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 export const flattenRequest = (object, deep = true) => {
   try {
@@ -75,14 +59,6 @@ export const history = {
   goBack: () => {
     window.history.back();
   },
-};
-
-export const hexToRgba = (hex, opacity) => {
-  const hx = hex.replace('#', '');
-  const r = parseInt(hx.substring(0, 2), 16);
-  const g = parseInt(hx.substring(2, 4), 16);
-  const b = parseInt(hx.substring(4, 6), 16);
-  return `rgba(${r},${g},${b},${opacity})`;
 };
 
 export const renderToText = element => {

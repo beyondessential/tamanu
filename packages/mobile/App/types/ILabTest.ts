@@ -8,6 +8,8 @@ export interface ILabTest {
   date: string;
   result: string;
   secondaryResult?: string;
+  referenceRangeMin?: number;
+  referenceRangeMax?: number;
 
   labRequest: ILabRequest;
   labRequestId: string;

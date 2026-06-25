@@ -412,9 +412,7 @@ test.describe('Patient Side Bar', () => {
       'System',
     );
 
-    const additionalNoteKebabMenu = completedCarePlanModal.getAdditionalNoteKebabMenu('System');
-    await additionalNoteKebabMenu.click();
-    await completedCarePlanModal.additionalNoteEditButton.click();
+    await completedCarePlanModal.clickAdditionalNoteMenuAction('System', 'Edit');
 
     await fillMuiDateTimeField(completedCarePlanModal.additionalNoteSavedDate, '2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
@@ -456,9 +454,7 @@ test.describe('Patient Side Bar', () => {
       }),
     ).toBeVisible();
 
-    const additionalNoteKebabMenu = completedCarePlanModal.getAdditionalNoteKebabMenu('System');
-    await additionalNoteKebabMenu.click();
-    await completedCarePlanModal.additionalNoteDeleteButton.click();
+    await completedCarePlanModal.clickAdditionalNoteMenuAction('System', 'Delete');
 
     await expect(
       completedCarePlanModal.completedCarePlan.filter({

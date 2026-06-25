@@ -53,8 +53,6 @@ export class EmergencyTriageModal {
     this.page = page;
     
     const testIds = {
-      // Modal header
-      modalTitle: 'verticalcenteredtext-ni4s',
       closeButton: 'iconbutton-eull',
       
       // Patient details section
@@ -99,6 +97,7 @@ export class EmergencyTriageModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+    this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.arrivalDateTimeInput = this.arrivalDateTimeField.locator('input');
     this.triageDateTimeInput = this.triageDateTimeField.locator('input');
     this.arrivalModeSelect = page.getByRole('dialog').getByTestId('selectinput-phtg-select');

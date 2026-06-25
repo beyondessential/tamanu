@@ -10,6 +10,7 @@
     "username": "",
     "password": "",
     "migrateOnStartup": false,
+    "skipVersionCompatibilityCheck": false,
     "pool": {
       "max": 10
       // "min": 5,
@@ -272,6 +273,12 @@
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
     },
+    "formBuilderChatCleaner": {
+      "enabled": true,
+      // Every 15 minutes; expired AI form-builder chat sessions/jobs are low
+      // volume so they don't need frequent sweeping.
+      "schedule": "*/15 * * * *"
+    },
     "snapshotTableCleaner": {
       "enabled": true,
       // Once a minute between 01:00 and 05:59 server-local time, which is
@@ -320,6 +327,13 @@
       "enabled": true,
       // every 6 hours
       "schedule": "0 */6 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "programRegistryPltfuFlagger": {
+      "enabled": true,
+      // every day at 3 AM
+      "schedule": "0 3 * * *",
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },

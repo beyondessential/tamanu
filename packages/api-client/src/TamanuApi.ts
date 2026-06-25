@@ -463,8 +463,6 @@ export class TamanuApi {
     body: any,
     options: FetchOptions = {},
   ): Promise<any> {
-    const blob = new Blob([file]);
-
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
     // (for eg, sending a value of false will arrive as the string "false")
@@ -472,7 +470,11 @@ export class TamanuApi {
     // parse that on the backend.
     const formData = new FormData();
     formData.append('jsonData', JSON.stringify(body));
-    formData.append('file', blob);
+    if (typeof File !== 'undefined' && file instanceof File) {
+      formData.append('file', file, file.name);
+    } else {
+      formData.append('file', file);
+    }
 
     return this.fetch(endpoint, undefined, {
       method: 'POST',

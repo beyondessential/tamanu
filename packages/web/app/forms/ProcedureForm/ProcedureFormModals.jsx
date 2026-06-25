@@ -1,16 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
 import { TranslatedText } from '../../components';
 import { ConfirmModal } from '../../components/ConfirmModal';
 
-const StyledConfirmModal = styled(ConfirmModal)`
-  &.MuiDialog-root {
-    z-index: 100;
-  }
-`;
-
 export const UnsavedChangesModal = ({ open, onCancel, onConfirm }) => (
-  <StyledConfirmModal
+  <ConfirmModal
     title={
       <TranslatedText stringId="procedure.modal.unsavedChanges.title" fallback="Unsaved changes" />
     }
@@ -43,7 +36,7 @@ export const UnsavedChangesModal = ({ open, onCancel, onConfirm }) => (
 );
 
 export const CloseWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
-  <StyledConfirmModal
+  <ConfirmModal
     title={
       <TranslatedText
         stringId="procedure.modal.closeWithoutAdditionalData.title"
@@ -78,7 +71,7 @@ export const CloseWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) =
 );
 
 export const SaveWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
-  <StyledConfirmModal
+  <ConfirmModal
     title={
       <TranslatedText
         stringId="procedure.modal.saveWithoutAdditionalData.title"
@@ -113,7 +106,7 @@ export const SaveWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) =>
 );
 
 export const CancelAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
-  <StyledConfirmModal
+  <ConfirmModal
     title={
       <TranslatedText
         stringId="procedure.modal.cancelAdditionalData.title"

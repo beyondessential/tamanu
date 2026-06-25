@@ -1,6 +1,6 @@
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
+import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';

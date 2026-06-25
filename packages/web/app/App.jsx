@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import Bowser from 'bowser';
 import 'typeface-roboto';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { useLocation } from 'react-router';
@@ -19,6 +18,7 @@ import {
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
+import { useBrowserSupport } from './api/queries/useBrowserSupport';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -41,23 +41,28 @@ export function App({ sidebar, children }) {
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
-    localStorage.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
+    window?.localStorage?.getItem('DISABLE_SINGLE_TAB') || process.env.DISABLE_SINGLE_TAB === 'true';
 
-  const browser = Bowser.getParser(window.navigator.userAgent);
-  // Early 2022 releases. Arbitrarily chosen as recentish.
-  const isChromish = browser.satisfies({
-    chrome: '>=100',
-    chromium: '>=100',
-    edge: '>=100',
-  });
-  const platformType = browser.getPlatformType();
-  const isMobile = platformType === 'mobile';
-  const isDebugMode = localStorage.getItem('DEBUG_PROD');
+  // Browser/device support is decided server-side against configurable settings
+  // (see the /public/browser-support endpoint), so it can be loosened/tightened
+  // per deployment. Falls back to the static build-time check on error/timeout.
+  // DEBUG_PROD bypasses the gate entirely.
+  const isDebugMode = window?.localStorage?.getItem('DEBUG_PROD');
+  const {
+    status: browserSupportStatus,
+    reason: unsupportedReason,
+    descriptor,
+  } = useBrowserSupport({ enabled: !isDebugMode });
 
   if (!isDebugMode) {
-    // Skip browser/platform check in debug mode
-    if (isMobile) return <MobileStatusPage platformType={platformType} />;
-    if (!isChromish) return <UnsupportedBrowserStatusPage />;
+    if (browserSupportStatus === 'loading') return <LoadingStatusPage />;
+    if (browserSupportStatus === 'unsupported') {
+      return unsupportedReason === 'platform' ? (
+        <MobileStatusPage platformType={descriptor.platformType} />
+      ) : (
+        <UnsupportedBrowserStatusPage />
+      );
+    }
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
   if (isLoading) return <LoadingStatusPage />;

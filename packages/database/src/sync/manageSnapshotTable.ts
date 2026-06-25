@@ -36,9 +36,9 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
   await sequelize.query(`
     CREATE TABLE ${tableName} (
       id BIGSERIAL PRIMARY KEY,
-      direction character varying(255) NOT NULL,
-      record_type character varying(255) NOT NULL,
-      record_id character varying(255) NOT NULL,
+      direction text NOT NULL,
+      record_type text NOT NULL,
+      record_id text NOT NULL,
       is_deleted boolean NOT NULL,
       data json NOT NULL,
       saved_at_sync_tick bigint, -- saved_at_sync_tick is used to check whether record has been updated between incoming and outgoing phase of a single session

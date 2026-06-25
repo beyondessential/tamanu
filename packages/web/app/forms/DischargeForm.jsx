@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
-  ENCOUNTER_TYPES,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   NOTE_TYPES,
   MAX_REPEATS,
@@ -26,7 +25,7 @@ import {
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-import { Colors } from '../constants';
+import { Colors, PATIENT_STATUS } from '../constants';
 import {
   AutocompleteField,
   DefaultFormScreen,
@@ -46,9 +45,11 @@ import { TranslatedText, TranslatedReferenceData } from '../components/Translati
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
+import { getPatientStatus } from '../utils/getPatientStatus';
 import { useTranslation } from '../contexts/Translation';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
+import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
@@ -419,7 +420,7 @@ const EncounterOverview = ({
   const { getSetting } = useSettings();
   const dischargeDiagnosisMandatory =
     getSetting('features.discharge.dischargeDiagnosisMandatory') &&
-    encounterType !== ENCOUNTER_TYPES.CLINIC;
+    getPatientStatus(encounterType) !== PATIENT_STATUS.OUTPATIENT;
 
   return (
     <>
@@ -526,7 +527,7 @@ const DischargeFormScreen = props => {
 
   const dischargeDiagnosisMandatory =
     getSetting('features.discharge.dischargeDiagnosisMandatory') &&
-    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
+    getPatientStatus(encounter.encounterType) !== PATIENT_STATUS.OUTPATIENT;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {
@@ -707,6 +708,11 @@ export const DischargeForm = ({
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
+  const encounterSummaryEnabled = getSetting('encounterSummary.enabled');
+  const canCreateEncounterSummary = ability.can('create', 'EncounterSummary');
+  const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
+  const showEncounterSummary =
+    encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
     d => !['error', 'disproven'].includes(d.certainty),
@@ -999,6 +1005,11 @@ export const DischargeForm = ({
             required={dischargeNoteMandatory}
             data-testid="field-0uma"
           />
+          {showEncounterSummary && (
+            <div style={{ gridColumn: '1 / -1' }}>
+              <EncounterSummaryContent encounterId={encounter.id} />
+            </div>
+          )}
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
             data-testid="divider-lj2w"

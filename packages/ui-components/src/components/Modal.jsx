@@ -4,6 +4,11 @@ import { BaseModal } from './BaseModal';
 import { useFormSubmission } from '../contexts';
 import { IS_DEVELOPMENT } from '../utils/env';
 
+/**
+ * @param {React.ComponentProps<typeof BaseModal> & {
+ *   disableDevWarning?: boolean;
+ * }} props
+ */
 export const Modal = memo(({ children, disableDevWarning, ...props }) => {
   const { hasFormSubmission } = useFormSubmission();
   const [showUsingFormWarning, setShowUsingFormWarning] = useState(false);

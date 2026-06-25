@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { literal, Op } from 'sequelize';
 import { subject } from '@casl/ability';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import {
@@ -49,7 +49,11 @@ surveyResponseAnswer.get(
           ],
         },
       ],
-      order: [['surveyResponse', 'startTime', 'DESC']],
+      order: [
+        literal(
+          'COALESCE("SurveyResponseAnswer"."edited_time", "surveyResponse"."end_time", "surveyResponse"."start_time") DESC NULLS LAST',
+        ),
+      ],
     });
 
     if (!answer) {

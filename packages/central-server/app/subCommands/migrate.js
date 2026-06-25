@@ -1,13 +1,14 @@
 import { Command } from 'commander';
 import { createMigrateCommand } from '@tamanu/database/services/migrations';
 import { initDatabase } from '../database';
+import { VERSION } from '../middleware/versionCompatibility';
 
 // This is the "just-migrate" command for running database migrations only
 // Note: there's also a 'migrate' alias on the 'upgrade' command for deployment safety, which
 // includes database migrations plus automated upgrade steps
 async function migrate(direction) {
   const store = await initDatabase({ testMode: false });
-  await store.sequelize.migrate(direction);
+  await store.sequelize.migrate(direction, { serverVersion: VERSION });
   process.exit(0);
 }
 

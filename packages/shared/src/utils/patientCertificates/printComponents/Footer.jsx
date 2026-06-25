@@ -50,10 +50,19 @@ const ValueText = ({ children, ...props }) => (
   </Text>
 );
 
-export const Footer = ({ printDate, printFacility, printedBy, style }) => {
+export const Footer = ({
+  printDate,
+  printFacility,
+  printedBy,
+  style,
+  // When a document is split into chunks and merged afterwards, react-pdf's per-document
+  // page counter can't span the merge. Such documents set showPageNumber={false} and have a
+  // continuous count stamped on after merging instead.
+  showPageNumber = true,
+}) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime, getCurrentDateTime } = useDateTime();
-  const dateToFormat = printDate || getCurrentDateTime(); 
+  const dateToFormat = printDate || getCurrentDateTime();
   return (
     <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
@@ -72,27 +81,27 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
         )}
         {printedBy && (
           <>
-            <ValueText> |</ValueText>
-            <LabelText>
-              {getTranslation('pdf.footer.printedBy.label', 'Printed by')}:
-            </LabelText>{' '}
+            <ValueText> | </ValueText>
+            <LabelText>{getTranslation('pdf.footer.printedBy.label', 'Printed by')}: </LabelText>
             <ValueText>{printedBy}</ValueText>
           </>
         )}
       </View>
-      <View style={styles.footerRightContent}>
-        <Text
-          style={styles.valueText}
-          render={({ pageNumber, totalPages }) =>
-            getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              replacements: {
-                currentPage: pageNumber,
-                totalPages,
-              },
-            })
-          }
-        />
-      </View>
+      {showPageNumber && (
+        <View style={styles.footerRightContent}>
+          <Text
+            style={styles.valueText}
+            render={({ pageNumber, totalPages }) =>
+              getTranslation('pdf.pagination', ':currentPage of :totalPages', {
+                replacements: {
+                  currentPage: pageNumber,
+                  totalPages,
+                },
+              })
+            }
+          />
+        </View>
+      )}
     </View>
   );
 };

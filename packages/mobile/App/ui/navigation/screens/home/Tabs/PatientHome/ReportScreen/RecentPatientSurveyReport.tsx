@@ -1,4 +1,4 @@
-import { differenceInYears, format, parseISO } from 'date-fns';
+import { differenceInYears, parseISO } from 'date-fns';
 import React, { FC } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
@@ -16,24 +16,30 @@ import {
 } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 interface IOwnProps {
   selectedSurveyId: string;
 }
 
 export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) => {
+  const { formatDate } = useDateFormatter();
+  const { getSetting } = useSettings();
+  const hideOtherSex = getSetting<boolean>('features.hideOtherSex') === true;
   const [recentVisitorsData] = useBackendEffect(
     ({ models }) => models.Patient.getRecentVisitors(selectedSurveyId),
     [selectedSurveyId],
   );
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
-  const todayFormatted = format(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
+  const todayFormatted = formatDate(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
 
   const [referralsData] = useBackendEffect(({ models }) => models.Patient.getReferralList(), []);
 
   const maleData = genderData?.find(item => item.gender === 'male');
   const femaleData = genderData?.find(item => item.gender === 'female');
+  const otherData = genderData?.find(item => item.gender === 'other');
   const youngData = ageData?.find(item => item.ageGroup === 'lessThanThirty');
   const oldData = ageData?.find(item => item.ageGroup === 'moreThanThirty');
   return (
@@ -115,6 +121,15 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   <DataCell>{femaleData?.totalVisitors || '0'}</DataCell>
                   <DataCell>{femaleData?.totalSurveys || '0'}</DataCell>
                 </Row>
+                {!hideOtherSex && (
+                  <Row>
+                    <DataCell>
+                      <TranslatedText stringId="patient.property.sex.other" fallback="Other" />
+                    </DataCell>
+                    <DataCell>{otherData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{otherData?.totalSurveys || '0'}</DataCell>
+                  </Row>
+                )}
               </Cell>
             </BorderRow>
           )}

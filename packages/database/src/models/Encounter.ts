@@ -9,13 +9,11 @@ import {
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
+  type EncounterType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import config from 'config';
-import { formatShortDateTime, formatShort } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { Model } from './Model';
 import {
@@ -32,13 +30,19 @@ import type { ReferenceData } from './ReferenceData';
 
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import { createChangeRecorders } from '../utils/recordModelChanges';
+import { getStoredNoteDateFormatters } from '../utils/storedNoteDateFormatters';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
+const encounterTypes = new Set<string>(ENCOUNTER_TYPE_VALUES);
+function isEncounterType(value: unknown): value is EncounterType {
+  return typeof value === 'string' && encounterTypes.has(value);
+}
+
 export class Encounter extends Model {
   declare id: string;
-  declare encounterType?: string;
+  declare encounterType?: EncounterType;
   declare startDate: string;
   declare endDate?: string;
   declare estimatedEndDate?: string;
@@ -66,7 +70,7 @@ export class Encounter extends Model {
     if (!hackToSkipEncounterValidation) {
       validate = {
         mustHaveValidEncounterType() {
-          if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType as string)) {
+          if (!this.deletedAt && !isEncounterType(this.encounterType)) {
             throw new InvalidOperationError('An encounter must have a valid encounter type.');
           }
         },
@@ -497,7 +501,8 @@ export class Encounter extends Model {
   }
 
   async update(data: any, user?: any): Promise<any> {
-    const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
+    const { Department, Location, EncounterHistory, ReferenceData, Setting, User } =
+      this.sequelize.models;
     // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
     // To collect system note messages describing all changes in this encounter update
@@ -615,19 +620,21 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
+      const { formatShort, formatShortDateTime } = getStoredNoteDateFormatters(Setting);
+
       // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;
       await onChangeTextColumn({
         columnName: 'startDate',
         noteLabel:
           encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
-        formatText: date => (date ? formatShortDateTime(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShortDateTime(date) : '-'),
       });
 
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         noteLabel: 'estimated discharge date',
-        formatText: date => (date ? formatShort(date, getPrimaryTimeZone(config)) : '-'),
+        formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeForeignKey({
         columnName: 'patientBillingTypeId',

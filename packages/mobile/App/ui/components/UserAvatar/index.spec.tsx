@@ -1,13 +1,13 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { UserAvatar, UserAvatarProps } from './index';
-import { getUserInitials } from '/helpers/user';
+import { getUserInitials, Genders } from '/helpers/user';
 
 describe('<UserAvatar/>', () => {
   const makeUserAvatar = (image?: string): UserAvatarProps => ({
     size: 25,
     displayName: 'Name LastName',
-    gender: 'male',
+    sex: Genders.MALE,
     image,
   });
 
@@ -16,24 +16,24 @@ describe('<UserAvatar/>', () => {
   );
   const withoutImageProps = makeUserAvatar();
 
-  it(' when no image provided should render user initials', () => {
-    const { getByText } = render(<UserAvatar {...withoutImageProps} />);
+  it(' when no image provided should render user initials', async () => {
+    const { getByText } = await render(<UserAvatar {...withoutImageProps} />);
     expect(
       getByText(getUserInitials(withImageProps.displayName!)),
     ).not.toBeNull();
   });
 
-  it('when image is provided should render user initials', () => {
-    const { queryByText } = render(<UserAvatar {...withImageProps} />);
+  it('when image is provided should render user initials', async () => {
+    const { queryByText } = await render(<UserAvatar {...withImageProps} />);
     expect(
       queryByText(getUserInitials(withImageProps.displayName!)),
     ).toBeNull();
   });
 
-  it('should render "user" when no displayName is provided', () => {
+  it('should render "user" when no displayName is provided', async () => {
     const userAvatarWithNoName = makeUserAvatar();
     delete userAvatarWithNoName.displayName;
-    const { queryByText } = render(<UserAvatar {...userAvatarWithNoName} />);
+    const { queryByText } = await render(<UserAvatar {...userAvatarWithNoName} />);
     expect(queryByText('user')).toBeTruthy();
   });
 });

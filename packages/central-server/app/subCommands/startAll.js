@@ -17,7 +17,7 @@ export const serveAll = async ({ skipMigrationCheck }) => {
     const { store } = await new ApplicationContext().init({
       appType: CENTRAL_SERVER_APP_TYPES.MIGRATE,
     });
-    await store.sequelize.migrate('up');
+    await store.sequelize.migrate('up', { serverVersion: pkg.version });
   }
 
   return Promise.race([

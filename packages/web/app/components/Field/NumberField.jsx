@@ -1,2 +1,1 @@
-import { NumberField, NumberInput } from '@tamanu/ui-components';
-export { NumberField, NumberInput };
+export { NumberField, NumberInput } from '@tamanu/ui-components';

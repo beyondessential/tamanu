@@ -1,4 +1,4 @@
-FROM node:20-slim AS build
+FROM node:26-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 make g++ git jq \
@@ -6,17 +6,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+ENV TURBO_TELEMETRY_DISABLED=1
+
+COPY package.json package-lock.json turbo.jsonc ./
 COPY patches/ patches/
 COPY common.* ./
 COPY scripts/ scripts/
 COPY packages/ packages/
 
 RUN npm ci
-RUN npm run build-shared
+RUN npm run build -- --filter=@tamanu/synthetic-tests^...
 RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
 
-FROM node:20-slim
+FROM node:26-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
   && rm -rf /var/lib/apt/lists/*

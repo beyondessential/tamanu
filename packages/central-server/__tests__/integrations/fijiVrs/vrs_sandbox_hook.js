@@ -31,7 +31,7 @@ const patient = {
     .date({ year: 1980 })
     .toISOString()
     .slice(0, 10),
-  sex: chance.pickone(['MALE', 'FEMALE']),
+  sex: chance.pickone(['MALE', 'FEMALE', 'OTHER']),
   sub_division: chance.pickone(['Matautu', 'Aasufou', 'Aele']),
   phone: chance.phone(),
   email: chance.email(),

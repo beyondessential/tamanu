@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { POTENTIAL_LOSS_TO_FOLLOW_UP, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { DataImportError } from '../errors';
 import { importRows } from '../importer/importRows';
@@ -92,6 +92,29 @@ const ensureCurrentlyAtUpdateIsAllowed = async (context, currentlyAtType, regist
   }
 };
 
+async function createFollowUpClinicalStatus(context, registryId, registryCode) {
+  const pltfuCode = `${registryCode}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`;
+  const existingStatus = await context.models.ProgramRegistryClinicalStatus.findOne({
+    where: {
+      code: pltfuCode,
+      programRegistryId: registryId,
+    },
+  });
+
+  // Only create the clinical status if it doesn't already exist
+  if (existingStatus) return;
+
+  log.debug('Auto-creating Potential Loss To Follow-Up clinical status');
+  await context.models.ProgramRegistryClinicalStatus.create({
+    id: `prClinicalStatus-${pltfuCode}`,
+    programRegistryId: registryId,
+    code: pltfuCode,
+    name: POTENTIAL_LOSS_TO_FOLLOW_UP.NAME,
+    color: POTENTIAL_LOSS_TO_FOLLOW_UP.DEFAULT_COLOR,
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+  });
+}
+
 export async function importProgramRegistry(context, workbook, programId) {
   // There won't always be a program registry - that's fine
   log.debug('Checking for Registry sheet');
@@ -99,7 +122,8 @@ export async function importProgramRegistry(context, workbook, programId) {
 
   const { registryRecord, clinicalStatuses } = readProgramRegistryData(workbook);
   const { registryName, currentlyAtType } = registryRecord;
-  const registryId = `programRegistry-${registryRecord.registryCode}`;
+  const registryCode = registryRecord.registryCode;
+  const registryId = `programRegistry-${registryCode}`;
 
   await ensureUniqueName(context, registryName, registryId);
   await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
@@ -115,13 +139,22 @@ export async function importProgramRegistry(context, workbook, programId) {
           id: registryId,
           programId,
           name: registryRecord.registryName,
-          code: registryRecord.registryCode,
+          code: registryCode,
           visibilityStatus: registryRecord.visibilityStatus,
           currentlyAtType: registryRecord.currentlyAtType,
+          lossToFollowUpEnabled: registryRecord.lossToFollowUpEnabled,
+          lossToFollowUpThresholdDays: registryRecord.lossToFollowUpThresholdDays,
         },
       },
     ],
   });
+
+  const isPLTFUEnabled = ['true', '1'].includes(
+    String(registryRecord.lossToFollowUpEnabled).toLowerCase(),
+  );
+  if (isPLTFUEnabled) {
+    await createFollowUpClinicalStatus(context, registryId, registryCode);
+  }
 
   log.debug('Importing Patient Registry Clinical statuses');
   stats = await importRows(context, {

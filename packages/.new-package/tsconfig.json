@@ -4,6 +4,7 @@
     "src/**/*.ts"
   ],
   "compilerOptions": {
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "incremental": true
   }
 }

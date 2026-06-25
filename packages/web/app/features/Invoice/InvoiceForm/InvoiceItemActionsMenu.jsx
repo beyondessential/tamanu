@@ -196,7 +196,7 @@ const useInvoiceItemActionsMenu = ({
   };
 };
 
-const MenuButton = styled(ThreeDotMenu)`
+const MenuAnchor = styled.div`
   position: absolute;
   top: 2px;
   right: 0;
@@ -224,9 +224,11 @@ export const InvoiceItemActionsMenu = ({
   return (
     <>
       {showActionMenu && (
-        <NoteModalActionBlocker>
-          <MenuButton items={menuItems} data-testid="threedotmenu-zw6l" />
-        </NoteModalActionBlocker>
+        <MenuAnchor>
+          <NoteModalActionBlocker>
+            <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+          </NoteModalActionBlocker>
+        </MenuAnchor>
       )}
       {actionModal && (
         <InvoiceItemActionModal

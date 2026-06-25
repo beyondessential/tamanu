@@ -29,13 +29,10 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
-      <Tabs.Navigator swipeEnabled={false}>
+      <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
         <Tabs.Screen
-          initialParams={{
-            selectedPatient,
-          }}
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText
                 stringId="patient.referral.heading.referPatient"
                 fallback="Refer patient"
@@ -47,7 +44,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
         />
         <Tabs.Screen
           options={{
-            title: () => (
+            tabBarLabel: () => (
               <TranslatedText
                 stringId="patient.referral.heading.viewReferral"
                 fallback="View referrals"

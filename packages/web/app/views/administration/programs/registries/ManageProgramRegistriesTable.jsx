@@ -34,7 +34,7 @@ const actionsColumnBase = /** @type {const} */ ({
   sortable: false,
   title: (
     <VisuallyHidden>
-      <TranslatedText stringId="admin.programRegistries.table.column.actions" fallback="Actions" />
+      <TranslatedText stringId="general.actions.label" fallback="Actions" />
     </VisuallyHidden>
   ),
 });

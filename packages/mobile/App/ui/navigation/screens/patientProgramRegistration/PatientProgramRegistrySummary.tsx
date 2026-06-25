@@ -8,7 +8,7 @@ import { SectionHeader } from '/components/SectionHeader';
 import { theme } from '/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { CircleAdd } from '~/ui/components/Icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistrationList } from './PatientProgramRegistrationList';
 import { withPatient } from '~/ui/containers/Patient';
@@ -31,6 +31,7 @@ const Row = styled.View`
 
 const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const { ability } = useAuth();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
@@ -39,7 +40,7 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
       if (canListRegistrations === false) return [];
       return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
     },
-    [canListRegistrations, selectedPatient.id],
+    [canListRegistrations, selectedPatient.id, isFocused],
   );
 
   if (isProgramRegistryLoading) return <LoadingScreen />;

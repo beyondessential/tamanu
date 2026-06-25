@@ -8,6 +8,7 @@ on:
       - release/*
 
 env:
+  TURBO_TELEMETRY_DISABLED: 1
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
   NODE_MODULES_PATHS: |
@@ -39,19 +40,28 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install dbt-core dbt-postgres
+          pip install \
+            "dbt-core==1.10.13" \
+            "dbt-postgres==1.9.1" \
+            "dbt-adapters==1.16.7" \
+            "dbt-common==1.35.0"
 
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i
+      - name: Install dependencies
+        run: |
+          npm install \
+            --include-workspace-root \
+            --workspace=@tamanu/central-server \
+            --workspace=scripts
 
       - name: Install and start postgres
         run: |
@@ -61,10 +71,8 @@ jobs:
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
           createdb -O tamanu central
 
-      - name: Build
-        run: |
-          npm run build-shared
-          npm run --workspace @tamanu/central-server build
+      - name: Build central server
+        run: npm run build -- --filter=@tamanu/central-server...
 
       - name: Configure Tamanu
         run: |
@@ -76,7 +84,11 @@ jobs:
 
       - name: Generate DBT docs
         run: |
-          pip3 install dbt-core dbt-postgres
+          pip3 install \
+            "dbt-core==1.10.13" \
+            "dbt-postgres==1.9.1" \
+            "dbt-adapters==1.16.7" \
+            "dbt-common==1.35.0"
           npm run dbt-generate-docs
 
       - uses: aws-actions/configure-aws-credentials@v4

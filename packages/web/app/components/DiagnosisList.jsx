@@ -1,88 +1,132 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
 
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  UnstyledHtmlButton,
+  VisuallyHidden,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants';
-import { hexToRgba } from '../utils';
-import { TranslatedText, TranslatedReferenceData } from './Translation';
 
-const DiagnosisListContainer = styled.div`
+const UnorderedList = styled.ul.attrs({
+  'data-testid': 'diagnosislistcontainer-dqkk',
+  role: 'list',
+})`
+  align-items: center;
+  color: ${Colors.primary};
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
-  color: ${Colors.primary};
+  gap: 0.625rem;
 `;
 
-const DiagnosisChip = styled.div`
-  margin: 0.3rem;
-  ${(p) => (p.onClick ? `cursor: pointer;` : '')}
+const DiagnosisChip = styled(UnstyledHtmlButton).attrs({
+  type: 'button',
+})`
+  color: ${Colors.alert};
+  &[data-diagnosis-type='primary'] {
+    color: ${Colors.primary};
+  }
+
+  background-color: oklch(from currentColor l c h / 10%);
+  border-radius: ${props => props.theme.shape.borderRadius}px;
   display: flex;
-`;
-
-const Category = styled.div`
-  background: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
-  font-weight: 900;
-  padding: 10px 5px;
-  color: ${Colors.white};
-  border-radius: 3px 0 0 3px;
-`;
-
-const DiagnosisName = styled.span`
-  background: ${(props) =>
-    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
-  color: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 500;
-  padding: 10px;
-  border-radius: 0 3px 3px 0;
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+  &:active {
+    background-color: oklch(from currentColor l c h / 20%);
+  }
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
-  <DiagnosisChip onClick={onClick} data-testid="diagnosischip-3n28">
-    <Category isPrimary={isPrimary} data-testid="category-vwwx">
+const DiagnosisTypeOrnament = styled.span.attrs({
+  'aria-hidden': true,
+  'data-testid': 'category-vwwx',
+})`
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
+  font-weight: 900;
+  padding-block: 10px;
+  padding-inline: 5px;
+  color: ${Colors.white};
+
+  background-color: ${Colors.alert};
+  [data-diagnosis-type='primary'] & {
+    background-color: ${Colors.primary};
+  }
+`;
+
+function DiagnosisTypeAccessibleLabel({ isPrimary }) {
+  return (
+    <VisuallyHidden>
+      (
       {isPrimary ? (
         <TranslatedText
-          stringId="encounter.diagnosis.type.primary"
-          fallback="P"
-          data-testid="translatedtext-jz99"
+          stringId="encounter.diagnosis.type.primary.full"
+          fallback="Primary diagnosis"
+          casing="lower"
         />
       ) : (
         <TranslatedText
-          stringId="encounter.diagnosis.type.secondary"
-          fallback="S"
-          data-testid="translatedtext-ssu2"
+          stringId="encounter.diagnosis.type.secondary.full"
+          fallback="Secondary diagnosis"
+          casing="lower"
         />
       )}
-    </Category>
-    {diagnosis?.name && diagnosis?.id && (
-      <DiagnosisName isPrimary={isPrimary} data-testid="diagnosisname-vvn4">
+      )
+    </VisuallyHidden>
+  );
+}
+
+const DiagnosisName = styled.span.attrs({
+  'data-testid': 'diagnosisname-vvn4',
+})`
+  border-end-end-radius: inherit;
+  border-start-end-radius: inherit;
+  padding: 10px;
+`;
+
+const DiagnosisItem = React.memo(({ diagnosis, isPrimary, ...props }) => (
+  <DiagnosisChip data-diagnosis-type={isPrimary ? 'primary' : 'secondary'} {...props}>
+    <DiagnosisTypeOrnament>
+      {isPrimary ? (
+        <TranslatedText stringId="encounter.diagnosis.type.primary" fallback="P" />
+      ) : (
+        <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
+      )}
+    </DiagnosisTypeOrnament>
+    <DiagnosisName>
+      {diagnosis?.name && diagnosis?.id && (
         <TranslatedReferenceData
           fallback={diagnosis.name}
           value={diagnosis.id}
           category="diagnosis"
-          data-testid="translatedreferencedata-eww0"
         />
-      </DiagnosisName>
-    )}
+      )}{' '}
+      <DiagnosisTypeAccessibleLabel isPrimary={isPrimary} />
+    </DiagnosisName>
   </DiagnosisChip>
 ));
 
 export const DiagnosisList = React.memo(({ diagnoses, onEditDiagnosis }) => (
-  <DiagnosisListContainer data-testid="diagnosislistcontainer-dqkk">
+  <UnorderedList>
     {diagnoses.map((d, index) => (
-      <DiagnosisItem
-        key={d.id}
-        {...d}
-        onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
-        data-testid={`diagnosisitem-037x-${index}`}
-      />
+      <li key={d.id}>
+        <DiagnosisItem
+          data-testid={`diagnosisitem-037x-${index}`}
+          diagnosis={d.diagnosis}
+          disabled={!onEditDiagnosis}
+          isPrimary={d.isPrimary}
+          onClick={onEditDiagnosis ? () => onEditDiagnosis(d) : undefined}
+        />
+      </li>
     ))}
-  </DiagnosisListContainer>
+  </UnorderedList>
 ));
-
-DiagnosisList.defaultProps = {
-  onEditDiagnosis: () => {},
-};
 
 DiagnosisList.propTypes = {
   onEditDiagnosis: PropTypes.func,

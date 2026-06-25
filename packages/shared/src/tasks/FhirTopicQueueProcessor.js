@@ -2,7 +2,6 @@ import { SpanStatusCode } from '@opentelemetry/api';
 import { formatRFC3339 } from 'date-fns';
 
 import { getTracer, spanWrapFn } from '../services/logging';
-import { v4 as uuidv4 } from 'uuid';
 
 export class FhirTopicQueueProcessor {
   isRunning = false;
@@ -46,7 +45,7 @@ export class FhirTopicQueueProcessor {
   }
 
   startJobRun(delay = 0) {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     this.jobRuns.set(
       id,
       this.grabAndRunOne(delay).finally(() => this.clearJobRun(id)),
@@ -91,6 +90,7 @@ export class FhirTopicQueueProcessor {
             // No job found, don't start a new job run
             return;
           }
+          this.manager.recordJobGrabbed();
 
           try {
             span.setAttributes({

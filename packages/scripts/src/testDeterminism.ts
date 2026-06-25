@@ -360,8 +360,13 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to before migrations to test', commitBeforeMigration);
     await gitCommand(['switch', '--discard-changes', '--detach', commitBeforeMigration]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build-shared']);
-    await runCommand('npm', ['run', '--workspace', 'scripts', 'build']);
+    await runCommand('npm', [
+      'run',
+      'build',
+      '--',
+      '--filter=@tamanu/database...',
+      '--filter=scripts...',
+    ]);
 
     const initDb = dbConfig('init');
     {
@@ -378,7 +383,7 @@ async function generateFake(database: string, rounds: number): Promise<void> {
     console.log('Switch repo to after migrations to test', HEAD);
     await gitCommand(['switch', '--discard-changes', '--detach', HEAD]);
     await runCommand('npm', ['install']);
-    await runCommand('npm', ['run', 'build-shared']);
+    await runCommand('npm', ['run', 'build', '--', '--filter=@tamanu/database...']);
 
     console.log('Running', testRounds + 1, 'rounds of migrations');
     let previousHashes: DbHashes | undefined;

@@ -51,6 +51,7 @@ export const Routes = {
     },
     VitalsStack: {
       Index: '',
+      View: '',
       VitalsTabs: {
         Index: '',
         AddDetails: '',
@@ -71,6 +72,7 @@ export const Routes = {
     },
     ReferralStack: {
       Index: '',
+      View: '',
       ReferralList: {
         Index: '',
         AddReferralDetails: '',
@@ -97,6 +99,7 @@ export const Routes = {
     },
     LabRequestStack: {
       Index: '',
+      View: '',
       LabRequestTabs: {
         ViewHistory: '',
         NewRequest: '',
@@ -104,6 +107,7 @@ export const Routes = {
     },
     HistoryVitalsStack: {
       Index: '',
+      View: '',
       HistoryVitalsTabs: {
         Index: '',
         Visits: '',
@@ -113,13 +117,16 @@ export const Routes = {
     },
     PatientSummaryStack: {
       Index: '',
+      View: '',
     },
     PatientProgramRegistryFormStack: {
       Index: '',
+      View: '',
       PatientProgramRegistryForm: '',
     },
     PatientProgramRegistrationDetailsStack: {
       Index: '',
+      View: '',
     },
     RegisterPatientStack: {
       Index: '',
@@ -129,6 +136,7 @@ export const Routes = {
     },
     PatientDetailsStack: {
       Index: '',
+      View: '',
       AddPatientIssue: '',
       ReminderContacts: '',
       AddReminderContact: '',

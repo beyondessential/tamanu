@@ -8,7 +8,7 @@ import { isSetting } from '@tamanu/settings';
 import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
-import { SettingInput } from './SettingInput';
+import { SettingInput, ResetToDefaultButton } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
@@ -26,9 +26,11 @@ const StyledSecretIcon = styled(KeyIcon)`
 
 const Wrapper = styled.div`
   display: grid;
-  row-gap: 0.5rem;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  // no row-gap: rows stack contiguously so the zebra/hover bands are an
+  // unbroken stripe; the label/actions block margins (which sit inside the
+  // band) give the vertical breathing room
 
   &:not(:first-child) {
     border-top: 1px solid ${Colors.outline};
@@ -39,6 +41,37 @@ const SettingLine = styled(BodyText)`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  transition: background-color 100ms ease;
+
+  // Subtle zebra shading so adjacent settings are easy to tell apart. nth-of-type
+  // (not nth-child) keys off the element tag: the category heading is an <h4> and
+  // settings sort before any nested sub-category groups (see sortProperties), so
+  // the setting rows are the leading, contiguous <div> siblings and alternate
+  // cleanly. Background only — no padding/margin — to leave subgrid alignment
+  // untouched.
+  &:nth-of-type(even) {
+    background-color: ${Colors.background};
+  }
+
+  // Highlight on hover, and keep it while a control on the row is focused —
+  // including when a <select> is open and the pointer has moved down into its
+  // menu (react-select keeps focus on the control inside the row, so
+  // :focus-within holds even if the menu portals out of this subtree).
+  &:hover,
+  &:focus-within {
+    background-color: ${Colors.veryLightBlue};
+  }
+`;
+
+// the row's third column: the reset-to-default action, top-aligned so it sits
+// against the first line of tall inputs (multiline, list, JSON) too
+const RowActions = styled.div`
+  align-self: start;
+  display: flex;
+  justify-content: flex-end;
+  margin-block: 13px;
+  // inset from the band's right edge (the container itself has no padding)
+  padding-inline-end: 1.25rem;
 `;
 
 const SettingNameLabel = styled(LargeBodyText)`
@@ -49,6 +82,8 @@ const SettingNameLabel = styled(LargeBodyText)`
   gap: 0.25rem;
   margin-block: 13px;
   padding-block: 0;
+  // inset from the band's left edge (the container itself has no padding)
+  margin-inline-start: 1.25rem;
   font-size: 15px;
   inline-size: fit-content;
 `;
@@ -56,6 +91,8 @@ const SettingNameLabel = styled(LargeBodyText)`
 const StyledHeading = styled(Heading4)`
   grid-column: 1 / -1;
   margin-block: 1rem;
+  // align the heading text with the row labels' left inset
+  margin-inline-start: 1.25rem;
   inline-size: fit-content;
 `;
 
@@ -159,7 +196,23 @@ export const Category = ({
         const isHighRisk = schema.highRisk || highRisk || isSecret;
         const disabled = !canWriteHighRisk && isHighRisk;
 
-        return type ? (
+        if (!type) {
+          return (
+            <Category
+              key={newPath}
+              path={newPath}
+              // Pass down highRisk from parent category to now top level subcategory
+              schema={{ ...propertySchema, highRisk: isHighRisk }}
+              getSettingValue={getSettingValue}
+              resolveSettingsPath={resolveSettingsPath}
+              handleChangeSetting={handleChangeSetting}
+              facilityId={facilityId}
+              data-testid={`category-9y74-${testIdSuffix}`}
+            />
+          );
+        }
+
+        return (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
               disabled={disabled}
@@ -187,19 +240,18 @@ export const Category = ({
               editor={editor}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
+            {/* actions column: reset to default — not shown for secrets (set
+                only, never reset) or when the user can't edit this setting */}
+            {!disabled && !isSecret && (
+              <RowActions>
+                <ResetToDefaultButton
+                  value={getSettingValue(newPath)}
+                  defaultValue={defaultValue}
+                  onReset={() => handleChangeSetting(newPath, defaultValue)}
+                />
+              </RowActions>
+            )}
           </SettingLine>
-        ) : (
-          <Category
-            key={newPath}
-            path={newPath}
-            // Pass down highRisk from parent category to now top level subcategory
-            schema={{ ...propertySchema, highRisk: isHighRisk }}
-            getSettingValue={getSettingValue}
-            resolveSettingsPath={resolveSettingsPath}
-            handleChangeSetting={handleChangeSetting}
-            facilityId={facilityId}
-            data-testid={`category-9y74-${testIdSuffix}`}
-          />
         );
       })}
     </Wrapper>

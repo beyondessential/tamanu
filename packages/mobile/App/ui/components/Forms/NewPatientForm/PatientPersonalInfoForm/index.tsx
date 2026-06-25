@@ -172,8 +172,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       setSelectedPatient(editedPatient);
 
-      // Navigate back to patient details
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+      navigation.goBack();
     },
     [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );

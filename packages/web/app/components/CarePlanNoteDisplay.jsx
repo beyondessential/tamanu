@@ -91,6 +91,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
             <DateDisplay date={note.date} data-testid="datedisplay-rguy" />
           </Timestamp>
           <MenuButton
+            a11yLabel={<TranslatedText stringId="note.actions" fallback="Note actions" />}
             iconColor={Colors.midText}
             actions={[
               {

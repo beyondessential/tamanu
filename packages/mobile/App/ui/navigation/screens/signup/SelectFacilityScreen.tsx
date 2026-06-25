@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import {
   FullView,
   StyledSafeAreaView,
@@ -23,6 +23,19 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { FacilitySelectField } from './FacilitySelectField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+
+const horizontalInset = screenPercentageToDP(2.43, Orientation.Width);
+
+const styles = StyleSheet.create({
+  content: {
+    paddingHorizontal: horizontalInset,
+    marginTop: screenPercentageToDP(7.29, Orientation.Height),
+    marginBottom: screenPercentageToDP(14.7, Orientation.Height),
+  },
+  header: {
+    alignItems: 'center',
+  },
+});
 
 async function fetchFacilityOptions({ centralServer }) {
   // download all facility options from the server
@@ -137,27 +150,25 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
       <StyledSafeAreaView>
-        <StyledView
-          width="100%"
-          alignItems="center"
-          marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-          marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
-        >
-          <HomeBottomLogoIcon
-            size={screenPercentageToDP(7.29, Orientation.Height)}
-            fill={theme.colors.SECONDARY_MAIN}
-          />
-          <StyledText
-            marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-            fontSize={screenPercentageToDP('2.55', Orientation.Height)}
-            color={theme.colors.WHITE}
-            fontWeight="bold"
-          >
-            <TranslatedText
-              stringId="login.facility.heading"
-              fallback="Please link this device to a facility."
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <HomeBottomLogoIcon
+              size={screenPercentageToDP(7.29, Orientation.Height)}
+              fill={theme.colors.SECONDARY_MAIN}
             />
-          </StyledText>
+            <StyledText
+              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
+              fontSize={screenPercentageToDP('2.55', Orientation.Height)}
+              color={theme.colors.WHITE}
+              fontWeight="bold"
+              textAlign="center"
+            >
+              <TranslatedText
+                stringId="login.facility.heading"
+                fallback="Please link this device to a facility."
+              />
+            </StyledText>
+          </View>
           <SelectFacilityForm onSubmitForm={onSubmitForm} />
           <StyledTouchableOpacity onPress={signOut}>
             <StyledText
@@ -174,7 +185,7 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
               />
             </StyledText>
           </StyledTouchableOpacity>
-        </StyledView>
+        </View>
       </StyledSafeAreaView>
     </FullView>
   );

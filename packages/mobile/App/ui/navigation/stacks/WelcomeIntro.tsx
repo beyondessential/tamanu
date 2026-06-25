@@ -11,8 +11,8 @@ const Stack = createStackNavigator();
 export const WelcomeIntroTabs = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator
-      headerMode="none"
       screenOptions={{
+        headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
       }}
     >

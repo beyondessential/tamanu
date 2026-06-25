@@ -20,6 +20,7 @@ import { importerRouter } from './importer';
 import { assetRoutes } from './asset';
 import { designationRouter, designationsRouter } from './designations';
 import { fhirJobStats } from './fhirJobStats';
+import { formBuilderRouter } from './formBuilder';
 import { locationAssignmentsRouter } from './locationAssignments';
 import { mergePatientHandler } from './patientMerge';
 import { permissionsRouter } from './permissions';
@@ -79,6 +80,7 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
 adminRoutes.use('/template', templateRoutes);
+adminRoutes.use('/form-builder', formBuilderRouter);
 
 adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/designations', designationsRouter);
@@ -218,6 +220,7 @@ adminRoutes.put(
 
     await resolveSecretsForSave(Setting, settings, schema, scope, facilityId);
     await Setting.set('', settings, scope, facilityId);
+    await req.aiService?.refreshContexts(req.ctx.settings);
     res.json({ code: 200 });
   }),
 );
@@ -227,6 +230,7 @@ adminRoutes.delete(
   asyncHandler(async (req, res) => {
     req.checkPermission('manage', 'all');
     settingsCache.reset();
+    await req.aiService?.refreshContexts(req.ctx.settings);
     res.status(204).send();
   }),
 );

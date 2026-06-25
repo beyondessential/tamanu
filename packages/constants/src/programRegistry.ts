@@ -66,3 +66,11 @@ export const DEPRECATED_PRCC_LABELS = {
   notApplicable: 'Not applicable',
   recordedInError: 'Recorded in error',
 } as const;
+
+// Clinical status for potential loss to follow up
+export const POTENTIAL_LOSS_TO_FOLLOW_UP = {
+  CODE_SUFFIX: 'pltfu',
+  NAME: 'Potential loss to follow up',
+  DEFAULT_THRESHOLD_DAYS: 90,
+  DEFAULT_COLOR: 'grey',
+} as const;

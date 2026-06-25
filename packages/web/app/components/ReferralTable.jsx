@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES, REFERRAL_STATUS_LABELS } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
-import { DeleteButton } from '@tamanu/ui-components';
+import { DeleteButton, VisuallyHidden } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
@@ -163,25 +163,13 @@ export const ReferralTable = React.memo(({ patientId }) => {
       wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.cancel"
-          fallback="Cancel"
-          data-testid="translatedtext-r7dw"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
       wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.delete"
-          fallback="Delete"
-          data-testid="translatedtext-wz4k"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => handleChangeModalId(MODAL_IDS.DELETE),
       permissionCheck: () => {
         return ability?.can('delete', 'Referral');
@@ -190,13 +178,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     },
     // Worth keeping around to address in proper linear card
     {
-      label: (
-        <TranslatedText
-          stringId="general.action.view"
-          fallback="View"
-          data-testid="translatedtext-xx03"
-        />
-      ),
+      label: <TranslatedText stringId="general.action.view" fallback="View" />,
       permissionCheck: () => false, // always false, field no longer exists.
       action: onViewEncounter,
     },
@@ -208,22 +190,14 @@ export const ReferralTable = React.memo(({ patientId }) => {
     {
       key: 'date',
       title: (
-        <TranslatedText
-          stringId="referral.table.column.referralDate"
-          fallback="Referral date"
-          data-testid="translatedtext-wrih"
-        />
+        <TranslatedText stringId="referral.table.column.referralDate" fallback="Referral date" />
       ),
       accessor: getDate,
     },
     {
       key: 'referralType',
       title: (
-        <TranslatedText
-          stringId="referral.table.column.referralType"
-          fallback="Referral type"
-          data-testid="translatedtext-vy6o"
-        />
+        <TranslatedText stringId="referral.table.column.referralType" fallback="Referral type" />
       ),
       accessor: getReferralType,
     },
@@ -233,25 +207,22 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <TranslatedText
           stringId="referral.table.column.referralCompletedBy"
           fallback="Referral completed by"
-          data-testid="translatedtext-7adt"
         />
       ),
       accessor: getReferralBy,
     },
     {
       key: 'status',
-      title: (
-        <TranslatedText
-          stringId="referral.table.column.status"
-          fallback="Status"
-          data-testid="translatedtext-jtb0"
-        />
-      ),
+      title: <TranslatedText stringId="referral.table.column.status" fallback="Status" />,
       accessor: getStatus,
     },
     {
-      key: '', // For actions column, but we don't want a header for this
-      title: '',
+      key: 'actions',
+      title: (
+        <VisuallyHidden>
+          <TranslatedText stringId="general.actions.label" fallback="Actions" />
+        </VisuallyHidden>
+      ),
       dontCallRowInput: true,
       sortable: false,
       CellComponent: ({ data }) => {
@@ -260,7 +231,13 @@ export const ReferralTable = React.memo(({ patientId }) => {
         );
         return (
           <div onMouseEnter={() => setSelectedReferral(data)}>
-            <MenuButton actions={filteredActions} data-testid="menubutton-7afj" />
+            <MenuButton
+              a11yLabel={
+                <TranslatedText stringId="referral.table.actions" fallback="Referral actions" />
+              }
+              actions={filteredActions}
+              data-testid="menubutton-7afj"
+            />
           </div>
         );
       },
@@ -291,40 +268,22 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <ConfirmModal
           {...props}
           title={
-            <TranslatedText
-              stringId="referral.modal.cancel.title"
-              fallback="Cancel referral"
-              data-testid="translatedtext-ekmt"
-            />
+            <TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />
           }
           text={
             <TranslatedText
               stringId="referral.modal.cancel.warningText1"
               fallback="WARNING: This action is irreversible!"
-              data-testid="translatedtext-jjam"
             />
           }
           subText={
             <TranslatedText
               stringId="referral.modal.cancel.warningText2"
               fallback="Are you sure you want to cancel this referral?"
-              data-testid="translatedtext-43qa"
             />
           }
-          cancelButtonText={
-            <TranslatedText
-              stringId="general.action.no"
-              fallback="No"
-              data-testid="translatedtext-q6ge"
-            />
-          }
-          confirmButtonText={
-            <TranslatedText
-              stringId="general.action.yes"
-              fallback="Yes"
-              data-testid="translatedtext-pwxi"
-            />
-          }
+          cancelButtonText={<TranslatedText stringId="general.action.no" fallback="No" />}
+          confirmButtonText={<TranslatedText stringId="general.action.yes" fallback="Yes" />}
           ConfirmButton={DeleteButton}
           onConfirm={onCancelReferral}
           onCancel={() => setModalOpen(false)}
@@ -359,11 +318,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
           order: 'asc',
         }}
         noDataMessage={
-          <TranslatedText
-            stringId="referral.table.noData"
-            fallback="No referrals found"
-            data-testid="translatedtext-o73q"
-          />
+          <TranslatedText stringId="referral.table.noData" fallback="No referrals found" />
         }
         onRowClick={onSelectReferral}
         allowExport={false}

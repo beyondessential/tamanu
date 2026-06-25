@@ -75,10 +75,6 @@ const StyledMonthPicker = styled(MonthPicker)`
   .MuiInputBase-input {
     font-size: 11px;
   }
-
-  body:has(&) > .MuiPickersPopper-root {
-    z-index: 2; // Above the sticky headers
-  }
 `;
 
 export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {

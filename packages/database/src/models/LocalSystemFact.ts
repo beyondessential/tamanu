@@ -10,7 +10,6 @@ import {
 } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
-import { randomUUID } from 'node:crypto';
 
 import type * as Facts from '@tamanu/constants/facts';
 export type FactName = (typeof Facts)[keyof typeof Facts];
@@ -63,7 +62,7 @@ export class LocalSystemFact extends Model {
       // database, and it's used to default the ID. So instead, create
       // random UUIDs here in code, so the default isn't invoked. We
       // use Node's native function so it's just as fast.
-      await this.create({ id: randomUUID(), key, value });
+      await this.create({ id: crypto.randomUUID(), key, value });
     }
   }
 

@@ -34,6 +34,8 @@
   },
   "serverFacilityIds": ["balwyn", "kerang", "lake-charm"],
   "sync": {
+    "email": "test@example.com",
+    "password": "test-password",
     "backoff": {
       "maxAttempts": 1,
       "multiplierMs": 0,

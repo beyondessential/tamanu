@@ -31,9 +31,9 @@ const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps):
           subtitle={joinNames(selectedPatient)}
           onGoBack={goBack}
         />
-        <Stack.Navigator headerMode="none">
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
-            name={Routes.HomeStack.HistoryVitalsStack.Index}
+            name={Routes.HomeStack.HistoryVitalsStack.View}
             component={HistoryVitalsTabs}
           />
         </Stack.Navigator>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { createFilter } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import FormHelperText from '@mui/material/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
@@ -15,14 +15,6 @@ import { TranslatedEnumField } from '../Translation';
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
-
-  // helper text
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
 `;
 
 const StyledSelect = styled(props => (

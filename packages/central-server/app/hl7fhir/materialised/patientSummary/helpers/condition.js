@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
@@ -31,7 +30,7 @@ export const getConditions = async ({ patient, models, dataDictionariesIps }) =>
     const conditionCodingDisplay = 'No information about problems';
     return [
       {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         ...patientConditionsHeader,
         clinicalStatus: clinicalStatusObject(),
         code: {
@@ -52,7 +51,7 @@ export const getConditions = async ({ patient, models, dataDictionariesIps }) =>
   }
 
   return patientConditions.map(patientCondition => ({
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     ...patientConditionsHeader,
     clinicalStatus: clinicalStatusObject(patientCondition),
     code: {

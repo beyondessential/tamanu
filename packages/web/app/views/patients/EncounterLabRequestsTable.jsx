@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { DataFetchingTable } from '../../components';
 import { reloadPatient } from '../../store/patient';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -90,12 +90,14 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const { patientId, category } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { loadLabRequest } = useLabRequest();
 
   const selectLab = async lab => {
     if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
     await loadLabRequest(lab.id);
-    navigate(`/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`);
+    const path = `/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`;
+    navigate(location.search ? `${path}${location.search}` : path);
   };
 
   return (

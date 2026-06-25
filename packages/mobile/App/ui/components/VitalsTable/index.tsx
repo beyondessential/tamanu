@@ -10,7 +10,8 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { VitalsDataElements } from '/helpers/constants';
-import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
+import { ScrollView } from 'react-native';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
@@ -114,23 +115,27 @@ export const VitalsTable = memo(
           borderColor={theme.colors.BOX_OUTLINE}
           background={theme.colors.WHITE}
         >
-          <StyledScrollView>
+          <ScrollView>
             {/* Lines extending to end page underneath vitals entry so
         table doesn't cut off if only one or two vital rows */}
             {Array.from({ length: components.length + 1 })
               .fill(0)
               .map((_, i) => (
                 <StyledView
-                  marginTop={3}
-                  position="absolute"
-                  borderBottomWidth={i ? 0 : 1}
-                  borderColor={theme.colors.BOX_OUTLINE}
-                  left={screenPercentageToDP(31.63, Orientation.Width)}
-                  top={screenPercentageToDP(6.46, Orientation.Height) * i}
-                  height={screenPercentageToDP(6.46, Orientation.Height)}
-                  zIndex={0}
-                  width="100%"
-                  background={i % 2 === 0 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    marginTop: 3,
+                    left: screenPercentageToDP(31.63, Orientation.Width),
+                    top: screenPercentageToDP(6.46, Orientation.Height) * i,
+                    height: screenPercentageToDP(6.46, Orientation.Height),
+                    width: '100%',
+                    zIndex: 0,
+                    backgroundColor:
+                      i % 2 === 0 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY,
+                    borderBottomWidth: i ? 0 : 1,
+                    borderColor: theme.colors.BOX_OUTLINE,
+                  }}
                 />
               ))}
             <Table
@@ -168,7 +173,7 @@ export const VitalsTable = memo(
               columns={columns}
               cells={data}
             />
-          </StyledScrollView>
+          </ScrollView>
         </StyledView>
         {showNeedsAttentionInfo && (
           <StyledView background={theme.colors.BACKGROUND_GREY} padding={10}>

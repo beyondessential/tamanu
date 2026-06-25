@@ -18,7 +18,7 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
     return (
       <ConditionalTooltip
         visible
-        $border={isNavigationBlock ? `1px solid ${Colors.outline}` : 'none'}
+        $border={isNavigationBlock ? `1px solid ${Colors.outline}` : undefined}
         title={
           isNavigationBlock ? (
             <TranslatedText
@@ -28,13 +28,13 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
           ) : (
             <TranslatedText
               stringId="note.modal.actionBlock.tooltip"
-              fallback="Can't perform this action while recording a note"
+              fallback="Can’t perform this action while recording a note"
             />
           )
         }
-        $maxWidth={'10rem'}
+        $maxWidth="10rem"
       >
-        <div className="pointer-events-none">{child}</div>
+        <div style={{ pointerEvents: 'none' }}>{child}</div>
       </ConditionalTooltip>
     );
   });

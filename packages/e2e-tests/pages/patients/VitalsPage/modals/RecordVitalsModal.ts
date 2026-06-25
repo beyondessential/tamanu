@@ -38,7 +38,6 @@ export class RecordVitalsModal {
     this.page = page;
 
     const testIds = {
-      modalTitle: 'verticalcenteredtext-ni4s',
       closeButton: 'iconbutton-eull',
       submitButton: 'formsubmitcancelrow-vzf5-confirmButton',
     } as const;
@@ -46,6 +45,7 @@ export class RecordVitalsModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+    this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
 
     // Inputs (by name attributes or specific selectors from provided HTML)
     this.dateInput = page.locator('input[type="datetime-local"]');

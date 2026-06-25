@@ -2,12 +2,12 @@ import React, { FunctionComponent } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatStringDate } from '/helpers/date';
 import { DateFormats, EncounterTypeNames, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
 import { EncounterType, IEncounter, ILocation } from '~/types';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -38,11 +38,14 @@ interface HeaderDateProps {
   isActive: boolean;
 }
 
-const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element => (
-  <StyledText fontSize={14} color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}>
-    {formatStringDate(startDate || date, DateFormats.DAY_MONTH_YEAR_SHORT)}
-  </StyledText>
-);
+const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element => {
+  const { formatStringDate } = useDateFormatter();
+  return (
+    <StyledText fontSize={14} color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}>
+      {formatStringDate(startDate || date, DateFormats.DAY_MONTH_YEAR_SHORT)}
+    </StyledText>
+  );
+};
 
 interface HeaderIconProps {
   isActive: boolean;

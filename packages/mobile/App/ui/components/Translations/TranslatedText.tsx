@@ -16,6 +16,27 @@ const TextWrapper = styled(StyledText)<{
 
 export type TranslatedTextElement = ReactElement<TranslatedTextProps> | string;
 
+export function getTranslatedTextFallback(
+  text: TranslatedTextElement | undefined,
+): string | undefined {
+  if (text == null || text === '') {
+    return text === '' ? '' : undefined;
+  }
+  if (typeof text === 'string') {
+    return text;
+  }
+  return text.props.fallback;
+}
+
+export function getTranslatedTextStringId(
+  text: TranslatedTextElement | undefined,
+): string | undefined {
+  if (text == null || typeof text === 'string') {
+    return undefined;
+  }
+  return text.props.stringId;
+}
+
 export const TranslatedText = ({
   stringId,
   fallback,

@@ -1,0 +1,37 @@
+FROM node:20-alpine AS build
+RUN apk add --no-cache bash g++ gcc git jq make python3 py3-setuptools && \
+    npm install -g node-gyp
+WORKDIR /app
+COPY package.json package-lock.json turbo.jsonc ./
+COPY patches/ patches/
+COPY common.* ./
+COPY scripts/ scripts/
+COPY packages/ packages/
+# Build only what the seed CMD runs (central-server migrate + scripts fake.js)
+# plus their internal deps (shared, database, fake-data, ...) via turbo's graph.
+# The old `build-shared`/`-w` scripts were removed in the Turborepo migration.
+RUN npm ci && \
+    npm run build -- --filter=@tamanu/central-server... --filter=scripts... && \
+    npm prune --production && \
+    npm cache clean --force && \
+    rm -rf packages/web packages/patient-portal packages/mobile \
+           packages/*/__tests__ packages/*/coverage
+
+FROM node:20-alpine
+RUN apk add --no-cache bash
+WORKDIR /app
+ARG GIT_SHA=unknown
+ENV NODE_ENV=production \
+    NODE_CONFIG_DIR=/app/packages/central-server/config \
+    TAMANU_GIT_SHA=${GIT_SHA} \
+    ROUNDS=50
+COPY --from=build /app/package.json ./
+COPY --from=build /app/packages/ packages/
+COPY --from=build /app/node_modules/ node_modules/
+# DB_HOST/DB_USERNAME/DB_PASSWORD are injected by the pgsnap operator via envFrom.
+# ROUNDS controls fake-data volume; override at runtime to scale snapshot size.
+CMD ["bash", "-euc", "\
+  export NODE_CONFIG=$(node -p \"JSON.stringify({db:{host:process.env.DB_HOST,port:5432,name:'app',username:process.env.DB_USERNAME,password:process.env.DB_PASSWORD}})\")\n\
+  node packages/central-server/dist migrate\n\
+  node packages/scripts/dist/fake.js --database app --rounds \"$ROUNDS\" --from-tally packages/fake-data/src/populateDb/parseTally/standard.json\
+"]

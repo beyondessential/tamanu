@@ -21,3 +21,7 @@ Reference to the [user](#!/model/model.public.users) (typically a pharmacist or 
 {% docs medication_dispenses__dispensed_at %}
 The timestamp indicating when the medication was physically dispensed to the patient.
 {% enddocs %}
+
+{% docs medication_dispenses__medication_preset_label_id %}
+Optional reference to a [reference_data](#!/source/source.tamanu.tamanu.reference_data) row of type `medicationPresetLabel` — a preset label whose translated text was used to populate this dispense's `instructions` value. Recorded so the dispense form can re-display the chosen preset when the dispense is re-opened. Null when no preset was selected.
+{% enddocs %}

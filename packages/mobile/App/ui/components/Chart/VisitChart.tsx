@@ -2,8 +2,9 @@ import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { DateFormats } from '../../helpers/constants';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
@@ -59,6 +60,7 @@ interface DateRangeLabelsProps {
 }
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
+  const { formatStringDate } = useDateFormatter();
   const dateIntervalArray = useMemo(
     () =>
       DateRangeIndexes.map((dateRange, index) => ({
@@ -88,8 +90,8 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
           textAlign="center"
           fontSize={screenPercentageToDP('2.5', Orientation.Width)}
         >
-          {`${format(parseISO(dateInterval.start), DateFormats.DAY_MONTH)} - \n ${format(
-            parseISO(dateInterval.end),
+          {`${formatStringDate(dateInterval.start, DateFormats.DAY_MONTH)} - \n ${formatStringDate(
+            dateInterval.end,
             DateFormats.DAY_MONTH_YEAR_SHORT,
           )}`}
         </StyledText>
@@ -123,14 +125,15 @@ const verticalContentInset = { top: 10, right: 0, bottom: 5 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
+  const { formatStringDate } = useDateFormatter();
   const lastData = visitData.data[visitData.data.length - 1];
   const firstData = visitData.data[0];
 
   const oneMonthAgoFormatted =
     parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
-      ? format(parseISO(firstData.date), DateFormats.DAY_MONTH)
-      : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
-  const todayFormatted = format(parseISO(lastData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
+      ? formatStringDate(firstData.date, DateFormats.DAY_MONTH)
+      : formatStringDate(firstData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
+  const todayFormatted = formatStringDate(lastData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
 
   const { max, min } = visitData.data.reduce(
     (accum, item) => ({

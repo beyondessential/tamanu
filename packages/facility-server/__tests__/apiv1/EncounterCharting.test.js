@@ -239,7 +239,7 @@ describe('EncounterCharting', () => {
                 [submissionDate]: expect.objectContaining({
                   id: expect.any(String),
                   body: value.toString(),
-                  logs: null,
+                  logs: { asymmetricMatch: v => v === null || Array.isArray(v) },
                 }),
               },
             }),

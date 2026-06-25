@@ -24,6 +24,47 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+// Stable reference-data id for the "Other" note type (seeded by migration on every server).
+const ENCOUNTER_NOTE_TYPE_ID = 'notetype-other';
+
+// Bulk-creates plain encounter notes via the API. Used to exercise the chunked PDF pipeline,
+// where the encounter record is rendered in slices once the note count grows large. Requests run
+// with bounded concurrency so seeding thousands of notes stays reasonably quick without
+// hammering the server.
+export const createEncounterNotes = async (
+  api: APIRequestContext,
+  encounterId: string,
+  authorId: string,
+  count: number,
+  concurrency = 20,
+): Promise<void> => {
+  const notesUrl = constructFacilityUrl('/api/notes');
+  const date = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+  let nextIndex = 0;
+  const createNotesFromQueue = async (): Promise<void> => {
+    for (let i = nextIndex++; i < count; i = nextIndex++) {
+      const response = await api.post(notesUrl, {
+        data: {
+          recordId: encounterId,
+          recordType: 'Encounter',
+          noteTypeId: ENCOUNTER_NOTE_TYPE_ID,
+          authorId,
+          date,
+          content: `Load-test note ${i + 1}`,
+        },
+      });
+      if (!response.ok()) {
+        throw new Error(
+          `Failed to create note ${i + 1}: ${response.status()} ${await response.text()}`,
+        );
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, count) }, createNotesFromQueue));
+};
+
 export const createPatient = async (
   api: APIRequestContext,
   page: Page,
@@ -185,6 +226,83 @@ export const createClinicEncounterViaApi = async (
     const errorText = await response.text();
     console.error('Failed to create clinic encounter:', response.status(), errorText);
     throw new Error(`Failed to create clinic encounter: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const createEncounterPrescriptionViaApi = async (
+  api: APIRequestContext,
+  encounterId: string,
+  overrides: Partial<{
+    medicationId: string;
+    route: string;
+    doseAmount: number;
+    units: string;
+    frequency: string;
+  }> = {},
+) => {
+  const user = await getUser(api);
+
+  const suggestUrl = constructFacilityUrl('/api/suggestions/drug?count=1');
+  const suggestResponse = await api.get(suggestUrl);
+  if (!suggestResponse.ok()) {
+    throw new Error(`Failed to fetch drug suggestions: ${suggestResponse.status()}`);
+  }
+  const medications = await suggestResponse.json();
+  const medicationId = medications[0]?.id;
+  if (!medicationId) throw new Error('No medications found in drug reference data');
+
+  const now = new Date();
+  const dateString = now.toISOString().substring(0, 10);
+  const datetimeString = now.toISOString().replace('T', ' ').substring(0, 19);
+
+  const prescriptionData = {
+    medicationId,
+    prescriberId: user.id,
+    date: dateString,
+    startDate: datetimeString,
+    route: 'oral',
+    doseAmount: 1,
+    units: 'mg',
+    frequency: 'Immediately',
+    ...overrides,
+  };
+
+  const url = constructFacilityUrl(`/api/medication/encounterPrescription/${encounterId}`);
+  const response = await api.post(url, { data: prescriptionData });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create prescription: ${response.status()} ${errorText}`);
+  }
+
+  return response.json();
+};
+
+export const createPharmacyOrderViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  encounterId: string,
+  prescriptionId: string,
+) => {
+  const user = await getUser(api);
+  const facilityId = await getItemFromLocalStorage(page, 'facilityId');
+
+  const url = constructFacilityUrl(`/api/encounter/${encounterId}/pharmacyOrder`);
+  const response = await api.post(url, {
+    data: {
+      orderingClinicianId: user.id,
+      comments: '',
+      isDischargePrescription: false,
+      facilityId,
+      pharmacyOrderPrescriptions: [{ prescriptionId, quantity: 1, repeats: 0 }],
+    },
+  });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create pharmacy order: ${response.status()} ${errorText}`);
   }
 
   return response.json();

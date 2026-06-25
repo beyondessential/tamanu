@@ -3,8 +3,15 @@ import './workerShim';
 
 const renderPDFInWorker = async (props) => {
   const { renderPDF } = await import('../renderPDF');
-  const pdf = await renderPDF(props);
-  return URL.createObjectURL(pdf);
+  return renderPDF(props);
 };
 
-expose({ renderPDFInWorker });
+const mergeAndStampPdfsInWorker = async (args) => {
+  const { mergeAndStampPdfs } = await import('../mergePdf');
+  return mergeAndStampPdfs(args);
+};
+
+expose({ renderPDFInWorker, mergeAndStampPdfsInWorker });
+Promise.resolve().then(() => {
+  self.postMessage({ type: 'pdf-render-ready' });
+});

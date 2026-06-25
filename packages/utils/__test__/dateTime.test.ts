@@ -4,10 +4,13 @@ import {
   doAgeRangesHaveGaps,
   doAgeRangesOverlap,
   endpointsOfDay,
+  formatSurveyTimeFromDate,
   isIntervalWithinInterval,
+  isValidSurveyTimeBody,
   isWithinIntervalExcludingEnd,
   maxValidDate,
   minValidDate,
+  parseSurveyTimeToHHmmss,
   type AgeRange,
 } from '../src/dateTime';
 import { startOfDay, endOfDay } from 'date-fns';
@@ -135,5 +138,53 @@ describe('doAgeRangesOverlap', () => {
       { ageMin: 35, ageMax: 40, ageUnit: 'years' },
     ];
     expect(doAgeRangesOverlap(ranges)).toBe(false);
+  });
+});
+
+describe('survey program Time (HH:mm:ss body)', () => {
+  describe('parseSurveyTimeToHHmmss', () => {
+    it('returns null for empty', () => {
+      expect(parseSurveyTimeToHHmmss(null)).toBeNull();
+      expect(parseSurveyTimeToHHmmss(undefined)).toBeNull();
+      expect(parseSurveyTimeToHHmmss('')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('   ')).toBeNull();
+    });
+
+    it('accepts canonical HH:mm:ss', () => {
+      expect(parseSurveyTimeToHHmmss('00:00:00')).toBe('00:00:00');
+      expect(parseSurveyTimeToHHmmss('23:59:59')).toBe('23:59:59');
+      expect(parseSurveyTimeToHHmmss(' 09:30:01 ')).toBe('09:30:01');
+    });
+
+    it('pads HH:mm to HH:mm:00', () => {
+      expect(parseSurveyTimeToHHmmss('09:30')).toBe('09:30:00');
+      expect(parseSurveyTimeToHHmmss('23:59')).toBe('23:59:00');
+    });
+
+    it('rejects invalid times', () => {
+      expect(parseSurveyTimeToHHmmss('24:00:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('12:60:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('12:00:60')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('9:30:00')).toBeNull();
+      expect(parseSurveyTimeToHHmmss('not-a-time')).toBeNull();
+    });
+  });
+
+  describe('isValidSurveyTimeBody', () => {
+    it('matches only HH:mm:ss', () => {
+      expect(isValidSurveyTimeBody('09:05:00')).toBe(true);
+      expect(isValidSurveyTimeBody('09:05')).toBe(false);
+      expect(isValidSurveyTimeBody('')).toBe(false);
+    });
+  });
+
+  describe('formatSurveyTimeFromDate', () => {
+    it('formats time of day', () => {
+      expect(formatSurveyTimeFromDate(new Date(2020, 0, 1, 14, 5, 6))).toBe('14:05:06');
+    });
+
+    it('returns null for invalid date', () => {
+      expect(formatSurveyTimeFromDate(new Date('invalid'))).toBeNull();
+    });
   });
 });

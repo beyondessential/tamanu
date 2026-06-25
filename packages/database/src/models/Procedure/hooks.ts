@@ -16,11 +16,19 @@ const addToInvoice = async (instance: Procedure) => {
     return; // No encounter for procedure, so no invoice to add to
   }
 
+  const supervisingClinicianId =
+    instance.physicianId ??
+    (
+      await instance.sequelize.models.Encounter.findByPk(instance.encounterId, {
+        attributes: ['examinerId'],
+      })
+    )?.examinerId;
+
   await instance.sequelize.models.Invoice.addItemToInvoice(
     instance,
     instance.encounterId,
     invoiceProduct,
-    instance.physicianId,
+    supervisingClinicianId ?? undefined,
   );
 };
 

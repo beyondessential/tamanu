@@ -1,11 +1,12 @@
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:20-alpine AS base
+FROM node:26-alpine AS base
 WORKDIR /app
-COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json turbo.jsonc COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 COPY patches/ patches/
 
 FROM base AS build-base
+ENV TURBO_TELEMETRY_DISABLED=1
 RUN apk add --no-cache \
   --virtual .build-deps \
   bash \
@@ -50,7 +51,6 @@ ARG PACKAGE_PATH
 # copy the built packages and their deps
 COPY --from=build-server /app/packages/ packages/
 COPY --from=build-server /app/node_modules/ node_modules/
-COPY alerts alerts/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
@@ -121,5 +121,4 @@ RUN \
   && pipx install dbt-core \
   && pipx inject dbt-core dbt-postgres
 COPY --from=build-bestool /usr/local/cargo/bin/bestool /usr/bin/bestool
-COPY alerts /alerts
 COPY database /database

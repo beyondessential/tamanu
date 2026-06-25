@@ -72,7 +72,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 .string()
                 .nullable()
                 .when('conditionId', {
-                  is: value => Boolean(value),
+                  is: Boolean,
                   then: yup
                     .string()
                     .required(getTranslation('validation.required.inline', '*Required')),

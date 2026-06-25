@@ -41,9 +41,9 @@ const PatientSummary = ({
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
-          name={Routes.HomeStack.PatientSummaryStack.Index}
+          name={Routes.HomeStack.PatientSummaryStack.View}
           component={PatientProgramRegistrySummary}
         />
       </Stack.Navigator>

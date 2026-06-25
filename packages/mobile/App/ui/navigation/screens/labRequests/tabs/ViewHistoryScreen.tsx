@@ -13,13 +13,13 @@ import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
 });
 
 const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
+  const { formatDate } = useDateFormatter();
   let date: string;
   try {
     date = formatDate(parseISO(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);

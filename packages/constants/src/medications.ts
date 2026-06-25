@@ -1,3 +1,4 @@
+import type { Duration } from 'date-fns';
 import { ENCOUNTER_TYPES } from './encounters';
 
 export const DRUG_ROUTES = {
@@ -6,6 +7,8 @@ export const DRUG_ROUTES = {
   eye: 'eye',
   intramuscular: 'intramuscular',
   intravenous: 'intravenous',
+  intraocular: 'intraocular',
+  intravitreal: 'intravitreal',
   inhaled: 'inhaled',
   nasal: 'nasal',
   oral: 'oral',
@@ -24,6 +27,8 @@ export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.eye]: 'Eye',
   [DRUG_ROUTES.intramuscular]: 'IM',
   [DRUG_ROUTES.intravenous]: 'IV',
+  [DRUG_ROUTES.intraocular]: 'Intraocular',
+  [DRUG_ROUTES.intravitreal]: 'Intravitreal',
   [DRUG_ROUTES.inhaled]: 'Inhaled',
   [DRUG_ROUTES.nasal]: 'Nasal',
   [DRUG_ROUTES.oral]: 'Oral',
@@ -111,6 +116,81 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.wafer]: 'Wafer',
 };
 
+// Long-form unit labels in plural. Used for dispensed-medication label text when
+// the dose is greater than 1 (e.g. '2 tablets'). Units of measurement (mg, mL, %,
+// etc.) are invariant, so their plural is the same as the singular long form.
+export const DRUG_UNIT_PLURAL_LABELS = {
+  [DRUG_UNITS.percentage]: '%',
+  [DRUG_UNITS.capsule]: 'Capsules',
+  [DRUG_UNITS.disc]: 'Discs',
+  [DRUG_UNITS.douche]: 'Douches',
+  [DRUG_UNITS.drop]: 'Drops',
+  [DRUG_UNITS.ffu]: 'FFU',
+  [DRUG_UNITS.g]: 'g',
+  [DRUG_UNITS.iu]: 'IU',
+  [DRUG_UNITS.l]: 'L',
+  [DRUG_UNITS.lozenge]: 'Lozenges',
+  [DRUG_UNITS.mg]: 'mg',
+  [DRUG_UNITS.mcg]: 'mcg',
+  [DRUG_UNITS.ml]: 'mL',
+  [DRUG_UNITS.mmol]: 'mmol',
+  [DRUG_UNITS.mol]: 'mol',
+  [DRUG_UNITS.patch]: 'Patches',
+  [DRUG_UNITS.pellet]: 'Pellets',
+  [DRUG_UNITS.pouch]: 'Pouches',
+  [DRUG_UNITS.puff]: 'Puffs',
+  [DRUG_UNITS.ring]: 'Rings',
+  [DRUG_UNITS.smear]: 'Smears',
+  [DRUG_UNITS.spray]: 'Sprays',
+  [DRUG_UNITS.stick]: 'Sticks',
+  [DRUG_UNITS.strip]: 'Strips',
+  [DRUG_UNITS.suppository]: 'Suppositories',
+  [DRUG_UNITS.swab]: 'Swabs',
+  [DRUG_UNITS.tablet]: 'Tablets',
+  [DRUG_UNITS.tbsp]: 'tbsp',
+  [DRUG_UNITS.tsp]: 'tsp',
+  [DRUG_UNITS.u]: 'U',
+  [DRUG_UNITS.vial]: 'Vials',
+  [DRUG_UNITS.wafer]: 'Wafers',
+};
+
+// Administration verb prefixed to dispensed-medication label text, chosen per
+// dosing unit (e.g. 'Take 1 tablet...', 'Apply 1 patch...').
+export const DRUG_UNIT_VERBS = {
+  [DRUG_UNITS.percentage]: 'Administer',
+  [DRUG_UNITS.capsule]: 'Take',
+  [DRUG_UNITS.disc]: 'Administer',
+  [DRUG_UNITS.douche]: 'Administer',
+  [DRUG_UNITS.drop]: 'Administer',
+  [DRUG_UNITS.ffu]: 'Administer',
+  [DRUG_UNITS.g]: 'Administer',
+  [DRUG_UNITS.iu]: 'Administer',
+  [DRUG_UNITS.l]: 'Administer',
+  [DRUG_UNITS.lozenge]: 'Take',
+  [DRUG_UNITS.mg]: 'Give',
+  [DRUG_UNITS.mcg]: 'Give',
+  [DRUG_UNITS.ml]: 'Give',
+  [DRUG_UNITS.mmol]: 'Give',
+  [DRUG_UNITS.mol]: 'Give',
+  [DRUG_UNITS.patch]: 'Apply',
+  [DRUG_UNITS.pellet]: 'Administer',
+  [DRUG_UNITS.pouch]: 'Administer',
+  [DRUG_UNITS.puff]: 'Inhale',
+  [DRUG_UNITS.ring]: 'Insert',
+  [DRUG_UNITS.smear]: 'Apply',
+  [DRUG_UNITS.spray]: 'Administer',
+  [DRUG_UNITS.stick]: 'Administer',
+  [DRUG_UNITS.strip]: 'Administer',
+  [DRUG_UNITS.suppository]: 'Insert',
+  [DRUG_UNITS.swab]: 'Apply',
+  [DRUG_UNITS.tablet]: 'Take',
+  [DRUG_UNITS.tbsp]: 'Give',
+  [DRUG_UNITS.tsp]: 'Give',
+  [DRUG_UNITS.u]: 'Administer',
+  [DRUG_UNITS.vial]: 'Give',
+  [DRUG_UNITS.wafer]: 'Take',
+};
+
 export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
@@ -131,7 +211,10 @@ export const ADMINISTRATION_FREQUENCIES = {
   IMMEDIATELY: 'Immediately',
   AS_DIRECTED: 'As directed',
   TWICE_DAILY_AM_AND_MIDDAY: 'Twice daily - AM and midday',
-};
+} as const;
+
+export type AdministrationFrequency =
+  (typeof ADMINISTRATION_FREQUENCIES)[keyof typeof ADMINISTRATION_FREQUENCIES];
 
 export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
   [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: ['mane', 'Morning'],
@@ -175,7 +258,7 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
     'AM and lunch',
     'BD - AM and lunch',
   ],
-};
+} as const;
 
 export const ADMINISTRATION_FREQUENCY_DETAILS = {
   [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
@@ -242,43 +325,43 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
     startTimes: ['06:00', '12:00'],
     dosesPerDay: 2,
   },
-};
+} as const;
 
-export const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
+export const MEDICATION_DURATION_UNITS = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',
   MONTHS: 'months',
-};
+} as const satisfies Record<string, keyof Duration>;
 
 export const MEDICATION_DURATION_DISPLAY_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'Hours',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'Days',
-  [MEDICATION_DURATION_UNITS.WEEKS!]: 'Weeks',
-  [MEDICATION_DURATION_UNITS.MONTHS!]: 'Months',
-};
+  [MEDICATION_DURATION_UNITS.HOURS]: 'Hours',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'Days',
+  [MEDICATION_DURATION_UNITS.WEEKS]: 'Weeks',
+  [MEDICATION_DURATION_UNITS.MONTHS]: 'Months',
+} as const;
 
 export const MEDICATION_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
-  [MEDICATION_DURATION_UNITS.WEEKS!]: 'week (s)',
-  [MEDICATION_DURATION_UNITS.MONTHS!]: 'month (s)',
-};
+  [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
+  [MEDICATION_DURATION_UNITS.WEEKS]: 'week (s)',
+  [MEDICATION_DURATION_UNITS.MONTHS]: 'month (s)',
+} as const;
 
 export const MEDICATION_PAUSE_DURATION_UNITS_LABELS = {
-  [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
-  [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
-};
+  [MEDICATION_DURATION_UNITS.HOURS]: 'hour (s)',
+  [MEDICATION_DURATION_UNITS.DAYS]: 'day (s)',
+} as const;
 
 export const ADMINISTRATION_STATUS = {
   GIVEN: 'given',
   NOT_GIVEN: 'not-given',
-};
+} as const;
 
 export const ADMINISTRATION_STATUS_LABELS = {
   [ADMINISTRATION_STATUS.GIVEN]: 'Given',
   [ADMINISTRATION_STATUS.NOT_GIVEN]: 'Not given',
-};
+} as const;
 
 export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '00:00', endTime: '02:00' },
@@ -298,35 +381,35 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
 export const PHARMACY_PRESCRIPTION_TYPES = {
   DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
   INPATIENT: 'INPATIENT',
-};
+} as const;
 
 export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
   [PHARMACY_PRESCRIPTION_TYPES.INPATIENT]: 'Inpatient',
   [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
-};
+} as const;
 
 export const PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES = {
   ENCOUNTER_TYPE: 'encounterType',
   OUTPATIENT_OR_DISCHARGE: 'outpatientOrDischarge',
   INPATIENT: 'inpatient',
-};
+} as const;
 
 export const DRUG_STOCK_STATUSES = {
   IN_STOCK: 'in_stock',
   OUT_OF_STOCK: 'out_of_stock',
   UNAVAILABLE: 'unavailable',
   UNKNOWN: 'unknown',
-};
+} as const;
 
 export const DRUG_STOCK_STATUS_LABELS = {
   [DRUG_STOCK_STATUSES.IN_STOCK]: 'Yes',
   [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: 'No',
   [DRUG_STOCK_STATUSES.UNKNOWN]: 'Unknown',
-};
+} as const;
 
 export const INVOICEABLE_MEDICATION_ENCOUNTER_TYPES = [
   ENCOUNTER_TYPES.ADMISSION,
   ENCOUNTER_TYPES.TRIAGE,
   ENCOUNTER_TYPES.OBSERVATION,
   ENCOUNTER_TYPES.EMERGENCY,
-];
+] as const;

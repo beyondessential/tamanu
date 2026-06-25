@@ -1,5 +1,6 @@
 import { QueryTypes } from 'sequelize';
 
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { pauseAudit } from '@tamanu/database/utils/audit';
 
@@ -19,7 +20,6 @@ describe('Changelogs', () => {
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    await models.Setting.set('audit.changes.enabled', true);
     await models.Program.destroy({ where: {}, force: true });
     await sequelize.query('DELETE FROM logs.changes');
   });
@@ -143,6 +143,21 @@ describe('Changelogs', () => {
           table_name: 'programs',
         }),
       ]);
+    });
+
+    /** `audit.changes.enabled` setting no longer supported. All non-sync changes should be logged. */
+    it('still writes changelogs when audit.changes.enabled is false in settings', async () => {
+      await models.Setting.set('audit.changes.enabled', false, SETTINGS_SCOPES.GLOBAL);
+      try {
+        const program = await models.Program.create(fake(models.Program));
+        const changes = await sequelize.query('SELECT * FROM logs.changes WHERE record_id = :id', {
+          type: QueryTypes.SELECT,
+          replacements: { id: program.id },
+        });
+        expect(changes).toHaveLength(1);
+      } finally {
+        await models.Setting.set('audit.changes.enabled', true, SETTINGS_SCOPES.GLOBAL);
+      }
     });
   });
 

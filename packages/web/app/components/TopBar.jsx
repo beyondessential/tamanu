@@ -47,6 +47,7 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
   const dotColors = {
     [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
     [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B',
+    [ENCOUNTER_TYPES.IMAGING]: '#F9BA5B',
     [ENCOUNTER_TYPES.TRIAGE]: Colors.orange,
     [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange,
     [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,

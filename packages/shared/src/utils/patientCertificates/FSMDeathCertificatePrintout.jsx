@@ -6,6 +6,7 @@ import {
   FSM_MARITAL_STATUS_LABELS,
   BINARY_LABELS,
   TIME_UNIT_OPTIONS,
+  SEX_VALUES,
 } from '@tamanu/constants';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
@@ -183,7 +184,7 @@ const getUnder1Day = (dateOfBirth, dateOfDeath) => {
 };
 
 const getChildBearingAge = (sex, dateOfBirth, dateOfDeath) => {
-  if (!dateOfBirth || !dateOfDeath || sex !== 'female') return 'n/a';
+  if (!dateOfBirth || !dateOfDeath || (sex !== SEX_VALUES.FEMALE && sex !== SEX_VALUES.OTHER)) return 'n/a';
   const age = differenceInYears(new Date(dateOfDeath), new Date(dateOfBirth));
   return (age >= 15 && age <= 44) ? 'Y' : 'n/a';
 };

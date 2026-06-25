@@ -29,8 +29,7 @@ const NOTIFICATION_ICONS = {
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
-  const { firstName, lastName } = patient;
-  const { displayId } = metadata;
+  const { firstName, lastName, displayId } = patient;
   const patientName = `${firstName} ${lastName}`;
 
   if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
@@ -80,7 +79,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
-      { replacements: { displayId: patient.displayId, patientName } },
+      { replacements: { displayId, patientName } },
     );
   }
 };

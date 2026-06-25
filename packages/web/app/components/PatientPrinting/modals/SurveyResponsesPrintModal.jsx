@@ -38,7 +38,7 @@ export const SurveyResponsesPrintModal = React.memo(
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
-      () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+      async () => await api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
       {
         enabled: !!patient?.villageId,
       },
@@ -66,12 +66,9 @@ export const SurveyResponsesPrintModal = React.memo(
 
     return (
       <Modal
+        aria-busy={isLoading}
         title={
-          <TranslatedText
-            stringId="surveyResponse.modal.details.title"
-            fallback="Form response"
-            data-testid="translatedtext-wxg3"
-          />
+          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
         }
         open={open}
         onClose={onClose}

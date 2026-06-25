@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 
 import { Modal, TranslatedText, TranslatedReferenceData, Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -272,7 +272,9 @@ export const LabTestResultModal = React.memo(
                       )}{' '}
                       <DateDisplay
                         date={item.loggedAt}
-                        showTime
+                        format="shortest"
+                        timeFormat="default"
+                        noTooltip
                         data-testid="datedisplay-loggedat"
                       />
                     </HistoryItemLabel>

@@ -26,3 +26,11 @@ One of:
 {% docs program_registries__program_id %}
 Reference to a [program](#!/source/source.tamanu.tamanu.programs).
 {% enddocs %}
+
+{% docs program_registries__loss_to_follow_up_enabled %}
+A boolean flag indicating if the program registry should have the automatic loss to follow up flagger.
+{% enddocs %}
+
+{% docs program_registries__loss_to_follow_up_threshold_days %}
+The number of days the registry should be considered potentially loss to follow up.
+{% enddocs %}

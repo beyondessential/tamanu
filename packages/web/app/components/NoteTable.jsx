@@ -2,7 +2,12 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import styled from 'styled-components';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
+import {
+  NOTE_PERMISSION_TYPES,
+  NOTE_TYPES,
+  REFERENCE_TYPES,
+  NON_EDITABLE_NOTE_TYPES,
+} from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -218,33 +223,20 @@ const NoteContent = ({
         {contentIsClipped && !contentIsExpanded && (
           <ReadMoreSpan onClick={handleReadMore} data-testid="readmorespan-dpwv">
             ...
-            <TranslatedText
-              stringId="note.table.item.readMore"
-              fallback="read more"
-              data-testid="translatedtext-fpqt"
-            />
+            <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
           </ReadMoreSpan>
         )}
         {contentIsExpanded && (
           <ShowLessSpan onClick={handleReadLess} data-testid="showlessspan-7kuw">
             {' '}
-            <TranslatedText
-              stringId="note.table.item.showLess"
-              fallback="Show less"
-              data-testid="translatedtext-frql"
-            />
+            <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
           </ShowLessSpan>
         )}
       </NoteExpandControlContainer>
       <NoteFooterContainer data-testid="notefootercontainer-byhv">
         {showNoteMetaPrefix && (
           <NoteFooterTextElement data-testid="notefootertextelement-sujh">
-            <TranslatedText
-              stringId="general.lastUpdated.label"
-              fallback="Last updated"
-              data-testid="translatedtext-ncvx"
-            />
-            :
+            <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? (
@@ -258,7 +250,6 @@ const NoteContent = ({
               stringId="note.table.onBehalfOfText"
               fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ changeOnBehalfOfName: noteOnBehalfOfName }}
-              data-testid="translatedtext-9x5v"
             />
           </NoteFooterTextElement>
         )}
@@ -275,15 +266,11 @@ const NoteContent = ({
             onClick={() => handleViewNoteChangeLog(note)}
             data-testid="editedbuttoncontainer-1q1r"
           >
-            <span>(</span>
+            (
             <EditedButton data-testid="editedbutton-jn5i">
-              <TranslatedText
-                stringId="note.table.footer.edited"
-                fallback="edited"
-                data-testid="translatedtext-ud3f"
-              />
+              <TranslatedText stringId="general.label.edited" fallback="Edited" casing="lower" />
             </EditedButton>
-            <span>)</span>
+            )
           </EditedButtonContainer>
         )}
       </NoteFooterContainer>
@@ -385,13 +372,11 @@ const NoteTable = ({
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
-                data-testid="translatedtext-tkm5"
               />
             ) : (
               <TranslatedText
                 stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
-                data-testid="translatedtext-9ih8"
               />
             )}
           </NoDataMessage>

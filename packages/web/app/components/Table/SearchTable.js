@@ -1,8 +1,8 @@
 import { Typography } from '@material-ui/core';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { DataFetchingTable, DataFetchingTableWithPermissionCheck } from './DataFetchingTable';
 
-const BaseSearchTableStyle = `
+const BaseSearchTableStyle = css`
   border-top: none;
   border-top-left-radius: 0;
   border-top-right-radius: 0;

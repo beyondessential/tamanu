@@ -61,3 +61,6 @@ sources:
             config:
               meta:
                 masking: text
+          - name: evaluation_order
+            data_type: integer
+            description: "{{ doc('invoice_price_lists__evaluation_order') }}"

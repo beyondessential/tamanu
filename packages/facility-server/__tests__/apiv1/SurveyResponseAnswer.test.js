@@ -1,11 +1,13 @@
 import Chance from 'chance';
 import config from 'config';
+import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -29,6 +31,168 @@ describe('SurveyResponseAnswer', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
+
+  describe('GET /latest-answer/:dataElementCode', () => {
+    const createPatientWithAnswers = async (dataElementCode, answers) => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const program = await models.Program.create(fake(models.Program));
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        programId: program.id,
+      });
+      const dataElement = await models.ProgramDataElement.create({
+        ...fake(models.ProgramDataElement),
+        code: dataElementCode,
+        type: PROGRAM_DATA_ELEMENT_TYPES.TEXT,
+      });
+      await models.SurveyScreenComponent.create({
+        ...fake(models.SurveyScreenComponent),
+        dataElementId: dataElement.id,
+        surveyId: survey.id,
+      });
+
+      for (const { responseEndTime, answerBody, answerEditedTime = null } of answers) {
+        const surveyResponse = await models.SurveyResponse.create({
+          ...fake(models.SurveyResponse),
+          surveyId: survey.id,
+          encounterId: encounter.id,
+          endTime: responseEndTime,
+          startTime: responseEndTime,
+        });
+        await models.SurveyResponseAnswer.create({
+          ...fake(models.SurveyResponseAnswer),
+          dataElementId: dataElement.id,
+          responseId: surveyResponse.id,
+          body: answerBody,
+          editedTime: answerEditedTime,
+        });
+      }
+
+      return { patient };
+    };
+
+    it('should return most recently created answer', async () => {
+      const dataElementCode = crypto.randomUUID();
+      const { patient } = await createPatientWithAnswers(dataElementCode, [
+        { responseEndTime: '2024-01-01 10:00:00', answerBody: 'older submission' },
+        { responseEndTime: '2024-01-02 10:00:00', answerBody: 'newer submission' },
+      ]);
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.body).toBe('newer submission');
+    });
+
+    it('should return most recently edited answer, even if it belongs to older survey response', async () => {
+      const dataElementCode = crypto.randomUUID();
+      const { patient } = await createPatientWithAnswers(dataElementCode, [
+        { responseEndTime: '2024-01-02 10:00:00', answerBody: 'newer submission' },
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'edited wins',
+          answerEditedTime: '2024-01-03 10:00:00',
+        },
+      ]);
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.body).toBe('edited wins');
+    });
+
+    it('should return most recently edited when multiple answers have been edited', async () => {
+      const dataElementCode = crypto.randomUUID();
+      const { patient } = await createPatientWithAnswers(dataElementCode, [
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'earlier edit',
+          answerEditedTime: '2024-01-02 10:00:00',
+        },
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'latest edit wins',
+          answerEditedTime: '2024-01-04 10:00:00',
+        },
+      ]);
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.body).toBe('latest edit wins');
+    });
+
+    it('should return a newer survey response answer over an older edited answer', async () => {
+      const dataElementCode = crypto.randomUUID();
+      const { patient } = await createPatientWithAnswers(dataElementCode, [
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'edited answer',
+          answerEditedTime: '2024-01-03 10:00:00',
+        },
+        { responseEndTime: '2024-01-04 10:00:00', answerBody: 'newer submission wins' },
+      ]);
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.body).toBe('newer submission wins');
+    });
+
+    it('should return the newest answer across multiple submissions and edits', async () => {
+      const dataElementCode = crypto.randomUUID();
+      const { patient } = await createPatientWithAnswers(dataElementCode, [
+        { responseEndTime: '2024-01-05 10:00:00', answerBody: 'submission 2' },
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'latest written wins',
+          answerEditedTime: '2024-01-10 10:00:00',
+        },
+        { responseEndTime: '2024-01-01 10:00:00', answerBody: 'submission 1' },
+        {
+          responseEndTime: '2024-01-05 10:00:00',
+          answerBody: 'edit 2',
+          answerEditedTime: '2024-01-06 10:00:00',
+        },
+        { responseEndTime: '2024-01-08 10:00:00', answerBody: 'submission 3' },
+        {
+          responseEndTime: '2024-01-01 10:00:00',
+          answerBody: 'edit 1',
+          answerEditedTime: '2024-01-02 10:00:00',
+        },
+      ]);
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.body).toBe('latest written wins');
+    });
+
+    it('should 404 when no answer exists for the patient and data element code', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const dataElementCode = crypto.randomUUID();
+
+      const result = await app
+        .get(`/api/surveyResponseAnswer/latest-answer/${encodeURIComponent(dataElementCode)}`)
+        .query({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveRequestError(NotFoundError);
+    });
+  });
 
   describe('getDefaultId', () => {
     beforeAll(async () => {
@@ -198,7 +362,7 @@ describe('SurveyResponseAnswer', () => {
       it('should modify a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
         const newValue = parseInt(singleAnswer.body, 10) + 1;
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test',
@@ -214,7 +378,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a log on modification', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
         const previousValue = singleAnswer.body;
         const newValue = parseInt(previousValue, 10) + 1;
         const reasonForChange = 'test2';
@@ -240,9 +404,9 @@ describe('SurveyResponseAnswer', () => {
         const answers = await response.getAnswers();
 
         // This answer is used in a calculated value
-        const usedAnswer = answers.find((answer) => answer.dataElementId === dataElements[1].id);
+        const usedAnswer = answers.find(answer => answer.dataElementId === dataElements[1].id);
         const calculatedAnswer = answers.find(
-          (answer) => answer.dataElementId === dataElements[2].id,
+          answer => answer.dataElementId === dataElements[2].id,
         );
         const previousValue = calculatedAnswer.body;
         const newValue = parseInt(usedAnswer.body, 10) + 1;
@@ -305,7 +469,7 @@ describe('SurveyResponseAnswer', () => {
           SurveyResponse.createWithAnswers(data),
         );
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find((answer) => answer.dataElementId === pde.id);
+        const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test4',
           newValue: chance.string(),
@@ -320,7 +484,7 @@ describe('SurveyResponseAnswer', () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
         const calculatedAnswer = answers.find(
-          (answer) => answer.dataElementId === dataElements[2].id,
+          answer => answer.dataElementId === dataElements[2].id,
         );
 
         const result = await app
@@ -338,7 +502,7 @@ describe('SurveyResponseAnswer', () => {
       it('should reject editing if new value is the same as previous value', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
         const newValue = singleAnswer.body;
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test6',
@@ -386,7 +550,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const dateAnswer = answers.find((answer) => answer.dataElementId === dataElements[3].id);
+        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
         const newValue = chance.integer({ min: 0, max: 100 });
         const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test',
@@ -407,7 +571,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a log', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const dateAnswer = answers.find((answer) => answer.dataElementId === dataElements[3].id);
+        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
         const newValue = chance.integer({ min: 0, max: 100 });
         const reasonForChange = 'another-test2';
         const date = getCurrentDateTimeString();

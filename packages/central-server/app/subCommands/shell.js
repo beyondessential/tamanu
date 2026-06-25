@@ -5,6 +5,7 @@ import { join } from 'path';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 
 import { ApplicationContext } from '../ApplicationContext';
 import pkg from '../../package.json';
@@ -16,6 +17,10 @@ export const shell = async ({ skipMigrationCheck }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+  await syncDatabaseServerVersion({
+    models: store.models,
+    serverVersion: pkg.version,
+  });
 
   const replServer = await new Promise((resolve, reject) => {
     repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {

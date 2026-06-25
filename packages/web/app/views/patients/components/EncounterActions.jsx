@@ -11,6 +11,8 @@ import { EncounterRecordModal } from '../../../components/PatientPrinting/modals
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { PATIENT_STATUS } from '../../../constants';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -153,7 +155,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       condition: () =>
         canWriteEncounter &&
         (isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
-          encounter.encounterType === ENCOUNTER_TYPES.CLINIC),
+          getPatientStatus(encounter.encounterType) === PATIENT_STATUS.OUTPATIENT),
     },
     {
       label: (

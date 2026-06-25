@@ -1,6 +1,9 @@
 import express from 'express';
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings';
+import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
+import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
 import { keyBy, mapValues } from 'lodash';
 
 import { labResultWidgetRoutes } from './labResultWidget';
@@ -44,6 +47,25 @@ publicRoutes.get('/translation/:language', async (req, res) => {
   });
 
   res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
+});
+
+publicRoutes.post('/browser-support', async (req, res) => {
+  // Pre-login gate for the admin panel; the client posts its parsed navigator info.
+  const settings = new ReadSettings(req.models);
+  const [policy, versionsBack, platformPolicy] = await Promise.all([
+    settings.get('browserSupport.policy'),
+    settings.get('browserSupport.versionsBack'),
+    settings.get('browserSupport.platform'),
+  ]);
+  res.send(
+    decideBrowserSupport({
+      policy,
+      versionsBack,
+      platformPolicy,
+      currentMajors: getCurrentBrowserMajors(),
+      descriptor: parseBrowserDescriptor(req.body),
+    }),
+  );
 });
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);

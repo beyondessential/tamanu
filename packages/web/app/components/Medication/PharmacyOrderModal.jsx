@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { Colors, PATIENT_STATUS } from '../../constants';
 import {
   TextField,
   ConfirmCancelBackRow,
@@ -13,7 +13,6 @@ import {
   useDateTime,
 } from '@tamanu/ui-components';
 import {
-  ENCOUNTER_TYPES,
   PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
@@ -21,6 +20,7 @@ import {
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
+import { getPatientStatus } from '../../utils/getPatientStatus';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 
@@ -256,7 +256,7 @@ export const PharmacyOrderModal = React.memo(
         return;
       }
 
-      if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
+      if (getPatientStatus(encounter.encounterType) === PATIENT_STATUS.OUTPATIENT) {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
       } else {
         setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
@@ -602,8 +602,8 @@ export const PharmacyOrderModal = React.memo(
               infoTooltip={
                 <Box width="150px">
                   <TranslatedText
-                    stringId="pharmacyOrder.orderingClinician.tooltip"
-                    fallback="The clinician who is placing the pharmacy order."
+                    stringId="pharmacyOrder.orderingPrescriber.tooltip"
+                    fallback="The prescriber who is placing the pharmacy order."
                     data-testid="translatedtext-s7yn"
                   />
                 </Box>
@@ -611,8 +611,8 @@ export const PharmacyOrderModal = React.memo(
               name="orderingClinicianId"
               label={
                 <TranslatedText
-                  stringId="pharmacyOrder.orderingClinician.label"
-                  fallback="Ordering clinician"
+                  stringId="pharmacyOrder.orderingPrescriber.label"
+                  fallback="Ordering prescriber"
                   data-testid="translatedtext-aemx"
                 />
               }

@@ -1,0 +1,24 @@
+# OWASP ZAP alert suppression rules for the DAST CI scan.
+#
+# Format (tab-separated): <pluginId>	<IGNORE|WARN|FAIL>	<comment>
+#   IGNORE  alert is dropped entirely (won't appear, won't fail the build)
+#   WARN    alert is reported (default) — with fail_action this FAILS the build
+#   FAIL    alert is reported and fails the build
+#
+# We run with fail_action: true, so *any* non-ignored alert blocks the merge.
+# To approximate "block on medium/high only", the low-severity and purely
+# informational passive rules below are set to IGNORE. Add a rule here (with a
+# comment explaining why) when you've confirmed an alert is a false positive.
+#
+# Plugin IDs: https://www.zaproxy.org/docs/alerts/
+#
+# Find an alert's plugin ID in the report artifact (zap-dast-report) produced by
+# a failing run, then decide IGNORE (false positive / accepted) vs leave it to
+# block (real finding to fix).
+
+10015	IGNORE	Incomplete or no cache-control header (low / informational)
+10027	IGNORE	Information disclosure - suspicious comments (informational)
+10049	IGNORE	Non-storable / storable & cacheable content (informational)
+10094	IGNORE	Base64 disclosure (informational)
+10096	IGNORE	Timestamp disclosure (low, very noisy false-positive prone)
+10109	IGNORE	Modern web application (informational)

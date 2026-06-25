@@ -8,26 +8,26 @@ describe('<NumberField />', (): void => {
   };
   const newValue = '123';
 
-  it('should render label', (): void => {
-    const { getByText } = render(<BaseNumberFieldStory label={props.label} />);
+  it('should render label', async (): Promise<void> => {
+    const { getByText } = await render(<BaseNumberFieldStory label={props.label} />);
     expect(getByText(props.label)).not.toBe(null);
   });
-  it('should change values', (): void => {
-    const { getByLabelText } = render(<BaseNumberFieldStory label={props.label} />);
+  it('should change values', async (): Promise<void> => {
+    const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
-    fireEvent.changeText(input, newValue);
+    await fireEvent.changeText(input, newValue);
     expect(input.props['value']).toBe(newValue);
   });
-  it('should be nullable', (): void => {
-    const { getByLabelText } = render(<BaseNumberFieldStory label={props.label} />);
+  it('should be nullable', async (): Promise<void> => {
+    const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
-    fireEvent.changeText(input, undefined);
+    await fireEvent.changeText(input, undefined);
     expect(input.props['value']).toBe('');
   });
-  it('should nullify alpha characters', (): void => {
-    const { getByLabelText } = render(<BaseNumberFieldStory label={props.label} />);
+  it('should nullify alpha characters', async (): Promise<void> => {
+    const { getByLabelText } = await render(<BaseNumberFieldStory label={props.label} />);
     const input = getByLabelText(props.label);
-    fireEvent.changeText(input, 'invalid value');
+    await fireEvent.changeText(input, 'invalid value');
     expect(input.props['value']).toBe('');
   });
 });

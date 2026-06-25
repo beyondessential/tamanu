@@ -1,9 +1,22 @@
+import Divider, { dividerClasses } from '@mui/material/Divider';
 import React from 'react';
+import styled from 'styled-components';
 
-import { NoteInfoSection, StyledDivider, WrittenByText } from './NoteCommonFields';
-import { NoteChangeLogs } from './NoteChangeLogs';
-import { ConfirmCancelRow, BaseModal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  BaseModal,
+  ConfirmCancelRow,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { NoteChangeLogs } from './NoteChangeLogs';
+import { NoteInfoSection, WrittenByText } from './NoteCommonFields';
+
+const StyledDivider = styled(Divider)`
+  &.${dividerClasses.root} {
+    margin-block: 30px;
+  }
+`;
 
 const getChangelogContext = note => {
   const isTreatmentPlan = note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
@@ -53,8 +66,7 @@ const NoteChangelogContent = ({ note, onCancel }) => {
         writtenByLabel={writtenByLabel}
         writtenBy={writtenBy}
       />
-      <br />
-      <NoteChangeLogs note={note} />
+      <NoteChangeLogs note={note} style={{ marginBlockStart: 30 }} />
       <StyledDivider />
       <ConfirmCancelRow
         confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}

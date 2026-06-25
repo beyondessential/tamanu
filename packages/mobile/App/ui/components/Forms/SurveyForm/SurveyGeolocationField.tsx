@@ -25,30 +25,30 @@ const EndAdornmentContainer = styled(StyledView)`
   flex-direction: row;
   align-items: center;
   position: absolute;
-  right: ${screenPercentageToDP('1', Orientation.Height)};
-  bottom: ${screenPercentageToDP('2', Orientation.Height)};
-  min-height: ${screenPercentageToDP('2.8', Orientation.Height)};
+  right: ${screenPercentageToDP('1', Orientation.Height)}px;
+  bottom: ${screenPercentageToDP('2', Orientation.Height)}px;
+  min-height: ${screenPercentageToDP('2.8', Orientation.Height)}px;
 `;
 
 const ModalContainer = styled(CenterView)`
   background-color: ${theme.colors.BACKGROUND_GREY};
   border-radius: 5;
-  max-height: ${screenPercentageToDP('24', Orientation.Height)};
-  width: ${screenPercentageToDP('66', Orientation.Width)};
+  max-height: ${screenPercentageToDP('24', Orientation.Height)}px;
+  width: ${screenPercentageToDP('66', Orientation.Width)}px;
   padding: 20px;
-  margin-left: ${screenPercentageToDP('10', Orientation.Width)};
+  margin-left: ${screenPercentageToDP('10', Orientation.Width)}px;
   position: relative;
 `;
 
 const ModalTitle = styled(Text)`
-  font-size: ${screenPercentageToDP('1.45', Orientation.Height)};
+  font-size: ${screenPercentageToDP('1.45', Orientation.Height)}px;
   color: ${theme.colors.BLACK};
   font-weight: bold;
   margin-bottom: 10;
 `;
 
 const ModalDescription = styled(Text)`
-  font-size: ${screenPercentageToDP('1.45', Orientation.Height)};
+  font-size: ${screenPercentageToDP('1.45', Orientation.Height)}px;
   text-align: center;
   color: ${theme.colors.BLACK};
   margin-bottom: 4;
@@ -56,8 +56,8 @@ const ModalDescription = styled(Text)`
 
 const ModalCloseButton = styled(StyledTouchableOpacity)`
   position: absolute;
-  top: ${screenPercentageToDP('1.6', Orientation.Height)};
-  right: ${screenPercentageToDP('1.6', Orientation.Height)};
+  top: ${screenPercentageToDP('1.6', Orientation.Height)}px;
+  right: ${screenPercentageToDP('1.6', Orientation.Height)}px;
 `;
 
 const RequestGeolocationArea = styled(StyledTouchableOpacity)`

@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { type DataElementType, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -12,7 +12,7 @@ export class ProgramDataElement extends Model {
   declare defaultText?: string;
   declare defaultOptions?: string;
   declare visualisationConfig?: string;
-  declare type: string;
+  declare type: DataElementType;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

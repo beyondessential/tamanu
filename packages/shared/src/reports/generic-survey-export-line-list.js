@@ -1,5 +1,6 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
+
 import {
   NON_ANSWERABLE_DATA_ELEMENT_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -8,7 +9,7 @@ import {
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData, getAnswerBody } from './utilities';
 
-const COMMON_FIELDS = [
+const COMMON_FIELDS = /** @type {const} */ ([
   'Patient ID',
   'First name',
   'Last name',
@@ -17,7 +18,12 @@ const COMMON_FIELDS = [
   'Sex',
   'Village',
   'Submission Time',
-];
+]);
+
+const SIGNATURE_EXPORT = /** @type {const} */ ({
+  SIGNED: 'Signed',
+  UNSIGNED: 'Unsigned',
+});
 
 // Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
@@ -123,7 +129,16 @@ const getReportColumnTemplate = components => {
     })),
     ...answerableComponents.map(({ dataElement }) => ({
       title: dataElement.name,
-      accessor: data => data.answers[dataElement.id],
+      accessor: data => {
+        switch (dataElement.type) {
+          case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+            return data.answers?.[dataElement.id]
+              ? SIGNATURE_EXPORT.SIGNED
+              : SIGNATURE_EXPORT.UNSIGNED;
+          default:
+            return data.answers[dataElement.id];
+        }
+      },
     })),
     ...(surveyHasResult ? [{ title: 'Result', accessor: data => data.answers.Result }] : []),
   ];
@@ -141,11 +156,15 @@ export const transformSingleResponse = async (models, result, dataElementIdToCom
         const dataElementId = key;
         const surveyComponent = dataElementIdToComponent[dataElementId];
         const type = surveyComponent?.dataElement?.dataValues?.type;
-        const componentConfig = surveyComponent?.config;
-        const { body: answerBody } = await getAnswerBody(models, componentConfig, type, body, {
-          dateFormat: 'yyyy-MM-dd',
-        });
-        newAnswers[key] = answerBody;
+        if (type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE) {
+          newAnswers[key] = SIGNATURE_EXPORT.SIGNED;
+        } else {
+          const componentConfig = surveyComponent?.config;
+          const { body: answerBody } = await getAnswerBody(models, componentConfig, type, body, {
+            dateFormat: 'yyyy-MM-dd',
+          });
+          newAnswers[key] = answerBody;
+        }
       }
     }),
   );

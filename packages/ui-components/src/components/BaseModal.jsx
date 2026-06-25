@@ -1,15 +1,19 @@
-import React, { memo } from 'react';
-
-import styled from 'styled-components';
-import MuiDialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import PrintIcon from '@mui/icons-material/Print';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
+import PrintIcon from '@mui/icons-material/Print';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import MuiDialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle, { dialogTitleClasses } from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import React, { memo } from 'react';
+import styled from 'styled-components';
+
+import { TAMANU_COLORS } from '../constants';
 import { Button } from './Button';
 import { TranslatedText } from './Translation';
-import { TAMANU_COLORS } from '../constants';
+import { VisuallyHidden } from './VisuallyHidden';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
@@ -27,7 +31,7 @@ const Dialog = styled(MuiDialog)`
 
   @media print {
     .MuiPaper-root {
-      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .MuiDialogTitle-root,
@@ -37,14 +41,14 @@ const Dialog = styled(MuiDialog)`
   }
 `;
 
-export const ModalContent = styled.div`
+export const ModalContent = styled.div.attrs({ 'data-testid': 'modalcontent-bk4w' })`
   flex: 1 1 auto;
-  padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
-    ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
+  padding-block: ${MODAL_PADDING_TOP_AND_BOTTOM}px;
+  padding-inline: ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
 `;
 
 const ModalContainer = styled.div`
-  background: ${(props) => props.$color};
+  background-color: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
 
@@ -54,36 +58,68 @@ const ModalContainer = styled.div`
 `;
 
 export const FullWidthRow = styled.div`
-  margin: 0 -${MODAL_PADDING_LEFT_AND_RIGHT}px;
   grid-column: 1 / -1;
+  margin-inline: -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
-const ModalTitle = styled(DialogTitle)`
-  padding: 14px 14px 14px 32px;
+const Header = styled.header`
+  align-items: center;
   border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
+  display: flex;
+  flex-wrap: wrap;
+  padding-block: 14px;
+  padding-inline: 32px 14px;
+`;
 
-  h2 {
-    display: flex;
-    justify-content: space-between;
-
-    svg {
-      font-size: 2rem;
-      cursor: pointer;
-    }
+const ModalTitle = styled(DialogTitle).attrs({ 'data-testid': 'modaltitle-ojhf' })`
+  &.${dialogTitleClasses.root} {
+    padding: 0;
+    max-inline-size: 100%;
+    line-height: 1.2;
   }
 `;
 
-const VerticalCenteredText = styled.span`
-  display: flex;
+const Actions = styled.div.attrs({ 'data-testid': 'actions-okdu' })`
   align-items: center;
-  padding: 12px 0;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+  margin-inline-start: auto;
 `;
 
-const StyledButton = styled(Button)`
-  margin-left: 8px;
-`;
+function CloseButton(props) {
+  return (
+    <IconButton data-testid="iconbutton-eull" {...props}>
+      <CloseIcon />
+      <VisuallyHidden>
+        <TranslatedText stringId="general.action.close" fallback="Close" />
+      </VisuallyHidden>
+    </IconButton>
+  );
+}
+
+function PrintButton(props) {
+  return (
+    <Button
+      color="primary"
+      data-testid="styledbutton-z2pp"
+      size="small"
+      startIcon={<PrintIcon />}
+      variant="outlined"
+      {...props}
+    >
+      <TranslatedText stringId="general.action.print" fallback="Print" />
+    </Button>
+  );
+}
 
 export const BaseModal = memo(
+  /**
+   * @param {import('@material-ui/core/Dialog').DialogProps & {
+   *   actions?: React.ReactNode;
+   *   printable?: boolean;
+   * }} props
+   */
   ({
     title,
     children,
@@ -139,43 +175,21 @@ export const BaseModal = memo(
         {...props}
         data-testid="dialog-g9qi"
       >
-        <ModalTitle data-testid="modaltitle-ojhf">
-          <VerticalCenteredText data-testid="verticalcenteredtext-ni4s">
-            {title}
-          </VerticalCenteredText>
-          <Box flexShrink={0} data-testid="box-okdu">
+        <Header>
+          <ModalTitle>{title}</ModalTitle>
+          <Actions>
+            {cornerExitButton && <CloseButton onClick={onClose} disabled={!isClosable} />}
+            {printable && <PrintButton onClick={handlePrint} />}
             {additionalActions}
-            {printable && (
-              <StyledButton
-                color="primary"
-                variant="outlined"
-                onClick={handlePrint}
-                startIcon={<PrintIcon data-testid="printicon-mgui" />}
-                size="small"
-                data-testid="styledbutton-z2pp"
-              >
-                <TranslatedText
-                  stringId="general.action.print"
-                  fallback="Print"
-                  data-testid="translatedtext-0ush"
-                />
-              </StyledButton>
-            )}
-            {cornerExitButton && (
-              <IconButton onClick={onClose} disabled={!isClosable} data-testid="iconbutton-eull">
-                <CloseIcon data-testid="closeicon-z1u6" />
-              </IconButton>
-            )}
-          </Box>
-        </ModalTitle>
+          </Actions>
+        </Header>
         <ModalContainer $color={color} data-testid="modalcontainer-uc2n">
-          <ModalContent
-            $overrideContentPadding={overrideContentPadding}
-            data-testid="modalcontent-bk4w"
-          >
-            {children}
-          </ModalContent>
-          {actions && <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>}
+          <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
+          {actions && (
+            <DialogActions component="footer" data-testid="dialogactions-jkc6">
+              {actions}
+            </DialogActions>
+          )}
         </ModalContainer>
         {fixedBottomRow && bottomRowContent}
       </Dialog>
@@ -192,7 +206,7 @@ const Loader = styled(Box)`
     font-weight: 500;
     font-size: 16px;
     line-height: 21px;
-    color: ${(props) => props.theme.palette.text.secondary};
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 
