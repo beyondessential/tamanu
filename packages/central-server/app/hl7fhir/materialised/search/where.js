@@ -1,4 +1,4 @@
-import { escapeRegExp } from 'lodash';
+import { escapeRegExp } from 'es-toolkit/compat';
 import { Op, Sequelize } from 'sequelize';
 import * as yup from 'yup';
 

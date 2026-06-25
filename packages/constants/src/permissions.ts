@@ -154,7 +154,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Tasking: [List, Read, Write, Create, Delete],
   Template: [List, Read, Write, Create],
   Translation: [Write],
-  TranslatedString: [List, Read, Write],
+  TranslatedString: [List, Read, Write, Create],
   TreatmentPlan: [Read, Write],
   TreatmentPlanNote: [Write],
   Triage: [List, Read, Write, Create],

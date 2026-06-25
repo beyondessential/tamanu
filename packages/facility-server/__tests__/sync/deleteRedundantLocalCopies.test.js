@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { deleteRedundantLocalCopies } from '../../dist/sync/deleteRedundantLocalCopies';
+import { deleteRedundantLocalCopies } from '../../app/sync/deleteRedundantLocalCopies';
 
 describe('deleteRedundantLocalCopies', () => {
   it('should delete records for models marked as PUSH_TO_CENTRAL_THEN_DELETE', async () => {

@@ -2,6 +2,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { syncDatabaseServerVersion, type Models, type Sequelize } from '@tamanu/database';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
+import { normaliseMigrationStorageExtensions } from './normaliseMigrationStorage.js';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
 import type { MigrationStr, StepArgs } from './step.ts';
@@ -38,7 +39,14 @@ export async function upgrade({
   const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
-  const { migrations: migrationsUmzug, getDurationStats } = createMigrationInterface(log, sequelize);
+  // Databases migrated before the build-less switch hold `.js` migration-storage records; rewrite
+  // them to `.ts` before any migration state is read (createMigrationInterface asserts this done).
+  await normaliseMigrationStorageExtensions(sequelize);
+
+  const { migrations: migrationsUmzug, getDurationStats } = await createMigrationInterface(
+    log,
+    sequelize,
+  );
   const migrations = migrationsUmzug as any;
   let pendingMigrations = await migrations.pending();
   let doneMigrations = await migrations.executed();

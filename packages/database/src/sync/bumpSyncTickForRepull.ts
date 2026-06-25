@@ -1,4 +1,4 @@
-import { groupBy } from 'lodash';
+import { groupBy } from 'es-toolkit/compat';
 import { Sequelize } from 'sequelize';
 
 import { SYNC_SESSION_DIRECTION } from './constants';

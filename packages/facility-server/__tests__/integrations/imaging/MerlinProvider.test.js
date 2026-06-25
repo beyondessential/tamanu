@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
-import { MerlinProvider } from '../../../dist/integrations/imaging/MerlinProvider';
+import { MerlinProvider } from '../../../app/integrations/imaging/MerlinProvider';
 import { createTestContext } from '../../utilities';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 

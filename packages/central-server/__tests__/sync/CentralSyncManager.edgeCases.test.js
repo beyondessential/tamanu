@@ -19,7 +19,7 @@ import {
   waitForPushCompleted,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
-import { OutpatientDischarger } from '../../dist/tasks/OutpatientDischarger';
+import { OutpatientDischarger } from '../../app/tasks/OutpatientDischarger';
 
 describe('CentralSyncManager Edge Cases', () => {
   let ctx;

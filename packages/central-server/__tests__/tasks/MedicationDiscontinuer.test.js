@@ -3,7 +3,7 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { sub } from 'date-fns';
 
-import { MedicationDiscontinuer } from '../../dist/tasks/MedicationDiscontinuer';
+import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 import { createTestContext } from '../utilities';
 
 describe('Medication Discontinuer', () => {
