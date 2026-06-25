@@ -1,8 +1,11 @@
 import config from 'config';
+import { Op } from 'sequelize';
+import { sub } from 'date-fns';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { ReadSettings } from '@tamanu/settings';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
@@ -37,8 +40,14 @@ export class BedFeeCharger extends ScheduledTask {
       );
     }
 
+    // Recompute still-admitted patients, plus recently-discharged ones, so the final discharge-day
+    // night is captured even for off-hour check times and death discharges (recompute is idempotent).
+    const dischargedSince = toDateTimeString(sub(new Date(), { hours: 25 }));
     const query = {
-      where: { endDate: null, encounterType: ENCOUNTER_TYPES.ADMISSION },
+      where: {
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: dischargedSince } }],
+      },
       include: [{ model: Location, as: 'location', attributes: ['facilityId'] }],
     };
 

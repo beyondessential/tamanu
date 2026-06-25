@@ -48,6 +48,16 @@ describe('computeBedFeeChargeInstants', () => {
     expect(instants).toEqual(['2024-06-16 18:00:00']); // admission night only
   });
 
+  it('counts an overnight check on the admission day itself (charge the night admitted in)', () => {
+    // Admitted at 01:00, before the 02:00 check — the same-day 02:00 counts.
+    const instants = computeBedFeeChargeInstants({
+      ...base,
+      startDateTime: '2024-06-16 01:00:00',
+      endDateTime: '2024-06-17 10:00:00',
+    });
+    expect(instants).toEqual(['2024-06-16 02:00:00', '2024-06-17 02:00:00']);
+  });
+
   it('evaluates the overnight check in facility-local time and returns instants in the primary timezone', () => {
     // Facility at +11:00; admit 16:00 UTC June 16 = 03:00 June 17 local. End 16:00 UTC June 17 = 03:00 June 18 local.
     // The only 02:00-local check in range is 02:00 June 18 local = 15:00 June 17 UTC.

@@ -43,8 +43,10 @@ Branch `feature/tam-6900-…`, stacked on `feature/tam-6901` (→ 6898 → epic)
 - Pure night-counting helper + `Invoice.recalculateBedFee` (per-location reconcile).
 - Nightly `BedFeeCharger` + admission night-1 trigger.
 
-**Open / to confirm:**
-- **PRD example discrepancy:** the worked example ("admitted June 16, night 2 at 2am June 18") appears off by a day. Implemented interpretation: **one night per facility-local overnight check in (admission, end], min one** → an N-night stay bills N nights. Confirm with the team; if wrong, the rule lives solely in `computeBedFeeChargeInstants`.
-- **Discharge-day finalisation:** the nightly job only recomputes still-admitted patients, and the admission trigger + hourly run capture each night at its overnight check. A narrow gap remains for facilities whose check time isn't on the hour if the patient is discharged in the &lt;1h window after the check but before the next hourly run — a recompute on discharge (encounter PUT route) would close it. Not yet wired (the PUT route doesn't currently thread settings/facilityId).
+**Resolved decisions:**
+- **Night counting — confirmed (matches the PRD).** Re-traced: the implementation reproduces the PRD's schedule (night 1 at admission, then one per overnight check). Rule: one night per facility-local overnight check in (admission, end], minimum one → an N-night stay bills N nights. Edge agreed (decision A): a check on the admission day itself is counted — the patient is charged for the night they were admitted in (pinned by a unit test). The rule lives solely in `computeBedFeeChargeInstants`.
+- **Discharge-day finalisation — done.** `BedFeeCharger` now also recomputes admission encounters discharged within the last ~25h (`endDate IS NULL OR endDate >= now − 25h`), so the final discharge-day night lands even for off-hour check times and death discharges. Recompute is idempotent, so re-processing is harmless.
+
+**Still open:**
 - **65+ stop** is not implemented (no longer a requirement per the Tech Design).
 - Integration tests (location attribution, placeholder, batching) not yet run against a live DB.

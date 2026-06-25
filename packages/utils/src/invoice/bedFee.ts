@@ -16,7 +16,9 @@ const toIso9075 = (zoned: Temporal.ZonedDateTime, timeZone: string): string =>
 
 /**
  * The instants (in the primary timezone) a still-admitted patient is charged a bed-fee night for:
- * one per facility-local overnight-check time in (start, end].
+ * one per facility-local overnight-check time in (start, end]. A check on the admission day itself
+ * (e.g. an early-hours admission before the check time) is included — the patient is charged for
+ * the night they were admitted in.
  *
  * The result is never empty — a patient admitted and gone before the first overnight check still
  * owes their admission night, so it falls back to [startDateTime]. So total nights = array length,
