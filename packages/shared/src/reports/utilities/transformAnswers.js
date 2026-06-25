@@ -1,4 +1,4 @@
-import { keyBy } from 'lodash';
+import { keyBy } from 'es-toolkit/compat';
 
 import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { convertBinaryToYesNo } from '@tamanu/utils/criteria';

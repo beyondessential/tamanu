@@ -1,4 +1,4 @@
-import { ForeignkeyResolutionError, ValidationError } from '../../dist/admin/errors';
+import { ForeignkeyResolutionError, ValidationError } from '../../app/admin/errors';
 
 function toContainError(errors, { ofType = null, inSheet, atRow, withMessage }) {
   const suffix = `on ${inSheet} at row ${atRow}`;

@@ -11,9 +11,7 @@
   "type": "module",
   "scripts": {
     "start-dev": "vite",
-    "build": "tsc && vite build",
     "clean": "rimraf -- dist *.tsbuildinfo",
-    "clean-build": "npm run clean && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

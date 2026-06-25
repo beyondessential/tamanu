@@ -1,5 +1,5 @@
 import * as xlsx from 'xlsx';
-import { chain } from 'lodash';
+import { chain } from 'es-toolkit/compat';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import {

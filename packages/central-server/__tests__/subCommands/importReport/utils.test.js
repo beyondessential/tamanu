@@ -2,7 +2,7 @@ import { REPORT_STATUSES } from '@tamanu/constants';
 import {
   findOrCreateDefinition,
   getLatestVersion,
-} from '../../../dist/subCommands/importReport/utils';
+} from '../../../app/subCommands/importReport/utils';
 
 const mockDefinition = {
   name: 'test-definition-name',

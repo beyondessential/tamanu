@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
-    "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
     "clean:deps": "rimraf -- node_modules",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
@@ -133,5 +132,6 @@
     "source-map": "^0.5.7",
     "sqlite3": "^6.0.1",
     "ts-jest": "^29.1.2"
-  }
+  },
+  "type": "module"
 }

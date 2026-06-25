@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { get, startCase } from 'lodash';
+import { get, startCase } from 'es-toolkit/compat';
 
 import {
   ENCOUNTER_TYPE_LABELS,

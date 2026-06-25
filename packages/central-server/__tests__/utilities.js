@@ -9,10 +9,10 @@ import { asNewRole } from '@tamanu/fake-data/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
 
-import { buildToken } from '../dist/auth/utils';
-import { createApp } from '../dist/createApp';
-import { closeDatabase, initDatabase } from '../dist/database';
-import { initIntegrations } from '../dist/integrations';
+import { buildToken } from '../app/auth/utils';
+import { createApp } from '../app/createApp';
+import { closeDatabase, initDatabase } from '../app/database';
+import { initIntegrations } from '../app/integrations';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -154,7 +154,7 @@ const DEFAULT_CONFIG = {
 
 export const initializeCentralSyncManagerWithContext = (ctx, config) => {
   // Have to load test function within test scope so that we can mock dependencies per test case
-  const { CentralSyncManager: TestCentralSyncManager } = require('../dist/sync/CentralSyncManager');
+  const { CentralSyncManager: TestCentralSyncManager } = require('../app/sync/CentralSyncManager');
 
   TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 

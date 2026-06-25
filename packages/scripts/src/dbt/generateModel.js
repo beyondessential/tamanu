@@ -3,7 +3,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const YAML = require('yaml');
-const { compact, differenceBy, intersectionBy, remove } = require('lodash');
+const { compact, differenceBy, intersectionBy, remove } = require('es-toolkit/compat');
 const { spawnSync } = require('child_process');
 
 const KNOWN_TABLE_MASKING_KINDS = ['truncate'];

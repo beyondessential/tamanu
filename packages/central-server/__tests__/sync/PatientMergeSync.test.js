@@ -10,7 +10,7 @@ import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { makeTwoPatients } from '../admin/patientMerge/makeTwoPatients';
 import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
-import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
+import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
 jest.mock('config', () => ({
   ...jest.requireActual('config'),

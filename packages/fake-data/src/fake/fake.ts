@@ -1,5 +1,5 @@
 import { randomInt } from 'crypto';
-import { isFunction, snakeCase } from 'lodash';
+import { isFunction, snakeCase } from 'es-toolkit/compat';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';

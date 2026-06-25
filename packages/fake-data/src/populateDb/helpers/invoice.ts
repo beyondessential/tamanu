@@ -1,4 +1,4 @@
-import { times } from 'lodash';
+import { times } from 'es-toolkit/compat';
 
 import { randomRecordId } from '../randomRecord.js';
 

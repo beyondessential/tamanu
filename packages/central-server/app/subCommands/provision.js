@@ -1,6 +1,6 @@
 import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'lodash';
+import { defaultsDeep, get as getAtPath, keyBy, set as setAtPath, unset } from 'es-toolkit/compat';
 import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 import fs from 'node:fs';

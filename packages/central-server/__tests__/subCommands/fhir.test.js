@@ -5,8 +5,8 @@ import {
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fhir } from '../../dist/subCommands/fhir';
-import { ApplicationContext } from '../../dist/ApplicationContext';
+import { fhir } from '../../app/subCommands/fhir';
+import { ApplicationContext } from '../../app/ApplicationContext';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,

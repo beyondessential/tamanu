@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { glob } from 'glob';
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { parseArgs, styleText } from 'node:util';

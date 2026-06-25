@@ -1,4 +1,4 @@
-import { random } from 'lodash';
+import { random } from 'es-toolkit/compat';
 import * as yup from 'yup';
 
 import { formatFhirDate } from '../../utils/fhir';

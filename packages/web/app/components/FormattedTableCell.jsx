@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { isNumber } from 'lodash';
+import { isNumber } from 'es-toolkit/compat';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 

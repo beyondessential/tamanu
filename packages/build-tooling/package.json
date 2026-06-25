@@ -2,7 +2,7 @@
   "name": "@tamanu/build-tooling",
   "version": "2.59.0",
   "description": "Build tooling for Tamanu packages",
-  "main": "index.mjs",
+  "main": "./src/index",
   "type": "module",
   "scripts": {
     "clean:deps": "rimraf -- node_modules"

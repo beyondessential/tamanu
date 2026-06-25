@@ -1,6 +1,6 @@
 import config from 'config';
 import { createTestContext } from '../utilities';
-import { mSupplyMedIntegrationProcessor } from '../../dist/tasks/mSupplyMedIntegrationProcessor';
+import { mSupplyMedIntegrationProcessor } from '../../app/tasks/mSupplyMedIntegrationProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';

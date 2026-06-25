@@ -6,7 +6,7 @@ import {
   get as getAtPath,
   set as setAtPath,
   cloneDeep,
-} from 'lodash';
+} from 'es-toolkit/compat';
 import { Setting, SettingsSchema } from '../types';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
