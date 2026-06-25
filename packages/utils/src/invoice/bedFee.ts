@@ -34,12 +34,10 @@ export const computeBedFeeChargeInstants = ({
   primaryTimeZone,
   facilityTimeZone,
 }: BedFeeChargeInstantsInput): string[] => {
-  const displayTimeZone = facilityTimeZone || primaryTimeZone;
+  const displayTimeZone = facilityTimeZone ?? primaryTimeZone;
   const toLocal = (stored: string): Temporal.ZonedDateTime => {
     const plain = Temporal.PlainDateTime.from(stored.replace(' ', 'T'));
-    return primaryTimeZone
-      ? plain.toZonedDateTime(primaryTimeZone).withTimeZone(displayTimeZone)
-      : plain.toZonedDateTime(displayTimeZone);
+    return plain.toZonedDateTime(primaryTimeZone).withTimeZone(displayTimeZone);
   };
 
   const start = toLocal(startDateTime);
@@ -54,7 +52,7 @@ export const computeBedFeeChargeInstants = ({
 
   const instants: string[] = [];
   while (Temporal.ZonedDateTime.compare(check, end) <= 0) {
-    instants.push(toIso9075(check, primaryTimeZone || displayTimeZone));
+    instants.push(toIso9075(check, primaryTimeZone));
     check = check.add({ days: 1 });
   }
 
