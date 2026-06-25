@@ -1,18 +1,23 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
+import { sub } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import {
+  ADMINISTRATION_FREQUENCIES,
   ENCOUNTER_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
+  REFERENCE_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
-// Integration for inpatient fee inclusions/exclusions (TAM-6901): when a facility bundles `lab`
-// into the admission fee, lab items don't auto-add for admission encounters but still do for
-// outpatient/ER.
+// Integration for inpatient fee inclusions/exclusions (TAM-6901): a facility that bundles a
+// category into the admission fee doesn't auto-add those items for admission encounters (but
+// still does for outpatient/ER). For medications, only the administered (MAR) portion is
+// excluded — discharge dispensing is always billed.
 describe('Inpatient fee inclusions', () => {
   let ctx;
   let models;
@@ -22,6 +27,7 @@ describe('Inpatient fee inclusions', () => {
   let facility;
   let location;
   let labPanel;
+  let drug;
 
   const createEncounterWithInvoice = async encounterType => {
     const encounter = await models.Encounter.create({
@@ -29,6 +35,7 @@ describe('Inpatient fee inclusions', () => {
       patientId: patient.id,
       locationId: location.id,
       encounterType,
+      endDate: null,
     });
     await models.Invoice.create({
       encounterId: encounter.id,
@@ -39,8 +46,7 @@ describe('Inpatient fee inclusions', () => {
     return encounter;
   };
 
-  // Create a lab request for the panel and move it to an invoiceable status, then return the
-  // encounter's invoice line items.
+  // Create a lab request for the panel, move it to an invoiceable status, return the invoice items.
   const requestLabAndGetItems = async encounter => {
     const {
       body: [labRequest],
@@ -60,6 +66,38 @@ describe('Inpatient fee inclusions', () => {
     return result.body.items ?? [];
   };
 
+  // Admission with an administered dose (MAR) and a discharge pharmacy order, return invoice items.
+  const admissionMedicationItems = async ({ administered, dispensed }) => {
+    const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.ADMISSION);
+    const { body: prescription } = await app
+      .post(`/api/medication/encounterPrescription/${encounter.id}`)
+      .send({
+        medicationId: drug.id,
+        prescriberId: user.id,
+        doseAmount: 1,
+        units: 'mg',
+        frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+        route: 'dermal',
+        date: '2025-01-01',
+        startDate: getCurrentDateTimeString(),
+      });
+    await app.post('/api/medication/medication-administration-record/given').send({
+      prescriptionId: prescription.id,
+      dose: { doseAmount: administered, givenTime: toDateTimeString(sub(new Date(), { days: 10 })) },
+      dueAt: toDateTimeString(sub(new Date(), { days: 10 })),
+    });
+    await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
+      orderingClinicianId: user.id,
+      date: toDateTimeString(sub(new Date(), { days: 5 })),
+      isDischargePrescription: true,
+      pharmacyOrderPrescriptions: [{ prescriptionId: prescription.id, quantity: dispensed }],
+      facilityId: facility.id,
+    });
+    const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+    expect(result).toHaveSucceeded();
+    return result.body.items ?? [];
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
@@ -72,15 +110,14 @@ describe('Inpatient fee inclusions', () => {
       fake(models.Location, { facilityId: facility.id, code: 'INC-EXC-LOC' }),
     );
 
+    // Lab product
     const labCategory = await models.ReferenceData.create(
       fake(models.ReferenceData, { type: 'labTestCategory', code: 'INC-EXC-CAT' }),
     );
     const labType = await models.LabTestType.create(
       fake(models.LabTestType, { code: 'INC-EXC-BLOODS', labTestCategoryId: labCategory.id }),
     );
-    labPanel = await models.LabTestPanel.create(
-      fake(models.LabTestPanel, { code: 'INC-EXC-PANEL' }),
-    );
+    labPanel = await models.LabTestPanel.create(fake(models.LabTestPanel, { code: 'INC-EXC-PANEL' }));
     await models.LabTestPanelLabTestTypes.create({
       labTestPanelId: labPanel.id,
       labTestTypeId: labType.id,
@@ -92,6 +129,19 @@ describe('Inpatient fee inclusions', () => {
         sourceRecordId: labPanel.id,
       }),
     );
+
+    // Drug product
+    drug = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, code: 'INC-EXC-DRUG' }),
+    );
+    const drugProduct = await models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+        sourceRecordId: drug.id,
+      }),
+    );
+
     const priceList = await models.InvoicePriceList.create(
       fake(models.InvoicePriceList, {
         name: 'Inclusions facility list',
@@ -99,20 +149,22 @@ describe('Inpatient fee inclusions', () => {
         rules: { facilityId: facility.id },
       }),
     );
-    await models.InvoicePriceListItem.create(
-      fake(models.InvoicePriceListItem, {
-        invoiceProductId: panelProduct.id,
-        invoicePriceListId: priceList.id,
-        price: 100,
-        isHidden: false,
-      }),
-    );
+    for (const product of [panelProduct, drugProduct]) {
+      await models.InvoicePriceListItem.create(
+        fake(models.InvoicePriceListItem, {
+          invoiceProductId: product.id,
+          invoicePriceListId: priceList.id,
+          price: 100,
+          isHidden: false,
+        }),
+      );
+    }
 
     await models.Setting.set('features.invoicing.enabled', true);
-    // This facility bundles lab into the admission fee.
+    // This facility bundles lab and medication into the admission fee.
     await models.Setting.set(
       'invoicing.inpatientFee.bundledCategories',
-      ['lab'],
+      ['lab', 'medication'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,
     );
@@ -133,5 +185,12 @@ describe('Inpatient fee inclusions', () => {
     const encounter = await createEncounterWithInvoice(ENCOUNTER_TYPES.CLINIC);
     const items = await requestLabAndGetItems(encounter);
     expect(items).toHaveLength(1);
+  });
+
+  it('excludes administered medications but keeps discharge dispensing when medications are bundled', async () => {
+    const items = await admissionMedicationItems({ administered: 5, dispensed: 10 });
+    expect(items).toHaveLength(1);
+    // administered (5) excluded by bundling; discharge dispensing (10) still billed
+    expect(items[0].quantity).toBe(10);
   });
 });
