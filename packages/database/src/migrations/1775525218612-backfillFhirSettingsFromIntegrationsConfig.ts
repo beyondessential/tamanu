@@ -9,7 +9,7 @@
  */
 import { QueryTypes, QueryInterface } from 'sequelize';
 import config from 'config';
-import { get, isPlainObject } from 'lodash';
+import { get, isPlainObject } from 'es-toolkit/compat';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { globalDefaults } from '@tamanu/settings';
 
