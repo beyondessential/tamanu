@@ -1,4 +1,4 @@
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'es-toolkit/compat';
 import { DataTypes, ValidationError } from 'sequelize';
 import { compositeToSql } from './stringifier';
 import { Composite } from './sequelizeType';

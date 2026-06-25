@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
-import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
 const SUMMARY_URL = encounterId => `/api/ai/encounter/summary/${encounterId}`;

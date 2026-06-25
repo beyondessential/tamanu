@@ -54,8 +54,10 @@ build_server() {
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  # build the world
-  npm run build
+  # Servers run from TypeScript source via the tsx loader; the one artefact the runtime
+  # needs is the bundled default translations the upgrade step reads. Generate it while
+  # every package is present (it scans the whole workspace for translatable strings).
+  npm run package-default-translations --workspace @tamanu/upgrade
 
   remove_irrelevant_packages "$package"
 
@@ -83,12 +85,12 @@ build_server() {
 }
 
 build_web() {
-  npm run build -- --filter=@tamanu/web-frontend...
+  npm run build --workspace=@tamanu/web-frontend
   scripts/precompress-assets.sh packages/web/dist
 }
 
 build_patient_portal() {
-  npm run build -- --filter=@tamanu/patient-portal...
+  npm run build --workspace=@tamanu/patient-portal
   scripts/precompress-assets.sh packages/patient-portal/dist
 }
 

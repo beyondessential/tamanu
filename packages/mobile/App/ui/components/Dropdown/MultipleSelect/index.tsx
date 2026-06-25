@@ -11,9 +11,7 @@ import {
   View,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import reject from 'lodash/reject';
-import find from 'lodash/find';
-import get from 'lodash/get';
+import { find, get, reject } from 'es-toolkit/compat';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles, { colorPack } from './styles';
 import { screenPercentageToDP, Orientation } from '../../../helpers/screen';

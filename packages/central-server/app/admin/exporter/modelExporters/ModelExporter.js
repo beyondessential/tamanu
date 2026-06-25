@@ -1,4 +1,4 @@
-import { startCase } from 'lodash';
+import { startCase } from 'es-toolkit/compat';
 import { Model } from 'sequelize';
 
 const METADATA_COLUMNS = [

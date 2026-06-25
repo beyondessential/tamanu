@@ -1,4 +1,5 @@
-import { camel } from 'case';
+import __cjs_case from 'case';
+const { camel } = __cjs_case;
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getSnapshotTableName } from './manageSnapshotTable';

@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { escapeRegExp } from 'lodash';
+import { escapeRegExp } from 'es-toolkit/compat';
 import { Op } from 'sequelize';
 
 import { NotFoundError } from '@tamanu/errors';

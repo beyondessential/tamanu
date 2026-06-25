@@ -6,7 +6,7 @@ a migration that registers a trigger for database tables.
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
-import { setFhirRefreshTriggers } from '../../../dist/database/setFhirRefreshTriggers';
+import { setFhirRefreshTriggers } from '../../../app/database/setFhirRefreshTriggers';
 
 expect.extend({
   async toHaveARegisteredTrigger(tableName, triggerType, triggers) {

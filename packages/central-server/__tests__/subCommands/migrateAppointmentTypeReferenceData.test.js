@@ -4,7 +4,14 @@ import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches
 import { APPOINTMENT_TYPES } from '@tamanu/database/demoData';
 import { initDatabase } from '../../app/database';
 
-jest.mock('../../app/database');
+// createTestContext (via utilities) and the subCommand under test both import
+// initDatabase from this module. Default it to the real implementation so the test
+// context can spin up a real database, and keep the real closeDatabase for teardown;
+// the test overrides initDatabase per-case so the subCommand reuses the test store.
+jest.mock('../../app/database', () => {
+  const actual = jest.requireActual('../../app/database');
+  return { ...actual, initDatabase: jest.fn(actual.initDatabase) };
+});
 
 const prepopulate = async (models) => {
   const { Appointment, ReferenceData } = models;

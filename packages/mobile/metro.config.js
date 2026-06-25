@@ -63,7 +63,22 @@ const config = {
           platform,
         );
       }
-      return context.resolveRequest(context, moduleName, platform);
+      try {
+        return context.resolveRequest(context, moduleName, platform);
+      } catch (error) {
+        // @tamanu workspace source imports .ts files using a .js extension; retry
+        // without it so metro's sourceExts resolution finds the real file. If the
+        // retry also fails, surface the original error rather than the (likely more
+        // confusing) secondary one.
+        if (/\.js$/.test(moduleName)) {
+          try {
+            return context.resolveRequest(context, moduleName.replace(/\.js$/, ''), platform);
+          } catch {
+            throw error;
+          }
+        }
+        throw error;
+      }
     },
   },
 

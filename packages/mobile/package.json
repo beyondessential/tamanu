@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.59.0",
+  "version": "2.60.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -38,10 +38,10 @@
     "axios": "^1.15.2",
     "chance": "^1.1.8",
     "date-fns": "^2.25.0",
+    "es-toolkit": "^1.48.1",
     "formik": "^2.1.2",
     "get-yarn-workspaces": "^1.0.2",
     "khmer-unicode-converter": "^0.0.6",
-    "lodash": "^4.17.21",
     "mathjs": "^12.1.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
@@ -111,7 +111,6 @@
     "@testing-library/react-hooks": "^3.2.1",
     "@types/chance": "^1.0.8",
     "@types/jest": "^29.2.1",
-    "@types/lodash": "^4.14.197",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^20.9.2",
     "@types/react": "^19.1.1",

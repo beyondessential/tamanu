@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 
-import { calculatePageLimit } from '../../dist/sync/calculatePageLimit';
+import { calculatePageLimit } from '../../app/sync/calculatePageLimit';
 
 const defaultConfig = {
   initialLimit: 10,

@@ -1,5 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
-import { sortBy } from 'lodash';
+import { sortBy } from 'es-toolkit/compat';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 

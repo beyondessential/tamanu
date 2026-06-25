@@ -1,5 +1,5 @@
 import { QueryTypes } from 'sequelize';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'es-toolkit/compat';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
@@ -134,12 +134,12 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
-
+        // This step lives at packages/upgrade/src/steps/; the generated translations
+        // file sits at the package root. Resolve it from this file's location.
         const defaultTranslationsPath = path.join(
-          updateDistCjsIndexJsPath,
-          '..', // cjs
-          '..', // dist
+          import.meta.dirname,
+          '..', // steps
+          '..', // src
           'default-translations.json',
         );
 
