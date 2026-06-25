@@ -3,6 +3,11 @@ import * as preparedQueryModules from './executePreparedQuery';
 import { MobileSyncSettings } from '../MobileSyncManager';
 
 jest.mock('./executePreparedQuery');
+jest.mock('../SyncDebugLog', () => ({
+  SyncDebugLog: {
+    log: jest.fn(),
+  },
+}));
 jest.mock('./buildFromSyncRecord', () => ({
   buildFromSyncRecord: jest.fn().mockImplementation((_model, records) =>
     records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
@@ -14,6 +19,7 @@ const repository = {
   find: jest.fn(),
 };
 const getModel = jest.fn(() => ({
+  getTableName: jest.fn().mockReturnValue('test_table'),
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
   getTransactionalRepository: jest.fn(() => repository),
 }));
