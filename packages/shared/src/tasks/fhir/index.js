@@ -1,5 +1,6 @@
 import { FhirQueueManager } from './FhirQueueManager';
 import { JOB_TOPICS, NOTIFY_CHANNELS } from '@tamanu/constants';
+import { syncDatabaseServerVersion } from '@tamanu/database';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { log } from '../../services/logging';
 import { defineDbNotifier } from '../../services/dbNotifier';
@@ -34,6 +35,11 @@ export async function runStartFhirWorker({ context, settings, serverName, versio
     topics = topics.split(/,+\s*/).filter(Boolean);
     log.info(`FHIR worker restricted to topics: ${topics.join(', ')}`);
   }
+
+  await syncDatabaseServerVersion({
+    models: context.store.models,
+    serverVersion: version,
+  });
 
   const worker = await startFhirWorkerTasks({
     store: context.store,
