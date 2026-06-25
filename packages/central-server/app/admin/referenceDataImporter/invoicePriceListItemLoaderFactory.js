@@ -1,4 +1,4 @@
-import { INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES } from '@tamanu/constants';
 import { productMatrixByCodeLoaderFactory } from './ProductMatrixByCodeLoaderFactory';
 
 const { HIDDEN, FIXED_PREFIX, FIXED_COLUMN_TOKEN } = INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES;
@@ -22,7 +22,7 @@ export function invoicePriceListItemLoaderFactory() {
       }
       return candidates;
     },
-    valueExtractor: (value, isEmpty, columnMeta = {}) => {
+    valueExtractor: (value, isEmpty, columnMeta = {}, product) => {
       if (isEmpty) {
         return { parsedValue: null, isValidValue: true, isHidden: false, isFixedPrice: false };
       }
@@ -32,11 +32,22 @@ export function invoicePriceListItemLoaderFactory() {
         return { parsedValue: null, isValidValue: true, isHidden: true, isFixedPrice: false };
       }
 
-      // A leading `f`/`F` marks an individual cell as a fixed fee; otherwise the column default
-      // applies. `f` always means fixed — there is no per-cell per-unit escape.
+      // Fixed pricing is only supported for medications. An explicit `f` marker on a
+      // non-medication is rejected; a column-level `:fixed` default simply doesn't apply to
+      // non-medications (the plain number is imported as a per-unit price).
+      const isMedication = product?.category === INVOICE_ITEMS_CATEGORIES.DRUG;
       const hasPrefix = raw.toLowerCase().startsWith(FIXED_PREFIX);
+
+      if (hasPrefix && !isMedication) {
+        return {
+          parsedValue: null,
+          isValidValue: false,
+          errorMessage: `Fixed price '${value}' is only supported for medications, but invoiceProductId '${product?.id}' is not a medication`,
+        };
+      }
+
       const numericPart = hasPrefix ? raw.slice(FIXED_PREFIX.length).trim() : raw;
-      const isFixedPrice = hasPrefix || Boolean(columnMeta.fixedByDefault);
+      const isFixedPrice = isMedication && (hasPrefix || Boolean(columnMeta.fixedByDefault));
 
       const parsedValue = Number(numericPart);
       const isValidValue = numericPart !== '' && Number.isFinite(parsedValue);

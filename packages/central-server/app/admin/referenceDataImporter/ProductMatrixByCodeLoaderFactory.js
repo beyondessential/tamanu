@@ -132,13 +132,14 @@ export function productMatrixByCodeLoaderFactory(config) {
       const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
       if (!allowEmptyValues && isEmpty) continue;
 
-      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(
+      const { parsedValue, isValidValue, errorMessage, ...otherColumns } = valueExtractor(
         rawValue,
         isEmpty,
         columnMeta,
+        productExists,
       );
       if (!isValidValue) {
-        pushError(messages.invalidValue(rawValue, header, invoiceProductId), itemModel);
+        pushError(errorMessage ?? messages.invalidValue(rawValue, header, invoiceProductId), itemModel);
         return [];
       }
 

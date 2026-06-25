@@ -16,7 +16,7 @@ In scope:
 
 Out of scope (v1):
 
-- Fixed pricing for non-medication product types (labs, imaging, procedures). The flag may be stored on any product, but the charge only honours it for medications.
+- Fixed pricing for non-medication product types (labs, imaging, procedures). The importer never sets the flag on a non-medication (see import rules below).
 - A distinct UI treatment for fixed-price lines (badges, hidden unit-price column, etc.).
 - Medication grouping (one fixed fee covering several drugs). Revisit if config maintenance hurts.
 - Palau outpatient scripts (same need — note for a fast-follow).
@@ -82,7 +82,9 @@ The price-list importer uses a product-by-code matrix: first column header `invo
 - Marker matching is **case-insensitive** and **trims surrounding whitespace**; decimal parsing is **locale-safe** (consistent with existing price parsing).
 - The marker is **import syntax only**. It parses to an `isFixedPrice` boolean plus a numeric `price` on `InvoicePriceListItem`; the prefix is never stored as a string.
 - An `f` marker with no valid number (e.g. `f`, `fabc`) is an **import error**, reported like other invalid price values.
-- An `f` marker on a **non-medication** product is accepted and stored (the calc simply ignores fixed pricing for non-medications in v1) — the importer does not type-check products.
+- Fixed pricing is **only valid for medications** (product category `Drug`), enforced at import:
+  - An explicit `f` marker on a **non-medication** product is an **import error** (it's a mistake the configurer should fix).
+  - A `:fixed` **column default** on a non-medication row is **silently ignored** — the plain number imports as a normal per-unit price (the column default is a bulk convenience that simply doesn't apply to non-medications).
 
 ### Export round-trip
 

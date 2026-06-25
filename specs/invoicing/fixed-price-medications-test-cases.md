@@ -45,7 +45,7 @@ Layers: **calc** unit tests (`packages/utils/__test__/invoice.test.ts`, vitest),
 - [ ] `  f2.00  ` (surrounding whitespace) imports as fixed $2.00. *(Import: trims whitespace)*
 - [ ] A plain number `0.50` in a normal column imports as `price = 0.50`, `isFixedPrice = false`. *(Import: plain number = per-unit)*
 - [ ] A column with both a text `f2.00` cell and a numeric `5.00` cell imports both correctly (mixed numeric/text in one column). *(Import: handles numeric and text cells together)*
-- [ ] An `f` cell on a non-medication product imports and stores `isFixedPrice = true` without error. *(Scope: importer does not type-check)*
+- [ ] An `f` cell on a **non-medication** product raises an import error (fixed pricing is medications-only). *(Import: f on non-medication errors)*
 - [ ] A locale-style decimal (consistent with existing price parsing) prefixed with `f` parses to the correct numeric fee. *(Import: locale-safe parsing)*
 
 ## Import — column default (integration)
@@ -53,6 +53,7 @@ Layers: **calc** unit tests (`packages/utils/__test__/invoice.test.ts`, vitest),
 - [ ] A header `KOSRAE:fixed` maps the column to price list `KOSRAE` (token stripped) and imports every plain number in it as `isFixedPrice = true`. *(Column default: header token, stripped before resolving code)*
 - [ ] A header that exactly matches an existing price-list code resolves as that code (whole-header match wins) and is not treated as a fixed-default column even if the code happens to end in `:fixed`. *(Column default: code-first resolution is collision-proof)*
 - [ ] In a `:fixed` column, an explicit `f2.00` is also fixed (redundant marker is harmless). *(Column default / per-cell consistency)*
+- [ ] In a `:fixed` column, a **non-medication** row imports the plain number as per-unit (`isFixedPrice = false`), with no error. *(Column default ignored for non-medications)*
 - [ ] A normal (untagged) column imports plain numbers as per-unit even when another column in the same sheet is `:fixed`. *(Column default scoped per column)*
 - [ ] The Yap pattern — an untagged column with `f2.00` on some cells and `0.50` on others — imports a mix of fixed and per-unit items. *(Per-cell marker handles mixed lists)*
 

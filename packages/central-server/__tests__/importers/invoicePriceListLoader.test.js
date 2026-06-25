@@ -1,5 +1,6 @@
 import { write, utils } from 'xlsx';
 import { keyBy } from 'lodash';
+import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
@@ -331,12 +332,18 @@ describe('Invoice price list item import', () => {
   });
 
   describe('fixed-price markers', () => {
-    it('imports an f-prefixed cell as a fixed price (case-insensitive, trimmed)', async () => {
-      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+    // Fixed pricing is only honoured for medications, so most cases use a Drug product.
+    const createProduct = (id, category) =>
+      models.InvoiceProduct.create({ ...fake(models.InvoiceProduct), id, category });
+    const createMedication = id => createProduct(id, INVOICE_ITEMS_CATEGORIES.DRUG);
+    const createNonMedication = id => createProduct(id, INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE);
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-3' });
+    it('imports an f-prefixed cell as a fixed price (case-insensitive, trimmed)', async () => {
+      const { InvoicePriceList, InvoicePriceListItem } = models;
+
+      await createMedication('prod-1');
+      await createMedication('prod-2');
+      await createMedication('prod-3');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
       const headers = ['invoiceProductId', 'PL_A'];
@@ -361,10 +368,10 @@ describe('Invoice price list item import', () => {
     });
 
     it('imports a plain number as per-unit (not fixed) and handles a mixed column', async () => {
-      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+      const { InvoicePriceList, InvoicePriceListItem } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+      await createMedication('prod-1');
+      await createMedication('prod-2');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
       // Mixed column: text (f-prefixed) and numeric cells together
@@ -386,10 +393,10 @@ describe('Invoice price list item import', () => {
     });
 
     it('marks a whole column fixed via the :fixed header token (token stripped)', async () => {
-      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+      const { InvoicePriceList, InvoicePriceListItem } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+      await createMedication('prod-1');
+      await createMedication('prod-2');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
 
       const headers = ['invoiceProductId', 'KOSRAE:fixed'];
@@ -410,10 +417,50 @@ describe('Invoice price list item import', () => {
       expect(items.every(i => i.invoicePriceListId === priceList.id)).toBe(true);
     });
 
-    it('resolves a literal header code before treating :fixed as a token', async () => {
-      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+    it('errors when an f-prefixed cell is used on a non-medication product', async () => {
+      const { InvoicePriceList } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await createNonMedication('prod-1');
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+      const headers = ['invoiceProductId', 'PL_A'];
+      const rows = [{ invoiceProductId: 'prod-1', PL_A: 'f2.00' }];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { didntSendReason, errors } = await doImport(ctx, { buffer });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors[0].message).toContain('only supported for medications');
+    });
+
+    it('ignores the :fixed column default for non-medication rows (imported as per-unit)', async () => {
+      const { InvoicePriceList, InvoicePriceListItem } = models;
+
+      await createMedication('prod-med');
+      await createNonMedication('prod-nonmed');
+      await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
+
+      const headers = ['invoiceProductId', 'KOSRAE:fixed'];
+      const rows = [
+        { invoiceProductId: 'prod-med', 'KOSRAE:fixed': 2 },
+        { invoiceProductId: 'prod-nonmed', 'KOSRAE:fixed': 5 },
+      ];
+      const buffer = buildWorkbookBuffer(headers, rows);
+
+      const { errors } = await doImport(ctx, { buffer });
+      expect(errors).toBeEmpty();
+
+      const items = await InvoicePriceListItem.findAll();
+      const byProduct = keyBy(items, 'invoiceProductId');
+      // Medication picks up the column default; the non-medication is imported as a plain price
+      expect(byProduct['prod-med'].isFixedPrice).toBe(true);
+      expect(byProduct['prod-nonmed'].isFixedPrice).toBe(false);
+      expect(Number(byProduct['prod-nonmed'].price)).toBe(5);
+    });
+
+    it('resolves a literal header code before treating :fixed as a token', async () => {
+      const { InvoicePriceList, InvoicePriceListItem } = models;
+
+      await createMedication('prod-1');
       // A real (if contrived) code that ends in :fixed must win as a literal match.
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'WEIRD:fixed' });
 
@@ -432,9 +479,9 @@ describe('Invoice price list item import', () => {
     });
 
     it('errors on an f marker with no valid number', async () => {
-      const { InvoiceProduct, InvoicePriceList } = models;
+      const { InvoicePriceList } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await createMedication('prod-1');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
       const headers = ['invoiceProductId', 'PL_A'];
@@ -446,9 +493,9 @@ describe('Invoice price list item import', () => {
     });
 
     it('errors on a non-finite fixed value like fInfinity', async () => {
-      const { InvoiceProduct, InvoicePriceList } = models;
+      const { InvoicePriceList } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await createMedication('prod-1');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
       const headers = ['invoiceProductId', 'PL_A'];
@@ -460,9 +507,9 @@ describe('Invoice price list item import', () => {
     });
 
     it('errors when two headers resolve to the same price list (KOSRAE and KOSRAE:fixed)', async () => {
-      const { InvoiceProduct, InvoicePriceList } = models;
+      const { InvoicePriceList } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await createMedication('prod-1');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'KOSRAE' });
 
       const headers = ['invoiceProductId', 'KOSRAE', 'KOSRAE:fixed'];
@@ -474,9 +521,9 @@ describe('Invoice price list item import', () => {
     });
 
     it('flips isFixedPrice back to false on re-import with a plain number', async () => {
-      const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+      const { InvoicePriceList, InvoicePriceListItem } = models;
 
-      await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+      await createMedication('prod-1');
       await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
       const headers = ['invoiceProductId', 'PL_A'];
