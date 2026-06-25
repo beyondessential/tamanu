@@ -565,5 +565,11 @@
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
     "registerTokenDurationMinutes": 43800 // 1 month
+  },
+  "crypto": {
+    // Encryption key for local_system_secrets (encryption is mandatory).
+    // This committed key is for local dev/test ONLY; deploys override it via
+    // the CRYPTO_KEY_FILE env var pointing at a mounted secret.
+    "keyFile": "config/dev-secret.key"
   }
 }
