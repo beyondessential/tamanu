@@ -1,4 +1,9 @@
 import * as XLSX from 'xlsx';
+import * as fs from 'node:fs';
+
+// xlsx's ESM build does not bind Node's fs automatically, so readFile/writeFile throw
+// "cannot save file" unless we wire it up explicitly.
+XLSX.set_fs(fs);
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
