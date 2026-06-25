@@ -1,6 +1,6 @@
 # Tech Design - FSM Encounter Fees
 
-Product decisions and technical design for the FSM Encounver Fee Invoicing.
+Product decisions and technical design for the FSM Encounter Fee Invoicing.
 
 # Cross Cutting
 
