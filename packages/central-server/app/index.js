@@ -5,12 +5,15 @@ import { assertConsistentPathCasing } from '@tamanu/utils/assertConsistentPathCa
 assertConsistentPathCasing();
 
 // xlsx's ESM build does not bind Node's fs automatically; bind it once at process start so
-// every importer/exporter that reads or writes a workbook on disk works.
+// every importer/exporter that reads or writes a workbook on disk works. Builds that auto-bind
+// fs don't expose set_fs, so only call it when present.
 // eslint-disable-next-line sort-imports
 import * as XLSX from 'xlsx';
 import * as nodeFs from 'node:fs';
 
-XLSX.set_fs(nodeFs);
+if (typeof XLSX.set_fs === 'function') {
+  XLSX.set_fs(nodeFs);
+}
 
 // serverInfo must be imported before any shared modules
 // so that it can set globals
