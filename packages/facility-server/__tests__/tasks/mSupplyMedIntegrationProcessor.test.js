@@ -2,7 +2,7 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { mSupplyMedIntegrationProcessor } from '../../app/tasks/mSupplyMedIntegrationProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { getServerFacilityIds } from '../../dist/serverConfig';
+import { getServerFacilityIds } from '../../app/serverConfig';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createDummyPatient, createDummyEncounter, createDummyPrescription } from '@tamanu/database/demoData/patients';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -11,8 +11,8 @@ import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-jest.mock('../../dist/serverConfig', () => ({
-  ...jest.requireActual('../../dist/serverConfig'),
+jest.mock('../../app/serverConfig', () => ({
+  ...jest.requireActual('../../app/serverConfig'),
   getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 

@@ -9,8 +9,9 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
-import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
+import { FacilitySyncConnection } from '../sync';
 import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import { setupSyncRuntime, SYNC_NOT_CONFIGURED_WARNING } from '../setupSyncRuntime';
 
 import { createApiApp } from '../createApiApp';
 
@@ -45,35 +46,24 @@ const startApp =
     await checkConfig(context);
     await performDatabaseIntegrityChecks(context);
 
-    const isConfigured = isServerConfigured();
-    const { host: syncHost } = getSyncConfig();
-    if (!isConfigured) {
-      log.warn(
-        'Facility server has no sync host/facilities configured; sync is disabled until ' +
-          'setup is completed (SYNC_URL / SYNC_FACILITY_IDS env or the setup wizard).',
-      );
-    }
-
-    if (isConfigured) {
-      context.timesync = await initTimesync({
-        models: context.models,
-        url: `${syncHost.replace(/\/*$/, '')}/api/timesync`,
-      });
-    }
-
     if (appType === APP_TYPES.API) {
+      // The API server doesn't open a central connection; it just needs timesync.
       context.syncConnection = new FacilitySyncConnection();
-    } else if (isConfigured) {
-      context.centralServer = new CentralServerConnection(context);
-      context.syncManager = new FacilitySyncManager(context);
-    }
-
-    if (isConfigured) {
-      await performTimeZoneChecks({
-        remote: context.centralServer,
-        sequelize: context.sequelize,
-        config,
-      });
+      if (isServerConfigured()) {
+        context.timesync = await initTimesync({
+          models: context.models,
+          url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
+        });
+        await performTimeZoneChecks({
+          remote: context.centralServer,
+          sequelize: context.sequelize,
+          config,
+        });
+      } else {
+        log.warn(SYNC_NOT_CONFIGURED_WARNING);
+      }
+    } else {
+      await setupSyncRuntime(context);
     }
 
     let server, port;

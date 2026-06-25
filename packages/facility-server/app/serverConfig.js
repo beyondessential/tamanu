@@ -55,7 +55,7 @@ async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
 
   let password = null;
   try {
-    password = await LocalSystemSecret.getSecret(FACT_SYNC_PASSWORD);
+    password = await LocalSystemSecret.get(FACT_SYNC_PASSWORD);
   } catch (error) {
     log.warn(`initServerConfig: could not read sync password secret (${error.message})`);
   }

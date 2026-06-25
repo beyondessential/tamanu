@@ -137,7 +137,7 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
     await LocalSystemFact.set(FACT_SYNC_EMAIL, syncCredentials.email);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(uniqueFacilityIds));
     // Password encrypted at rest, out of local_system_facts and the raw reporting role.
-    await LocalSystemSecret.setSecret(FACT_SYNC_PASSWORD, syncCredentials.password);
+    await LocalSystemSecret.set(FACT_SYNC_PASSWORD, syncCredentials.password);
   });
 
   // Refresh the holder so this process reports configured immediately; the sync

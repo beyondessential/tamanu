@@ -2,13 +2,13 @@ import config from 'config';
 import { createTestContext } from '../utilities';
 import { MSupplyStockOnHandProcessor } from '../../app/tasks/MSupplyStockOnHandProcessor';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { getServerFacilityIds } from '../../dist/serverConfig';
+import { getServerFacilityIds } from '../../app/serverConfig';
 import { REFERENCE_TYPES, DRUG_STOCK_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 
-jest.mock('../../dist/serverConfig', () => ({
-  ...jest.requireActual('../../dist/serverConfig'),
+jest.mock('../../app/serverConfig', () => ({
+  ...jest.requireActual('../../app/serverConfig'),
   getServerFacilityIds: jest.fn(() => ['balwyn']),
 }));
 

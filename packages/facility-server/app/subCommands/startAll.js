@@ -2,15 +2,14 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
-import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
-import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
-import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import { FacilitySyncConnection } from '../sync';
+import { getServerFacilityIds } from '../serverConfig';
+import { setupSyncRuntime } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 
@@ -38,26 +37,7 @@ async function startAll({ skipMigrationCheck }) {
   await performDatabaseIntegrityChecks(context);
 
   context.syncConnection = new FacilitySyncConnection();
-  const isConfigured = isServerConfigured();
-  if (isConfigured) {
-    context.centralServer = new CentralServerConnection(context);
-    context.syncManager = new FacilitySyncManager(context);
-    context.timesync = await initTimesync({
-      models: context.models,
-      url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
-    });
-
-    await performTimeZoneChecks({
-      remote: context.centralServer,
-      sequelize: context.sequelize,
-      config,
-    });
-  } else {
-    log.warn(
-      'Facility server has no sync host/facilities configured; sync is disabled until setup ' +
-        'is completed (SYNC_URL / SYNC_FACILITY_IDS env or the setup wizard).',
-    );
-  }
+  const isConfigured = await setupSyncRuntime(context);
 
   const { server } = await createApiApp(context);
 
