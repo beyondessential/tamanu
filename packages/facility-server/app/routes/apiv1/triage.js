@@ -8,6 +8,8 @@ import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import config from 'config';
 
 export const triage = express.Router();
 
@@ -106,12 +108,21 @@ triage.post(
       user,
     );
 
-    await models.Invoice.automaticallyCreateForEncounter(
+    const invoice = await models.Invoice.automaticallyCreateForEncounter(
       encounter.id,
       encounter.encounterType,
       encounter.startDate,
       settings[facilityId],
     );
+    if (invoice) {
+      // Triage/emergency encounters are created here (not the generic encounter route), so the
+      // ED encounter fee must be added on this path too.
+      await models.Invoice.addEncounterFee(
+        encounter,
+        settings[facilityId],
+        getPrimaryTimeZone(config),
+      );
+    }
 
     res.send(triageRecord);
   }),

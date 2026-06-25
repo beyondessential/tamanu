@@ -51,11 +51,9 @@ export const selectEncounterFeeCode = ({
     return null;
   }
 
-  const displayTimeZone = facilityTimeZone || primaryTimeZone;
+  const displayTimeZone = facilityTimeZone ?? primaryTimeZone;
   const plain = Temporal.PlainDateTime.from(String(startDateTime).replace(' ', 'T'));
-  const local = primaryTimeZone
-    ? plain.toZonedDateTime(primaryTimeZone).withTimeZone(displayTimeZone)
-    : plain.toZonedDateTime(displayTimeZone);
+  const local = plain.toZonedDateTime(primaryTimeZone).withTimeZone(displayTimeZone);
 
   const dayOfWeek = local.dayOfWeek; // 1 = Monday ... 7 = Sunday
   const minutes = local.hour * 60 + local.minute;
